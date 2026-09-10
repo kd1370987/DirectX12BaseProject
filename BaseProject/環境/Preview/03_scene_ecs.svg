@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-195 -245 3150 2521" width="2400">
+<rect x="-195" y="-245" width="3150" height="2521" fill="#121212"/>
+<defs><marker id="aw" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#ffffff" stroke-width="1.2"/></marker><marker id="ag" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#51cf66" stroke-width="1.2"/></marker></defs>
+<text x="-155" y="-185" fill="#fff" font-size="34" font-family="sans-serif">③ Scene / ECS / GameObject — シーンの中身</text>
+<text x="-155" y="-153" fill="#aaa" font-size="16" font-family="sans-serif">EngineServices と各種 Context が『シングルトンを名指ししない』ための経路。</text>
+<line x1="900.0" y1="31.0" x2="900.0" y2="119.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="827.7" y1="181.0" x2="552.3" y2="299.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="981.0" y1="172.1" x2="1463.9" y2="303.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="399.0" y1="357.8" x2="81.0" y2="467.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="457.5" y1="361.0" x2="382.5" y2="464.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="536.4" y1="361.0" x2="723.6" y2="464.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="561.0" y1="348.6" x2="1086.7" y2="469.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="449.0" y1="361.0" x2="191.0" y2="619.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="506.6" y1="361.0" x2="984.9" y2="919.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="360.0" y1="526.0" x2="360.0" y2="629.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="269.6" y1="660.0" x2="516.8" y2="660.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1593.8" y1="361.0" x2="1706.2" y2="464.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1563.9" y1="361.0" x2="1614.9" y2="769.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="360.0" y1="691.0" x2="360.0" y2="769.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="370.2" y1="769.0" x2="472.2" y2="361.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="490.5" y1="839.7" x2="916.4" y2="936.5" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1728.2" y1="526.0" x2="1635.6" y2="769.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1522.6" y1="769.0" x2="553.6" y2="361.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1456.0" y1="851.0" x2="1123.6" y2="934.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1614.9" y1="769.0" x2="1563.9" y2="361.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="916.4" y1="980.7" x2="201.0" y2="1123.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="916.4" y1="994.5" x2="567.5" y2="1110.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="979.0" y1="1001.0" x2="871.0" y2="1109.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1054.2" y1="1001.0" x2="1144.2" y2="1109.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1123.6" y1="998.9" x2="1419.0" y2="1109.6" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1123.6" y1="983.9" x2="1719.0" y2="1121.3" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1123.6" y1="977.3" x2="2019.0" y2="1126.5" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1123.6" y1="973.2" x2="2349.0" y2="1129.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1123.6" y1="970.7" x2="2679.0" y2="1131.6" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="898.1" y1="181.0" x2="841.9" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="937.6" y1="181.0" x2="2062.4" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="908.5" y1="181.0" x2="1161.5" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="918.8" y1="181.0" x2="1481.2" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="875.6" y1="181.0" x2="144.4" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="958.2" y1="181.0" x2="2701.8" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="928.2" y1="181.0" x2="1771.8" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="886.8" y1="181.0" x2="493.2" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="900.0" y1="119.0" x2="900.0" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="519.0" y1="361.0" x2="1461.0" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1214.4" y1="526.0" x2="1485.6" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1656.1" y1="330.0" x2="2059.6" y2="330.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2091.8" y1="571.0" x2="908.2" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2079.0" y1="568.9" x2="566.8" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2087.7" y1="509.0" x2="972.3" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="658.1" y1="691.0" x2="1441.9" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="592.2" y1="691.0" x2="487.8" y2="1109.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<rect x="825.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="900.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">SceneManager</text>
+<rect x="825.0" y="125.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="155.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">BaseScene</text>
+<rect x="405.0" y="305.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="480.0" y="335.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">World</text>
+<rect x="1469.9" y="305.0" width="180.2" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1560.0" y="335.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GameObjectManager</text>
+<rect x="-75.0" y="470.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="500.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EntityManager</text>
+<rect x="285.0" y="470.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="360.0" y="500.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SystemManager</text>
+<rect x="672.7" y="470.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="780.0" y="500.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ArchetypeChunkManager</text>
+<rect x="1092.7" y="470.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1200.0" y="500.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ComponentMetaRegistry</text>
+<rect x="36.4" y="625.0" width="227.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="150.0" y="655.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">IResourceWrapper</text>
+<text x="150.0" y="675.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(ワールド寿命のリソース)</text>
+<rect x="522.8" y="635.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="600.0" y="665.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CollisionWorld</text>
+<rect x="285.0" y="635.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="360.0" y="665.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ISystem</text>
+<rect x="235.5" y="775.0" width="249.0" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="360.0" y="805.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SystemContext</text>
+<text x="360.0" y="825.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(pWorld / pServices / dt)</text>
+<rect x="922.4" y="925.0" width="195.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="1020.0" y="955.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EngineServices</text>
+<text x="1020.0" y="975.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(アプリ寿命の置き場)</text>
+<rect x="1665.0" y="470.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1740.0" y="500.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">BaseObject</text>
+<rect x="1443.9" y="775.0" width="352.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="1620.0" y="805.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ObjectContext</text>
+<text x="1620.0" y="825.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(pWorld / pServices / pObjectManager)</text>
+<rect x="2065.6" y="305.0" width="188.8" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="2160.0" y="335.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ObjectMetaRegistry</text>
+<rect x="2085.0" y="515.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2160.0" y="545.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Prefab</text>
+<rect x="45.0" y="1115.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="120.0" y="1145.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEngine</text>
+<rect x="398.5" y="1115.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="480.0" y="1145.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceManager</text>
+<rect x="765.0" y="1115.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="840.0" y="1145.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">AssetDatabase</text>
+<rect x="1095.0" y="1115.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="1170.0" y="1145.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">InputManager</text>
+<rect x="1425.0" y="1115.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="1500.0" y="1145.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEditor</text>
+<rect x="1725.0" y="1115.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="1800.0" y="1145.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">RayEngine</text>
+<rect x="2025.0" y="1115.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="2100.0" y="1145.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">AudioManager</text>
+<rect x="2355.0" y="1115.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2430.0" y="1145.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">JobSystem</text>
+<rect x="2685.0" y="1115.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="2760.0" y="1145.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">OptionManager</text>
+<text x="-270.0" y="1350.0" fill="#bbb" font-size="16" font-family="sans-serif">EngineServices はシングルトンの実体を集めて配る箱。</text>
+<text x="-270.0" y="1370.8" fill="#bbb" font-size="16" font-family="sans-serif">System / GameObject はここから引くので、自分では Instance() を呼ばない。</text>
+<rect x="2109.4" y="1520.0" width="725.6" height="496.0" rx="10" fill="#1a1410" stroke="#ff922b" stroke-width="2"/>
+<text x="2135.4" y="1562.0" fill="#ff922b" font-size="23" font-family="sans-serif">改善点</text>
+<text x="2135.4" y="1597.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">1. 経路は用意できているが、使い切れていない</text>
+<text x="2135.4" y="1617.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    EngineServices / SystemContext / ObjectContext の3経路は機能している。</text>
+<text x="2135.4" y="1637.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    ただしアプリ側にはまだ直引きが残っている(この図には未掲載):</text>
+<text x="2135.4" y="1657.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    GunShootSystem → ResourceManager / ScoreSystem → GameManager /</text>
+<text x="2135.4" y="1677.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    CameraStartSystem → OptionManager / 各 Sequence → SceneManager</text>
+<text x="2135.4" y="1717.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">2. コンポーネントのヘルパーがヘッダーで Instance() を呼んでいる</text>
+<text x="2135.4" y="1737.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    ModelComponent / ParticlesComponent / SoundComponent など。</text>
+<text x="2135.4" y="1757.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    コンポーネントは POD なので、取得と返却はシステム側か</text>
+<text x="2135.4" y="1777.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    ComponentTraits::Release 経由に寄せたい。</text>
+<text x="2135.4" y="1817.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">3. BaseScene だけが例外で9個を直引き</text>
+<text x="2135.4" y="1837.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    EngineServices を作る当人なので、作ったあとは自分も経由する。</text>
+<text x="2135.4" y="1877.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">4. ECS がエディターを見ている</text>
+<text x="2135.4" y="1897.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    World.h / ComponentMetaRegistry → MainEditor はログ目的。</text>
+<text x="2135.4" y="1917.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    ログ用の細いインターフェースを挟めば ECS からエディターが消える。</text>
+<text x="2135.4" y="1957.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">5. Prefab / CollisionWorld の直引き</text>
+<text x="2135.4" y="1977.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    Prefab は生成に SceneManager、CollisionWorld は ResourceManager が要る。</text>
+<text x="2135.4" y="1997.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    どちらも引数で World / Context を受け取れば片付く。</text>
+</svg>

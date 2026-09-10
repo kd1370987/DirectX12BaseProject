@@ -91,10 +91,18 @@ namespace Engine::Graphics
 		uint64_t value;
 		struct {
 			// 下位ビットから順に判断優先度が低くなるように配置する
-			uint64_t depth : 16;			// 深度
-			uint64_t meshID : 16;			// メッシュ
-			uint64_t materialID : 16;		// マテリアル
-			uint64_t psoID : 8;				// PSOID
+			//
+			// 幅の配り方について:
+			//   psoID は溢れると「描くときに別のPSOを引く」か「アイテムごと捨てる」しかなく、
+			//   絵が消える。一方 meshID / materialID は並べ替えのための値でしかなく
+			//   (ここからリソースは引かない)、被っても並び順が少し甘くなるだけ。
+			//   なので psoID にはハンドルのインデックスと同じ16bitを渡し切って、
+			//   切り捨てが起こりえない形にしてある。
+			//   足りないぶんは、まだ誰も書いていない depth から回している
+			uint64_t depth : 12;			// 深度 (未使用)
+			uint64_t meshID : 14;			// メッシュ
+			uint64_t materialID : 14;		// マテリアル
+			uint64_t psoID : 16;			// PSOID : Handle::GetIndex() と同じ幅
 			uint64_t passIndex : 8;			// パスインデックス
 		} bits;
 	};
@@ -121,9 +129,10 @@ namespace Engine::Graphics
 		// このサブセットを描画するためのメッシュレット数
 		UINT subsetMeshletCount = 0;
 
-		// ヘルパー関数
-		uint8_t GetPassIndex()		const { return static_cast<uint8_t>(sortKey.value >> 56); }
-		uint8_t GetPSOID()			const { return static_cast<uint8_t>((sortKey.value >> 48) & 0xFF); }
+		// ヘルパー関数 : ビット位置を直に書くと幅を変えたときに追従し損ねるので、
+		// 取り出しはビットフィールド越しにする
+		uint8_t GetPassIndex()		const { return static_cast<uint8_t>(sortKey.bits.passIndex); }
+		uint16_t GetPSOID()			const { return static_cast<uint16_t>(sortKey.bits.psoID); }
 	};
 
 	/// <summary>

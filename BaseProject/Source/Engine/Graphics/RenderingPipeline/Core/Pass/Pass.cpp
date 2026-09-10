@@ -119,6 +119,12 @@ namespace Engine::Graphics::Pipeline
 		a_arch.Field("editorPos", m_editorPos);
 		a_arch.Field("nodeID", m_nodeID);
 
+		// エディター上のまとまり。
+		// 保存しないと、開き直すたびにバラバラのノードへ戻る
+		a_arch.StringField("editorGroupType", m_editorGroupType);
+		a_arch.GUIDField("editorGroupGUID", m_editorGroupGUID);
+		a_arch.Field("editorGroupIndex", m_editorGroupIndex);
+
 		// スロットは SetupSlots() が宣言済みなので、器はすでにある。
 		// 中身ではなくエディター用のピンIDだけを写す(リソース名は配線から組み直される)。
 		//

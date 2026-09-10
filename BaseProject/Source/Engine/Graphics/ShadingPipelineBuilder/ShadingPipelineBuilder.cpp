@@ -17,6 +17,14 @@ namespace Engine::Graphics
 	}
 
 
+	//======================================================================================
+	// キーに対応するPSOを引く。無ければ組んで登録する
+	//
+	// ここはパイプラインを組み直すたびに、パス数 × キー数だけ通る。
+	// ルートシグネチャはシェーダーの .cso から起こすが、実体はすでに
+	// リソースマネージャーがメモリに持っているので、パスを引き直して
+	// ファイルから読み直してはいけない
+	//======================================================================================
 	Handle<ID3D12PipelineState> ShadingPipelineBuilder::Request(PSOKey a_key, D3D12::PipelineStateManager* a_pPSOManager)
 	{
 		// キャッシュを検索
@@ -26,146 +34,133 @@ namespace Engine::Graphics
 			return _it->second; // すでに完成していればそれを返す
 		}
 
-		// コンパイル要求
-		if (!m_compilingPasses.contains(a_key))
+		auto& _resMgr = Resource::ResourceManager::Instance();
+
+		D3D12::RenderPipelineBuilder _builder;
+
+		// 共通のステート・フォーマット設定
+		_builder.DepthEnable(m_depthEnable);
+		_builder.DepthWriteMask(m_depthWrite);
+		_builder.DepthFunc(m_depthFunc);
+
+		_builder.CullMode(m_cullMode);
+
+		for (auto& _rtvFormat : m_rtvFormats) {
+			_builder.AddRenderTargetFormat(_rtvFormat);
+		}
+		_builder.SetDepthStencilFormat(m_dsvFormat);
+
+		// =========================================================
+		// VS / MS / AS の解決
+		//
+		// シェーダーがまだ読めていないときは、キーを覚えずに帰る。
+		// ここで覚えてしまうと、あとから読めてもこのキーは空のまま固定され、
+		// 次に組み直すまでそのマテリアルが描かれなくなる
+		// =========================================================
+		bool _useMeshShader = (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::MeshShader);
+		if (_useMeshShader)
 		{
-			m_compilingPasses.insert(a_key);
+			Handle<Resource::Shader> _targetMSHandle;
+			Handle<Resource::Shader> _targetASHandle;
 
-			// ★ 新しい統合版ビルダーをインスタンス化
-			D3D12::RenderPipelineBuilder _builder;
-
-			// 共通のステート・フォーマット設定
-			_builder.DepthEnable(m_depthEnable);
-			_builder.DepthWriteMask(m_depthWrite);
-			_builder.DepthFunc(m_depthFunc);
-
-			_builder.CullMode(m_cullMode);
-
-			for (auto& _rtvFormat : m_rtvFormats) {
-				_builder.AddRenderTargetFormat(_rtvFormat);
-			}
-			_builder.SetDepthStencilFormat(m_dsvFormat);
-
-			// =========================================================
-			// VS / MS / AS の解決
-			// =========================================================
-			bool _useMeshShader = (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::MeshShader);
-			if (_useMeshShader)
+			if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned)
 			{
-				Handle<Resource::Shader> _targetMSHandle;
-				Handle<Resource::Shader> _targetASHandle;
-
-				if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned)
-				{
-					_targetMSHandle = m_msMap[EShaderPermutationFlags::Skinned];
-					_targetASHandle = m_asMap[EShaderPermutationFlags::Skinned];
-				}
-				else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing)
-				{
-					_targetMSHandle = m_msMap[EShaderPermutationFlags::UseGPUInstancing];
-					_targetASHandle = m_asMap[EShaderPermutationFlags::UseGPUInstancing];
-				}
-				else {
-					_targetMSHandle = m_msMap[EShaderPermutationFlags::Static];
-					_targetASHandle = m_asMap[EShaderPermutationFlags::Static];
-				}
-
-				// MSのセットとルートシグネチャの抽出
-				if (auto* _pMS = Resource::ResourceManager::Instance().Get(_targetMSHandle))
-				{
-					auto _msGUID = Resource::ResourceManager::Instance().GetCache(_targetMSHandle);
-					auto _msPath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_msGUID);
-
-					_builder.SetRootSignature(a_pPSOManager->Request(_msPath));
-					_builder.SetMS(_pMS->GetByteCode());
-					ENGINE_LOG("PSO RS = %p\n", a_pPSOManager->GetRootSignature(_builder.GetRootSignatureHandle()));
-				}
-				else {
-					ENGINE_LOG("Mesh Shaderが見つかりません");
-				}
-
-				// ASのセット（存在する場合のみ）
-				if (auto* _pAS = Resource::ResourceManager::Instance().Get(_targetASHandle))
-				{
-					_builder.SetAS(_pAS->GetByteCode());
-				}
+				_targetMSHandle = m_msMap[EShaderPermutationFlags::Skinned];
+				_targetASHandle = m_asMap[EShaderPermutationFlags::Skinned];
 			}
-			else
+			else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing)
 			{
-				// 従来の VS パイプライン
-				Handle<Resource::Shader> _targetVSHandle;
-
-				// アニメーションか、インスタンシングか、静的か等の優先順位でVSを決定
-				if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned)
-				{
-					_targetVSHandle = m_vsMap[EShaderPermutationFlags::Skinned];
-					_builder.SetInputLayout(D3D12::Input::AnimationInputLayout);
-				}
-				else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing)
-				{
-					_targetVSHandle = m_vsMap[EShaderPermutationFlags::UseGPUInstancing];
-				}
-				else {
-					_targetVSHandle = m_vsMap[EShaderPermutationFlags::Static];
-					_builder.SetInputLayout(D3D12::Input::StaticLayout);
-				}
-
-				// VSのセットとルートシグネチャの抽出
-				if (auto* _pVS = Resource::ResourceManager::Instance().Get(_targetVSHandle))
-				{
-					auto _vsGUID = Resource::ResourceManager::Instance().GetCache(_targetVSHandle);
-					auto _vsPath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_vsGUID);
-
-					_builder.SetRootSignature(a_pPSOManager->Request(_vsPath));
-					_builder.SetVS(_pVS->GetByteCode()); // ★ビルダーにVSをセット
-				}
-				else {
-					ENGINE_LOG("Vertex Shaderが見つかりません");
-				}
+				_targetMSHandle = m_msMap[EShaderPermutationFlags::UseGPUInstancing];
+				_targetASHandle = m_asMap[EShaderPermutationFlags::UseGPUInstancing];
+			}
+			else {
+				_targetMSHandle = m_msMap[EShaderPermutationFlags::Static];
+				_targetASHandle = m_asMap[EShaderPermutationFlags::Static];
 			}
 
-			// =========================================================
-			// Pixel Shader の解決 (マテリアル・ShadingModelから取得)
-			// =========================================================
-			// ZPreかつ不透明(Opaque)なら、PSのセットをスキップ
-			bool _isZPrePass = (m_passNameHash == Engine::String::ToHash("ZPre"));
-			bool _isOpaque = !(a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::AlphaMasked);
+			// MSのセットとルートシグネチャの抽出。
+			// ルートシグネチャはブロブから起こすので、非constで引く
+			auto* _pMS = _resMgr.Ref(_targetMSHandle);
+			if (!_pMS || !_pMS->Get()) return {};
 
-			if (!(_isZPrePass && _isOpaque))
+			_builder.SetRootSignature(a_pPSOManager->Request(_pMS->Get()));
+			_builder.SetMS(_pMS->GetByteCode());
+
+			// ASのセット（存在する場合のみ）
+			if (auto* _pAS = _resMgr.Get(_targetASHandle))
 			{
-				// パスが自分のPSを持っているなら、それで描く。
-				//
-				// 「どのPSで描くかはパス自身が持っている」のが今の形なので、こちらが本筋。
-				// 表を引くのは、まだPSを持っていないパスのための後方互換。
-				// 表はパス名で引くため、ノードの名前を変えると引けなくなる
-				auto* _pPassPS = Resource::ResourceManager::Instance().Get(a_key.psHandle);
-				if (_pPassPS)
-				{
-					_builder.SetPS(_pPassPS->GetByteCode());
-				}
-				else if (auto* _pShadingModel = Resource::ResourceManager::Instance().Get(a_key.shadingModelTableHandle))
-				{
-					auto _spanShaderHandles = _pShadingModel->GetShaderHandles(m_passNameHash);
-					for (auto& _shaderHandle : _spanShaderHandles)
-					{
-						auto* _pShader = Resource::ResourceManager::Instance().Get(_shaderHandle);
-						if (!_pShader) continue;
+				_builder.SetAS(_pAS->GetByteCode());
+			}
+		}
+		else
+		{
+			// 従来の VS パイプライン
+			Handle<Resource::Shader> _targetVSHandle;
 
-						_builder.SetPS(_pShader->GetByteCode());
-					}
-				}
+			// アニメーションか、インスタンシングか、静的か等の優先順位でVSを決定
+			if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned)
+			{
+				_targetVSHandle = m_vsMap[EShaderPermutationFlags::Skinned];
+				_builder.SetInputLayout(D3D12::Input::AnimationInputLayout);
+			}
+			else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing)
+			{
+				_targetVSHandle = m_vsMap[EShaderPermutationFlags::UseGPUInstancing];
+			}
+			else {
+				_targetVSHandle = m_vsMap[EShaderPermutationFlags::Static];
+				_builder.SetInputLayout(D3D12::Input::StaticLayout);
 			}
 
-			// マネージャーにPSOをリクエスト
-			auto _psoHandle = a_pPSOManager->RequestHandle(_builder);
+			// VSのセットとルートシグネチャの抽出。
+			// ルートシグネチャはブロブから起こすので、非constで引く
+			auto* _pVS = _resMgr.Ref(_targetVSHandle);
+			if (!_pVS || !_pVS->Get()) return {};
 
-			m_psoMap[a_key] = _psoHandle;
-			m_compilingPasses.erase(a_key);
-			return _psoHandle;
+			_builder.SetRootSignature(a_pPSOManager->Request(_pVS->Get()));
+			_builder.SetVS(_pVS->GetByteCode());
 		}
 
-		return m_fallbackPSO;
+		// =========================================================
+		// Pixel Shader の解決 (マテリアル・ShadingModelから取得)
+		// =========================================================
+		// ZPreかつ不透明(Opaque)なら、PSのセットをスキップ
+		bool _isZPrePass = (m_passNameHash == Engine::String::ToHash("ZPre"));
+		bool _isOpaque = !(a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::AlphaMasked);
+
+		if (!(_isZPrePass && _isOpaque))
+		{
+			// パスが自分のPSを持っているなら、それで描く。
+			//
+			// 「どのPSで描くかはパス自身が持っている」のが今の形なので、こちらが本筋。
+			// 表を引くのは、まだPSを持っていないパスのための後方互換。
+			// 表はパス名で引くため、ノードの名前を変えると引けなくなる
+			auto* _pPassPS = _resMgr.Get(a_key.psHandle);
+			if (_pPassPS)
+			{
+				_builder.SetPS(_pPassPS->GetByteCode());
+			}
+			else if (auto* _pShadingModel = _resMgr.Get(a_key.shadingModelTableHandle))
+			{
+				auto _spanShaderHandles = _pShadingModel->GetShaderHandles(m_passNameHash);
+				for (auto& _shaderHandle : _spanShaderHandles)
+				{
+					auto* _pShader = _resMgr.Get(_shaderHandle);
+					if (!_pShader) continue;
+
+					_builder.SetPS(_pShader->GetByteCode());
+				}
+			}
+		}
+
+		// マネージャーにPSOをリクエスト。
+		// 内容が同じなら、実体もハンドルもマネージャー側で共有される
+		auto _psoHandle = a_pPSOManager->RequestHandle(_builder);
+
+		m_psoMap[a_key] = _psoHandle;
+		return _psoHandle;
 	}
+
 	void ShadingPipelineBuilder::RegisterVertexShader(EShaderPermutationFlags a_flag, Handle<Resource::Shader> a_vsHandle)
 	{
 		m_vsMap[a_flag] = a_vsHandle;

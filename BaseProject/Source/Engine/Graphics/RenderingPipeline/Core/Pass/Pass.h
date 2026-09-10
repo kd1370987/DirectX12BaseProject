@@ -174,6 +174,42 @@ namespace Engine::Graphics::Pipeline
 		const Math::Vector2& GetEditorPos() const { return m_editorPos; }
 		void SetEditorPos(const Math::Vector2& a_pos) { m_editorPos = a_pos; }
 
+		//----------------------------------------------------------------------------------
+		// エディター上のまとまり(合成ノード)
+		//
+		// 「デノイズを5回かける」のように同じパスを並べて表すものは、
+		// ノードが5つ並ぶと配線が読めなくなる。
+		// 同じ札を持つパスを、エディターだけが1つのノードにまとめて見せる。
+		//
+		// ランタイムはこの札を一切見ない。
+		// グラフの形も実行順もリソースの解決も、まとめていないときと同じ。
+		// 札が消えても個別のノードとして見えるだけで、絵は変わらない
+		//----------------------------------------------------------------------------------
+		// どのまとまりに属しているか : 無効なら単体のノード
+		const Engine::GUID& GetEditorGroupGUID() const { return m_editorGroupGUID; }
+
+		// まとまりの種類 : どの合成ノードが面倒を見るかの鍵になる
+		const std::string& GetEditorGroupType() const { return m_editorGroupType; }
+
+		// まとまりの中で何段目か : 0 が代表(ノードとピンを出す側)
+		int GetEditorGroupIndex() const { return m_editorGroupIndex; }
+
+		bool IsInEditorGroup() const { return m_editorGroupGUID.IsValid(); }
+
+		void SetEditorGroup(const std::string& a_typeName, const Engine::GUID& a_groupGUID, int a_index)
+		{
+			m_editorGroupType = a_typeName;
+			m_editorGroupGUID = a_groupGUID;
+			m_editorGroupIndex = a_index;
+		}
+
+		void ClearEditorGroup()
+		{
+			m_editorGroupType.clear();
+			m_editorGroupGUID = {};
+			m_editorGroupIndex = 0;
+		}
+
 	protected:
 
 		//----------------------------------------------------------------------------------
@@ -323,6 +359,11 @@ namespace Engine::Graphics::Pipeline
 		// ---- エディター用情報 ----
 		// ノード
 		Math::Vector2 m_editorPos = {};
+
+		// エディター上のまとまり : 見た目をまとめるためだけの札(ランタイムは見ない)
+		std::string m_editorGroupType = "";
+		Engine::GUID m_editorGroupGUID = {};
+		int m_editorGroupIndex = 0;
 		int m_nodeID = 0;			// ノード自身のID
 	};
 }

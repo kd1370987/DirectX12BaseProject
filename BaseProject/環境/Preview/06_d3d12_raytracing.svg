@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-197 -245 3302 2241" width="2400">
+<rect x="-197" y="-245" width="3302" height="2241" fill="#121212"/>
+<defs><marker id="aw" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#ffffff" stroke-width="1.2"/></marker><marker id="ag" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#51cf66" stroke-width="1.2"/></marker></defs>
+<text x="-157" y="-185" fill="#fff" font-size="34" font-family="sans-serif">⑥ D3D12 / Raytracing — GPU まわりの下層</text>
+<text x="-157" y="-153" fill="#aaa" font-size="16" font-family="sans-serif">D3D12Wrapper と DescriptorHeapManager が互いを直接引き合っている。</text>
+<line x1="819.0" y1="27.0" x2="441.0" y2="153.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="972.3" y1="31.0" x2="1247.7" y2="149.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="881.4" y1="31.0" x2="468.6" y2="719.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="441.0" y1="180.0" x2="1206.7" y2="180.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1206.7" y1="180.0" x2="441.0" y2="180.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="298.0" y1="211.0" x2="62.0" y2="329.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="360.0" y1="211.0" x2="360.0" y2="329.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="422.0" y1="211.0" x2="658.0" y2="329.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1330.3" y1="211.0" x2="1366.3" y2="319.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1433.3" y1="210.9" x2="1888.2" y2="335.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1433.3" y1="198.9" x2="2308.2" y2="344.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="981.0" y1="9.2" x2="2381.0" y2="167.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="381.0" y1="511.4" x2="1232.2" y2="211.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="716.8" y1="509.0" x2="1263.2" y2="211.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1018.4" y1="509.0" x2="1291.6" y2="211.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1239.0" y1="509.6" x2="441.0" y2="210.4" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1569.0" y1="517.4" x2="441.0" y2="202.6" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1621.6" y1="509.0" x2="1348.4" y2="211.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1961.0" y1="517.1" x2="441.0" y2="197.1" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2409.0" y1="526.3" x2="441.0" y2="193.7" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2855.2" y1="509.0" x2="2904.8" y2="211.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2490.0" y1="211.0" x2="2490.0" y2="509.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="2521.0" y1="211.0" x2="2819.0" y2="509.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="450.0" y1="781.0" x2="450.0" y2="869.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="394.2" y1="931.0" x2="235.8" y2="1019.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="487.5" y1="869.0" x2="1282.5" y2="211.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="504.5" y1="869.0" x2="1925.5" y2="61.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="550.6" y1="1019.0" x2="889.4" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="915.0" y1="1019.0" x2="1305.0" y2="211.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="932.8" y1="1019.0" x2="1947.2" y2="61.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="220.6" y1="1019.0" x2="1279.4" y2="211.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="579.0" y1="540.0" x2="381.0" y2="540.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="909.0" y1="540.0" x2="741.0" y2="540.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1239.0" y1="540.0" x2="741.0" y2="540.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1569.0" y1="540.0" x2="381.0" y2="540.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<rect x="825.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="900.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEngine</text>
+<rect x="285.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="360.0" y="185.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">D3D12Wrapper</text>
+<rect x="1212.7" y="155.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="1320.0" y="185.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">DescriptorHeapManager</text>
+<rect x="-77.2" y="335.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CommandContext</text>
+<rect x="285.0" y="335.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="360.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">FrameManager</text>
+<rect x="638.5" y="335.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="720.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AsyncGPUManager</text>
+<rect x="1178.1" y="325.0" width="403.8" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1380.0" y="355.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DescriptorHeap</text>
+<text x="1380.0" y="375.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(CBV_SRV_UAV / RTV / DSV / Sampler / ImGui)</text>
+<rect x="1894.2" y="335.0" width="171.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1980.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">HeapAllocator&lt;T></text>
+<rect x="2314.2" y="335.0" width="171.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2400.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SamplerAllocator</text>
+<rect x="225.0" y="515.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="300.0" y="545.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GPUResource</text>
+<rect x="585.0" y="515.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="660.0" y="545.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GPUBuffer</text>
+<rect x="915.0" y="515.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="990.0" y="545.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">StaticBuffer</text>
+<rect x="1245.0" y="515.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1320.0" y="545.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">MegaBuffer</text>
+<rect x="1575.0" y="515.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1650.0" y="545.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Texture</text>
+<rect x="1967.0" y="515.0" width="206.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2070.0" y="545.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RootSignatureBuilder</text>
+<rect x="2415.0" y="515.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2490.0" y="545.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RootSignature</text>
+<rect x="2775.0" y="515.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2850.0" y="545.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PipelineState</text>
+<rect x="2387.0" y="155.0" width="206.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2490.0" y="185.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PipelineStateManager</text>
+<rect x="2835.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="2910.0" y="185.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEditor</text>
+<rect x="1898.5" y="5.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="1980.0" y="35.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceManager</text>
+<rect x="375.0" y="725.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="450.0" y="755.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">RayEngine</text>
+<rect x="375.0" y="875.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="450.0" y="905.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RayWorld</text>
+<rect x="105.0" y="1025.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="180.0" y="1055.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">TLAS</text>
+<rect x="465.0" y="1025.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="540.0" y="1055.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">BLAS</text>
+<rect x="825.0" y="1025.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="1055.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ShaderTable</text>
+<rect x="1185.0" y="1025.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1260.0" y="1055.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RayPSO</text>
+<text x="-270.0" y="1230.0" fill="#bbb" font-size="16" font-family="sans-serif">GPU リソース側(GPUResource / Texture / Buffer)は、</text>
+<text x="-270.0" y="1250.8" fill="#bbb" font-size="16" font-family="sans-serif">ディスクリプタを取るために DescriptorHeapManager を直接引いている。</text>
+<rect x="2300.8" y="1400.0" width="684.2" height="336.0" rx="10" fill="#1a1410" stroke="#ff922b" stroke-width="2"/>
+<text x="2326.8" y="1442.0" fill="#ff922b" font-size="23" font-family="sans-serif">改善点</text>
+<text x="2326.8" y="1477.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">1. D3D12Wrapper ⇄ DescriptorHeapManager の相互参照</text>
+<text x="2326.8" y="1497.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    DescriptorHeapManager が欲しいのは Device だけ。</text>
+<text x="2326.8" y="1517.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    初期化時に受け取って保持すれば片方向になる。</text>
+<text x="2326.8" y="1557.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">2. GPU リソースがディスクリプタ確保のため直引きしている</text>
+<text x="2326.8" y="1577.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    GPUResource / Texture / Buffer 群 → DescriptorHeapManager。</text>
+<text x="2326.8" y="1597.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    生成時にアロケーターの参照を渡す(ResourceBuildContext と同じ考え方)。</text>
+<text x="2326.8" y="1637.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">3. BLAS → MainEngine は遅延解放の登録だけ</text>
+<text x="2326.8" y="1657.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    「解放を後回しにする」インターフェースを切って渡せば依存が消える。</text>
+<text x="2326.8" y="1697.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">4. PipelineState → MainEditor はログ</text>
+<text x="2326.8" y="1717.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    シェーダー再コンパイルの結果表示。ログ経路を分ければよい。</text>
+</svg>

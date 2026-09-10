@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-218 -245 3413 2091" width="2400">
+<rect x="-218" y="-245" width="3413" height="2091" fill="#121212"/>
+<defs><marker id="aw" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#ffffff" stroke-width="1.2"/></marker><marker id="ag" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#51cf66" stroke-width="1.2"/></marker></defs>
+<text x="-178" y="-185" fill="#fff" font-size="34" font-family="sans-serif">⑦ Input / Audio / Option / Particle / JobSystem</text>
+<text x="-178" y="-153" fill="#aaa" font-size="16" font-family="sans-serif">アプリ寿命のサービス群。Option は各シングルトンへ設定を流し込む側でもある。</text>
+<line x1="819.0" y1="28.6" x2="471.0" y2="151.4" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="900.0" y1="31.0" x2="900.0" y2="149.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="981.0" y1="30.4" x2="1299.0" y2="149.6" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="981.0" y1="14.3" x2="1806.7" y2="160.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="981.0" y1="9.3" x2="2379.0" y2="170.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="819.0" y1="16.2" x2="81.0" y2="163.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="81.0" y1="180.0" x2="309.0" y2="180.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="471.0" y1="151.4" x2="819.0" y2="28.6" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="471.0" y1="180.0" x2="1299.0" y2="180.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="374.5" y1="211.0" x2="315.5" y2="329.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="256.6" y1="391.0" x2="133.4" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="337.2" y1="391.0" x2="442.8" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="18.6" y1="629.0" x2="71.4" y2="541.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="328.0" y1="629.0" x2="152.0" y2="541.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="741.8" y1="629.0" x2="548.2" y2="541.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1155.2" y1="635.0" x2="567.5" y2="526.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1631.0" y1="647.0" x2="567.5" y2="520.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="879.3" y1="211.0" x2="800.7" y2="329.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="946.5" y1="211.0" x2="1123.5" y2="329.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="981.0" y1="172.8" x2="2499.0" y2="37.2" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="981.0" y1="170.4" x2="2072.5" y2="40.4" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1391.3" y1="211.0" x2="1488.7" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1425.1" y1="211.0" x2="1814.9" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1456.1" y1="211.0" x2="2113.9" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1461.0" y1="200.2" x2="2548.0" y2="472.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1512.4" y1="479.0" x2="1547.6" y2="391.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1798.0" y1="479.0" x2="1622.0" y2="391.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="2109.0" y1="490.7" x2="1641.0" y2="379.3" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="2548.0" y1="490.0" x2="1641.0" y2="370.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1463.5" y1="479.0" x2="936.5" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1779.0" y1="482.2" x2="981.0" y2="207.8" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2109.0" y1="495.1" x2="471.0" y2="194.8" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1920.0" y1="211.0" x2="1920.0" y2="329.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="2033.3" y1="154.2" x2="2499.0" y2="48.4" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2033.3" y1="164.3" x2="2919.0" y2="41.2" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1832.5" y1="329.1" x2="981.0" y2="28.6" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1942.5" y1="329.0" x2="2137.5" y2="61.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2434.2" y1="211.0" x2="2335.8" y2="329.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="2496.2" y1="211.0" x2="2633.8" y2="329.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="81.0" y1="840.0" x2="379.6" y2="840.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="81.0" y1="840.0" x2="819.0" y2="840.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="81.0" y1="840.0" x2="1239.0" y2="840.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="81.0" y1="840.0" x2="1629.0" y2="840.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="81.0" y1="840.0" x2="2059.6" y2="840.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="475.8" y1="809.0" x2="394.2" y2="211.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="580.4" y1="840.0" x2="1239.0" y2="840.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<rect x="825.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="900.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEngine</text>
+<rect x="-75.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="185.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">NativeWindow</text>
+<rect x="315.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="390.0" y="185.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">InputManager</text>
+<rect x="825.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="900.0" y="185.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">AudioManager</text>
+<rect x="1305.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="1380.0" y="185.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">OptionManager</text>
+<rect x="1812.7" y="155.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1920.0" y="185.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ParticleBufferManager</text>
+<rect x="2385.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2460.0" y="185.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">JobSystem</text>
+<rect x="222.8" y="335.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="300.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputCollector</text>
+<rect x="15.0" y="485.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="90.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputAxisBase</text>
+<rect x="398.5" y="485.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="480.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputButtonBase</text>
+<rect x="-98.7" y="635.0" width="197.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="665.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputAxisForWindows</text>
+<rect x="295.6" y="635.0" width="188.8" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="390.0" y="665.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputAxisForXInput</text>
+<rect x="702.7" y="635.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="810.0" y="665.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputButtonForWindows</text>
+<rect x="1161.2" y="635.0" width="257.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1290.0" y="665.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputButtonForWindowsChord</text>
+<rect x="1637.0" y="635.0" width="206.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1740.0" y="665.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputButtonForXInput</text>
+<rect x="677.0" y="335.0" width="206.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="780.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DirectX::AudioEngine</text>
+<rect x="1068.8" y="335.0" width="202.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1170.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SoundInstance プール</text>
+<rect x="1485.0" y="335.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1560.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">IOption</text>
+<rect x="1425.0" y="485.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1500.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">WindowOption</text>
+<rect x="1785.0" y="485.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1860.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AudioOption</text>
+<rect x="2115.0" y="485.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2190.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputOption</text>
+<rect x="2554.0" y="475.0" width="292.0" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2700.0" y="505.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderingOption / GIOption /</text>
+<text x="2700.0" y="525.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">BloomOption / CursorOption ...</text>
+<rect x="1838.5" y="335.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1920.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GPUParticlePool</text>
+<rect x="2235.0" y="335.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2310.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">JobContext</text>
+<rect x="2595.0" y="335.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2670.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">JobWorker</text>
+<rect x="2505.0" y="5.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="2580.0" y="35.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">AssetDatabase</text>
+<rect x="2078.5" y="5.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="2160.0" y="35.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceManager</text>
+<rect x="2925.0" y="5.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="3000.0" y="35.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">D3D12Wrapper</text>
+<rect x="-75.0" y="815.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="0.0" y="845.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">GameManager</text>
+<rect x="385.6" y="815.0" width="188.8" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="480.0" y="845.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputActionManager</text>
+<rect x="825.0" y="815.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="845.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">UserData</text>
+<rect x="1245.0" y="815.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="1320.0" y="845.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEditor</text>
+<rect x="1635.0" y="815.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="1710.0" y="845.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">SceneManager</text>
+<rect x="2065.6" y="815.0" width="188.8" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="2160.0" y="845.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ObjectMetaRegistry</text>
+<text x="-270.0" y="1020.0" fill="#bbb" font-size="16" font-family="sans-serif">入力は必ず InputManager 経由。アプリ側の割り当ては UserData に入り、</text>
+<text x="-270.0" y="1040.8" fill="#bbb" font-size="16" font-family="sans-serif">InputActionManager が InputManager へ流し込む。</text>
+<rect x="2373.0" y="1190.0" width="702.0" height="396.0" rx="10" fill="#1a1410" stroke="#ff922b" stroke-width="2"/>
+<text x="2399.0" y="1232.0" fill="#ff922b" font-size="23" font-family="sans-serif">改善点</text>
+<text x="2399.0" y="1267.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">1. OptionManager と各マネージャーが相互に引き合っている</text>
+<text x="2399.0" y="1287.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    WindowOption → MainEngine / AudioOption → AudioManager /</text>
+<text x="2399.0" y="1307.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    InputOption → InputManager。Option 側から押し込むのをやめ、</text>
+<text x="2399.0" y="1327.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    受け手が起動時と変更通知で読む形にすると片方向になる。</text>
+<text x="2399.0" y="1367.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">2. 所有されている側が Instance() で親を引いている</text>
+<text x="2399.0" y="1387.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    ParticleBufferManager / GPUParticlePool / MouseCursor → MainEngine。</text>
+<text x="2399.0" y="1407.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    所有者が初期化時に必要なものを渡せばよい。</text>
+<text x="2399.0" y="1447.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">3. InputActionManager → MainEditor はモード判定</text>
+<text x="2399.0" y="1467.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    アプリのモードを持っているのは MainEngine。</text>
+<text x="2399.0" y="1487.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    そちらから取ればゲーム側がエディターを見なくて済む。</text>
+<text x="2399.0" y="1527.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">4. GameManager がゲーム側の各所から引かれている</text>
+<text x="2399.0" y="1547.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    Sequence / ScoreHUD / ScoreSystem に加えて GraphicsEngine からも。</text>
+<text x="2399.0" y="1567.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    描画層からゲーム層への逆流は特に切り離したい。</text>
+</svg>

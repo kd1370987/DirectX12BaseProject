@@ -29,7 +29,8 @@ namespace Engine::Graphics
 
 		/// <summary>
 		/// シェーディングパイプラインが見つかれば返し、なければ作成して返します
-		/// 非同期のためPSOがないフレームが出てくるので対処が必須
+		/// シェーダーがまだ読めていない間は無効なハンドルが返るので、
+		/// 呼び出し側はそのアイテムを積まずに次のフレームへ回すこと
 		/// </summary>
 		/// <param name="a_key">PSO検索用キー</param>
 		/// <returns>PSOマネージャーから帰ってきたハンドルを返す</returns>
@@ -83,13 +84,8 @@ namespace Engine::Graphics
 		// PSOの作成用キーハッシュとハンドル
 		std::unordered_map<PSOKey, Handle<ID3D12PipelineState>> m_psoMap = {};
 
-		// コンパイル中のPSOたち
-		std::unordered_set<PSOKey> m_compilingPasses = {};;
-
 		std::vector<DXGI_FORMAT> m_rtvFormats = {};
 		DXGI_FORMAT m_dsvFormat;
-
-		Handle<ID3D12PipelineState> m_fallbackPSO;
 
 		UINT m_passNameHash;
 

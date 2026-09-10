@@ -56,7 +56,19 @@ namespace Engine::Editor::Inspector
 		// 出口は常駐。レジストリが後から入った場合もここで揃う
 		m_pAsset->EnsureFinalPass();
 
-		return m_pAsset->RefRenderGraph() != nullptr;
+		RenderGraph* _pGraph = m_pAsset->RefRenderGraph();
+		if (!_pGraph) return false;
+
+		//----------------------------------------------------------------------------------
+		// まとまりはフレームの頭で組み直す
+		//
+		// パスの増減は描き終わってから(OnPostDraw)しか起きないので、
+		// ここで組んでおけば、そのフレームの間ずっと生きたポインタで通せる。
+		// 前のフレームのものを持ち越すと、消えたパスを指したまま詳細欄が触りに行く
+		//----------------------------------------------------------------------------------
+		m_compositeGroups = BuildCompositeGroups(*_pGraph);
+
+		return true;
 	}
 
 	//======================================================================================
@@ -95,6 +107,8 @@ namespace Engine::Editor::Inspector
 		ImGui::Separator();
 
 		DrawAddPass();
+		ImGui::SameLine();
+		DrawAddComposite();
 		ImGui::SameLine();
 
 		// 構成が変わっていなければ押しても結果は同じなので、そのときは通さない
@@ -194,6 +208,143 @@ namespace Engine::Editor::Inspector
 		ImGui::EndPopup();
 	}
 
+	//======================================================================================
+	// 合成ノードの追加
+	//
+	// 一式まとめて置く。
+	// パスを1つずつ足して手で繋ぐより間違えにくい
+	//======================================================================================
+	void RenderingPipelineEditor::DrawAddComposite()
+	{
+		if (EditorHelper::CreateButton("AddComposite"))
+		{
+			ImGui::OpenPopup("AddCompositePopup");
+		}
+		if (!ImGui::BeginPopup("AddCompositePopup")) return;
+
+		ImGui::TextDisabled("Select Composite");
+		ImGui::Separator();
+
+		for (const std::string& _typeName : m_compositeNodeRegistry.GetTypeNames())
+		{
+			ICompositeNode* _pNode = m_compositeNodeRegistry.Find(_typeName);
+			if (!_pNode) continue;
+
+			if (!ImGui::Selectable(_pNode->GetDisplayName())) continue;
+
+			// 足したぶんだけ ImNodes へ置く。
+			// 全体を配り直すと、動かしてあった他のノードが巻き戻る
+			if (Pass* _pHead = _pNode->Build(*m_pAsset))
+			{
+				m_pAsset->SetDirty();
+
+				const Math::Vector2& _pos = _pHead->GetEditorPos();
+				ImNodes::SetNodeEditorSpacePos(_pHead->GetNodeID(), ImVec2(_pos.x, _pos.y));
+			}
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+
+	//======================================================================================
+	// 出てきたノードの座標だけを配る
+	//
+	// まとまりを解いた直後は、今まで描いていなかったパスがノードとして出てくる。
+	// ImNodes はその場所を知らないので原点に重なって出る。
+	//
+	// 全体を配り直す(RequestApplyNodePositions)と、動かしてあった他のノードまで
+	// 保存された位置へ巻き戻るので、増えたぶんだけを置く
+	//======================================================================================
+	void RenderingPipelineEditor::HandlePendingApplyPos()
+	{
+		if (m_pendingApplyPosVec.empty()) return;
+
+		RenderGraph* _pGraph = m_pAsset->RefRenderGraph();
+		if (!_pGraph) { m_pendingApplyPosVec.clear(); return; }
+
+		for (const Engine::GUID& _passGUID : m_pendingApplyPosVec)
+		{
+			Pass* _pPass = _pGraph->FindPass(_passGUID);
+			if (!_pPass) continue;
+
+			const Math::Vector2& _pos = _pPass->GetEditorPos();
+			ImNodes::SetNodeEditorSpacePos(_pPass->GetNodeID(), ImVec2(_pos.x, _pos.y));
+		}
+		m_pendingApplyPosVec.clear();
+	}
+
+	//======================================================================================
+	// ノードから出た要求を通す
+	//
+	// パスの増減はここで初めて起きる。
+	// ノードを回している最中にやると、パス配列の反復が壊れる
+	//======================================================================================
+	void RenderingPipelineEditor::HandlePendingRequest()
+	{
+		if (!m_pendingRequestGroup.IsValid()) return;
+
+		const Engine::GUID _groupGUID = m_pendingRequestGroup;
+		const CompositeNodeRequest _request = m_pendingRequest;
+		m_pendingRequestGroup = {};
+		m_pendingRequest = {};
+
+		const CompositeGroup* _pGroup = nullptr;
+		for (const CompositeGroup& _group : m_compositeGroups.groups)
+		{
+			if (_group.guid != _groupGUID) continue;
+			_pGroup = &_group;
+			break;
+		}
+		if (!_pGroup) return;
+
+		ICompositeNode* _pNode = m_compositeNodeRegistry.Find(_pGroup->typeName);
+		if (!_pNode) return;
+
+		if (_request.resizeCount >= 0 && _pNode->Resize(*m_pAsset, *_pGroup, _request.resizeCount))
+		{
+			// 段が変わったので、中の配線も組み直す
+			m_pendingSyncGroup = _groupGUID;
+		}
+	}
+
+	//======================================================================================
+	// まとまりの中の配線を組み直す
+	//
+	// 段数を変えた直後と、見せているピンへ線が引かれた直後に通す。
+	// 隠している段の Depth / Normal はここで配られる
+	//======================================================================================
+	void RenderingPipelineEditor::HandlePendingSyncGroup()
+	{
+		if (!m_pendingSyncGroup.IsValid()) return;
+
+		const Engine::GUID _groupGUID = m_pendingSyncGroup;
+		m_pendingSyncGroup = {};
+
+		RenderGraph* _pGraph = m_pAsset->RefRenderGraph();
+		if (!_pGraph) return;
+
+		// 段数が変わっているので組み直してから引く
+		const CompositeGroupTable _table = BuildCompositeGroups(*_pGraph);
+		for (const CompositeGroup& _group : _table.groups)
+		{
+			if (_group.guid != _groupGUID) continue;
+
+			if (ICompositeNode* _pNode = m_compositeNodeRegistry.Find(_group.typeName))
+			{
+				_pNode->SyncInternalLinks(*_pGraph, _group);
+			}
+
+			// ここで座標を配り直さないこと。
+			//
+			// RequestApplyNodePositions() は「全ノードを保存された位置へ戻す」もので、
+			// 配線を整えただけなのに動かしていない他のノードまで巻き戻ってしまう。
+			// 増えた段はノードとして出さない(代表しか描かない)ので、
+			// そもそも ImNodes へ座標を配る必要が無い
+			break;
+		}
+	}
+
 	// 繋ぎ方の不備をその場で見せる。
 	// ログにしか出ないと、パスが増えたときにどのノードが原因か追えなくなる
 	void RenderingPipelineEditor::DrawValidation()
@@ -250,6 +401,41 @@ namespace Engine::Editor::Inspector
 		Pass* _pPass = m_pAsset->RefRenderGraph()->FindPassByNodeID(_nodeID);
 		if (!_pPass) return;
 
+		//----------------------------------------------------------------------------------
+		// まとまりを選んでいるとき
+		//
+		// ノードIDは代表のパスのものなので、ここへ来るのも代表。
+		// 段ごとの設定は合成ノード側が並べる
+		//----------------------------------------------------------------------------------
+		if (const CompositeGroup* _pGroup = m_compositeGroups.Find(_pPass->GetGUID()))
+		{
+			ICompositeNode* _pNode = m_compositeNodeRegistry.Find(_pGroup->typeName);
+			if (_pNode && ImGui::CollapsingHeader("Selected Group", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				ImGui::PushID(_nodeID);
+
+				CompositeNodeRequest _request = {};
+				switch (_pNode->DrawDetail(*_pGroup, m_passEditorRegistry, _request))
+				{
+				case EPassEditResult::Structure:	m_pAsset->SetDirty();		break;
+				case EPassEditResult::Param:	m_pAsset->SetParamDirty();	break;
+				default: break;
+				}
+
+				if (!_request.IsEmpty())
+				{
+					m_pendingRequestGroup = _pGroup->guid;
+					m_pendingRequest = _request;
+				}
+				ImGui::PopID();
+			}
+			if (_pNode)
+			{
+				ImGui::Separator();
+				return;
+			}
+		}
+
 		if (ImGui::CollapsingHeader("Selected Pass", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::PushID(_nodeID);
@@ -291,15 +477,52 @@ namespace Engine::Editor::Inspector
 		(void)a_editContext;
 
 		RenderGraph* _pGraph = m_pAsset->RefRenderGraph();
-		const auto& _connectionMap = _pGraph->GetConnections();
 
+		// まとまりは OnBeginDraw で組んである。ここは出したピンの印だけ
+		m_visiblePinSet.clear();
+
+		//----------------------------------------------------------------------------------
+		// ノード
+		//
+		// まとまりに属するパスは代表のときだけ描く。
+		// 2段目以降はノードを出さないので、5段のデノイズでも見た目は1つ
+		//----------------------------------------------------------------------------------
 		for (auto& _upPass : _pGraph->GetPasses())
 		{
 			if (!_upPass) continue;
 
-			DrawNode(*_upPass);
+			const CompositeGroup* _pGroup = m_compositeGroups.Find(_upPass->GetGUID());
+			if (!_pGroup)
+			{
+				DrawNode(*_upPass);
+				continue;
+			}
 
-			// このパスから伸びる線を描く
+			// 代表(段の先頭)以外は出さない
+			if (_pGroup->GetHead() != _upPass.get()) continue;
+
+			ICompositeNode* _pNode = m_compositeNodeRegistry.Find(_pGroup->typeName);
+			if (!_pNode)
+			{
+				// 登録漏れ : まとめずに個別のノードとして出しておく
+				DrawNode(*_upPass);
+				continue;
+			}
+
+			DrawCompositeNode(*_pGroup, *_pNode);
+		}
+
+		//----------------------------------------------------------------------------------
+		// 線
+		//
+		// 両端ともノードに出ているものだけを描く。
+		// まとまりが隠したピンへの線は、グラフには居るが見えないままになる
+		//----------------------------------------------------------------------------------
+		const auto& _connectionMap = _pGraph->GetConnections();
+		for (auto& _upPass : _pGraph->GetPasses())
+		{
+			if (!_upPass) continue;
+
 			auto _it = _connectionMap.find(_upPass->GetGUID());
 			if (_it == _connectionMap.end()) continue;
 
@@ -314,9 +537,88 @@ namespace Engine::Editor::Inspector
 				const Slot* _pDstSlot = _pDst->FindInputSlot(_connection.dstSlotID);
 				if (!_pDstSlot) continue;
 
+				if (!IsVisiblePin(_pSrcSlot->pinID) || !IsVisiblePin(_pDstSlot->pinID)) continue;
+
 				_connection.EditConnection(_pSrcSlot->pinID, _pDstSlot->pinID);
 			}
 		}
+	}
+
+	//======================================================================================
+	// まとまり1つ分のノード
+	//
+	// 枠と座標は代表のパスのものを使う。
+	// ピンは合成ノードが「外へ見せる」と言ったものだけ
+	//======================================================================================
+	void RenderingPipelineEditor::DrawCompositeNode(const CompositeGroup& a_group, ICompositeNode& a_node)
+	{
+		Pass* _pHead = a_group.GetHead();
+		if (!_pHead) return;
+
+		std::vector<Slot*> _inputVec = {};
+		std::vector<Slot*> _outputVec = {};
+		a_node.CollectVisibleSlots(a_group, _inputVec, _outputVec);
+
+		ImNodes::BeginNode(_pHead->GetNodeID());
+
+		EditorHelper::DrawNodeTitleBar(a_node.MakeTitle(a_group));
+
+		for (Slot* _pIn : _inputVec)
+		{
+			if (!_pIn) continue;
+
+			m_visiblePinSet.insert(_pIn->pinID);
+
+			ImNodes::BeginInputAttribute(_pIn->pinID);
+			if (_pIn->IsConnected())	ImGui::Text("%s : %s", _pIn->pinName.c_str(), _pIn->name.c_str());
+			else						ImGui::TextDisabled("%s", _pIn->pinName.c_str());
+			ImNodes::EndInputAttribute();
+		}
+
+		for (Slot* _pOut : _outputVec)
+		{
+			if (!_pOut) continue;
+
+			m_visiblePinSet.insert(_pOut->pinID);
+
+			ImNodes::BeginOutputAttribute(_pOut->pinID);
+			ImGui::Text("%s : %s", _pOut->pinName.c_str(), _pOut->name.c_str());
+			ImNodes::EndOutputAttribute();
+		}
+
+		// ノードの中の操作(段数など)。
+		// グラフを触るのは描き終わってからにしたいので、要求だけ控える
+		CompositeNodeRequest _request = {};
+		switch (a_node.DrawNode(a_group, _request))
+		{
+		case EPassEditResult::Structure:	m_pAsset->SetDirty();		break;
+		case EPassEditResult::Param:	m_pAsset->SetParamDirty();	break;
+		default: break;
+		}
+
+		if (!_request.IsEmpty())
+		{
+			m_pendingRequestGroup = a_group.guid;
+			m_pendingRequest = _request;
+		}
+
+		ImGui::Spacing();
+		if (EditorHelper::DeleteSmallButton("Ungroup"))
+		{
+			// 札を外すだけ。パスも線もそのままで、個別のノードに戻る
+			for (Pass* _pMember : a_group.members)
+			{
+				if (!_pMember) continue;
+
+				_pMember->ClearEditorGroup();
+
+				// 今まで出していなかったノードが出てくる。
+				// ImNodes が場所を知らないので、こいつらのぶんだけ配る
+				m_pendingApplyPosVec.push_back(_pMember->GetGUID());
+			}
+		}
+
+		ImNodes::EndNode();
 	}
 
 	void RenderingPipelineEditor::DrawNode(Pass& a_pass)
@@ -328,6 +630,8 @@ namespace Engine::Editor::Inspector
 		// 入力ピン : つながっていればリソース名まで出す
 		for (const Slot& _in : a_pass.GetInputSlots())
 		{
+			m_visiblePinSet.insert(_in.pinID);
+
 			ImNodes::BeginInputAttribute(_in.pinID);
 			if (_in.IsConnected())
 			{
@@ -343,6 +647,8 @@ namespace Engine::Editor::Inspector
 		// 出力ピン : 作るリソース名は宣言時に決まっている
 		for (const Slot& _out : a_pass.GetOutputSlots())
 		{
+			m_visiblePinSet.insert(_out.pinID);
+
 			ImNodes::BeginOutputAttribute(_out.pinID);
 			ImGui::Text("%s : %s", _out.pinName.c_str(), _out.name.c_str());
 			ImNodes::EndOutputAttribute();
@@ -381,6 +687,9 @@ namespace Engine::Editor::Inspector
 		HandleDeleteSelection();
 		HandlePendingDeletePass();
 		HandleCreateLink();
+		HandlePendingRequest();
+		HandlePendingSyncGroup();
+		HandlePendingApplyPos();
 	}
 
 	void RenderingPipelineEditor::HandleCreateLink()
@@ -421,11 +730,16 @@ namespace Engine::Editor::Inspector
 		if (!_pSrc || !_pSrcSlot || !_pDst || !_pDstSlot) return;
 
 		// 自分自身へのつなぎや、入力スロットの張り替えは RenderGraph 側が面倒を見る
-		if (_pGraph->Link(
+		if (!_pGraph->Link(
 			_pSrc->GetGUID(), _pSrcSlot->slotID,
-			_pDst->GetGUID(), _pDstSlot->slotID))
+			_pDst->GetGUID(), _pDstSlot->slotID)) return;
+
+		m_pAsset->SetDirty();
+
+		// まとまりの見せているピンへ引かれたなら、隠している段へも配り直す
+		if (const CompositeGroup* _pGroup = m_compositeGroups.Find(_pDst->GetGUID()))
 		{
-			m_pAsset->SetDirty();
+			m_pendingSyncGroup = _pGroup->guid;
 		}
 	}
 
@@ -462,6 +776,17 @@ namespace Engine::Editor::Inspector
 
 			// 出口は常駐なので Delete キーでも消さない
 			if (m_pAsset->IsFinalPass(*_pPass)) continue;
+
+			// まとまりを消すときは中のパスも道連れにする。
+			// 代表だけ消すと、見えないノードがグラフに残る
+			if (const CompositeGroup* _pGroup = m_compositeGroups.Find(_pPass->GetGUID()))
+			{
+				for (Pass* _pMember : _pGroup->members)
+				{
+					if (_pMember) _targets.push_back(_pMember->GetGUID());
+				}
+				continue;
+			}
 
 			_targets.push_back(_pPass->GetGUID());
 		}
@@ -512,9 +837,15 @@ namespace Engine::Editor::Inspector
 		RenderGraph* _pGraph = m_pAsset->RefRenderGraph();
 		if (!_pGraph) return;
 
+		// まとまりは代表のノードしか出していないので、そちらだけ動かす
+		const CompositeGroupTable _table = BuildCompositeGroups(*_pGraph);
+
 		for (auto& _upPass : _pGraph->GetPasses())
 		{
 			if (!_upPass) continue;
+
+			const CompositeGroup* _pGroup = _table.Find(_upPass->GetGUID());
+			if (_pGroup && _pGroup->GetHead() != _upPass.get()) continue;
 
 			const Math::Vector2& _pos = _upPass->GetEditorPos();
 			ImNodes::SetNodeEditorSpacePos(_upPass->GetNodeID(), ImVec2(_pos.x, _pos.y));
@@ -528,9 +859,15 @@ namespace Engine::Editor::Inspector
 		RenderGraph* _pGraph = m_pAsset->RefRenderGraph();
 		if (!_pGraph) return;
 
+		// 出していないノードの座標を読むと原点が返るので、代表だけ書き戻す
+		const CompositeGroupTable _table = BuildCompositeGroups(*_pGraph);
+
 		for (auto& _upPass : _pGraph->GetPasses())
 		{
 			if (!_upPass) continue;
+
+			const CompositeGroup* _pGroup = _table.Find(_upPass->GetGUID());
+			if (_pGroup && _pGroup->GetHead() != _upPass.get()) continue;
 
 			ImVec2 _pos = ImNodes::GetNodeEditorSpacePos(_upPass->GetNodeID());
 			_upPass->SetEditorPos(Math::Vector2(_pos.x, _pos.y));

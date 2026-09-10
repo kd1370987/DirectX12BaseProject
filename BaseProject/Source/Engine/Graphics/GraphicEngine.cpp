@@ -1416,9 +1416,11 @@ namespace Engine::Graphics
 	}
 	std::span<const LightWeightDrawItem> GraphicsEngine::GetPassItems(uint8_t a_passIndex)
 	{
-		// 探したいパスのキーの最小値と最大値を求める
-		uint64_t _minKey = static_cast<uint64_t>(a_passIndex) << 56;
-		uint64_t _maxKey = _minKey | 0x00FFFFFFFFFFFFFFull; // 下位56ビットをすべて1にする
+		// 探したいパスのキーの最小値と最大値を求める。
+		// パス番号は RenderSortKey の最上位8bit(56〜63)に置いてある
+		constexpr uint32_t _kPassIndexShift = 56;
+		uint64_t _minKey = static_cast<uint64_t>(a_passIndex) << _kPassIndexShift;
+		uint64_t _maxKey = _minKey | ((1ull << _kPassIndexShift) - 1ull); // 下位56ビットをすべて1にする
 
 		// ソート済み配列から開始位置を見つける
 		auto _itStart = std::lower_bound(
@@ -1724,16 +1726,14 @@ namespace Engine::Graphics
 
 			auto _psoHandle = _pPipelinePass->RefPipelineBuilder().Request(_pipelineKey, m_pPipelineStateManager);
 
-			// ソートキーのPSO番号は8bitしかない。
-			// 収まらない番号を入れると、描くときにまったく別のPSOを引いてしまうので積まない。
-			// (無効ハンドルは 0xFFFF なのでここで弾かれる)
-			if (_psoHandle.GetIndex() > 0xFF)
-			{
-				ENGINE_WARNING(
-					"[GraphicsEngine] PSO番号がソートキーに収まりません(%u) : %s",
-					_psoHandle.GetIndex(), _pPipelinePass->GetName().c_str());
-				continue;
-			}
+			// PSOを作れなかったアイテムは積まない : 描くときに引く先が無い。
+			//
+			// 番号そのものはハンドルと同じ16bitをソートキーに持たせてあるので、
+			// もう「収まらない」ことは起きない。弾くのは無効ハンドルだけ。
+			// ここは1フレームに何万回も通るので警告は出さない。
+			// 理由(シェーダーがまだ読めていない等)は PipelineStateManager が
+			// PSOごとに1回だけ知らせている
+			if (!_psoHandle.IsValid()) continue;
 
 			Engine::Graphics::LightWeightDrawItem _item = {};
 			_item.meshHandle = a_cmd.meshHandle;
@@ -1744,7 +1744,7 @@ namespace Engine::Graphics
 			_item.subIndex = a_cmd.subIdx;
 			_item.meshInstanceIndex = SetInstanceData(_meshInstanceData);
 			_item.subsetMeshletCount = _msData.subsetMeshlets[a_cmd.subIdx].meshletCount;
-			_item.sortKey.bits.psoID = static_cast<uint8_t>(_psoHandle.GetIndex());
+			_item.sortKey.bits.psoID = _psoHandle.GetIndex();
 			_item.sortKey.bits.passIndex = _pPipelinePass->GetPassIndex();
 
 			AddItem(_item);

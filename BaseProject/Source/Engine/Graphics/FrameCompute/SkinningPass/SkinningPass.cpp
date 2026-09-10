@@ -22,7 +22,8 @@ namespace
 	struct SkinningRuntime
 	{
 		Engine::Handle<ID3D12RootSignature> rootSigHandle = {};
-		uint8_t csIndex = 255;
+		// PSOはハンドルで持つ : 8bitの添字へ落とすと256個目から別のPSOを引く
+		Engine::Handle<ID3D12PipelineState> psoHandle = {};
 		Engine::D3D12::PipelineStateManager* pPSOManager = nullptr;
 	};
 	SkinningRuntime g_skinning = {};
@@ -46,7 +47,7 @@ void Engine::Graphics::SetupSkinning(D3D12::PipelineStateManager* a_pPSOManager)
 	_desc.desc.CS.BytecodeLength = _pShader->Get()->GetBufferSize();
 	_desc.SetRootSignature(a_pPSOManager->GetRootSignature(g_skinning.rootSigHandle));
 
-	g_skinning.csIndex = static_cast<uint8_t>(a_pPSOManager->RequestHandle(_desc).GetIndex());
+	g_skinning.psoHandle = a_pPSOManager->RequestHandle(_desc);
 }
 
 // 中身は旧 SkinningPass の実行関数をそのまま移したもの
@@ -58,7 +59,7 @@ void Engine::Graphics::ExecuteSkinning(GraphicsEngine* a_pGE, RenderContext* a_p
 	auto* _spPassData = &g_skinning;
 	{
 			auto* _pCmdList = a_pCtx->GetCurrentCmdList();
-			auto* _pPso = _spPassData->pPSOManager->GetPSO(_spPassData->csIndex);
+			auto* _pPso = _spPassData->pPSOManager->GetPSO(_spPassData->psoHandle);
 
 			auto* _pMA = a_pGE->RefMeshBufferAllocator();
 			if (!_pMA) return;

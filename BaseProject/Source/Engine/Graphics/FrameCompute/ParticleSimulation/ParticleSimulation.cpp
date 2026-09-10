@@ -23,11 +23,14 @@ namespace
 	{
 		Engine::D3D12::PipelineStateManager* pPSOManager = nullptr;
 
+		// PSOはハンドルで持つ。
+		// 8bitの添字へ落として持つと、PSOが256個を超えたところで
+		// 黙って別のPSOを引いてしまう(ソートキー用の添字とは別物)
 		Engine::Handle<ID3D12RootSignature> emitRootSig = {};
-		uint8_t emitCSIndex = 255;
+		Engine::Handle<ID3D12PipelineState> emitPSO = {};
 
 		Engine::Handle<ID3D12RootSignature> updateRootSig = {};
-		uint8_t updateCSIndex = 255;
+		Engine::Handle<ID3D12PipelineState> updatePSO = {};
 
 		// このフレームの乱数の種
 		uint32_t frameCounter = 0;
@@ -40,7 +43,7 @@ namespace
 		const std::string& a_csPath,
 		const std::string& a_psoName,
 		Engine::Handle<ID3D12RootSignature>& a_outRootSig,
-		uint8_t& a_outCSIndex)
+		Engine::Handle<ID3D12PipelineState>& a_outPSO)
 	{
 		using namespace Engine;
 
@@ -57,8 +60,8 @@ namespace
 		_desc.desc.CS.BytecodeLength = _pShader->Get()->GetBufferSize();
 		_desc.SetRootSignature(a_pPSOManager->GetRootSignature(a_outRootSig));
 
-		a_outCSIndex = static_cast<uint8_t>(a_pPSOManager->RequestHandle(_desc).GetIndex());
-		return true;
+		a_outPSO = a_pPSOManager->RequestHandle(_desc);
+		return a_outPSO.IsValid();
 	}
 }
 
@@ -73,13 +76,13 @@ namespace Engine::Graphics
 			a_pPSOManager,
 			"Asset/Shader/Source/Particle/Emit/EmitParticleShaeder.cso",
 			"EmitParticleShader",
-			g_particle.emitRootSig, g_particle.emitCSIndex);
+			g_particle.emitRootSig, g_particle.emitPSO);
 
 		SetupComputeShader(
 			a_pPSOManager,
 			"Asset/Shader/Source/Particle/Update/UpdateParticleShader.cso",
 			"UpdateParticleShader",
-			g_particle.updateRootSig, g_particle.updateCSIndex);
+			g_particle.updateRootSig, g_particle.updatePSO);
 	}
 
 	void ExecuteParticleSimulation(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
@@ -112,7 +115,7 @@ namespace Engine::Graphics
 			// ヒープとルートシグネチャ、PSOをセット
 			a_pCtx->BindHeap();
 			a_pCtx->SetComputeRootSignature(g_particle.emitRootSig);
-			a_pCtx->SetComputePSO(g_particle.pPSOManager->GetPSO(g_particle.emitCSIndex));
+			a_pCtx->SetComputePSO(g_particle.pPSOManager->GetPSO(g_particle.emitPSO));
 
 			// 命令バインド
 			const auto* _pEmitBuff = _pParticleManager->GetEmitBuffer(_handle);
@@ -176,7 +179,7 @@ namespace Engine::Graphics
 			// ヒープとルートシグネチャ、PSOをセット
 			a_pCtx->BindHeap();
 			a_pCtx->SetComputeRootSignature(g_particle.updateRootSig);
-			a_pCtx->SetComputePSO(g_particle.pPSOManager->GetPSO(g_particle.updateCSIndex));
+			a_pCtx->SetComputePSO(g_particle.pPSOManager->GetPSO(g_particle.updatePSO));
 
 			// 更新設定バインド
 			// ※ HLSL 側 UpdateCB(UpdateParticleShader.hlsl)と並びを合わせること

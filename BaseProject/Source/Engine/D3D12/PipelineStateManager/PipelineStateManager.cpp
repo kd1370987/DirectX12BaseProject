@@ -7,6 +7,7 @@ namespace Engine::D3D12
 		m_rootSigHashMap = {};
 		m_cpRootSigVec = {};
 		m_psoMap = {};
+		m_psoHashMap = {};
 	}
 	void PipelineStateManager::Release()
 	{
@@ -25,6 +26,7 @@ namespace Engine::D3D12
 
 		// PSO解放
 		m_pPsoVec.clear();
+		m_psoHashMap.clear();
 		for (auto& [_hash, _cpPSO] : m_psoMap)
 		{
 			if (_cpPSO)
@@ -196,8 +198,15 @@ namespace Engine::D3D12
 	}
 	ID3D12PipelineState* PipelineStateManager::Request(const D3D12::GraphicsPipelineDesc& a_desc)
 	{
+		uint64_t _hash = 0;
+		return AcquirePSO(a_desc, _hash);
+	}
+
+	ID3D12PipelineState* PipelineStateManager::AcquirePSO(const D3D12::GraphicsPipelineDesc& a_desc, uint64_t& a_outHash)
+	{
 		// ハッシュを求める
 		uint64_t _hash = CalcHash(&a_desc.desc,sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+		a_outHash = _hash;
 
 		// キャッシュ検索
 		if (m_psoMap.contains(_hash))
@@ -227,8 +236,18 @@ namespace Engine::D3D12
 
 	ID3D12PipelineState* PipelineStateManager::Request(const D3D12::ComputePipelineDesc& a_desc)
 	{
+		uint64_t _hash = 0;
+		return AcquirePSO(a_desc, _hash);
+	}
+
+	ID3D12PipelineState* PipelineStateManager::AcquirePSO(const D3D12::ComputePipelineDesc& a_desc, uint64_t& a_outHash)
+	{
 		// ハッシュを求める
-		uint64_t _hash = CalcHash(&a_desc.desc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+		// 混ぜるのはコンピュート用の構造体ぶんだけ。
+		// グラフィックス用の大きさで読むと構造体の外まで舐めてしまい、
+		// 同じ内容でも呼ぶたびに違うハッシュになりうる
+		uint64_t _hash = CalcHash(&a_desc.desc, sizeof(D3D12_COMPUTE_PIPELINE_STATE_DESC));
+		a_outHash = _hash;
 
 		// キャッシュ検索
 		if (m_psoMap.contains(_hash))
@@ -258,19 +277,21 @@ namespace Engine::D3D12
 
 	ID3D12PipelineState* PipelineStateManager::Request(const D3D12::RenderPipelineBuilder& a_builder)
 	{
+		uint64_t _hash = 0;
+		return AcquirePSO(a_builder, _hash);
+	}
+
+	ID3D12PipelineState* PipelineStateManager::AcquirePSO(const D3D12::RenderPipelineBuilder& a_builder, uint64_t& a_outHash)
+	{
 		// 安全対策：シェーダーがセットされていない場合はクラッシュするので弾く
 		bool _hasVS = (a_builder.GetVS().pShaderBytecode != nullptr && a_builder.GetVS().BytecodeLength > 0);
 		bool _hasMS = (a_builder.GetMS().pShaderBytecode != nullptr && a_builder.GetMS().BytecodeLength > 0);
 
-		if (!_hasVS && !_hasMS)
-		{
-			// まだシェーダーの準備ができていないので生成をスキップ
-			// （ENGINE_LOG 等で警告を出しても良いです）
-			ENGINE_WARNING("シェーダーが読み込まれていないためPSOが作成できません : レンダー");
-			return nullptr;
-		}
-
 		// ストリーム構造体の組み立て : ゼロクリアしてパディングのゴミを消す
+		//
+		// シェーダーが無いときも先に組み立ててハッシュまで出す。
+		// 作れなかったことをそのハッシュに覚えさせておけば、
+		// 同じ要求が何度来ても新しい番号を配らずに済む
 		RenderPipelineStateStream _streamDesc = {};
 
 		_streamDesc.pRootSignature = GetRootSignature(a_builder.GetRootSignatureHandle());
@@ -309,10 +330,22 @@ namespace Engine::D3D12
 		// ハッシュ計算
 		// ストリーム構造体自体をハッシュ化すれば、VS版/MS版どちらでも一意のハッシュになる
 		uint64_t _hash = CalcHash(&_streamDesc, sizeof(_streamDesc));
+		a_outHash = _hash;
 
 		// キャッシュにあれば返す
 		if (m_psoMap.contains(_hash)) {
 			return m_psoMap[_hash].Get();
+		}
+
+		if (!_hasVS && !_hasMS)
+		{
+			// まだシェーダーの準備ができていないので生成をスキップ。
+			// 空の席を登録して、同じ要求が繰り返し来ても警告とハンドルが増えないようにする。
+			// シェーダーが読めたあとはバイトコードが変わってハッシュも変わるので、
+			// ここへ入れた空の席が生成の邪魔をすることはない
+			ENGINE_WARNING("シェーダーが読み込まれていないためPSOが作成できません : レンダー");
+			m_psoMap[_hash] = nullptr;
+			return nullptr;
 		}
 
 		// ストリーム構造体をDirectX側に登録
@@ -336,44 +369,66 @@ namespace Engine::D3D12
 		return _pPso.Get();
 	}
 
+	//======================================================================================
+	// ハッシュに対応するハンドルを配る
+	//
+	// 内容が同じPSOには同じ番号を返す。要求のたびに新しい番号を取ると、
+	// パイプラインを組み直すだけで番号が増え続け、
+	// 描画アイテムのソートキー(PSO番号)に収まらなくなる
+	//======================================================================================
+	Handle<ID3D12PipelineState> PipelineStateManager::RegisterPSO(uint64_t a_hash, ID3D12PipelineState* a_pPSO)
+	{
+		// 同じ内容が既にあればそのハンドルを使い回す
+		auto _it = m_psoHashMap.find(a_hash);
+		if (_it != m_psoHashMap.end() && m_psoHandlePool.IsValid(_it->second))
+		{
+			const uint16_t _idx = _it->second.GetIndex();
+
+			// 前回は作れず空席のままだったものが、今回は作れたときは実体を入れ直す
+			if (a_pPSO && _idx < m_pPsoVec.size() && !m_pPsoVec[_idx])
+			{
+				m_pPsoVec[_idx] = a_pPSO;
+			}
+			return _it->second;
+		}
+
+		// ハンドルを発行して、そのインデックスの位置へ実体を置く
+		auto _handle = m_psoHandlePool.Allocate();
+		if (!_handle.IsValid()) return {};
+
+		if (m_pPsoVec.size() <= _handle.GetIndex())
+		{
+			m_pPsoVec.resize(static_cast<size_t>(_handle.GetIndex()) + 1, nullptr);
+		}
+		m_pPsoVec[_handle.GetIndex()] = a_pPSO;
+
+		m_psoHashMap[a_hash] = _handle;
+		return _handle;
+	}
+
 	Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(
 		const D3D12::GraphicsPipelineDesc& a_desc
 	)
 	{
-		auto _handle = m_psoHandlePool.Allocate();
-		if (m_pPsoVec.size() <= _handle.GetIndex())
-		{
-			m_pPsoVec.resize(_handle.GetIndex() + 1);
-		}
-		m_pPsoVec[_handle.GetIndex()] = Request(a_desc);
-
-		return _handle;
+		uint64_t _hash = 0;
+		ID3D12PipelineState* _pPSO = AcquirePSO(a_desc, _hash);
+		return RegisterPSO(_hash, _pPSO);
 	}
 
 	Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(
 		const D3D12::ComputePipelineDesc& a_desc
 	)
 	{
-		auto _handle = m_psoHandlePool.Allocate();
-		if (m_pPsoVec.size() <= _handle.GetIndex())
-		{
-			m_pPsoVec.resize(_handle.GetIndex() + 1);
-		}
-		m_pPsoVec[_handle.GetIndex()] = Request(a_desc);
-
-		return _handle;
+		uint64_t _hash = 0;
+		ID3D12PipelineState* _pPSO = AcquirePSO(a_desc, _hash);
+		return RegisterPSO(_hash, _pPSO);
 	}
 
 	Handle<ID3D12PipelineState> PipelineStateManager::RequestHandle(const D3D12::RenderPipelineBuilder& a_builder)
 	{
-		auto _handle = m_psoHandlePool.Allocate();
-		if (m_pPsoVec.size() <= _handle.GetIndex())
-		{
-			m_pPsoVec.resize(_handle.GetIndex() + 1);
-		}
-		m_pPsoVec[_handle.GetIndex()] = Request(a_builder);
-
-		return _handle;
+		uint64_t _hash = 0;
+		ID3D12PipelineState* _pPSO = AcquirePSO(a_builder, _hash);
+		return RegisterPSO(_hash, _pPSO);
 	}
 
 	ID3D12PipelineState* PipelineStateManager::GetPSO(Handle<ID3D12PipelineState> a_handle)
@@ -385,15 +440,14 @@ namespace Engine::D3D12
 		return nullptr;
 	}
 
-	ID3D12PipelineState* PipelineStateManager::GetPSO(uint8_t a_rawIdx8bit)
+	ID3D12PipelineState* PipelineStateManager::GetPSO(uint16_t a_rawIndex)
 	{
-		// 8bitの生添字は、描画アイテムのソートキーから来る。
-		// 無効ハンドル(添字0xFFFF)を8bitへ落とすと 255 になるため、
-		// まだ255個も作っていない時期に配列の外を踏む。
-		// 呼び出し側は nullptr を「張らない」として扱うので、ここで止める
-		if (a_rawIdx8bit >= m_pPsoVec.size()) return nullptr;
+		// 生添字は描画アイテムのソートキーから来る。
+		// 無効ハンドルの添字(0xFFFF)がそのまま届くので、範囲外はここで止める。
+		// 呼び出し側は nullptr を「張らない」として扱う
+		if (a_rawIndex >= m_pPsoVec.size()) return nullptr;
 
-		return m_pPsoVec[a_rawIdx8bit];
+		return m_pPsoVec[a_rawIndex];
 	}
 
 	uint64_t PipelineStateManager::CalcHash(const void* a_pData, size_t a_size)

@@ -192,10 +192,11 @@ namespace Engine::Graphics
 		void SetComputeRootSignature(const Handle<ID3D12RootSignature>& a_handle);
 
 		// パイプラインステートをセット、前回と変更がない場合はスキップ
+		// PSOの指定は実体かハンドルで行う。
+		// 生の8bit添字を受ける入口は、PSOが256個を超えると黙って
+		// 別のPSOを引くため置かない
 		void SetGraphicPSO(ID3D12PipelineState* a_pPSO);
-		void SetGraphicPSO(uint8_t a_pPsoIndex);
 		void SetComputePSO(ID3D12PipelineState* a_pPSO);
-		void SetComputePSO(uint8_t a_pPsoIndex);
 
 		// ハンドルで張る版(PSOの通し番号が8bitに収まらなくなっても壊れない)
 		void SetGraphicPSO(const Handle<ID3D12PipelineState>& a_handle);

@@ -538,8 +538,12 @@ namespace Engine::Graphics
 
 	void RenderContext::DrawQueueDispathMesh(uint8_t a_passIndex)
 	{
-		// キャッシュ
-		uint8_t _lastPSO = 0xFF;
+		// 直前に張ったPSOの番号。
+		// 番号は16bitのどの値も実在しうるので、それより広い型の値で始める。
+		// 番号と同じ幅の「無効値」で始めると、先頭のアイテムがたまたま
+		// その番号だったときに「張り替え済み」と見なされ、
+		// PSOを張らないまま描いてしまう
+		uint32_t _lastPSO = 0xFFFFFFFFu;
 
 		// 指定タイプの命令キューを取得
 		auto _itemVec = m_pGraphicsEngine->GetPassItems(a_passIndex);
@@ -549,7 +553,7 @@ namespace Engine::Graphics
 		{
 			// メッシュシェーダー経路はインスタンスデータ側にリソースを寄せてあるため、
 			// ここではメッシュ・マテリアルをバインドしない
-			uint8_t  _psoID = _item.GetPSOID();
+			uint16_t _psoID = _item.GetPSOID();
 			// ----------------------------------------------------
 			// PSOの切り替え
 			// ----------------------------------------------------
@@ -608,15 +612,6 @@ namespace Engine::Graphics
 		m_pCmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 
-	void RenderContext::SetGraphicPSO(uint8_t a_pPsoIndex)
-	{
-		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
-		if (!_pPsoManager) return;
-		auto* _pPSO = _pPsoManager->GetPSO(a_pPsoIndex);
-		if (!_pPSO) return;
-		SetGraphicPSO(_pPSO);
-	}
-
 	void RenderContext::SetComputePSO(ID3D12PipelineState* a_pPSO)
 	{
 		m_pCmdList->SetPipelineState(a_pPSO);
@@ -638,15 +633,6 @@ namespace Engine::Graphics
 		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
 		if (!_pPsoManager) return;
 		auto* _pPSO = _pPsoManager->GetPSO(a_handle);
-		if (!_pPSO) return;
-		SetComputePSO(_pPSO);
-	}
-
-	void RenderContext::SetComputePSO(uint8_t a_pPsoIndex)
-	{
-		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
-		if (!_pPsoManager) return;
-		auto* _pPSO = _pPsoManager->GetPSO(a_pPsoIndex);
 		if (!_pPSO) return;
 		SetComputePSO(_pPSO);
 	}
