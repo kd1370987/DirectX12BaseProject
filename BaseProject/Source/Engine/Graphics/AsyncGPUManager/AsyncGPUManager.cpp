@@ -1,6 +1,6 @@
 ﻿#include "AsyncGPUManager.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics
 {
 	AsyncGPUManager::AsyncGPUManager() : m_isExitWorker(false) {}
 	AsyncGPUManager::~AsyncGPUManager() { Release(); }
@@ -24,7 +24,7 @@ namespace Engine::D3D12
 		m_inFlightTasks.clear();
 	}
 
-	ID3D12CommandAllocator* AsyncGPUManager::AcquireAllocator(Device* a_pDevice, AsyncCommandType a_type)
+	ID3D12CommandAllocator* AsyncGPUManager::AcquireAllocator(D3D12::Device* a_pDevice, AsyncCommandType a_type)
 	{
 		std::lock_guard<std::mutex> _lock(m_mutex);
 
@@ -53,7 +53,7 @@ namespace Engine::D3D12
 		return _newAllocator.Detach(); // ★修正
 	}
 
-	void AsyncGPUManager::RegisterTask(AsyncCommandType a_type, ID3D12CommandAllocator* a_pAllocator, Fence* a_pFence, UINT64 a_targetFenceValue, std::function<void()> a_onComplete)
+	void AsyncGPUManager::RegisterTask(AsyncCommandType a_type, ID3D12CommandAllocator* a_pAllocator, D3D12::Fence* a_pFence, UINT64 a_targetFenceValue, std::function<void()> a_onComplete)
 	{
 		std::lock_guard<std::mutex> _lock(m_mutex);
 

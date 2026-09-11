@@ -1,8 +1,8 @@
 ﻿#include "CommandPool.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics
 {
-	void Engine::D3D12::CommandPool::Init(Device* a_pDevice, D3D12_COMMAND_LIST_TYPE a_type)
+	void CommandPool::Init(D3D12::Device* a_pDevice, D3D12_COMMAND_LIST_TYPE a_type)
 	{
 
 		m_type = a_type;
@@ -31,7 +31,7 @@ namespace Engine::D3D12
 		m_fenceValue = 0;
 	}
 
-	void Engine::D3D12::CommandPool::Release()
+	void CommandPool::Release()
 	{
 		// GPU完了を待って解放
 		WaitIdle();
@@ -70,7 +70,7 @@ namespace Engine::D3D12
 		}
 	}
 
-	GraphicsCommandList* CommandPool::AcquireList(Device* a_pDevice, ID3D12CommandAllocator* a_pAllocator)
+	D3D12::GraphicsCommandList* CommandPool::AcquireList(D3D12::Device* a_pDevice, ID3D12CommandAllocator* a_pAllocator)
 	{
 		// ここは m_inFlightLists / m_freeLists / m_trackingMap をすべて書き換える。
 		// ワーカースレッドからリソースをビルドすると同時に呼ばれるため、
@@ -99,10 +99,10 @@ namespace Engine::D3D12
 		if (!m_freeLists.empty())
 		{
 			// フリーリストから取得
-			ComPtr<GraphicsCommandList> _cpList = std::move(m_freeLists.back());
+			ComPtr<D3D12::GraphicsCommandList> _cpList = std::move(m_freeLists.back());
 			m_freeLists.pop_back();			// 取得したのを配列から消す
 
-			GraphicsCommandList* _pRaw = _cpList.Get();
+			D3D12::GraphicsCommandList* _pRaw = _cpList.Get();
 
 			// フリーリストの再利用時は、渡されたアロケーターでリセットする
 			auto _hr = _pRaw->Reset(a_pAllocator, nullptr);
@@ -115,7 +115,7 @@ namespace Engine::D3D12
 		
 
 		// フリーがなければ新規作成
-		ComPtr<GraphicsCommandList> _cpNewList;
+		ComPtr<D3D12::GraphicsCommandList> _cpNewList;
 		HRESULT _hr = a_pDevice->CreateCommandList(
 			0,
 			m_type,
@@ -126,12 +126,12 @@ namespace Engine::D3D12
 		ENGINE_ERRLOG(SUCCEEDED(_hr), "CommandList の生成に失敗 HRESULT:%08X", _hr);
 
 		// 作成後にマップに登録して返す
-		GraphicsCommandList* _pRaw = _cpNewList.Get();
+		D3D12::GraphicsCommandList* _pRaw = _cpNewList.Get();
 		m_trackingMap[_pRaw] = std::move(_cpNewList);
 		return _pRaw;
 	}
 
-	void CommandPool::SubmitList(GraphicsCommandList* a_pList)
+	void CommandPool::SubmitList(D3D12::GraphicsCommandList* a_pList)
 	{
 		// 待機状態にする
 		a_pList->Close();
@@ -150,7 +150,7 @@ namespace Engine::D3D12
 		// APIに渡すための配列を作成
 		std::vector<ID3D12CommandList*> _executeLists;
 		_executeLists.reserve(m_pendingLists.size());
-		for (GraphicsCommandList* _pList : m_pendingLists)
+		for (D3D12::GraphicsCommandList* _pList : m_pendingLists)
 		{
 			_executeLists.push_back(_pList);
 		}
@@ -163,7 +163,7 @@ namespace Engine::D3D12
 		m_cpCmdQueue->Signal(m_cpFence.Get(), m_fenceValue);
 
 		// InFlight (実行中) リストへ移動
-		for (GraphicsCommandList* _pList : m_pendingLists)
+		for (D3D12::GraphicsCommandList* _pList : m_pendingLists)
 		{
 			auto _it = m_trackingMap.find(_pList);
 			if (_it != m_trackingMap.end())
@@ -179,7 +179,7 @@ namespace Engine::D3D12
 		return m_fenceValue;
 	}
 
-	void CommandPool::ExecuteImmediate(GraphicsCommandList* a_pList)
+	void CommandPool::ExecuteImmediate(D3D12::GraphicsCommandList* a_pList)
 	{
 		// コマンドリストを閉じる
 		a_pList->Close();

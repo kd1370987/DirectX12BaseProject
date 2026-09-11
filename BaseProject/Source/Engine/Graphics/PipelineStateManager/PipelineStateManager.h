@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "../Builder/RootSignatureBuilder/RootSignatureBuilder.h"
+#include "Engine/D3D12/Builder/RootSignatureBuilder/RootSignatureBuilder.h"
 
-#include "../Builder/PipelineBuilder/RenderPipelineBuilder/RenderPipelineBuilder.h"
+#include "Engine/D3D12/Builder/PipelineBuilder/RenderPipelineBuilder/RenderPipelineBuilder.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics
 {
 	struct RenderPipelineStateStream
 	{
@@ -25,10 +25,7 @@ namespace Engine::D3D12
 		CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT DSVFormat;
 		CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_DESC SampleDesc;
 	};
-}
 
-namespace Engine::Graphics
-{
 	//==========================================================================================
 	// ルートシグネチャとパイプラインステートの管理
 	//

@@ -1,6 +1,5 @@
 ﻿#include "Mesh.h"
 
-#include "../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 #include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
 

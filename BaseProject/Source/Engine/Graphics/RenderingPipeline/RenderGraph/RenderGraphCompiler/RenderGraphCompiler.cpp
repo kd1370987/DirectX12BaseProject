@@ -378,7 +378,7 @@ namespace Engine::Graphics::Pipeline
 		// 土台が無いまま作られたものはここで拾って警告を出す
 		for (VirtualResource& _vRes : _pResRegistry->RefVirtualResources())
 		{
-			_vRes.ResolveSize(_baseWidth, _baseHeight);
+			_vRes.ResolveSize(_baseWidth, _baseHeight, m_pRenderGraph->GetCompileDevice());
 		}
 
 		// スロットは識別子をそのまま持っているので、書き戻すものは無い。

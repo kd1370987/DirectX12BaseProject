@@ -3,9 +3,8 @@
 #include "Engine/Graphics/GraphicEngine.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 #include "Engine/D3D12/CBAllocator/CBAllocator.h"
 

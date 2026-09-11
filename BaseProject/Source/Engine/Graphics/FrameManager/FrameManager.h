@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Engine::D3D12
+namespace Engine::Graphics
 {
 	/// <summary>
 	/// フレームごとのリソース
@@ -21,7 +21,7 @@ namespace Engine::D3D12
 		/// <summary>
 		/// 初期化
 		/// </summary>
-		void Init(Device* a_pDevice);
+		void Init(D3D12::Device* a_pDevice);
 
 		/// <summary>
 		/// 解放 : WaitForAllしてから各リソースを解放
@@ -36,7 +36,7 @@ namespace Engine::D3D12
 		/// <summary>
 		/// フレーム終了 : フェンスにシグナルを送る
 		/// </summary>
-		void EndFrame(CommandQueue* a_pQueue);
+		void EndFrame(D3D12::CommandQueue* a_pQueue);
 
 		/// <summary>
 		/// GPU完了を待つ（フレーム指定）
@@ -87,7 +87,7 @@ namespace Engine::D3D12
 	private:
 
 		// GPU同期待ち用フェンス
-		ComPtr<Fence>   m_cpFence = nullptr;		// フェンス本体
+		ComPtr<D3D12::Fence>   m_cpFence = nullptr;		// フェンス本体
 		HANDLE          m_fenceEvent = nullptr;		// イベント
 		UINT64          m_currentFenceValue = 0;	// 現在の値
 

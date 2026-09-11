@@ -6,7 +6,6 @@
 #include "Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "Resource/Manager/ResourceManager/ResourceManager.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
@@ -102,7 +101,7 @@ namespace Engine
 		m_upTimeManager->Init(static_cast<int>(_winOp.targetFrameRate));
 
 		// 描画周りの器を先に作る。
-		// デバイスもディスクリプタヒープもバックバッファもグラフィックスエンジンの持ち物で、
+		// デバイス・コマンドキュー・ディスクリプタヒープ・バックバッファはどれもグラフィックスエンジンの持ち物で、
 		// 他のD3Dオブジェクトはすべてデバイスから作るので、何よりも先に用意する
 		m_upGraphicsEngine = std::make_unique<Graphics::GraphicsEngine>();
 		if (!m_upGraphicsEngine->InitDevice(_isD3DDebug))
@@ -112,9 +111,8 @@ namespace Engine
 		}
 		auto* _pDev = m_upGraphicsEngine->RefDevice();
 
-		// コマンドキュー・フレーム同期(デバイスは借りるだけ)
-		D3D12::D3D12Wrapper::Instance().Init(_pDev);
-		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
+		// 初期化中のGPU操作を積むコマンドリスト。最後に ExecuteImmediate で流す
+		auto* _pCmdList = m_upGraphicsEngine->AcquireDirectCommandList();
 
 		// ジョブシステム起動
 		m_upJobSystem = std::make_unique<Thread::JobSystem>();
@@ -153,12 +151,11 @@ namespace Engine
 		// レンダーグラフのテクスチャも windowWidth/Height 基準で、
 		// 最終段がバックバッファへ CopyResource するためサイズを一致させておく必要がある。
 		// クライアント領域へはスワップチェインの STRETCH で伸ばされる。
-		// スワップチェインは描画キューに紐づくので、キューを作った後でないと作れない
+		// スワップチェインは描画キューに紐づくので、InitDevice の後でないと作れない
 		m_upGraphicsEngine->CreateBackBuffer(
 			m_upWindow->GetWindowHandle(),
 			static_cast<UINT>(_winOp.windowWidth),
-			static_cast<UINT>(_winOp.windowHeight),
-			D3D12::D3D12Wrapper::Instance().GetCommandQueue()
+			static_cast<UINT>(_winOp.windowHeight)
 		);
 
 		// 描画周り初期化(パイプラインステート管理もここで作られる)
@@ -169,7 +166,7 @@ namespace Engine
 
 		// パーティクルブッファの生成
 		m_upParticleManager = std::make_unique<Particle::ParticleBufferManager>();
-		m_upParticleManager->Init(_pDev,_pHeapManager,_pCmdList);
+		m_upParticleManager->Init(m_upGraphicsEngine.get(),_pHeapManager,_pCmdList);
 
 		// レイトレワールド構築
 		Engine::Raytracing::RayEngine::Instance().CommitWorld(_pDev,_pHeapManager,_pCmdList);
@@ -193,7 +190,7 @@ namespace Engine
 		);
 
 		// ダイレクトキューの実行
-		D3D12::D3D12Wrapper::Instance().CloseAndExecuteComdLists(_pCmdList);
+		m_upGraphicsEngine->ExecuteImmediate(_pCmdList);
 	}
 
 	void MainEngine::Release()
@@ -257,7 +254,7 @@ namespace Engine
 		// 全GPU作業の完了を待ってから実行し、デバイスより先にリソースを解放しきる。
 		// 待つのは最後の Present まで含めて : この後バックバッファ(スワップチェイン)を捨てるので、
 		// フレームのフェンス(Presentより前に打たれる)を待つだけでは足りない
-		D3D12::D3D12Wrapper::Instance().WaitForGPUIdle();
+		m_upGraphicsEngine->WaitForGPUIdle();
 		for (auto& _releaseQueue : m_releaseQueues)
 		{
 			// 取り出してから実行する : 実行中に積み直されてもロックが二重にならない
@@ -280,11 +277,8 @@ namespace Engine
 		// ビューを預けていたものが全部片付いたこの位置が最後になる
 		m_upGraphicsEngine->ReleaseDescriptorHeap();
 
-		// コマンドキュー・フレーム同期の解放(デバイスは借り物なので残る)
-		D3D12::D3D12Wrapper::Instance().Release();
-
-		// デバイス解放。
-		// 他のD3Dオブジェクトはすべてこの子なので一番最後。残っているものはここで報告される
+		// コマンドキュー・フレーム同期・デバイスの解放。
+		// 他のD3Dオブジェクトはすべてデバイスの子なので一番最後。残っているものはここで報告される
 		m_upGraphicsEngine->ReleaseDevice();
 		m_upGraphicsEngine.reset();
 
@@ -387,14 +381,14 @@ namespace Engine
 
 		// 描画開始 : ここでフレームインデックスが更新され、そのフレームのGPU完了を待機する
 		{
-			ENGINE_PROFILE_SCOPE("D3D12WrapperBeginFrame");
-			D3D12::D3D12Wrapper::Instance().BeginFrame();
+			ENGINE_PROFILE_SCOPE("GraphicsBeginFrame");
+			m_upGraphicsEngine->BeginFrame();
 		}
 
 		// 今から使うフレームに登録されているファンクションを実行して空にする
 		// BeginFrameの待機を終えた後に実行することで、このインデックスを前回使ったフレームの
 		// GPU作業が完了していることが保証される
-		UINT _currentFrameIdx = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
+		UINT _currentFrameIdx = m_upGraphicsEngine->GetCurrentFrameIndex();
 		{
 			// 取り出してから実行する : 実行中に積み直されてもロックが二重にならない
 			std::vector<std::function<void()>> _funcs = {};
@@ -407,9 +401,6 @@ namespace Engine
 				_func();
 			}
 		}
-
-		// 描画フレームリソース
-		m_upGraphicsEngine->BeginFrame();
 
 		// レイワールドインスタンスのクリア
 		Raytracing::RayEngine::Instance().EndFrame();
@@ -425,7 +416,7 @@ namespace Engine
 			// ゲームモード以外の処理
 			if (m_appMode != EAppMode::Game)
 			{
-				auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
+				auto* _pCmdList = m_upGraphicsEngine->AcquireDirectCommandList();
 				auto* _pHeapManager = m_upGraphicsEngine->RefDescriptorHeapManager();
 				const auto* _pBackBuffer = m_upGraphicsEngine->GetBackBuffer();
 
@@ -455,7 +446,7 @@ namespace Engine
 
 				// エディター描画
 				Engine::Editor::MainEditor::Instance().Draw(_pCmdList);
-				D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
+				m_upGraphicsEngine->SubmitDirectCommandList(_pCmdList);
 			}
 
 			m_upGraphicsEngine->EndFrame();
@@ -577,7 +568,8 @@ namespace Engine
 	}
 	void MainEngine::RegisterDeferredResource(std::function<void()> a_releaseFunc)
 	{
-		const UINT _frameIdx = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
+		// グラフィックスエンジンが無い(起動前・終了後)ときは、どの枠でもよいので先頭へ積む
+		const UINT _frameIdx = m_upGraphicsEngine ? m_upGraphicsEngine->GetCurrentFrameIndex() : 0;
 
 		std::lock_guard<std::mutex> _lock(m_releaseQueueMutex);
 		m_releaseQueues[_frameIdx].push_back(std::move(a_releaseFunc));

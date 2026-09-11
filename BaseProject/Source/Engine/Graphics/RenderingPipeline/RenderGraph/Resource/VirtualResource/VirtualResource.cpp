@@ -1,6 +1,5 @@
 ﻿#include "VirtualResource.h"
 
-#include "../../../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 // 占有サイズの見積もりと実体の生成で、同じ仕様書を通すために要る
 #include "../../../../../Resource/Data/Texture/IO/Creater/TextureCreater.h"
@@ -121,13 +120,14 @@ namespace Engine::Graphics::Pipeline
 		ResolveSizeAndAllocation();
 	}
 
-	void VirtualResource::ResolveSize(UINT64 a_baseWidth, UINT a_baseHeight)
+	void VirtualResource::ResolveSize(UINT64 a_baseWidth, UINT a_baseHeight, D3D12::Device* a_pDevice)
 	{
 		// 外部リソースは実体が向こうにあるので触らない
 		if (m_isImported) return;
 
 		m_baseWidth = a_baseWidth;
 		m_baseHeight = a_baseHeight;
+		m_pDevice = a_pDevice;
 
 		// テクスチャで宣言が 0 なら、土台の解像度が無いと決めようがない。
 		// バッファは宣言のバイト数だけで決まるので解像度は要らない
@@ -389,7 +389,10 @@ namespace Engine::Graphics::Pipeline
 		// 外部リソースの実体はグラフの外の持ち物なので、こちらのヒープは食わない
 		if (m_isImported) return;
 
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		// デバイスはコンパイル時(ResolveSize)に受け取る。
+		// それより前に要件が足し込まれたときは見積もれないので 0 のまま置いておき、
+		// コンパイルの ResolveSize で出し直す
+		auto* _pDevice = m_pDevice;
 		if (!_pDevice) return;
 
 		//----------------------------------------------------------------------------------

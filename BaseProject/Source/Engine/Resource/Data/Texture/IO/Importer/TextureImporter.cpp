@@ -1,6 +1,6 @@
 ﻿#include "TextureImporter.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "Engine/Graphics/GraphicEngine.h"
 #include "../../../../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../../Data/Texture/Texture.h"
@@ -107,12 +107,21 @@ namespace Engine::Resource
 	}
 
 	bool BuildFromScratchiImage(
-		D3D12::Device* a_pDevice,
+		const Engine::Resource::ResourceBuildContext& a_ctx,
 		ComPtr<ID3D12Resource>& a_cpRes,
 		DirectX::TexMetadata& a_meta,
 		DirectX::ScratchImage& a_sImg
 	)
 	{
+		// デバイスと転送の依頼先はコンテキストから引く
+		auto* _pDevice = a_ctx.pDevice;
+		auto* _pGraphicsEngine = a_ctx.pGraphicsEngine;
+		if (!_pDevice || !_pGraphicsEngine)
+		{
+			ENGINE_ERRLOG(false, "テクスチャ構築時にデバイスかグラフィックスエンジンがコンテキストに設定されていません");
+			return false;
+		}
+
 		HRESULT _hr = E_FAIL;
 		// テクスチャのためのヒープ設定
 		D3D12_HEAP_PROPERTIES _texHeapProp = {};
@@ -136,7 +145,7 @@ namespace Engine::Resource
 		_texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 		// リソース生成（テクスチャ）
-		_hr = a_pDevice->CreateCommittedResource(
+		_hr = _pDevice->CreateCommittedResource(
 			&_texHeapProp,
 			D3D12_HEAP_FLAG_NONE,
 			&_texDesc,
@@ -154,7 +163,7 @@ namespace Engine::Resource
 		if (a_cpRes) a_cpRes->SetName(L"Texture_Imported");	// リーク調査用
 
 		// アップロードヒープ作成
-		Engine::Resource::UploadBuffer _uploadBuffer = CreateUploadHeap(a_pDevice, _texDesc, a_meta);
+		Engine::Resource::UploadBuffer _uploadBuffer = CreateUploadHeap(_pDevice, _texDesc, a_meta);
 
 		// 中間バッファへデータコピー
 		void* _pData = nullptr;
@@ -188,8 +197,8 @@ namespace Engine::Resource
 		// UploadBuffer構造体もキャプチャ用に値コピーしておく
 		Engine::Resource::UploadBuffer _capturedUploadBuf = _uploadBuffer;
 
-		// D3D12Wrapperに非同期タスクとして登録
-		Engine::D3D12::D3D12Wrapper::Instance().ExecuteAsyncCopy(
+		// グラフィックスエンジンに非同期タスクとして登録
+		_pGraphicsEngine->ExecuteAsyncCopy(
 			// コマンドを積む
 			[a_cpRes, _capturedUploadBuf](Engine::D3D12::GraphicsCommandList* a_pCmdList)
 			{
@@ -248,6 +257,7 @@ namespace Engine::Resource
 	}
 
 	ComPtr<ID3D12Resource> Engine::Resource::ImportTexture(
+		const ResourceBuildContext& a_ctx,
 		const std::string& a_filePath,
 		D3D12_RESOURCE_DESC* a_desc
 	)
@@ -259,7 +269,6 @@ namespace Engine::Resource
 		std::wstring _path = Engine::String::ToWideString(a_filePath);
 		DirectX::TexMetadata _meta = {};
 		DirectX::ScratchImage _sImg = {};
-		auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
 
 		// テクスチャ読み込み
 		if (!ImportFromPath(_meta, _sImg, _path))
@@ -300,15 +309,14 @@ namespace Engine::Resource
 		}
 
 		// テクスチャを構築
-		BuildFromScratchiImage(_pDevice, _cpRes, _meta, _sImg);
+		BuildFromScratchiImage(a_ctx, _cpRes, _meta, _sImg);
 
 		return _cpRes;
 	}
 
-	ComPtr<ID3D12Resource> Engine::Resource::DefaultTexture(Math::Color a_color)
+	ComPtr<ID3D12Resource> Engine::Resource::DefaultTexture(const ResourceBuildContext& a_ctx, Math::Color a_color)
 	{
 		ComPtr<ID3D12Resource> _cpRes = nullptr;
-		auto* _pDevice = Engine::D3D12::D3D12Wrapper::Instance().GetDevice();
 		DirectX::TexMetadata _meta = {};
 		DirectX::ScratchImage _sImg = {};
 		_sImg = {};
@@ -331,13 +339,13 @@ namespace Engine::Resource
 		}
 		_meta = _sImg.GetMetadata();
 		// テクスチャを構築
-		BuildFromScratchiImage(_pDevice, _cpRes, _meta, _sImg);
+		BuildFromScratchiImage(a_ctx, _cpRes, _meta, _sImg);
 		return _cpRes;
 	}
 
-	ComPtr<ID3D12Resource> Engine::Resource::WhiteTexture()
+	ComPtr<ID3D12Resource> Engine::Resource::WhiteTexture(const ResourceBuildContext& a_ctx)
 	{
-		return DefaultTexture({
+		return DefaultTexture(a_ctx, {
 			255,
 			255,
 			255,
@@ -345,9 +353,9 @@ namespace Engine::Resource
 			});
 	}
 
-	ComPtr<ID3D12Resource> Engine::Resource::BlackTexture()
+	ComPtr<ID3D12Resource> Engine::Resource::BlackTexture(const ResourceBuildContext& a_ctx)
 	{
-		return DefaultTexture({
+		return DefaultTexture(a_ctx, {
 			0,
 			0,
 			0,
@@ -355,9 +363,9 @@ namespace Engine::Resource
 			});
 	}
 
-	ComPtr<ID3D12Resource> Engine::Resource::NormalWhiteTexture()
+	ComPtr<ID3D12Resource> Engine::Resource::NormalWhiteTexture(const ResourceBuildContext& a_ctx)
 	{
-		return DefaultTexture({
+		return DefaultTexture(a_ctx, {
 			128,
 			128,
 			255,
@@ -365,9 +373,9 @@ namespace Engine::Resource
 			});
 	}
 
-	ComPtr<ID3D12Resource> Engine::Resource::ORMTexture()
+	ComPtr<ID3D12Resource> Engine::Resource::ORMTexture(const ResourceBuildContext& a_ctx)
 	{
-		return DefaultTexture({
+		return DefaultTexture(a_ctx, {
 			0,
 			255,
 			255,

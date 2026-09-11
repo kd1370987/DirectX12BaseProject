@@ -841,7 +841,7 @@
     <Filter Include="Source\Engine\D3D12">
       <UniqueIdentifier>{1d727b94-84b5-4847-a0f9-b3e57b2c5b80}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\AsyncGPUManager">
+    <Filter Include="Source\Engine\Graphics\AsyncGPUManager">
       <UniqueIdentifier>{09aabb1d-951a-4fde-a6a1-3397408e265a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\Builder">
@@ -859,17 +859,14 @@
     <Filter Include="Source\Engine\D3D12\CBAllocator">
       <UniqueIdentifier>{626c0882-83cc-471e-b136-dfd9201161a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\Command">
+    <Filter Include="Source\Engine\Graphics\Command">
       <UniqueIdentifier>{27ceb879-db46-4831-9769-4580a32db4d5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\Command\CommandContext">
+    <Filter Include="Source\Engine\Graphics\Command\CommandContext">
       <UniqueIdentifier>{56d6c690-7ea7-4811-b750-edf605c8ad34}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\Command\CommandPool">
+    <Filter Include="Source\Engine\Graphics\Command\CommandPool">
       <UniqueIdentifier>{8d597e44-51a5-4c99-a46d-16c3c141c721}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\D3D12\D3D12Wrapper">
-      <UniqueIdentifier>{c7841127-5280-45c2-8628-f04b05253005}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\D3DObject">
       <UniqueIdentifier>{fa7a398f-5a7b-4b2d-ae43-74742227591e}</UniqueIdentifier>
@@ -895,7 +892,7 @@
     <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator">
       <UniqueIdentifier>{c0de0007-1111-4222-8333-0000c0de0007}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\FrameManager">
+    <Filter Include="Source\Engine\Graphics\FrameManager">
       <UniqueIdentifier>{14fec62a-18d7-4f45-a317-96674e69a789}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\D3D12\GPUBuffer">
@@ -931,7 +928,7 @@
     <Filter Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer">
       <UniqueIdentifier>{63da3fe7-5e49-47b4-abd8-55de9e6c16e6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\PipelineStateManager">
+    <Filter Include="Source\Engine\Graphics\PipelineStateManager">
       <UniqueIdentifier>{a735ca8c-bd9f-4f7c-9f30-41827be7b1e6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\ECS">
@@ -2136,8 +2133,8 @@
     <ClCompile Include="Source\Engine\Collision\NarrowPhase\TestTriangle\TestTriangle.cpp">
       <Filter>Source\Engine\Collision\NarrowPhase\TestTriangle</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\AsyncGPUManager\AsyncGPUManager.cpp">
-      <Filter>Source\Engine\D3D12\AsyncGPUManager</Filter>
+    <ClCompile Include="Source\Engine\Graphics\AsyncGPUManager\AsyncGPUManager.cpp">
+      <Filter>Source\Engine\Graphics\AsyncGPUManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.cpp">
       <Filter>Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder</Filter>
@@ -2148,14 +2145,11 @@
     <ClCompile Include="Source\Engine\D3D12\CBAllocator\CBAllocator.cpp">
       <Filter>Source\Engine\D3D12\CBAllocator</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\Command\CommandContext\CommandContext.cpp">
-      <Filter>Source\Engine\D3D12\Command\CommandContext</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Command\CommandContext\CommandContext.cpp">
+      <Filter>Source\Engine\Graphics\Command\CommandContext</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\Command\CommandPool\CommandPool.cpp">
-      <Filter>Source\Engine\D3D12\Command\CommandPool</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.cpp">
-      <Filter>Source\Engine\D3D12\D3D12Wrapper</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Command\CommandPool\CommandPool.cpp">
+      <Filter>Source\Engine\Graphics\Command\CommandPool</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp">
       <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
@@ -2175,8 +2169,8 @@
     <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.cpp">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\FrameManager\FrameManager.cpp">
-      <Filter>Source\Engine\D3D12\FrameManager</Filter>
+    <ClCompile Include="Source\Engine\Graphics\FrameManager\FrameManager.cpp">
+      <Filter>Source\Engine\Graphics\FrameManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer</Filter>
@@ -2199,8 +2193,8 @@
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp">
       <Filter>Source\Engine\D3D12\GPUBuffer\StaticBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.cpp">
-      <Filter>Source\Engine\D3D12\PipelineStateManager</Filter>
+    <ClCompile Include="Source\Engine\Graphics\PipelineStateManager\PipelineStateManager.cpp">
+      <Filter>Source\Engine\Graphics\PipelineStateManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp">
       <Filter>Source\Engine\ECS\ArchetypeChunkManager</Filter>
@@ -3591,8 +3585,8 @@
     <ClInclude Include="Source\Engine\D3D12\D3D12Types.h">
       <Filter>Source\Engine\D3D12</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\AsyncGPUManager\AsyncGPUManager.h">
-      <Filter>Source\Engine\D3D12\AsyncGPUManager</Filter>
+    <ClInclude Include="Source\Engine\Graphics\AsyncGPUManager\AsyncGPUManager.h">
+      <Filter>Source\Engine\Graphics\AsyncGPUManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.h">
       <Filter>Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder</Filter>
@@ -3603,14 +3597,11 @@
     <ClInclude Include="Source\Engine\D3D12\CBAllocator\CBAllocator.h">
       <Filter>Source\Engine\D3D12\CBAllocator</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\Command\CommandContext\CommandContext.h">
-      <Filter>Source\Engine\D3D12\Command\CommandContext</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Command\CommandContext\CommandContext.h">
+      <Filter>Source\Engine\Graphics\Command\CommandContext</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\Command\CommandPool\CommandPool.h">
-      <Filter>Source\Engine\D3D12\Command\CommandPool</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3D12Wrapper\D3D12Wrapper.h">
-      <Filter>Source\Engine\D3D12\D3D12Wrapper</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Command\CommandPool\CommandPool.h">
+      <Filter>Source\Engine\Graphics\Command\CommandPool</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h">
       <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
@@ -3633,8 +3624,8 @@
     <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.h">
       <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\FrameManager\FrameManager.h">
-      <Filter>Source\Engine\D3D12\FrameManager</Filter>
+    <ClInclude Include="Source\Engine\Graphics\FrameManager\FrameManager.h">
+      <Filter>Source\Engine\Graphics\FrameManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer</Filter>
@@ -3675,8 +3666,8 @@
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\DynamicVertexBuffer.h">
       <Filter>Source\Engine\D3D12\GPUBuffer\VertexBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\PipelineStateManager\PipelineStateManager.h">
-      <Filter>Source\Engine\D3D12\PipelineStateManager</Filter>
+    <ClInclude Include="Source\Engine\Graphics\PipelineStateManager\PipelineStateManager.h">
+      <Filter>Source\Engine\Graphics\PipelineStateManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\ECSCommon.h">
       <Filter>Source\Engine\ECS</Filter>

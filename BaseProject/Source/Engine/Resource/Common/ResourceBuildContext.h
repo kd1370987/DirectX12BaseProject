@@ -2,6 +2,7 @@
 
 namespace Engine::Graphics
 {
+	class GraphicsEngine;
 	class MeshBufferAllocator;
 
 	namespace Pipeline
@@ -45,6 +46,8 @@ namespace Engine::Resource
 		D3D12::GraphicsCommandList* pComputeCmdList = nullptr;	// BLAS構築用
 
 		// ---- 作成時に使うマネージャー ----
+		// バッチの外で単発の転送を流すもの(テクスチャの読み込みなど)は、ここへ依頼する
+		Graphics::GraphicsEngine* pGraphicsEngine = nullptr;
 		Graphics::MeshBufferAllocator* pMeshBufferAllocator = nullptr;
 
 		// レンダリングパイプラインを読むときに使う。

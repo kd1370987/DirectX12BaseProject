@@ -86,8 +86,11 @@ namespace Engine::Graphics::Pipeline
 
 		// 描画解像度を受け取り直して、実サイズと占有サイズを出し直す。
 		// 宣言が 0 のところだけ「解像度 × scale」で埋まる(明示サイズはそのまま)。
-		// 何度呼んでも同じ結果になるので、要件が変わるたびに通してよい
-		void ResolveSize(UINT64 a_baseWidth, UINT a_baseHeight);
+		// 何度呼んでも同じ結果になるので、要件が変わるたびに通してよい。
+		//
+		// 占有サイズの見積もりはデバイスへの問い合わせなので a_pDevice が要る(GPUオブジェクトは作らない)。
+		// nullptr なら見積もりは 0 のまま(設計図側のグラフはこれでよい : 実体を持たない)
+		void ResolveSize(UINT64 a_baseWidth, UINT a_baseHeight, D3D12::Device* a_pDevice);
 
 		//----------------------------------------------------------------------------------
 		// アクセサ
@@ -356,6 +359,9 @@ namespace Engine::Graphics::Pipeline
 		// --- 予想サイズ ---
 		uint64_t m_allocationSize = 0;		// 実体となったときに使用される予定のメモリサイズ
 		uint64_t m_allocationAlignment = 0;
+
+		// 見積もりを問い合わせるデバイス(借り物)。ResolveSize で受け取る
+		D3D12::Device* m_pDevice = nullptr;
 
 		// --- クリア ---
 		Math::Color m_clearColor = { 0.f, 0.f, 0.f, 1.f };

@@ -30,13 +30,6 @@ namespace Engine::D3D12
 		);
 
 		/// <summary>
-		/// データのアップロード : この呼び出し1回ごとにキューへの実行が走る
-		/// </summary>
-		/// <param name="a_pData">型データ</param>
-		/// <param name="a_count">要素数</param>
-		RangeHandle<T> AllocateAndUpload(const T* a_pData, UINT a_count);
-
-		/// <summary>
 		/// 領域を確保し、渡されたコマンドリストへ転送コマンドを積む
 		/// 実行はバッチを開いた側が行うため、まとめて読むときはこちらを使う
 		/// </summary>
@@ -50,10 +43,14 @@ namespace Engine::D3D12
 		);
 
 		/// <summary>
-		/// 領域の解放
+		/// 領域の解放 : GPU が a_releaseFenceValue まで進んだら再利用される
 		/// </summary>
-		/// <param name="a_handle"></param>
-		void Free(const RangeHandle<T>& a_handle);
+		/// <param name="a_handle">返す領域</param>
+		/// <param name="a_releaseFenceValue">
+		/// 今フレームの終わりにシグナルされるフェンス値。
+		/// 今フレームがまだこの領域を読んでいるかもしれないので、それが終わるまで空けない
+		/// </param>
+		void Free(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue);
 
 		/// <summary>
 		/// バッファの更新
@@ -73,23 +70,6 @@ namespace Engine::D3D12
 
 		return MegaBuffer::Create(a_pDevice,a_pHeapManager,a_pCmdList,a_elemetNum,sizeof(T));
 	}
-	template<typename T>
-	inline RangeHandle<T> MegaStructuredBuffer<T>::AllocateAndUpload(const T* a_pData, UINT a_count)
-	{
-		// アロケーターから領域を確保
-		auto _handle = m_rangeAllocator.AllocateRange(a_count);
-		if (!_handle.IsValid()) return _handle;		// 容量不足
-
-		// バイトオフセットとサイズを計算
-		UINT _destOffsetBytes = _handle.startIndex * sizeof(T);
-		UINT _sizeBytes = a_count * sizeof(T);
-
-		// 基底クラスの隠蔽された関数を呼んで非同期アップロード
-		UploadDataAsync(_destOffsetBytes, a_pData, _sizeBytes);
-
-		return _handle;
-	}
-
 	template<typename T>
 	inline RangeHandle<T> MegaStructuredBuffer<T>::AllocateAndRecordUpload(
 		GraphicsCommandList* a_pCmdList,
@@ -113,13 +93,13 @@ namespace Engine::D3D12
 	}
 
 	template<typename T>
-	inline void MegaStructuredBuffer<T>::Free(const RangeHandle<T>& a_handle)
+	inline void MegaStructuredBuffer<T>::Free(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue)
 	{
 		if (!a_handle.IsValid()) return;
 
 		// 今フレームがこの領域を参照している可能性があるため、
 		// 今フレーム完了時のフェンス値でタグ付けして遅延解放を予約する
-		m_rangeAllocator.FreeRange(a_handle, GetNextFenceValue());
+		m_rangeAllocator.FreeRange(a_handle, a_releaseFenceValue);
 	}
 	template<typename T>
 	inline void MegaStructuredBuffer<T>::Update(uint64_t a_currentFrameFence)

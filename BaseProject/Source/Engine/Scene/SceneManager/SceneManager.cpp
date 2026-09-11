@@ -4,11 +4,10 @@
 #include "../../ECS/World/World.h"	// unique_ptr<World> を扱うので完全型が要る
 
 #include "Engine/MainEngine.h"
+#include "Engine/Graphics/GraphicEngine.h"
 
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
-
-#include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
 #include "../../Audio/AudioManager.h"
 
@@ -34,7 +33,10 @@ namespace Engine::Scene
 		//----------------------------------------------------------------------------------
 		if (!m_upBaseSceneVec.empty())
 		{
-			D3D12::D3D12Wrapper::Instance().WaitForGPUIdle();
+			if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
+			{
+				_pGE->WaitForGPUIdle();
+			}
 		}
 		while (!m_upBaseSceneVec.empty())
 		{
@@ -249,7 +251,10 @@ namespace Engine::Scene
 		if (m_upBaseSceneVec.empty()) return;
 
 		// GPU待ち
-		D3D12::D3D12Wrapper::Instance().WaitForFrame();
+		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
+		{
+			_pGE->WaitForFrame();
+		}
 
 		// これを外すと1つも残らないか
 		const bool _isLastScene = (m_upBaseSceneVec.size() == 1);

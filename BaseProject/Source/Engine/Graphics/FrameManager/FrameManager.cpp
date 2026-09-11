@@ -1,8 +1,8 @@
 ﻿#include "FrameManager.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics
 {
-	void FrameManager::Init(Device* a_pDevice)
+	void FrameManager::Init(D3D12::Device* a_pDevice)
 	{
 		// フレームリソースの生成
 		for (auto& _res : m_frameResources)
@@ -66,7 +66,7 @@ namespace Engine::D3D12
 		m_frameResources[m_cpuFrameIndex].cpAllocator->Reset();
 	}
 
-	void FrameManager::EndFrame(CommandQueue * a_pQueue)
+	void FrameManager::EndFrame(D3D12::CommandQueue * a_pQueue)
 	{
 		// 現フレームのフェンス値を進める
 		m_currentFenceValue++;

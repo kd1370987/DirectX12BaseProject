@@ -1,19 +1,19 @@
 ﻿#include "ParticleBufferManager.h"
 
 #include "../Resource/Manager/AssetDatabase/AssetDatabase.h"
-
-#include "../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../Graphics/GraphicEngine.h"
 
 namespace Engine::Particle
 {
 	void Engine::Particle::ParticleBufferManager::Init(
-		D3D12::Device* a_pDevice,
+		Graphics::GraphicsEngine* a_pGraphicsEngine,
 		D3D12::DescriptorHeapManager* a_pHeapManager,
 		D3D12::GraphicsCommandList* a_pCmdList
 	)
 	{
-		// ビューの置き場を控える : プールは非同期に作られるので、そこまで持ち回る
+		// ビューの置き場と転送の依頼先を控える : プールは非同期に作られるので、そこまで持ち回る
 		m_pHeapManager = a_pHeapManager;
+		m_pGraphicsEngine = a_pGraphicsEngine;
 
 		// パーティクルのデータとバッファ自体は軽いのでいったん初期化時に全生成
 		//auto _propVec = Resource::AssetDatabase::Instance().GetTypeMetaVec("ParticlesAsset");
@@ -261,7 +261,8 @@ namespace Engine::Particle
 	void ParticleBufferManager::CreateParticleDataAsync(const Handle<Resource::ParticlesAsset>& a_handle)
 	{
 		// デバイス取得
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		if (!m_pGraphicsEngine) return;
+		auto* _pDevice = m_pGraphicsEngine->RefDevice();
 
 		// メインスレッド側でマップ作成
 		{
@@ -280,7 +281,7 @@ namespace Engine::Particle
 		}
 
 		// コンピュート用の計算を非同期マネージャーへ流す
-		D3D12::D3D12Wrapper::Instance().ExecuteAsyncCopy(
+		m_pGraphicsEngine->ExecuteAsyncCopy(
 			// ロード処理
 			[this,_pDevice,a_handle](D3D12::GraphicsCommandList* a_pCmdList)
 			{

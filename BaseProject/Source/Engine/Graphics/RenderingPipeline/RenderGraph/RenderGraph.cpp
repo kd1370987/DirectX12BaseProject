@@ -899,10 +899,13 @@ namespace Engine::Graphics::Pipeline
 	//
 	// 順序とリソースの解決そのものは RenderGraphCompiler の仕事。
 	// ここは結果を受け取って自分のコンパイル済みデータへ移すだけにする
-	bool RenderGraph::Compile()
+	bool RenderGraph::Compile(D3D12::Device* a_pDevice)
 	{
 		// 失敗しても中途半端な状態で走らせないよう、先に捨てておく
 		ClearCompiledData();
+
+		// 占有サイズの見積もりに使う(コンパイラが仮想リソースへ渡す)
+		m_pCompileDevice = a_pDevice;
 
 		RenderGraphCompiler _rg(this);
 
@@ -913,8 +916,7 @@ namespace Engine::Graphics::Pipeline
 		m_compilePasses = std::move(_result.compiledPassVec);
 		m_endBarriers = std::move(_result.endBarrierVec);
 
-		// 占有サイズは仮想リソースが要件を受け取った時点で出ているので、
-		// ここで計算し直す必要はない
+		// 占有サイズはコンパイラの ResolveSize で出ている(デバイスが渡されていれば)
 
 		// 仮想リソースがすべて出来上がったので、どの席へ置くかを決める。
 		// 必要なヒープの大きさもここで出る

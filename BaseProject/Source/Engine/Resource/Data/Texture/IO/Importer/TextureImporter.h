@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 namespace Engine::Resource
 {
 	struct TextureDesc
@@ -25,24 +25,30 @@ namespace Engine::Resource
 		std::vector<UINT64> rowSizeVec;
 	};
 
+	//----------------------------------------------------------------------------------------------
+	// どれもGPUへの転送を伴うので、ビルドコンテキストを受け取る。
+	// デバイスと転送の依頼先(グラフィックスエンジン)はコンテキストから引く
+	//----------------------------------------------------------------------------------------------
+
 	// テクスチャ読み込み
 	ComPtr<ID3D12Resource> ImportTexture(
+		const ResourceBuildContext& a_ctx,
 		const std::string& a_filePath,
 		D3D12_RESOURCE_DESC* a_desc = nullptr
 	);
 
 	// 色を指定してデフォルトテクスチャ生成
-	ComPtr<ID3D12Resource> DefaultTexture(Math::Color a_color);
+	ComPtr<ID3D12Resource> DefaultTexture(const ResourceBuildContext& a_ctx, Math::Color a_color);
 
 	// 白テクスチャ
-	ComPtr<ID3D12Resource> WhiteTexture();
+	ComPtr<ID3D12Resource> WhiteTexture(const ResourceBuildContext& a_ctx);
 
 	// 黒テクスチャ
-	ComPtr<ID3D12Resource> BlackTexture();
+	ComPtr<ID3D12Resource> BlackTexture(const ResourceBuildContext& a_ctx);
 
 	// ノーマルマップ白テクスチャ
-	ComPtr<ID3D12Resource> NormalWhiteTexture();
+	ComPtr<ID3D12Resource> NormalWhiteTexture(const ResourceBuildContext& a_ctx);
 
 	// ORMテクスチャ
-	ComPtr<ID3D12Resource> ORMTexture();
+	ComPtr<ID3D12Resource> ORMTexture(const ResourceBuildContext& a_ctx);
 }

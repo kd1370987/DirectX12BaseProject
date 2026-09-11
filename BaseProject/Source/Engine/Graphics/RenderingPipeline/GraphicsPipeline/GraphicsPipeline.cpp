@@ -47,8 +47,9 @@ namespace Engine::Graphics::Pipeline
 	{
 		m_isCompiled = false;
 
-		// 検証・実行順・仮想リソース・バリアまで(GPUには触らない)
-		if (!m_upRenderGraph->Compile()) return false;
+		// 検証・実行順・仮想リソース・バリアまで(GPUには触らない)。
+		// デバイスは占有サイズの見積もり(問い合わせ)にだけ使う
+		if (!m_upRenderGraph->Compile(a_pDevice)) return false;
 
 		// デバイスをもらえていれば実体の割り当てまで済ませる。
 		// エディターから構成だけ確かめたいときは渡さずに呼べる

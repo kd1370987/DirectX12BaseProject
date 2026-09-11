@@ -1,6 +1,6 @@
 ﻿#include "ShadingPipelineBuilder.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../../D3D12/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
 
 namespace Engine::Graphics
 {

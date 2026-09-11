@@ -1,6 +1,5 @@
 ﻿#include "ImGuiContext.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "Engine/MainEngine.h"
@@ -29,7 +28,13 @@ namespace Engine::Editor
 			return false;
 		}
 
-		auto& _pD3DWrapper = Engine::D3D12::D3D12Wrapper::Instance();
+		// デバイスと描画キューはグラフィックスエンジンの持ち物
+		auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
+		if (!_pGE)
+		{
+			ENGINE_ERRLOG(false, "ImGuiの初期化にグラフィックスエンジンがありません");
+			return false;
+		}
 		auto& _pDescriptorManager = *a_pHeapManager;
 
 		// バックエンドのコールバックから引けるようにしておく
@@ -74,8 +79,8 @@ namespace Engine::Editor
 
 		// DX12オブジェクトをセット
 		ImGui_ImplDX12_InitInfo _initInfo = {};
-		_initInfo.Device = _pD3DWrapper.GetDevice();
-		_initInfo.CommandQueue = _pD3DWrapper.GetCommandQueue();
+		_initInfo.Device = _pGE->RefDevice();
+		_initInfo.CommandQueue = _pGE->RefDirectCommandQueue();
 		_initInfo.NumFramesInFlight = static_cast<int>(CPU_FRAME_COUNT);
 		_initInfo.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 		_initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;

@@ -14,7 +14,7 @@
     },
     "BuildConfig": {
         "assetRootPath": "Asset/",
-        "buildMode": 0,
+        "buildMode": 1,
         "maxThreadCount": 4
     },
     "CursorOption": {

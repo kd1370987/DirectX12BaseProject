@@ -208,7 +208,13 @@ namespace Engine::Graphics::Pipeline
 		// 入出力スロットから実行順を決めて仮想リソースを組み直し、
 		// バリアを積んで、各パスの Compile まで通す。
 		// 循環していたら false(そのときコンパイル結果は空になる)
-		bool Compile();
+		//
+		// a_pDevice は仮想リソースの占有サイズを見積もる問い合わせだけに使う(GPUオブジェクトは作らない)。
+		// 実体を持たない設計図側のグラフは nullptr でよい
+		bool Compile(D3D12::Device* a_pDevice = nullptr);
+
+		// Compile 中に占有サイズの見積もりへ使うデバイス(コンパイラが引く)
+		D3D12::Device* GetCompileDevice() const { return m_pCompileDevice; }
 
 		// コンパイル済みの順にパスを回す。
 		// バリアの発行・レンダーターゲット切り替え・クリアまでここが面倒を見る
@@ -288,6 +294,9 @@ namespace Engine::Graphics::Pipeline
 		// AllocateResources で受け取り、焼き込み(ResolveDescriptors)と
 		// 初回クリアがハンドルからCPUハンドルを引くのに使う
 		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
+
+		// Compile 中だけ使う、占有サイズの見積もり用デバイス(借り物)
+		D3D12::Device* m_pCompileDevice = nullptr;
 
 		std::unique_ptr<ResourceRegistry> m_upResourceRegistry = nullptr;	// 仮想リソースと外部リソースの持ち主
 		std::unique_ptr<ResourceAllocator> m_upResourceAllocator = nullptr;	// リソースの割り当てを管理

@@ -9,6 +9,8 @@ namespace Engine::D3D12
 
 namespace Engine::Graphics
 {
+	class FrameManager;
+
 	struct BufferSizeDesc
 	{
 		size_t staticVertexBufferSize = 0;
@@ -28,11 +30,14 @@ namespace Engine::Graphics
 		/// ゲーム初期化時にメッシュシェーダー用のメモリ領域を確保する
 		/// </summary>
 		/// <param name="a_pDevice">デバイスポインタ</param>
-		/// <param name="a_maxVert">最大頂点数</param>
-		/// <param name="a_maxMeshlets">最大メッシュレット数</param>
+		/// <param name="a_pFrameManager">
+		/// フレームのフェンス(借り物)。領域を返すとき、今フレームが読み終わるまで空けないよう
+		/// 終わりにシグナルされる値でタグ付けするのに使う
+		/// </param>
 		void Init(
 			D3D12::Device* a_pDevice,
 			D3D12::DescriptorHeapManager* a_pHeapManager,
+			const FrameManager* a_pFrameManager,
 			D3D12::GraphicsCommandList* a_pCmdList,
 			const BufferSizeDesc& a_bufferSizes
 		);
@@ -96,6 +101,12 @@ namespace Engine::Graphics
 		D3D12::MegaStructuredBuffer<DirectX::CullData>& RefMeshletCullDataBuffer() { return m_meshletCullDataBuffer; }
 
 	private:
+
+		// 返した領域を再利用してよくなるフェンス値(今フレームの終わり)
+		uint64_t GetReleaseFenceValue() const;
+
+		// フレームのフェンス(借り物)。実体は GraphicsEngine が持っている
+		const FrameManager* m_pFrameManager = nullptr;
 
 		//--------------------------------------------------------------------------------------------
 		// メッシュデータ

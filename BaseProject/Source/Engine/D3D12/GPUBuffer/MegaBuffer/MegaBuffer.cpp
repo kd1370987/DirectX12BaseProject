@@ -1,6 +1,5 @@
 ﻿#include "MegaBuffer.h"
 
-#include "../../D3D12Wrapper/D3D12Wrapper.h"
 
 namespace Engine::D3D12
 {
@@ -12,6 +11,9 @@ namespace Engine::D3D12
 		size_t a_strideSize
 	)
 	{
+		// 中間バッファを作るときに使う
+		m_pDevice = a_pDevice;
+
 		// リソースの作成
 		GPUBufferDesc _gpuDesc = {};
 		_gpuDesc.elementNum = a_elemetNum;
@@ -59,7 +61,8 @@ namespace Engine::D3D12
 		_resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		_resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-		D3D12Wrapper::Instance().GetDevice()->CreateCommittedResource(
+		if (!m_pDevice) return nullptr;
+		m_pDevice->CreateCommittedResource(
 			&_heapProps,
 			D3D12_HEAP_FLAG_NONE,
 			&_resDesc,
@@ -76,28 +79,6 @@ namespace Engine::D3D12
 		_cpLoadBuffer->Unmap(0, nullptr);
 
 		return _cpLoadBuffer;
-	}
-
-	void MegaBuffer::UploadDataAsync(UINT a_destOffsetBytes, const void* a_pData, UINT a_sizeBytes)
-	{
-		// 中間バッファの用意
-		auto _cpLoadBuffer = CreateUploadBuffer(a_pData, a_sizeBytes);
-		if (!_cpLoadBuffer) return;
-
-		// 非同期処理に投げる
-		D3D12Wrapper::Instance().ExecuteAsyncCopy(
-			[this, a_destOffsetBytes, _cpLoadBuffer, a_sizeBytes](D3D12::GraphicsCommandList* a_pCmdList)
-			{
-				a_pCmdList->CopyBufferRegion(
-					m_cpResource.Get(), a_destOffsetBytes,
-					_cpLoadBuffer.Get(), 0, a_sizeBytes
-				);
-			},
-			[_cpLoadBuffer]()
-			{
-				ENGINE_LOG("メガバッファの非同期アップロード完了 : メモリ解放");
-			}
-		);
 	}
 
 	void MegaBuffer::RecordUploadData(
@@ -123,15 +104,4 @@ namespace Engine::D3D12
 		// GPUの転送が終わるまで中間バッファを生かしておく
 		a_keepAlive.push_back(std::move(_cpLoadBuffer));
 	}
-
-	uint64_t MegaBuffer::GetCurrentFenceValue() const
-	{
-		return D3D12Wrapper::Instance().GetCurrentFenceValue();
-	}
-
-	uint64_t MegaBuffer::GetNextFenceValue() const
-	{
-		return D3D12Wrapper::Instance().GetNextFenceValue();
-	}
-
 }

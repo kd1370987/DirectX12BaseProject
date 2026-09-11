@@ -1,5 +1,4 @@
 ﻿#include "RootSignatureBuilder.h"
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 namespace Engine::D3D12
 {
 	D3D12_ROOT_SIGNATURE_DESC RootSignatureBuilder::CreateDesc(const RootSignatureDesc& a_desc)
@@ -98,7 +97,7 @@ namespace Engine::D3D12
 		}
 		return _desc;
 	}
-	ComPtr<ID3D12RootSignature> RootSignatureBuilder::CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& a_desc)
+	ComPtr<ID3D12RootSignature> RootSignatureBuilder::CreateRootSignature(D3D12::Device* a_pDevice, const D3D12_ROOT_SIGNATURE_DESC& a_desc)
 	{
 		// バイナリデータを保持するための汎用バッファ
 		ComPtr<ID3DBlob> _pBlob = nullptr;		// シリアライズ済みルートシグネチャ(GPUに渡す最終バイナリ)
@@ -119,7 +118,7 @@ namespace Engine::D3D12
 
 		// ルートシグネチャ生成
 		ComPtr<ID3D12RootSignature> _pRootSignature = nullptr;
-		_hr = D3D12Wrapper::Instance().GetDevice()->CreateRootSignature(
+		_hr = a_pDevice->CreateRootSignature(
 			0,												// GPUが複数ある場合のノード（基本一個想定でいいから0）
 			_pBlob->GetBufferPointer(),						// シリアライズしたデータのポインタ
 			_pBlob->GetBufferSize(),						// シリアライズしたデータのサイズ
@@ -133,7 +132,7 @@ namespace Engine::D3D12
 
 		return _pRootSignature;
 	}
-	ComPtr<ID3D12RootSignature> Engine::D3D12::RootSignatureBuilder::Create(const RootSignatureDesc& a_desc)
+	ComPtr<ID3D12RootSignature> Engine::D3D12::RootSignatureBuilder::Create(D3D12::Device* a_pDevice, const RootSignatureDesc& a_desc)
 	{
 		// 変数準備
 		int _paramCount = static_cast<int>(a_desc.paramVec.size());						// パラメーター数
@@ -245,7 +244,7 @@ namespace Engine::D3D12
 
 		// ルートシグネチャ生成
 		ComPtr<ID3D12RootSignature> _pRootSignature = nullptr;
-		_hr = D3D12Wrapper::Instance().GetDevice()->CreateRootSignature(
+		_hr = a_pDevice->CreateRootSignature(
 			0,												// GPUが複数ある場合のノード（基本一個想定でいいから0）
 			_pBlob->GetBufferPointer(),						// シリアライズしたデータのポインタ
 			_pBlob->GetBufferSize(),						// シリアライズしたデータのサイズ
@@ -259,7 +258,7 @@ namespace Engine::D3D12
 
 		return _pRootSignature;
 	}
-	ComPtr<ID3D12RootSignature> RootSignatureBuilder::Create(const std::string& a_path)
+	ComPtr<ID3D12RootSignature> RootSignatureBuilder::Create(D3D12::Device* a_pDevice, const std::string& a_path)
 	{
 		// バイナリデータを保持するための汎用バッファ
 		ComPtr<ID3DBlob> _pBlob = nullptr;		// シリアライズ済みルートシグネチャ(GPUに渡す最終バイナリ)
@@ -279,7 +278,7 @@ namespace Engine::D3D12
 
 		// ルートシグネチャ生成
 		ComPtr<ID3D12RootSignature> _pRootSignature = nullptr;
-		_hr = D3D12Wrapper::Instance().GetDevice()->CreateRootSignature(
+		_hr = a_pDevice->CreateRootSignature(
 			0,												// GPUが複数ある場合のノード（基本一個想定でいいから0）
 			_pBlob->GetBufferPointer(),						// シリアライズしたデータのポインタ
 			_pBlob->GetBufferSize(),						// シリアライズしたデータのサイズ
@@ -293,13 +292,13 @@ namespace Engine::D3D12
 
 		return _pRootSignature;
 	}
-	ComPtr<ID3D12RootSignature> RootSignatureBuilder::Create(ComPtr<ID3DBlob> a_cpBlob)
+	ComPtr<ID3D12RootSignature> RootSignatureBuilder::Create(D3D12::Device* a_pDevice, ComPtr<ID3DBlob> a_cpBlob)
 	{
 		ComPtr<ID3DBlob> _pErrorBlob = nullptr;	// シリアライズに失敗したときのエラーメッセージが入るバッファ	
 
 		// ルートシグネチャ生成
 		ComPtr<ID3D12RootSignature> _pRootSignature = nullptr;
-		auto _hr = D3D12Wrapper::Instance().GetDevice()->CreateRootSignature(
+		auto _hr = a_pDevice->CreateRootSignature(
 			0,												// GPUが複数ある場合のノード（基本一個想定でいいから0）
 			a_cpBlob->GetBufferPointer(),						// シリアライズしたデータのポインタ
 			a_cpBlob->GetBufferSize(),						// シリアライズしたデータのサイズ

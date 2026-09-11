@@ -3,13 +3,16 @@
 #include "../MainEngine.h"
 
 // D3D関係
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
-#include "../D3D12/PipelineStateManager/PipelineStateManager.h"
 
 // グラフィックスエンジンの持ち物(土台)
 #include "Core/GraphicsDevice/GraphicsDevice.h"
 #include "Core/BackBuffer/BackBuffer.h"
+#include "Command/CommandContext/CommandContext.h"
+#include "Command/CommandPool/CommandPool.h"
+#include "FrameManager/FrameManager.h"
+#include "AsyncGPUManager/AsyncGPUManager.h"
+#include "PipelineStateManager/PipelineStateManager.h"
 
 // グラフィックス関係
 #include "RenderContext/RenderContext.h"
@@ -72,19 +75,57 @@ namespace Engine::Graphics
 		m_upGraphicsDevice = std::make_unique<GraphicsDevice>();
 		m_upGraphicsDevice->Create(a_isDebug);
 
-		if (!m_upGraphicsDevice->RefDevice())
+		auto* _pDevice = m_upGraphicsDevice->RefDevice();
+		if (!_pDevice)
 		{
 			ENGINE_ERRLOG(false, "デバイスの作成に失敗しました");
 			return false;
 		}
+
+		// コマンドキュー(描画・コピー・コンピュート)
+		m_upCommandContext = std::make_unique<CommandContext>();
+		m_upCommandContext->Init(_pDevice);
+
+		// 非同期転送の完了監視
+		m_upAsyncGPUManager = std::make_unique<AsyncGPUManager>();
+		m_upAsyncGPUManager->Init();
+
+		// フレーム同期
+		m_upFrameManager = std::make_unique<FrameManager>();
+		m_upFrameManager->Init(_pDevice);
+
+		ENGINE_LOG("デバイスとコマンドキューを作成");
 		return true;
 	}
 
 	void GraphicsEngine::ReleaseDevice()
 	{
+		// GPUの完了を待ってからフレーム同期を片付ける
+		if (m_upFrameManager)
+		{
+			m_upFrameManager->Release();
+			m_upFrameManager.reset();
+		}
+
+		// 非同期転送の監視スレッドを止める
+		if (m_upAsyncGPUManager)
+		{
+			m_upAsyncGPUManager->Release();
+			m_upAsyncGPUManager.reset();
+		}
+
+		// コマンドキューとコマンドリスト(各プールがキューを空にしてから手放す)
+		if (m_upCommandContext)
+		{
+			m_upCommandContext->RefDirectPool()->Release();
+			m_upCommandContext->RefCopyPool()->Release();
+			m_upCommandContext->RefComputePool()->Release();
+			m_upCommandContext.reset();
+		}
+
 		if (!m_upGraphicsDevice) return;
 
-		// 残っているオブジェクトはここでリークとして報告される
+		// 最後にデバイス。残っているオブジェクトはここでリークとして報告される
 		m_upGraphicsDevice->Release();
 		m_upGraphicsDevice.reset();
 	}
@@ -94,11 +135,11 @@ namespace Engine::Graphics
 		return m_upGraphicsDevice ? m_upGraphicsDevice->RefDevice() : nullptr;
 	}
 
-	void GraphicsEngine::CreateBackBuffer(HWND a_hWnd, UINT a_width, UINT a_height, D3D12::CommandQueue* a_pCmdQueue)
+	void GraphicsEngine::CreateBackBuffer(HWND a_hWnd, UINT a_width, UINT a_height)
 	{
-		// スワップチェインはファクトリから作り、RTVはヒープへ預ける。
-		// どちらも先に用意できていないと作れない
-		if (!m_upGraphicsDevice || !m_upDescriptorHeapManager)
+		// スワップチェインはファクトリから描画キューに紐づけて作り、RTVはヒープへ預ける。
+		// どれも先に用意できていないと作れない
+		if (!m_upGraphicsDevice || !m_upCommandContext || !m_upDescriptorHeapManager)
 		{
 			ENGINE_ERRLOG(false, "バックバッファより先にデバイスとディスクリプタヒープを用意してください");
 			return;
@@ -108,7 +149,7 @@ namespace Engine::Graphics
 		m_upBackBuffer->Create(
 			m_upDescriptorHeapManager.get(),
 			m_upGraphicsDevice->RefFactory(),
-			a_pCmdQueue,
+			RefDirectCommandQueue(),
 			a_hWnd, a_width, a_height
 		);
 	}
@@ -243,6 +284,7 @@ namespace Engine::Graphics
 		m_upMeshBufferAllocator->Init(
 			_pDevice,
 			m_upDescriptorHeapManager.get(),
+			m_upFrameManager.get(),
 			a_pCmdList,
 			_bufferSizeDesc
 		);
@@ -520,7 +562,7 @@ namespace Engine::Graphics
 
 				if (_isDestructive && !_isGPUWaited)
 				{
-					D3D12::D3D12Wrapper::Instance().WaitForFrame();
+					WaitForFrame();
 					_isGPUWaited = true;
 				}
 
@@ -890,11 +932,18 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::BeginFrame()
 	{
+		// フレーム番号を進め、その番号を前回使ったフレームのGPU作業が終わるまで待つ。
+		// ここを抜ければ、このフレームのアロケーターとフレームごとのバッファは書き換えてよい
+		{
+			ENGINE_PROFILE_SCOPE("GPUFrameWait");
+			m_upFrameManager->BeginFrame();
+		}
+
 		// 今フレームに描くバックバッファの番号を引き直す
 		m_upBackBuffer->BeginFrame();
 
 		// 今から使うレンダーコンテキスをクリア
-		m_currentFrameIndex = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
+		m_currentFrameIndex = m_upFrameManager->GetCPUFrameIndex();
 		m_upRenderContextVec[m_currentFrameIndex]->Clear();
 
 		// 設計図が変わったカメラの実行インスタンスを組み直す。
@@ -909,9 +958,9 @@ namespace Engine::Graphics
 	void GraphicsEngine::Execute()
 	{
 		auto* _pDevice = RefDevice();
-		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
+		auto* _pCmdList = AcquireDirectCommandList();
 		// GPUが実際に完了させた値 : これ以下でタグ付けされた領域だけをフリーリストに戻す
-		auto _completedFence = D3D12::D3D12Wrapper::Instance().GetCompletedFenceValue();
+		auto _completedFence = GetCompletedFenceValue();
 
 		// レイトレ用BLAS初期化 : 初期化命令があれば走る
 		ProcessInitQueue(_pDevice, _pCmdList);
@@ -1018,7 +1067,7 @@ namespace Engine::Graphics
 		// メインカメラが描いた絵をバックバッファへ載せる
 		PresentFromPipeline(_pCmdList);
 
-		D3D12::D3D12Wrapper::Instance().SubmitDirectCommandList(_pCmdList);
+		SubmitDirectCommandList(_pCmdList);
 		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(nullptr);
 
 	}
@@ -1054,18 +1103,200 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::Present(bool a_isVsync)
 	{
-		auto& _d3d = D3D12::D3D12Wrapper::Instance();
+		auto* _pDirectPool = m_upCommandContext->RefDirectPool();
 
 		// レンダーターゲットに書き込みが終わるまで待つ
-		auto* _pCmdList = _d3d.GetDirectCommandList();
+		auto* _pCmdList = AcquireDirectCommandList();
 		m_upBackBuffer->TransitionToPresent(_pCmdList);
-		_d3d.SubmitDirectCommandList(_pCmdList);
+		SubmitDirectCommandList(_pCmdList);
 
 		// 積んだリストを流して、フレーム終了のシグナルを打つ
-		_d3d.EndFrame();
+		_pDirectPool->ExecutePendingLists();
+		m_upFrameManager->EndFrame(_pDirectPool->GetCommandQueue());
 
 		// スワップチェイン切替
 		m_upBackBuffer->Present(a_isVsync);
+	}
+
+	//==========================================================================================
+	//
+	// コマンドキュー・フレーム同期
+	//
+	//==========================================================================================
+	D3D12::GraphicsCommandList* GraphicsEngine::AcquireDirectCommandList()
+	{
+		// このフレームのアロケーターで記録を始める
+		return m_upCommandContext->RefDirectPool()->AcquireList(
+			RefDevice(),
+			m_upFrameManager->GetCurrentAllocator()
+		);
+	}
+
+	void GraphicsEngine::SubmitDirectCommandList(D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		m_upCommandContext->RefDirectPool()->SubmitList(a_pCmdList);
+	}
+
+	void GraphicsEngine::ExecuteImmediate(D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		m_upCommandContext->RefDirectPool()->ExecuteImmediate(a_pCmdList);
+	}
+
+	D3D12::CommandQueue* GraphicsEngine::RefDirectCommandQueue()
+	{
+		return m_upCommandContext ? m_upCommandContext->RefDirectPool()->GetCommandQueue() : nullptr;
+	}
+
+	UINT GraphicsEngine::GetCurrentFrameIndex() const
+	{
+		return m_upFrameManager ? m_upFrameManager->GetCPUFrameIndex() : 0;
+	}
+
+	void GraphicsEngine::WaitForFrame()
+	{
+		m_upFrameManager->WaitForAll();
+	}
+
+	void GraphicsEngine::WaitForGPUIdle()
+	{
+		// フレームのフェンスは Present より前に打たれているので、それを待っても
+		// Present は終わっていない。キューごとに新しくシグナルを打って待つ
+		m_upCommandContext->RefDirectPool()->WaitIdle();
+		m_upCommandContext->RefCopyPool()->WaitIdle();
+		m_upCommandContext->RefComputePool()->WaitIdle();
+	}
+
+	UINT64 GraphicsEngine::GetCurrentFenceValue() const
+	{
+		return m_upFrameManager->GetCurrentFenceValue();
+	}
+	UINT64 GraphicsEngine::GetCompletedFenceValue() const
+	{
+		return m_upFrameManager->GetCompletedFenceValue();
+	}
+	UINT64 GraphicsEngine::GetNextFenceValue() const
+	{
+		return m_upFrameManager->GetNextFenceValue();
+	}
+
+	//==========================================================================================
+	//
+	// 非同期転送
+	//
+	//==========================================================================================
+	void GraphicsEngine::ExecuteAsyncCopy(std::function<void(D3D12::GraphicsCommandList*)> a_recordCmds, std::function<void()> a_onComplete)
+	{
+		auto* _pDevice = RefDevice();
+		auto* _pCopyPool = m_upCommandContext->RefCopyPool();
+
+		// 非同期マネージャーからアロケーターをもらう
+		auto* _allocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, AsyncCommandType::Copy);
+
+		// コピー用のコマンドプールからリストをもらう (内部で_allocatorを使ってResetされる)
+		D3D12::GraphicsCommandList* _cmdList = _pCopyPool->AcquireList(_pDevice, _allocator);
+
+		// 外部から渡された「コマンドを積む処理」を実行
+		if (a_recordCmds)
+		{
+			a_recordCmds(_cmdList);
+		}
+
+		// プールにリストを返し、即座に実行する(戻り値のフェンス値を受け取る)
+		_pCopyPool->SubmitList(_cmdList);
+		UINT64 _fenceValue = _pCopyPool->ExecutePendingLists();
+
+		// 非同期マネージャーに監視を依頼する（キュー管理と寿命監視の連携）
+		m_upAsyncGPUManager->RegisterTask(
+			AsyncCommandType::Copy,
+			_allocator,
+			_pCopyPool->GetFence(),
+			_fenceValue,
+			a_onComplete
+		);
+	}
+
+	AsyncBuildBatch GraphicsEngine::BeginAsyncBuildBatch(bool a_useCopy, bool a_useCompute)
+	{
+		auto* _pDevice = RefDevice();
+		AsyncBuildBatch _batch = {};
+
+		// コピー用
+		if (a_useCopy)
+		{
+			_batch.pCopyAllocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, AsyncCommandType::Copy);
+			_batch.pCopyCmdList = m_upCommandContext->RefCopyPool()->AcquireList(_pDevice, _batch.pCopyAllocator);
+		}
+
+		// コンピュート用
+		if (a_useCompute)
+		{
+			_batch.pComputeAllocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, AsyncCommandType::Compute);
+			_batch.pComputeCmdList = m_upCommandContext->RefComputePool()->AcquireList(_pDevice, _batch.pComputeAllocator);
+		}
+
+		return _batch;
+	}
+
+	void GraphicsEngine::EndAsyncBuildBatch(AsyncBuildBatch& a_batch, std::function<void()> a_onComplete)
+	{
+		auto* _pCopyPool = m_upCommandContext->RefCopyPool();
+		auto* _pComputePool = m_upCommandContext->RefComputePool();
+
+		const bool _hasCopy = (a_batch.pCopyCmdList != nullptr);
+		const bool _hasCompute = (a_batch.pComputeCmdList != nullptr);
+
+		// ---- コピーの実行 ----
+		UINT64 _copyFenceValue = 0;
+		if (_hasCopy)
+		{
+			_pCopyPool->SubmitList(a_batch.pCopyCmdList);
+			_copyFenceValue = _pCopyPool->ExecutePendingLists();
+		}
+
+		// ---- コンピュートの実行 ----
+		if (_hasCompute)
+		{
+			// BLASはコピーで転送したメガバッファを直接読むため、
+			// コピーの完了をコンピュートキュー側で待たせる
+			if (_hasCopy)
+			{
+				_pComputePool->GetCommandQueue()->Wait(_pCopyPool->GetFence(), _copyFenceValue);
+			}
+
+			_pComputePool->SubmitList(a_batch.pComputeCmdList);
+			UINT64 _computeFenceValue = _pComputePool->ExecutePendingLists();
+
+			// 完了通知はGPU処理の最後になるコンピュート側に載せる
+			m_upAsyncGPUManager->RegisterTask(
+				AsyncCommandType::Compute,
+				a_batch.pComputeAllocator,
+				_pComputePool->GetFence(),
+				_computeFenceValue,
+				a_onComplete
+			);
+
+			// コンピュート側で消化したので、コピー側では呼ばない
+			a_onComplete = nullptr;
+		}
+
+		// ---- コピー側のアロケーター返却と中間バッファの解放 ----
+		if (_hasCopy)
+		{
+			m_upAsyncGPUManager->RegisterTask(
+				AsyncCommandType::Copy,
+				a_batch.pCopyAllocator,
+				_pCopyPool->GetFence(),
+				_copyFenceValue,
+				[_keepAlive = std::move(a_batch.keepAliveResources), _onComplete = std::move(a_onComplete)]()
+				{
+					// _keepAlive のデストラクタで中間のUploadバッファが解放される
+					if (_onComplete) _onComplete();
+				}
+			);
+		}
+
+		// 使い終わったバッチを空にする
+		a_batch = {};
 	}
 
 	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const

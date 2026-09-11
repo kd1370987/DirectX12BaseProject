@@ -2,13 +2,13 @@
 
 #include "../CommandPool/CommandPool.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics
 {
-	Engine::D3D12::CommandContext::CommandContext()
+	CommandContext::CommandContext()
 	{}
 	CommandContext::~CommandContext()
 	{}
-	void CommandContext::Init(Device * a_pDevice)
+	void CommandContext::Init(D3D12::Device * a_pDevice)
 	{
 		m_upDirectCmdPool = std::make_unique<CommandPool>();
 		m_upCopyCmdPool = std::make_unique<CommandPool>();

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "DrawCommand.h"
 
 namespace Engine::Graphics

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ResourceBuildContext.h"
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "Engine/Graphics/AsyncGPUManager/AsyncGPUManager.h"
 
 namespace Engine::Resource
 {
@@ -33,8 +33,8 @@ namespace Engine::Resource
 
 	private:
 
-		D3D12::AsyncBuildBatch	m_batch = {};
-		ResourceBuildContext	m_context = {};
+		Graphics::AsyncBuildBatch	m_batch = {};
+		ResourceBuildContext		m_context = {};
 	};
 
 	/// <summary>

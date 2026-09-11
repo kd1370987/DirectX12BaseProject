@@ -23,8 +23,8 @@ namespace Engine::D3D12
 
 		// 初期化と解放
 		//
-		// デバイスは保持する。以前は D3D12Wrapper から引いていたが、
-		// D3D12Wrapper ⇄ DescriptorHeapManager の循環になるためここで受け取る
+		// デバイスはここで受け取って保持する(持ち主は GraphicsEngine)。
+		// どこかのシングルトンから引くと、持ち主との間で循環になる
 		bool Init(
 			D3D12::Device* a_pDevice,
 			UINT a_cbvCount,
@@ -34,6 +34,11 @@ namespace Engine::D3D12
 			UINT a_dsvCount
 		);
 		void Release();
+
+		// ビューを作るのに使っているデバイス(借り物)。
+		// ヒープを受け取ってリソースを作る側(テクスチャ・板ポリなど)は、
+		// デバイスを別に引かずここから借りる
+		D3D12::Device* RefDevice() const { return m_pDevice; }
 
 		// リソースのビュー作成
 		template<IsHeapType T>

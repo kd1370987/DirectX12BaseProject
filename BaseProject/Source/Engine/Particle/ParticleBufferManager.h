@@ -7,6 +7,11 @@
 
 #include "../Resource/Data/Particles/ParticlesAsset.h"
 
+namespace Engine::Graphics
+{
+	class GraphicsEngine;
+}
+
 namespace Engine::Particle
 {
 	class ParticleBufferManager
@@ -16,8 +21,11 @@ namespace Engine::Particle
 		/// <summary>
 		/// 初期化
 		/// </summary>
+		/// <param name="a_pGraphicsEngine">
+		/// デバイスと非同期転送の依頼先(借り物)。プールは非同期に作られるので、そこまで持ち回る
+		/// </param>
 		void Init(
-			D3D12::Device* a_pDevice,
+			Graphics::GraphicsEngine* a_pGraphicsEngine,
 			D3D12::DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList
 		);
@@ -117,6 +125,9 @@ namespace Engine::Particle
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
 		// プールは非同期に作られるので、Init で受け取ったものを持ち続ける
 		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
+
+		// デバイスと非同期転送の依頼先(借り物)。持ち主は MainEngine
+		Graphics::GraphicsEngine* m_pGraphicsEngine = nullptr;
 
 		// アセットと 1対1 で紐づくバッファ群のマップ
 		std::unordered_map<Handle<Resource::ParticlesAsset>, std::unique_ptr<GPUParticlePool>> m_pools;

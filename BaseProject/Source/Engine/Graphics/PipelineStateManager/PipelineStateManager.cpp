@@ -81,7 +81,7 @@ namespace Engine::Graphics
 		}
 
 		// キャッシュになければ作成
-		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(a_desc);
+		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(m_pDevice, a_desc);
 		if (!_rootSig)
 		{
 			ENGINE_ERRLOG(false, "ルートシグネチャの生成に失敗 : %s", a_desc.name.c_str());
@@ -141,7 +141,7 @@ namespace Engine::Graphics
 		}
 
 		// なければ生成
-		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(_cpRootSigBlob);
+		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(m_pDevice, _cpRootSigBlob);
 		if (!_rootSig)
 		{
 			assert(0 && ".cso内にRootSignatureが見つかりませんでした");
@@ -186,7 +186,7 @@ namespace Engine::Graphics
 		}
 
 		// なければ生成
-		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(_cpRootSigBlob);
+		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(m_pDevice, _cpRootSigBlob);
 		if (!_rootSig)
 		{
 			assert(0 && ".cso内にRootSignatureが見つかりませんでした");
@@ -292,7 +292,7 @@ namespace Engine::Graphics
 		// シェーダーが無いときも先に組み立ててハッシュまで出す。
 		// 作れなかったことをそのハッシュに覚えさせておけば、
 		// 同じ要求が何度来ても新しい番号を配らずに済む
-		D3D12::RenderPipelineStateStream _streamDesc = {};
+		RenderPipelineStateStream _streamDesc = {};
 
 		_streamDesc.pRootSignature = GetRootSignature(a_builder.GetRootSignatureHandle());
 		_streamDesc.PrimitiveTopologyType = a_builder.GetPrimitiveTopologyType();

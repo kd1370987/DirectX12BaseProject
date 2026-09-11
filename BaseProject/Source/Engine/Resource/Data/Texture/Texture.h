@@ -56,8 +56,10 @@ namespace Engine::Resource
 		// 実体は GraphicsEngine が持っているので、呼び出し側はコンテキストから受け取ったものを渡す。
 		// 渡したものは控えられ、Release() で同じところへ返る
 		//--------------------------------------------------------------------------------------------
-		void Import(D3D12::DescriptorHeapManager* a_pHeapManager,const std::string& a_filePath,const Math::Color& a_defoltData = { 255,255,255,255 });
-		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,const std::string& a_name, const Math::Color& a_defoltData);
+		// 読み込みと既定色の生成は GPU への転送を伴うので、ビルドコンテキストを受け取る
+		// (転送の依頼先とビューの置き場はコンテキストが持っている)
+		void Import(const ResourceBuildContext& a_ctx,const std::string& a_filePath,const Math::Color& a_defoltData = { 255,255,255,255 });
+		void Create(const ResourceBuildContext& a_ctx,const std::string& a_name, const Math::Color& a_defoltData);
 		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,const TextureCreateDesc& a_desc);
 		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,TextureUsage a_texUsage = TextureUsage::RTV);
 

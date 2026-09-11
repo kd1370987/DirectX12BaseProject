@@ -33,10 +33,11 @@ namespace Engine::D3D12
 		RangeHandle<T> Allocate(UINT a_count);
 
 		/// <summary>
-		/// 領域の解放
+		/// 領域の解放 : GPU が a_releaseFenceValue まで進んだら再利用される
 		/// </summary>
-		/// <param name="a_handle"></param>
-		void Free(const RangeHandle<T>& a_handle);
+		/// <param name="a_handle">返す領域</param>
+		/// <param name="a_releaseFenceValue">今フレームの終わりにシグナルされるフェンス値</param>
+		void Free(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue);
 
 		/// <summary>
 		/// バッファの更新
@@ -112,13 +113,13 @@ namespace Engine::D3D12
 	}
 
 	template<typename T>
-	inline void MegaRWStructuredBuffer<T>::Free(const RangeHandle<T>& a_handle)
+	inline void MegaRWStructuredBuffer<T>::Free(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue)
 	{
 		if (!a_handle.IsValid()) return;
 
 		// 今フレームがこの領域を参照している可能性があるため、
 		// 今フレーム完了時のフェンス値でタグ付けして遅延解放を予約する
-		m_rangeAllocator.FreeRange(a_handle, GetNextFenceValue());
+		m_rangeAllocator.FreeRange(a_handle, a_releaseFenceValue);
 	}
 
 	template<typename T>

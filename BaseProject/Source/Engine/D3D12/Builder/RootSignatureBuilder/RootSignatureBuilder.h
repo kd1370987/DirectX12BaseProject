@@ -43,14 +43,15 @@ namespace Engine::D3D12
 	};
 
 	// ビルダー
+	// 作る先のデバイスは呼び出し側(PipelineStateManager)が渡す
 	class RootSignatureBuilder
 	{
 	public:
 
 		static D3D12_ROOT_SIGNATURE_DESC CreateDesc(const RootSignatureDesc& a_desc);
-		static ComPtr<ID3D12RootSignature> CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC& a_desc);
-		static ComPtr<ID3D12RootSignature> Create(const RootSignatureDesc& a_desc);
-		static ComPtr<ID3D12RootSignature> Create(const std::string& a_path);
-		static ComPtr<ID3D12RootSignature> Create(ComPtr<ID3DBlob> a_cpBlob);
+		static ComPtr<ID3D12RootSignature> CreateRootSignature(D3D12::Device* a_pDevice, const D3D12_ROOT_SIGNATURE_DESC& a_desc);
+		static ComPtr<ID3D12RootSignature> Create(D3D12::Device* a_pDevice, const RootSignatureDesc& a_desc);
+		static ComPtr<ID3D12RootSignature> Create(D3D12::Device* a_pDevice, const std::string& a_path);
+		static ComPtr<ID3D12RootSignature> Create(D3D12::Device* a_pDevice, ComPtr<ID3DBlob> a_cpBlob);
 	};
 }

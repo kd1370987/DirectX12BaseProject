@@ -1,15 +1,21 @@
 ﻿#include "MeshBufferAllocator.h"
 
+#include "../FrameManager/FrameManager.h"
+
 namespace Engine::Graphics
 {
 
 	void MeshBufferAllocator::Init(
 		D3D12::Device* a_pDevice,
 		D3D12::DescriptorHeapManager* a_pHeapManager,
+		const FrameManager* a_pFrameManager,
 		D3D12::GraphicsCommandList* a_pCmdList,
 		const BufferSizeDesc& a_bufferSizes
 	)
 	{
+		// 領域を返すときのフェンス値はここから引く
+		m_pFrameManager = a_pFrameManager;
+
 		// メッシュ用バッファ作成 : サイズはもらい受ける
 		m_staticVerticesBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,a_bufferSizes.staticVertexBufferSize);
 		m_indexBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,a_bufferSizes.indexBufferSize);
@@ -106,36 +112,42 @@ namespace Engine::Graphics
 	void MeshBufferAllocator::StaticVertexFree(const RangeHandle<Resource::MeshVertexFloat>& a_handle)
 	{
 		ENGINE_LOG("静的頂点データバッファ : Free");
-		m_staticVerticesBuffer.Free(a_handle);
+		m_staticVerticesBuffer.Free(a_handle, GetReleaseFenceValue());
 	}
 	void MeshBufferAllocator::IndexFree(const RangeHandle<uint32_t>&a_handle)
 	{
 		ENGINE_LOG("インデックスデータバッファ : Free");
-		m_indexBuffer.Free(a_handle);
+		m_indexBuffer.Free(a_handle, GetReleaseFenceValue());
 	}
 	void MeshBufferAllocator::AnimatedVertexFree(const RangeHandle<Resource::MeshVertexFloat>&a_handle)
 	{
 		ENGINE_LOG("アニメーション後頂点データバッファ : Free");
-		m_animatedVertexBuffer.Free(a_handle);
+		m_animatedVertexBuffer.Free(a_handle, GetReleaseFenceValue());
 	}
 	void MeshBufferAllocator::MeshletFree(const RangeHandle<Resource::Meshlet>& a_handle)
 	{
 		ENGINE_LOG("メッシュレット : Free");
-		m_meshletBuffer.Free(a_handle);
+		m_meshletBuffer.Free(a_handle, GetReleaseFenceValue());
 	}
 	void MeshBufferAllocator::UniqueVertIndicesFree(const RangeHandle<uint32_t>&a_handle)
 	{
 		ENGINE_LOG("ユニーク頂点インデックス : Free");
-		m_uniqueVertexIndicesBuffer.Free(a_handle);
+		m_uniqueVertexIndicesBuffer.Free(a_handle, GetReleaseFenceValue());
 	}
 	void MeshBufferAllocator::TrianglesFree(const RangeHandle<DirectX::MeshletTriangle>&a_handle)
 	{
 		ENGINE_LOG("メッシュトライアングル : Free");
-		m_meshTriangleBuffer.Free(a_handle);
+		m_meshTriangleBuffer.Free(a_handle, GetReleaseFenceValue());
 	}
 	void MeshBufferAllocator::MeshletCullDataFree(const RangeHandle<DirectX::CullData>& a_handle)
 	{
 		ENGINE_LOG("メッシュレット当たり判定データ : Free");
-		m_meshletCullDataBuffer.Free(a_handle);
+		m_meshletCullDataBuffer.Free(a_handle, GetReleaseFenceValue());
+	}
+
+	uint64_t MeshBufferAllocator::GetReleaseFenceValue() const
+	{
+		// 今フレームが読み終わる(= 終わりにシグナルされる)まで空けない
+		return m_pFrameManager ? m_pFrameManager->GetNextFenceValue() : 0;
 	}
 }

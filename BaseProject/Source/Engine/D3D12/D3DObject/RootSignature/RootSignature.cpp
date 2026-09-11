@@ -1,6 +1,5 @@
 ﻿#include "RootSignature.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 namespace Engine::D3D12
 {
 	RootSignature::RootSignature()
@@ -8,6 +7,7 @@ namespace Engine::D3D12
 
 	}
 	bool RootSignature::Create(
+		D3D12::Device* a_pDevice,
 		const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec,
 		bool a_isUseStaticSampler,
 		const D3D12_ROOT_SIGNATURE_FLAGS* a_pFlags
@@ -161,7 +161,7 @@ namespace Engine::D3D12
 		}
 
 		// ルートシグネチャ生成
-		_hr = D3D12Wrapper::Instance().GetDevice()->CreateRootSignature(
+		_hr = a_pDevice->CreateRootSignature(
 			0,												// GPUが複数ある場合のノード（基本一個想定でいいから0）
 			_pBlob->GetBufferPointer(),						// シリアライズしたデータのポインタ
 			_pBlob->GetBufferSize(),						// シリアライズしたデータのサイズ
@@ -176,12 +176,13 @@ namespace Engine::D3D12
 		return true;
 	}
 
-	bool RootSignature::Create(const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec, D3D12_ROOT_SIGNATURE_FLAGS a_flags, bool a_isUseStaticSampler)
+	bool RootSignature::Create(D3D12::Device* a_pDevice, const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec, D3D12_ROOT_SIGNATURE_FLAGS a_flags, bool a_isUseStaticSampler)
 	{
 		D3D12_ROOT_SIGNATURE_FLAGS _flags;
 		_flags = a_flags;
 
 		return Create(
+			a_pDevice,
 			a_rootParamsVec,
 			a_isUseStaticSampler,
 			&_flags

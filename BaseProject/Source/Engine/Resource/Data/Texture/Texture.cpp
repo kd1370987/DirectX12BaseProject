@@ -3,12 +3,11 @@
 #include "../../Data/Texture/IO/Importer/TextureImporter.h"
 #include "../../Data/Texture/IO/Creater/TextureCreater.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 namespace Engine::Resource
 {
 	void Engine::Resource::Texture::Import(
-		D3D12::DescriptorHeapManager* a_pHeapManager,
+		const ResourceBuildContext& a_ctx,
 		const std::string& a_filePath,
 		const Math::Color& a_defoltData
 	)
@@ -16,7 +15,7 @@ namespace Engine::Resource
 		// SRVとして使用
 		m_useFlg = TextureUsage::SRV;
 		// テクスチャの読み込み
-		ComPtr<ID3D12Resource> _cpRes = Engine::Resource::ImportTexture(a_filePath);
+		ComPtr<ID3D12Resource> _cpRes = Engine::Resource::ImportTexture(a_ctx, a_filePath);
 		if (_cpRes)
 		{
 			// 読み込み成功時
@@ -27,21 +26,21 @@ namespace Engine::Resource
 		else
 		{
 			// 読み込み失敗時はデフォルトデータを指定してテクスチャを生成する
-			_cpRes = Engine::Resource::DefaultTexture(a_defoltData);
+			_cpRes = Engine::Resource::DefaultTexture(a_ctx, a_defoltData);
 			m_cpResource = _cpRes;
 			m_desc = _cpRes.Get()->GetDesc();
 			m_name = a_filePath + "Default";
 		}
 
 		// ビューの登録
-		CreateView(a_pHeapManager);
+		CreateView(a_ctx.pHeapManager);
 	}
 
-	void Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, const std::string& a_name, const Math::Color& a_defoltData)
+	void Texture::Create(const ResourceBuildContext& a_ctx, const std::string& a_name, const Math::Color& a_defoltData)
 	{
 
 		ComPtr<ID3D12Resource> _cpRes = nullptr;
-		_cpRes = DefaultTexture(a_defoltData);
+		_cpRes = DefaultTexture(a_ctx, a_defoltData);
 		m_cpResource = _cpRes;
 		m_desc = _cpRes.Get()->GetDesc();
 		m_name = a_name;
@@ -50,13 +49,14 @@ namespace Engine::Resource
 		m_useFlg = TextureUsage::SRV;
 
 		// ビューの登録
-		CreateView(a_pHeapManager);
+		CreateView(a_ctx.pHeapManager);
 	}
 
 	void Engine::Resource::Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, const TextureCreateDesc& a_desc)
 	{
 		// デバイスの取得
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		// デバイスはビューの置き場と同じもの : ヒープマネージャーから借りる
+		auto* _pDevice = a_pHeapManager ? a_pHeapManager->RefDevice() : nullptr;
 		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
 
 		// 仕様書とクリアバリューを組む : 組むのは Creater の役
@@ -100,7 +100,8 @@ namespace Engine::Resource
 	void Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, ID3D12Heap* a_pHeap, UINT64 a_heapOffset, const TextureCreateDesc& a_desc)
 	{
 		// デバイスの取得
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		// デバイスはビューの置き場と同じもの : ヒープマネージャーから借りる
+		auto* _pDevice = a_pHeapManager ? a_pHeapManager->RefDevice() : nullptr;
 		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
 
 		// 仕様書とクリアバリューを組む。
@@ -204,15 +205,16 @@ namespace Engine::Resource
 
 	void Texture::CreateView(D3D12::DescriptorHeapManager* a_pHeapManager)
 	{
-		// デバイスの取得
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
-		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
-
 		if (!a_pHeapManager)
 		{
 			ENGINE_ERRLOG(false, "ビューの確保先ディスクリプタヒープが渡されていません : %s", m_name.c_str());
 			return;
 		}
+
+		// デバイスの取得
+		// デバイスはビューの置き場と同じもの : ヒープマネージャーから借りる
+		auto* _pDevice = a_pHeapManager->RefDevice();
+		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
 
 		// 返却先を控える : Release() でここへ返す
 		m_pHeapManager = a_pHeapManager;

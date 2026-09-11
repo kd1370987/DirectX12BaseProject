@@ -16,13 +16,15 @@ namespace Engine::D3D12
 		// コンストラクタでルートシグネチャを生成
 		RootSignature();
 
-		// 作成
+		// 作成 : 作る先のデバイスは呼び出し側が渡す
 		bool Create(
+			D3D12::Device* a_pDevice,
 			const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec,
 			bool a_isUseStaticSampler = true,
 			const D3D12_ROOT_SIGNATURE_FLAGS* a_pFlags = nullptr
 		);
 		bool Create(
+			D3D12::Device* a_pDevice,
 			const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec,
 			D3D12_ROOT_SIGNATURE_FLAGS a_flags,
 			bool a_isUseStaticSampler = true

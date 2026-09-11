@@ -1,6 +1,6 @@
 ﻿#include "QuadPolygon.h"
 
-#include "../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 namespace Engine::Resource
 {
@@ -27,7 +27,7 @@ namespace Engine::Resource
 
 		// 頂点バッファ作成
 		if (!m_vertexBuffer.CreateAndUpload(
-			D3D12::D3D12Wrapper::Instance().GetDevice(),
+			a_pHeapManager->RefDevice(),
 			a_pHeapManager,
 			4,
 			_vertices
@@ -42,7 +42,7 @@ namespace Engine::Resource
 		_desc.count = _indices.size();
 		_desc.pData = _indices.data();
 		_desc.format = DXGI_FORMAT_R32_UINT;
-		if (!m_indexBuffer.Create(D3D12::D3D12Wrapper::Instance().GetDevice(),a_pHeapManager,_desc))
+		if (!m_indexBuffer.Create(a_pHeapManager->RefDevice(),a_pHeapManager,_desc))
 		{
 			assert(0 && "いたポリのインデックスバッファ作成失敗");
 		}
@@ -88,7 +88,7 @@ namespace Engine::Resource
 		}
 
 		// 頂点バッファ作成
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _pDevice = a_pHeapManager->RefDevice();
 
 		if (!m_vertexBuffer.CreateAndUpload(_pDevice,a_pHeapManager,_vertNum,_vertices.data()))
 		{
@@ -128,7 +128,7 @@ namespace Engine::Resource
 		_desc.count = _indices.size();
 		_desc.pData = _indices.data();
 		_desc.format = DXGI_FORMAT_R32_UINT;
-		if (!m_indexBuffer.Create(D3D12::D3D12Wrapper::Instance().GetDevice(), a_pHeapManager, _desc))
+		if (!m_indexBuffer.Create(a_pHeapManager->RefDevice(), a_pHeapManager, _desc))
 		{
 			ENGINE_ERRLOG(false, "いたポリのインデックスバッファ作成失敗");
 		}

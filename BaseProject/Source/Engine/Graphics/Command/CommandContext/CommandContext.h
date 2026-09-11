@@ -1,8 +1,8 @@
-﻿#pragma once
+#pragma once
 
 
 
-namespace Engine::D3D12
+namespace Engine::Graphics
 {
 	class CommandPool;
 
@@ -19,14 +19,14 @@ namespace Engine::D3D12
 		/// <summary>
 		/// 3つのプールを初期化する
 		/// </summary>
-		void Init(Device* a_pDevice);
+		void Init(D3D12::Device* a_pDevice);
 
 		CommandPool* RefDirectPool();
 		CommandPool* RefCopyPool();
 		CommandPool* RefComputePool();
 
 	private:
-		
+
 		std::unique_ptr<CommandPool> m_upDirectCmdPool = nullptr;
 		std::unique_ptr<CommandPool> m_upCopyCmdPool = nullptr;
 		std::unique_ptr<CommandPool> m_upComputeCmdPool = nullptr;

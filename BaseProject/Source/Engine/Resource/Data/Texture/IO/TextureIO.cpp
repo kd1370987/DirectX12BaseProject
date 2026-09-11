@@ -3,8 +3,6 @@
 #include "../../../Manager/AssetDatabase/AssetDatabase.h"
 #include "../../../Manager/ResourceManager/ResourceManager.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
-
 #include "../../../Common/ScopedResourceBuild.h"
 
 namespace Engine::Resource
@@ -31,7 +29,7 @@ namespace Engine::Resource
 		ResourceBuildScope _scope(a_pContext);
 
 		Texture _tex = {};
-		_tex.Import(_scope.GetContext().pHeapManager, a_path);
+		_tex.Import(_scope.GetContext(), a_path);
 		return _tex;
 	}
 	Texture TextureIO::CreateColorTexture(const Math::Color& a_color, const ResourceBuildContext& a_ctx)
@@ -58,7 +56,7 @@ namespace Engine::Resource
 
 		// テクスチャ作成
 		Texture _tex;
-		_tex.Create(a_ctx.pHeapManager, _name, a_color);
+		_tex.Create(a_ctx, _name, a_color);
 
 		return _tex;
 	}

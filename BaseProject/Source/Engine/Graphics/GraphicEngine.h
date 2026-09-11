@@ -37,6 +37,10 @@ namespace Engine::Graphics
 	class GraphicsDevice;
 	class BackBuffer;
 	class PipelineStateManager;
+	class CommandContext;
+	class FrameManager;
+	class AsyncGPUManager;
+	struct AsyncBuildBatch;
 	struct PSOKey;
 
 	// レンダリングパイプライン。
@@ -89,13 +93,12 @@ namespace Engine::Graphics
 	//
 	// 描画まわりの持ち主。初期化と解放は段に分かれていて、順番は次のとおり。
 	//
-	//   InitDevice → (D3D12Wrapper::Init) → InitDescriptorHeap → CreateBackBuffer → Init
-	//   Release → (GPU待ち・遅延解放) → ReleaseBackBuffer → ReleaseDescriptorHeap
-	//           → (D3D12Wrapper::Release) → ReleaseDevice
+	//   InitDevice → InitDescriptorHeap → CreateBackBuffer → Init
+	//   Release → (GPU待ち・遅延解放) → ReleaseBackBuffer → ReleaseDescriptorHeap → ReleaseDevice
 	//
-	// デバイスは何よりも先に作って最後に捨てる。ディスクリプタヒープはその内側で、
-	// ビューを預けているもの(バックバッファ・パーティクル・レイトレ・遅延解放キュー)が
-	// 片付くまで生かしておく
+	// デバイス(とコマンドキュー・フレーム同期)は何よりも先に作って最後に捨てる。
+	// ディスクリプタヒープはその内側で、ビューを預けているもの
+	// (バックバッファ・パーティクル・レイトレ・遅延解放キュー)が片付くまで生かしておく
 	//==========================================================================================
 	class GraphicsEngine
 	{
@@ -107,8 +110,9 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// デバイスの初期化・解放
 		//
+		// デバイスと、その上に乗るコマンドキュー・フレーム同期・非同期転送をまとめて用意する。
 		// 他のD3Dオブジェクトはすべてデバイスの子なので、作るのは最初・捨てるのは最後。
-		// ReleaseDevice() はコマンドキューを片付けた後(D3D12Wrapper::Release の後)に呼ぶこと。
+		// 解放ではキューの完了を待ってから片付け、最後にデバイスを捨てる。
 		// 残っているオブジェクトはここでリークとして報告される
 		//--------------------------------------------------------------------------------------------
 		bool InitDevice(bool a_isDebug);
@@ -128,10 +132,10 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// バックバッファの作成・解放
 		//
-		// スワップチェインは描画キューに紐づくので、キューを作った後に作る。
+		// スワップチェインは描画キューに紐づくので、InitDevice の後に作る。
 		// RTVをディスクリプタヒープに預けているので、ヒープより先に捨てる
 		//--------------------------------------------------------------------------------------------
-		void CreateBackBuffer(HWND a_hWnd, UINT a_width, UINT a_height, D3D12::CommandQueue* a_pCmdQueue);
+		void CreateBackBuffer(HWND a_hWnd, UINT a_width, UINT a_height);
 		void ReleaseBackBuffer();
 
 		// 初期化・解放
@@ -139,7 +143,9 @@ namespace Engine::Graphics
 		void Release();
 
 
-		// フレームの開始・終了処理
+		// フレームの開始・終了処理。
+		// BeginFrame はこのフレームのアロケーターが空くまで(= 同じ番号を前回使ったフレームの
+		// GPU作業が終わるまで)待ってから始める
 		void BeginFrame();
 		void Execute();
 		void EndFrame();
@@ -147,6 +153,69 @@ namespace Engine::Graphics
 		// 画面へ出す : バックバッファを表示できる状態へ落として、フレームを閉じて切り替える。
 		// エディターの描画もバックバッファへ載せるので、それが済んだ後に呼ぶ
 		void Present(bool a_isVsync);
+
+		//--------------------------------------------------------------------------------------------
+		// コマンドキュー・フレーム同期
+		//--------------------------------------------------------------------------------------------
+		// 描画キュー用のコマンドリストを取る。記録したら SubmitDirectCommandList で返すこと
+		D3D12::GraphicsCommandList* AcquireDirectCommandList();
+		void SubmitDirectCommandList(D3D12::GraphicsCommandList* a_pCmdList);
+
+		// 初期化時など、フレームの外でGPU操作が必要なときに使う : 閉じて実行し、完了まで待つ
+		void ExecuteImmediate(D3D12::GraphicsCommandList* a_pCmdList);
+
+		// 描画キュー(ImGui のバックエンドなど、外のライブラリへ渡すとき用)
+		D3D12::CommandQueue* RefDirectCommandQueue();
+
+		// 今のCPUフレーム番号(0 ～ CPU_FRAME_COUNT-1)
+		UINT GetCurrentFrameIndex() const;
+
+		// すべてのフレームのGPU作業が終わるのを待つ。
+		// 待つのはフレーム終了のシグナルまでで、その後に積まれる Present は含まない
+		void WaitForFrame();
+
+		// 全キュー(描画・コピー・コンピュート)を空にする : 終了処理用。
+		// 新しくシグナルを打ってから待つので、最後の Present も終わっている。
+		// スワップチェインやバックバッファを捨てる前はこちらを通すこと
+		// (WaitForFrame では Present が走っている最中に捨てることになり、デバッグレイヤーが CORRUPTION で止まる)
+		void WaitForGPUIdle();
+
+		// フレームのフェンス値
+		UINT64 GetCurrentFenceValue() const;	// 最後にシグナルを送った値
+		UINT64 GetCompletedFenceValue() const;	// GPUが実際に完了させた値
+		UINT64 GetNextFenceValue() const;		// 記録中フレームの終わりにシグナルされる値(遅延解放のタグに使う)
+
+		// フレームのフェンスの持ち主(領域の遅延解放でフェンス値を引く側へ渡す)
+		const FrameManager* GetFrameManager() const { return m_upFrameManager.get(); }
+
+		//--------------------------------------------------------------------------------------------
+		// 非同期転送(バックグラウンドロードなど)
+		//--------------------------------------------------------------------------------------------
+		/// <summary>
+		/// 非同期コピーを実行する
+		/// </summary>
+		/// <param name="a_recordCmds">コマンドリストに積む処理（Upload->Defaultへの転送など）</param>
+		/// <param name="a_onComplete">GPU転送完了時に裏で呼ばれるコールバック（Uploadヒープの解放など）</param>
+		void ExecuteAsyncCopy(
+			std::function<void(D3D12::GraphicsCommandList*)> a_recordCmds,
+			std::function<void()> a_onComplete
+		);
+
+		/// <summary>
+		/// まとまった単位でGPU転送を行うためのバッチを開く
+		/// </summary>
+		/// <param name="a_useCopy">アップロード転送用のコピーリストを確保するか</param>
+		/// <param name="a_useCompute">BLAS構築用のコンピュートリストを確保するか</param>
+		AsyncBuildBatch BeginAsyncBuildBatch(bool a_useCopy = true, bool a_useCompute = true);
+
+		/// <summary>
+		/// バッチを閉じて実行する
+		/// コピー実行 → シグナル → コンピュートキューで待機 → コンピュート実行 の順に流す。
+		/// BLASはコピーで転送したメガバッファを直接読むため、この順序でないと未転送のデータを掴む。
+		/// </summary>
+		/// <param name="a_batch">閉じるバッチ : 呼び出し後は空になる</param>
+		/// <param name="a_onComplete">GPU処理完了時に裏で呼ばれるコールバック</param>
+		void EndAsyncBuildBatch(AsyncBuildBatch& a_batch, std::function<void()> a_onComplete = nullptr);
 
 		// アクセサ
 		const Graphics::RenderContext* GetRenderContext() const;
@@ -630,6 +699,15 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// デバイス。アプリに1つだけ存在する
 		std::unique_ptr<GraphicsDevice> m_upGraphicsDevice = nullptr;
+
+		// コマンドキュー(描画・コピー・コンピュート)と、それぞれのコマンドリストのプール
+		std::unique_ptr<CommandContext> m_upCommandContext = nullptr;
+
+		// 非同期転送の完了監視とアロケーターの使い回し
+		std::unique_ptr<AsyncGPUManager> m_upAsyncGPUManager = nullptr;
+
+		// フレーム番号・フェンス・フレームごとのアロケーター
+		std::unique_ptr<FrameManager> m_upFrameManager = nullptr;
 
 		// ディスクリプタヒープ。アプリに1つだけ存在する
 		std::unique_ptr<D3D12::DescriptorHeapManager> m_upDescriptorHeapManager = nullptr;

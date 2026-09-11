@@ -5,7 +5,6 @@
 //#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
-#include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "../../Graphics/RenderContext/RenderContext.h"

@@ -2,7 +2,7 @@
 
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../MainEngine.h"
-#include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
+#include "../../Graphics/GraphicEngine.h"
 
 Engine::Raytracing::BLAS::~BLAS()
 {
@@ -36,9 +36,10 @@ void Engine::Raytracing::BLAS::DeferReleaseResources(const char* a_pUnexpected)
 			a_pUnexpected, m_isDynamic ? "動的" : "静的");
 	}
 
-	// 終了処理でコマンドキューが片付いた後は GPU が止まっているので、その場で手放してよい。
+	// 終了処理でデバイスが片付いた後は GPU が止まっているので、その場で手放してよい。
 	// (キューを掃く人がもう居ないので、積んでも誰も解放しない)
-	if (!D3D12::D3D12Wrapper::Instance().GetDevice())
+	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+	if (!_pGE || !_pGE->RefDevice())
 	{
 		m_cpResource.Reset();
 		m_cpUpdateScratch.Reset();

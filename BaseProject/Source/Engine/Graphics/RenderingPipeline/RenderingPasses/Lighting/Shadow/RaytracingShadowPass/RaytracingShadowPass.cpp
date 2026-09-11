@@ -4,8 +4,7 @@
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
-#include "Engine/D3D12/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
 #include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
 namespace Engine::Graphics::Pipeline
@@ -30,7 +29,7 @@ namespace Engine::Graphics::Pipeline
 		auto* _pPSOManager = a_context.pGraphicsEngine->RefPipelineStateManager();
 		if (!_pPSOManager) return;
 
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _pDevice = a_context.pGraphicsEngine->RefDevice();
 		if (!_pDevice) return;
 
 		// ---- レイ用ルートシグネチャ ----

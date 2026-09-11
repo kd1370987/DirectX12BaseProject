@@ -9,7 +9,7 @@ namespace Engine::Resource
 		/// <summary>
 		/// BLASの構築コマンドをコンテキストのコンピュートリストへ積む
 		/// 参照するメガバッファへの転送はコピーリスト側で積まれるため、
-		/// 実行時にキュー間の待ちを張る必要がある(D3D12Wrapper::EndAsyncBuildBatchが担当)
+		/// 実行時にキュー間の待ちを張る必要がある(GraphicsEngine::EndAsyncBuildBatchが担当)
 		/// </summary>
 		void Create(
 			const ResourceBuildContext& a_ctx,
