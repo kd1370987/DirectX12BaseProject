@@ -254,7 +254,7 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		D3D12::Device* m_pDevice = nullptr;						// デバイス
 		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;	// ビューの置き場(借り物)
-		GraphicsEngine* m_pGraphicsEngine = nullptr;			// オーナー
+		GraphicsEngine* m_pGraphicsEngine = nullptr;			// グラフィックスエンジン
 
 		//--------------------------------------------------------------------------------------------
 		// フレーム限定リソース

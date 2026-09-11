@@ -25,11 +25,6 @@ namespace Engine::Graphics
 		Pool::RangePool<T>& RefPool();
 
 	private:
-		// フレームで単体のデータ
-		CameraData m_cpuCamera = {};			// CPU側のカメラデータ
-		CameraData m_gpuCamera = {};			// 最終的にGPUに送る形にされたデータ
-
-		AmbientData m_ambientData = {};
 
 		// レイ用メッシュ頂点情報メガバッファ
 		Pool::RangePool<Resource::RTVertex>	m_rtVerticesVec = {};	// 頂点バッファ
