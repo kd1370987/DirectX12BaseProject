@@ -1,10 +1,5 @@
 ﻿#pragma once
 
-namespace Engine::D3D12
-{
-	class PipelineStateManager;
-}
-
 namespace Engine::Graphics
 {
 	class GraphicsEngine;

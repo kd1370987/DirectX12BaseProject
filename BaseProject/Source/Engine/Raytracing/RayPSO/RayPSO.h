@@ -3,7 +3,7 @@
 #include "../../D3D12/D3DObject/RootSignature/RootSignature.h"
 
 // このヘッダーは EngineCommon の早い段階で読まれるので、実体は持ち込まず前方宣言で済ませる
-namespace Engine::D3D12
+namespace Engine::Graphics
 {
 	class PipelineStateManager;
 }
@@ -64,7 +64,7 @@ namespace Engine::Raytracing
 		// パイプラインステート作成
 		// ルートシグネチャの実体はサブオブジェクトの組み立てに要るので、
 		// ここでマネージャーから引く(保持するのはハンドルのまま)
-		bool Init(D3D12::Device* a_pDevice, D3D12::PipelineStateManager* a_pPSOManager, RayPSODesc& a_desc);
+		bool Init(D3D12::Device* a_pDevice, Graphics::PipelineStateManager* a_pPSOManager, RayPSODesc& a_desc);
 
 		const void* GetShaderID(const std::string& a_shaderEntry) const;
 		const void* GetShaderID(const wchar_t* a_shaderEntry) const;

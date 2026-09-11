@@ -34,6 +34,13 @@ namespace Engine::D3D12
 		void Release();
 
 		/// <summary>
+		/// このキューに積まれたものがすべて終わるまで待つ : CPUが止まる。
+		/// 新しくシグナルを打ってから待つので、フレームのフェンスより後に積まれた
+		/// Present なども含めて終わっている
+		/// </summary>
+		void WaitIdle();
+
+		/// <summary>
 		/// コマンドリストの取得 : 内部のリセット処理が走る
 		/// </summary>
 		/// <returns>コマンドリストの生ポインタ</returns>

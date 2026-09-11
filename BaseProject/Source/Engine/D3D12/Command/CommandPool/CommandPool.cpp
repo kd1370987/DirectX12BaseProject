@@ -34,21 +34,7 @@ namespace Engine::D3D12
 	void Engine::D3D12::CommandPool::Release()
 	{
 		// GPU完了を待って解放
-		// キューとフェンスの存在チェック
-		if (m_cpCmdQueue && m_cpFence)
-		{
-			// GPU完了待ち
-			++m_fenceValue;
-			m_cpCmdQueue->Signal(m_cpFence.Get(), m_fenceValue);
-
-			// フェンスの値が目標ちを超えていたら
-			if (m_cpFence->GetCompletedValue() < m_fenceValue)
-			{
-				HANDLE _event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-				m_cpFence->SetEventOnCompletion(m_fenceValue, _event);
-				WaitForSingleObject(_event,INFINITE);
-			}
-		}
+		WaitIdle();
 
 		// 各配列のクリア
 		m_freeLists.clear();
@@ -57,6 +43,31 @@ namespace Engine::D3D12
 		// ComPtrの解放
 		m_cpFence.Reset();
 		m_cpCmdQueue.Reset();
+	}
+
+	void CommandPool::WaitIdle()
+	{
+		// キューとフェンスの存在チェック(解放済みなら待つものが無い)
+		if (!m_cpCmdQueue || !m_cpFence) return;
+
+		// 新しい値でシグナルを打つ。
+		// 値を進めるのは ExecutePendingLists と同じ数え上げなので同じロックで守る
+		UINT64 _waitValue = 0;
+		{
+			std::lock_guard<std::mutex> _lock(m_mutex);
+			++m_fenceValue;
+			_waitValue = m_fenceValue;
+			m_cpCmdQueue->Signal(m_cpFence.Get(), _waitValue);
+		}
+
+		// まだ届いていなければ待つ
+		if (m_cpFence->GetCompletedValue() < _waitValue)
+		{
+			HANDLE _event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			m_cpFence->SetEventOnCompletion(_waitValue, _event);
+			WaitForSingleObject(_event, INFINITE);
+			CloseHandle(_event);
+		}
 	}
 
 	GraphicsCommandList* CommandPool::AcquireList(Device* a_pDevice, ID3D12CommandAllocator* a_pAllocator)

@@ -1111,6 +1111,18 @@
     <Filter Include="Source\Engine\Graphics\RenderContext">
       <UniqueIdentifier>{ac53ba98-b34c-40d7-aee4-ecaa9ee05c09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\Core">
+      <UniqueIdentifier>{8bf6f317-0cf1-4e9c-9a1a-c0781d3d67d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Core\BackBuffer">
+      <UniqueIdentifier>{322b37b5-8130-4b29-adf8-55c699331229}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Core\DrawList">
+      <UniqueIdentifier>{c83facba-a374-4579-b937-1a45685993de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Core\GraphicsDevice">
+      <UniqueIdentifier>{1f9f40b8-0985-4851-b267-33465c0b693b}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\ShadingPipelineBuilder">
       <UniqueIdentifier>{f2601013-cd86-4e8d-aa96-27ba28a268dc}</UniqueIdentifier>
     </Filter>
@@ -2333,6 +2345,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\Core\BackBuffer\BackBuffer.cpp">
+      <Filter>Source\Engine\Graphics\Core\BackBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\Core\DrawList\DrawList.cpp">
+      <Filter>Source\Engine\Graphics\Core\DrawList</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\Core\GraphicsDevice\GraphicsDevice.cpp">
+      <Filter>Source\Engine\Graphics\Core\GraphicsDevice</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp">
       <Filter>Source\Engine\Graphics\ShadingPipelineBuilder</Filter>
@@ -3860,6 +3881,18 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\RenderContext</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Core\BackBuffer\BackBuffer.h">
+      <Filter>Source\Engine\Graphics\Core\BackBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Core\DrawList\DrawCommand.h">
+      <Filter>Source\Engine\Graphics\Core\DrawList</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Core\DrawList\DrawList.h">
+      <Filter>Source\Engine\Graphics\Core\DrawList</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Core\GraphicsDevice\GraphicsDevice.h">
+      <Filter>Source\Engine\Graphics\Core\GraphicsDevice</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.h">
       <Filter>Source\Engine\Graphics\ShadingPipelineBuilder</Filter>

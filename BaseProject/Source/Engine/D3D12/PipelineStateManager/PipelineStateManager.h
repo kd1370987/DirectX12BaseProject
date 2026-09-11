@@ -25,7 +25,15 @@ namespace Engine::D3D12
 		CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT DSVFormat;
 		CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_DESC SampleDesc;
 	};
+}
 
+namespace Engine::Graphics
+{
+	//==========================================================================================
+	// ルートシグネチャとパイプラインステートの管理
+	//
+	// GraphicsEngine が持つ。使う側はハンドルだけを持ち、張る直前に実体を引く
+	//==========================================================================================
 	class PipelineStateManager
 	{
 	public:

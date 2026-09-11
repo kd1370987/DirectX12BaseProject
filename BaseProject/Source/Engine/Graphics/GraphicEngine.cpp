@@ -7,6 +7,10 @@
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../D3D12/PipelineStateManager/PipelineStateManager.h"
 
+// グラフィックスエンジンの持ち物(土台)
+#include "Core/GraphicsDevice/GraphicsDevice.h"
+#include "Core/BackBuffer/BackBuffer.h"
+
 // グラフィックス関係
 #include "RenderContext/RenderContext.h"
 #include "../Resource/Manager/ResourceManager/ResourceManager.h"
@@ -53,24 +57,80 @@
 
 namespace Engine::Graphics
 {
-	namespace
-	{
-		// vector を空にしつつ、次フレームぶんの容量を確保し直す(EndFrame用)。
-		template<typename T>
-		void ClearAndReserve(std::vector<T>& a_vec, size_t a_reserveCount)
-		{
-			a_vec.clear();
-			a_vec.reserve(a_reserveCount);
-		}
-	}
-
 	GraphicsEngine::GraphicsEngine()
 	{}
 	GraphicsEngine::~GraphicsEngine()
 	{}
 
-	bool GraphicsEngine::InitDescriptorHeap(D3D12::Device* a_pDevice)
+	//==========================================================================================
+	//
+	// 土台(デバイス・ディスクリプタヒープ・バックバッファ)
+	//
+	//==========================================================================================
+	bool GraphicsEngine::InitDevice(bool a_isDebug)
 	{
+		m_upGraphicsDevice = std::make_unique<GraphicsDevice>();
+		m_upGraphicsDevice->Create(a_isDebug);
+
+		if (!m_upGraphicsDevice->RefDevice())
+		{
+			ENGINE_ERRLOG(false, "デバイスの作成に失敗しました");
+			return false;
+		}
+		return true;
+	}
+
+	void GraphicsEngine::ReleaseDevice()
+	{
+		if (!m_upGraphicsDevice) return;
+
+		// 残っているオブジェクトはここでリークとして報告される
+		m_upGraphicsDevice->Release();
+		m_upGraphicsDevice.reset();
+	}
+
+	D3D12::Device* GraphicsEngine::RefDevice()
+	{
+		return m_upGraphicsDevice ? m_upGraphicsDevice->RefDevice() : nullptr;
+	}
+
+	void GraphicsEngine::CreateBackBuffer(HWND a_hWnd, UINT a_width, UINT a_height, D3D12::CommandQueue* a_pCmdQueue)
+	{
+		// スワップチェインはファクトリから作り、RTVはヒープへ預ける。
+		// どちらも先に用意できていないと作れない
+		if (!m_upGraphicsDevice || !m_upDescriptorHeapManager)
+		{
+			ENGINE_ERRLOG(false, "バックバッファより先にデバイスとディスクリプタヒープを用意してください");
+			return;
+		}
+
+		m_upBackBuffer = std::make_unique<BackBuffer>();
+		m_upBackBuffer->Create(
+			m_upDescriptorHeapManager.get(),
+			m_upGraphicsDevice->RefFactory(),
+			a_pCmdQueue,
+			a_hWnd, a_width, a_height
+		);
+	}
+
+	void GraphicsEngine::ReleaseBackBuffer()
+	{
+		if (!m_upBackBuffer) return;
+
+		// RTVをヒープへ返すので、ヒープを捨てるより前に通すこと
+		m_upBackBuffer->Release();
+		m_upBackBuffer.reset();
+	}
+
+	bool GraphicsEngine::InitDescriptorHeap()
+	{
+		auto* _pDevice = RefDevice();
+		if (!_pDevice)
+		{
+			ENGINE_ERRLOG(false, "ディスクリプタヒープより先にデバイスを作ってください");
+			return false;
+		}
+
 		// 各ビューの席数。SRVはテクスチャ1枚につき1つ取るので、ここだけ桁が違う
 		constexpr UINT kCBVCount = 100;
 		constexpr UINT kSRVCount = 4000;
@@ -81,7 +141,7 @@ namespace Engine::Graphics
 		m_upDescriptorHeapManager = std::make_unique<D3D12::DescriptorHeapManager>();
 
 		return m_upDescriptorHeapManager->Init(
-			a_pDevice,
+			_pDevice,
 			kCBVCount, kSRVCount, kUAVCount, kRTVCount, kDSVCount
 		);
 	}
@@ -100,9 +160,12 @@ namespace Engine::Graphics
 	)
 	{
 
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _pDevice = RefDevice();
 
-		m_pPipelineStateManager = a_desc.pPipelineStateManager;
+		// パイプラインステート・ルートシグネチャ管理。
+		// スキニングやパーティクルの用意、パスの組み立てが引くので最初に作る
+		m_upPipelineStateManager = std::make_unique<PipelineStateManager>();
+		m_upPipelineStateManager->Init(_pDevice);
 
 		// デバッグ用ワイヤーの置き場。
 		// レンダーコンテキストが毎フレーム中身を読むので、先に用意しておく
@@ -116,6 +179,9 @@ namespace Engine::Graphics
 			RenderContextDesc _desc = {};
 			_desc.pDevice = _pDevice;
 			_desc.pHeapManager = m_upDescriptorHeapManager.get();
+			_desc.pPipelineStateManager = m_upPipelineStateManager.get();
+			_desc.pDrawLists = &m_drawLists;
+			_desc.pBackBuffer = m_upBackBuffer.get();
 
 			_desc.cbAllocatorMemSize = 32 * 1024 * 1024;
 			// シーンを重ねて描くとき(ポーズ画面など)は全ワールドのボーン行列を
@@ -161,8 +227,8 @@ namespace Engine::Graphics
 		// 同じ結果を読む。パイプラインのパスにすると、カメラの数だけ同じ計算を回すことになる。
 		// ここで用意して Execute() から直接呼ぶ
 		//------------------------------------------------------------------------------------
-		SetupSkinning(m_pPipelineStateManager);
-		SetupParticleSimulation(m_pPipelineStateManager);
+		SetupSkinning(m_upPipelineStateManager.get());
+		SetupParticleSimulation(m_upPipelineStateManager.get());
 
 		// 定数バッファ初期化
 		m_cbAmbient = {};
@@ -363,7 +429,7 @@ namespace Engine::Graphics
 	//======================================================================================
 	void GraphicsEngine::RebuildCameraPipelines(bool a_isNewOnly)
 	{
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _pDevice = RefDevice();
 		auto& _resourceManager = Resource::ResourceManager::Instance();
 
 		// 組み直したカメラがあったか。1台でもあればパス番号を配り直す
@@ -672,26 +738,21 @@ namespace Engine::Graphics
 		Resource::Texture* _pFinalTex = m_pMainCamera->upFinalTex.get();
 		if (!_pFinalTex) return;
 
-		auto& _d3d = D3D12::D3D12Wrapper::Instance();
-		ID3D12Resource* _pBackBuffer = _d3d.GetCurrentBackBuffer();
-		if (!_pBackBuffer) return;
+		if (!m_upBackBuffer) return;
+		Resource::Texture& _backBuffer = m_upBackBuffer->RefBackBuffer();
+		if (!_backBuffer.GetResource()) return;
 
-		// バックバッファはこの時点で RENDER_TARGET。コピー先へ落とす
-		D3D12::ResourceBarrier(
-			a_pCmdList, _pBackBuffer,
-			D3D12_RESOURCE_STATE_RENDER_TARGET,
-			D3D12_RESOURCE_STATE_COPY_DEST);
+		// バックバッファはこの時点で RENDER_TARGET。コピー先へ落とす。
+		// ステートはテクスチャ自身が覚えているので、生のバリアではなく Barrier() を通す
+		_backBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
 
 		// 最終出力側はグラフが入口のステートへ戻してある
 		_pFinalTex->Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
-		a_pCmdList->CopyResource(_pBackBuffer, _pFinalTex->GetResource());
+		a_pCmdList->CopyResource(_backBuffer.GetResource(), _pFinalTex->GetResource());
 
 		// この後の描画(エディターのImGuiなど)が続くので元へ戻す
-		D3D12::ResourceBarrier(
-			a_pCmdList, _pBackBuffer,
-			D3D12_RESOURCE_STATE_COPY_DEST,
-			D3D12_RESOURCE_STATE_RENDER_TARGET);
+		_backBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 		// 最終出力はこの後 ImGui が読むので、読める状態のまま置いておく
 		_pFinalTex->Barrier(a_pCmdList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -808,20 +869,30 @@ namespace Engine::Graphics
 		// デバッグ用ワイヤー解放
 		m_upDebugDraw.reset();
 
-		// 各リンク解除
-		m_pPipelineStateManager = nullptr;
-
 		// ディスクリプタヒープはここでは捨てない。
-		// この後に解放されるもの(パーティクル/レイトレ/PSO/バックバッファ/遅延解放キュー)が
+		// この後に解放されるもの(パーティクル/レイトレ/バックバッファ/遅延解放キュー)が
 		// まだビューを返してくるので、ReleaseDescriptorHeap() を最後に呼ぶこと
 
 
 		m_upMeshBufferAllocator->Release();
 
+		// 描画要求の配列を空にする(積みかけのものが残っていても捨ててよい)
+		m_drawLists.Clear();
+
+		// パイプラインステート・ルートシグネチャ解放。
+		// パスもスキニングもパーティクルも、握っているのはハンドルだけなので最後でよい
+		if (m_upPipelineStateManager)
+		{
+			m_upPipelineStateManager->Release();
+			m_upPipelineStateManager.reset();
+		}
 	}
 
 	void GraphicsEngine::BeginFrame()
 	{
+		// 今フレームに描くバックバッファの番号を引き直す
+		m_upBackBuffer->BeginFrame();
+
 		// 今から使うレンダーコンテキスをクリア
 		m_currentFrameIndex = D3D12::D3D12Wrapper::Instance().CurrentCPUFrameIndex();
 		m_upRenderContextVec[m_currentFrameIndex]->Clear();
@@ -837,7 +908,7 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::Execute()
 	{
-		auto* _pDevice = D3D12::D3D12Wrapper::Instance().GetDevice();
+		auto* _pDevice = RefDevice();
 		auto* _pCmdList = D3D12::D3D12Wrapper::Instance().GetDirectCommandList();
 		// GPUが実際に完了させた値 : これ以下でタグ付けされた領域だけをフリーリストに戻す
 		auto _completedFence = D3D12::D3D12Wrapper::Instance().GetCompletedFenceValue();
@@ -868,15 +939,10 @@ namespace Engine::Graphics
 		// パーティクルのバッファ更新
 		MainEngine::Instance().RefParticleManager()->UploadEmitData(_pCmdList);
 
-		// バックバッファのresourceバリア
-		D3D12::ResourceBarrier(
-			_pCmdList, // D3D12Wrapper側のバリア関数も引数でリストをもらうように修正してください
-			D3D12::D3D12Wrapper::Instance().GetCurrentBackBuffer(),
-			D3D12_RESOURCE_STATE_PRESENT,
-			D3D12_RESOURCE_STATE_RENDER_TARGET
-		);
+		// バックバッファを描き込める状態にしてクリアする
+		m_upBackBuffer->TransitionToRenderTarget(_pCmdList);
 		auto _cpuHandle = m_upDescriptorHeapManager->GetCPU(
-			D3D12::D3D12Wrapper::Instance().GetCurrentBackBufferTex().GetRTV()
+			m_upBackBuffer->GetBackBuffer().GetRTV()
 		);
 		float _clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f }; // 背景色
 		_pCmdList->ClearRenderTargetView(_cpuHandle, _clearColor, 0, nullptr);
@@ -900,42 +966,26 @@ namespace Engine::Graphics
 		// ボーン行列は上の GameManager::Draw() で描くワールドぶんだけ積まれている。
 		// 「今の一番上のシーン」から引いてはいけない(ポーズ中は後ろのゲームのボーンが載らない)
 		m_upRenderContextVec[m_currentFrameIndex]->UpdateBuffer(
-			m_meshInstanceDataVec, m_meshMaterialDataVec,
-			m_boneMatrixVec
+			m_drawLists.GetInstanceDataVec(), m_drawLists.GetMeshMaterialVec(),
+			m_drawLists.GetBoneMatrixVec()
 		);
 		//------------------------------------------------------------------
 		// UIをレイヤー順に並べ替える
 		//
 		// UIパスは深度を持たない(DepthEnable(false))ので、重なりを決めるのは
 		// 描く順そのもの。並べ替えないとレイヤーの値がどこにも効かない。
-		//
-		// 小さいものから描く = 大きいほど手前。
-		// 同じ値のものは積んだ順を崩さないよう stable_sort を使う
-		// (1つのUIが持つ飾りは配列順で重なっているため、崩すと絵が入れ替わる)
 		//------------------------------------------------------------------
-		std::stable_sort(
-			m_uiDrawItemVec.begin(), m_uiDrawItemVec.end(),
-			[](const UIData& a, const UIData& b)
-			{
-				return a.layer < b.layer;
-			}
-		);
+		m_drawLists.SortUIByLayer();
 
-		m_upRenderContextVec[m_currentFrameIndex]->UpdateUIBuffer(m_uiDrawItemVec);
+		m_upRenderContextVec[m_currentFrameIndex]->UpdateUIBuffer(m_drawLists.GetUIDataVec());
 
 		// ライトをGPUバッファへ詰め直す。
 		// レンダーパスが引くのはこの結果なので、必ずレンダーグラフの実行より前に済ませる
 		m_lightManager.BuildFrameData(m_frameLightDataArr[m_currentFrameIndex]);
 
 
-		// 描画アイテムをソート
-		std::sort(
-			m_lightWeightDrawItemVec.begin(), m_lightWeightDrawItemVec.end(),
-			[](const LightWeightDrawItem& a, const LightWeightDrawItem& b)
-			{
-				return a.sortKey.value < b.sortKey.value;
-			}
-		);
+		// 描画アイテムをソート : パスはこの並びからパス番号で自分のぶんを引く
+		m_drawLists.SortItems();
 
 		//------------------------------------------------------------------
 		// カメラに依存しない毎フレームの計算
@@ -978,21 +1028,8 @@ namespace Engine::Graphics
 		PruneCameraPipelines();
 
 
-		// 描画命令をクリアしてメモリ領域を確保しておく
-		ClearAndReserve(m_lightWeightDrawItemVec, 10000);
-		ClearAndReserve(m_uiDrawItemVec, 10000);
-		ClearAndReserve(m_dynamicRayRequestVec, 1000);
-		ClearAndReserve(m_skinningDispathItemVec, 1000);
-
-		// ボーンパレットと、ワールドごとの土台の対応表
-		ClearAndReserve(m_boneMatrixVec, 10000);
-		m_boneBaseIndexMap.clear();
-
-		// オブジェクトデータの消去
-		ClearAndReserve(m_meshInstanceDataVec, 10000);
-
-		// サブセット情報の消去
-		ClearAndReserve(m_meshMaterialDataVec, 10000);
+		// 描画要求の配列をクリアしてメモリ領域を確保しておく
+		m_drawLists.Clear();
 
 		//------------------------------------------------------------------
 		// 画面効果は毎フレーム、アクティブカメラが設定し直す。
@@ -1015,6 +1052,22 @@ namespace Engine::Graphics
 		if (m_upDebugDraw) m_upDebugDraw->Clear();
 	}
 
+	void GraphicsEngine::Present(bool a_isVsync)
+	{
+		auto& _d3d = D3D12::D3D12Wrapper::Instance();
+
+		// レンダーターゲットに書き込みが終わるまで待つ
+		auto* _pCmdList = _d3d.GetDirectCommandList();
+		m_upBackBuffer->TransitionToPresent(_pCmdList);
+		_d3d.SubmitDirectCommandList(_pCmdList);
+
+		// 積んだリストを流して、フレーム終了のシグナルを打つ
+		_d3d.EndFrame();
+
+		// スワップチェイン切替
+		m_upBackBuffer->Present(a_isVsync);
+	}
+
 	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const
 	{
 		return m_upRenderContextVec[m_currentFrameIndex].get();
@@ -1024,9 +1077,9 @@ namespace Engine::Graphics
 		return m_upRenderContextVec[m_currentFrameIndex].get();
 
 	}
-	D3D12::PipelineStateManager* GraphicsEngine::RefPipelineStateManager()
+	PipelineStateManager* GraphicsEngine::RefPipelineStateManager()
 	{
-		return m_pPipelineStateManager;
+		return m_upPipelineStateManager.get();
 	}
 	D3D12::DescriptorHeapManager* GraphicsEngine::RefDescriptorHeapManager()
 	{
@@ -1146,46 +1199,6 @@ namespace Engine::Graphics
 	{
 		return m_skyTexHandle;
 	}
-	//======================================================================================
-	// ボーンパレットへこのワールドのボーン行列を積む
-	//--------------------------------------------------------------------------------------
-	// ボーン行列はワールド(シーン)ごとの RangePool に入っていて、その添字も
-	// ワールドごとに 0 から始まる。GPU側のボーンパレットは1本しかないので、
-	// 複数のシーンを重ねて描くときは連結したうえで土台を足してやる必要がある。
-	//
-	// ポーズ画面はゲームのシーンへ重ねて出す(Push)ので、描くワールドが2つになる。
-	// ここで両方を積んでおかないと、片方のキャラのボーンが単位行列でも他人のものでもない
-	// 場所を指し、頂点が一点に潰れて消えたように見える。
-	//
-	// 呼ばれるのは描画フェーズ(GameManager::Draw)の中で、ボーン行列自体は
-	// それより前の Animation フェーズで確定しているので、この時点の値で正しい。
-	//======================================================================================
-	uint32_t GraphicsEngine::AcquireBoneBaseIndex(ECS::World& a_world)
-	{
-		// 同じワールドをこのフレームで既に積んでいればその位置を返す
-		auto _it = m_boneBaseIndexMap.find(&a_world);
-		if (_it != m_boneBaseIndexMap.end()) return _it->second;
-
-		const uint32_t _baseIndex = static_cast<uint32_t>(m_boneMatrixVec.size());
-
-		if (a_world.HasResource<Pool::RangePool<Resource::BoneMatrix>>())
-		{
-			auto& _boneMatPool = a_world.GetResource<Pool::RangePool<Resource::BoneMatrix>>();
-
-			// プールは最初から10000要素ぶん確保されているので、丸ごと積むと
-			// ワールドを2つ重ねただけでGPU側のボーンパレットが溢れる。
-			// 実際に使われている末尾までで足りる(ハンドルの添字は必ずこの内側)
-			const auto& _data = _boneMatPool.GetAllData();
-			const size_t _usedCount = (std::min)(
-				static_cast<size_t>(_boneMatPool.GetUsedCount()), _data.size());
-
-			m_boneMatrixVec.insert(m_boneMatrixVec.end(), _data.begin(), _data.begin() + _usedCount);
-		}
-
-		m_boneBaseIndexMap.emplace(&a_world, _baseIndex);
-		return _baseIndex;
-	}
-
 	void GraphicsEngine::SubmitSkinning(
 		ECS::World& a_world,
 		const Resource::Model* a_pModel,
@@ -1195,7 +1208,7 @@ namespace Engine::Graphics
 	)
 	{
 		// このワールドのボーン行列をパレットへ積み、GPU上の土台を得る
-		const uint32_t _boneBaseIndex = AcquireBoneBaseIndex(a_world);
+		const uint32_t _boneBaseIndex = m_drawLists.AcquireBoneBaseIndex(a_world);
 
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
 		for (const auto& _cmd : _drawCmdVec)
@@ -1238,7 +1251,7 @@ namespace Engine::Graphics
 				}
 			}
 
-			m_skinningDispathItemVec.push_back(_item);
+			m_drawLists.AddSkinning(_item);
 		}
 	}
 	void GraphicsEngine::SubmitModel(
@@ -1347,7 +1360,7 @@ namespace Engine::Graphics
 		// 戻り値の土台位置はここでは使わない(頂点をスキニングするのはコンピュートの
 		// スキニングパスで、描画側はその結果の頂点バッファを読むだけ)。
 		// ただし積むこと自体はそのパスに要るので、呼び出しを外してはいけない
-		AcquireBoneBaseIndex(a_world);
+		m_drawLists.AcquireBoneBaseIndex(a_world);
 
 		// モデルが持っている描画コマンド（サブセット）を展開
 		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
@@ -1418,7 +1431,7 @@ namespace Engine::Graphics
 	void GraphicsEngine::SubmitModel(const Math::Matrix& a_worldMat, const Math::Color& a_colorScale, const Math::Vector3& a_emissiveScale, const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle, const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle, const Math::Vector3& a_emissiveAdd)
 	{
 
-		m_dynamicRayRequestVec.push_back(
+		m_drawLists.AddDynamicRayRequest(
 			{ a_worldMat,a_colorScale,a_emissiveScale,a_emissiveAdd,dynamicHandle,nodePoseHnandle }
 		);
 	}
@@ -1454,56 +1467,6 @@ namespace Engine::Graphics
 		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, _size, a_color, a_rotation, a_layer, a_uvOffset, a_pivot, {1.0f,1.0f}, a_curveK, a_curveOffsetX);
 	}
 
-	UINT GraphicsEngine::SetInstanceData(const MeshInstanceData& a_instanceData)
-	{
-		UINT _index = static_cast<UINT>(m_meshInstanceDataVec.size());
-		m_meshInstanceDataVec.push_back(a_instanceData);
-		return _index;
-	}
-	UINT GraphicsEngine::SetMeshMaterialData(const MeshMaterial& a_subsetData)
-	{
-		UINT _index = static_cast<UINT>(m_meshMaterialDataVec.size());
-		m_meshMaterialDataVec.push_back(a_subsetData);
-		return _index;
-	}
-	void GraphicsEngine::AddItem(const LightWeightDrawItem& a_item)
-	{
-		// アイテム配列に追加
-		m_lightWeightDrawItemVec.push_back(a_item);
-	}
-	std::span<const LightWeightDrawItem> GraphicsEngine::GetPassItems(uint8_t a_passIndex)
-	{
-		// 探したいパスのキーの最小値と最大値を求める。
-		// パス番号は RenderSortKey の最上位8bit(56〜63)に置いてある
-		constexpr uint32_t _kPassIndexShift = 56;
-		uint64_t _minKey = static_cast<uint64_t>(a_passIndex) << _kPassIndexShift;
-		uint64_t _maxKey = _minKey | ((1ull << _kPassIndexShift) - 1ull); // 下位56ビットをすべて1にする
-
-		// ソート済み配列から開始位置を見つける
-		auto _itStart = std::lower_bound(
-			m_lightWeightDrawItemVec.begin(),
-			m_lightWeightDrawItemVec.end(),
-			_minKey,
-			[](const LightWeightDrawItem& a_item, uint64_t a_value)
-			{
-				return a_item.sortKey.value < a_value;
-			}
-		);
-
-		// ソート済み配列から終了位置を見つける
-		auto _itEnd = std::upper_bound(
-			_itStart,		// 開始位置から探す
-			m_lightWeightDrawItemVec.end(),
-			_maxKey,
-			[](uint64_t a_value, const LightWeightDrawItem& a_item)
-			{
-				return a_value < a_item.sortKey.value;
-			}
-		);
-
-		return std::span<const LightWeightDrawItem>(_itStart, _itEnd);
-	}
-
 	void GraphicsEngine::BindPSO(Graphics::RenderContext* a_pCtx, const Handle<ID3D12PipelineState>& a_handle)
 	{
 		if (!a_pCtx) return;
@@ -1512,7 +1475,7 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex)
 	{
-		auto* _pPSO = m_pPipelineStateManager->GetPSO(a_psoIndex);
+		auto* _pPSO = m_upPipelineStateManager->GetPSO(a_psoIndex);
 		if (!_pPSO) return;
 		a_pCtx->SetGraphicPSO(_pPSO);
 	}
@@ -1767,7 +1730,7 @@ namespace Engine::Graphics
 			MeshInstanceData _meshInstanceData = {};
 			_meshInstanceData.worldMat = a_mat.Transpose();
 			_meshInstanceData.prevWorldMat = a_prevMat.Transpose();
-			_meshInstanceData.materialOffset = SetMeshMaterialData(_meshMaterial);
+			_meshInstanceData.materialOffset = m_drawLists.AddMeshMaterial(_meshMaterial);
 			_meshInstanceData.meshletOffset = _msData.meshletHandle.startIndex + _msData.subsetMeshlets[a_cmd.subIdx].meshletOffset;
 			_meshInstanceData.vertexOffset = a_pMesh->GetRtData().vertexHandle.startIndex;
 			_meshInstanceData.uviOffset = _msData.uniqueVertexIndicesHandle.startIndex;
@@ -1781,7 +1744,7 @@ namespace Engine::Graphics
 			_pipelineKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
 			_pipelineKey.psHandle = _pPipelinePass->GetDefaultPSHandle();
 
-			auto _psoHandle = _pPipelinePass->RefPipelineBuilder().Request(_pipelineKey, m_pPipelineStateManager);
+			auto _psoHandle = _pPipelinePass->RefPipelineBuilder().Request(_pipelineKey, m_upPipelineStateManager.get());
 
 			// PSOを作れなかったアイテムは積まない : 描くときに引く先が無い。
 			//
@@ -1799,12 +1762,12 @@ namespace Engine::Graphics
 			_item.sortKey.bits.materialID = a_cmd.materialHandle.GetIndex();
 			_item.isAnimation = a_isAnimation;
 			_item.subIndex = a_cmd.subIdx;
-			_item.meshInstanceIndex = SetInstanceData(_meshInstanceData);
+			_item.meshInstanceIndex = m_drawLists.AddInstanceData(_meshInstanceData);
 			_item.subsetMeshletCount = _msData.subsetMeshlets[a_cmd.subIdx].meshletCount;
 			_item.sortKey.bits.psoID = _psoHandle.GetIndex();
 			_item.sortKey.bits.passIndex = _pPipelinePass->GetPassIndex();
 
-			AddItem(_item);
+			m_drawLists.AddItem(_item);
 		}
 
 	}
@@ -1879,6 +1842,6 @@ namespace Engine::Graphics
 		_data.curveHalfWidth = _halfPx.x;
 		_data.curveInvHalfHeight = (_halfPx.y > 0.0f) ? (1.0f / _halfPx.y) : 0.0f;
 
-		m_uiDrawItemVec.push_back(_data);
+		m_drawLists.AddUI(_data);
 	}
 }

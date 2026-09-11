@@ -7,6 +7,12 @@ packages/
 Library/
 .vs/
 
+# 上の Debug/ Release/ はビルド出力のためのもの。
+# ソースに同じ名前のフォルダ(Utility/Debug, Systems/Release など)があるので、
+# Source 以下は管理対象へ戻す(戻さないとクローンしただけではビルドできない)
+!BaseProject/Source/**/[Dd]ebug/
+!BaseProject/Source/**/[Rr]elease/
+
 #========================================
 # 共通無視拡張子
 #========================================

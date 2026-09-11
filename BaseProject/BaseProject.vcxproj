@@ -533,6 +533,9 @@
     <ClCompile Include="Source\Engine\JobSystem\JobSystem.cpp" />
     <ClCompile Include="Source\Engine\MainEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Core\BackBuffer\BackBuffer.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Core\DrawList\DrawList.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Core\GraphicsDevice\GraphicsDevice.cpp" />
     <ClCompile Include="Source\Engine\Option\GraphicsOptions\RenderingOption.cpp" />
     <ClCompile Include="Source\Engine\Option\GraphicsOptions\WindowOption.cpp" />
     <ClCompile Include="Source\Engine\Option\OptionManager.cpp" />
@@ -1068,6 +1071,10 @@
     <ClInclude Include="Source\Engine\EngineCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
+    <ClInclude Include="Source\Engine\Graphics\Core\BackBuffer\BackBuffer.h" />
+    <ClInclude Include="Source\Engine\Graphics\Core\DrawList\DrawCommand.h" />
+    <ClInclude Include="Source\Engine\Graphics\Core\DrawList\DrawList.h" />
+    <ClInclude Include="Source\Engine\Graphics\Core\GraphicsDevice\GraphicsDevice.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\GIOptions.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\RenderingOption.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\LightingOption.h" />

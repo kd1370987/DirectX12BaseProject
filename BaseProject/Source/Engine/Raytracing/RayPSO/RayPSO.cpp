@@ -12,7 +12,7 @@ namespace Engine::Raytracing
 		m_shader.Release();
 		m_cpPSO.Reset();
 	}
-	bool RayPSO::Init(D3D12::Device* a_pDevice, D3D12::PipelineStateManager* a_pPSOManager, RayPSODesc& a_desc)
+	bool RayPSO::Init(D3D12::Device* a_pDevice, Graphics::PipelineStateManager* a_pPSOManager, RayPSODesc& a_desc)
 	{
 		if (!a_pPSOManager) return false;
 

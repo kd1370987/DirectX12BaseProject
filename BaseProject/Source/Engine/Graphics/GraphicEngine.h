@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "CBData.h"
 #include "LightManager/LightManager.h"
+#include "Core/DrawList/DrawList.h"
 
 namespace Engine
 {
@@ -9,7 +10,6 @@ namespace Engine
 		class GraphicsPSOManager;
 		class RootSignatureManager;
 
-		class PipelineStateManager;
 		class DescriptorHeapManager;
 	}
 
@@ -34,6 +34,9 @@ namespace Engine::Graphics
 	class RenderContext;
 	class MeshBufferAllocator;
 	class DebugDraw;
+	class GraphicsDevice;
+	class BackBuffer;
+	class PipelineStateManager;
 	struct PSOKey;
 
 	// レンダリングパイプライン。
@@ -79,92 +82,21 @@ namespace Engine::Graphics
 	{
 		UINT width = 0;						// ウィンドウの横幅
 		UINT height = 0;					// ウィンドウの縦幅
-
-		D3D12::PipelineStateManager* pPipelineStateManager = nullptr;
 	};
 
-	// 64ビットのソートキー
-	//
-	// ここに詰まっている ID は「並べ替えと、同じ状態をまとめるため」だけのもの。
-	// 世代を持たないので、ここからリソースを引かないこと。
-	// 実体が必要なときは LightWeightDrawItem のハンドルから取得する
-	union RenderSortKey
-	{
-		uint64_t value;
-		struct {
-			// 下位ビットから順に判断優先度が低くなるように配置する
-			//
-			// 幅の配り方について:
-			//   psoID は溢れると「描くときに別のPSOを引く」か「アイテムごと捨てる」しかなく、
-			//   絵が消える。一方 meshID / materialID は並べ替えのための値でしかなく
-			//   (ここからリソースは引かない)、被っても並び順が少し甘くなるだけ。
-			//   なので psoID にはハンドルのインデックスと同じ16bitを渡し切って、
-			//   切り捨てが起こりえない形にしてある。
-			//   足りないぶんは、まだ誰も書いていない depth から回している
-			uint64_t depth : 12;			// 深度 (未使用)
-			uint64_t meshID : 14;			// メッシュ
-			uint64_t materialID : 14;		// マテリアル
-			uint64_t psoID : 16;			// PSOID : Handle::GetIndex() と同じ幅
-			uint64_t passIndex : 8;			// パスインデックス
-		} bits;
-	};
-
-	struct LightWeightDrawItem
-	{
-		// 描画順序と各種IDの情報すべてを持つ
-		RenderSortKey sortKey;
-		UINT subIndex = 0;
-
-		// 描画に使うリソース。
-		// 実体はリソースマネージャーに置いたままにして、ここではハンドルだけを持つ。
-		// 描画する瞬間に引き直すこと
-		Handle<Resource::Mesh>		meshHandle = {};
-		Handle<Resource::Material>	materialHandle = {};
-
-		// インスタンスデータ
-		bool isAnimation = false;
-
-		// メッシュシェーダー用インデックス
-		UINT meshInstanceIndex = 0;
-		UINT meshMaterialIndex = 0;
-
-		// このサブセットを描画するためのメッシュレット数
-		UINT subsetMeshletCount = 0;
-
-		// ヘルパー関数 : ビット位置を直に書くと幅を変えたときに追従し損ねるので、
-		// 取り出しはビットフィールド越しにする
-		uint8_t GetPassIndex()		const { return static_cast<uint8_t>(sortKey.bits.passIndex); }
-		uint16_t GetPSOID()			const { return static_cast<uint16_t>(sortKey.bits.psoID); }
-	};
-
-	/// <summary>
-	/// GPUスキニングするエンティティの命令
-	/// </summary>
-	struct SkinningDispatchItem
-	{
-		RangeHandle<Resource::MeshVertexFloat> staticVertexHandle;		// アセット側の頂点データ
-		RangeHandle<uint32_t> staticIndexHandle;						// アセット側のインデックスデータ
-		RangeHandle<Resource::NodePoseMatrix> nodePoseMat;				// CPUで更新されたボーンノード行列
-		RangeHandle<Resource::MeshVertexFloat> animatedHandle;
-		RangeHandle<Resource::BoneMatrix> boneHandle;					// ボーン行列(ワールド内のプール添字)
-
-		// ボーンパレット(GPU)での開始位置。
-		// プールの添字はワールドごとに 0 から振り直されるので、
-		// 複数のシーンを重ねて描くとそのままでは他シーンのボーンを踏む。
-		// アップロード時に付く土台を足した「GPU上の」位置をここに持つ
-		uint32_t boneBufferStart = 0;
-
-		// 自身のBLASと変形後頂点を入れるメガバッファのハンドルを保持しているインスタンスのハンドル
-		Handle<Raytracing::DynamicRaytracingData> animHandle;
-
-		// この命令を出したワールド。
-		// animHandle はワールドごとのプールの鍵なので、引くときは必ずこのワールドから引く。
-		// シーンを重ねて描くと命令配列に複数のワールドのものが混ざるため、
-		// 「今の一番上のシーン」から引くと他人のプールを鍵違いで探すことになる
-		ECS::World* pWorld = nullptr;
-	};
-
+	//==========================================================================================
 	// グラフィックスエンジン
+	//
+	// 描画まわりの持ち主。初期化と解放は段に分かれていて、順番は次のとおり。
+	//
+	//   InitDevice → (D3D12Wrapper::Init) → InitDescriptorHeap → CreateBackBuffer → Init
+	//   Release → (GPU待ち・遅延解放) → ReleaseBackBuffer → ReleaseDescriptorHeap
+	//           → (D3D12Wrapper::Release) → ReleaseDevice
+	//
+	// デバイスは何よりも先に作って最後に捨てる。ディスクリプタヒープはその内側で、
+	// ビューを預けているもの(バックバッファ・パーティクル・レイトレ・遅延解放キュー)が
+	// 片付くまで生かしておく
+	//==========================================================================================
 	class GraphicsEngine
 	{
 	public:
@@ -173,30 +105,65 @@ namespace Engine::Graphics
 		~GraphicsEngine();
 
 		//--------------------------------------------------------------------------------------------
+		// デバイスの初期化・解放
+		//
+		// 他のD3Dオブジェクトはすべてデバイスの子なので、作るのは最初・捨てるのは最後。
+		// ReleaseDevice() はコマンドキューを片付けた後(D3D12Wrapper::Release の後)に呼ぶこと。
+		// 残っているオブジェクトはここでリークとして報告される
+		//--------------------------------------------------------------------------------------------
+		bool InitDevice(bool a_isDebug);
+		void ReleaseDevice();
+
+		//--------------------------------------------------------------------------------------------
 		// ディスクリプタヒープの初期化・解放
 		//
 		// 他の初期化とは別段にしてある。
 		// ・作るのが一番早い : バックバッファのRTVを取るのに要るので Init より前に通す
-		// ・捨てるのが一番遅い : パーティクル/レイトレ/PSO/バックバッファ/遅延解放キューが
+		// ・捨てるのが一番遅い : パーティクル/レイトレ/バックバッファ/遅延解放キューが
 		//   Release() の後にディスクリプタを返してくるため、そこまで生かしておく
 		//--------------------------------------------------------------------------------------------
-		bool InitDescriptorHeap(D3D12::Device* a_pDevice);
+		bool InitDescriptorHeap();
 		void ReleaseDescriptorHeap();
+
+		//--------------------------------------------------------------------------------------------
+		// バックバッファの作成・解放
+		//
+		// スワップチェインは描画キューに紐づくので、キューを作った後に作る。
+		// RTVをディスクリプタヒープに預けているので、ヒープより先に捨てる
+		//--------------------------------------------------------------------------------------------
+		void CreateBackBuffer(HWND a_hWnd, UINT a_width, UINT a_height, D3D12::CommandQueue* a_pCmdQueue);
+		void ReleaseBackBuffer();
 
 		// 初期化・解放
 		void Init(D3D12::GraphicsCommandList* a_pCmdList, const GraphicsEngineDesc& a_desc);
 		void Release();
 
-		
+
 		// フレームの開始・終了処理
 		void BeginFrame();
 		void Execute();
 		void EndFrame();
 
+		// 画面へ出す : バックバッファを表示できる状態へ落として、フレームを閉じて切り替える。
+		// エディターの描画もバックバッファへ載せるので、それが済んだ後に呼ぶ
+		void Present(bool a_isVsync);
+
 		// アクセサ
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
-		D3D12::PipelineStateManager* RefPipelineStateManager();
+		PipelineStateManager* RefPipelineStateManager();
+
+		// デバイス
+		GraphicsDevice* RefGraphicsDevice() { return m_upGraphicsDevice.get(); }
+		D3D12::Device* RefDevice();
+
+		// バックバッファ
+		BackBuffer* RefBackBuffer() { return m_upBackBuffer.get(); }
+		const BackBuffer* GetBackBuffer() const { return m_upBackBuffer.get(); }
+
+		// 描画要求の配列。積むのは Submit 系、読むのは Execute の中
+		DrawLists* RefDrawLists() { return &m_drawLists; }
+		const DrawLists* GetDrawLists() const { return &m_drawLists; }
 
 		// ディスクリプタヒープ。
 		// これを直接引くのはコンテキストを組み立てる側だけにして、
@@ -521,24 +488,12 @@ namespace Engine::Graphics
 			float a_curveOffsetX = 0.0f
 		);
 
-		// 追加
-		UINT SetInstanceData(const MeshInstanceData& a_instanceData);
-		UINT SetMeshMaterialData(const MeshMaterial& a_subsetData);
-		void AddItem(const LightWeightDrawItem& a_item);
-
-		// 取得
-		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex);
-
 		// パスの描画実行
 		void BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex);
 		void BindPSO(Graphics::RenderContext* a_pCtx, const Handle<ID3D12PipelineState>& a_handle);
-		// 配列取得
-		const std::vector<SkinningDispatchItem>& GetSkinningImtes() const { return m_skinningDispathItemVec; }
 
 		// バッファ取得
 		MeshBufferAllocator* RefMeshBufferAllocator() { return m_upMeshBufferAllocator.get(); }
-
-		const std::vector<UIData>& GetUIDataBuffer() { return m_uiDrawItemVec; }
 
 		//--------------------------------------------------------------------------------------------
 		// 描画用の板ポリ
@@ -568,10 +523,6 @@ namespace Engine::Graphics
 		const DebugDraw* GetDebugDraw() const { return m_upDebugDraw.get(); }
 
 	private:
-
-		// このワールドのボーン行列をボーンパレットへ積み、GPU上の開始位置を返す。
-		// 同じフレームで同じワールドを二度呼んでも積み直さず、最初に積んだ位置を返す
-		uint32_t AcquireBoneBaseIndex(ECS::World& a_world);
 
 		// カメラをGPU用データに変換
 		void CreateGPUCameraData();
@@ -673,16 +624,25 @@ namespace Engine::Graphics
 	private:
 		//--------------------------------------------------------------------------------------------
 		// 主要クラス
+		//
+		// 宣言順 = 作る順にしてある(デストラクタは逆順に走るので、解放を呼び忘れても
+		// 子が親より後に残らない)。ただし解放の順番は Release 系の関数で明示すること
 		//--------------------------------------------------------------------------------------------
-		// レンダーコンテキスト : 一フレーム内の描画情報を扱う
-		std::vector<std::unique_ptr<RenderContext>> m_upRenderContextVec = {};
-		UINT m_currentFrameIndex = 0;
-
-		// PSOやルートシグネチャの管理
-		D3D12::PipelineStateManager* m_pPipelineStateManager = nullptr;
+		// デバイス。アプリに1つだけ存在する
+		std::unique_ptr<GraphicsDevice> m_upGraphicsDevice = nullptr;
 
 		// ディスクリプタヒープ。アプリに1つだけ存在する
 		std::unique_ptr<D3D12::DescriptorHeapManager> m_upDescriptorHeapManager = nullptr;
+
+		// バックバッファ(スワップチェイン)。RTVをヒープに預けている
+		std::unique_ptr<BackBuffer> m_upBackBuffer = nullptr;
+
+		// PSOやルートシグネチャの管理
+		std::unique_ptr<PipelineStateManager> m_upPipelineStateManager = nullptr;
+
+		// レンダーコンテキスト : 一フレーム内の描画情報を扱う
+		std::vector<std::unique_ptr<RenderContext>> m_upRenderContextVec = {};
+		UINT m_currentFrameIndex = 0;
 
 		//メッシュバッファ管理
 		std::unique_ptr<MeshBufferAllocator> m_upMeshBufferAllocator = nullptr;
@@ -746,36 +706,14 @@ namespace Engine::Graphics
 		// UPLOADヒープへ直接書き込むので、GPUがまだ前フレームを読んでいる領域を
 		// 上書きしないようフレームぶん持つ(レンダーコンテキストと同じ数)
 		FrameLightData m_frameLightDataArr[CPU_FRAME_COUNT] = {};
-		
-		// オブジェクト単位データ
-		std::vector<MeshInstanceData> m_meshInstanceDataVec = {};
-
-		// サブセット単位データ
-		std::vector<MeshMaterial> m_meshMaterialDataVec = {};
 
 		//--------------------------------------------------------------------------------------------
-		// 命令配列
+		// 描画要求の配列(描画アイテム・メッシュシェーダー用データ・UI・スキニング・ボーンパレット)
+		//
+		// CPU側のデータでそのフレームのうちに使い切るので1つだけ持つ。
+		// GPUへ上げたコピーはレンダーコンテキストがフレームぶん持っている
 		//--------------------------------------------------------------------------------------------
-		// ソートキー持ち描画コマンドリスト
-		std::vector<LightWeightDrawItem> m_lightWeightDrawItemVec = {};
-
-		// UI用アイテム配列
-		std::vector<UIData> m_uiDrawItemVec = {};
-
-		// GPUスキニング配列
-		std::vector<SkinningDispatchItem> m_skinningDispathItemVec = {};
-
-		// アニメーション用レイトレインスタンス作成命令
-		std::vector<Raytracing::DynamicRaytracingRequest> m_dynamicRayRequestVec = {};
-
-		//--------------------------------------------------------------------------------------------
-		// ボーンパレット
-		//--------------------------------------------------------------------------------------------
-		// ボーン行列はシーン(ワールド)ごとのプールに入っていて、添字も 0 から振り直される。
-		// ポーズ画面のようにシーンを重ねて描くときは複数のワールドを1フレームで描くので、
-		// ここで全ワールド分を1本に連結し、各ワールドの土台(開始位置)を覚えておく。
-		std::vector<Resource::BoneMatrix> m_boneMatrixVec = {};
-		std::unordered_map<const ECS::World*, uint32_t> m_boneBaseIndexMap = {};
+		DrawLists m_drawLists = {};
 
 
 		//--------------------------------------------------------------------------------------------

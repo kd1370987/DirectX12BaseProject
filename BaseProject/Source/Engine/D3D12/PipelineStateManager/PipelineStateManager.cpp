@@ -1,5 +1,5 @@
 ﻿#include "PipelineStateManager.h"
-namespace Engine::D3D12
+namespace Engine::Graphics
 {
 	void PipelineStateManager::Init(D3D12::Device* a_pDevice)
 	{
@@ -292,7 +292,7 @@ namespace Engine::D3D12
 		// シェーダーが無いときも先に組み立ててハッシュまで出す。
 		// 作れなかったことをそのハッシュに覚えさせておけば、
 		// 同じ要求が何度来ても新しい番号を配らずに済む
-		RenderPipelineStateStream _streamDesc = {};
+		D3D12::RenderPipelineStateStream _streamDesc = {};
 
 		_streamDesc.pRootSignature = GetRootSignature(a_builder.GetRootSignatureHandle());
 		_streamDesc.PrimitiveTopologyType = a_builder.GetPrimitiveTopologyType();

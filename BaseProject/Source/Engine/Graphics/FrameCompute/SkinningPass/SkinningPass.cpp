@@ -24,12 +24,12 @@ namespace
 		Engine::Handle<ID3D12RootSignature> rootSigHandle = {};
 		// PSOはハンドルで持つ : 8bitの添字へ落とすと256個目から別のPSOを引く
 		Engine::Handle<ID3D12PipelineState> psoHandle = {};
-		Engine::D3D12::PipelineStateManager* pPSOManager = nullptr;
+		Engine::Graphics::PipelineStateManager* pPSOManager = nullptr;
 	};
 	SkinningRuntime g_skinning = {};
 }
 
-void Engine::Graphics::SetupSkinning(D3D12::PipelineStateManager* a_pPSOManager)
+void Engine::Graphics::SetupSkinning(PipelineStateManager* a_pPSOManager)
 {
 	if (!a_pPSOManager) return;
 	g_skinning.pPSOManager = a_pPSOManager;
@@ -57,6 +57,9 @@ void Engine::Graphics::ExecuteSkinning(GraphicsEngine* a_pGE, RenderContext* a_p
 	if (!g_skinning.pPSOManager) return;
 
 	auto* _spPassData = &g_skinning;
+
+	// このフレームに積まれたスキニング命令
+	const auto& _skinningItems = a_pGE->GetDrawLists()->GetSkinningItems();
 	{
 			auto* _pCmdList = a_pCtx->GetCurrentCmdList();
 			auto* _pPso = _spPassData->pPSOManager->GetPSO(_spPassData->psoHandle);
@@ -77,7 +80,7 @@ void Engine::Graphics::ExecuteSkinning(GraphicsEngine* a_pGE, RenderContext* a_p
 				_prevBuf.Barrier(_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
 
 				// スキニング対象メッシュの領域だけをコピー(バッファ全体はコピーしない)
-				for (auto& _item : a_pGE->GetSkinningImtes())
+				for (auto& _item : _skinningItems)
 				{
 					const UINT64 _offsetBytes = static_cast<UINT64>(_item.animatedHandle.startIndex) * sizeof(Resource::MeshVertexFloat);
 					const UINT64 _sizeBytes   = static_cast<UINT64>(_item.staticVertexHandle.count) * sizeof(Resource::MeshVertexFloat);
@@ -106,9 +109,9 @@ void Engine::Graphics::ExecuteSkinning(GraphicsEngine* a_pGE, RenderContext* a_p
 			a_pCtx->ComputeBindSRV(3, _pMA->GetIndexBuffer().GetSRV());
 			a_pCtx->BindUAV(4, _pMA->GetAnimatedVertexBuffer().GetUAV());
 
-			for (auto& _item : a_pGE->GetSkinningImtes())
+			for (auto& _item : _skinningItems)
 			{
-				
+
 				struct Info
 				{
 					UINT vertexStart;			// 頂点のスタートインデックス

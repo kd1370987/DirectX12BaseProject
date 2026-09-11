@@ -815,6 +815,27 @@ namespace Engine::Resource
 	{
 		auto& _data = RefData<T>();
 
+		//------------------------------------------------------------------
+		// まだ誰かが持っているものも、プールごと捨てる前に後始末を通す。
+		//
+		// プールを空にするだけだとデストラクタしか走らない。
+		// メッシュなら BLAS が遅延解放を通らず、GPU が最後のフレームで
+		// 使っている最中に最終解放される(デバッグレイヤーが CORRUPTION で止まる)。
+		// やり方は SweepUnused と同じ(自分で後始末を持つ型だけ)
+		//------------------------------------------------------------------
+		if constexpr (requires (T& a_resource) { a_resource.Release(); })
+		{
+			const size_t _poolSize = _data.pool.Size();
+			for (size_t _i = 0; _i < _poolSize; ++_i)
+			{
+				const uint16_t _index = static_cast<uint16_t>(_i);
+				if (!_data.pool.IsOccupied(_index)) continue;
+
+				Handle<T> _handle(_index, _data.pool.GetGeneration(_index));
+				_data.pool.Write(_handle, [](T& a_resource) { a_resource.Release(); });
+			}
+		}
+
 		_data.pool.Release();
 
 		{

@@ -21,7 +21,7 @@ namespace
 	//======================================================================================
 	struct ParticleRuntime
 	{
-		Engine::D3D12::PipelineStateManager* pPSOManager = nullptr;
+		Engine::Graphics::PipelineStateManager* pPSOManager = nullptr;
 
 		// PSOはハンドルで持つ。
 		// 8bitの添字へ落として持つと、PSOが256個を超えたところで
@@ -39,7 +39,7 @@ namespace
 
 	// シェーダーからルートシグネチャとコンピュートPSOを起こす
 	bool SetupComputeShader(
-		Engine::D3D12::PipelineStateManager* a_pPSOManager,
+		Engine::Graphics::PipelineStateManager* a_pPSOManager,
 		const std::string& a_csPath,
 		const std::string& a_psoName,
 		Engine::Handle<ID3D12RootSignature>& a_outRootSig,
@@ -67,7 +67,7 @@ namespace
 
 namespace Engine::Graphics
 {
-	void SetupParticleSimulation(D3D12::PipelineStateManager* a_pPSOManager)
+	void SetupParticleSimulation(PipelineStateManager* a_pPSOManager)
 	{
 		if (!a_pPSOManager) return;
 		g_particle.pPSOManager = a_pPSOManager;

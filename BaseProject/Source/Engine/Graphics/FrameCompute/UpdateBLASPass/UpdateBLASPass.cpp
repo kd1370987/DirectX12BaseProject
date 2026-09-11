@@ -47,7 +47,7 @@ namespace Engine::Graphics
 				// ポーズ画面のようにシーンを重ねている間は後ろのゲームのキャラのハンドルを
 				// ポーズ側のプールで探すことになり、動的BLASが更新されなかった
 				// (レイトレのGIや影からキャラが居なくなる)。
-				for (auto& _item : a_pGE->GetSkinningImtes())
+				for (auto& _item : a_pGE->GetDrawLists()->GetSkinningItems())
 				{
 					if (!_item.pWorld) continue;
 					if (!_item.pWorld->HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) continue;

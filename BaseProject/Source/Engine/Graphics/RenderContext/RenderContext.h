@@ -18,6 +18,9 @@ namespace Engine::Graphics
 {
 	// 前方宣言
 	class GraphicsEngine;
+	class PipelineStateManager;
+	class DrawLists;
+	class BackBuffer;
 
 	// レンダーコンテキスト作成時に必要な情報
 	struct RenderContextDesc
@@ -25,8 +28,11 @@ namespace Engine::Graphics
 		// D3Dオブジェクトのキャッシュ
 		D3D12::Device* pDevice = nullptr;
 
-		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている
-		D3D12::DescriptorHeapManager* pHeapManager = nullptr;
+		// 以下はすべて借り物。実体は GraphicsEngine が持っている
+		D3D12::DescriptorHeapManager* pHeapManager = nullptr;		// ビューの置き場
+		PipelineStateManager* pPipelineStateManager = nullptr;		// ハンドルからPSO・ルートシグネチャを引く
+		const DrawLists* pDrawLists = nullptr;						// 描画アイテムとUIの配列
+		const BackBuffer* pBackBuffer = nullptr;					// ビューポート・シザー矩形
 
 		// アロケーターのメモリ容量
 		size_t cbAllocatorMemSize = 32 * 1024 * 1024;
@@ -233,9 +239,6 @@ namespace Engine::Graphics
 			D3D12_RESOURCE_STATES a_before,
 			D3D12_RESOURCE_STATES a_after
 		);
-		
-		// バックバッファに切り替え
-		void ChangeBackBuffer();
 
 	private:
 		//--------------------------------------------------------------------------------------------
@@ -252,9 +255,12 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// 参照
 		//--------------------------------------------------------------------------------------------
-		D3D12::Device* m_pDevice = nullptr;						// デバイス
-		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;	// ビューの置き場(借り物)
-		GraphicsEngine* m_pGraphicsEngine = nullptr;			// グラフィックスエンジン
+		D3D12::Device* m_pDevice = nullptr;							// デバイス
+		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;		// ビューの置き場(借り物)
+		PipelineStateManager* m_pPipelineStateManager = nullptr;	// PSO・ルートシグネチャ(借り物)
+		const DrawLists* m_pDrawLists = nullptr;					// 描画要求の配列(借り物)
+		const BackBuffer* m_pBackBuffer = nullptr;					// バックバッファ(借り物)
+		GraphicsEngine* m_pGraphicsEngine = nullptr;				// グラフィックスエンジン
 
 		//--------------------------------------------------------------------------------------------
 		// フレーム限定リソース

@@ -10,8 +10,21 @@ namespace Engine::Raytracing
 	{
 	public:
 		BLAS() = default;
-		~BLAS() = default;
-		NON_COPYABLE_MOVABLE(BLAS);
+
+		//----------------------------------------------------------------------------------
+		// GPU が使っている最中のリソースをその場で手放さないための口
+		//
+		// BLAS とスクラッチはフレームをまたいで GPU が読む。Release() を通さずに
+		// 壊したり上書きしたりすると、実行中のコマンドが参照したまま最終解放され、
+		// デバッグレイヤーが CORRUPTION で止まる。
+		// デストラクタとムーブ代入でも中身が残っていれば遅延解放へ回し、警告を出す
+		// (警告が出たら、その経路に Release() を足すのが本来の直し方)
+		//----------------------------------------------------------------------------------
+		~BLAS();
+		BLAS(const BLAS&) = delete;
+		BLAS& operator=(const BLAS&) = delete;
+		BLAS(BLAS&&) noexcept = default;
+		BLAS& operator=(BLAS&& a_other) noexcept;
 
 		// ===================================================================================
 		// 静的BLASの構築
@@ -80,6 +93,10 @@ namespace Engine::Raytracing
 		bool IsDynamic() const { return m_isDynamic; }
 
 	private:
+
+		// 持っているリソースを遅延解放キューへ回して空にする。
+		// a_pUnexpected が非nullなら、Release() を通らずに来た経路としてその名前で警告する
+		void DeferReleaseResources(const char* a_pUnexpected);
 
 		// 内部のビルド/アップデート共通処理
 		bool BuildInternal(

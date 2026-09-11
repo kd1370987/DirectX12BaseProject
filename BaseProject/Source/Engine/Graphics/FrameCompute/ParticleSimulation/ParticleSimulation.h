@@ -1,14 +1,10 @@
 #pragma once
 
-namespace Engine::D3D12
-{
-	class PipelineStateManager;
-}
-
 namespace Engine::Graphics
 {
 	class GraphicsEngine;
 	class RenderContext;
+	class PipelineStateManager;
 
 	//======================================================================================
 	// GPUパーティクルのシミュレーション
@@ -23,7 +19,7 @@ namespace Engine::Graphics
 	// ここへまとめておけば順序とバリアが崩れようがない
 	//======================================================================================
 	// ルートシグネチャとPSOの用意(初期化時に1回)
-	void SetupParticleSimulation(D3D12::PipelineStateManager* a_pPSOManager);
+	void SetupParticleSimulation(PipelineStateManager* a_pPSOManager);
 
 	// 実行(毎フレーム1回) : 発生 -> UAVバリア -> 更新
 	void ExecuteParticleSimulation(GraphicsEngine* a_pGE, RenderContext* a_pCtx);

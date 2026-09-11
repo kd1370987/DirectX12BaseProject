@@ -22,7 +22,25 @@ namespace Engine::Scene
 		// エディターが覚えている選択はここで消えるシーンのもの
 		Engine::Editor::MainEditor::Instance().OnSceneChanged();
 
-		m_upBaseSceneVec.clear();
+		//----------------------------------------------------------------------------------
+		// 上のシーンから順に、PopScene と同じく後始末を通して消す
+		//
+		// clear() だけだと Exit(= World::Release)が走らず、Release フェーズのシステムが
+		// 返すはずのもの(動的BLAS・ポーズ領域・音など)がワールドごと直接壊れる。
+		// 動的BLASは GPU が最後のフレームで読んでいる最中に最終解放され、
+		// デバッグレイヤーが CORRUPTION で止まっていた(終了時にたまに落ちる原因)。
+		//
+		// 待つのは Present まで含めて : 終了時なのでキューを空にしてよい
+		//----------------------------------------------------------------------------------
+		if (!m_upBaseSceneVec.empty())
+		{
+			D3D12::D3D12Wrapper::Instance().WaitForGPUIdle();
+		}
+		while (!m_upBaseSceneVec.empty())
+		{
+			m_upBaseSceneVec.back()->Exit();
+			m_upBaseSceneVec.pop_back();
+		}
 	}
 
 	//======================================================================================

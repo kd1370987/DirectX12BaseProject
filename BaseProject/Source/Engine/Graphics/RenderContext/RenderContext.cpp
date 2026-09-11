@@ -1,16 +1,16 @@
 ﻿#include "RenderContext.h"
 
-#include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "Engine/D3D12//D3DObject/RootSignature/RootSignature.h"
 #include "Engine/D3D12//D3DObject/PipeLineState/PipelineState.h"
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../../MainEngine.h"
 
 #include "../../D3D12/PipelineStateManager/PipelineStateManager.h"
 #include "../GraphicEngine.h"
+#include "../Core/BackBuffer/BackBuffer.h"
+#include "../Core/DrawList/DrawList.h"
 #include "../MeshBufferAllocator/MeshBufferAllocator.h"
 #include "../DebugDraw/DebugDraw.h"
 
@@ -36,6 +36,11 @@ namespace Engine::Graphics
 
 		// ビューの置き場をキャッシュ : 以降はここから引く
 		m_pHeapManager = a_desc.pHeapManager;
+
+		// 借り物の参照。どれも GraphicsEngine の持ち物で、このコンテキストより長生きする
+		m_pPipelineStateManager = a_desc.pPipelineStateManager;
+		m_pDrawLists = a_desc.pDrawLists;
+		m_pBackBuffer = a_desc.pBackBuffer;
 
 		// ルート定数バッファアロケーター
 		m_upCBAllocator = std::make_unique<CBAllocator>();
@@ -85,9 +90,12 @@ namespace Engine::Graphics
 	void RenderContext::Release()
 	{
 		// リンク解除
-		m_pDevice = nullptr;		// デバイス
-		m_pCmdList = nullptr;		// コマンドリスト
-		m_pHeapManager = nullptr;	// ビューの置き場(借り物)
+		m_pDevice = nullptr;				// デバイス
+		m_pCmdList = nullptr;				// コマンドリスト
+		m_pHeapManager = nullptr;			// ビューの置き場(借り物)
+		m_pPipelineStateManager = nullptr;	// PSO・ルートシグネチャ(借り物)
+		m_pDrawLists = nullptr;				// 描画要求の配列(借り物)
+		m_pBackBuffer = nullptr;			// バックバッファ(借り物)
 
 		// ルート定数バッファ用アロケーター解放
 		m_upCBAllocator->Release();
@@ -146,8 +154,10 @@ namespace Engine::Graphics
 		);
 
 		// ビューポートとシザー矩形を設定
-		m_pCmdList->RSSetViewports(1, &D3D12::D3D12Wrapper::Instance().GetViewport());
-		m_pCmdList->RSSetScissorRects(1, &D3D12::D3D12Wrapper::Instance().GetScissorRect());
+		// ※バックバッファの大きさで張っている。画面と違う大きさのカメラ(ビューポート指定)や
+		//   縮小解像度でラスタライズするパスでは合わないので、そのときはグラフ側の大きさを渡す形にすること
+		m_pCmdList->RSSetViewports(1, &m_pBackBuffer->GetViewport());
+		m_pCmdList->RSSetScissorRects(1, &m_pBackBuffer->GetScissorRect());
 	}
 
 	void RenderContext::BindSRV(
@@ -499,7 +509,8 @@ namespace Engine::Graphics
 
 	void RenderContext::DrawUI(UINT a_rootIndex)
 	{
-		const auto& _uiDataVec = m_pGraphicsEngine->GetUIDataBuffer();
+		if (!m_pDrawLists) return;
+		const auto& _uiDataVec = m_pDrawLists->GetUIDataVec();
 		if (_uiDataVec.empty()) return;
 
 		auto* _pFlatPolygon   = m_pGraphicsEngine->RefQuadPolygon();
@@ -551,7 +562,8 @@ namespace Engine::Graphics
 		uint32_t _lastPSO = 0xFFFFFFFFu;
 
 		// 指定タイプの命令キューを取得
-		auto _itemVec = m_pGraphicsEngine->GetPassItems(a_passIndex);
+		if (!m_pDrawLists || !m_pPipelineStateManager) return;
+		auto _itemVec = m_pDrawLists->GetPassItems(a_passIndex);
 		if (_itemVec.empty()) return;
 
 		for (auto& _item : _itemVec)
@@ -564,7 +576,7 @@ namespace Engine::Graphics
 			// ----------------------------------------------------
 			if (_psoID != _lastPSO)
 			{
-				auto* _pPSO = MainEngine::Instance().RefPipelineManager()->GetPSO(_psoID);
+				auto* _pPSO = m_pPipelineStateManager->GetPSO(_psoID);
 				if (!_pPSO) continue;
 				SetGraphicPSO(_pPSO);
 
@@ -592,7 +604,7 @@ namespace Engine::Graphics
 
 	void RenderContext::SetGraphicsRootSignature(const Handle<ID3D12RootSignature>& a_handle)
 	{
-		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
+		auto* _pPsoManager = m_pPipelineStateManager;
 		if (!_pPsoManager) return;
 		auto* _pRootSig = _pPsoManager->GetRootSignature(a_handle);
 		if (!_pRootSig) return;
@@ -601,7 +613,7 @@ namespace Engine::Graphics
 
 	void RenderContext::SetComputeRootSignature(const Handle<ID3D12RootSignature>& a_handle)
 	{
-		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
+		auto* _pPsoManager = m_pPipelineStateManager;
 		if (!_pPsoManager) return;
 		auto* _pRootSig = _pPsoManager->GetRootSignature(a_handle);
 		if (!_pRootSig) return;
@@ -626,7 +638,7 @@ namespace Engine::Graphics
 	// 8bitの添字と違って世代まで見るので、無効なものは黙って弾ける
 	void RenderContext::SetGraphicPSO(const Handle<ID3D12PipelineState>& a_handle)
 	{
-		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
+		auto* _pPsoManager = m_pPipelineStateManager;
 		if (!_pPsoManager) return;
 		auto* _pPSO = _pPsoManager->GetPSO(a_handle);
 		if (!_pPSO) return;
@@ -635,7 +647,7 @@ namespace Engine::Graphics
 
 	void RenderContext::SetComputePSO(const Handle<ID3D12PipelineState>& a_handle)
 	{
-		auto* _pPsoManager = MainEngine::Instance().RefPipelineManager();
+		auto* _pPsoManager = m_pPipelineStateManager;
 		if (!_pPsoManager) return;
 		auto* _pPSO = _pPsoManager->GetPSO(a_handle);
 		if (!_pPSO) return;
@@ -689,30 +701,6 @@ namespace Engine::Graphics
 		);
 	}
 
-
-	void RenderContext::ChangeBackBuffer()
-	{
-		// 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
-		auto _cpuHandle = m_pHeapManager->GetCPU(
-			D3D12::D3D12Wrapper::Instance().GetCurrentBackBufferTex().GetRTV()
-		);
-
-		// レンダーターゲットを設定
-		m_pCmdList->OMSetRenderTargets(
-			1,
-			&_cpuHandle,
-			FALSE,
-			nullptr
-		);
-
-		// ビューポートとシザー矩形を設定
-		m_pCmdList->RSSetViewports(1, &D3D12::D3D12Wrapper::Instance().GetViewport());
-		m_pCmdList->RSSetScissorRects(1, &D3D12::D3D12Wrapper::Instance().GetScissorRect());
-
-		// バッファクリア
-		const float _clearColor[] = { 0.0f,0.0f,0.0f,1.0f };
-		m_pCmdList->ClearRenderTargetView(_cpuHandle, _clearColor, 0, nullptr);		// レンダーターゲット
-	}
 
 	void RenderContext::DrawShape()
 	{

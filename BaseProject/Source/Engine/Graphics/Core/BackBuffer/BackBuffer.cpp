@@ -27,20 +27,30 @@ namespace Engine::Graphics
 	{
 		m_currentIndex = m_cpSwapChain->GetCurrentBackBufferIndex();
 	}
-	void BackBuffer::WriteWite(D3D12::GraphicsCommandList* a_pCmd)
+	void BackBuffer::TransitionToRenderTarget(D3D12::GraphicsCommandList* a_pCmd)
+	{
+		m_backBuffers[m_currentIndex].Barrier(a_pCmd, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	}
+	void BackBuffer::TransitionToPresent(D3D12::GraphicsCommandList* a_pCmd)
 	{
 		m_backBuffers[m_currentIndex].Barrier(a_pCmd, D3D12_RESOURCE_STATE_PRESENT);
 	}
 	void BackBuffer::Present(bool a_isVsync, UINT a_flag)
 	{
-		m_cpSwapChain->Present(a_isVsync ? 1 : 0, 0);
+		m_cpSwapChain->Present(a_isVsync ? 1 : 0, a_flag);
 	}
 	void BackBuffer::Release()
 	{
+		// RTVをヒープへ返す。
+		// テクスチャ側は返し済みの席を二重に返さないので、二度来ても害は無い
 		for (auto& _tex : m_backBuffers)
 		{
 			_tex.Release();
 		}
+
+		// スワップチェインは描画キューを握っている。
+		// 残しておくとデバイス解放時のリークレポートに載るので、ここで手放す
+		m_cpSwapChain.Reset();
 	}
 	void BackBuffer::CreateSwapChain(
 		D3D12::Factory* a_pFactory, 

@@ -12,11 +12,17 @@ namespace Engine::Graphics
 	}
 	void GraphicsDevice::Release()
 	{
+		// 解放済み : デストラクタから二度目が来ても何もしない
+		if (!m_cpDevice) return;
+
 		// アダプターファクトリー解放
 		m_cpAdapter.Reset();
 		m_cpFactory.Reset();
 
-		// リーク調査 : どのリソースが残っているか特定する
+		// リーク調査 : デバイスがまだ生きているこのタイミングで
+		// ID3D12DebugDevice のレポートを出す。
+		// SetName で付けた名前が出るので、どのリソースが残っているか特定できる。
+		// D3D12_RLDO_IGNORE_INTERNAL でランタイム内部の参照だけのものは除く
 		if (m_isDebug)
 		{
 			ComPtr<ID3D12DebugDevice> _cpDebDev;
@@ -31,7 +37,7 @@ namespace Engine::Graphics
 		// 最後にデバイスを解放
 		m_cpDevice.Reset();
 	}
-	void Engine::Graphics::GraphicsDevice::CreateDxgiFactory()
+	void GraphicsDevice::CreateDxgiFactory()
 	{
 		UINT _flgsDXGI = 0;
 		if (m_isDebug)

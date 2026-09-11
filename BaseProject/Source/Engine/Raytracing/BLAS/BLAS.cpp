@@ -2,22 +2,64 @@
 
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../MainEngine.h"
+#include "../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 
-void Engine::Raytracing::BLAS::Release()
+Engine::Raytracing::BLAS::~BLAS()
 {
+	// Release() を通っていれば空なので何もしない
+	DeferReleaseResources("デストラクタ");
+}
+
+Engine::Raytracing::BLAS& Engine::Raytracing::BLAS::operator=(BLAS&& a_other) noexcept
+{
+	if (this == &a_other) return *this;
+
+	// 中身を持ったまま上書きされると、既定のムーブ代入では古いリソースがその場で消える
+	DeferReleaseResources("ムーブ代入");
+
+	m_cpResource = std::move(a_other.m_cpResource);
+	m_cpUpdateScratch = std::move(a_other.m_cpUpdateScratch);
+	m_geometryDescVec = std::move(a_other.m_geometryDescVec);
+	m_isDynamic = a_other.m_isDynamic;
+
+	a_other.m_isDynamic = false;
+	return *this;
+}
+
+void Engine::Raytracing::BLAS::DeferReleaseResources(const char* a_pUnexpected)
+{
+	if (!m_cpResource && !m_cpUpdateScratch) return;
+
+	if (a_pUnexpected)
+	{
+		ENGINE_WARNING("[BLAS] Release() を通らずに%sで中身が捨てられました(%s)。遅延解放へ回します",
+			a_pUnexpected, m_isDynamic ? "動的" : "静的");
+	}
+
+	// 終了処理でコマンドキューが片付いた後は GPU が止まっているので、その場で手放してよい。
+	// (キューを掃く人がもう居ないので、積んでも誰も解放しない)
+	if (!D3D12::D3D12Wrapper::Instance().GetDevice())
+	{
+		m_cpResource.Reset();
+		m_cpUpdateScratch.Reset();
+		return;
+	}
+
 	// TLASがこのBLASのGPUアドレスを参照したまま実行中の可能性があるため、
 	// ここでは解放せず、ComPtrをゴミ箱にムーブして寿命だけを延ばす。
 	// ラムダは中身が空でよく、キューがクリアされた時点でリソースが解放される
-	if (m_cpResource || m_cpUpdateScratch)
-	{
-		MainEngine::Instance().RegisterDeferredResource(
-			[_cpResource = std::move(m_cpResource), _cpUpdateScratch = std::move(m_cpUpdateScratch)]() {}
-		);
-	}
+	MainEngine::Instance().RegisterDeferredResource(
+		[_cpResource = std::move(m_cpResource), _cpUpdateScratch = std::move(m_cpUpdateScratch)]() {}
+	);
 
 	// ムーブ済みだが、状態を明示的に空にしておく
 	m_cpResource.Reset();
 	m_cpUpdateScratch.Reset();
+}
+
+void Engine::Raytracing::BLAS::Release()
+{
+	DeferReleaseResources(nullptr);
 
 	m_geometryDescVec.clear();
 	m_isDynamic = false;
@@ -46,6 +88,10 @@ bool Engine::Raytracing::BLAS::BuildInternal(
 	bool a_isUpdate
 )
 {
+	// 組み直し : 前のBLASとスクラッチはまだGPUが使っているかもしれない。
+	// 下の ReleaseAndGetAddressOf で上書きするとその場で最終解放されるので、先に逃がす
+	DeferReleaseResources("組み直し");
+
 	m_geometryDescVec = a_geometryDescVec;
 
 	// スクラッチリソース構築

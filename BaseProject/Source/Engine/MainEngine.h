@@ -26,11 +26,6 @@ namespace Engine
 		class MouseCursor;
 	}
 
-	namespace D3D12
-	{
-		class PipelineStateManager;
-	}
-
 	namespace Thread
 	{
 		class JobSystem;
@@ -88,10 +83,6 @@ namespace Engine
 		const Particle::ParticleBufferManager* GetParticleManager() const ;
 		Particle::ParticleBufferManager* RefParticleManager();
 
-		// パイプラインステートマネージャー
-		const D3D12::PipelineStateManager* GetPipelineManager() const;
-		D3D12::PipelineStateManager* RefPipelineManager();
-
 		// ============================================================================
 		// 遅延開放処理
 		// ============================================================================
@@ -108,8 +99,7 @@ namespace Engine
 		// クラス
 		std::unique_ptr<Window::NativeWindow> m_upWindow = nullptr;						// ウィンドウクラス
 		std::unique_ptr<Time::TimeManager> m_upTimeManager = nullptr;					// 時間管理クラス
-		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス
-		std::unique_ptr<D3D12::PipelineStateManager> m_upPipelineStateManager = nullptr;// パイプラインステート管理
+		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス(デバイス・PSO管理なども持つ)
 		std::unique_ptr<Particle::ParticleBufferManager> m_upParticleManager = nullptr;	// パーティクルマネージャー
 		std::unique_ptr<Thread::JobSystem> m_upJobSystem = nullptr;						// ジョブシステム
 		std::unique_ptr<Graphics::MouseCursor> m_upMouseCursor = nullptr;				// 自前で描くマウスカーソル
@@ -118,8 +108,11 @@ namespace Engine
 		EAppMode m_appMode = EAppMode::Editor;								// アプリケーションのモード
 		EBuildConfiguration m_buildMode = EBuildConfiguration::Debug;		// ビルドモード
 
-		// フレーム分のごみ箱を用意する
+		// フレーム分のごみ箱を用意する。
+		// 積むのはメインスレッドとは限らない(ワーカーでビルド中のリソースが壊れたときなど)ので、
+		// 触るときは必ずロックを取る
 		std::vector<std::function<void()>> m_releaseQueues[CPU_FRAME_COUNT];
+		std::mutex m_releaseQueueMutex;
 
 	// シングルトン
 	private:

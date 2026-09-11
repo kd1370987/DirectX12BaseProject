@@ -29,6 +29,13 @@ namespace Engine::D3D12
 		bool IsValid() const { return pCopyCmdList != nullptr || pComputeCmdList != nullptr; }
 	};
 
+	//==========================================================================================
+	// コマンドキュー・フレーム同期・非同期転送
+	//
+	// デバイスとバックバッファは GraphicsEngine の持ち物になった。
+	// ここはデバイスを借りて、キューとフェンスとアロケーターの面倒だけを見る。
+	// GetDevice() は呼び出し元が多いので、借り物をそのまま返す形で残してある
+	//==========================================================================================
 	class D3D12Wrapper
 	{
 	public:
@@ -36,35 +43,30 @@ namespace Engine::D3D12
 		/// <summary>
 		/// 初期化処理
 		/// </summary>
-		/// <param name="a_hWnd">ウィンドウハンドル</param>
-		/// <param name="a_windowWidth">ウィンドウ横</param>
-		/// <param name="a_windowHeight">ウィンドウ縦</param>
-		void Init(const HWND& a_hWnd, bool a_isDebug,UINT a_windowWidth, UINT a_windowHeight);
+		/// <param name="a_pDevice">デバイス(借り物) : 実体は GraphicsEngine が持つ</param>
+		void Init(Device* a_pDevice);
 
 		/// <summary>
-		/// 終了処理
+		/// 終了処理 : デバイスは解放しない(持ち主は GraphicsEngine)
 		/// </summary>
 		void Release();
 
 		/// <summary>
-		/// フレーム開始処理
+		/// フレーム開始処理 : このフレームのアロケーターが空くまで待つ
 		/// </summary>
 		void BeginFrame();
 
 		/// <summary>
-		/// フレーム終了処理
+		/// フレーム終了処理 : 実行待ちのリストを流して、フレーム終了のシグナルを打つ。
+		/// 画面の切り替え(Present)はバックバッファ側で、この後に行う
 		/// </summary>
-		/// <param name="a_isVsync">垂直同期有効化フラグ</param>
-		void EndFrame(bool a_isVsync = true);
+		void EndFrame();
 
 		/// <summary>
-		/// ランタイム以外の初期化時などにGPU操作が必要なさいに使う関数 
+		/// ランタイム以外の初期化時などにGPU操作が必要なさいに使う関数
 		/// </summary>
 		/// <param name="a_pCmdList">コマンドを積んだリスト</param>
 		void CloseAndExecuteComdLists(GraphicsCommandList* a_pCmdList);
-
-
-		void SetBackBuffer();
 
 		/// <summary>
 		/// 命令の入ったコマンドリストを実行待ちに入れる
@@ -79,24 +81,6 @@ namespace Engine::D3D12
 		void ExecuteDirectCommandList();
 		void ExecuteCopyCommandList();
 		void ExecuteComputeCommandList();
-
-
-		//--------------------------------------------------------------------------------------------
-		// バックバッファ作成
-		//
-		// RTVの置き場としてディスクリプタヒープを受け取り、そのまま控える。
-		// SetBackBuffer() でCPUハンドルを引くのと、ReleaseBackBuffer() で返すのに使う
-		//--------------------------------------------------------------------------------------------
-		void CreateBackBuffer(DescriptorHeapManager* a_pHeapManager);
-
-		//--------------------------------------------------------------------------------------------
-		// バックバッファだけを解放する
-		//
-		// バックバッファはRTVをディスクリプタヒープに預けているので、
-		// ヒープを捨てるより前に返しておく必要がある。
-		// Release() の中からも呼ばれる(二度呼んでも何もしない)
-		//--------------------------------------------------------------------------------------------
-		void ReleaseBackBuffer();
 
 		// ==========================================================
 		// 非同期処理用インターフェース
@@ -143,20 +127,22 @@ namespace Engine::D3D12
 
 		/// <summary>
 		/// すべてのGPU処理が終わるのを待機
+		/// 待つのはフレーム終了のシグナルまで。その後に積まれる Present は含まない
 		/// </summary>
 		void WaitForFrame();
 
+		/// <summary>
+		/// 全キュー(描画・コピー・コンピュート)を空にする : 終了処理用。
+		/// 新しくシグナルを打ってから待つので、最後の Present も終わっている。
+		/// スワップチェインやバックバッファを捨てる前はこちらを通すこと
+		/// (WaitForFrame では Present が走っている最中に捨てることになり、デバッグレイヤーが CORRUPTION で止まる)
+		/// </summary>
+		void WaitForGPUIdle();
+
 	public:
 		// ゲッター
-		Adapter* GetDXGIAdapter();						// GPU取得
-		Device* GetDevice();							// デバイス取得
-		UINT CurrentBackBufferIndex();					// 現在のバックバッファ番号
+		Device* GetDevice();							// デバイス取得(借り物)
 		UINT CurrentCPUFrameIndex();					// 現在のフレーム番号
-		ID3D12Resource* GetCurrentBackBuffer();			// 現在のバックバッファを取得
-		const Resource::Texture& GetCurrentBackBufferTex() const;			// 現在のバックバッファを取得
-
-		const Viewport& GetViewport() const { return m_viewport; }
-		const ScissorRect& GetScissorRect() const { return m_scissorRect; }
 
 		CommandQueue* GetCommandQueue();			// 描画キュー
 		CommandQueue* GetCopyCommandQueue();		// コピーキュー
@@ -169,18 +155,6 @@ namespace Engine::D3D12
 		UINT64 GetNextFenceValue();			// 記録中フレームの終わりにシグナルされる値
 
 	private:
-		// ---- D3Dオブジェクト作成 ----
-		// デバイス関係
-		void CreateDxgiFactory();	// DXGIファクトリ作成
-		void FindAdapter();			// GPU検索
-		void CreateDevice();		// デバイス作成
-
-		// バッファリング関係
-		void CreateSwapChain(HWND a_hWnd, UINT a_windowWidth, UINT a_windowHeight);	// スワップチェイン作成
-		void CreateViewPort(UINT a_windowWidth, UINT a_windowHeight);				// 描画用領域設定
-		void CreateScissorRect(UINT a_windowWidth, UINT a_windowHeight);			// 描画範囲作成
-
-
 		// コマンドコンテキスト
 		void CreateCommandContext();
 
@@ -191,35 +165,12 @@ namespace Engine::D3D12
 		void CreateAsyncGPUManager();
 	private:
 
-		// デバッグ用
-		bool m_isDebag = false;
-
-		// デバイス関係
-		ComPtr<Device>						m_cpDevice = nullptr;				// ドライバインスタンス
-		ComPtr<Factory>					m_cpFactory = nullptr;				// ファクトリー
-		ComPtr<Adapter>					m_cpAdapter = nullptr;				// GPU実体
-
-		bool m_isDynamicResourceSupported = false;								// ダイナミックリソースが使えるかどうか
-
-		// バックバッファのRTVを預けているディスクリプタヒープ(借り物)。
-		// 実体は GraphicsEngine が持っている
-		DescriptorHeapManager* m_pHeapManager = nullptr;
-
-		// バックバッファー関係
-		Resource::Texture					m_backBuffers[BACKBUFFER_COUNT];	// バックバッファ
-		ID3D12Resource* m_pCurrentRenderTarget = nullptr;						// 現在のバックバッファ
-
-		ComPtr<SwapChain>				m_cpSwapChain = nullptr;			// スワップチェイン
-		BOOL								m_isAllowTearing = FALSE;
-		UINT								m_currentBackBufferIndex = 0;		// 現在のバックバッファのインデックス
-
-		Viewport							m_viewport;							// ビューポート
-		ScissorRect							m_scissorRect;						// シザー矩形
+		// デバイス(借り物)。実体は GraphicsEngine が持っている
+		Device* m_pDevice = nullptr;
 
 		// コマンド管理
 		std::unique_ptr<CommandContext> m_upCommandContext = nullptr;
-		GraphicsCommandList* m_pCmdList = nullptr;						// Beginで取得,Endで返却
-		
+
 		// フレーム管理
 		std::unique_ptr<FrameManager> m_upFrameManager = nullptr;
 

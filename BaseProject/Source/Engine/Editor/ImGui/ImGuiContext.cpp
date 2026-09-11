@@ -3,6 +3,9 @@
 #include "Engine/D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
+#include "Engine/MainEngine.h"
+#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/Core/BackBuffer/BackBuffer.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 namespace Engine::Editor
 {
@@ -125,7 +128,9 @@ namespace Engine::Editor
 		// 座標系はクライアント領域基準のまま(マウス座標もそのまま使える)で、
 		// 描画とフォントのラスタライズだけバックバッファ解像度に合わせる。
 		ImGuiIO& _io = ImGui::GetIO();
-		const auto& _backBufferViewport = Engine::D3D12::D3D12Wrapper::Instance().GetViewport();
+		const auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
+		const auto* _pBackBuffer = _pGE ? _pGE->GetBackBuffer() : nullptr;
+		const D3D12::Viewport _backBufferViewport = _pBackBuffer ? _pBackBuffer->GetViewport() : D3D12::Viewport{};
 		if (_io.DisplaySize.x > 0.0f && _io.DisplaySize.y > 0.0f &&
 			_backBufferViewport.Width > 0.0f && _backBufferViewport.Height > 0.0f)
 		{

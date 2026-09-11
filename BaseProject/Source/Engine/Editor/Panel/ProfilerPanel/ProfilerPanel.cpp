@@ -2,8 +2,9 @@
 
 #include "../../Profiler/Profiler.h"
 
-#include "../../../D3D12/D3D12Wrapper/D3D12Wrapper.h"
 #include "../../../MainEngine.h"
+#include "../../../Graphics/GraphicEngine.h"
+#include "../../../Graphics/Core/GraphicsDevice/GraphicsDevice.h"
 #include "../../../Window/NativeWindow.h"
 
 namespace Engine::Editor
@@ -153,7 +154,11 @@ namespace Engine::Editor
 	//======================================================================================
 	void ProfilerPanel::DrawVRAMUsage()
 	{
-		auto* _pAdapter = D3D12::D3D12Wrapper::Instance().GetDXGIAdapter();
+		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+		auto* _pDevice = _pGE ? _pGE->RefGraphicsDevice() : nullptr;
+		auto* _pAdapter = _pDevice ? _pDevice->RefAdapter() : nullptr;
+		if (!_pAdapter) return;
+
 		// IDXGIAdapter3にキャスト
 		ComPtr<IDXGIAdapter3> _adapter3;
 		if (SUCCEEDED(_pAdapter->QueryInterface(IID_PPV_ARGS(&_adapter3))))
