@@ -1,6 +1,10 @@
 ﻿#pragma once
 #include "../InputButtonBase.h"
 
+// XInput はコントローラーの入力デバイスだけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#include <Xinput.h>
+
 namespace Engine::Input
 {
 	class InputButtonForXInput : public InputButtonBase

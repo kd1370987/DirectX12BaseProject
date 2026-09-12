@@ -1,4 +1,11 @@
 ﻿#include "RootSignatureBuilder.h"
+
+// CD3DX12_* のヘルパーと D3DReadFileToBlob はここだけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include "d3dx12.h"
+#include <d3dcompiler.h>
+#pragma warning(pop)
 namespace Engine::D3D12
 {
 	D3D12_ROOT_SIGNATURE_DESC RootSignatureBuilder::CreateDesc(const RootSignatureDesc& a_desc)

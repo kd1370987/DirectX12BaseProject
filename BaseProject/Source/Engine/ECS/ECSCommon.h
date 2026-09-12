@@ -45,10 +45,6 @@ namespace Engine::ECS
 	template<typename T>
 	inline constexpr bool IsQueryOnlyTag_v = IsQueryOnlyTag<T>::value;
 
-	// シリアライズ、デシリアライズ用関数
-	using SerializeFunc = void(*)(const void*, nlohmann::json&);
-	using DeserializeFunc = void(*)(void*, const nlohmann::json&);
-
 	// コンポーネントのシリアライズ登録構造体
 	template<typename T>
 	struct ComponentTraits {

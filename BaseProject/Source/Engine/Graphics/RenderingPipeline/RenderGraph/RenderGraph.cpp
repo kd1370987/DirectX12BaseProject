@@ -1,5 +1,11 @@
 ﻿#include "RenderGraph.h"
 
+// 設計図を書き出して実行用へ読み直すときに、中継ぎの JSON を持つ。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include <nlohmannJSON/json.hpp>
+#pragma warning(pop)
+
 #include "../RenderingPipelineMetaRegistry.h"
 #include "RenderGraphCompiler/RenderGraphCompiler.h"
 

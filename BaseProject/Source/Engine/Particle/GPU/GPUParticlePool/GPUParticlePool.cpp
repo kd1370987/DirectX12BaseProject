@@ -1,5 +1,7 @@
 ﻿#include "GPUParticlePool.h"
 
+#include <numeric>	// std::iota
+
 #include "../../../MainEngine.h"
 
 #include "../../../Resource/Manager/ResourceManager/ResourceManager.h"

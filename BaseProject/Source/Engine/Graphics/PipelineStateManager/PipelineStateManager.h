@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// パイプラインステートストリームだけを使うので d3dx12.h の一式は読まない
+#pragma warning(push, 0)
+#include "d3dx12_pipeline_state_stream.h"
+#pragma warning(pop)
+
 #include "Engine/D3D12/Builder/RootSignatureBuilder/RootSignatureBuilder.h"
 
 #include "Engine/D3D12/Builder/PipelineBuilder/RenderPipelineBuilder/RenderPipelineBuilder.h"

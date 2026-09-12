@@ -2,6 +2,12 @@
 
 struct SAMPLER {};
 
+// d3dx12.h のうち、ここで使うのはパイプラインステートストリームだけ。
+// 一式を読むとプリコンパイル済みヘッダー経由で全翻訳単位に広がるため分割ヘッダーで読む
+#pragma warning(push, 0)
+#include "d3dx12_pipeline_state_stream.h"
+#pragma warning(pop)
+
 #include "Engine/D3D12/D3DObject/DescriptorHeap/DescriptorHeap.h"
 
 // インプットレイアウト

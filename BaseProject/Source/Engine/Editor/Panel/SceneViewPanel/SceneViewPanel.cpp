@@ -15,6 +15,12 @@
 #include "../../../../Application/Components/Hierarchy/HierarchyComponent.h"
 #include "../../../../Application/Components/Persistence/GUIDComponent.h"
 
+// ImGuizmo はギズモを触る側だけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include <imGuizmo.h>
+#pragma warning(pop)
+
 // HUD表示に使うコンポーネント群(オフセット・パーティクルの発生方向など)
 #include "../../../../Application/Components/Hierarchy/FollowAnimationNodeComponent.h"
 #include "../../../../Application/Components/Resource/ParticlesComponent.h"

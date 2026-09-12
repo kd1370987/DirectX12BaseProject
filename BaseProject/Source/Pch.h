@@ -2,12 +2,15 @@
 
 //=============================================================================
 // C/C++ Standard Library (STL)
+//
+// ここに置くものは「多くの翻訳単位が使うもの」だけ。
+// 数ファイルしか使わないヘッダーは、その使う側で読む
+// (PCH は全368翻訳単位が毎回ロードするので、置くだけで全体が重くなる)
 //=============================================================================
 #include <algorithm>
 #include <array>
 #include <atomic>
 #include <bitset>
-#include <cinttypes>
 #include <cmath>
 #include <concepts>
 #include <condition_variable>
@@ -17,10 +20,6 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
-#include <future>
-#include <iostream>
-#include <iterator>
-#include <list>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -29,7 +28,6 @@
 #include <shared_mutex>
 #include <random>
 #include <span>
-#include <sstream>
 #include <stack>
 #include <string>
 #include <thread>
@@ -37,14 +35,12 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <variant>
 
 //=============================================================================
 // Windows API
 //=============================================================================
 #define NOMINMAX
 #include <Windows.h>         // WinAPIの基本ヘッダー
-#include <psapi.h>           // プロセスステータスAPI
 #include <stdio.h>
 #include <wrl/client.h>      // Microsoft::WRL::ComPtr（スマートポインタ）
 
@@ -55,6 +51,10 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 //=============================================================================
 // 外部ライブラリ (警告レベルを無効化してインクルード)
+//
+// 特定の経路でしか使わないライブラリはここへ置かない。
+// リンクだけここで通し、ヘッダーは使う側で読む(各 #pragma comment の下に
+// 読む場所を書いてある)
 //=============================================================================
 #pragma warning(push, 0)
 
@@ -62,21 +62,24 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 // DirectX 12 Base
 //---------------------------------------------------------
 #include <dxgi1_6.h>         // スワップチェーンなどDXGI関連（DirectXの基盤）
-#include <dxgidebug.h>       // DXGIデバッグ機能
 #include <d3d12.h>           // D3D12のメインヘッダー
-#include "d3dx12.h"          // D3DX12ユーティリティ（構造体のラッパー）
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib,"DirectXTK12.lib")
+
+// CD3DX12_* のヘルパー(d3dx12.h)は使う側で読む。
+// ヘッダーで必要なのはパイプラインステートストリームだけなので、
+// D3D12Common.h / PipelineStateManager.h は d3dx12_pipeline_state_stream.h を読む。
+// DXGIのデバッグ機能(dxgidebug.h)は MainEngine.cpp だけ
+
 //---------------------------------------------------------
 // DirectX Shader Compiler
+//
+// ヘッダー(dxcapi.h / d3dcompiler.h / d3d12shader.h)は
+// DXCCompiler.h・RasterizerImport.cpp などのコンパイル経路で読む
 //---------------------------------------------------------
-#include <d3dcompiler.h>
-#include <dxcapi.h>
-#include <d3d12shader.h>
-
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxcompiler.lib")
 
@@ -84,7 +87,6 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 // DirectX Math & Collision
 //---------------------------------------------------------
 #include <DirectXMath.h>       // 数学ライブラリ（ベクトル・行列）
-#include <DirectXColors.h>     // 色定義（Colors::Whiteなど）
 #include <DirectXCollision.h>  // 当たり判定処理
 #include <SimpleMath.h>        // 直感的な数学ライブラリ（DirectXTK）
 
@@ -92,12 +94,12 @@ namespace DXSM = DirectX::SimpleMath;
 
 //---------------------------------------------------------
 // DirectX Extensions (Mesh, Texture, Audio, Input)
+//
+// DirectXTex は Texture.cpp / TextureImporter.cpp、
+// XInput は InputAxisForXInput.h / InputButtonForXInput.h で読む
 //---------------------------------------------------------
 #include <DirectXMesh.h>       // メッシュ処理
-#include <DirectXTex.h>        // テクスチャ読み込み
 #include <Audio.h>             // サウンド処理
-#include <comdef.h>            // COMエラーハンドリング
-#include <Xinput.h>            // コントローラー対応
 
 #pragma comment(lib, "DirectXMesh.lib")
 #pragma comment(lib, "DirectXTex.lib")
@@ -105,20 +107,23 @@ namespace DXSM = DirectX::SimpleMath;
 
 //---------------------------------------------------------
 // ImGui
+//
+// バックエンド(imgui_impl_*)は ImGuiContext.cpp、
+// ImGuizmo はギズモを触る側で読む
 //---------------------------------------------------------
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
-#include <imgui_impl_dx12.h>
-#include <imgui_impl_win32.h>
 #include <imgui_stdlib.h>
 #include <imnodes.h>           // ノードエディタ
-#include <imGuizmo.h>          // 3DギズモUI
 
 //---------------------------------------------------------
 // Other Third-Party Libraries
+//
+// nlohmann/json は 24,000行あり、これ1つで PCH の 17% を占めていた。
+// 実体を触るのは Archive.cpp / AssetDatabase.cpp / RenderGraph.cpp の3つだけなので
+// そこで読む。型の名前だけ要るヘッダーは JSONForward.h(前方宣言)を読む
 //---------------------------------------------------------
 #include <magic_enum/magic_enum.hpp> // enumの拡張機能
-#include <nlohmannJSON/json.hpp>     // JSONパーサー
 
 #pragma warning(pop) // 外部ライブラリの警告無効化を解除
 

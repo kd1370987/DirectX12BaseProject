@@ -2,6 +2,10 @@
 
 #include "../Input/InputManager/InputManager.h"
 
+// プロセスのメモリ使用量の取得はここだけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#include <psapi.h>
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // 古いSDK対策 (Windows8.1+ のヘッダにしか定義がない)

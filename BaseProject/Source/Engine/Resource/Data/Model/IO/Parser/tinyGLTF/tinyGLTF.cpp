@@ -1,5 +1,13 @@
 ﻿#include "tinyGLTF.h"
 
+// tinygltf は nlohmann/json 3.10.4 を同梱しているが、プロジェクトが使うのは 3.11.3。
+// 先に 3.11.3 を読んでインクルードガード(INCLUDE_NLOHMANN_JSON_HPP_)を立てておき、
+// 同梱の古い方を読ませないようにする。
+// 以前は Pch.h の json.hpp が同じ役目を暗黙に果たしていたので、それを明示しただけ
+#pragma warning(push, 0)
+#include <nlohmannJSON/json.hpp>
+#pragma warning(pop)
+
 // TinyGLTF
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION

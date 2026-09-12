@@ -76,10 +76,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <!-- 複数コアで並列コンパイルする(/MP)。368TUを1プロセスで直列に回すのを止める -->
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <!-- 別フォルダの同名 .cpp が同じ .obj を上書きしないよう、ソースの階層をそのまま出力先へ写す -->
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <!-- obj は $(IntDir) 直下へ平らに出す。
+           ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
+           cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
+           同名 .cpp は obj が黙って上書きされるので、下の ClCompile で
+           個別に ObjectFileName を与えること(現状は World.cpp の1組だけ) -->
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -116,10 +121,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <!-- 複数コアで並列コンパイルする(/MP)。368TUを1プロセスで直列に回すのを止める -->
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <!-- 別フォルダの同名 .cpp が同じ .obj を上書きしないよう、ソースの階層をそのまま出力先へ写す -->
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <!-- obj は $(IntDir) 直下へ平らに出す。
+           ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
+           cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
+           同名 .cpp は obj が黙って上書きされるので、下の ClCompile で
+           個別に ObjectFileName を与えること(現状は World.cpp の1組だけ) -->
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -156,11 +166,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <!-- 複数コアで並列コンパイルする(/MP)。368TUを1プロセスで直列に回すのを止める -->
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <!-- 別フォルダの同名 .cpp が同じ .obj を上書きしないよう、ソースの階層をそのまま出力先へ写す -->
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <!-- obj は $(IntDir) 直下へ平らに出す。
+           ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
+           cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
+           同名 .cpp は obj が黙って上書きされるので、下の ClCompile で
+           個別に ObjectFileName を与えること(現状は World.cpp の1組だけ) -->
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -199,11 +214,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <!-- 複数コアで並列コンパイルする(/MP)。368TUを1プロセスで直列に回すのを止める -->
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <!-- 別フォルダの同名 .cpp が同じ .obj を上書きしないよう、ソースの階層をそのまま出力先へ写す -->
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <!-- obj は $(IntDir) 直下へ平らに出す。
+           ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
+           cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
+           同名 .cpp は obj が黙って上書きされるので、下の ClCompile で
+           個別に ObjectFileName を与えること(現状は World.cpp の1組だけ) -->
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -460,7 +480,10 @@
     <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.cpp" />
     <ClCompile Include="Source\Engine\GameObject\BaseObject\BaseObject.cpp" />
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.cpp" />
-    <ClCompile Include="Source\Application\ECS\World\World.cpp" />
+    <!-- Engine\ECS\World\World.cpp と同名。obj が衝突するのでこちらだけ別名にする -->
+    <ClCompile Include="Source\Application\ECS\World\World.cpp">
+      <ObjectFileName>$(IntDir)App_World.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="Source\Application\ECS\World\WorldTypeRegister.cpp" />
     <ClCompile Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.cpp" />
@@ -984,6 +1007,7 @@
     <ClInclude Include="Source\Engine\ECS\World\World.h" />
     <ClInclude Include="Source\Engine\Editor\Editor.h" />
     <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.h" />
+    <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.inl" />
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Internal\EditorContext.h" />
@@ -1017,7 +1041,6 @@
     <ClInclude Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.h" />
-    <None Include="Source\Engine\Editor\Helper\EditorHelper.inl" />
     <ClInclude Include="Source\Engine\GameObject\BaseObject\BaseObject.h" />
     <ClInclude Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.h" />
     <ClInclude Include="Source\Application\Components\Resource\SoundComponent.h" />
@@ -1183,6 +1206,7 @@
     <ClInclude Include="Source\Engine\Utility\Debug\DebugLog.h" />
     <ClInclude Include="Source\Engine\Utility\Debug\Profile\Time\TimeProfileScope.h" />
     <ClInclude Include="Source\Engine\Utility\GUID\GUID.h" />
+    <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONForward.h" />
     <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONHelper.h" />
     <ClInclude Include="Source\Engine\Utility\Math\Alignment.h" />
     <ClInclude Include="Source\Engine\Utility\Math\CameraUtility.h" />

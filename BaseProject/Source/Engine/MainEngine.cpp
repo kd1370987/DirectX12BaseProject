@@ -30,6 +30,12 @@
 
 #include "JobSystem/JobSystem.h"
 
+// DXGIのデバッグ機能(ライブオブジェクト報告)はここだけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include <dxgidebug.h>
+#pragma warning(pop)
+
 namespace Engine
 {
 	MainEngine::MainEngine()

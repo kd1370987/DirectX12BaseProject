@@ -2,6 +2,12 @@
 
 #include "../../Utility/BinaryHelper/BinaryHelper.h"
 
+// json.hpp ではなく前方宣言だけを読む。
+// Archive.h はプリコンパイル済みヘッダーに入っているので、ここで json.hpp を
+// 読むと 900KB のヘッダーが全翻訳単位に乗る。
+// JSON を実際に触るのは Archive.cpp 側(下の Json〜 関数)
+#include "../../Utility/JSONHelper/JSONForward.h"
+
 namespace Engine::Persistence
 {
 	// テスト時にはjson、本番時にはバイナリでデータを管理できるクラス
@@ -107,6 +113,35 @@ namespace Engine::Persistence
 		// Auto のときに、このファイルを JSON で読むかどうかを決める
 		bool ShouldLoadJson(const std::string& a_ext) const;
 
+		//----------------------------------------------------------------------------------
+		// JSON への1フィールドの読み書き
+		//
+		// 下のテンプレートから nlohmann::json を直接触ると json.hpp をこのヘッダーへ
+		// 持ち込むことになるので、JSON に触る処理はすべて .cpp 側に置いてある。
+		//
+		// 整数・符号なし整数・実数・真偽を分けているのは、まとめて double で通すと
+		// 保存済みの .oj* に書かれる数値の形(10 が 10.0 になる等)が変わってしまうため。
+		// Read 系は「読めたら true」で、読めなければ呼び出し側の値をそのまま残す
+		//----------------------------------------------------------------------------------
+		bool HasJson() const;	// JSON を相手にしているか
+
+		// 現在注目しているノードを取り出す(スタックが空なら根)
+		nlohmann::json& CurrentNode();
+
+		void JsonWriteBool  (const std::string& a_name, bool a_value);
+		void JsonWriteInt   (const std::string& a_name, int64_t a_value);
+		void JsonWriteUInt  (const std::string& a_name, uint64_t a_value);
+		void JsonWriteFloat (const std::string& a_name, double a_value);
+		void JsonWriteString(const std::string& a_name, const std::string& a_value);
+		void JsonWriteFloats(const std::string& a_name, const float* a_pValues, size_t a_count);
+
+		bool JsonReadBool  (const std::string& a_name, bool& a_outValue);
+		bool JsonReadInt   (const std::string& a_name, int64_t& a_outValue);
+		bool JsonReadUInt  (const std::string& a_name, uint64_t& a_outValue);
+		bool JsonReadFloat (const std::string& a_name, double& a_outValue);
+		bool JsonReadString(const std::string& a_name, std::string& a_outValue);
+		bool JsonReadFloats(const std::string& a_name, float* a_pOutValues, size_t a_count);
+
 	private:
 		// 実行モード
 		Mode m_mode;
@@ -118,7 +153,8 @@ namespace Engine::Persistence
 		std::ifstream m_ifs;
 
 		// テスト時データ
-		nlohmann::json m_json = {};
+		// 実体はコンストラクタで作る。json.hpp を読まずに持つためポインタで抱える
+		std::unique_ptr<nlohmann::json> m_upJson;
 
 		// パス
 		std::string m_fileDir;		// ディレクトリ
@@ -132,11 +168,6 @@ namespace Engine::Persistence
 		// 現在注目しているJSONノードのポインタ（参照）をスタックで管理する
 		std::stack<nlohmann::json*> m_jsonNodeStack;
 
-		nlohmann::json& CurrentNode()
-		{
-			return m_jsonNodeStack.empty() ? m_json : *m_jsonNodeStack.top();
-		}
-
 	};
 
 	// =========================================================================
@@ -148,9 +179,15 @@ namespace Engine::Persistence
 		static_assert(std::is_arithmetic_v<T> || std::is_enum_v<T>,
 			"Only arithmetic or enum types are allowed");
 
+		// enum は下地の型で扱う(保存される数値の形を変えないため)
+		using Raw = typename std::conditional_t<std::is_enum_v<T>, std::underlying_type<T>, std::type_identity<T>>::type;
+
 		if (IsSaving())
 		{
-			CurrentNode()[a_name] = a_data; // m_json から CurrentNode() に変更
+			if constexpr (std::is_same_v<Raw, bool>)			JsonWriteBool(a_name, static_cast<bool>(a_data));
+			else if constexpr (std::is_floating_point_v<Raw>)	JsonWriteFloat(a_name, static_cast<double>(a_data));
+			else if constexpr (std::is_signed_v<Raw>)			JsonWriteInt(a_name, static_cast<int64_t>(a_data));
+			else												JsonWriteUInt(a_name, static_cast<uint64_t>(a_data));
 
 			if (m_ofs.is_open())
 			{
@@ -159,9 +196,25 @@ namespace Engine::Persistence
 		}
 		else
 		{
-			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			if constexpr (std::is_same_v<Raw, bool>)
 			{
-				a_data = CurrentNode()[a_name].get<T>();
+				bool _value = false;
+				if (JsonReadBool(a_name, _value)) a_data = static_cast<T>(_value);
+			}
+			else if constexpr (std::is_floating_point_v<Raw>)
+			{
+				double _value = 0.0;
+				if (JsonReadFloat(a_name, _value)) a_data = static_cast<T>(_value);
+			}
+			else if constexpr (std::is_signed_v<Raw>)
+			{
+				int64_t _value = 0;
+				if (JsonReadInt(a_name, _value)) a_data = static_cast<T>(_value);
+			}
+			else
+			{
+				uint64_t _value = 0;
+				if (JsonReadUInt(a_name, _value)) a_data = static_cast<T>(_value);
 			}
 
 			if (m_ifs.is_open())
@@ -204,15 +257,16 @@ namespace Engine::Persistence
 	{
 		if (IsSaving())
 		{
-			CurrentNode()[a_name] = { a_data.x, a_data.y };
+			const float _values[2] = { a_data.x, a_data.y };
+			JsonWriteFloats(a_name, _values, 2);
 			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
 		}
 		else
 		{
-			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			float _values[2] = { a_data.x, a_data.y };
+			if (JsonReadFloats(a_name, _values, 2))
 			{
-				auto& j = CurrentNode()[a_name];
-				a_data = { j[0], j[1] };
+				a_data = { _values[0], _values[1] };
 			}
 			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
@@ -222,15 +276,16 @@ namespace Engine::Persistence
 	{
 		if (IsSaving())
 		{
-			CurrentNode()[a_name] = { a_data.x, a_data.y, a_data.z };
+			const float _values[3] = { a_data.x, a_data.y, a_data.z };
+			JsonWriteFloats(a_name, _values, 3);
 			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
 		}
 		else
 		{
-			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			float _values[3] = { a_data.x, a_data.y, a_data.z };
+			if (JsonReadFloats(a_name, _values, 3))
 			{
-				auto& j = CurrentNode()[a_name];
-				a_data = { j[0], j[1], j[2] };
+				a_data = { _values[0], _values[1], _values[2] };
 			}
 			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
@@ -257,15 +312,16 @@ namespace Engine::Persistence
 	{
 		if (IsSaving())
 		{
-			CurrentNode()[a_name] = { a_data.x, a_data.y, a_data.z, a_data.w };
+			const float _values[4] = { a_data.x, a_data.y, a_data.z, a_data.w };
+			JsonWriteFloats(a_name, _values, 4);
 			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
 		}
 		else
 		{
-			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			float _values[4] = { a_data.x, a_data.y, a_data.z, a_data.w };
+			if (JsonReadFloats(a_name, _values, 4))
 			{
-				auto& j = CurrentNode()[a_name];
-				a_data = { j[0], j[1], j[2], j[3] };
+				a_data = { _values[0], _values[1], _values[2], _values[3] };
 			}
 			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
@@ -275,15 +331,16 @@ namespace Engine::Persistence
 	{
 		if (IsSaving())
 		{
-			CurrentNode()[a_name] = { a_data.x, a_data.y, a_data.z, a_data.w };
+			const float _values[4] = { a_data.x, a_data.y, a_data.z, a_data.w };
+			JsonWriteFloats(a_name, _values, 4);
 			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
 		}
 		else
 		{
-			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			float _values[4] = { a_data.x, a_data.y, a_data.z, a_data.w };
+			if (JsonReadFloats(a_name, _values, 4))
 			{
-				auto& j = CurrentNode()[a_name];
-				a_data = { j[0], j[1], j[2], j[3] };
+				a_data = { _values[0], _values[1], _values[2], _values[3] };
 			}
 			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
@@ -293,15 +350,16 @@ namespace Engine::Persistence
 	{
 		if (IsSaving())
 		{
-			CurrentNode()[a_name] = { a_data.r, a_data.g, a_data.b, a_data.a };
+			const float _values[4] = { a_data.r, a_data.g, a_data.b, a_data.a };
+			JsonWriteFloats(a_name, _values, 4);
 			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
 		}
 		else
 		{
-			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			float _values[4] = { a_data.r, a_data.g, a_data.b, a_data.a };
+			if (JsonReadFloats(a_name, _values, 4))
 			{
-				auto& j = CurrentNode()[a_name];
-				a_data = { j[0], j[1], j[2], j[3] };
+				a_data = { _values[0], _values[1], _values[2], _values[3] };
 			}
 			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
@@ -311,30 +369,17 @@ namespace Engine::Persistence
 	{
 		if (IsSaving())
 		{
-			CurrentNode()[a_name] =
-			{
-				a_data._11,a_data._12,a_data._13,a_data._14,
-				a_data._21,a_data._22,a_data._23,a_data._24,
-				a_data._31,a_data._32,a_data._33,a_data._34,
-				a_data._41,a_data._42,a_data._43,a_data._44
-			};
-
+			const float _values[16] = { a_data._11, a_data._12, a_data._13, a_data._14, a_data._21, a_data._22, a_data._23, a_data._24, a_data._31, a_data._32, a_data._33, a_data._34, a_data._41, a_data._42, a_data._43, a_data._44 };
+			JsonWriteFloats(a_name, _values, 16);
 			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data);
 		}
 		else
 		{
-			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
+			float _values[16] = { a_data._11, a_data._12, a_data._13, a_data._14, a_data._21, a_data._22, a_data._23, a_data._24, a_data._31, a_data._32, a_data._33, a_data._34, a_data._41, a_data._42, a_data._43, a_data._44 };
+			if (JsonReadFloats(a_name, _values, 16))
 			{
-				auto& j = CurrentNode()[a_name];
-				a_data =
-				{
-					j[0],j[1],j[2],j[3],
-					j[4],j[5],j[6],j[7],
-					j[8],j[9],j[10],j[11],
-					j[12],j[13],j[14],j[15]
-				};
+				a_data = { _values[0], _values[1], _values[2], _values[3], _values[4], _values[5], _values[6], _values[7], _values[8], _values[9], _values[10], _values[11], _values[12], _values[13], _values[14], _values[15] };
 			}
-
 			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
@@ -347,7 +392,7 @@ namespace Engine::Persistence
 		if (IsSaving())
 		{
 			// Json処理
-			if (!m_json.is_null()) CurrentNode()[a_name] = a_data;
+			if (HasJson()) JsonWriteString(a_name, a_data);
 			// binary処理
 			if (m_ofs.is_open()) BinaryHelper::WriteString(m_ofs, a_data);
 		}
@@ -355,10 +400,7 @@ namespace Engine::Persistence
 		else
 		{
 			// Json処理
-			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
-			{
-				a_data = CurrentNode()[a_name].get<std::string>();
-			}
+			JsonReadString(a_name, a_data);
 			// binary処理
 			if (m_ifs.is_open()) a_data = BinaryHelper::ReadString(m_ifs);
 		}
@@ -371,7 +413,7 @@ namespace Engine::Persistence
 		if (IsSaving())
 		{
 			// Json処理
-			if (!m_json.is_null()) CurrentNode()[a_name] = a_data.String();
+			if (HasJson()) JsonWriteString(a_name, a_data.String());
 			// binary処理
 			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_data.value);
 		}
@@ -379,10 +421,8 @@ namespace Engine::Persistence
 		else
 		{
 			// Json処理
-			if (CurrentNode().is_object() && CurrentNode().contains(a_name))
-			{
-				a_data.FromString(CurrentNode()[a_name].get<std::string>());
-			}
+			std::string _guidStr;
+			if (JsonReadString(a_name, _guidStr)) a_data.FromString(_guidStr);
 			// binary処理
 			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data.value);
 		}

@@ -4,6 +4,12 @@
 #include "../../Data/Texture/IO/Creater/TextureCreater.h"
 
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+
+// DirectXTex はテクスチャの読み書きでしか使わない。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include <DirectXTex.h>
+#pragma warning(pop)
 namespace Engine::Resource
 {
 	void Engine::Resource::Texture::Import(

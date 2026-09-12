@@ -985,6 +985,15 @@
     <Filter Include="Source\Engine\Editor\ImGui">
       <UniqueIdentifier>{0ec4e5d1-d266-4eb4-8765-14190a5c0247}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Editor\ImGui\ImNode">
+      <UniqueIdentifier>{d8417def-0447-4280-bd1d-5cb8b4a86919}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\ImGui\ImNode\Core">
+      <UniqueIdentifier>{8c549a59-850f-4a44-a0e8-9fbb31f14dd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Game\Core">
+      <UniqueIdentifier>{bc46982f-9e0c-4d73-bf68-e60cbd003c73}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Editor\Internal">
       <UniqueIdentifier>{a1c0f001-1111-4a10-9f01-000000000004}</UniqueIdentifier>
     </Filter>
@@ -2742,7 +2751,9 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler\RenderGraphCompiler.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.cpp" />
+    <ClCompile Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.cpp">
+      <Filter>Source\Engine\Editor\ImGui\ImNode\Core</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.cpp">
       <Filter>Source\Application\Object\Scene\SceneInitializer</Filter>
     </ClCompile>
@@ -3711,6 +3722,9 @@
     <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.h">
       <Filter>Source\Engine\Editor\Helper</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.inl">
+      <Filter>Source\Engine\Editor\Helper</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h">
       <Filter>Source\Engine\Editor\ImGui</Filter>
     </ClInclude>
@@ -4197,8 +4211,14 @@
     <ClInclude Include="Source\Engine\Utility\GUID\GUID.h">
       <Filter>Source\Engine\Utility\GUID</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONForward.h">
+      <Filter>Source\Engine\Utility\JSONHelper</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONHelper.h">
       <Filter>Source\Engine\Utility\JSONHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Game\Core\InputSettings.h">
+      <Filter>Source\Application\Game\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Math\Alignment.h">
       <Filter>Source\Engine\Utility\Math</Filter>
@@ -4434,18 +4454,14 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\AliasingBarrier.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.h" />
+    <ClInclude Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.h">
+      <Filter>Source\Engine\Editor\ImGui\ImNode\Core</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.h">
       <Filter>Source\Application\Object\Scene\SceneInitializer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Game\UserData\UserData.h">
       <Filter>Source\Application\Game\UserData</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Game\InputActions\GameActions.h">
-      <Filter>Source\Application\Game\InputActions</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Game\InputActions\UIActions.h">
-      <Filter>Source\Application\Game\InputActions</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Scene\InputBinding\InputBinding.h">
       <Filter>Source\Application\Object\Scene\InputBinding</Filter>
@@ -4666,9 +4682,6 @@
     </None>
     <None Include="Asset\Shader\Source\UI\UIVS.hlsl">
       <Filter>Asset\Shader\Source\UI</Filter>
-    </None>
-    <None Include="Source\Engine\Editor\Helper\EditorHelper.inl">
-      <Filter>Source\Engine\Editor\Helper</Filter>
     </None>
     <FxCompile Include="Asset\Shader\Source\PostProcess\Distortion\FishEyeCS.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\Distortion</Filter>

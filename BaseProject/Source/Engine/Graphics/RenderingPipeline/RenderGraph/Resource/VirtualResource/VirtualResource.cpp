@@ -1,5 +1,11 @@
 ﻿#include "VirtualResource.h"
 
+// CD3DX12_* のヘルパーはここだけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include "d3dx12.h"
+#pragma warning(pop)
+
 
 // 占有サイズの見積もりと実体の生成で、同じ仕様書を通すために要る
 #include "../../../../../Resource/Data/Texture/IO/Creater/TextureCreater.h"

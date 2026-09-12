@@ -1,4 +1,11 @@
 ﻿#include "PipelineStateManager.h"
+
+// CD3DX12_* のヘルパーと D3DReadFileToBlob / D3DGetBlobPart はここだけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include "d3dx12.h"
+#include <d3dcompiler.h>
+#pragma warning(pop)
 namespace Engine::Graphics
 {
 	void PipelineStateManager::Init(D3D12::Device* a_pDevice)

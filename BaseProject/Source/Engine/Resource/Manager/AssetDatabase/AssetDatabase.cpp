@@ -1,5 +1,13 @@
 ﻿#include "AssetDatabase.h"
 
+// メタファイルを組み立てるのでここでは JSON の実体を触る。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include <nlohmannJSON/json.hpp>
+#pragma warning(pop)
+
+#include "Engine/Utility/JSONHelper/JSONHelper.h"
+
 namespace Engine::Resource
 {
 	namespace

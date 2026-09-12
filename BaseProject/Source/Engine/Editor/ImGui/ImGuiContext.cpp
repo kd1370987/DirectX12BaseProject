@@ -6,6 +6,14 @@
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/Graphics/Core/BackBuffer/BackBuffer.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
+
+// ImGui のバックエンドと ImGuizmo は、ここ(初期化とフレーム開始)だけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include <imgui_impl_dx12.h>
+#include <imgui_impl_win32.h>
+#include <imGuizmo.h>
+#pragma warning(pop)
 namespace Engine::Editor
 {
 	namespace

@@ -3,6 +3,12 @@
 #include "../../Common/ScopedResourceBuild.h"
 #include "../../Manager/ResourceManager/ResourceManager.h"
 
+// CD3DX12_* のヘルパーはここだけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include "d3dx12.h"
+#pragma warning(pop)
+
 // stb_truetype はここだけで読む。
 // ヘッダーへ出すとプリコンパイル済みヘッダー経由で全翻訳単位に広がるため
 #pragma warning(push, 0)

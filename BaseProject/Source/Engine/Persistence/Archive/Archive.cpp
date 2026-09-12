@@ -1,11 +1,21 @@
 ﻿#include "Archive.h"
 
+// JSON の実体を触るのはこのファイルだけ。
+// Archive.h はプリコンパイル済みヘッダー経由で全翻訳単位に乗るので、
+// あちらでは JSONForward.h(前方宣言)しか読まない
+#pragma warning(push, 0)
+#include <nlohmannJSON/json.hpp>
+#pragma warning(pop)
+
 #include "../../MainEngine.h"
 
 namespace Engine::Persistence
 {
 	Archive::Archive(Mode a_mode, const std::string& a_fileDir, const std::string& a_fileName, const std::string& a_ext, ArchiveFormat a_format)
 	{
+		// 中身は null のまま。JSON を使うかどうかは下の分岐で決まる
+		m_upJson = std::make_unique<nlohmann::json>();
+
 		m_fileDir = a_fileDir;
 		m_mode = a_mode;
 		m_binPath = a_fileDir + "/" + a_fileName + ".ob" + a_ext;
@@ -36,7 +46,7 @@ namespace Engine::Persistence
 
 			if (a_format == ArchiveFormat::Auto || a_format == ArchiveFormat::Json)
 			{
-				m_json = nlohmann::json::object(); // JSONモードを初期化
+				*m_upJson = nlohmann::json::object(); // JSONモードを初期化
 			}
 			break;
 
@@ -59,7 +69,7 @@ namespace Engine::Persistence
 				std::ifstream _ifs(m_jsonPath);
 				if (_ifs.is_open())
 				{
-					_ifs >> m_json;
+					_ifs >> *m_upJson;
 				}
 				else
 				{
@@ -125,6 +135,8 @@ namespace Engine::Persistence
 	//======================================================================================
 	Archive::Archive(Mode a_mode, nlohmann::json& a_json)
 	{
+		m_upJson = std::make_unique<nlohmann::json>();
+
 		m_mode = a_mode;
 		m_format = ArchiveFormat::Json;
 		m_isMemory = true;
@@ -132,11 +144,11 @@ namespace Engine::Persistence
 		if (a_mode == Mode::Save)
 		{
 			m_pMemoryJson = &a_json;
-			m_json = nlohmann::json::object();
+			*m_upJson = nlohmann::json::object();
 		}
 		else
 		{
-			m_json = a_json;
+			*m_upJson = a_json;
 		}
 	}
 
@@ -145,7 +157,7 @@ namespace Engine::Persistence
 		// メモリ相手のときはファイルへ書き出さない
 		if (m_isMemory)
 		{
-			if (IsSaving() && m_pMemoryJson) *m_pMemoryJson = std::move(m_json);
+			if (IsSaving() && m_pMemoryJson) *m_pMemoryJson = std::move(*m_upJson);
 			return;
 		}
 
@@ -153,19 +165,141 @@ namespace Engine::Persistence
 		if (m_ifs.is_open()) m_ifs.close();
 
 		// JSONの書き出し
-		if (IsSaving() && !m_json.is_null())
+		if (IsSaving() && !m_upJson->is_null())
 		{
 			std::ofstream _ofs(m_jsonPath);
-			_ofs << m_json.dump(4); // インデント付きで綺麗に出力
+			_ofs << m_upJson->dump(4); // インデント付きで綺麗に出力
 		}
 	}
+	//======================================================================================
+	// JSON への1フィールドの読み書き
+	//
+	// Archive.h のテンプレートから呼ばれる入口。
+	// nlohmann::json に触るのをこのファイルだけに閉じ込めるために分けてある
+	//======================================================================================
+	bool Archive::HasJson() const
+	{
+		return m_upJson && !m_upJson->is_null();
+	}
+
+	nlohmann::json& Archive::CurrentNode()
+	{
+		return m_jsonNodeStack.empty() ? *m_upJson : *m_jsonNodeStack.top();
+	}
+
+	void Archive::JsonWriteBool(const std::string& a_name, bool a_value)
+	{
+		CurrentNode()[a_name] = a_value;
+	}
+	void Archive::JsonWriteInt(const std::string& a_name, int64_t a_value)
+	{
+		CurrentNode()[a_name] = a_value;
+	}
+	void Archive::JsonWriteUInt(const std::string& a_name, uint64_t a_value)
+	{
+		CurrentNode()[a_name] = a_value;
+	}
+	void Archive::JsonWriteFloat(const std::string& a_name, double a_value)
+	{
+		CurrentNode()[a_name] = a_value;
+	}
+	void Archive::JsonWriteString(const std::string& a_name, const std::string& a_value)
+	{
+		CurrentNode()[a_name] = a_value;
+	}
+	void Archive::JsonWriteFloats(const std::string& a_name, const float* a_pValues, size_t a_count)
+	{
+		// Vector や Matrix は要素を並べた配列で持つ(並びは従来の .oj* と同じ)
+		nlohmann::json _array = nlohmann::json::array();
+		for (size_t _i = 0; _i < a_count; ++_i)
+		{
+			_array.push_back(a_pValues[_i]);
+		}
+		CurrentNode()[a_name] = std::move(_array);
+	}
+
+	//--------------------------------------------------------------------------------------
+	// 読み込み側
+	//
+	// 見つからない・型が合わないときは false を返し、呼び出し側の値には触らない。
+	// (既定値のまま残す。フィールドを足したときに既存データが壊れないようにするため)
+	//--------------------------------------------------------------------------------------
+	namespace
+	{
+		// 名前で引いた値を返す。無ければ nullptr
+		const nlohmann::json* FindField(nlohmann::json& a_node, const std::string& a_name)
+		{
+			if (!a_node.is_object()) return nullptr;
+
+			auto _it = a_node.find(a_name);
+			if (_it == a_node.end()) return nullptr;
+
+			return &(*_it);
+		}
+	}
+
+	bool Archive::JsonReadBool(const std::string& a_name, bool& a_outValue)
+	{
+		const nlohmann::json* _pValue = FindField(CurrentNode(), a_name);
+		if (!_pValue || !_pValue->is_boolean()) return false;
+
+		a_outValue = _pValue->get<bool>();
+		return true;
+	}
+	bool Archive::JsonReadInt(const std::string& a_name, int64_t& a_outValue)
+	{
+		const nlohmann::json* _pValue = FindField(CurrentNode(), a_name);
+		if (!_pValue || !_pValue->is_number()) return false;
+
+		a_outValue = _pValue->get<int64_t>();
+		return true;
+	}
+	bool Archive::JsonReadUInt(const std::string& a_name, uint64_t& a_outValue)
+	{
+		const nlohmann::json* _pValue = FindField(CurrentNode(), a_name);
+		if (!_pValue || !_pValue->is_number()) return false;
+
+		a_outValue = _pValue->get<uint64_t>();
+		return true;
+	}
+	bool Archive::JsonReadFloat(const std::string& a_name, double& a_outValue)
+	{
+		const nlohmann::json* _pValue = FindField(CurrentNode(), a_name);
+		if (!_pValue || !_pValue->is_number()) return false;
+
+		a_outValue = _pValue->get<double>();
+		return true;
+	}
+	bool Archive::JsonReadString(const std::string& a_name, std::string& a_outValue)
+	{
+		const nlohmann::json* _pValue = FindField(CurrentNode(), a_name);
+		if (!_pValue || !_pValue->is_string()) return false;
+
+		a_outValue = _pValue->get<std::string>();
+		return true;
+	}
+	bool Archive::JsonReadFloats(const std::string& a_name, float* a_pOutValues, size_t a_count)
+	{
+		const nlohmann::json* _pValue = FindField(CurrentNode(), a_name);
+		if (!_pValue || !_pValue->is_array()) return false;
+
+		// 足りない分は呼び出し側の値をそのまま残す
+		const size_t _readCount = (std::min)(a_count, _pValue->size());
+		for (size_t _i = 0; _i < _readCount; ++_i)
+		{
+			const nlohmann::json& _element = (*_pValue)[_i];
+			if (_element.is_number()) a_pOutValues[_i] = _element.get<float>();
+		}
+		return true;
+	}
+
 	void Archive::StringField(const std::string& a_name, std::string& a_data)
 	{
 		// セーブ時
 		if (IsSaving())
 		{
 			// Json処理
-			if (!m_json.is_null()) CurrentNode()[a_name] = a_data;
+			if (!m_upJson->is_null()) CurrentNode()[a_name] = a_data;
 			// binary処理
 			if (m_ofs.is_open()) BinaryHelper::WriteString(m_ofs, a_data);
 		}
@@ -173,7 +307,7 @@ namespace Engine::Persistence
 		else
 		{
 			// Json処理
-			if (!m_json.is_null() && CurrentNode().contains(a_name))
+			if (!m_upJson->is_null() && CurrentNode().contains(a_name))
 			{
 				a_data = CurrentNode()[a_name].get<std::string>();
 			}
@@ -191,7 +325,7 @@ namespace Engine::Persistence
 		if (IsSaving())
 		{
 			// json処理
-			if (!m_json.is_null())
+			if (!m_upJson->is_null())
 			{
 				CurrentNode()[a_name] = nlohmann::json::object(); // {} を作成
 				m_jsonNodeStack.push(&CurrentNode()[a_name]);     // 潜る
@@ -204,7 +338,7 @@ namespace Engine::Persistence
 		else
 		{
 			// json処理
-			if (!m_json.is_null())
+			if (!m_upJson->is_null())
 			{
 				if (CurrentNode().contains(a_name) && CurrentNode()[a_name].is_object())
 				{
@@ -229,7 +363,7 @@ namespace Engine::Persistence
 		if (IsSaving())
 		{
 			// json処理
-			if (!m_json.is_null())
+			if (!m_upJson->is_null())
 			{
 				if (CurrentNode().is_object()) // 安全対策
 				{
@@ -249,7 +383,7 @@ namespace Engine::Persistence
 		else
 		{
 			// json処理
-			if (!m_json.is_null())
+			if (!m_upJson->is_null())
 			{
 				// 安全対策: 現在のノードがObject({})であることを確認してからアクセス
 				if (CurrentNode().is_object() && CurrentNode().contains(a_name) && CurrentNode()[a_name].is_array())
@@ -278,7 +412,7 @@ namespace Engine::Persistence
 		bool _success = false;
 		if (IsSaving())
 		{
-			if (!m_json.is_null())
+			if (!m_upJson->is_null())
 			{
 				// 配列の中にオブジェクト {} を追加し、そこに潜る
 				CurrentNode().push_back(nlohmann::json::object());
@@ -289,7 +423,7 @@ namespace Engine::Persistence
 		}
 		else
 		{
-			if (!m_json.is_null())
+			if (!m_upJson->is_null())
 			{
 				// 現在のノードが配列であり、インデックスが範囲内なら潜る
 				if (CurrentNode().is_array() && a_index < CurrentNode().size())
@@ -312,7 +446,7 @@ namespace Engine::Persistence
 		if (IsSaving())
 		{
 			// Json処理
-			if (!m_json.is_null()) CurrentNode()[a_name] = a_guid.String();
+			if (!m_upJson->is_null()) CurrentNode()[a_name] = a_guid.String();
 			// binary処理
 			if (m_ofs.is_open()) BinaryHelper::Write(m_ofs, a_guid.value);
 		}

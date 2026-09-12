@@ -1,4 +1,11 @@
 ﻿#pragma once
+
+// DXC はシェーダーのコンパイル経路だけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include <dxcapi.h>
+#pragma warning(pop)
+
 namespace Engine::Resource::Compiler
 {
 	/// <summary>

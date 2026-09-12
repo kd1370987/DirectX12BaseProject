@@ -1,4 +1,7 @@
 ﻿#pragma once
+
+// CreateMetaData() の戻り値の型を名乗るだけなので前方宣言で足りる
+#include "Engine/Utility/JSONHelper/JSONForward.h"
 namespace Engine::Resource
 {
 	// タイプに対応する拡張子

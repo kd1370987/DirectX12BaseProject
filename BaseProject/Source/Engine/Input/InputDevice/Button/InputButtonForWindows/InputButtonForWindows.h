@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <list>
+
 #include "../InputButtonBase.h"
 
 namespace Engine::Input

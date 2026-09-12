@@ -4,6 +4,12 @@
 #include "../../../../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../../Data/Texture/Texture.h"
+
+// DirectXTex はテクスチャの読み書きでしか使わない。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include <DirectXTex.h>
+#pragma warning(pop)
 namespace Engine::Resource
 {
 	void CopyTexRegion(

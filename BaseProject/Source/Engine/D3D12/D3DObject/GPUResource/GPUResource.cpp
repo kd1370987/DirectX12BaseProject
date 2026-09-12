@@ -2,6 +2,12 @@
 
 #include "../../DescriptorHeapManager/DescriptorHeapManager.h"
 
+// CD3DX12_* のヘルパーはここだけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include "d3dx12.h"
+#pragma warning(pop)
+
 namespace Engine::D3D12
 {
 	bool GPUResource::Create(D3D12::Device* a_pDevice, const GPUResourceDesc& a_desc)

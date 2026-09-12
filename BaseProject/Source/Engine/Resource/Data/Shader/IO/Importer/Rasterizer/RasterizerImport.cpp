@@ -1,6 +1,14 @@
 ﻿#include "RasterizerImport.h"
 #include "../../DXCCompiler/DXCCompiler.h"
 
+// CD3DX12_* のヘルパーと、シェーダーのリフレクションはここだけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include "d3dx12.h"
+#include <d3dcompiler.h>
+#include <d3d12shader.h>
+#pragma warning(pop)
+
 ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 	const std::string& a_path,
 	const wchar_t* a_plofileVersion,

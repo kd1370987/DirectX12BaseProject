@@ -2,6 +2,12 @@
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
+// CD3DX12_* のヘルパーはここだけで使う。
+// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+#pragma warning(push, 0)
+#include "d3dx12.h"
+#pragma warning(pop)
+
 void Engine::Raytracing::TLAS::Create(
 	D3D12::Device* a_pDevice,
 	D3D12::DescriptorHeapManager* a_pHeapManager,

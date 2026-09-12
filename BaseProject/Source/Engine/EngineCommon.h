@@ -44,7 +44,8 @@
 #include "Utility/GUID/GUID.h"							// GUID
 
 // ---- 外部ライブラリ連携 ----
-#include "Utility/JSONHelper/JSONHelper.h"				// Jsonヘルパー
+// JSONHelper.h は AssetDatabase.cpp でしか使わないので、そちらで読む
+// (json.hpp を要求するヘッダーをここへ置くと全翻訳単位に乗る)
 #include "Engine/D3D12/D3D12Types.h"					// D3D12の共通設定
 #include "D3D12/D3D12Helper.h"							// D3D12関連のヘルパー関数
 
