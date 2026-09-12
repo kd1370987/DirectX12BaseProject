@@ -1,13 +1,13 @@
 ﻿#include "ActionStateFixupSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "Application/Components/Resource/ActionStateComponent.h"
 
 #include "Engine/Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 
-void ActionStateFixupSystem::Init(App::ECS::World& a_world)
+void ActionStateFixupSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.PostDeserializeTask<ActionStateComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,

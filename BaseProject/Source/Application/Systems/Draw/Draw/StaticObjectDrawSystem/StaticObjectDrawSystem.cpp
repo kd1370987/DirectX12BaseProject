@@ -1,6 +1,6 @@
 ﻿#include "StaticObjectDrawSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 #include "Engine/MainEngine.h"
 #include "../../../../../Engine/Graphics/GraphicEngine.h"
 
@@ -13,7 +13,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
 
-void StaticObjectDrawSystem::Init(App::ECS::World& a_world)
+void StaticObjectDrawSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const WorldMatrixComponent, const ModelComponent>(
 		Engine::ECS::ESystemType::Draw,

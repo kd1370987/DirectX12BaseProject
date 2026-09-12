@@ -1,6 +1,6 @@
 #include "LifeTimeSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Common/LifeTimeComponent.h"
 
@@ -29,7 +29,7 @@
 //   生成は遅延コマンドで次フレームの BeginFrame に実体化されるので、
 //   出たフレームにいきなり消えることはない。
 //==============================================================================
-void LifeTimeSystem::Init(App::ECS::World& a_world)
+void LifeTimeSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<LifeTimeComponent>(
 		Engine::ECS::ESystemType::PostUpdate,

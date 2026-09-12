@@ -1,9 +1,9 @@
 ﻿#include "GUIDFixupSystem.h"
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "../../../../Components/Persistence/GUIDComponent.h"
 
-void GUIDFixupSystem::Init(App::ECS::World& a_world)
+void GUIDFixupSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.PostDeserializeTask<GUIDComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,

@@ -1,6 +1,6 @@
 ﻿#include "ActionIntentSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Intent/MoveIntentComponent.h"
 #include "Application/Components/Intent/ActionIntentComponent.h"
@@ -8,7 +8,7 @@
 
 #include "Engine/Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 
-void ActionIntentSystem::Init(App::ECS::World& a_world)
+void ActionIntentSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const ActionIntentComponent,const MoveIntentComponent, ActionStateComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

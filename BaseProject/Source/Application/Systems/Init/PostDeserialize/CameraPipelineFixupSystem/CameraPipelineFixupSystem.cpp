@@ -1,11 +1,11 @@
 #include "CameraPipelineFixupSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "Application/Components/Camera/CameraParamComponent.h"
 
-void CameraPipelineFixupSystem::Init(App::ECS::World& a_world)
+void CameraPipelineFixupSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.PostDeserializeTask<CameraParamComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,

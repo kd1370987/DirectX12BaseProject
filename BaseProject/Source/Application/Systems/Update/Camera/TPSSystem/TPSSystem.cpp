@@ -1,6 +1,6 @@
 ﻿#include "TPSSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Camera/FollowTargetComponent.h"
 #include "Application/Components/Camera/TPSOffsetComponent.h"
@@ -79,7 +79,7 @@ namespace
 	}
 }
 
-void TPSSystem::Init(App::ECS::World& a_world)
+void TPSSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, const TPSFollowComponent, LocalTransformComponent, TPSCameraStateComponent, CameraParamComponent>(
 		Engine::ECS::ESystemType::Camera,

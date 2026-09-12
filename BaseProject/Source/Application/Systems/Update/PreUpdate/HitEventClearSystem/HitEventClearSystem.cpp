@@ -1,10 +1,10 @@
 #include "HitEventClearSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/InstanceResource/HitEventResource.h"
 
-void HitEventClearSystem::Init(App::ECS::World& a_world)
+void HitEventClearSystem::Init(App::ECS::APPWorld& a_world)
 {
 	// コンポーネントを回さないのでカスタムタスクで登録する(フレームに1回だけ走る)
 	a_world.RegisterCustomTask(

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Application/ECS/ISystem/ISystem.h"
+#include "Application/ECS/ISystem/APPISystem.h"
 
 //==========================================================================================
 // モデルの到着待ちゲート
@@ -11,10 +11,10 @@
 //
 // 遷移より前に走る必要があるため、Awake フェーズの先頭付近に登録すること
 //==========================================================================================
-class ModelReadyGateSystem : public App::ECS::ISystem
+class ModelReadyGateSystem : public App::ECS::APPISystem
 {
 public:
 
 
-	void Init(App::ECS::World& a_world) override;
+	void Init(App::ECS::APPWorld& a_world) override;
 };

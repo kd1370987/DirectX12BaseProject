@@ -1,6 +1,6 @@
 ﻿#include "RegisterRayWorldSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
@@ -9,7 +9,7 @@
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
 
-void RegisterRayWorldSystem::Init(App::ECS::World& a_world)
+void RegisterRayWorldSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const RayTag,const ModelComponent,const WorldMatrixComponent>(
 		Engine::ECS::ESystemType::Draw,

@@ -1,13 +1,13 @@
 ﻿#include "StateMachineFixupSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "../../../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
 #include "../../../../Components/Resource/StateMachineComponent.h"
 
 #include "../../../../../Engine/Resource/Data/AnimatorAsset/AnimatorAsset.h"
 
-void StateMachineFixupSystem::Init(App::ECS::World& a_world)
+void StateMachineFixupSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.PostDeserializeTask<StateMachineComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,

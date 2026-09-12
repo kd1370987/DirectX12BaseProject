@@ -83,8 +83,8 @@
       <!-- obj は $(IntDir) 直下へ平らに出す。
            ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
            cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
-           同名 .cpp は obj が黙って上書きされるので、下の ClCompile で
-           個別に ObjectFileName を与えること(現状は World.cpp の1組だけ) -->
+           同名 .cpp があると obj が黙って上書きされるので、ファイル名は
+           プロジェクト全体で一意にすること(アプリ側は APP 接頭辞で避ける) -->
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -128,8 +128,8 @@
       <!-- obj は $(IntDir) 直下へ平らに出す。
            ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
            cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
-           同名 .cpp は obj が黙って上書きされるので、下の ClCompile で
-           個別に ObjectFileName を与えること(現状は World.cpp の1組だけ) -->
+           同名 .cpp があると obj が黙って上書きされるので、ファイル名は
+           プロジェクト全体で一意にすること(アプリ側は APP 接頭辞で避ける) -->
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -174,8 +174,8 @@
       <!-- obj は $(IntDir) 直下へ平らに出す。
            ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
            cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
-           同名 .cpp は obj が黙って上書きされるので、下の ClCompile で
-           個別に ObjectFileName を与えること(現状は World.cpp の1組だけ) -->
+           同名 .cpp があると obj が黙って上書きされるので、ファイル名は
+           プロジェクト全体で一意にすること(アプリ側は APP 接頭辞で避ける) -->
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -222,8 +222,8 @@
       <!-- obj は $(IntDir) 直下へ平らに出す。
            ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
            cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
-           同名 .cpp は obj が黙って上書きされるので、下の ClCompile で
-           個別に ObjectFileName を与えること(現状は World.cpp の1組だけ) -->
+           同名 .cpp があると obj が黙って上書きされるので、ファイル名は
+           プロジェクト全体で一意にすること(アプリ側は APP 接頭辞で避ける) -->
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -480,10 +480,7 @@
     <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.cpp" />
     <ClCompile Include="Source\Engine\GameObject\BaseObject\BaseObject.cpp" />
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.cpp" />
-    <!-- Engine\ECS\World\World.cpp と同名。obj が衝突するのでこちらだけ別名にする -->
-    <ClCompile Include="Source\Application\ECS\World\World.cpp">
-      <ObjectFileName>$(IntDir)App_World.obj</ObjectFileName>
-    </ClCompile>
+    <ClCompile Include="Source\Application\ECS\World\APPWorld.cpp" />
     <ClCompile Include="Source\Application\ECS\World\WorldTypeRegister.cpp" />
     <ClCompile Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.cpp" />
@@ -1050,9 +1047,9 @@
     <ClInclude Include="Source\Engine\Editor\Widget\StateGraphEditor\StateGraphEditor.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\ToneMapOption.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\RangeAllocator\RangeAllocator.h" />
-    <ClInclude Include="Source\Application\ECS\ISystem\ISystem.h" />
+    <ClInclude Include="Source\Application\ECS\ISystem\APPISystem.h" />
     <ClInclude Include="Source\Application\ECS\PhaseTag\PhaseTag.h" />
-    <ClInclude Include="Source\Application\ECS\World\World.h" />
+    <ClInclude Include="Source\Application\ECS\World\APPWorld.h" />
     <ClInclude Include="Source\Application\ECS\World\WorldTypeRegister.h" />
     <ClInclude Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\CBData.h" />

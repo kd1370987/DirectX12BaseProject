@@ -39,7 +39,7 @@ namespace Engine::Scene
 	//======================================================================================
 	std::unique_ptr<Engine::ECS::World> CreateSceneWorld()
 	{
-		// 実体を作るのは上位層(App::ECS::World)。
+		// 実体を作るのは上位層(App::ECS::APPWorld)。
 		// エンジンは基盤の Engine::ECS::World としてしか触らない
 		auto _upWorld = SceneManager::Instance().CreateWorld();
 		if (!_upWorld) return nullptr;

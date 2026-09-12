@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Application/ECS/ISystem/ISystem.h"
+#include "Application/ECS/ISystem/APPISystem.h"
 
 //==========================================================================================
 // AttachmentSlotLinkSystem
@@ -9,9 +9,9 @@
 // ランタイムの Entity(id) を解決する。
 // (HierarchyComponent の parentGUID -> parentID 解決と同じ流儀)
 //==========================================================================================
-class AttachmentSlotLinkSystem : public App::ECS::ISystem
+class AttachmentSlotLinkSystem : public App::ECS::APPISystem
 {
 public:
 
-	void Init(App::ECS::World& a_world) override;
+	void Init(App::ECS::APPWorld& a_world) override;
 };

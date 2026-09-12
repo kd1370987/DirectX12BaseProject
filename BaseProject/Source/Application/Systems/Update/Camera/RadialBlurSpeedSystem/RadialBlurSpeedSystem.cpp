@@ -1,6 +1,6 @@
 ﻿#include "RadialBlurSpeedSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "../../../../Components/Camera/TPSCameraStateComponent.h"
 #include "../../../../Components/Camera/RadialBlurComponent.h"
@@ -39,7 +39,7 @@ namespace
 	}
 }
 
-void RadialBlurSpeedSystem::Init(App::ECS::World& a_world)
+void RadialBlurSpeedSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const TPSCameraStateComponent, RadialBlurComponent>(
 		Engine::ECS::ESystemType::Camera,

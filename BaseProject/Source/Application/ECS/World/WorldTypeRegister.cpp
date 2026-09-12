@@ -1,6 +1,6 @@
 ﻿#include "WorldTypeRegister.h"
 
-#include "World.h"
+#include "APPWorld.h"
 
 // コンポーネント関係
 // システムフェーズタグ
@@ -209,7 +209,7 @@
 
 namespace App::ECS
 {
-	void RegisterGameTypes(World& a_world)
+	void RegisterGameTypes(APPWorld& a_world)
 	{
 		// ECSにコンポーネントを登録
 		a_world.RegisterComponent<PostDeserializeTag>("PostDeserializeTag");

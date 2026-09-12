@@ -7,7 +7,7 @@
 #include "../../../Engine/Scene/SceneManager/SceneManager.h"
 
 // ECS関係(ゲーム用のワールド)
-#include "../../ECS/World/World.h"
+#include "../../ECS/World/APPWorld.h"
 
 // ECS外オブジェクト(クラスメタマネージャー / 登録するクラス)
 #include "../../../Engine/GameObject/ObjectMetaRegistry/ObjectMetaRegistry.h"
@@ -102,13 +102,13 @@ namespace App::Game
 		//
 		// エンジンは基盤の Engine::ECS::World としてしか触らないので、
 		// 「どの種類のワールドを立てるか」はゲーム側のここが決める。
-		// 何を登録するかは App::ECS::World::RegisterGameTypes が持っている
+		// 何を登録するかは App::ECS::APPWorld::RegisterGameTypes が持っている
 		// (中身は Application/ECS/World/WorldTypeRegister.cpp)。
 		// ------------------------------------------------------------------
 		Engine::Scene::SceneManager::Instance().SetWorldFactory(
 			[]() -> std::unique_ptr<Engine::ECS::World>
 			{
-				return std::make_unique<App::ECS::World>();
+				return std::make_unique<App::ECS::APPWorld>();
 			}
 		);
 

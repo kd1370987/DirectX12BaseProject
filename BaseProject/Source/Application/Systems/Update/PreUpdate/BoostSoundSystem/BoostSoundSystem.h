@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Application/ECS/ISystem/ISystem.h"
+#include "Application/ECS/ISystem/APPISystem.h"
 
 /// <summary>
 /// ブーストの状態からサウンドを鳴らすシステム
@@ -11,10 +11,10 @@
 /// どちらも各エンティティの SoundComponent を見るので、
 /// 鳴らす音とループするかどうかはエディターから設定する。
 /// </summary>
-class BoostSoundSystem : public App::ECS::ISystem
+class BoostSoundSystem : public App::ECS::APPISystem
 {
 public:
 
 
-	void Init(App::ECS::World& a_world) override;
+	void Init(App::ECS::APPWorld& a_world) override;
 };

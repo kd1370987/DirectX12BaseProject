@@ -1,5 +1,5 @@
 ﻿#include "AnimationMatrixFreeSystem.h"
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
@@ -12,7 +12,7 @@
 #include "../../../../Engine/Graphics/GraphicEngine.h"
 #include "../../../../Engine/Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
 
-void AnimationMatrixFreeSystem::Init(App::ECS::World& a_world)
+void AnimationMatrixFreeSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ReleaseTask<const ModelComponent, AnimatorComponent, NodePoseComponent, SkeletonPoseComponent>(
 		Engine::ECS::ESystemType::Release,

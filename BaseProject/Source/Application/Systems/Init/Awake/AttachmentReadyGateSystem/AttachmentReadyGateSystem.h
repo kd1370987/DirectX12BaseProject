@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Application/ECS/ISystem/ISystem.h"
+#include "Application/ECS/ISystem/APPISystem.h"
 
 //==========================================================================================
 // 追従ノード解決の待ちゲート
@@ -17,10 +17,10 @@
 //
 // そこで親モデルが揃うまでこのエンティティを Start へ進めない
 //==========================================================================================
-class AttachmentReadyGateSystem : public App::ECS::ISystem
+class AttachmentReadyGateSystem : public App::ECS::APPISystem
 {
 public:
 
 
-	void Init(App::ECS::World& a_world) override;
+	void Init(App::ECS::APPWorld& a_world) override;
 };

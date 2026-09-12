@@ -1,4 +1,4 @@
-#include "World.h"
+#include "APPWorld.h"
 
 // エンティティに初めからつけるもの
 #include "../../Components/Persistence/GUIDComponent.h"		// GUID
@@ -19,13 +19,13 @@ namespace App::ECS
 	// BeginFrame / OnEntityStructureChanged が毎フレーム引くので、
 	// 登録し忘れると成立しない。持ち主が使う側と同じなら、確保もここでやる。
 	//======================================================================================
-	World::World()
+	APPWorld::APPWorld()
 	{
 		AddResource<HierarchyResource>();
 		AddResource<ResourceWaitResource>();
 	}
 
-	void World::RegisterGameTypes()
+	void APPWorld::RegisterGameTypes()
 	{
 		App::ECS::RegisterGameTypes(*this);
 	}
@@ -45,7 +45,7 @@ namespace App::ECS
 	// TransitionPhase は張り替え先をその場のシグネチャから作るので、予約が
 	// 残っていると後から流したほうに上書きされて消える。
 	//======================================================================================
-	void World::BeginFrame()
+	void APPWorld::BeginFrame()
 	{
 		// 階層の変更通知をリセット
 		GetResource<HierarchyResource>().isDirty = false;
@@ -126,7 +126,7 @@ namespace App::ECS
 	// 参照が 0 になった実体を捨てるのはシーンの切れ目
 	// (SceneManager::PopScene から ResourceManager::SweepUnusedAll)。
 	//======================================================================================
-	void World::Release()
+	void APPWorld::Release()
 	{
 		// 動いているものを後始末へ回す
 		TransitionPhase<ActiveTag, ReleaseTag>();
@@ -146,7 +146,7 @@ namespace App::ECS
 	//======================================================================================
 	// エンティティの解放予約
 	//======================================================================================
-	void World::AddReleaseEntity(const Entity& a_entity)
+	void APPWorld::AddReleaseEntity(const Entity& a_entity)
 	{
 		if (a_entity == Engine::ECS::Limits::INVALID_ENTITY) return;
 
@@ -174,7 +174,7 @@ namespace App::ECS
 	//======================================================================================
 	// GUIDからエンティティを探す
 	//======================================================================================
-	Entity World::GetEntity(const Engine::GUID& a_guid)
+	Entity APPWorld::GetEntity(const Engine::GUID& a_guid)
 	{
 		Entity _res = Engine::ECS::Limits::INVALID_ENTITY;
 
@@ -206,7 +206,7 @@ namespace App::ECS
 	//======================================================================================
 	// 基盤から呼ばれるフック
 	//======================================================================================
-	void World::OnCreateEntitySignature(Signature& a_sig)
+	void APPWorld::OnCreateEntitySignature(Signature& a_sig)
 	{
 		// 初めて通るシステムフェーズ
 		a_sig.set(GetCompTypeID<PostDeserializeTag>());
@@ -218,7 +218,7 @@ namespace App::ECS
 		}
 	}
 
-	void World::OnReenterInitSignature(Signature& a_sig)
+	void APPWorld::OnReenterInitSignature(Signature& a_sig)
 	{
 		// 動いているものだけを初期化へ戻す。
 		// まだ初期化中のものは、今いるフェーズをそのまま続けさせる
@@ -228,7 +228,7 @@ namespace App::ECS
 		a_sig.reset(GetCompTypeID<ActiveTag>());
 	}
 
-	bool World::IsReenteringInit(const Signature& a_from, const Signature& a_to)
+	bool APPWorld::IsReenteringInit(const Signature& a_from, const Signature& a_to)
 	{
 		// PostDeserialize へ入り直すなら、直後に fixup が取り直すので
 		// 今持っているものは返させる(返さないと二重に持つ)
@@ -236,7 +236,7 @@ namespace App::ECS
 		return a_to.test(_postDeserializeID) && !a_from.test(_postDeserializeID);
 	}
 
-	void World::OnEntityStructureChanged()
+	void APPWorld::OnEntityStructureChanged()
 	{
 		// エンティティの構成が変わったので階層の作り直しを促す
 		GetResource<HierarchyResource>().isDirty = true;
@@ -248,7 +248,7 @@ namespace App::ECS
 	// 後始末を通してから初期化フェーズへ戻す。
 	// モデルの差し替えなど、借りているものを取り直す必要がある編集で使う。
 	//======================================================================================
-	void World::RefreshEntities()
+	void APPWorld::RefreshEntities()
 	{
 		// 頻繁に呼ばれることはない想定なので、溜まったぶんをそのまま回す
 		for (const Entity& _entity : m_refreshEntityVec)
@@ -279,7 +279,7 @@ namespace App::ECS
 	//======================================================================================
 	// ReleaseTag が付いているものを削除予定へ積む
 	//======================================================================================
-	void World::CollectReleasedEntities()
+	void APPWorld::CollectReleasedEntities()
 	{
 		ForEach<ReleaseTag>(
 			[this]
@@ -314,7 +314,7 @@ namespace App::ECS
 	// タグを付けるのは全部見終わってから。反復の最中に引っ越しをかけると
 	// チャンクの中身が動いて、走査そのものが壊れる。
 	//======================================================================================
-	void World::PropagateReleaseToChildren()
+	void APPWorld::PropagateReleaseToChildren()
 	{
 		const ComponentTypeID _releaseTypeID = GetCompTypeID<ReleaseTag>();
 		const ComponentTypeID _activeTypeID  = GetCompTypeID<ActiveTag>();

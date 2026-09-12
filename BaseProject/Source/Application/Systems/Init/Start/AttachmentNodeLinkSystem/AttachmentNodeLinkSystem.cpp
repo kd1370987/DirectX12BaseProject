@@ -1,13 +1,13 @@
 ﻿#include "AttachmentNodeLinkSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 #include "../../../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../../Components/Hierarchy/FollowAnimationNodeComponent.h"
 #include "../../../../Components/Hierarchy/HierarchyComponent.h"
 #include "../../../../Components/Resource/ModelComponent.h"
 
-void AttachmentNodeLinkSystem::Init(App::ECS::World& a_world)
+void AttachmentNodeLinkSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.StartTask<FollowAnimationNodeComponent, const HierarchyComponent>(
 		Engine::ECS::ESystemType::Start,

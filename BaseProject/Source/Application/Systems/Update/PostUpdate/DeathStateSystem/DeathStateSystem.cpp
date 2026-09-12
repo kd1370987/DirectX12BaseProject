@@ -1,6 +1,6 @@
 ﻿#include "DeathStateSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Character/HealthComponent.h"
 #include "Application/Components/Character/Boss/BossComponent.h"
@@ -44,7 +44,7 @@
 //   ランタイムの AddComponent が「アーキタイプの引っ越し + PostDeserialize からやり直し」に
 //   なるため。初期化系(ActionStateFixupSystem など)が死ぬたびに走り直してしまう。
 //==============================================================================
-void DeathStateSystem::Init(App::ECS::World& a_world)
+void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 {
 	//--------------------------------------------------------------------------
 	// [PreUpdate] 死亡を行動ステートマシンへ渡す

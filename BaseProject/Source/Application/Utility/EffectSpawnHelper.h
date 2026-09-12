@@ -18,7 +18,7 @@
 
 namespace Engine
 {
-	namespace ECS { class World; }
+	namespace ECS { class APPWorld; }
 }
 
 namespace App::Utility

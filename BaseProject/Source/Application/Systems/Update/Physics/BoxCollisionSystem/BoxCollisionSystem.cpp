@@ -1,6 +1,6 @@
 ﻿#include "BoxCollisionSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Collision/BoxCollider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
@@ -10,7 +10,7 @@
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
-void BoxCollisionSystem::Init(App::ECS::World& a_world)
+void BoxCollisionSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const BoxColliderComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::Physics,

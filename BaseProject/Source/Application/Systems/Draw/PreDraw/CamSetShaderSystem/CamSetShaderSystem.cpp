@@ -1,6 +1,6 @@
 ﻿#include "CamSetShaderSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 #include "Engine/MainEngine.h"
 
 #include "Application/Components/Tag/CameraTag.h"
@@ -26,7 +26,7 @@
 // どのカメラで映すかは MainCameraSystem が決めて
 // SingletonEntityResource.mainCamera に置いてあるので、ここでは探さずに引くだけ。
 //==========================================================================================
-void CamSetShaderSystem::Init(App::ECS::World& a_world)
+void CamSetShaderSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PreDraw,

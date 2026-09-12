@@ -1,6 +1,6 @@
 ﻿#include "SoundFreeSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "../../../Components/Resource/SoundComponent.h"
 #include "../../../Components/Resource/HitSoundComponent.h"
@@ -8,7 +8,7 @@
 #include "../../../Components/Effect/EffectAssetComponent.h"
 #include "../../../../Engine/Audio/AudioManager.h"
 
-void SoundFreeSystem::Init(App::ECS::World& a_world)
+void SoundFreeSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ReleaseTask<SoundComponent>(
 		Engine::ECS::ESystemType::Release,

@@ -1,6 +1,6 @@
 ﻿#include "LookAroundSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "../../../../Components/Character/TargetEntityComponent.h"
 #include "../../../../Components/Character/PatrolComponent.h"
@@ -45,7 +45,7 @@ namespace
 	}
 }
 
-void LookAroundSystem::Init(App::ECS::World& a_world)
+void LookAroundSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const TargetEntityComponent, const PatrolComponent,
 		const ActionStateComponent, LocalTransformComponent>(

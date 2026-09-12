@@ -1,6 +1,6 @@
 #include "BoosterEffectSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Character/Robot/BoosterEffectComponent.h"
 #include "Application/Components/Effect/EffectAssetComponent.h"
@@ -44,7 +44,7 @@
 //   見せるには、絵の違うものが一度だけ弾ける方が伝わる。
 //   出したものは destroyOnFinish で自分から消えるので後片付けは要らない。
 //==========================================================================================
-void BoosterEffectSystem::Init(App::ECS::World& a_world)
+void BoosterEffectSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<BoosterEffectComponent, EffectAssetComponent>(
 		Engine::ECS::ESystemType::Update,

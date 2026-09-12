@@ -1,6 +1,6 @@
 #include "SelfWeaponTriggerSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "../../../../Components/Intent/ActionIntentComponent.h"
 #include "../../../../Components/Character/Weapon/WeaponTriggerComponent.h"
@@ -19,7 +19,7 @@
 // 左右の区別は付けない。両手を持たないキャラに「どちらの手か」を決めさせても意味が無いので、
 // どちらかが押されていれば引く、とする。
 //==========================================================================================
-void SelfWeaponTriggerSystem::Init(App::ECS::World& a_world)
+void SelfWeaponTriggerSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const ActionIntentComponent, WeaponTriggerComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

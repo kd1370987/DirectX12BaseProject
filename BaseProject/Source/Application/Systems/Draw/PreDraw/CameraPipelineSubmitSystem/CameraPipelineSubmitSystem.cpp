@@ -1,6 +1,6 @@
 #include "CameraPipelineSubmitSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 #include "Engine/MainEngine.h"
 
 #include "Application/Components/Tag/CameraTag.h"
@@ -24,7 +24,7 @@
 // 積まれなかったカメラは GraphicsEngine 側でフレームの終わりに捨てられるので、
 // 毎フレーム送り直すこと。
 //==========================================================================================
-void CameraPipelineSubmitSystem::Init(App::ECS::World& a_world)
+void CameraPipelineSubmitSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PreDraw,

@@ -1,6 +1,6 @@
 ﻿#include "PointLightSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 #include "Engine/MainEngine.h"
 
 #include "Application/Components/Transform/WorldMatrixComponent.h"
@@ -18,7 +18,7 @@
 // 「ECSの描画フェーズ → ライトをGPUバッファへ詰め直す → レンダーグラフ実行」の順で回るため。
 // これより後ろの帯に置くと、書いた値が乗るのが1フレーム遅れる。
 //==========================================================================================
-void PointLightSystem::Init(App::ECS::World& a_world)
+void PointLightSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const WorldMatrixComponent, PointLightComponent>(
 		Engine::ECS::ESystemType::PreDraw,

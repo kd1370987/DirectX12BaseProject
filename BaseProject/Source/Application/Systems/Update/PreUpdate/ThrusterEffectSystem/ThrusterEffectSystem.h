@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Application/ECS/ISystem/ISystem.h"
+#include "Application/ECS/ISystem/APPISystem.h"
 
 //==========================================================================================
 // ThrusterEffectSystem
@@ -17,9 +17,9 @@
 // 実際の噴射はブースター子の ParticlesComponent(EmitParticleSystem)が行うため、
 // パーティクルは「プレイヤーに付随したアタッチメントエンティティ」から出る。
 //==========================================================================================
-class ThrusterEffectSystem : public App::ECS::ISystem
+class ThrusterEffectSystem : public App::ECS::APPISystem
 {
 public:
 
-	void Init(App::ECS::World& a_world) override;
+	void Init(App::ECS::APPWorld& a_world) override;
 };

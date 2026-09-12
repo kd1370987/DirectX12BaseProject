@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Application/ECS/ISystem/ISystem.h"
+#include "Application/ECS/ISystem/APPISystem.h"
 
 // 人型ボスのミサイル一斉射。溜め撃ちではなく、BossCombatIntentSystem からの
 // 要求(BossComponent::isMissileRequest)を受けて発射キューを作る。
-class BossMissileSalvoSystem : public App::ECS::ISystem
+class BossMissileSalvoSystem : public App::ECS::APPISystem
 {
 public:
-	void Init(App::ECS::World& a_world) override;
+	void Init(App::ECS::APPWorld& a_world) override;
 };

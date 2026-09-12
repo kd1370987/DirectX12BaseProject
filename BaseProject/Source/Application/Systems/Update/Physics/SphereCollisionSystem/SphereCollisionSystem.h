@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Application/ECS/ISystem/ISystem.h"
+#include "Application/ECS/ISystem/APPISystem.h"
 
 // 球コライダーのテスト用システム
 // 球をコリジョンワールドから押し出し、結果をデバッグワイヤーで表示する
-class SphereCollisionSystem : public App::ECS::ISystem
+class SphereCollisionSystem : public App::ECS::APPISystem
 {
 public:
 
-	void Init(App::ECS::World& a_world) override;
+	void Init(App::ECS::APPWorld& a_world) override;
 };

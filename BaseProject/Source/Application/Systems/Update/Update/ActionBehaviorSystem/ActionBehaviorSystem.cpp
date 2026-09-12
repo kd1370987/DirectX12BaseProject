@@ -1,13 +1,13 @@
 ﻿#include "ActionBehaviorSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Resource/ActionStateComponent.h"
 #include "Application/Components/Force/VelocityComponent.h"
 
 #include "Engine/Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 
-void ActionBehaviorSystem::Init(App::ECS::World& a_world)
+void ActionBehaviorSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const ActionStateComponent, VelocityComponent>(
 		Engine::ECS::ESystemType::Update,

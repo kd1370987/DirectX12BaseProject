@@ -1,6 +1,6 @@
 ﻿#include "AudioListenerSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 #include "Engine/Audio/AudioManager.h"
 
 #include "Application/Components/Resource/AudioListenerComponent.h"
@@ -26,7 +26,7 @@
 //   ActiveTag を書かずに済むので、行列確定の後ろに素直に並ぶ。
 //   (同じ理由で FlyingSoundSystem もカスタムタスクにしている)
 //==============================================================================
-void AudioListenerSystem::Init(App::ECS::World& a_world)
+void AudioListenerSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,

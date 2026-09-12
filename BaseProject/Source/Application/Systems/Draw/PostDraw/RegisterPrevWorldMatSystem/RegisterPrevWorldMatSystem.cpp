@@ -1,6 +1,6 @@
 ﻿#include "RegisterPrevWorldMatSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Transform/PreviousWorldMatrixComponent.h"
 
@@ -9,7 +9,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
 
-void RegisterPrevWorldMatSystem::Init(App::ECS::World& a_world)
+void RegisterPrevWorldMatSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const WorldMatrixComponent, PreviousWorldMatrixComponent>(
 		Engine::ECS::ESystemType::PostDraw,

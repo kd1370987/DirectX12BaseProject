@@ -1689,7 +1689,7 @@
     <ClCompile Include="Source\Application\App.cpp">
       <Filter>Source\Application</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\ECS\World\World.cpp">
+    <ClCompile Include="Source\Application\ECS\World\APPWorld.cpp">
       <Filter>Source\Application\ECS\World</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\ECS\World\WorldTypeRegister.cpp">
@@ -3056,13 +3056,13 @@
     <ClInclude Include="Source\Application\Components\Transform\WorldMatrixComponent.h">
       <Filter>Source\Application\Components\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\ECS\ISystem\ISystem.h">
+    <ClInclude Include="Source\Application\ECS\ISystem\APPISystem.h">
       <Filter>Source\Application\ECS\ISystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\ECS\PhaseTag\PhaseTag.h">
       <Filter>Source\Application\ECS\PhaseTag</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\ECS\World\World.h">
+    <ClInclude Include="Source\Application\ECS\World\APPWorld.h">
       <Filter>Source\Application\ECS\World</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\ECS\World\WorldTypeRegister.h">

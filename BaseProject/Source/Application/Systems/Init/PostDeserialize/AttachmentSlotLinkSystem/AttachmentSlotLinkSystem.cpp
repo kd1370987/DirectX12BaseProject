@@ -1,10 +1,10 @@
 ﻿#include "AttachmentSlotLinkSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "../../../../Components/Character/Robot/AttachmentSlotsComponent.h"
 
-void AttachmentSlotLinkSystem::Init(App::ECS::World& a_world)
+void AttachmentSlotLinkSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.AwakeTask<AttachmentSlotsComponent>(
 		// AwakeTag を見るので Awake フェーズで回す

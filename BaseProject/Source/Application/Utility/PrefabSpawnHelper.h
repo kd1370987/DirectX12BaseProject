@@ -15,7 +15,7 @@
 
 namespace Engine
 {
-	namespace ECS { class World; }
+	namespace ECS { class APPWorld; }
 	namespace Resource { class ResourceManager; class Prefab; }
 }
 

@@ -1,6 +1,6 @@
 #include "AttachmentDispatchSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "../../../../Components/Character/Robot/AttachmentSlotsComponent.h"
 #include "../../../../Components/Intent/ActionIntentComponent.h"
@@ -22,7 +22,7 @@
 // ※ ブースター(移動スラスター)の噴射制御は ThrusterEffectSystem が担当する。
 //    ここでは武器系の入力配信のみを行う。
 //==========================================================================================
-void AttachmentDispatchSystem::Init(App::ECS::World& a_world)
+void AttachmentDispatchSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const AttachmentSlotsComponent, const ActionIntentComponent>(
 		Engine::ECS::ESystemType::PreUpdate,

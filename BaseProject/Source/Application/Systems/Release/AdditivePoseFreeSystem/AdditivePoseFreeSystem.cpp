@@ -1,11 +1,11 @@
 #include "AdditivePoseFreeSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Character/Robot/AdditivePoseComponent.h"
 #include "Application/InstanceResource/AdditiveBoneEntry.h"
 
-void AdditivePoseFreeSystem::Init(App::ECS::World& a_world)
+void AdditivePoseFreeSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ReleaseTask<AdditivePoseComponent>(
 		Engine::ECS::ESystemType::Release,

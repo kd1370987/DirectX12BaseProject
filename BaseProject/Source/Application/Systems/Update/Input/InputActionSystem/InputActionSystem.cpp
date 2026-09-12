@@ -1,5 +1,5 @@
 ﻿#include "InputActionSystem.h"
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "../../../../Components/Intent/ActionIntentComponent.h"
 #include "../../../../Components/Tag/PlayerControllTag.h"
@@ -7,7 +7,7 @@
 #include "Application/Game/Core/InputSettings.h"
 
 
-void InputActionSystem::Init(App::ECS::World& a_world)
+void InputActionSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const PlayerControllTag, ActionIntentComponent>(
 		Engine::ECS::ESystemType::Input,

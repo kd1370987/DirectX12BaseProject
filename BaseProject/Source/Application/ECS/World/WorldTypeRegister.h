@@ -10,7 +10,7 @@
 // Engine::Scene::SceneManager::SetWorldInitCallback へ差し込んでいたが、
 //   ・エンジンのシーン管理がゲーム側の登録処理を持ち回る形になっていた
 //   ・GameManager::Init が451行まで膨らんでいた
-// ため、App::ECS::World::RegisterGameTypes から直接呼ぶ形へ寄せている。
+// ため、App::ECS::APPWorld::RegisterGameTypes から直接呼ぶ形へ寄せている。
 //
 // 新しいコンポーネントやシステムを足したら、ここに1行足すこと。
 //
@@ -18,8 +18,8 @@
 
 namespace App::ECS
 {
-	class World;
+	class APPWorld;
 
 	/// <summary>このゲームが使う型をワールドへ登録する</summary>
-	void RegisterGameTypes(World& a_world);
+	void RegisterGameTypes(APPWorld& a_world);
 }

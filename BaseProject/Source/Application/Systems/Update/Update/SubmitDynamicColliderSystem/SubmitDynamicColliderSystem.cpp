@@ -1,6 +1,6 @@
 ﻿#include "SubmitDynamicColliderSystem.h"
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "../../../../Components/Collision/Collider.h"
 #include "../../../../Components/Resource/ModelComponent.h"
@@ -19,7 +19,7 @@
 // 動的レイヤーのコライダーを、現在の姿勢から worldAABB を作り直して毎フレーム submit する。
 // 動的ワールドは BeginFrame でツリーごと空にされているので、ここでは push するだけでよい。
 //==========================================================================================
-void SubmitDynamicColliderSystem::Init(App::ECS::World& a_world)
+void SubmitDynamicColliderSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const ColliderComponent, const ModelComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,

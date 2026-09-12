@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Application/ECS/ISystem/ISystem.h"
+#include "Application/ECS/ISystem/APPISystem.h"
 
 //==========================================================================================
 // CameraPipelineSubmitSystem
@@ -15,9 +15,9 @@
 // 自分の最終出力テクスチャへ描く。バックバッファへ出すのは従来経路のままなので、
 // 全パスの移植が済むまでは並走する形になる。
 //==========================================================================================
-class CameraPipelineSubmitSystem : public App::ECS::ISystem
+class CameraPipelineSubmitSystem : public App::ECS::APPISystem
 {
 public:
 
-	void Init(App::ECS::World& a_world) override;
+	void Init(App::ECS::APPWorld& a_world) override;
 };

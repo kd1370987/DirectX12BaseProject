@@ -1,7 +1,7 @@
 #pragma once
 //==========================================================================================
 //
-// App::ECS::World
+// App::ECS::APPWorld
 //
 // ゲーム用のワールド。Engine::ECS::World(ECSの基盤)に、ゲーム側の決めごとを載せる。
 //
@@ -26,7 +26,7 @@
 #include "../../../Engine/ECS/World/World.h"
 
 #include "../PhaseTag/PhaseTag.h"
-#include "../ISystem/ISystem.h"
+#include "../ISystem/APPISystem.h"
 
 namespace App::ECS
 {
@@ -43,7 +43,7 @@ namespace App::ECS
 	template<typename... T> using ReadList	= Engine::ECS::ReadList<T...>;
 	template<typename... T> using WriteList	= Engine::ECS::WriteList<T...>;
 
-	class World : public Engine::ECS::World
+	class APPWorld : public Engine::ECS::World
 	{
 	public:
 
@@ -51,7 +51,7 @@ namespace App::ECS
 
 		// 自分が使うシングルトンリソースはここで確保する
 		// (BeginFrame が毎フレーム引くので、無いと成立しない)
-		World();
+		APPWorld();
 
 		//==================================================================================
 		//
@@ -173,9 +173,9 @@ namespace App::ECS
 	//======================================================================================
 
 	template<typename System>
-	inline void World::RegisterSystem()
+	inline void APPWorld::RegisterSystem()
 	{
-		static_assert(std::is_base_of_v<ISystem, System>, "App::ECS::ISystem を継承していません");
+		static_assert(std::is_base_of_v<APPISystem, System>, "App::ECS::APPISystem を継承していません");
 
 		// システム実体は Init でタスクを登録するだけの入れ物。
 		// 実行はタスク側で行うので、基盤へは寿命の保持だけ頼む
@@ -186,53 +186,53 @@ namespace App::ECS
 	}
 
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline void APPWorld::PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
 		RegisterTask<PostDeserializeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::AwakeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline void APPWorld::AwakeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
 		RegisterTask<AwakeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline void APPWorld::StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
 		RegisterTask<StartTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::ActiveTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline void APPWorld::ActiveTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
 		RegisterTask<ActiveTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::ReleaseTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline void APPWorld::ReleaseTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
 		RegisterTask<ReleaseTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::PostDeserializeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void APPWorld::PostDeserializeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
 		RegisterCustomTask(a_phase, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::AwakeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void APPWorld::AwakeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
 		RegisterCustomTask(a_phase, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::StartCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void APPWorld::StartCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
 		RegisterCustomTask(a_phase, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::ActiveCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void APPWorld::ActiveCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
 		RegisterCustomTask(a_phase, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::ReleaseCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void APPWorld::ReleaseCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
 		RegisterCustomTask(a_phase, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}

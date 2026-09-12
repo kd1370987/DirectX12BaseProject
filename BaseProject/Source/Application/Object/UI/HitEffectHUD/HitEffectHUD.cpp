@@ -7,7 +7,7 @@
 #include "Engine/Audio/AudioManager.h"
 #include "Engine/Option/OptionManager.h"			// ウィンドウ解像度(px)取得用
 
-#include "Application/ECS/World/World.h"
+#include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
 #include "Application/InstanceResource/HitEventResource.h"

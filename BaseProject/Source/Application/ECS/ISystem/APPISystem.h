@@ -1,13 +1,13 @@
 #pragma once
 //==========================================================================================
 //
-// App::ECS::ISystem
+// App::ECS::APPISystem
 //
 // ゲーム側のシステムはこれを継承する。
 //
 // 基盤の Engine::ECS::ISystem は「実体が1つある」ことしか知らない入れ物で、
 // 初期化の口を持たない。ゲーム側のシステムはフェーズ付きのタスク登録
-// (ActiveTask など)を使うため、App::ECS::World を受け取る Init をここで足す。
+// (ActiveTask など)を使うため、App::ECS::APPWorld を受け取る Init をここで足す。
 //
 // Init はタスクを登録するだけの場所。実行フェーズはタスク登録時の第1引数
 // (ESystemType)が唯一の宣言場所で、ヘッダ側には持たせない
@@ -22,11 +22,11 @@
 
 namespace App::ECS
 {
-	class World;
+	class APPWorld;
 
-	class ISystem : public Engine::ECS::ISystem
+	class APPISystem : public Engine::ECS::ISystem
 	{
 	public:
-		virtual void Init(World& a_world) = 0;
+		virtual void Init(APPWorld& a_world) = 0;
 	};
 }
