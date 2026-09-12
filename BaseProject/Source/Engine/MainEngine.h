@@ -114,6 +114,10 @@ namespace Engine
 		std::vector<std::function<void()>> m_releaseQueues[CPU_FRAME_COUNT];
 		std::mutex m_releaseQueueMutex;
 
+		// 描画用コンテキスト
+		std::vector<std::unique_ptr<Graphics::RenderContext>> m_upRenderContextVec = {};
+		UINT m_currentFrameIndex = 0;
+
 	// シングルトン
 	private:
 

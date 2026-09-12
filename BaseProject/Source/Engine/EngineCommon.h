@@ -166,7 +166,6 @@ namespace Engine::Resource
 #include "Engine/Resource/Data/Texture/Texture.h"							// テクスチャ
 #include "Engine/Resource/Data/Mesh/Mesh.h"									// メッシュ
 #include "Engine/Resource/Data/Animation/Animation.h"						// アニメーションデータ
-#include "Resource/Data/ShadingModelTable/ShadingModelTable.h"				// シェーディングモデルテーブル
 #include "Engine/Resource/Data/Material/Material.h"							// マテリアル
 #include "Engine/Resource/Data/Node/Node.h"									// ノード
 #include "Engine/Resource/Data/Model/Model.h"								// モデル

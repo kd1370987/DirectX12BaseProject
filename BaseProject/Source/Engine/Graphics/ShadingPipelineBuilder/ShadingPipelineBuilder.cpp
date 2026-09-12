@@ -122,7 +122,7 @@ namespace Engine::Graphics
 		}
 
 		// =========================================================
-		// Pixel Shader の解決 (マテリアル・ShadingModelから取得)
+		// Pixel Shader の解決
 		// =========================================================
 		// ZPreかつ不透明(Opaque)なら、PSのセットをスキップ
 		bool _isZPrePass = (m_passNameHash == Engine::String::ToHash("ZPre"));
@@ -130,26 +130,11 @@ namespace Engine::Graphics
 
 		if (!(_isZPrePass && _isOpaque))
 		{
-			// パスが自分のPSを持っているなら、それで描く。
-			//
-			// 「どのPSで描くかはパス自身が持っている」のが今の形なので、こちらが本筋。
-			// 表を引くのは、まだPSを持っていないパスのための後方互換。
-			// 表はパス名で引くため、ノードの名前を変えると引けなくなる
-			auto* _pPassPS = _resMgr.Get(a_key.psHandle);
-			if (_pPassPS)
+			// どのPSで描くかはパス自身が持っている。
+			// 持っていないパス(深度だけ書くパス)はPSを張らずに組む
+			if (auto* _pPassPS = _resMgr.Get(a_key.psHandle))
 			{
 				_builder.SetPS(_pPassPS->GetByteCode());
-			}
-			else if (auto* _pShadingModel = _resMgr.Get(a_key.shadingModelTableHandle))
-			{
-				auto _spanShaderHandles = _pShadingModel->GetShaderHandles(m_passNameHash);
-				for (auto& _shaderHandle : _spanShaderHandles)
-				{
-					auto* _pShader = _resMgr.Get(_shaderHandle);
-					if (!_pShader) continue;
-
-					_builder.SetPS(_pShader->GetByteCode());
-				}
 			}
 		}
 

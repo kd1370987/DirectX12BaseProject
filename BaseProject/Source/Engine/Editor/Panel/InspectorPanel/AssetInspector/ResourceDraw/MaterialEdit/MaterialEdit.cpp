@@ -28,15 +28,6 @@ namespace Engine::Editor::Inspector
 		ImGui::Separator();
 		Editor::EditorHelper::DrawEnumFlagsCombo("AlphaMode", a_pMaterial->alphaMode);
 
-		// シェーディングモデル
-		Editor::EditorHelper::DrawAssetSelectCombo<Resource::ShadingModelTable>(
-			"Change Shading Model",
-			"ShadingModelTable",
-			a_pMaterial->shedingModelGUID,
-			a_pMaterial->shadingModelHandle
-		);
-		DrawAssetLink(&a_editContext, "ShadingModel :", a_pMaterial->shedingModelGUID);
-
 		ImGui::Separator();
 
 		// 各テクスチャの描画

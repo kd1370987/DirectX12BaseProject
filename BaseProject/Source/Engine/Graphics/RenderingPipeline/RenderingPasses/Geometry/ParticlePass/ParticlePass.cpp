@@ -3,7 +3,6 @@
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
-#include "Engine/MainEngine.h"
 #include "Engine/Particle/ParticleBufferManager.h"
 #include "Engine/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
@@ -105,10 +104,12 @@ namespace Engine::Graphics::Pipeline
 	{
 		RenderContext* _pCtx = a_context.pRenderContext;
 		GraphicsEngine* _pGE = a_context.pGraphicsEngine;
-		if (!_pCtx || !_pGE) return;
+		if (!_pCtx || !_pGE || !a_context.pResourceManager) return;
 
-		auto* _particleManager = MainEngine::Instance().RefParticleManager();
+		auto* _particleManager = a_context.pParticleManager;
 		if (!_particleManager) return;
+
+		auto& _resManager = *a_context.pResourceManager;
 
 		//----------------------------------------------------------
 		// 1アセット分を描く
@@ -131,7 +132,7 @@ namespace Engine::Graphics::Pipeline
 				_pCtx->BindSRV(1, _particleSRV);
 
 				// パーティクル画像バインド
-				auto* _pTex = Resource::ResourceManager::Instance().Get(a_particle.GetTexHandle());
+				auto* _pTex = _resManager.Get(a_particle.GetTexHandle());
 				if (!_pTex) return;
 				_pCtx->BindSRV(2, _pTex->GetSRV());
 
@@ -188,7 +189,7 @@ namespace Engine::Graphics::Pipeline
 				// プールが読み込み済みかチェック
 				if (!_particleManager->IsLoaded(_handle)) continue;
 
-				auto* _pParticle = Resource::ResourceManager::Instance().Get(_handle);
+				auto* _pParticle = _resManager.Get(_handle);
 				if (!_pParticle) continue;
 				if (_pParticle->GetBlendMode() != _mode) continue;
 

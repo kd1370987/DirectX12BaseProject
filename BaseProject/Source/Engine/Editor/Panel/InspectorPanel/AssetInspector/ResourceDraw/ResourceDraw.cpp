@@ -6,7 +6,6 @@
 #include "AnimationEdit/AnimationEdit.h"
 #include "TextureEdit/TextureEdit.h"
 #include "ShaderEdit/ShaderEdit.h"
-#include "ShadingModelTableEdit/ShadingModelTableEdit.h"
 #include "ParticleEdit/ParticleEdit.h"
 #include "AnimatorEdit/AnimatorEdit.h"
 #include "ActionStateMachineEdit/ActionStateMachineEdit.h"
@@ -193,19 +192,6 @@ namespace Engine::Editor::Inspector
 		if (!_pShader) { return; }
 
 		ShaderEdit(a_editContext, _pShader);
-	}
-
-	//-----------------------------------------------------------------------------------------
-	// シェーディングモデルテーブル
-	//-----------------------------------------------------------------------------------------
-	void ShadingModelTableDraw(EditorContext& a_editContext)
-	{
-		auto _guid = a_editContext.pAssetProp->guid;
-
-		auto* _pTable = ResolveAsset<Resource::ShadingModelTable>(_guid);
-		if (!_pTable) { return; }
-
-		ShadingModelTableEdit(a_editContext, _pTable);
 	}
 
 	//-----------------------------------------------------------------------------------------

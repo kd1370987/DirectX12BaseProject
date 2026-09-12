@@ -37,10 +37,6 @@ void Engine::Resource::Material::SetTexture2D(
 	metaRoughTex	= TextureIO::LoadTexture(metaRoughTexGUID, TexColor::ORM, &a_ctx);
 	emissiveTex		= TextureIO::LoadTexture(emissiveTexGUID, TexColor::BLACK, &a_ctx);
 	normalTex		= TextureIO::LoadTexture(normalTexGUID, TexColor::NORMAL, &a_ctx);
-
-
-	shedingModelGUID = Option::OptionManager::GetInstance().GetRenderingOption().defaultShadingModelTable;
-	shadingModelHandle = _resMgr.LoadImmediate<ShadingModelTable>(shedingModelGUID, &a_ctx);
 }
 
 void Engine::Resource::Material::Archive(Persistence::Archive& a_ar)
@@ -60,14 +56,12 @@ void Engine::Resource::Material::Archive(Persistence::Archive& a_ar)
 	a_ar.Field("Roughness", roughness);
 	a_ar.Field("Emissive", emissive);
 
-	// シェーディングモデル
-	a_ar.Field("shedingModelGUID", shedingModelGUID);
-
-	// もしシェーディングモデルがアセットとしてないタイプだった場合
-	// デフォルトのシェーディングモデルを使用
-	auto _path = AssetDatabase::Instance().GetFileNameFromGUID(shedingModelGUID);
-	if (_path.empty())
-	{
-		shedingModelGUID = Option::OptionManager::GetInstance().GetRenderingOption().defaultShadingModelTable;
-	}
+	//--------------------------------------------------------------------------------------
+	// 以前はこの後ろに参照シェーディングモデルのGUIDを書いていた。
+	//
+	// どのパスで描くかは透明モード、どのPSで描くかはパスが持つようになったので消してある。
+	// バイナリは順次読みなので、末尾にあったこのぶんは読まれずに残るだけ。
+	// ここへ新しい項目を足すときは、古い .obmtrl がその残骸を読んでしまうので
+	// モデルを再コンバートすること
+	//--------------------------------------------------------------------------------------
 }

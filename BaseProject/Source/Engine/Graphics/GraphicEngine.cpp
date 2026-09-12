@@ -45,16 +45,6 @@
 #include "FrameCompute/UpdateBLASPass/UpdateBLASPass.h"
 #include "FrameCompute/ParticleSimulation/ParticleSimulation.h"
 
-
-
-
-
-
-
-
-
-
-
 // テスト
 #include "../../Application/Game/GameManager/GameManager.h"
 
@@ -1455,10 +1445,6 @@ namespace Engine::Graphics
 			// レイトレ用データを持たないメッシュはスキニング登録できない
 			if (!_pMesh->HasRtData()) continue;
 
-			// マテリアルからシェーディングモデルを取得
-			auto* _pShadingModel = Engine::Resource::ResourceManager::Instance().Get(_pMaterial->shadingModelHandle);
-			if (!_pShadingModel) continue;
-
 			SkinningDispatchItem _item = {};
 			_item.pWorld = &a_world;
 			_item.staticVertexHandle = _pMesh->GetRtData().vertexHandle;
@@ -1551,7 +1537,6 @@ namespace Engine::Graphics
 			}
 
 			Engine::Graphics::PSOKey _psoKey = {};
-			_psoKey.shadingModelTableHandle = _pMaterial->shadingModelHandle;
 			_psoKey.permutationFlags = _flags;
 
 			// -----------------------------------------------------
@@ -1645,7 +1630,6 @@ namespace Engine::Graphics
 
 			// PSOKey作成
 			Engine::Graphics::PSOKey _psoKey = {};
-			_psoKey.shadingModelTableHandle = _pMaterial->shadingModelHandle;
 			_psoKey.permutationFlags = _flags;
 
 			// =========================================================

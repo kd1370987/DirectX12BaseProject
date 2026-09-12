@@ -61,6 +61,10 @@
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Test/TestClearPass/TestClearPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Test/TestGBufferPass/TestGBufferPass.h"
 
+// 実行インスタンス側のパスを探すのに要る(モニターの中身の借り先)
+#include "Engine/MainEngine.h"
+#include "Engine/Graphics/GraphicEngine.h"
+
 namespace Engine::Editor::Inspector
 {
 	using namespace Engine::Graphics::Pipeline;
@@ -520,8 +524,10 @@ namespace Engine::Editor::Inspector
 					return;
 				}
 
-				// 設計図のパスは実行されないので、中身は実行インスタンスから借りる
-				const MonitorPass* _pView = a_pass.ResolveViewSource();
+				// 設計図のパスは実行されないので、中身は実行インスタンスから借りる。
+				// パスの中からシングルトンを引かせないよう、探し先はここから渡す
+				const MonitorPass* _pView =
+					a_pass.ResolveViewSource(MainEngine::Instance().RefGraphicsEngine());
 				const Resource::Texture* _pTex = _pView ? _pView->GetPreviewTexture() : nullptr;
 
 				if (!_pTex || !_pTex->GetImGuiSRV().IsValid())

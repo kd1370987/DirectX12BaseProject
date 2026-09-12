@@ -1039,9 +1039,6 @@
     <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit">
       <UniqueIdentifier>{5890440e-a74f-4a98-9404-00a85cdb13a9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit">
-      <UniqueIdentifier>{a80456f8-179d-43e4-8033-9d01fcfac045}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit">
       <UniqueIdentifier>{9ce1b612-5217-4b01-8b9f-6e06a8fc0772}</UniqueIdentifier>
     </Filter>
@@ -1359,12 +1356,6 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer">
       <UniqueIdentifier>{c0de000d-1111-4222-8333-0000c0de000d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Data\ShadingModelTable">
-      <UniqueIdentifier>{50d35247-e22d-47ef-a14e-a4a7325b4c82}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Data\ShadingModelTable\IO">
-      <UniqueIdentifier>{9a8cc9d9-7317-4a72-b583-911756edde28}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource\Data\Sound">
       <UniqueIdentifier>{51117783-605f-4494-8e73-be9dcf77c6fc}</UniqueIdentifier>
@@ -2283,9 +2274,6 @@
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit\ShadingModelTableEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit</Filter>
     </ClCompile>
@@ -2543,12 +2531,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer\RasterizerImport.cpp">
       <Filter>Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.cpp">
-      <Filter>Source\Engine\Resource\Data\ShadingModelTable</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\ShadingModelTable\IO\ShadingModelTableIO.cpp">
-      <Filter>Source\Engine\Resource\Data\ShadingModelTable\IO</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Sound\Sound.cpp">
       <Filter>Source\Engine\Resource\Data\Sound</Filter>
@@ -3792,9 +3774,6 @@
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit\ShadingModelTableEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit</Filter>
     </ClInclude>
@@ -3841,9 +3820,6 @@
       <Filter>Source\Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\PSOKey.h">
-      <Filter>Source\Engine\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\ShadingModelType.h">
       <Filter>Source\Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.h">
@@ -4145,12 +4121,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer\RasterizerImport.h">
       <Filter>Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.h">
-      <Filter>Source\Engine\Resource\Data\ShadingModelTable</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\ShadingModelTable\IO\ShadingModelTableIO.h">
-      <Filter>Source\Engine\Resource\Data\ShadingModelTable\IO</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Sound\Sound.h">
       <Filter>Source\Engine\Resource\Data\Sound</Filter>

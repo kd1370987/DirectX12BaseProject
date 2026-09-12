@@ -3,7 +3,6 @@
 #include "../../../Data/Particles/ParticlesAsset.h"
 
 #include "../../../Manager/AssetDatabase/AssetDatabase.h"
-#include "../../../Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Resource
 {
@@ -29,13 +28,11 @@ namespace Engine::Resource
 		}
 
 
-		// アセットデータベースに場所を作る
-		auto _guid = AssetDatabase::Instance().AddMetaData(_basePath, "ParticlesAsset");
-
-		// リソースマネージャーに登録
+		// 書き出すだけでよい。
+		// メタファイルとGUIDは、AssetDatabase の監視が新しいファイルを見つけて用意する。
+		// 自分のGUIDは空のまま書き出すが、読み込み時に引き直すので問題ない
 		ParticlesAsset _sma = {};
-		_sma.Create(a_name, _guid);
+		_sma.Create(a_name);
 		_sma.Save(_basePath);
-		ResourceManager::Instance().AddResourceAndGUID(std::move(_sma),_guid);
 	}
 }

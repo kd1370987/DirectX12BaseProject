@@ -22,7 +22,6 @@ namespace Engine
 	{
 		class Mesh;
 		class Material;
-		class ShadingModelTable;
 		class QuadPolygon;
 		struct ModelDrawCommand;
 	}
@@ -693,9 +692,6 @@ namespace Engine::Graphics
 	private:
 		//--------------------------------------------------------------------------------------------
 		// 主要クラス
-		//
-		// 宣言順 = 作る順にしてある(デストラクタは逆順に走るので、解放を呼び忘れても
-		// 子が親より後に残らない)。ただし解放の順番は Release 系の関数で明示すること
 		//--------------------------------------------------------------------------------------------
 		// デバイス。アプリに1つだけ存在する
 		std::unique_ptr<GraphicsDevice> m_upGraphicsDevice = nullptr;

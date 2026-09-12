@@ -14,8 +14,6 @@ namespace Engine::Option::GraphicsOptions
 		// OFFにするとジッターが止まり、TAAはブレンドのみ(空間的なAA効果は無くなる)になる。デバッグ用。
 		bool useJitter = true;
 
-		Engine::GUID defaultShadingModelTable = {};
-
 		const std::string& GetName() override
 		{
 			static const std::string _name = "RenderingOption";

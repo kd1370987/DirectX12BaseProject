@@ -280,6 +280,15 @@ namespace Engine::Graphics::Pipeline
 		// 全パスの Compile() を実行順に呼ぶ(リソースが揃ってから)
 		void CompilePasses(GraphicsEngine* a_pGraphicsEngine);
 
+		//----------------------------------------------------------------------------------
+		// パスへ渡すコンテキストを組む
+		//
+		// パスがシングルトンを直に引かなくて済むように、
+		// アプリ寿命のものを引いてくるのはここ1か所だけにする。
+		// 実行時だけのもの(RenderContext / コマンドリスト)は呼び出し側で足すこと
+		//----------------------------------------------------------------------------------
+		PassContext MakeContext(GraphicsEngine* a_pGraphicsEngine);
+
 
 	private:
 

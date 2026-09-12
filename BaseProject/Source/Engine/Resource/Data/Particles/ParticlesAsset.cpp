@@ -5,10 +5,9 @@
 
 namespace Engine::Resource
 {
-	void Engine::Resource::ParticlesAsset::Create(const std::string& a_name, const Engine::GUID& a_guid)
+	void Engine::Resource::ParticlesAsset::Create(const std::string& a_name)
 	{
 		m_name = a_name;
-		m_guid = a_guid;
 	}
 	void ParticlesAsset::Release()
 	{
@@ -102,6 +101,16 @@ namespace Engine::Resource
 		Persistence::Archive _archi(Persistence::Archive::Mode::Load, a_fileDir, a_fileName, "ptic");
 
 		Archive(_archi);
+
+		//----------------------------------------------------------------------------------
+		// 自分のGUIDは読んだ中身ではなくメタファイル側を正とする
+		//
+		// 新規作成のときはまだメタファイルが無く、GUIDは監視が見つけてから発行される。
+		// 書き出した中身の方は空のままなので、ここで引き直しておかないと
+		// インスペクターの保存先(GetFilePathFromGUID)が解決できない
+		//----------------------------------------------------------------------------------
+		m_guid = AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_fileName);
+
 		OnLoaded();
 	}
 

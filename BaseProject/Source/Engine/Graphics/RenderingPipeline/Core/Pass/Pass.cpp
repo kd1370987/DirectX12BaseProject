@@ -291,9 +291,12 @@ namespace Engine::Graphics::Pipeline
 		Handle<ID3D12PipelineState>* a_pOutPSOHandle)
 	{
 		if (!a_context.pGraphicsEngine || !a_context.pGraph) return false;
+		if (!a_context.pResourceManager) return false;
 
 		auto* _pPSOManager = a_context.pGraphicsEngine->RefPipelineStateManager();
 		if (!_pPSOManager) return false;
+
+		auto& _resManager = *a_context.pResourceManager;
 
 		D3D12::GraphicsPipelineDesc _desc = {};
 		_desc.SetName(a_psoName);
@@ -301,7 +304,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 頂点シェーダー : ルートシグネチャもこのブロブから起こす
 		auto _vsHandle = Resource::ShaderIO::Request(a_vsPath);
-		auto* _pVS = Resource::ResourceManager::Instance().Ref(_vsHandle);
+		auto* _pVS = _resManager.Ref(_vsHandle);
 		if (!_pVS || !_pVS->Get())
 		{
 			ENGINE_WARNING("[Pass] 頂点シェーダーが読めません : %s", a_vsPath.c_str());
@@ -313,7 +316,7 @@ namespace Engine::Graphics::Pipeline
 		if (!a_psPath.empty())
 		{
 			auto _psHandle = Resource::ShaderIO::Request(a_psPath);
-			if (auto* _pPS = Resource::ResourceManager::Instance().Ref(_psHandle))
+			if (auto* _pPS = _resManager.Ref(_psHandle))
 			{
 				_desc.SetPS(_pPS->GetByteCode());
 			}
@@ -361,14 +364,14 @@ namespace Engine::Graphics::Pipeline
 		const std::string& a_psoName,
 		EPassHeapMode a_heapMode)
 	{
-		if (!a_context.pGraphicsEngine) return false;
+		if (!a_context.pGraphicsEngine || !a_context.pResourceManager) return false;
 
 		auto* _pPSOManager = a_context.pGraphicsEngine->RefPipelineStateManager();
 		if (!_pPSOManager) return false;
 
 		// シェーダー
 		auto _csHandle = Resource::ShaderIO::Request(a_csPath);
-		auto* _pShader = Resource::ResourceManager::Instance().Ref(_csHandle);
+		auto* _pShader = a_context.pResourceManager->Ref(_csHandle);
 		if (!_pShader || !_pShader->Get())
 		{
 			ENGINE_WARNING("[Pass] コンピュートシェーダーが読めません : %s", a_csPath.c_str());

@@ -442,7 +442,6 @@
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit\ModelEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit\ShadingModelTableEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.cpp" />
@@ -577,8 +576,6 @@
     <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer\RasterizerImport.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Shader\IO\ShaderIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Data\ShadingModelTable\IO\ShadingModelTableIO.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\AnimatorAsset\IO\AnimatorAssetIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\AnimatorAsset\AnimatorAsset.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\ActionStateMachineAsset\ActionStateMachineAsset.cpp" />
@@ -1005,7 +1002,6 @@
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit\ModelEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.h" />
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShadingModelTableEdit\ShadingModelTableEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.h" />
@@ -1045,7 +1041,6 @@
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshAllocationHandle.h" />
     <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.h" />
     <ClInclude Include="Source\Engine\Graphics\PSOKey.h" />
-    <ClInclude Include="Source\Engine\Graphics\ShadingModelType.h" />
     <ClInclude Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.h" />
     <ClInclude Include="Source\Engine\Input\Core\InputAction.h" />
     <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h" />
@@ -1133,8 +1128,6 @@
     <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\Importer\Rasterizer\RasterizerImport.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Shader\IO\ShaderIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Shader\Shader.h" />
-    <ClInclude Include="Source\Engine\Resource\Data\ShadingModelTable\IO\ShadingModelTableIO.h" />
-    <ClInclude Include="Source\Engine\Resource\Data\ShadingModelTable\ShadingModelTable.h" />
     <ClInclude Include="Source\Engine\Resource\Data\AnimatorAsset\IO\AnimatorAssetIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\AnimatorAsset\AnimatorAsset.h" />
     <ClInclude Include="Source\Engine\Resource\Data\ActionStateMachineAsset\ActionStateMachineAsset.h" />

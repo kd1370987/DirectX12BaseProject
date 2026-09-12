@@ -66,12 +66,13 @@ namespace Engine::Graphics::Pipeline
 	void GBufferPass::Compile(const PassContext& a_context)
 	{
 		if (!a_context.pGraphicsEngine) return;
+		if (!a_context.pAssetDatabase || !a_context.pResourceManager) return;
 
 		auto* _pPSOManager = a_context.pGraphicsEngine->RefPipelineStateManager();
 		if (!_pPSOManager) return;
 
-		auto& _assetDB = Resource::AssetDatabase::Instance();
-		auto& _resManager = Resource::ResourceManager::Instance();
+		auto& _assetDB = *a_context.pAssetDatabase;
+		auto& _resManager = *a_context.pResourceManager;
 
 		// ---- メッシュシェーダー / 増幅シェーダー ----
 		// スキニングの有無で切り替わるが、今は同じものを両方へ登録している(旧版と同じ)

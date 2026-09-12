@@ -54,10 +54,6 @@ namespace Engine::Resource
 		// アルファデータ
 		Alpha alphaMode = Alpha::Opaque;
 
-		// 参照シェーディングモデル
-		Engine::GUID shedingModelGUID = {};
-		ResourceRef<ShadingModelTable> shadingModelHandle = {};
-
 		// 参照テクスチャGUID
 		Engine::GUID baseColorTexGUID = {};
 		Engine::GUID metaRoughTexGUID = {};

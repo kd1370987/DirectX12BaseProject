@@ -22,12 +22,13 @@ namespace Engine::Graphics::Pipeline
 	void ZPrePass::Compile(const PassContext& a_context)
 	{
 		if (!a_context.pGraphicsEngine) return;
+		if (!a_context.pAssetDatabase || !a_context.pResourceManager) return;
 
 		auto* _pPSOManager = a_context.pGraphicsEngine->RefPipelineStateManager();
 		if (!_pPSOManager) return;
 
-		auto& _assetDB = Resource::AssetDatabase::Instance();
-		auto& _resManager = Resource::ResourceManager::Instance();
+		auto& _assetDB = *a_context.pAssetDatabase;
+		auto& _resManager = *a_context.pResourceManager;
 
 		const auto _guidMS = _assetDB.GetGUIDFromFilePath("Asset/Shader/Source/Geometry/MeshShader/UberMS.cso");
 		const auto _msHandle = _resManager.LoadImmediate<Resource::Shader>(_guidMS);

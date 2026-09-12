@@ -2,7 +2,6 @@
 #include "../../../Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 
 #include "../../../Manager/AssetDatabase/AssetDatabase.h"
-#include "../../../Manager/ResourceManager/ResourceManager.h"
 namespace Engine::Resource
 {
 	ActionStateMachineAsset ActionStateMachineAssetIO::LoadFromFile(const std::string& a_path)
@@ -27,14 +26,10 @@ namespace Engine::Resource
 			return;
 		}
 
-		auto _guid = AssetDatabase::Instance().AddMetaData(_basePath, "ActionStateMachineAsset");
-
+		// 書き出すだけでよい。
+		// メタファイルとGUIDは、AssetDatabase の監視が新しいファイルを見つけて用意する
 		ActionStateMachineAsset _asset = {};
 		_asset.SetName(a_name);
 		_asset.Save(_basePath);
-
-		ResourceManager::Instance().AddResourceAndGUID(std::move(_asset), _guid);
-
-		return;
 	}
 }

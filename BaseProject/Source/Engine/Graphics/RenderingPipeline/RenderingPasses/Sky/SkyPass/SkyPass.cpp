@@ -41,7 +41,7 @@ namespace Engine::Graphics::Pipeline
 	void SkyPass::Update(const PassContext& a_context)
 	{
 		if (!a_context.pRenderContext || !a_context.pCmdList) return;
-		if (!a_context.pGraphicsEngine) return;
+		if (!a_context.pGraphicsEngine || !a_context.pResourceManager) return;
 
 		auto* _pCtx = a_context.pRenderContext;
 		auto* _pGE = a_context.pGraphicsEngine;
@@ -51,7 +51,7 @@ namespace Engine::Graphics::Pipeline
 
 		// スカイテクスチャはシーン側が差し替えるので、空のフレームは描かない
 		const auto& _skyTexHandle = _pGE->GetSkyTexture();
-		const auto* _pSkyTex = Resource::ResourceManager::Instance().Get(_skyTexHandle);
+		const auto* _pSkyTex = a_context.pResourceManager->Get(_skyTexHandle);
 		if (!_pSkyTex) return;
 
 		_pCtx->ComputeBindSRV(kRootSkyTexSRV, _pSkyTex->GetSRV());

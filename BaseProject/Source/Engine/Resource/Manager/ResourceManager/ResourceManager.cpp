@@ -23,7 +23,6 @@ namespace Engine::Resource
 		ReleaseData<AnimatorAsset>();
 		ReleaseData<ActionStateMachineAsset>();
 		ReleaseData<ParticlesAsset>();
-		ReleaseData<ShadingModelTable>();
 		ReleaseData<Prefab>();
 
 		// サウンド : DirectX::SoundEffect は AudioEngine を参照しているため、

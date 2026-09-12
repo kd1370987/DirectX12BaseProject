@@ -30,7 +30,6 @@ namespace Engine::Editor::Inspector
 	void ShaderDraw(EditorContext& a_editContext);
 
 	// シェーディングモデル
-	void ShadingModelTableDraw(EditorContext& a_editContext);
 
 	// プレハブ
 	void PrefabDraw(EditorContext& a_editContext);

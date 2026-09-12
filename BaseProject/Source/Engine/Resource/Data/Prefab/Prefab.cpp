@@ -312,15 +312,12 @@ namespace Engine::Resource
 			return;
 		}
 
-		// メタ情報を登録して GUID を発行
-		auto _guid = AssetDatabase::Instance().AddMetaData(_basePath, "Prefab");
-
-		// 空のプレハブを保存してプールに登録
+		// 書き出すだけでよい。
+		// メタファイルとGUIDは、AssetDatabase の監視が新しいファイルを見つけて用意する
+		// 空のプレハブを保存する
 		Prefab _prefab;
 		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
 		_prefab.Save(_pWorld, _basePath);
-
-		ResourceManager::Instance().AddResourceAndGUID(std::move(_prefab), _guid);
 	}
 
 	//======================================================================================

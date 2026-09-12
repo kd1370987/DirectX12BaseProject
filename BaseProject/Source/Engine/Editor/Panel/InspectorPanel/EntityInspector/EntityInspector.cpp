@@ -352,13 +352,9 @@ namespace Engine::Editor::Inspector
 		// ---- アセットとして登録して保存する ----
 		const std::string _basePath = MakePrefabBasePath(_prefabName);
 
-		// メタ情報を登録して GUID を発行
-		auto _guid = Resource::AssetDatabase::Instance().AddMetaData(_basePath, "Prefab");
-
+		// 書き出すだけでよい。
+		// メタファイルとGUIDは、AssetDatabase の監視が新しいファイルを見つけて用意する
 		_prefab.Save(a_pWorld, _basePath);
-
-		// 作ったそばから使えるようにプールへ登録
-		Resource::ResourceManager::Instance().AddResourceAndGUID(std::move(_prefab), _guid);
 
 		ENGINE_LOG("プレハブを作成しました : %s", _basePath.c_str());
 	}

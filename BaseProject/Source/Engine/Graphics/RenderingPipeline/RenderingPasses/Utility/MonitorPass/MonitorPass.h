@@ -82,9 +82,14 @@ namespace Engine::Graphics::Pipeline
 		// スロットへ出力の設定を反映する
 		void ApplyOutput();
 
+		//----------------------------------------------------------------------------------
 		// ノードに出す中身を持っているパスを返す。
-		// 自分が実行インスタンスならそのまま自分、設計図側なら実行インスタンスを探す
-		const MonitorPass* ResolveViewSource();
+		// 自分が実行インスタンスならそのまま自分、設計図側なら実行インスタンスを探す。
+		//
+		// 設計図側のパスは一度も実行されないので PassContext を受け取れない。
+		// 代わりに、探し先の GraphicsEngine を呼び出し側(エディター)から渡してもらう
+		//----------------------------------------------------------------------------------
+		const MonitorPass* ResolveViewSource(GraphicsEngine* a_pGraphicsEngine);
 
 	private:
 

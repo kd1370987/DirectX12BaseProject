@@ -1,6 +1,5 @@
 ﻿#include "MonitorPass.h"
 
-#include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
@@ -173,16 +172,15 @@ namespace Engine::Graphics::Pipeline
 	//======================================================================================
 	// ノードに出す中身を持っているパスを探す
 	//======================================================================================
-	const MonitorPass* MonitorPass::ResolveViewSource()
+	const MonitorPass* MonitorPass::ResolveViewSource(GraphicsEngine* a_pGraphicsEngine)
 	{
 		// 自分が実行インスタンスなら、自分の中身がそのまま最新
 		if (m_upPreviewTex) return this;
 
-		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
-		if (!_pGE) return this;
+		if (!a_pGraphicsEngine) return this;
 
 		// GUIDは設計図から複製するときに引き継がれるので、これで同じノードを指せる
-		Pass* _pRuntime = _pGE->FindPipelinePass(GetGUID());
+		Pass* _pRuntime = a_pGraphicsEngine->FindPipelinePass(GetGUID());
 		if (!_pRuntime || _pRuntime == this) return this;
 
 		// GUIDで引いている以上ここは必ず一致するが、

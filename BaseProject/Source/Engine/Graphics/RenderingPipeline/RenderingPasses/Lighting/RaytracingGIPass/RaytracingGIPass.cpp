@@ -115,15 +115,17 @@ namespace Engine::Graphics::Pipeline
 		RenderContext* _pCtx = a_context.pRenderContext;
 		GraphicsEngine* _pGE = a_context.pGraphicsEngine;
 		if (!_pCtx || !_pGE || !a_context.pCmdList || !a_context.pGraph) return;
+		if (!a_context.pRayEngine) return;
 
 		auto* _pCmdList = a_context.pCmdList;
+		auto& _rayEngine = *a_context.pRayEngine;
 
 		auto* _pMA = _pGE->RefMeshBufferAllocator();
 		if (!_pMA) return;
 
 		// レイワールド更新・シェーダーテーブル更新
-		Engine::Raytracing::RayEngine::Instance().Commit(_pCmdList);
-		const auto& _instanceVec = Raytracing::RayEngine::Instance().GetInstanceVec();
+		_rayEngine.Commit(_pCmdList);
+		const auto& _instanceVec = _rayEngine.GetInstanceVec();
 		if (_instanceVec.empty()) return;
 
 		// GIはハーフ解像度。出力リソースの実サイズから引く
@@ -148,7 +150,7 @@ namespace Engine::Graphics::Pipeline
 		_pCtx->ComputeBindRootCBV(0, _pGE->GetCameraData());
 
 		// レイワールドバインド
-		Raytracing::RayEngine::Instance().BindTLAS(_pCtx);
+		_rayEngine.BindTLAS(_pCtx);
 
 		// 出力のUAVをバインド
 		D3D12::GPUResource* _pOutRes = a_context.GetResource(*_pOut);
@@ -185,7 +187,7 @@ namespace Engine::Graphics::Pipeline
 		_pCtx->ComputeBindSRVBindLess(9, _pMA->GetAnimatedVertexBuffer().GetSRV());
 
 		// ディスパッチ
-		Raytracing::RayEngine::Instance().Dispatch(_pCtx, m_shaderTable);
+		_rayEngine.Dispatch(_pCtx, m_shaderTable);
 	}
 
 

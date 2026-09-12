@@ -17,8 +17,9 @@ namespace Engine::Resource
 		~ParticlesAsset() = default;
 		NON_COPYABLE_MOVABLE(ParticlesAsset);
 
-		// 作成処理
-		void Create(const std::string& a_name, const Engine::GUID& a_guid);
+		// 作成処理 : 名前だけを決める。
+		// GUIDはメタファイルを作る AssetDatabase の持ち物なので、読み込み時に引き直す
+		void Create(const std::string& a_name);
 
 		// 解放処理
 		void Release();

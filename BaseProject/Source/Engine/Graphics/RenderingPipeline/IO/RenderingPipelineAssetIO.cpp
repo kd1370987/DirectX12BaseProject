@@ -54,9 +54,8 @@ namespace Engine::Graphics::Pipeline
 			return;
 		}
 
-		// アセットデータベースに場所を作る
-		auto _guid = Resource::AssetDatabase::Instance().AddMetaData(_basePath, "RenderingPipelineAsset");
-
+		// 書き出すだけでよい。
+		// メタファイルとGUIDは、AssetDatabase の監視が新しいファイルを見つけて用意する
 		RenderingPipelineAsset _asset = {};
 		_asset.SetMetaRegistry(a_pRegistry);
 		_asset.SetName(a_name);
@@ -67,8 +66,5 @@ namespace Engine::Graphics::Pipeline
 		if (a_pRegistry) BuildStandardPipeline(_asset, *a_pRegistry);
 
 		_asset.Save(_basePath);
-
-		// リソースマネージャーに登録
-		Resource::ResourceManager::Instance().AddResourceAndGUID(std::move(_asset), _guid);
 	}
 }

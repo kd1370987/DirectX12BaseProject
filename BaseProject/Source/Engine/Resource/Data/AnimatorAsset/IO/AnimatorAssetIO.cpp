@@ -2,7 +2,6 @@
 #include "../../../Data/AnimatorAsset/AnimatorAsset.h"
 
 #include "../../../Manager/AssetDatabase/AssetDatabase.h"
-#include "../../../Manager/ResourceManager/ResourceManager.h"
 namespace Engine::Resource
 {
 	AnimatorAsset AnimatorAssetIO::LoadFromFile(const std::string& a_path)
@@ -28,17 +27,10 @@ namespace Engine::Resource
 			return;
 		}
 
-		// アセットデータベースに場所を作る
-		auto _guid = AssetDatabase::Instance().AddMetaData(_basePath, "AnimatorAsset");
-
-		// リソースマネージャーに登録
+		// 書き出すだけでよい。
+		// メタファイルとGUIDは、AssetDatabase の監視が新しいファイルを見つけて用意する
 		AnimatorAsset _asset = {};
 		_asset.SetName(a_name);
 		_asset.Save(_basePath);
-
-		// 新規登録
-		ResourceManager::Instance().AddResourceAndGUID(std::move(_asset), _guid);
-
-		return;
 	}
 }

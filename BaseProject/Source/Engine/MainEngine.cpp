@@ -648,12 +648,6 @@ namespace Engine
 		_sceneExt.AddExtensions(".ojscene");
 		_sceneExt.AddExtensions(".obscene");
 		Resource::AssetDatabase::Instance().AddSupporedExtensions(_sceneExt);
-		// シーン
-		Resource::TypeExtension _shadingModelTable = {};
-		_shadingModelTable.type = "ShadingModelTable";
-		_shadingModelTable.AddExtensions(".ojsmtble");
-		_shadingModelTable.AddExtensions(".obsmtble");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_shadingModelTable);
 		// プレハブ
 		Resource::TypeExtension _prfb = {};
 		_prfb.type = "Prefab";

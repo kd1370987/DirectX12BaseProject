@@ -126,10 +126,6 @@ namespace Engine::Editor::Inspector
 		{
 			ParticleDraw(a_editContext);
 		}
-		else if (_type == "ShadingModelTable")
-		{
-			ShadingModelTableDraw(a_editContext);
-		}
 		else if (_type == "Prefab")
 		{
 			PrefabDraw(a_editContext);

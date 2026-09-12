@@ -1,7 +1,6 @@
 #include "AudioBehaviorIO.h"
 
 #include "../../../Manager/AssetDatabase/AssetDatabase.h"
-#include "../../../Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Resource
 {
@@ -31,14 +30,10 @@ namespace Engine::Resource
 			return;
 		}
 
-		// アセットデータベースに場所を作る
-		auto _guid = AssetDatabase::Instance().AddMetaData(_basePath, "AudioBehavior");
-
+		// 書き出すだけでよい。
+		// メタファイルとGUIDは、AssetDatabase の監視が新しいファイルを見つけて用意する
 		// 空の状態で書き出す(音は後からインスペクターで割り当てる)
 		AudioBehavior _behavior(a_name);
 		_behavior.Save(_basePath);
-
-		// リソースマネージャーに登録
-		ResourceManager::Instance().AddResourceAndGUID(std::move(_behavior), _guid);
 	}
 }

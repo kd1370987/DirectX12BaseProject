@@ -17,13 +17,11 @@ namespace Engine::Graphics
 
 	struct PSOKey
 	{
-		Handle<Resource::ShadingModelTable> shadingModelTableHandle = {};	// どのシェーディングモデルか（PBR, Water等）
-		uint32_t permutationFlags;											// マテリアルやモデル、エンティティの状態
-		Handle<Resource::Shader> psHandle = {};
+		uint32_t permutationFlags;						// マテリアルやモデル、エンティティの状態
+		Handle<Resource::Shader> psHandle = {};			// このパスが使うピクセルシェーダー
 		// ハッシュ計算用
 		bool operator==(const PSOKey& other) const {
-			return	shadingModelTableHandle == other.shadingModelTableHandle &&
-					permutationFlags == other.permutationFlags &&
+			return	permutationFlags == other.permutationFlags &&
 					psHandle == other.psHandle;
 		}
 	};
@@ -45,7 +43,6 @@ namespace std
 				}
 				};
 
-			UpdateHash(&key.shadingModelTableHandle.id, sizeof(key.shadingModelTableHandle.id));
 			UpdateHash(&key.permutationFlags, sizeof(key.permutationFlags));
 			UpdateHash(&key.psHandle.id, sizeof(key.psHandle.id));
 

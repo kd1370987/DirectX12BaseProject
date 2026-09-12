@@ -12,6 +12,9 @@
 #include "../../GraphicEngine.h"
 #include "../../RenderContext/RenderContext.h"
 #include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../../MainEngine.h"
+#include "../../../Raytracing/RaytracingEngine/RaytracingEngine.h"
+
 
 namespace Engine::Graphics::Pipeline
 {
@@ -959,12 +962,9 @@ namespace Engine::Graphics::Pipeline
 		// このフレームで使う焼き込みを選ぶ
 		const uint32_t _parity = GetFrameParity();
 
-		PassContext _context = {};
-		_context.pGraph = this;
-		_context.pGraphicsEngine = a_pGraphicsEngine;
+		PassContext _context = MakeContext(a_pGraphicsEngine);
 		_context.pRenderContext = a_pRenderContext;
 		_context.pCmdList = _pCmdList;
-		_context.pHeapManager = m_pHeapManager;
 
 		for (CompiledPass& _compiledPass : m_compilePasses)
 		{
@@ -1296,7 +1296,7 @@ namespace Engine::Graphics::Pipeline
 
 			// 出力フォーマットが決まったので、このパスのPSOを組めるようにする。
 			//
-			// 鍵にするのはシェーディングモデル表の名前。
+			// 鍵にするのはパスが名乗る名前。
 			// 名乗らないパス(モデルを受け取らないパス)は表示名で構わない
 			const char* _pShadingName = _pPass->GetShadingPassName();
 			const std::string& _psoKeyName = _pShadingName ? std::string(_pShadingName) : _pPass->GetName();
@@ -1374,16 +1374,43 @@ namespace Engine::Graphics::Pipeline
 	// リソースが揃ったところで各パスのランタイムデータを構築させる
 	void RenderGraph::CompilePasses(GraphicsEngine* a_pGraphicsEngine)
 	{
-		PassContext _context = {};
-		_context.pGraph = this;
-		_context.pGraphicsEngine = a_pGraphicsEngine;
-		_context.pHeapManager = m_pHeapManager;
+		PassContext _context = MakeContext(a_pGraphicsEngine);
 
 		for (CompiledPass& _compiledPass : m_compilePasses)
 		{
 			if (!_compiledPass.pPass) continue;
 			_compiledPass.pPass->Compile(_context);
 		}
+	}
+
+	//======================================================================================
+	// パスへ渡すコンテキストを組む
+	//
+	// シングルトンを引くのはここだけ。
+	// パスの中で Instance() を呼ぶと、そのパスが何に依存しているのかが
+	// 呼び出し側から見えなくなるので、要るものはこのコンテキストへ足して配る
+	//======================================================================================
+	PassContext RenderGraph::MakeContext(GraphicsEngine* a_pGraphicsEngine)
+	{
+		auto& _mainEngine = MainEngine::Instance();
+
+		PassContext _context = {};
+
+		// ---- アプリ寿命のもの ----
+		_context.pMainEngine		= &_mainEngine;
+		_context.pResourceManager	= &Resource::ResourceManager::Instance();
+		_context.pAssetDatabase		= &Resource::AssetDatabase::Instance();
+		_context.pRayEngine			= &Raytracing::RayEngine::Instance();
+		_context.pParticleManager	= _mainEngine.RefParticleManager();
+		_context.pHeapManager		= m_pHeapManager;
+
+		// ---- 描画系 ----
+		_context.pGraph				= this;
+		_context.pGraphicsEngine	= a_pGraphicsEngine;
+
+		// RenderContext / コマンドリストは実行時にしか無いので、Execute 側で足す
+
+		return _context;
 	}
 
 	//======================================================================================

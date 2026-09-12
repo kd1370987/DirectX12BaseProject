@@ -9,7 +9,6 @@
 #include "../Data/Material/IO/MaterialIO.h"
 #include "../Data/Mesh/IO/MeshIO.h"
 #include "../Data/Animation/IO/AnimationIO.h"
-#include "../Data/ShadingModelTable/IO/ShadingModelTableIO.h"
 #include "../Data/Prefab/Prefab.h"
 #include "../Data/Sound/IO/SoundIO.h"
 #include "../Data/AudioBehavior/IO/AudioBehaviorIO.h"
@@ -141,15 +140,6 @@ namespace Engine::Resource
 		static AnimationData LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return AnimationIO::LoadFromFile(a_path);
-		}
-	};
-	// シェーディングモデル
-	template<>
-	struct DefaultLoader<ShadingModelTable>
-	{
-		static ShadingModelTable LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
-		{
-			return ShadingModelTableIO::LoadFromFile(a_path);
 		}
 	};
 	// プレハブ
