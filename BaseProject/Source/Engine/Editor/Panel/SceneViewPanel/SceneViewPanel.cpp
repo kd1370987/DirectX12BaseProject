@@ -43,6 +43,8 @@
 
 #include "../../../GameObject/BaseObject/BaseObject.h"
 
+#include "Engine/Editor/Editor.h"
+
 namespace
 {
 	//======================================================================================

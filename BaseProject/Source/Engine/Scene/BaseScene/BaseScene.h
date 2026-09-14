@@ -77,6 +77,12 @@ namespace Engine::Scene
 		void  Archive(Persistence::Archive& a_ar);
 
 		/// <summary>
+		/// シーンがロードされたのちにシーン構築前に呼び出される想定
+		/// ロードシーンの裏などで、シーンが必要とする重いデータや常に使用されるようなアセットを読み込む
+		/// </summary>
+		void PreLoadAsset(Persistence::Archive& a_ar);
+
+		/// <summary>
 		/// 現在のワールドを取得
 		/// </summary>
 		/// <returns></returns>
@@ -100,5 +106,8 @@ namespace Engine::Scene
 
 		// 自身のデータの所在
 		Engine::GUID m_guid;
+
+		// シーンが開始時に読み込んでおきたいアセットデータ
+		std::vector<Engine::GUID> m_prevLoadAssetGUIDs = {};
 	};
 }

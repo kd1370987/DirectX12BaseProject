@@ -30,6 +30,8 @@
 
 #include "JobSystem/JobSystem.h"
 
+#include "Engine/Editor/Editor.h"
+
 // DXGIのデバッグ機能(ライブオブジェクト報告)はここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
 #pragma warning(push, 0)

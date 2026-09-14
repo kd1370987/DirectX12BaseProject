@@ -75,6 +75,7 @@
 #include "../../Components/Character/Weapon/Projectile/ProjectileComponent.h"
 #include "../../Components/Character/Weapon/Missile/MissileLockComponent.h"
 #include "../../Components/Character/Boss/BossComponent.h"
+#include "../../Components/Character/BoidComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -199,6 +200,7 @@
 #include "../../Systems/Update/PostUpdate/DeathEffectSystem/DeathEffectSystem.h"
 #include "../../Systems/Update/PostUpdate/ScoreSystem/ScoreSystem.h"
 #include "../../Systems/Update/PostUpdate/ExplosionSystem/ExplosionSystem.h"
+#include "../../Systems/Update/Update/Boid/BoidSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -310,6 +312,7 @@ namespace App::ECS
 		a_world.RegisterComponent<ScoreTargetComponent>("ScoreTargetComponent");
 		// エンティティの位置を光源にする点光源。実体は LightManager のプールにある
 		a_world.RegisterComponent<PointLightComponent>("PointLightComponent");
+		a_world.RegisterComponent<BoidComponent>("BoidComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -472,6 +475,7 @@ namespace App::ECS
 		// ミサイル等の飛翔音。消えたエンティティのボイス回収もここで行う
 		a_world.RegisterSystem<FlyingSoundSystem>();
 		a_world.RegisterSystem<GunStateStartSystem>();
+		a_world.RegisterSystem<BoidSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();

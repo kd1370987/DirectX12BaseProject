@@ -23,6 +23,8 @@
 // アプリ側UIオブジェクト
 #include "Application/Object/UI/CombatReticleHUD/CombatReticleHUD.h"
 
+// リソースマネージャー
+#include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Scene
 {
@@ -274,6 +276,15 @@ namespace Engine::Scene
 		if (m_upGameObjectManager)
 		{
 			m_upGameObjectManager->Archive(a_ar);
+		}
+	}
+	void BaseScene::PreLoadAsset(Persistence::Archive& a_ar)
+	{
+		// 配列の復元
+		a_ar.VectorField("GUIDs",m_prevLoadAssetGUIDs);
+
+		for (auto& _guid : m_prevLoadAssetGUIDs)
+		{
 		}
 	}
 }

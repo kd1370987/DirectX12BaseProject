@@ -8,6 +8,7 @@
 
 #include "../Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
+#include "Engine/Editor/Editor.h"
 
 //==================================================================================
 // 

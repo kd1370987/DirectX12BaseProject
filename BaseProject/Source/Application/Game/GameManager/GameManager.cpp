@@ -33,6 +33,9 @@
 #include "../UserData/UserData.h"
 #include "../InputActions/InputManager/InputActionManager.h"
 
+// エディター
+#include "Engine/Editor/Editor.h"
+
 namespace App::Game
 {
 	//======================================================================================

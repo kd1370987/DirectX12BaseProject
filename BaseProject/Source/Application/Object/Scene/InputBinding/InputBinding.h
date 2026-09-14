@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Engine/GameObject/BaseObject/BaseObject.h"
-#include "../../../Game/InputActions/GameActions.h"
 
 namespace App::Object
 {

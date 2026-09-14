@@ -376,6 +376,7 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\DeathStateSystem\DeathStateSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidSystem.cpp" />
     <ClCompile Include="Source\Application\Utility\PrefabSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Utility\EffectSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.cpp" />
@@ -674,6 +675,7 @@
     <ClInclude Include="Source\Application\Components\Camera\CameraFocusTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraDeadZoneComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\AimTargetPosComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\BoidComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\TargetEntityComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\LockOnTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Weapon\Missile\MissileLockComponent.h" />
@@ -848,6 +850,7 @@
     <ClInclude Include="Source\Application\Components\Effect\EffectComponent.h" />
     <ClInclude Include="Source\Application\Components\Effect\ExplosionComponent.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidSystem.h" />
     <ClInclude Include="Source\Application\Utility\PrefabSpawnHelper.h" />
     <ClInclude Include="Source\Application\Utility\EffectSpawnHelper.h" />
     <ClInclude Include="Source\Application\Components\Character\HealthComponent.h" />
