@@ -40,6 +40,7 @@ struct Engine::ECS::ComponentTraits<UIComponent>
 
 		// テクスチャの選択(現在の表示もヘルパー側で行う)
 		Editor::EditorHelper::DrawAssetSelectCombo<Resource::Texture>(
+			*a_context.pWorld->RefEngineServices(),
 			"Change Texture",
 			"Texture",
 			_comp.texGUID,

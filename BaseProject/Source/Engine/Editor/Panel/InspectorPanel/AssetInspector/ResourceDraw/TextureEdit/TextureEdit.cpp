@@ -1,4 +1,5 @@
 ﻿#include "TextureEdit.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 #include "../../../../../../Option/OptionManager.h"
 #include "../../../../../../Editor/Helper/EditorHelper.h"
@@ -42,7 +43,7 @@ namespace Engine::Editor::Inspector
 		// 画像の保存
 		if (ImGui::Button("Save to DDS"))
 		{
-			auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+			auto _filePath = a_editContext.pServices->pAssetDatabase->GetFilePathFromGUID(_guid);
 			a_pTexture->Save(_filePath);
 			ENGINE_LOG("テクスチャの保存が完了 : %s", _filePath.c_str());
 		}

@@ -19,11 +19,13 @@ namespace Engine::Particle
 		/// <param name="a_pDevice">デバイスポインタ</param>
 		/// <param name="a_pCmdList">コマンドリストポインタ</param>
 		/// <param name="a_particleHandle">パーティクルアセットのハンドル</param>
+		/// <param name="a_resourceManager">アセットの値を引く先</param>
 		void Init(
 			D3D12::Device* a_pDevice,
 			D3D12::DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList,
-			Engine::Handle<Resource::ParticlesAsset> a_particleHandle
+			Engine::Handle<Resource::ParticlesAsset> a_particleHandle,
+			const Resource::ResourceManager& a_resourceManager
 		);
 
 		/// <summary>

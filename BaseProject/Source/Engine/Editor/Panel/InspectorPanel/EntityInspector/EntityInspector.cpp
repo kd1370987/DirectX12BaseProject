@@ -101,12 +101,12 @@ namespace Engine::Editor::Inspector
 	}
 
 	// その名前がすでに使われているか
-	bool IsUsedPrefabName(const std::string& a_name)
+	bool IsUsedPrefabName(const Resource::AssetDatabase& a_assetDB, const std::string& a_name)
 	{
 		const std::string _basePath = MakePrefabBasePath(a_name);
 
 		// アセットデータベースに登録済み
-		if (Resource::AssetDatabase::Instance().GetGUIDFromFilePath(_basePath) != Engine::DefaultGUID)
+		if (a_assetDB.GetGUIDFromFilePath(_basePath) != Engine::DefaultGUID)
 		{
 			return true;
 		}
@@ -139,11 +139,11 @@ namespace Engine::Editor::Inspector
 	}
 
 	// 重複しないプレハブ名を作る : 被っていたら末尾に _01, _02... と加算していく
-	std::string MakeUniquePrefabName(const std::string& a_name)
+	std::string MakeUniquePrefabName(const Resource::AssetDatabase& a_assetDB, const std::string& a_name)
 	{
 		const std::string _baseName = SanitizePrefabName(a_name);
 		if (_baseName.empty()) return "";
-		if (!IsUsedPrefabName(_baseName)) return _baseName;
+		if (!IsUsedPrefabName(a_assetDB, _baseName)) return _baseName;
 
 		for (UINT _i = 1; _i < 1000; ++_i)
 		{
@@ -151,7 +151,7 @@ namespace Engine::Editor::Inspector
 			std::snprintf(_suffix, sizeof(_suffix), "_%02u", _i);
 
 			std::string _candidate = _baseName + _suffix;
-			if (!IsUsedPrefabName(_candidate)) return _candidate;
+			if (!IsUsedPrefabName(a_assetDB, _candidate)) return _candidate;
 		}
 
 		// 空きが見つからなかった
@@ -236,7 +236,7 @@ namespace Engine::Editor::Inspector
 		if (!a_pWorld || a_entity == ECS::Limits::INVALID_ENTITY) return;
 
 		// 名前の重複を解決する
-		const std::string _prefabName = MakeUniquePrefabName(a_name);
+		const std::string _prefabName = MakeUniquePrefabName(*a_pWorld->RefEngineServices()->pAssetDatabase, a_name);
 		if (_prefabName.empty())
 		{
 			ENGINE_LOG("プレハブ名を決定できませんでした : %s", a_name.c_str());
@@ -389,7 +389,7 @@ namespace Engine::Editor::Inspector
 
 			// 実際に保存される名前(被っていたら _01 が加算されたもの)を出しておく
 			const std::string _inputName = _nameCach;
-			const std::string _saveName = MakeUniquePrefabName(_inputName);
+			const std::string _saveName = MakeUniquePrefabName(*a_editContext.pServices->pAssetDatabase, _inputName);
 
 			if (_saveName.empty())
 			{

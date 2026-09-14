@@ -1,5 +1,10 @@
 #pragma once
 
+namespace Engine::Resource
+{
+	class ResourceManager;
+}
+
 namespace Engine::Graphics
 {
 	class GraphicsEngine;
@@ -19,7 +24,8 @@ namespace Engine::Graphics
 	// ここへまとめておけば順序とバリアが崩れようがない
 	//======================================================================================
 	// ルートシグネチャとPSOの用意(初期化時に1回)
-	void SetupParticleSimulation(PipelineStateManager* a_pPSOManager);
+	// a_resourceManager : シェーダーを読み込む先。更新でもアセットの値を引くので持っておく
+	void SetupParticleSimulation(PipelineStateManager* a_pPSOManager, Resource::ResourceManager& a_resourceManager);
 
 	// 実行(毎フレーム1回) : 発生 -> UAVバリア -> 更新
 	void ExecuteParticleSimulation(GraphicsEngine* a_pGE, RenderContext* a_pCtx);

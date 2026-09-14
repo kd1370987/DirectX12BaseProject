@@ -53,13 +53,13 @@ struct Engine::ECS::ComponentTraits<PointLightComponent>
 	// 返し忘れるとシーンを読み直すたびに席が減り、最後は上限に達して
 	// 新しいライトが1つも点かなくなる。
 	//----------------------------------------------------------------------------------
-	static void Release(void* a_pData)
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		PointLightComponent& _comp = Engine::Editor::GetValue<PointLightComponent>(a_pData);
 		if (!_comp.handle.IsValid()) return;
 
 		// 終了処理の順によっては、こちらが先に消えていることがある
-		auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
+		auto* _pGE = a_services.pMainEngine ? a_services.pMainEngine->RefGraphicsEngine() : nullptr;
 		if (!_pGE) return;
 
 		_pGE->RefLightManager()->RemoveLight(_comp.handle);

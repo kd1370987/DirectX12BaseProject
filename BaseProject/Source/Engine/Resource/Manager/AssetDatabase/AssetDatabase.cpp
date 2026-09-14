@@ -609,14 +609,14 @@ namespace Engine::Resource
 		RefreshAssetTree();
 	}
 
-	std::string AssetDatabase::GetFilePathFromGUID(const std::string& a_guid)
+	std::string AssetDatabase::GetFilePathFromGUID(const std::string& a_guid) const
 	{
 		Engine::GUID _guid = {};
 		_guid.FromString(a_guid);
 		return GetFilePathFromGUID(_guid);
 	}
 
-	std::string AssetDatabase::GetFilePathFromGUID(const Engine::GUID& a_guid)
+	std::string AssetDatabase::GetFilePathFromGUID(const Engine::GUID& a_guid) const
 	{
 		auto _it = m_assetMap.find(a_guid);
 		if (_it == m_assetMap.end()) return "";
@@ -657,7 +657,7 @@ namespace Engine::Resource
 		return _prop.filePath; // 最終手段
 	}
 
-	std::string AssetDatabase::GetBaseFilePathFromGUID(const Engine::GUID& a_guid)
+	std::string AssetDatabase::GetBaseFilePathFromGUID(const Engine::GUID& a_guid) const
 	{
 		auto _it = m_assetMap.find(a_guid);
 		if (_it != m_assetMap.end())
@@ -668,7 +668,7 @@ namespace Engine::Resource
 		return "";
 	}
 
-	std::string AssetDatabase::GetFileNameFromGUID(const Engine::GUID& a_guid)
+	std::string AssetDatabase::GetFileNameFromGUID(const Engine::GUID& a_guid) const
 	{
 		auto _it = m_assetMap.find(a_guid);
 		if (_it != m_assetMap.end())

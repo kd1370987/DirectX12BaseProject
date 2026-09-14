@@ -99,10 +99,10 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 	// ECS がエンティティを消すとき・コンポーネントを外すとき・
 	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
 	//----------------------------------------------------------------------------------
-	static void Release(void* a_pData)
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		GunStateComponent& _comp = Engine::Editor::GetValue<GunStateComponent>(a_pData);
-		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+		auto& _resourceManager = *a_services.pResourceManager;
 
 		_resourceManager.ReleaseHandle(_comp.muzzleEffectHandle);
 		_resourceManager.ReleaseHandle(_comp.bulletPrefabHandle);
@@ -157,7 +157,7 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 		ImGui::EndDisabled();
 
 		// 発射するプレハブの選択(アセットDBの Prefab 一覧から)
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Bullet Prefab", "Prefab", _comp.bulletPrefabGUID))
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pWorld->RefEngineServices(), "Bullet Prefab", "Prefab", _comp.bulletPrefabGUID))
 		{
 			// GUIDが変わったらハンドルは作り直す(発射時に再解決)
 			_comp.bulletPrefabHandle = {};
@@ -174,6 +174,7 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 		ImGui::Separator();
 		ImGui::TextDisabled("Muzzle Flash : 1発撃つごとに銃口へ出す");
 		Engine::Editor::EditorHelper::DrawAssetSelectCombo<Engine::Resource::EffectAsset>(
+			*a_context.pWorld->RefEngineServices(),
 			"Muzzle Effect",
 			"EffectAsset",
 			_comp.muzzleEffectGUID,

@@ -1,4 +1,6 @@
 ﻿#include "ResourceDraw.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 #include "ModelEdit/ModelEdit.h"
 #include "MeshEdit/MeshEdit.h"
@@ -31,20 +33,20 @@ namespace Engine::Editor::Inspector
 		// ロード済みなら実体を返し、未ロードならロードボタンを出してnullptrを返す
 		//-----------------------------------------------------------------------------------------
 		template<typename TResource>
-		TResource* ResolveAsset(const Engine::GUID& a_guid)
+		TResource* ResolveAsset(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid)
 		{
-			if (!Resource::ResourceManager::Instance().Has<TResource>(a_guid))
+			if (!a_resourceManager.Has<TResource>(a_guid))
 			{
 				ImGui::Text("No loaded file");
 				if (ImGui::Button("Load"))
 				{
-					Resource::ResourceManager::Instance().LoadImmediate<TResource>(a_guid);
+					a_resourceManager.LoadImmediate<TResource>(a_guid);
 				}
 				return nullptr;
 			}
 
-			auto _handle = Resource::ResourceManager::Instance().GetCache<TResource>(a_guid);
-			auto* _pResource = Resource::ResourceManager::Instance().Ref(_handle);
+			auto _handle = a_resourceManager.GetCache<TResource>(a_guid);
+			auto* _pResource = a_resourceManager.Ref(_handle);
 			if (!_pResource)
 			{
 				ImGui::Text("Not found asset");
@@ -62,14 +64,14 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pModel = ResolveAsset<Resource::Model>(_guid);
+		auto* _pModel = ResolveAsset<Resource::Model>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pModel) { return; }
 
 		// バイナリへの変換
 		if (ImGui::Button("Convert"))
 		{
-			auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
-			Resource::Converter::ModelConverter::ConvertModelDataToBinary(_filePath);
+			auto _filePath = a_editContext.pServices->pAssetDatabase->GetFilePathFromGUID(_guid);
+			Resource::Converter::ModelConverter::ConvertModelDataToBinary(*a_editContext.pServices->pResourceManager, _filePath);
 			ENGINE_LOG("モデルのconvert処理が完了 : %s", _filePath.c_str());
 		}
 
@@ -86,13 +88,13 @@ namespace Engine::Editor::Inspector
 		auto _guid = a_editContext.pAssetProp->guid;
 
 		// 名前と、GUID表示
-		auto _fileName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(_guid);
+		auto _fileName = a_editContext.pServices->pAssetDatabase->GetFileNameFromGUID(_guid);
 		ImGui::Text("%s", _fileName.c_str());
 		ImGui::Text("%s", _guid.String().c_str());
 
 		ImGui::Separator();
 
-		auto* _pTexture = ResolveAsset<Resource::Texture>(_guid);
+		auto* _pTexture = ResolveAsset<Resource::Texture>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pTexture) { return; }
 
 		TextureEdit(a_editContext, _pTexture);
@@ -105,11 +107,11 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pAnimator = ResolveAsset<Resource::AnimatorAsset>(_guid);
+		auto* _pAnimator = ResolveAsset<Resource::AnimatorAsset>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pAnimator) { return; }
 
 		// ノードエディタ側がハンドルを必要とするため取得しておく
-		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::AnimatorAsset>(_guid);
+		auto _handle = a_editContext.pServices->pResourceManager->GetCache<Resource::AnimatorAsset>(_guid);
 
 		AnimatorEdit(a_editContext, _pAnimator, _handle);
 	}
@@ -121,10 +123,10 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pAsset = ResolveAsset<Resource::ActionStateMachineAsset>(_guid);
+		auto* _pAsset = ResolveAsset<Resource::ActionStateMachineAsset>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pAsset) { return; }
 
-		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::ActionStateMachineAsset>(_guid);
+		auto _handle = a_editContext.pServices->pResourceManager->GetCache<Resource::ActionStateMachineAsset>(_guid);
 
 		ActionStateMachineEdit(a_editContext, _pAsset, _handle);
 	}
@@ -136,10 +138,10 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pParticles = ResolveAsset<Resource::ParticlesAsset>(_guid);
+		auto* _pParticles = ResolveAsset<Resource::ParticlesAsset>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pParticles) { return; }
 
-		ParticleEdit(_pParticles, &a_editContext);
+		ParticleEdit(*a_editContext.pServices, _guid, _pParticles, &a_editContext);
 	}
 
 	//-----------------------------------------------------------------------------------------
@@ -149,7 +151,7 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pMaterial = ResolveAsset<Resource::Material>(_guid);
+		auto* _pMaterial = ResolveAsset<Resource::Material>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pMaterial) { return; }
 
 		MaterialEdit(a_editContext, _pMaterial);
@@ -162,7 +164,7 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pMesh = ResolveAsset<Resource::Mesh>(_guid);
+		auto* _pMesh = ResolveAsset<Resource::Mesh>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pMesh) { return; }
 
 		MeshEdit(a_editContext, _pMesh);
@@ -175,7 +177,7 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pAnimation = ResolveAsset<Resource::AnimationData>(_guid);
+		auto* _pAnimation = ResolveAsset<Resource::AnimationData>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pAnimation) { return; }
 
 		AnimationEdit(a_editContext, _pAnimation);
@@ -188,7 +190,7 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pShader = ResolveAsset<Resource::Shader>(_guid);
+		auto* _pShader = ResolveAsset<Resource::Shader>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pShader) { return; }
 
 		ShaderEdit(a_editContext, _pShader);
@@ -201,7 +203,7 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pBehavior = ResolveAsset<Resource::AudioBehavior>(_guid);
+		auto* _pBehavior = ResolveAsset<Resource::AudioBehavior>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pBehavior) { return; }
 
 		AudioBehaviorEdit(a_editContext, _pBehavior);
@@ -214,10 +216,10 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pEffect = ResolveAsset<Resource::EffectAsset>(_guid);
+		auto* _pEffect = ResolveAsset<Resource::EffectAsset>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pEffect) { return; }
 
-		EffectAssetEdit(_guid, _pEffect, true, &a_editContext);
+		EffectAssetEdit(*a_editContext.pServices, _guid, _pEffect, true, &a_editContext);
 	}
 
 	//-----------------------------------------------------------------------------------------
@@ -232,7 +234,7 @@ namespace Engine::Editor::Inspector
 	{
 		auto _guid = a_editContext.pAssetProp->guid;
 
-		auto* _pPrefab = ResolveAsset<Resource::Prefab>(_guid);
+		auto* _pPrefab = ResolveAsset<Resource::Prefab>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pPrefab) { return; }
 
 		// コンポーネントのメタ情報・編集関数を引くために World が必要
@@ -247,7 +249,7 @@ namespace Engine::Editor::Inspector
 		// ---- 保存 ----
 		if (ImGui::Button("Save"))
 		{
-			auto _path = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+			auto _path = a_editContext.pServices->pAssetDatabase->GetFilePathFromGUID(_guid);
 			_pPrefab->Save(_pWorld, _path);
 			ENGINE_LOG("Save Prefab : %s", _path.c_str());
 		}

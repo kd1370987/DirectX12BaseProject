@@ -4163,6 +4163,9 @@
     <ClInclude Include="Source\Engine\Resource\Manager\AssetDatabase\AssetDatabase.h">
       <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\Manager\AssetDatabase\AssetTypes.h">
+      <Filter>Source\Engine\Resource\Manager\AssetDatabase</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.h">
       <Filter>Source\Engine\Resource\Manager\ResourceManager</Filter>
     </ClInclude>

@@ -18,6 +18,8 @@
 //==========================================================================================
 // 描画命令の積み先。ヘッダーでは前方宣言だけにして、実装側で GraphicEngine.h を読む
 namespace Engine::Graphics { class GraphicsEngine; }
+namespace Engine::Resource { class ResourceManager; }
+namespace Engine::ECS { struct EngineServices; }
 
 namespace App::Object::Decoration
 {
@@ -421,6 +423,7 @@ namespace App::Object::Decoration
 	/// <summary>
 	/// インスペクター(1つぶん)
 	/// </summary>
+	/// <param name="a_services">アセットの一覧と、選び直したときの読み込み先</param>
 	/// <returns>値が変わったら true</returns>
-	bool DrawDecorationInspector(Decoration& a_decoration, Engine::Resource::ResourceManager* a_pResourceManager);
+	bool DrawDecorationInspector(Decoration& a_decoration, const Engine::ECS::EngineServices& a_services);
 }

@@ -46,6 +46,10 @@ namespace Engine
 
 	void MainEngine::Init()
 	{
+		// リソースマネージャー(とアセットデータベース)。
+		// 誰よりも先に作る : ResourceRef は作られた時点からこれを見に来る
+		m_upResourceManager = std::make_unique<Resource::ResourceManager>();
+
 		// オプションマネージャーの初期化と読込
 		auto& _optionManager = Option::OptionManager::GetInstance();
 		_optionManager.Init();
@@ -130,10 +134,10 @@ namespace Engine
 
 		// 非同期ロードの実行先として登録する。
 		// ResourceManager 側からエンジンのシングルトンを引かせないよう、ここで渡す
-		Resource::ResourceManager::Instance().SetJobSystem(m_upJobSystem.get());
+		m_upResourceManager->SetJobSystem(m_upJobSystem.get());
 
 		// オーディオエンジンの初期化
-		Audio::AudioManager::Instance().Init();
+		Audio::AudioManager::Instance().Init(m_upResourceManager.get());
 
 		// 保存されている音量を流し込む。
 		// オプションの読み込みはこれより前に済んでいるが、
@@ -168,6 +172,7 @@ namespace Engine
 		Graphics::GraphicsEngineDesc _geDesc = {};
 		_geDesc.width = static_cast<UINT>(_winOp.windowWidth);
 		_geDesc.height = static_cast<UINT>(_winOp.windowHeight);
+		_geDesc.pResourceManager = m_upResourceManager.get();
 		m_upGraphicsEngine->Init(_pCmdList,_geDesc);
 
 		// パーティクルブッファの生成
@@ -175,10 +180,13 @@ namespace Engine
 		m_upParticleManager->Init(m_upGraphicsEngine.get(),_pHeapManager,_pCmdList);
 
 		// レイトレワールド構築
-		Engine::Raytracing::RayEngine::Instance().CommitWorld(_pDev,_pHeapManager,_pCmdList);
+		Engine::Raytracing::RayEngine::Instance().CommitWorld(_pDev,_pHeapManager,_pCmdList,m_upResourceManager.get());
+
+		// アプリ寿命のサービス一式 : エディターもワールドもここを見る
+		BuildEngineServices();
 
 		// エディター初期化
-		if (!Engine::Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle(), _pHeapManager))
+		if (!Engine::Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle(), _pHeapManager, m_upEngineServices.get()))
 		{
 			assert(0 && "エディターの初期化に失敗");
 			return;
@@ -186,7 +194,7 @@ namespace Engine
 
 		// マウスカーソル
 		m_upMouseCursor = std::make_unique<Graphics::MouseCursor>();
-		m_upMouseCursor->Init(_pHeapManager);
+		m_upMouseCursor->Init(_pHeapManager, m_upResourceManager.get());
 
 		Engine::Editor::MainEditor::Instance().RegisterEditFunc(
 			[this]()
@@ -207,7 +215,7 @@ namespace Engine
 		// ジョブシステムの解放は最初に行う。
 		// 走っているジョブはリソースやGPUリソースを触っているため、
 		// それらを解放する前に必ずワーカーを止めきること
-		Resource::ResourceManager::Instance().SetJobSystem(nullptr);
+		m_upResourceManager->SetJobSystem(nullptr);
 		m_upJobSystem->Release();
 
 		// アプリケーション・上位層の解放
@@ -225,10 +233,12 @@ namespace Engine
 		// 参照しているため、リソース解放より先に片付ける。
 		Audio::AudioManager::Instance().ReleaseInstances();
 
-		// リソースの解放（Sound = DirectX::SoundEffect もここで解放される）
-		Resource::ResourceManager::Instance().Release();
+		// リソースの解放（Sound = DirectX::SoundEffect もここで解放される）。
+		// 実体(m_upResourceManager)はここでは捨てない : MainEngine が壊れるまで残し、
+		// それより後に壊れるものが持つ ResourceRef の返却先にする
+		m_upResourceManager->Release();
 
-		Resource::AssetDatabase::Instance().Release();
+		m_upResourceManager->RefAssetDatabase().Release();
 
 		// オーディオエンジンの解放。
 		// SoundEffect が AudioEngine を参照しているため、必ずリソース解放の後に行う。
@@ -368,7 +378,7 @@ namespace Engine
 			}
 		}
 
-		Resource::AssetDatabase::Instance().Update();
+		m_upResourceManager->RefAssetDatabase().Update();
 
 		return true;
 	}
@@ -568,6 +578,31 @@ namespace Engine
 	{
 		return m_upParticleManager.get();
 	}
+	//======================================================================================
+	// アプリ寿命のサービス一式を組む
+	//
+	// シングルトンを名指ししてよいのは、ここ(合成の入り口)だけ。
+	// 以前はワールドを作るたびに CreateSceneWorld が同じものを組んでいたが、
+	// エディターからも同じものを見たいので正本をここへ移した
+	//======================================================================================
+	void MainEngine::BuildEngineServices()
+	{
+		if (!m_upEngineServices) m_upEngineServices = std::make_unique<ECS::EngineServices>();
+
+		auto& _resourceManager = *m_upResourceManager;
+
+		ECS::EngineServices& _services = *m_upEngineServices;
+		_services.pMainEngine		= this;
+		_services.pResourceManager	= &_resourceManager;
+		_services.pAssetDatabase	= &_resourceManager.RefAssetDatabase();
+		_services.pInputManager		= &Input::InputManager::Instance();
+		_services.pRayEngine		= &Raytracing::RayEngine::Instance();
+		_services.pAudioManager		= &Audio::AudioManager::Instance();
+		_services.pJobSystem		= m_upJobSystem.get();
+		_services.pOptionManager	= &Option::OptionManager::GetInstance();
+		_services.pDebugDraw		= m_upGraphicsEngine ? m_upGraphicsEngine->RefDebugDraw() : nullptr;
+	}
+
 	Particle::ParticleBufferManager* MainEngine::RefParticleManager()
 	{
 		return m_upParticleManager.get();
@@ -582,8 +617,10 @@ namespace Engine
 	}
 	void MainEngine::InitializeAssetDatabase()
 	{
+		// 持ち主はリソースマネージャー
+		auto& _assetDB = m_upResourceManager->RefAssetDatabase();
 
-		Resource::AssetDatabase::Instance().Init(
+		_assetDB.Init(
 			"Asset/",			// クロールフォルダ指定
 			".assetmeta"		// 作成拡張子
 		);
@@ -597,43 +634,43 @@ namespace Engine
 		_modelExt.AddExtensions(".gltf");
 		_modelExt.AddExtensions(".fbx");
 		_modelExt.AddExtensions(".obj");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_modelExt);
+		_assetDB.AddSupporedExtensions(_modelExt);
 		// メッシュ
 		Resource::TypeExtension _meshExt = {};
 		_meshExt.type = "Mesh";
 		_meshExt.typeExt.push_back(".obmesh");
 		_meshExt.typeExt.push_back(".ojmesh");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_meshExt);
+		_assetDB.AddSupporedExtensions(_meshExt);
 		// マテリアル
 		Resource::TypeExtension _materialExt = {};
 		_materialExt.type = "Material";
 		_materialExt.typeExt.push_back(".obmtrl");
 		_materialExt.typeExt.push_back(".ojmtrl");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_materialExt);
+		_assetDB.AddSupporedExtensions(_materialExt);
 		// アニメーション
 		Resource::TypeExtension _animationExt = {};
 		_animationExt.type = "Animation";
 		_animationExt.typeExt.push_back(".obanim");
 		_animationExt.typeExt.push_back(".ojanim");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_animationExt);
+		_assetDB.AddSupporedExtensions(_animationExt);
 		// アニメーター(アニメ用ステートマシン)
 		Resource::TypeExtension _stateExt = {};
 		_stateExt.type = "AnimatorAsset";
 		_stateExt.typeExt.push_back(".obstet");
 		_stateExt.typeExt.push_back(".ojstet");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_stateExt);
+		_assetDB.AddSupporedExtensions(_stateExt);
 		// ゲームプレイ用ステートマシン
 		Resource::TypeExtension _actionSmExt = {};
 		_actionSmExt.type = "ActionStateMachineAsset";
 		_actionSmExt.typeExt.push_back(".obasm");
 		_actionSmExt.typeExt.push_back(".ojasm");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_actionSmExt);
+		_assetDB.AddSupporedExtensions(_actionSmExt);
 		// パーティクル
 		Resource::TypeExtension _particExt = {};
 		_particExt.type = "ParticlesAsset";
 		_particExt.typeExt.push_back(".obptic");
 		_particExt.typeExt.push_back(".ojptic");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_particExt);
+		_assetDB.AddSupporedExtensions(_particExt);
 		// テクスチャ
 		Resource::TypeExtension _texExt = {};
 		_texExt.type = "Texture";
@@ -641,60 +678,60 @@ namespace Engine
 		_texExt.AddExtensions(".jpg");
 		_texExt.AddExtensions(".tag");
 		_texExt.AddExtensions(".dds");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_texExt);
+		_assetDB.AddSupporedExtensions(_texExt);
 		// シェーダー
 		Resource::TypeExtension _shaderExt = {};
 		_shaderExt.type = "Shader";
 		_shaderExt.AddExtensions(".hlsl");
 		_shaderExt.AddExtensions(".cso");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_shaderExt);
+		_assetDB.AddSupporedExtensions(_shaderExt);
 		// シーン
 		Resource::TypeExtension _sceneExt = {};
 		_sceneExt.type = "Scene";
 		_sceneExt.AddExtensions(".ojscene");
 		_sceneExt.AddExtensions(".obscene");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_sceneExt);
+		_assetDB.AddSupporedExtensions(_sceneExt);
 		// プレハブ
 		Resource::TypeExtension _prfb = {};
 		_prfb.type = "Prefab";
 		_prfb.AddExtensions(".ojprfb");
 		_prfb.AddExtensions(".obprfb");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_prfb);
+		_assetDB.AddSupporedExtensions(_prfb);
 		// サウンド
 		Resource::TypeExtension _sound = {};
 		_sound.type = "Sound";
 		_sound.AddExtensions(".wav");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_sound);
+		_assetDB.AddSupporedExtensions(_sound);
 		// オーディオビヘイビア(始動/継続/終了の音をまとめたもの)
 		Resource::TypeExtension _audioBehavior = {};
 		_audioBehavior.type = "AudioBehavior";
 		_audioBehavior.AddExtensions(".ojaudbhv");
 		_audioBehavior.AddExtensions(".obaudbhv");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_audioBehavior);
+		_assetDB.AddSupporedExtensions(_audioBehavior);
 		// エフェクト(パーティクル+メッシュをまとめたもの)
 		Resource::TypeExtension _effect = {};
 		_effect.type = "EffectAsset";
 		_effect.AddExtensions(".ojeffect");
 		_effect.AddExtensions(".obeffect");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_effect);
+		_assetDB.AddSupporedExtensions(_effect);
 		// レンダリングパイプライン(レンダーグラフの設計図)
 		Resource::TypeExtension _renderingPipeline = {};
 		_renderingPipeline.type = "RenderingPipelineAsset";
 		_renderingPipeline.AddExtensions(".ojrpipe");
 		_renderingPipeline.AddExtensions(".obrpipe");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_renderingPipeline);
+		_assetDB.AddSupporedExtensions(_renderingPipeline);
 		// フォント : 変換を挟まず .ttf などをそのまま読む
 		Resource::TypeExtension _font = {};
 		_font.type = "Font";
 		_font.AddExtensions(".ttf");
 		_font.AddExtensions(".otf");
 		_font.AddExtensions(".ttc");
-		Resource::AssetDatabase::Instance().AddSupporedExtensions(_font);
+		_assetDB.AddSupporedExtensions(_font);
 		// 全アセットに一括でメタファイル作成
 		// すでにあれば無視
-		Resource::AssetDatabase::Instance().CreateMetaFileForAllAssets();
+		_assetDB.CreateMetaFileForAllAssets();
 
 		// ランタイムデータ作成
-		Resource::AssetDatabase::Instance().CreateRuntimeData();
+		_assetDB.CreateRuntimeData();
 	}
 }

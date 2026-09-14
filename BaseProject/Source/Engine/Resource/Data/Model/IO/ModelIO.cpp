@@ -1,4 +1,6 @@
 ﻿#include "ModelIO.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 #include "ModelConverter/ModelConverter.h"
 
@@ -11,8 +13,13 @@ namespace Engine::Resource
 {
 	Model ModelIO::Import(const std::string& a_filePath, const ResourceBuildContext* a_pContext)
 	{
-		// アセットデータベースからメタファイルを検索
-		auto* _pAssetProp = AssetDatabase::Instance().GetAssetProperty(a_filePath);
+		// アセットデータベースからメタファイルを検索。
+		// コンテキストが無い経路では、読み込みを受け持つリソースマネージャーの持ち物を使う
+		assert(a_pContext && a_pContext->pResourceManager && "ResourceBuildContext.pResourceManager が空です");
+		auto& _assetDB = a_pContext->pAssetDatabase
+			? *a_pContext->pAssetDatabase
+			: a_pContext->pResourceManager->RefAssetDatabase();
+		auto* _pAssetProp = _assetDB.GetAssetProperty(a_filePath);
 		if (!_pAssetProp)
 		{
 			ENGINE_LOG("メタファイルが見つからなかったためモデルの読み込みに失敗");
@@ -76,7 +83,7 @@ namespace Engine::Resource
 
 		// ---- 参照しているデータの復元 ----
 		// コンテキストを渡すことで、配下のリソースも同じバッチへ積まれる
-		auto& _resMgr = a_ctx.pResourceManager ? *a_ctx.pResourceManager : ResourceManager::Instance();
+		auto& _resMgr = *a_ctx.pResourceManager;
 
 		for (const auto& _guid : _assetData.materialGUIDs)
 		{
@@ -127,7 +134,7 @@ namespace Engine::Resource
 		//----------------------------------------------------------------
 		// 登録 : ResourceManagerへ実体を預けてハンドル化する
 		//----------------------------------------------------------------
-		auto& _resMgr = a_ctx.pResourceManager ? *a_ctx.pResourceManager : ResourceManager::Instance();
+		auto& _resMgr = *a_ctx.pResourceManager;
 
 		ModelAssetData _assetData = {};
 		_assetData.name = Engine::File::GetFileName(a_filePath);
@@ -169,7 +176,7 @@ namespace Engine::Resource
 
 	void ModelIO::CreateDrawCmd(const ResourceBuildContext& a_ctx, const ModelAssetData& a_modelAssetData, ModelRuntimeData& a_runtimeData)
 	{
-		auto& _resMgr = a_ctx.pResourceManager ? *a_ctx.pResourceManager : ResourceManager::Instance();
+		auto& _resMgr = *a_ctx.pResourceManager;
 
 		// 描画時用に事前コマンド構築
 		for (auto& _meshNodeIdx : a_modelAssetData.drawMeshNodeIndices)

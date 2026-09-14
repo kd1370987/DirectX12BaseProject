@@ -7,7 +7,7 @@
 
 namespace Engine::Resource
 {
-	ScopedResourceBuild::ScopedResourceBuild(bool a_useCopy, bool a_useCompute)
+	ScopedResourceBuild::ScopedResourceBuild(ResourceManager* a_pResourceManager, bool a_useCopy, bool a_useCompute)
 	{
 		// バッチを開くのも転送を流すのもグラフィックスエンジン
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
@@ -26,8 +26,12 @@ namespace Engine::Resource
 		m_context.pComputeCmdList = m_batch.pComputeCmdList;
 		m_context.pKeepAliveUploads = &m_batch.keepAliveResources;
 
-		m_context.pResourceManager = &ResourceManager::Instance();
-		m_context.pAssetDatabase = &AssetDatabase::Instance();
+		m_context.pResourceManager = a_pResourceManager;
+		m_context.pAssetDatabase = a_pResourceManager ? &a_pResourceManager->RefAssetDatabase() : nullptr;
+		if (!a_pResourceManager)
+		{
+			ENGINE_ERRLOG(false, "[Resource] ビルドの登録先(ResourceManager)が渡されていません");
+		}
 
 		m_context.pGraphicsEngine = _pGE;
 		m_context.pMeshBufferAllocator = _pGE->RefMeshBufferAllocator();

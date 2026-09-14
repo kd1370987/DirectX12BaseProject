@@ -10,7 +10,8 @@ namespace Engine::Resource
 		/// </summary>
 		/// <param name="a_path">パス</param>
 		/// <returns>マテリアルの実体</returns>
-		static Material LoadFromFile(const std::string& a_path);
+		// a_pContext : 参照テクスチャを読み込むときに使う
+		static Material LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext);
 
 		/// <summary>
 		/// アセットデータベースに登録

@@ -7,7 +7,7 @@
 
 namespace Engine::Resource
 {
-
+	class ResourceManager;
 
 	struct ModelData
 	{
@@ -83,7 +83,8 @@ namespace Engine::Resource
 		~Model() = default;
 		NON_COPYABLE_MOVABLE(Model);
 
-		void Save(const std::string& a_filePath);
+		// サブアセットの実体を引き、メタファイルを先に作ってGUIDを埋める
+		void Save(ResourceManager& a_resourceManager, const std::string& a_filePath);
 
 		// 解放
 		void Release();

@@ -1,4 +1,6 @@
 ﻿#include "RenderGraph.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 // 設計図を書き出して実行用へ読み直すときに、中継ぎの JSON を持つ。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
@@ -1404,8 +1406,8 @@ namespace Engine::Graphics::Pipeline
 
 		// ---- アプリ寿命のもの ----
 		_context.pMainEngine		= &_mainEngine;
-		_context.pResourceManager	= &Resource::ResourceManager::Instance();
-		_context.pAssetDatabase		= &Resource::AssetDatabase::Instance();
+		_context.pResourceManager	= a_pGraphicsEngine ? a_pGraphicsEngine->RefResourceManager() : nullptr;
+		_context.pAssetDatabase		= _context.pResourceManager ? &_context.pResourceManager->RefAssetDatabase() : nullptr;
 		_context.pRayEngine			= &Raytracing::RayEngine::Instance();
 		_context.pParticleManager	= _mainEngine.RefParticleManager();
 		_context.pHeapManager		= m_pHeapManager;

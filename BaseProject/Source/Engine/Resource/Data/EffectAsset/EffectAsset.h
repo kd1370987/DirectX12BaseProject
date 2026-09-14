@@ -289,7 +289,7 @@ namespace Engine::Resource
 		/// ロード直後と、エディターで差し替えた後に呼ぶ。
 		/// ロードはリソースマネージャー経由なので、アセット単体では解決できない
 		/// </remarks>
-		void ResolveReferences();
+		void ResolveReferences(ResourceManager& a_resourceManager);
 
 		//--------------------------------------------------------------------
 		// 再生

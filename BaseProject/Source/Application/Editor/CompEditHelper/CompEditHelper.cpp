@@ -78,7 +78,7 @@ namespace App::Editor
 	void CompEditHelper::SelectModelNode(Engine::ECS::CompEditContext& a_editContext, const Engine::Handle<Engine::Resource::Model>& a_modelHandle, UINT& a_nodeNameHash, UINT& a_nodeIndex)
 	{
 		// リソースマネージャーから実際のモデルを取得
-		const auto* _pParentModel = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
+		const auto* _pParentModel = a_editContext.pWorld->RefEngineServices()->pResourceManager->Get(a_modelHandle);
 		if (!_pParentModel)
 		{
 			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: Model Resource is null.");

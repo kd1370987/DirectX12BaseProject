@@ -24,7 +24,7 @@ namespace Engine::Option::GraphicsOptions
 			return EOptionCategory::Graphics;
 		}
 
-		void DrawEdit() override
+		void DrawEdit(const ECS::EngineServices&) override
 		{
 			ImGui::DragFloat("GI Intensity", &giIntensity, 0.01f, 0.0f, 10.0f);
 			ImGui::DragFloat("Directional Intensity", &directionalIntensity, 0.01f, 0.0f, 10.0f);

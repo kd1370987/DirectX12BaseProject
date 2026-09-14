@@ -309,7 +309,7 @@ namespace Engine::ECS
 
 			if (uint8_t* _pData = NRefData(a_entity, _compID))
 			{
-				_release(_pData);
+				_release(_pData, m_engineServices);
 			}
 		}
 	}
@@ -327,7 +327,7 @@ namespace Engine::ECS
 		const auto& _release = GetCompFunc(a_compID).release;
 		if (!_release) return;
 
-		_release(a_pData);
+		_release(a_pData, m_engineServices);
 	}
 
 	//======================================================================================

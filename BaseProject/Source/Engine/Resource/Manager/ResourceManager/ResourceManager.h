@@ -91,6 +91,11 @@ namespace Engine::Resource
 		// 解放
 		void Release();
 
+		// アセットデータベース : 持ち主はこのクラス。
+		// 使う側はここを直接呼ばず、コンテキストに載ったポインタから引くこと
+		AssetDatabase& RefAssetDatabase() { return *m_upAssetDatabase; }
+		const AssetDatabase& GetAssetDatabase() const { return *m_upAssetDatabase; }
+
 		/// <summary>
 		/// 非同期ロードの実行先を登録する
 		///
@@ -309,10 +314,10 @@ namespace Engine::Resource
 		bool IsValid(const Handle<T>& a_handle);
 
 		/// <summary>
-		/// シングルトンの実体が生存しているか
-		/// 関数内 static の破棄順はシングルトン同士で保証されないため、
-		/// デストラクタから ResourceManager に触りにいく可能性のあるもの
-		/// (ResourceRef など) は必ずこれで生存確認してからアクセスすること
+		/// 実体が生存しているか
+		/// 持ち主(MainEngine)より後に壊れるもの・破棄の途中で参照を返しに来るもの
+		/// (ResourceRef のデストラクタなど) は、必ずこれで生存確認してからアクセスすること。
+		/// 自分のプールの中身が ResourceRef を持っているので、自分の破棄中にも呼ばれる
 		/// </summary>
 		static bool IsAlive() noexcept { return AliveFlag(); }
 
@@ -417,19 +422,37 @@ namespace Engine::Resource
 		// 非同期ロードの実行先 : 未登録なら同期で読む
 		std::atomic<Thread::JobSystem*> m_pJobSystem = nullptr;
 
-	// シングルトン
-	private:
+		// GUIDとファイルパスの対応表。
+		// ロードはGUIDから実ファイルを引くので、引く側(このクラス)が持ち主になる
+		std::unique_ptr<AssetDatabase> m_upAssetDatabase = nullptr;
+
+	//------------------------------------------------------------------------------------------
+	// 生成と所有
+	//
+	// 持ち主は MainEngine(unique_ptr)。1プロセスに1つだけ作る。
+	//
+	// Instance() は「MainEngine が作った実体」を指す静的な入口で、自分では作らない。
+	// 残してあるのは ResourceRef<T> のため : 値として資産の中に埋まっていて、
+	// コピーや破棄のたびに参照カウントを触るので、引数でマネージャーを渡せない。
+	// それ以外の場所はコンテキスト(EngineServices / PassContext / ResourceBuildContext)
+	// のポインタから引くこと
+	//------------------------------------------------------------------------------------------
+	public:
 
 		ResourceManager();
 		~ResourceManager();
 		NON_COPYABLE_NON_MOVABLE(ResourceManager);
 
-	public:
 		static ResourceManager& Instance()
 		{
-			static ResourceManager _instance;
-			return _instance;
+			assert(s_pInstance && "ResourceManager がまだ作られていないか、すでに壊れています");
+			return *s_pInstance;
 		}
+
+	private:
+
+		// MainEngine が作った実体 : コンストラクタで入り、デストラクタで外れる
+		static inline ResourceManager* s_pInstance = nullptr;
 	};
 	// リソースの読み込み要求 : 待たない
 	template<typename T>
@@ -533,11 +556,11 @@ namespace Engine::Resource
 		// 放置すると、このリソースを待っているスレッドが永久に起きてこない
 		try
 		{
-			std::string _filePath = AssetDatabase::Instance().GetFilePathFromGUID(a_guid);	// パス取得
+			std::string _filePath = m_upAssetDatabase->GetFilePathFromGUID(a_guid);	// パス取得
 
 			// アセットの読み込みをログ出力する(実際に読み込む時=キャッシュミス時のみ)。
 			// テクスチャやモデルなど Archive を通らないアセットもここで拾えるようにする。
-			if (const auto* _prop = AssetDatabase::Instance().GetAssetProperty(a_guid))
+			if (const auto* _prop = m_upAssetDatabase->GetAssetProperty(a_guid))
 			{
 				ENGINE_LOG("[Resource] ロード : %s \"%s\"", _prop->type.c_str(), _prop->fileName.c_str());
 			}
@@ -546,7 +569,18 @@ namespace Engine::Resource
 				ENGINE_LOG("[Resource] ロード : %s", _filePath.c_str());
 			}
 
-			T _resourceData = DefaultLoader<T>::LoadFromFile(_filePath, a_pBuildContext);	// リソースのビルド
+			//----------------------------------------------------------------------------------
+			// ローダーへは必ずコンテキストを渡す
+			//
+			// 呼び出し元がバッチを持っていない(非同期ロードなど)ときも、
+			// 登録先のマネージャー(自分)とアセットデータベースだけは載せておく。
+			// ローダーの中で他のリソースを読む(パーティクル→テクスチャなど)ときの行き先になる
+			//----------------------------------------------------------------------------------
+			ResourceBuildContext _context = a_pBuildContext ? *a_pBuildContext : ResourceBuildContext{};
+			if (!_context.pResourceManager) _context.pResourceManager = this;
+			if (!_context.pAssetDatabase) _context.pAssetDatabase = m_upAssetDatabase.get();
+
+			T _resourceData = DefaultLoader<T>::LoadFromFile(_filePath, &_context);	// リソースのビルド
 
 			// 押さえておいたスロットへ流し込む
 			_data.pool.Write(a_handle, [&_resourceData](T& a_dst) { a_dst = std::move(_resourceData); });

@@ -53,7 +53,9 @@ namespace Engine::Editor
 		bool IsValid() const { return pComp != nullptr; }
 	};
 
-	EffectEditor::EffectEditor() = default;
+	EffectEditor::EffectEditor(ECS::EngineServices* a_pServices)
+		: m_pServices(a_pServices)
+	{}
 	EffectEditor::~EffectEditor() = default;
 
 	//======================================================================================
@@ -68,7 +70,7 @@ namespace Engine::Editor
 
 		m_effectGUID = a_effectGUID;
 		m_effectHandle =
-			Resource::ResourceManager::Instance().LoadImmediate<Resource::EffectAsset>(a_effectGUID);
+			m_pServices->pResourceManager->LoadImmediate<Resource::EffectAsset>(a_effectGUID);
 
 		m_isOpen = true;
 		m_isOpenRequest = true;
@@ -207,7 +209,7 @@ namespace Engine::Editor
 
 	Resource::EffectAsset* EffectEditor::RefEffectAsset() const
 	{
-		return Resource::ResourceManager::Instance().Ref(m_effectHandle);
+		return m_pServices->pResourceManager->Ref(m_effectHandle);
 	}
 
 	Resource::ParticlesAsset* EffectEditor::RefSelectedParticleAsset() const
@@ -219,7 +221,7 @@ namespace Engine::Editor
 		if (m_selectedParticlePart < 0) return nullptr;
 		if (static_cast<size_t>(m_selectedParticlePart) >= _parts.size()) return nullptr;
 
-		return Resource::ResourceManager::Instance().Ref(_parts[m_selectedParticlePart].particleHandle);
+		return m_pServices->pResourceManager->Ref(_parts[m_selectedParticlePart].particleHandle);
 	}
 
 	//======================================================================================
@@ -237,7 +239,7 @@ namespace Engine::Editor
 		// ---- 再生の指示をコンポーネントへ書いてから回す ----
 		if (EffectRef _ref = FindEffect(); _ref.IsValid())
 		{
-			auto* _pEffect = Resource::ResourceManager::Instance().Ref(_ref.pComp->effectHandle);
+			auto* _pEffect = m_pServices->pResourceManager->Ref(_ref.pComp->effectHandle);
 
 			// 頭から再生し直す。
 			// isPlay を落として立ち上げ直すと2フレームかかるので、実体を直接叩く
@@ -453,7 +455,7 @@ namespace Engine::Editor
 	//--------------------------------------------------------------------------------------
 	void EffectEditor::DrawToolbar()
 	{
-		const auto _fileName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(m_effectGUID);
+		const auto _fileName = m_pServices->pAssetDatabase->GetFileNameFromGUID(m_effectGUID);
 		ImGui::Text("Effect : %s", _fileName.c_str());
 		ImGui::SameLine();
 		ImGui::TextDisabled("(%s)", m_effectGUID.String().c_str());
@@ -553,7 +555,7 @@ namespace Engine::Editor
 			return;
 		}
 
-		const auto* _pEffect = Resource::ResourceManager::Instance().Get(_ref.pComp->effectHandle);
+		const auto* _pEffect = m_pServices->pResourceManager->Get(_ref.pComp->effectHandle);
 		if (!_pEffect)
 		{
 			ImGui::TextDisabled("アセットを読み込めませんでした");
@@ -587,7 +589,7 @@ namespace Engine::Editor
 		if (ImGui::BeginTabItem("Effect"))
 		{
 			// 自分自身を開くボタンは要らないので出さない
-			Inspector::EffectAssetEdit(m_effectGUID, _pEffect, false);
+			Inspector::EffectAssetEdit(*m_pServices, m_effectGUID, _pEffect, false);
 			ImGui::EndTabItem();
 		}
 
@@ -630,7 +632,7 @@ namespace Engine::Editor
 			{
 				const std::string _name =
 					"Particle " + std::to_string(_i) + " : " +
-					Resource::AssetDatabase::Instance().GetFileNameFromGUID(_parts[_i].particleGUID);
+					m_pServices->pAssetDatabase->GetFileNameFromGUID(_parts[_i].particleGUID);
 
 				const bool _isSelected = (static_cast<int>(_i) == m_selectedParticlePart);
 				if (ImGui::Selectable(_name.c_str(), _isSelected))
@@ -652,6 +654,7 @@ namespace Engine::Editor
 		}
 
 		ImGui::TextDisabled("この粒を使っている他のエフェクトにも変更が効きます");
-		Inspector::ParticleEdit(_pParticles);
+		Inspector::ParticleEdit(
+			*m_pServices, _parts[m_selectedParticlePart].particleGUID, _pParticles);
 	}
 }

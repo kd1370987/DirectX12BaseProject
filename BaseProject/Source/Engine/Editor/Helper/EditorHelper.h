@@ -12,6 +12,11 @@ namespace Engine::Resource
 	struct AnimationData;
 }
 
+namespace Engine::ECS
+{
+	struct EngineServices;
+}
+
 namespace Engine::Editor
 {
 	// 型安全に値を参照する
@@ -125,17 +130,27 @@ namespace Engine::Editor
 		// アセット選択
 		//--------------------------------------------------------------------------------------
 
+		//--------------------------------------------------------------------------------------
+		// どれも先頭で EngineServices を受け取る。
+		// アセット一覧(AssetDatabase)とロード(ResourceManager)をそこから引くため。
+		//   コンポーネントの Edit      : *a_context.pWorld->RefEngineServices()
+		//   ゲームオブジェクト         : *a_context.pServices
+		//   エディターのパネル         : *a_editContext.pServices
+		//--------------------------------------------------------------------------------------
+
 		/// <summary>
 		/// アセットデータベースから1件選ばせるだけの土台
 		/// GUIDもハンドルもこちらでは書き換えないので、
 		/// 反映方法が特殊なもの(独自のロード関数を通す等)はこれを直接使う
 		/// </summary>
+		/// <param name="a_services">アセット一覧を引く先</param>
 		/// <param name="a_lable">コンボボックスのラベル</param>
 		/// <param name="a_assetTypeName">アセットデータベースに渡す型名</param>
 		/// <param name="a_currentGUID">現在選択中のGUID(表示と選択中判定に使う)</param>
 		/// <param name="a_outSelectedGUID">選択されたGUIDの受け取り先</param>
 		/// <returns>選択されたら true</returns>
 		static bool DrawAssetGUIDCombo(
+			const ECS::EngineServices& a_services,
 			const char* a_lable,
 			const char* a_assetTypeName,
 			const GUID& a_currentGUID,
@@ -152,6 +167,7 @@ namespace Engine::Editor
 		/// <param name="a_inoutGUID">上書きされるGUID</param>
 		/// <returns>選択が変更されたら true</returns>
 		static bool DrawAssetSelectComboGUID(
+			const ECS::EngineServices& a_services,
 			const char* a_lable,
 			const char* a_assetTypeName,
 			GUID& a_inoutGUID
@@ -174,6 +190,7 @@ namespace Engine::Editor
 		/// </remarks>
 		template<typename TResource, typename THandle>
 		static bool DrawAssetSelectCombo(
+			const ECS::EngineServices& a_services,
 			const char* a_lable,
 			const char* a_assetTypeName,
 			Engine::GUID& a_inoutGUID,
@@ -223,6 +240,7 @@ namespace Engine::Editor
 		/// <param name="a_inoutHandle">上書きされるアニメーションハンドル</param>
 		/// <returns>選択が変更されたら true</returns>
 		static bool DrawModelAnimationCombo(
+			const ECS::EngineServices& a_services,
 			const char* a_lable,
 			const Resource::Model* a_pModel,
 			Handle<Resource::AnimationData>& a_inoutHandle
@@ -232,6 +250,7 @@ namespace Engine::Editor
 		/// モデルが持つアニメーションを選択する(参照カウント付きハンドル版)
 		/// </summary>
 		static bool DrawModelAnimationCombo(
+			const ECS::EngineServices& a_services,
 			const char* a_lable,
 			const Resource::Model* a_pModel,
 			ResourceRef<Resource::AnimationData>& a_inoutRef
@@ -367,11 +386,13 @@ namespace Engine::Editor
 		/// <summary>
 		/// エディター上でテクスチャを表示する
 		/// </summary>
+		/// <param name="a_services">テクスチャの実体を引く先</param>
 		/// <param name="a_handle">テクスチャのハンドル</param>
 		/// <param name="a_width">横幅</param>
 		/// <param name="a_height">縦</param>
 		/// <returns>実際に描画したサイズ</returns>
 		static ImVec2 DrawTexture(
+			const ECS::EngineServices& a_services,
 			const Handle<Resource::Texture>& a_handle,
 			float a_width = 0,
 			float a_height = 0

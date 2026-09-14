@@ -2,7 +2,7 @@
 
 #include "../../Editor/Helper/EditorHelper.inl"
 
-void Engine::Option::GraphicsOptions::RenderingOption::DrawEdit()
+void Engine::Option::GraphicsOptions::RenderingOption::DrawEdit(const ECS::EngineServices&)
 {
 	ImGui::Checkbox("isZPre", &isZPre);
 	ImGui::Checkbox("useJitter (TAA)", &useJitter);

@@ -42,10 +42,10 @@ struct Engine::ECS::ComponentTraits<DeathEffectComponent>
 	// ECS がエンティティを消すとき・コンポーネントを外すとき・
 	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
 	//----------------------------------------------------------------------------------
-	static void Release(void* a_pData)
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		DeathEffectComponent& _comp = Engine::Editor::GetValue<DeathEffectComponent>(a_pData);
-		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+		auto& _resourceManager = *a_services.pResourceManager;
 
 		_resourceManager.ReleaseHandle(_comp.effectHandle);
 	}
@@ -61,6 +61,7 @@ struct Engine::ECS::ComponentTraits<DeathEffectComponent>
 		DeathEffectComponent& _comp = Engine::Editor::GetValue<DeathEffectComponent>(a_context.pData);
 
 		Engine::Editor::EditorHelper::DrawAssetSelectCombo<Engine::Resource::EffectAsset>(
+			*a_context.pWorld->RefEngineServices(),
 			"Death Effect",
 			"EffectAsset",
 			_comp.effectGUID,
@@ -73,7 +74,7 @@ struct Engine::ECS::ComponentTraits<DeathEffectComponent>
 		}
 
 		// 中身の確認用。細かい編集はアセット側のインスペクターで行う
-		const auto* _pEffect = Engine::Resource::ResourceManager::Instance().Get(_comp.effectHandle);
+		const auto* _pEffect = a_context.pWorld->RefEngineServices()->pResourceManager->Get(_comp.effectHandle);
 		if (!_pEffect)
 		{
 			ImGui::TextDisabled("(読み込み中 / 見つからないアセット)");

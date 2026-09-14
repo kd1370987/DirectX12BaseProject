@@ -47,19 +47,9 @@ namespace Engine::Scene
 		_upWorld->Init();
 
 		// アプリ寿命のサービスを差し込む。
-		// シングルトンを名指しするのはここ(合成の入り口)だけにして、
+		// 組むのは MainEngine::BuildEngineServices(合成の入り口)で、ここは写すだけ。
 		// 各システムは SystemContext 経由で受け取る。
-		Engine::ECS::EngineServices _services = {};
-		_services.pMainEngine		= &Engine::MainEngine::Instance();
-		_services.pResourceManager	= &Engine::Resource::ResourceManager::Instance();
-		_services.pAssetDatabase	= &Engine::Resource::AssetDatabase::Instance();
-		_services.pInputManager		= &Engine::Input::InputManager::Instance();
-		_services.pRayEngine		= &Engine::Raytracing::RayEngine::Instance();
-		_services.pAudioManager		= &Engine::Audio::AudioManager::Instance();
-		_services.pJobSystem		= Engine::MainEngine::Instance().RefJobSystem();
-		_services.pOptionManager	= &Engine::Option::OptionManager::GetInstance();
-		_services.pDebugDraw		= Engine::MainEngine::Instance().RefGraphicsEngine()->RefDebugDraw();
-		_upWorld->SetEngineServices(_services);
+		_upWorld->SetEngineServices(Engine::MainEngine::Instance().GetEngineServices());
 
 		// 当たり判定の空間。
 		//
@@ -73,6 +63,10 @@ namespace Engine::Scene
 		// ここで足しているのでプレビュー用のワールドにも必ず1つある。
 		// システムは a_ctx.pWorld->GetResource<CollisionWorld>() で引くこと。
 		_upWorld->AddResource<Collision::CollisionWorld>();
+
+		// メッシュ形状の厳密判定でモデルのメッシュを引くので、リソースの持ち主を渡しておく
+		_upWorld->GetResource<Collision::CollisionWorld>().SetResourceManager(
+			_upWorld->RefEngineServices()->pResourceManager);
 
 		// ゲーム固有のコンポーネントとシステムの登録。
 		// 何を登録するかはワールドの実体(派生)が持っている

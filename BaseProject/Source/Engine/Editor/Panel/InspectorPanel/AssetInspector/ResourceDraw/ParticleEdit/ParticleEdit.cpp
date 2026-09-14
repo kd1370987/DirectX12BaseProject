@@ -1,4 +1,6 @@
 ﻿#include "ParticleEdit.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 #include "../../AssetLink.h"
 
@@ -10,21 +12,25 @@ namespace Engine::Editor::Inspector
 	//-----------------------------------------------------------------------------------------
 	// パーティクルアセットの編集・詳細表示
 	//-----------------------------------------------------------------------------------------
-	void ParticleEdit(Resource::ParticlesAsset* a_pParticles, EditorContext* a_pEditContext)
+	void ParticleEdit(
+		const ECS::EngineServices& a_services,
+		const Engine::GUID& a_guid,
+		Resource::ParticlesAsset* a_pParticles,
+		EditorContext* a_pEditContext)
 	{
 		if (!a_pParticles) { return; }
 
-		if (ImGui::Button("Save"))
+		if (ImGui::Button("Save") && a_services.pAssetDatabase)
 		{
-			// ファイルパス取得
-			auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_pParticles->GetGUID());
+			// ファイルパス取得 : 呼び出し側が選んでいるGUIDから引く
+			auto _filePath = a_services.pAssetDatabase->GetFilePathFromGUID(a_guid);
 			a_pParticles->Save(_filePath);
 			ENGINE_LOG("%s: Save Particles", _filePath.c_str());
 		}
 
 		// パラメーター変更
 		ImGui::InputText("Name", &a_pParticles->RefName());
-		ImGui::Text("%s", a_pParticles->GetGUID().String().c_str());
+		ImGui::Text("%s", a_guid.String().c_str());
 
 		ImGui::Separator();
 
@@ -142,7 +148,7 @@ namespace Engine::Editor::Inspector
 		ImGui::Separator();
 
 		// 現在選択されているテクスチャ
-		const auto* _pTex = Resource::ResourceManager::Instance().Ref(a_pParticles->GetTexHandle());
+		const auto* _pTex = a_services.pResourceManager->Ref(a_pParticles->GetTexHandle());
 
 		ImGui::Separator();
 
@@ -150,6 +156,7 @@ namespace Engine::Editor::Inspector
 		// 反映は専用のロード関数を通すので、選択だけを共通ヘルパーに任せる
 		GUID _selectedGUID = {};
 		if (Editor::EditorHelper::DrawAssetGUIDCombo(
+			a_services,
 			"SelectTexture",
 			"Texture",
 			a_pParticles->GetTexGUID(),
@@ -157,7 +164,8 @@ namespace Engine::Editor::Inspector
 		{
 			// テクスチャのハンドル取得
 			// ロードされていなかったら止まる
-			a_pParticles->SetTexture(_selectedGUID, Resource::TextureIO::LoadTexture(_selectedGUID, TexColor::WHITE));
+			const auto _context = Resource::MakeManagerOnlyContext(a_services.pResourceManager, a_services.pAssetDatabase);
+			a_pParticles->SetTexture(_selectedGUID, Resource::TextureIO::LoadTexture(_selectedGUID, TexColor::WHITE, &_context));
 		}
 
 		// 今指しているテクスチャ。押せばテクスチャのインスペクターへ飛べる

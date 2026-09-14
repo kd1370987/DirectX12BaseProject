@@ -30,7 +30,7 @@ namespace Engine::Raytracing
 		m_isDrity = true;
 
 		// モデルのノードとメッシュを参照してインスタンスに変換
-		auto* _model = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
+		auto* _model = (*m_pResourceManager).Get(a_modelHandle);
 		if (!_model) return;
 
 		auto& _nodes = _model->GetOriginalNodeVec();
@@ -39,7 +39,7 @@ namespace Engine::Raytracing
 			for (auto& _meshIdx : _node.meshIndices)	// メッシュループ
 			{
 				const auto& _meshHandle = _model->GetMeshHandles()[_meshIdx];
-				const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
+				const auto* _pMesh = (*m_pResourceManager).Get(_meshHandle);
 				if (!_pMesh) continue;
 
 				Math::Matrix _nodeMat = _node.worldTransform;
@@ -58,7 +58,7 @@ namespace Engine::Raytracing
 				{
 					// マテリアル取得
 					const auto& _mateHandle = _model->GetMaterialHandles()[_subset.materialNumber];
-					const auto* _pMate = Resource::ResourceManager::Instance().Get(_mateHandle);
+					const auto* _pMate = (*m_pResourceManager).Get(_mateHandle);
 					if (!_pMate) continue;
 	
 					Material _mat = {};
@@ -101,7 +101,7 @@ namespace Engine::Raytracing
 		const auto& _nodePoseMatVec = _nodePosePool.GetRange(a_nodeposeMatHandle);
 
 		// モデルのノードとメッシュを参照してインスタンスに変換
-		auto* _model = Engine::Resource::ResourceManager::Instance().Get(a_modelHandle);
+		auto* _model = (*m_pResourceManager).Get(a_modelHandle);
 		if (!_model) return;
 
 		// アニメーション用BLASを取得
@@ -115,7 +115,7 @@ namespace Engine::Raytracing
 			for (auto& _meshIdx : _node.meshIndices)	// メッシュループ
 			{
 				const auto& _meshHandle = _model->GetMeshHandles()[_meshIdx];
-				const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
+				const auto* _pMesh = (*m_pResourceManager).Get(_meshHandle);
 				if (!_pMesh) continue;
 
 				// インスタンス作成
@@ -144,7 +144,7 @@ namespace Engine::Raytracing
 				{
 					// マテリアル取得
 					const auto& _mateHandle = _model->GetMaterialHandles()[_subset.materialNumber];
-					const auto* _pMate = Resource::ResourceManager::Instance().Get(_mateHandle);
+					const auto* _pMate = (*m_pResourceManager).Get(_mateHandle);
 					if (!_pMate) continue;
 
 					Material _mat = {};
@@ -174,11 +174,13 @@ namespace Engine::Raytracing
 		D3D12::Device* a_pDevice,
 		D3D12::DescriptorHeapManager* a_pHeapManager,
 		D3D12::GraphicsCommandList* a_pCmdList, 
-		uint32_t a_hitGroupNum
+		uint32_t a_hitGroupNum,
+		Resource::ResourceManager* a_pResourceManager
 	)
-	{	
+	{
 		// ビューの置き場を控える
 		m_pHeapManager = a_pHeapManager;
+		m_pResourceManager = a_pResourceManager;
 
 		// GPU実行のためキューリセット
 		// 仮置き
@@ -304,7 +306,7 @@ namespace Engine::Raytracing
 	}
 	int RayWorld::GetTexHepaIndex(const Handle<Resource::Texture>& a_handle) const
 	{
-		const auto* _Ntex = Engine::Resource::ResourceManager::Instance().Get(a_handle);
+		const auto* _Ntex = (*m_pResourceManager).Get(a_handle);
 		return static_cast<int>(_Ntex->GetSRV().GetIndex());
 	}
 }

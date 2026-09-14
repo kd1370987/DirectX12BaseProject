@@ -14,6 +14,11 @@
 //==========================================================================================
 #include "../RenderingPipelineAsset/RenderingPipelineAsset.h"
 
+namespace Engine::Resource
+{
+	class AssetDatabase;
+}
+
 namespace Engine::Graphics::Pipeline
 {
 	class PassMetaRegistry;
@@ -33,9 +38,10 @@ namespace Engine::Graphics::Pipeline
 		/// <summary>
 		/// 作成 : メタファイルと空のファイルを作成
 		/// </summary>
+		/// <param name="a_assetDB">同名がすでにあるかを調べる先</param>
 		/// <param name="a_path">Asset/RenderingPipeline/ 以下のディレクトリ名</param>
 		/// <param name="a_name">ファイルとパイプラインの名前</param>
 		/// <param name="a_pRegistry">生成できるパスの一覧</param>
-		static void Create(const std::string& a_path, const std::string& a_name, PassMetaRegistry* a_pRegistry);
+		static void Create(Resource::AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name, PassMetaRegistry* a_pRegistry);
 	};
 }

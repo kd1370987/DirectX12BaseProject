@@ -30,7 +30,8 @@ namespace Engine::Resource
 		// (コンテキストは ScopedResourceBuild が必ず埋めるが、念のため落とさないようにしておく)
 		ResourceManager& PickResourceManager(const ResourceBuildContext* a_pContext)
 		{
-			return (a_pContext && a_pContext->pResourceManager) ? *a_pContext->pResourceManager : ResourceManager::Instance();
+			assert(a_pContext && a_pContext->pResourceManager && "ResourceBuildContext.pResourceManager が空です");
+			return *a_pContext->pResourceManager;
 		}
 
 	}

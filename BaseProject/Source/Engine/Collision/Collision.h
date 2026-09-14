@@ -16,7 +16,9 @@ namespace Engine
 		// これを怠ると、ノードにスケールや平行移動を持つモデルでブロードフェーズが判定漏れを起こす。
 		//
 		// a_isMeshShape : メッシュ形状なら判定用ノード、それ以外は描画メッシュノードを対象にする
+		// a_resourceManager : モデルが持つメッシュの実体を引く先(*VSModel も同じ)
 		DirectX::BoundingBox CalcModelLocalAABB(
+			const Engine::Resource::ResourceManager& a_resourceManager,
 			const Engine::Resource::Model* a_pModel,
 			bool a_isMeshShape
 		);
@@ -26,6 +28,7 @@ namespace Engine
 		{
 			// モデル
 			bool VSModel(
+				const Engine::Resource::ResourceManager& a_resourceManager,
 				const RayInfo& a_rayInfo,
 				const Engine::Resource::Model* a_pModel,
 				const Math::Matrix& a_worldMat,
@@ -44,32 +47,32 @@ namespace Engine
 		// 球判定（オーバーラップ : 触れているかどうか）
 		namespace Sphere
 		{
-			bool VSModel(const SphereInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult);
+			bool VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const SphereInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult);
 			bool VSMesh(const SphereInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult);
 		}
 
 		// カプセル判定
 		namespace Capsule
 		{
-			bool VSModel(const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult);
+			bool VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult);
 			bool VSMesh(const CapsuleInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult);
 
 			// 押し出し用：カプセルとメッシュ/モデルの「最も深い接触」をワールド空間で返す
 			bool ResolveVSMesh(const CapsuleInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Contact& a_outContact);
-			bool ResolveVSModel(const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Contact& a_outContact);
+			bool ResolveVSModel(const Engine::Resource::ResourceManager& a_resourceManager, const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Contact& a_outContact);
 		}
 
 		// OBB判定（軸並行BoxもこのOBB経路を通す）
 		namespace OBB
 		{
-			bool VSModel(const OBBInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult);
+			bool VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const OBBInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult);
 			bool VSMesh(const OBBInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult);
 		}
 
 		// フラスタム判定
 		namespace Frustum
 		{
-			bool VSModel(const FrustumInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult);
+			bool VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const FrustumInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult);
 			bool VSMesh(const FrustumInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult);
 		}
 	}

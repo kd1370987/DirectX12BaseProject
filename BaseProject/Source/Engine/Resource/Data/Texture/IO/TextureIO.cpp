@@ -17,7 +17,7 @@ namespace Engine::Resource
 		_tex.Create(_scope.GetContext().pHeapManager, a_initData);
 
 		// リソースマネージャーに登録
-		auto _handle = ResourceManager::Instance().Add(std::move(_tex));
+		auto _handle = _scope.GetContext().pResourceManager->Add(std::move(_tex));
 
 		ENGINE_LOG("テクスチャが作成されました");
 
@@ -78,8 +78,14 @@ namespace Engine::Resource
 	)
 	{
 		// 参照するマネージャーはコンテキストから引く
-		auto& _assetDb = (a_pContext && a_pContext->pAssetDatabase) ? *a_pContext->pAssetDatabase : AssetDatabase::Instance();
-		auto& _resMgr = (a_pContext && a_pContext->pResourceManager) ? *a_pContext->pResourceManager : ResourceManager::Instance();
+		// 登録先はコンテキストで決まる。手元にバッチが無いなら MakeManagerOnlyContext で作って渡すこと
+		if (!a_pContext || !a_pContext->pResourceManager)
+		{
+			ENGINE_ERRLOG(false, "[TextureIO] 読み込み先(ResourceManager)が渡されていません");
+			return {};
+		}
+		auto& _resMgr = *a_pContext->pResourceManager;
+		auto& _assetDb = a_pContext->pAssetDatabase ? *a_pContext->pAssetDatabase : _resMgr.RefAssetDatabase();
 
 		// AssetDatabaseに存在する有効なGUIDなら、統合ロード処理へ投げる
 		if (_assetDb.IsValid(a_guid))

@@ -33,6 +33,7 @@ namespace Engine::Graphics
 		PipelineStateManager* pPipelineStateManager = nullptr;		// ハンドルからPSO・ルートシグネチャを引く
 		const DrawLists* pDrawLists = nullptr;						// 描画アイテムとUIの配列
 		const BackBuffer* pBackBuffer = nullptr;					// ビューポート・シザー矩形
+		Resource::ResourceManager* pResourceManager = nullptr;		// テクスチャの実体を引く
 
 		// アロケーターのメモリ容量
 		size_t cbAllocatorMemSize = 32 * 1024 * 1024;
@@ -260,6 +261,7 @@ namespace Engine::Graphics
 		PipelineStateManager* m_pPipelineStateManager = nullptr;	// PSO・ルートシグネチャ(借り物)
 		const DrawLists* m_pDrawLists = nullptr;					// 描画要求の配列(借り物)
 		const BackBuffer* m_pBackBuffer = nullptr;					// バックバッファ(借り物)
+		Resource::ResourceManager* m_pResourceManager = nullptr;	// テクスチャの実体を引く(借り物)
 		GraphicsEngine* m_pGraphicsEngine = nullptr;				// グラフィックスエンジン
 
 		//--------------------------------------------------------------------------------------------

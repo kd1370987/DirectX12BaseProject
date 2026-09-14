@@ -1,4 +1,10 @@
 ﻿#include "AssetDataBasePanel.h"
+#include "Engine/Resource/Data/AnimatorAsset/IO/AnimatorAssetIO.h"
+#include "Engine/Resource/Data/ActionStateMachineAsset/IO/ActionStateMachineAssetIO.h"
+#include "Engine/Resource/Data/Particles/IO/ParticlesIO.h"
+#include "Engine/Resource/Data/AudioBehavior/IO/AudioBehaviorIO.h"
+#include "Engine/Resource/Data/EffectAsset/IO/EffectAssetIO.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 #include "../../Helper/EditorHelper.h"
 
@@ -13,40 +19,40 @@ namespace Engine::Editor
 {
 	AssetDataBasePanel::AssetDataBasePanel()
 	{
-		m_assetCreateFuncs["AnimatorAsset"] = [](const std::string& path, const std::string& name) {
-			Resource::AnimatorAssetIO::Create(path, name);
+		m_assetCreateFuncs["AnimatorAsset"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
+			Resource::AnimatorAssetIO::Create(*a_services.pResourceManager, path, name);
 			};
 
-		m_assetCreateFuncs["ActionStateMachineAsset"] = [](const std::string& path, const std::string& name) {
-			Resource::ActionStateMachineAssetIO::Create(path, name);
+		m_assetCreateFuncs["ActionStateMachineAsset"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
+			Resource::ActionStateMachineAssetIO::Create(*a_services.pAssetDatabase, path, name);
 			};
 
-		m_assetCreateFuncs["ParticlesAsset"] = [](const std::string& path, const std::string& name) {
-			Resource::ParticlesAssetIO::Create(path, name);
+		m_assetCreateFuncs["ParticlesAsset"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
+			Resource::ParticlesAssetIO::Create(*a_services.pAssetDatabase, path, name);
 			};
 
-		m_assetCreateFuncs["Prefab"] = [](const std::string& path, const std::string& name) {
-			Resource::Prefab::Create(path, name);
+		m_assetCreateFuncs["Prefab"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
+			Resource::Prefab::Create(*a_services.pAssetDatabase, path, name);
 			};
 
-		m_assetCreateFuncs["AudioBehavior"] = [](const std::string& path, const std::string& name) {
-			Resource::AudioBehaviorIO::Create(path, name);
+		m_assetCreateFuncs["AudioBehavior"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
+			Resource::AudioBehaviorIO::Create(*a_services.pAssetDatabase, path, name);
 			};
 
-		m_assetCreateFuncs["EffectAsset"] = [](const std::string& path, const std::string& name) {
-			Resource::EffectAssetIO::Create(path, name);
+		m_assetCreateFuncs["EffectAsset"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
+			Resource::EffectAssetIO::Create(*a_services.pAssetDatabase, path, name);
 			};
 
 		// レンダリングパイプライン : パスの一覧はグラフィックスエンジンが持っているので引いて渡す
-		m_assetCreateFuncs["RenderingPipelineAsset"] = [](const std::string& path, const std::string& name) {
+		m_assetCreateFuncs["RenderingPipelineAsset"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
 			auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 			Graphics::Pipeline::RenderingPipelineAssetIO::Create(
-				path, name, _pGE ? _pGE->RefPassMetaRegistry() : nullptr);
+				*a_services.pAssetDatabase, path, name, _pGE ? _pGE->RefPassMetaRegistry() : nullptr);
 			};
 
 		// 空のシーン。作るだけで開かない(開くのはシーンビューのメニュー)
-		m_assetCreateFuncs["Scene"] = [](const std::string& path, const std::string& name) {
-			Engine::Scene::SceneManager::Instance().CreateEmptyScene(path, name);
+		m_assetCreateFuncs["Scene"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
+			Engine::Scene::SceneManager::Instance().CreateEmptyScene(*a_services.pAssetDatabase, path, name);
 			};
 	}
 	void AssetDataBasePanel::OnDrawImGui(EditorContext& a_editContext)
@@ -71,7 +77,7 @@ namespace Engine::Editor
 			ImGui::Separator();
 
 			// データベースから現在登録されている全てのアセットタイプを取得
-			auto _typeMap = Resource::AssetDatabase::Instance().GetAssetTypeExtensionsMap();
+			auto _typeMap = a_editContext.pServices->pAssetDatabase->GetAssetTypeExtensionsMap();
 
 			// ループで動的にUIを生成する！
 			for (const auto& [_typeName, _extensions] : _typeMap)
@@ -88,7 +94,8 @@ namespace Engine::Editor
 					if (Engine::Editor::EditorHelper::CreateButton("Create"))
 					{
 						// 辞書から該当する関数を引っ張ってきて実行！
-						m_assetCreateFuncs[_typeName](std::string(m_pathCach), std::string(m_nameCach));
+						m_assetCreateFuncs[_typeName](
+							*a_editContext.pServices, std::string(m_pathCach), std::string(m_nameCach));
 
 						// キャッシュのクリア
 						std::memset(m_nameCach, 0, sizeof(m_nameCach));
@@ -184,8 +191,8 @@ namespace Engine::Editor
 		if (ImGui::BeginTabBar("AssetTabs"))
 		{
 			// アセットの構造階層を取得
-			const auto& _rootNode = Resource::AssetDatabase::Instance().GetAssetRootNode();
-			const auto& _types = Resource::AssetDatabase::Instance().GetAssetTypeExtensionsMap();
+			const auto& _rootNode = a_editContext.pServices->pAssetDatabase->GetAssetRootNode();
+			const auto& _types = a_editContext.pServices->pAssetDatabase->GetAssetTypeExtensionsMap();
 			for (auto& [_type, _typeExt] : _types)
 			{
 				if (ImGui::BeginTabItem(_type.c_str()))

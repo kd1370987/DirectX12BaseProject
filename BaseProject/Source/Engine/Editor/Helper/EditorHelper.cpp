@@ -1,4 +1,6 @@
 ﻿#include "EditorHelper.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../MainEngine.h"
@@ -64,6 +66,7 @@ namespace Engine::Editor
 	// アセットデータベースから1件選ばせるだけの土台
 	//======================================================================================
 	bool EditorHelper::DrawAssetGUIDCombo(
+		const ECS::EngineServices& a_services,
 		const char* a_lable,
 		const char* a_assetTypeName,
 		const GUID& a_currentGUID,
@@ -72,14 +75,17 @@ namespace Engine::Editor
 	{
 		bool _isChanged = false;
 
+		if (!a_services.pAssetDatabase) return false;
+		auto& _assetDB = *a_services.pAssetDatabase;
+
 		// 現在の選択情報 : ハンドルを持たない前提なのでGUIDから名前を引く。
 		// 同名のアセットが別フォルダにあり得るので、置き場所も一緒に出す
-		auto _fileName = Resource::AssetDatabase::Instance().GetFileNameFromGUID(a_currentGUID);
+		auto _fileName = _assetDB.GetFileNameFromGUID(a_currentGUID);
 		if (!_fileName.empty())
 		{
 			ImGui::Text("%s : %s", a_assetTypeName, _fileName.c_str());
 
-			if (const auto* _pProp = Resource::AssetDatabase::Instance().GetAssetProperty(a_currentGUID))
+			if (const auto* _pProp = _assetDB.GetAssetProperty(a_currentGUID))
 			{
 				ImGui::TextDisabled("%s", _pProp->filePath.c_str());
 			}
@@ -92,7 +98,7 @@ namespace Engine::Editor
 			// 数が増えると探せなくなるので名前で絞り込めるようにする
 			const std::string& _search = DrawSearchBox();
 
-			const auto& _assetList = Resource::AssetDatabase::Instance().GetTypeMetaVec(a_assetTypeName);
+			const auto& _assetList = _assetDB.GetTypeMetaVec(a_assetTypeName);
 
 			// 同名のアセットは名前だけでは選び分けられないので、置き場所を添える対象を先に拾う
 			const auto _duplicatedSet = CollectDuplicatedNames(
@@ -142,13 +148,14 @@ namespace Engine::Editor
 	// GUIDのみを書き換えるアセット検索欄
 	//======================================================================================
 	bool EditorHelper::DrawAssetSelectComboGUID(
+		const ECS::EngineServices& a_services,
 		const char* a_lable,
 		const char* a_assetTypeName,
 		GUID& a_inoutGUID
 	)
 	{
 		GUID _selectedGUID = {};
-		if (!DrawAssetGUIDCombo(a_lable, a_assetTypeName, a_inoutGUID, _selectedGUID))
+		if (!DrawAssetGUIDCombo(a_services, a_lable, a_assetTypeName, a_inoutGUID, _selectedGUID))
 		{
 			return false;
 		}
@@ -306,6 +313,7 @@ namespace Engine::Editor
 		// アニメーション選択コンボの本体
 		// ハンドルの持ち方(生ハンドル / 参照カウント付き)だけが違うので、選択結果だけを返す
 		bool DrawModelAnimationComboImpl(
+			const ECS::EngineServices& a_services,
 			const char* a_lable,
 			const Resource::Model* a_pModel,
 			const Handle<Resource::AnimationData>& a_currentHandle,
@@ -317,9 +325,9 @@ namespace Engine::Editor
 			const auto& _handleVec = a_pModel->GetAnimationHandles();
 
 			// ハンドルから名前を引く。取れなければ空(この後の一覧では飛ばす)
-			auto _animName = [](const auto& a_ref) -> std::string
+			auto _animName = [&a_services](const auto& a_ref) -> std::string
 			{
-				const auto* _pAnim = Resource::ResourceManager::Instance().Get(a_ref);
+				const auto* _pAnim = a_services.pResourceManager->Get(a_ref);
 				return _pAnim ? _pAnim->name : std::string();
 			};
 
@@ -349,7 +357,7 @@ namespace Engine::Editor
 				{
 					const auto& _ref = _handleVec[_i];
 
-					const auto* _pAnim = Resource::ResourceManager::Instance().Get(_ref);
+					const auto* _pAnim = a_services.pResourceManager->Get(_ref);
 					if (!_pAnim) continue;
 
 					if (!EditorHelper::IsMatchSearch(_search, _pAnim->name)) continue;
@@ -385,13 +393,14 @@ namespace Engine::Editor
 	}
 
 	bool EditorHelper::DrawModelAnimationCombo(
+		const ECS::EngineServices& a_services,
 		const char* a_lable,
 		const Resource::Model* a_pModel,
 		Handle<Resource::AnimationData>& a_inoutHandle
 	)
 	{
 		Handle<Resource::AnimationData> _selected = {};
-		if (!DrawModelAnimationComboImpl(a_lable, a_pModel, a_inoutHandle, _selected))
+		if (!DrawModelAnimationComboImpl(a_services, a_lable, a_pModel, a_inoutHandle, _selected))
 		{
 			return false;
 		}
@@ -401,13 +410,14 @@ namespace Engine::Editor
 	}
 
 	bool EditorHelper::DrawModelAnimationCombo(
+		const ECS::EngineServices& a_services,
 		const char* a_lable,
 		const Resource::Model* a_pModel,
 		ResourceRef<Resource::AnimationData>& a_inoutRef
 	)
 	{
 		Handle<Resource::AnimationData> _selected = {};
-		if (!DrawModelAnimationComboImpl(a_lable, a_pModel, a_inoutRef.GetRaw(), _selected))
+		if (!DrawModelAnimationComboImpl(a_services, a_lable, a_pModel, a_inoutRef.GetRaw(), _selected))
 		{
 			return false;
 		}
@@ -421,13 +431,14 @@ namespace Engine::Editor
 	// エディター上でテクスチャを表示する
 	//======================================================================================
 	ImVec2 EditorHelper::DrawTexture(
+		const ECS::EngineServices& a_services,
 		const Handle<Resource::Texture>& a_handle,
 		float a_width,
 		float a_height
 	)
 	{
 		// テクスチャ表示
-		auto& _resMgr = Resource::ResourceManager::Instance();
+		auto& _resMgr = *a_services.pResourceManager;
 
 		// 読み込み中はまだ中身が空なので、SRVを引くと不正なディスクリプタを掴む
 		if (!_resMgr.IsReady(a_handle))

@@ -78,12 +78,12 @@ namespace Engine::Resource
 	//======================================================================================
 	// エディター
 	//======================================================================================
-	void ActionStateMachineAsset::EditImGui(const Handle<ActionStateMachineAsset>& a_handle)
+	void ActionStateMachineAsset::EditImGui(const Handle<ActionStateMachineAsset>& a_handle, const ECS::EngineServices& a_services)
 	{
-		if (ImGui::Button("Save"))
+		if (ImGui::Button("Save") && a_services.pAssetDatabase)
 		{
-			auto _guid = ResourceManager::Instance().GetCache<ActionStateMachineAsset>(a_handle);
-			auto _path = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+			auto _guid = a_services.pResourceManager->GetCache<ActionStateMachineAsset>(a_handle);
+			auto _path = a_services.pAssetDatabase->GetFilePathFromGUID(_guid);
 			Save(_path);
 			ENGINE_LOG("%s : Save ActionStateMachineAsset", _path.c_str());
 		}

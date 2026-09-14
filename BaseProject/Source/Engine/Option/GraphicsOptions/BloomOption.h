@@ -29,7 +29,7 @@ namespace Engine::Option::GraphicsOptions
 			return EOptionCategory::Graphics;
 		}
 
-		void DrawEdit() override
+		void DrawEdit(const ECS::EngineServices&) override
 		{
 			ImGui::Checkbox("Enable", &enable);
 			ImGui::DragFloat("Threshold", &threshold, 0.01f, 0.0f, 20.0f);

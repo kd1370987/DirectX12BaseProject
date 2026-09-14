@@ -42,10 +42,10 @@ namespace Engine::Resource
 	//======================================================================================
 	// 保存
 	//======================================================================================
-	void AnimatorAsset::Save(const std::string& a_savePath)
+	void AnimatorAsset::Save(const std::string& a_savePath, const ResourceManager& a_resourceManager)
 	{
 		// 保存直前: 各ノードの再生アニメ参照(playAnimData)からGUIDを取り出しておく
-		auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
+		auto* _pModel = a_resourceManager.Get(m_modelHandle);
 		if (_pModel)
 		{
 			for (auto& [_hash, _node] : m_graph.Nodes())
@@ -103,19 +103,19 @@ namespace Engine::Resource
 	//======================================================================================
 	// 読み込み
 	//======================================================================================
-	void AnimatorAsset::Load(const std::string& a_fileDir, const std::string& a_fileName)
+	void AnimatorAsset::Load(const std::string& a_fileDir, const std::string& a_fileName, ResourceManager& a_resourceManager)
 	{
-		LoadInternal(a_fileDir, a_fileName);
+		LoadInternal(a_fileDir, a_fileName, a_resourceManager);
 	}
 
-	void AnimatorAsset::Load(const std::string& a_filePath)
+	void AnimatorAsset::Load(const std::string& a_filePath, ResourceManager& a_resourceManager)
 	{
 		auto _dir = Engine::File::GetDirFromPath(a_filePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
-		LoadInternal(_dir, _fileName);
+		LoadInternal(_dir, _fileName, a_resourceManager);
 	}
 
-	void AnimatorAsset::LoadInternal(const std::string& a_fileDir, const std::string& a_fileName)
+	void AnimatorAsset::LoadInternal(const std::string& a_fileDir, const std::string& a_fileName, ResourceManager& a_resourceManager)
 	{
 		Release();
 
@@ -126,7 +126,7 @@ namespace Engine::Resource
 		// Animator固有ヘッダ
 		_arch.Field("m_name", m_name);
 		_arch.Field("m_modelGUID", m_modelGUID);
-		m_modelHandle = ResourceManager::Instance().LoadImmediate<Model>(m_modelGUID);
+		m_modelHandle = a_resourceManager.LoadImmediate<Model>(m_modelGUID);
 
 		// グラフ本体
 		m_graph.LoadGraph(_arch);
@@ -135,7 +135,7 @@ namespace Engine::Resource
 		ArchiveAdditiveBones(_arch);
 
 		// モデルから各ノードの再生アニメ参照を復元(GUID → ハンドル)
-		auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
+		auto* _pModel = a_resourceManager.Get(m_modelHandle);
 		if (_pModel)
 		{
 			for (auto& [_hash, _node] : m_graph.Nodes())
@@ -161,40 +161,40 @@ namespace Engine::Resource
 	//======================================================================================
 	// エディター
 	//======================================================================================
-	void AnimatorAsset::EditImGui(const Handle<AnimatorAsset>& a_handle)
+	void AnimatorAsset::EditImGui(const Handle<AnimatorAsset>& a_handle, const ECS::EngineServices& a_services)
 	{
 		// 保存(ファイルパスはハンドル→GUID→パスで解決)
-		if (ImGui::Button("Save"))
+		if (ImGui::Button("Save") && a_services.pAssetDatabase)
 		{
-			auto _guid = ResourceManager::Instance().GetCache<AnimatorAsset>(a_handle);
-			auto _path = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
-			Save(_path);
+			auto _guid = a_services.pResourceManager->GetCache<AnimatorAsset>(a_handle);
+			auto _path = a_services.pAssetDatabase->GetFilePathFromGUID(_guid);
+			Save(_path, *a_services.pResourceManager);
 			ENGINE_LOG("%s : Save AnimatorAsset", _path.c_str());
 		}
 		ImGui::Separator();
 
 		// アニメを付随させるための参照モデル選択(Animator固有)
-		BindModelComb();
+		BindModelComb(a_services);
 		ImGui::Separator();
 
 		// 加算ポーズの対象ボーン定義
-		AdditiveBoneEdit();
+		AdditiveBoneEdit(*a_services.pResourceManager);
 		ImGui::Separator();
 
 		// ノード本体だけ(アニメ選択UI)を注入して汎用ノードエディタを描画
 		m_editor.Draw(m_graph,
-			[this](AnimatorNode& a_node)
+			[this, &a_services](AnimatorNode& a_node)
 			{
 				if (m_modelHandle == Handle<Model>()) return;
 
-				auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
+				auto* _pModel = a_services.pResourceManager->Get(m_modelHandle);
 				if (!_pModel) return;
 
 				ImGui::PushItemWidth(130.0f);
 
 				// アニメ選択
 				ImGui::Text("Animation");
-				Editor::EditorHelper::DrawModelAnimationCombo("##ChangeAnimation", _pModel, a_node.playAnimData);
+				Editor::EditorHelper::DrawModelAnimationCombo(a_services, "##ChangeAnimation", _pModel, a_node.playAnimData);
 
 				// 再生スピード
 				ImGui::Text("Speed");
@@ -214,9 +214,10 @@ namespace Engine::Resource
 	//======================================================================================
 	// Animator固有UI: 参照モデル選択
 	//======================================================================================
-	void AnimatorAsset::BindModelComb()
+	void AnimatorAsset::BindModelComb(const ECS::EngineServices& a_services)
 	{
 		Editor::EditorHelper::DrawAssetSelectCombo<Model>(
+			a_services,
 			"Change model",
 			"Model",
 			m_modelGUID,
@@ -227,11 +228,11 @@ namespace Engine::Resource
 	//======================================================================================
 	// Animator固有UI: 加算ポーズの対象ボーン定義
 	//======================================================================================
-	void AnimatorAsset::AdditiveBoneEdit()
+	void AnimatorAsset::AdditiveBoneEdit(const ResourceManager& a_resourceManager)
 	{
 		if (!ImGui::CollapsingHeader("Additive Bones")) return;
 
-		const auto* _pModel = ResourceManager::Instance().Get(m_modelHandle);
+		const auto* _pModel = a_resourceManager.Get(m_modelHandle);
 		if (!_pModel)
 		{
 			ImGui::TextDisabled("Select a model first");

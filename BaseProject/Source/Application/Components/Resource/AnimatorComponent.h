@@ -62,11 +62,11 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 			auto* _refData = a_context.pWorld->RefData<ModelComponent>(a_context.entity);
 			if (!_refData) return;
 
-			auto* _pModel = Resource::ResourceManager::Instance().Get(_refData->handle);
+			auto* _pModel = a_context.pWorld->RefEngineServices()->pResourceManager->Get(_refData->handle);
 			if (!_pModel) return;
 
 			// モデル内のアニメーションコンボ
-			Engine::Editor::EditorHelper::DrawModelAnimationCombo("Animation", _pModel, _comp.animHandle);
+			Engine::Editor::EditorHelper::DrawModelAnimationCombo(*a_context.pWorld->RefEngineServices(), "Animation", _pModel, _comp.animHandle);
 		}
 	}
 };

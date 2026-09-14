@@ -74,12 +74,18 @@ namespace Engine::Resource
 	}
 
 	ResourceManager::ResourceManager()
+		: m_upAssetDatabase(std::make_unique<AssetDatabase>())
 	{
+		assert(s_pInstance == nullptr && "ResourceManager は1つだけ作ること");
+		s_pInstance = this;
 		AliveFlag() = true;
 	}
 	ResourceManager::~ResourceManager()
 	{
-		// 以降 ResourceRef のデストラクタなどからアクセスされないようにする
+		// 以降 ResourceRef のデストラクタなどからアクセスされないようにする。
+		// メンバ(プール)が壊れるのはこの本体を抜けた後で、そこで中身の ResourceRef が
+		// 参照を返しに来るが、生存フラグを見て引き返す
 		AliveFlag() = false;
+		s_pInstance = nullptr;
 	}
 }

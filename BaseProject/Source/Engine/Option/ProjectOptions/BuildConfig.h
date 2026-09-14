@@ -31,7 +31,7 @@ namespace Engine::Option::ProjectOptions
 			return EOptionCategory::Project;
 		}
 
-		void DrawEdit() override
+		void DrawEdit(const ECS::EngineServices&) override
 		{
 			Editor::EditorHelper::DrawEnumCombo("BuildMode",buildMode);
 			ImGui::InputText("AssetRootPath",&assetRootPath);

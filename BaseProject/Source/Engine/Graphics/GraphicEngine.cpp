@@ -190,6 +190,10 @@ namespace Engine::Graphics
 		const GraphicsEngineDesc& a_desc
 	)
 	{
+		// リソースの持ち主 : 以降の初期化(スキニング・パーティクルのシェーダー)でも使う
+		m_pResourceManager = a_desc.pResourceManager;
+		assert(m_pResourceManager && "GraphicsEngineDesc.pResourceManager が渡されていません");
+
 
 		auto* _pDevice = RefDevice();
 
@@ -213,6 +217,7 @@ namespace Engine::Graphics
 			_desc.pPipelineStateManager = m_upPipelineStateManager.get();
 			_desc.pDrawLists = &m_drawLists;
 			_desc.pBackBuffer = m_upBackBuffer.get();
+			_desc.pResourceManager = m_pResourceManager;
 
 			_desc.cbAllocatorMemSize = 32 * 1024 * 1024;
 			// シーンを重ねて描くとき(ポーズ画面など)は全ワールドのボーン行列を
@@ -258,8 +263,8 @@ namespace Engine::Graphics
 		// 同じ結果を読む。パイプラインのパスにすると、カメラの数だけ同じ計算を回すことになる。
 		// ここで用意して Execute() から直接呼ぶ
 		//------------------------------------------------------------------------------------
-		SetupSkinning(m_upPipelineStateManager.get());
-		SetupParticleSimulation(m_upPipelineStateManager.get());
+		SetupSkinning(m_upPipelineStateManager.get(), *m_pResourceManager);
+		SetupParticleSimulation(m_upPipelineStateManager.get(), *m_pResourceManager);
 
 		// 定数バッファ初期化
 		m_cbAmbient = {};
@@ -462,7 +467,7 @@ namespace Engine::Graphics
 	void GraphicsEngine::RebuildCameraPipelines(bool a_isNewOnly)
 	{
 		auto* _pDevice = RefDevice();
-		auto& _resourceManager = Resource::ResourceManager::Instance();
+		auto& _resourceManager = (*m_pResourceManager);
 
 		// 組み直したカメラがあったか。1台でもあればパス番号を配り直す
 		bool _isAnyRebuilt = false;
@@ -826,7 +831,7 @@ namespace Engine::Graphics
 		std::vector<PipelineGraphView> _result = {};
 		_result.reserve(m_cameras.size());
 
-		auto& _resourceManager = Resource::ResourceManager::Instance();
+		auto& _resourceManager = (*m_pResourceManager);
 
 		for (const auto& _upCamera : m_cameras)
 		{
@@ -1435,11 +1440,11 @@ namespace Engine::Graphics
 		for (const auto& _cmd : _drawCmdVec)
 		{
 			// マテリアル取得
-			auto* _pMaterial = Engine::Resource::ResourceManager::Instance().Get(_cmd.materialHandle);
+			auto* _pMaterial = (*m_pResourceManager).Get(_cmd.materialHandle);
 			if (!_pMaterial) continue;
 
 			// メッシュ取得
-			auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_cmd.meshHandle);
+			auto* _pMesh = (*m_pResourceManager).Get(_cmd.meshHandle);
 			if (!_pMesh) continue;
 
 			// レイトレ用データを持たないメッシュはスキニング登録できない
@@ -1653,7 +1658,7 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, const Math::Vector2& a_screenRect, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, const Math::Vector2& a_uvScale, float a_curveK, float a_curveOffsetX)
 	{
-		auto& _resMgr = Resource::ResourceManager::Instance();
+		auto& _resMgr = (*m_pResourceManager);
 
 		// 読み込みが終わっていないものは、そのフレームは描かない。
 		// 非同期ロード中のスロットには空の実体が入っているため、
@@ -1669,7 +1674,7 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, float a_scale, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, float a_curveK, float a_curveOffsetX)
 	{
-		auto& _resMgr = Resource::ResourceManager::Instance();
+		auto& _resMgr = (*m_pResourceManager);
 
 		// 読み込み中のものは描かない : 空の実体のサイズを掛けても意味がない
 		if (!_resMgr.IsReady(a_texHandle)) return;
@@ -1802,14 +1807,14 @@ namespace Engine::Graphics
 		{
 			// ターゲットとなるインスタンスデータと、ソースとなるモデルデータの取得
 			auto* _pData = _dynamicPool.Ref(_initReq.dynamicInstanceHandle);
-			auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_initReq.modelHandle);
+			auto* _pModel = (*m_pResourceManager).Get(_initReq.modelHandle);
 			if (!_pData || !_pModel) continue;
 
 			// モデル内の各メッシュごとに動的BLASを構築
 			for (auto& _meshHandle : _pModel->GetMeshHandles())
 			{
 				// メッシュの有効性チェック
-				auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
+				auto* _pMesh = (*m_pResourceManager).Get(_meshHandle);
 				if (!_pMesh || !_pMesh->HasRtData()) continue;
 
 				// メッシュデータの追加と参照の取得
@@ -1868,7 +1873,7 @@ namespace Engine::Graphics
 	}
 	int GraphicsEngine::GetSRVIndexFromTextureHandle(const Handle<Resource::Texture>& a_texHandle)
 	{
-		auto* _pTex = Resource::ResourceManager::Instance().Get(a_texHandle);
+		auto* _pTex = (*m_pResourceManager).Get(a_texHandle);
 		ENGINE_ERRLOG(_pTex,"テクスチャが見つかりません");
 
 		return static_cast<int>(_pTex->GetSRV().GetIndex());
@@ -1882,7 +1887,7 @@ namespace Engine::Graphics
 		const Resource::Mesh*& a_pOutMesh,
 		const Resource::Material*& a_pOutMaterial)
 	{
-		auto& _resManager = Resource::ResourceManager::Instance();
+		auto& _resManager = (*m_pResourceManager);
 
 		// メッシュ
 		a_pOutMesh = _resManager.Get(a_cmd.meshHandle);
@@ -1959,7 +1964,7 @@ namespace Engine::Graphics
 			_pipelineKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
 			_pipelineKey.psHandle = _pPipelinePass->GetDefaultPSHandle();
 
-			auto _psoHandle = _pPipelinePass->RefPipelineBuilder().Request(_pipelineKey, m_upPipelineStateManager.get());
+			auto _psoHandle = _pPipelinePass->RefPipelineBuilder().Request(_pipelineKey, m_upPipelineStateManager.get(), *m_pResourceManager);
 
 			// PSOを作れなかったアイテムは積まない : 描くときに引く先が無い。
 			//

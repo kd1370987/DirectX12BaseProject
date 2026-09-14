@@ -20,6 +20,8 @@ namespace Engine
 
 namespace Engine::Resource
 {
+	class AssetDatabase;
+
 	//======================================================================================
 	// プレハブに含める子エンティティ1つぶんのテンプレート
 	//
@@ -60,7 +62,7 @@ namespace Engine::Resource
 		// ファイルパスから読み込んで実体を返す(ResourceManager の Load から使用)
 		static Prefab LoadFromFile(const std::string& a_path);
 		// 空のプレハブアセットを新規作成(AssetDataBasePanel から使用)
-		static void   Create(const std::string& a_path, const std::string& a_name);
+		static void   Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name);
 
 		//----------------------------------------------------------------------------------
 		// 保存 / 読み込み(コンポーネントのメタ情報が必要なので World を受け取る)

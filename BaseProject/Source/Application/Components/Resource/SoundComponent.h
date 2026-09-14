@@ -32,6 +32,7 @@ struct Engine::ECS::ComponentTraits<SoundComponent>
 	{
 		SoundComponent& _comp = Engine::Editor::GetValue<SoundComponent>(a_context.pData);
 		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			*a_context.pWorld->RefEngineServices(),
 			"Change Sound",
 			"Sound",
 			_comp.soundGUID))

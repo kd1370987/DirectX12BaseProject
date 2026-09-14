@@ -25,7 +25,7 @@ namespace Engine::Option::DebugOptions
 			return EOptionCategory::Debug;
 		}
 
-		void DrawEdit() override
+		void DrawEdit(const ECS::EngineServices&) override
 		{
 			ImGui::Checkbox("Draw Debug Wire", &drawWire);
 		}

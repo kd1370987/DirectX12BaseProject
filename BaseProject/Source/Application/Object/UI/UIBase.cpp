@@ -914,11 +914,11 @@ namespace App::Object
 		ImGui::Spacing();
 
 		// 音を差し替えたら、借りているインスタンスを返して取り直させる
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("HoverSound", "Sound", m_hoverSoundGUID))
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pServices, "HoverSound", "Sound", m_hoverSoundGUID))
 		{
 			ReleaseUISounds(a_context);
 		}
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("PressSound", "Sound", m_pressSoundGUID))
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pServices, "PressSound", "Sound", m_pressSoundGUID))
 		{
 			ReleaseUISounds(a_context);
 		}
@@ -955,8 +955,6 @@ namespace App::Object
 	//======================================================================================
 	void UIBase::DrawDecorationListInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		auto* _pResourceManager = a_context.pServices ? a_context.pServices->pResourceManager : nullptr;
-
 		ImGui::SeparatorText("Decorations");
 		ImGui::TextDisabled("配列の順に描きます(下にあるものほど手前)");
 
@@ -1038,7 +1036,7 @@ namespace App::Object
 			if (_isOpen)
 			{
 				ImGui::Indent();
-				Decoration::DrawDecorationInspector(_decoration, _pResourceManager);
+				if (a_context.pServices) Decoration::DrawDecorationInspector(_decoration, *a_context.pServices);
 				ImGui::Unindent();
 				ImGui::Separator();
 			}

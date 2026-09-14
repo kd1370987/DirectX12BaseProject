@@ -81,10 +81,10 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 	// ECS がエンティティを消すとき・コンポーネントを外すとき・
 	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
 	//----------------------------------------------------------------------------------
-	static void Release(void* a_pData)
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		EffectAssetComponent& _comp = Engine::Editor::GetValue<EffectAssetComponent>(a_pData);
-		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+		auto& _resourceManager = *a_services.pResourceManager;
 
 		_resourceManager.ReleaseHandle(_comp.effectHandle);
 	}
@@ -102,6 +102,7 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 		EffectAssetComponent& _comp = Engine::Editor::GetValue<EffectAssetComponent>(a_context.pData);
 
 		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			*a_context.pWorld->RefEngineServices(),
 			"Change Effect",
 			"EffectAsset",
 			_comp.effectGUID))
@@ -131,7 +132,7 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 		}
 
 		// 中身の確認用。細かい編集はアセット側のインスペクターで行う
-		auto* _pEffect = Engine::Resource::ResourceManager::Instance().Ref(_comp.effectHandle);
+		auto* _pEffect = a_context.pWorld->RefEngineServices()->pResourceManager->Ref(_comp.effectHandle);
 		if (!_pEffect)
 		{
 			ImGui::TextDisabled("(読み込み中)");

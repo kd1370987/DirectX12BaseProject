@@ -299,13 +299,13 @@ namespace Engine::Resource
 		return _prefab;
 	}
 
-	void Prefab::Create(const std::string& a_path, const std::string& a_name)
+	void Prefab::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
 		static std::string _dir = "Asset/Prefab/";
 		auto _basePath = _dir + a_path + "/" + a_name;
 
 		// すでに存在するなら作らない
-		Engine::GUID _checkGUID = AssetDatabase::Instance().GetGUIDFromFilePath(_basePath);
+		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
 		if (_checkGUID != Engine::DefaultGUID)
 		{
 			ENGINE_LOG("すでに作成されたプレハブです : %s", _basePath.c_str());

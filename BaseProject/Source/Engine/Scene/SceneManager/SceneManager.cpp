@@ -62,7 +62,7 @@ namespace Engine::Scene
 		}
 	}
 
-	void SceneManager::Update(float a_dt)
+	void SceneManager::Update(Resource::ResourceManager& a_resourceManager, float a_dt)
 	{
 		// エフェクト確認中はゲームのシーンを止める。
 		// シーンの切り替え命令もここで消化しないので、閉じたあとに順番どおり流れる
@@ -73,7 +73,7 @@ namespace Engine::Scene
 		}
 
 		// シーンの切り替え
-		ChangeScenen();
+		ChangeScenen(a_resourceManager);
 
 		//==================================================================
 		// シーンの更新
@@ -141,7 +141,7 @@ namespace Engine::Scene
 	//======================================================================================
 	// 空のシーンを作る
 	//======================================================================================
-	Engine::GUID SceneManager::CreateEmptyScene(const std::string& a_path, const std::string& a_name)
+	Engine::GUID SceneManager::CreateEmptyScene(Resource::AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
 		if (a_name.empty())
 		{
@@ -163,7 +163,7 @@ namespace Engine::Scene
 		const std::string _basePath = _dirPath + "/" + a_name;
 
 		// すでにないかチェック
-		const Engine::GUID _checkGUID = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(_basePath);
+		const Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
 		if (_checkGUID != Engine::DefaultGUID)
 		{
 			ENGINE_WARNING("[Scene] すでに同じ名前のシーンがあります : %s", _basePath.c_str());
@@ -179,7 +179,7 @@ namespace Engine::Scene
 		}
 
 		// アセットデータベースに場所を作る
-		const Engine::GUID _guid = Resource::AssetDatabase::Instance().AddMetaData(_basePath, "Scene");
+		const Engine::GUID _guid = a_assetDB.AddMetaData(_basePath, "Scene");
 
 		//------------------------------------------------------------------
 		// 空の中身を書き出す
@@ -202,11 +202,11 @@ namespace Engine::Scene
 		return _guid;
 	}
 
-	bool SceneManager::PushScene(const Engine::GUID& a_guid)
+	bool SceneManager::PushScene(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid)
 	{
 		// シーンの新規作成 : GUIDからロードする
 		auto _upScene = std::make_unique<BaseScene>();
-		std::string _sceneFilePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
+		std::string _sceneFilePath = a_resourceManager.GetAssetDatabase().GetFilePathFromGUID(a_guid);
 		if (_sceneFilePath.empty())
 		{
 			ENGINE_ERRLOG(false, "指定されたGUIDのシーンファイルが見つかりません");
@@ -246,7 +246,7 @@ namespace Engine::Scene
 	// 同じシーンの中で出し直すたびに読み直しが走ってしまうため。
 	// シーンの中では読み込んだものを持ったままにして、切れ目でまとめて片付ける。
 	//======================================================================================
-	void SceneManager::PopScene()
+	void SceneManager::PopScene(Resource::ResourceManager& a_resourceManager)
 	{
 		if (m_upBaseSceneVec.empty()) return;
 
@@ -284,7 +284,7 @@ namespace Engine::Scene
 			Audio::AudioManager::Instance().ReleaseInstances();
 
 			// 誰も持っていないリソースはここで破棄する
-			Resource::ResourceManager::Instance().SweepUnusedAll();
+			a_resourceManager.SweepUnusedAll();
 		}
 	}
 	
@@ -297,19 +297,19 @@ namespace Engine::Scene
 	// 消す前に行き先が引けるかどうかを確かめて、引けなければ今のシーンを残す。
 	// (行き先の指定漏れ・GUIDの消滅は設定ミスなので、気付けるように知らせる)
 	//======================================================================================
-	void SceneManager::ReplaceScene(const Engine::GUID& a_guid)
+	void SceneManager::ReplaceScene(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid)
 	{
 		if (m_upBaseSceneVec.empty()) return;
 
-		if (Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_guid).empty())
+		if (a_resourceManager.GetAssetDatabase().GetFilePathFromGUID(a_guid).empty())
 		{
 			ENGINE_WARNING("[Scene] 切り替え先のシーンが見つかりません : %s 今のシーンを続けます",
 				a_guid.String().c_str());
 			return;
 		}
 
-		PopScene();
-		PushScene(a_guid);
+		PopScene(a_resourceManager);
+		PushScene(a_resourceManager, a_guid);
 	}
 
 	Engine::ECS::World* SceneManager::RefWorld()
@@ -340,7 +340,7 @@ namespace Engine::Scene
 		m_sceneChangeCmd.push({ a_guid,a_changeType });
 	}
 
-	void SceneManager::ChangeScenen()
+	void SceneManager::ChangeScenen(Resource::ResourceManager& a_resourceManager)
 	{
 		// 命令がある間
 		while (!m_sceneChangeCmd.empty())
@@ -361,20 +361,20 @@ namespace Engine::Scene
 			switch (_cmd.changeType)
 			{
 			case SceneChangeType::Push:
-				PushScene(_cmd.sceneGUID);
+				PushScene(a_resourceManager, _cmd.sceneGUID);
 				break;
 			case SceneChangeType::Pop:
-				PopScene();
+				PopScene(a_resourceManager);
 				break;
 			case SceneChangeType::Replace:
-				ReplaceScene(_cmd.sceneGUID);
+				ReplaceScene(a_resourceManager, _cmd.sceneGUID);
 				break;
 			case SceneChangeType::Clear:
 				// 1つずつ Pop に通す。最後の1つを外したところで
 				// 共有の当たり判定空間が空になる
 				while (!m_upBaseSceneVec.empty())
 				{
-					PopScene();
+					PopScene(a_resourceManager);
 				}
 				break;
 			default:

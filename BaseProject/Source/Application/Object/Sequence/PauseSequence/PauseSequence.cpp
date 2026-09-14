@@ -228,7 +228,7 @@ namespace App::Object
 
 		ImGui::SeparatorText("Exit Scene");
 
-		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Scene", "Scene", m_exitSceneGUID);
+		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pServices, "Scene", "Scene", m_exitSceneGUID);
 		ImGui::TextDisabled("やめたときの行き先(ホームなど)");
 		if (!m_exitSceneGUID.IsValid())
 		{

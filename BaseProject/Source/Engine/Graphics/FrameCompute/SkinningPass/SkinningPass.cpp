@@ -28,14 +28,14 @@ namespace
 	SkinningRuntime g_skinning = {};
 }
 
-void Engine::Graphics::SetupSkinning(PipelineStateManager* a_pPSOManager)
+void Engine::Graphics::SetupSkinning(PipelineStateManager* a_pPSOManager, Resource::ResourceManager& a_resourceManager)
 {
 	if (!a_pPSOManager) return;
 	g_skinning.pPSOManager = a_pPSOManager;
 
 	// シェーダーからルートシグネチャとコンピュートPSOを起こす
-	auto _csHandle = Resource::ShaderIO::Request("Asset/Shader/Source/Geometry/Skinning/Skinning.cso");
-	auto* _pShader = Resource::ResourceManager::Instance().Ref(_csHandle);
+	auto _csHandle = Resource::ShaderIO::Request(a_resourceManager, "Asset/Shader/Source/Geometry/Skinning/Skinning.cso");
+	auto* _pShader = a_resourceManager.Ref(_csHandle);
 	if (!_pShader || !_pShader->Get()) return;
 
 	g_skinning.rootSigHandle = a_pPSOManager->Request(_pShader->Get());

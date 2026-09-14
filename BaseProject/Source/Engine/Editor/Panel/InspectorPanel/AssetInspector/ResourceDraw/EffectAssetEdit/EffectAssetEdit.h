@@ -24,6 +24,7 @@ namespace Engine::Editor::Inspector
 	/// (エフェクトエディターはインスペクターの選択を持たないため渡せない)
 	/// </remarks>
 	void EffectAssetEdit(
+		const ECS::EngineServices& a_services,
 		const Engine::GUID& a_guid,
 		Resource::EffectAsset* a_pEffect,
 		bool a_isShowOpenEditorButton = true,

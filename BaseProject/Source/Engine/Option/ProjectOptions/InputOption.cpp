@@ -26,7 +26,7 @@ namespace
 	}
 }
 
-void Engine::Option::ProjectOptions::InputOption::DrawEdit()
+void Engine::Option::ProjectOptions::InputOption::DrawEdit(const ECS::EngineServices&)
 {
 	//======================================================================
 	// カーソル

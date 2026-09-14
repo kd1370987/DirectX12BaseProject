@@ -2,6 +2,8 @@
 
 namespace Engine::ECS
 {
+	struct EngineServices;
+
 	class World;
 
 	// コンポーネントの名前やサイズの情報
@@ -31,9 +33,10 @@ namespace Engine::ECS
 		//
 		// コンポーネントは trivially copyable でなければならず、デストラクタが
 		// 走らない。リソースの参照カウントのように「取ったら返す」ものは、
-		// ComponentTraits<T>::Release(void*) を書いてここへ載せること。
+		// ComponentTraits<T>::Release(void*, const EngineServices&) を書いてここへ載せること。
+		// 返す先(リソースマネージャーなど)はシングルトンを引かず、渡されたサービスから引く
 		//----------------------------------------------------------------------------------
-		std::function<void(void*)> release;
+		std::function<void(void*, const EngineServices&)> release;
 	};
 
 	class ComponentMetaRegistry
@@ -131,9 +134,16 @@ namespace Engine::ECS
 		_func.edit = ComponentTraits<Comp>::Edit;						// エディター用
 
 		// 解放処理は持っているものだけ。書いていないコンポーネントは空のまま
-		if constexpr (requires (void* a_pData) { ComponentTraits<Comp>::Release(a_pData); })
+		if constexpr (requires (void* a_pData, const EngineServices& a_services) { ComponentTraits<Comp>::Release(a_pData, a_services); })
 		{
 			_func.release = ComponentTraits<Comp>::Release;
+		}
+		else if constexpr (requires (void* a_pData) { ComponentTraits<Comp>::Release(a_pData); })
+		{
+			// 旧い形(サービスを受け取らない)のまま残っていると、上の判定に掛からず
+			// 解放フックが黙って登録されない = 返し漏れになる。気付けるように止める
+			// (Comp に依存させておかないと、この分岐に来ないときでも評価されて止まる)
+			static_assert(sizeof(Comp) == 0, "ComponentTraits<T>::Release は (void*, const EngineServices&) で書くこと");
 		}
 
 		// 登録

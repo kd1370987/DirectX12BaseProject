@@ -14,6 +14,11 @@ namespace Engine
 	{
 		class GameObjectManager;
 	}
+	namespace Resource
+	{
+		class AssetDatabase;
+		class ResourceManager;
+	}
 }
 
 namespace Engine::Scene
@@ -38,7 +43,10 @@ namespace Engine::Scene
 		// メイン処理
 		//------------------------------------------------------------------------------------------
 		void Release();										// 解放
-		void Update(float a_dt);							// 更新
+		// 更新 : シーンの切り替え命令もここで消化する。
+		// 行き先のファイルをGUIDから引き、シーンを外したときに使われなくなったリソースを捨てるので、
+		// リソースマネージャーを受け取る(アセットデータベースもこの中)
+		void Update(Resource::ResourceManager& a_resourceManager, float a_dt);
 		void Draw();										// 描画
 
 		//------------------------------------------------------------------------------------------
@@ -74,7 +82,7 @@ namespace Engine::Scene
 		/// BaseScene::Archive に項目が増えたときに古い形のまま作り続けてしまう
 		/// (バイナリ(.obscene)は並び順で読むので、そのまま壊れる)
 		/// </remarks>
-		Engine::GUID CreateEmptyScene(const std::string& a_path, const std::string& a_name);
+		Engine::GUID CreateEmptyScene(Resource::AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name);
 
 		//------------------------------------------------------------------------------------------
 		// シーンの切り替え
@@ -123,10 +131,10 @@ namespace Engine::Scene
 		//------------------------------------------------------------------------------------------
 		// シーン
 		//------------------------------------------------------------------------------------------
-		void ChangeScenen();								// フレームの初めにシーンの切り替えを実行する
-		void ReplaceScene(const Engine::GUID& a_guid);		// シーンの切り替え
-		bool PushScene(const Engine::GUID& a_guid);			// シーンを重ねる(読み込めたら true)
-		void PopScene();									// 最前面のシーンを消去
+		void ChangeScenen(Resource::ResourceManager& a_resourceManager);								// フレームの初めにシーンの切り替えを実行する
+		void ReplaceScene(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid);	// シーンの切り替え
+		bool PushScene(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid);		// シーンを重ねる(読み込めたら true)
+		void PopScene(Resource::ResourceManager& a_resourceManager);									// 最前面のシーンを消去
 
 	private:
 

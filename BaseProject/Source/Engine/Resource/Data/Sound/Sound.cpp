@@ -1,4 +1,5 @@
 ﻿#include "Sound.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../Audio/AudioManager.h"
 
@@ -8,10 +9,10 @@ namespace Engine::Resource
 	{
 		Stop();
 	}
-	bool SoundInstance::Init(const ResourceRef<Sound>& a_resourceRef,bool a_is3D)
+	bool SoundInstance::Init(ResourceManager& a_resourceManager, const ResourceRef<Sound>& a_resourceRef,bool a_is3D)
 	{
 		// 元データ取得
-		auto* _pSound = ResourceManager::Instance().Ref(a_resourceRef);
+		auto* _pSound = a_resourceManager.Ref(a_resourceRef);
 		if (!_pSound) return false;
 
 		// エフェクト取得

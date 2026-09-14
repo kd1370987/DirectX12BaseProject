@@ -26,7 +26,7 @@ void Engine::Option::ProjectOptions::AudioOption::Apply() const
 	}
 }
 
-void Engine::Option::ProjectOptions::AudioOption::DrawEdit()
+void Engine::Option::ProjectOptions::AudioOption::DrawEdit(const ECS::EngineServices&)
 {
 	bool _isChanged = false;
 

@@ -1,4 +1,4 @@
-#include "EffectAssetEdit.h"
+﻿#include "EffectAssetEdit.h"
 
 #include "../../../../../Helper/EditorHelper.h"
 
@@ -50,12 +50,12 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		// パーティクル1件
 		//-----------------------------------------------------------------------------------------
-		bool ParticlePartEdit(EditorContext* a_pEditContext, Resource::EffectParticlePart& a_part)
+		bool ParticlePartEdit(const ECS::EngineServices& a_services, EditorContext* a_pEditContext, Resource::EffectParticlePart& a_part)
 		{
 			bool _isChanged = false;
 
 			// ---- 何を出すか ----
-			if (EditorHelper::DrawAssetSelectComboGUID("Particle", "ParticlesAsset", a_part.particleGUID))
+			if (EditorHelper::DrawAssetSelectComboGUID(a_services, "Particle", "ParticlesAsset", a_part.particleGUID))
 			{
 				_isChanged = true;
 			}
@@ -147,12 +147,12 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		// メッシュ1件
 		//-----------------------------------------------------------------------------------------
-		bool MeshPartEdit(EditorContext* a_pEditContext, Resource::EffectMeshPart& a_part)
+		bool MeshPartEdit(const ECS::EngineServices& a_services, EditorContext* a_pEditContext, Resource::EffectMeshPart& a_part)
 		{
 			bool _isChanged = false;
 
 			// ---- 何を出すか ----
-			if (EditorHelper::DrawAssetSelectComboGUID("Model", "Model", a_part.modelGUID))
+			if (EditorHelper::DrawAssetSelectComboGUID(a_services, "Model", "Model", a_part.modelGUID))
 			{
 				_isChanged = true;
 			}
@@ -199,12 +199,12 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		// サウンド1件
 		//-----------------------------------------------------------------------------------------
-		bool SoundPartEdit(EditorContext* a_pEditContext, Resource::EffectSoundPart& a_part)
+		bool SoundPartEdit(const ECS::EngineServices& a_services, EditorContext* a_pEditContext, Resource::EffectSoundPart& a_part)
 		{
 			bool _isChanged = false;
 
 			// ---- 何を鳴らすか ----
-			if (EditorHelper::DrawAssetSelectComboGUID("Sound", "Sound", a_part.soundGUID))
+			if (EditorHelper::DrawAssetSelectComboGUID(a_services, "Sound", "Sound", a_part.soundGUID))
 			{
 				_isChanged = true;
 			}
@@ -272,6 +272,7 @@ namespace Engine::Editor::Inspector
 	// エフェクトアセットの編集・詳細表示
 	//-----------------------------------------------------------------------------------------
 	void EffectAssetEdit(
+		const ECS::EngineServices& a_services,
 		const Engine::GUID& a_guid,
 		Resource::EffectAsset* a_pEffect,
 		bool a_isShowOpenEditorButton,
@@ -285,9 +286,9 @@ namespace Engine::Editor::Inspector
 		ImGui::Separator();
 
 		// 保存ボタン
-		if (ImGui::Button("Save Asset"))
+		if (ImGui::Button("Save Asset") && a_services.pAssetDatabase)
 		{
-			auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+			auto _filePath = a_services.pAssetDatabase->GetFilePathFromGUID(_guid);
 			a_pEffect->Save(_filePath);
 			ENGINE_LOG("Save EffectAsset : %s", _filePath.c_str());
 		}
@@ -345,7 +346,7 @@ namespace Engine::Editor::Inspector
 					_removeParticleIndex = static_cast<int>(_i);
 				}
 
-				if (ParticlePartEdit(a_pEditContext, _particleParts[_i])) _isChanged = true;
+				if (ParticlePartEdit(a_services, a_pEditContext, _particleParts[_i])) _isChanged = true;
 
 				ImGui::TreePop();
 			}
@@ -390,7 +391,7 @@ namespace Engine::Editor::Inspector
 					_removeMeshIndex = static_cast<int>(_i);
 				}
 
-				if (MeshPartEdit(a_pEditContext, _meshParts[_i])) _isChanged = true;
+				if (MeshPartEdit(a_services, a_pEditContext, _meshParts[_i])) _isChanged = true;
 
 				ImGui::TreePop();
 			}
@@ -439,7 +440,7 @@ namespace Engine::Editor::Inspector
 					_removeSoundIndex = static_cast<int>(_i);
 				}
 
-				if (SoundPartEdit(a_pEditContext, _soundParts[_i])) _isChanged = true;
+				if (SoundPartEdit(a_services, a_pEditContext, _soundParts[_i])) _isChanged = true;
 
 				ImGui::TreePop();
 			}
@@ -456,7 +457,7 @@ namespace Engine::Editor::Inspector
 		// 保存前でもエディター上ですぐ確認できるようにしておく
 		if (_isChanged)
 		{
-			a_pEffect->ResolveReferences();
+			a_pEffect->ResolveReferences(*a_services.pResourceManager);
 		}
 	}
 }

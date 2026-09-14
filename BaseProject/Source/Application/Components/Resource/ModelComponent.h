@@ -55,10 +55,10 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 	// ECS がエンティティを消すとき・コンポーネントを外すとき・
 	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
 	//----------------------------------------------------------------------------------
-	static void Release(void* a_pData)
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_pData);
-		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+		auto& _resourceManager = *a_services.pResourceManager;
 
 		_resourceManager.ReleaseHandle(_comp.handle);
 	}
@@ -87,6 +87,7 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		// 差し替えはリフレッシュ経路に任せる :
 		// Release(旧handleで領域解放) → ModelFixupSystemがGUIDから新handleを復元 → 新サイズで領域再確保
 		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			*a_context.pWorld->RefEngineServices(),
 			"Change Model",
 			"Model",
 			_comp.modelGUID))

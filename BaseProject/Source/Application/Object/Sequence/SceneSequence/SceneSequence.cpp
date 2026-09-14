@@ -875,6 +875,7 @@ namespace App::Object
 			ImGui::TextDisabled("勝ち : 生き残って全ウェーブを全滅させた(ボスも1ウェーブ)");
 
 			Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+				*a_context.pServices,
 				"Result Scene", "Scene", m_resultSceneGUID);
 			if (!m_resultSceneGUID.IsValid())
 			{
@@ -912,6 +913,7 @@ namespace App::Object
 			ImGui::TextDisabled("切り替えずに重ねるので、閉じれば続きから再開する");
 
 			Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+				*a_context.pServices,
 				"Pause Scene", "Scene", m_pauseSceneGUID);
 			if (!m_pauseSceneGUID.IsValid())
 			{
@@ -979,6 +981,7 @@ namespace App::Object
 
 					// プレハブを選び直したらハンドルを捨てて解決し直させる
 					if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+						*a_context.pServices,
 						"Prefab", "Prefab", _settings.spawnEntityGUID))
 					{
 						_settings.spawnPrefabHandle = {};

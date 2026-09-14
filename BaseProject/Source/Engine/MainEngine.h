@@ -31,6 +31,16 @@ namespace Engine
 		class JobSystem;
 	}
 
+	namespace Resource
+	{
+		class ResourceManager;
+	}
+
+	namespace ECS
+	{
+		struct EngineServices;
+	}
+
 	// エンジンクラス
 	class MainEngine
 	{
@@ -76,6 +86,18 @@ namespace Engine
 		// ジョブシステム
 		Thread::JobSystem* RefJobSystem();
 
+		// リソースマネージャー(アセットデータベースもこの中)
+		Resource::ResourceManager* RefResourceManager() { return m_upResourceManager.get(); }
+
+		//----------------------------------------------------------------------------
+		// アプリ寿命のサービス一式(正本)
+		//
+		// ワールドはこれを写して持ち、エディターはこのポインタを持つ。
+		// 中身が揃うのは Init() の途中(グラフィックスエンジンの初期化の後)から
+		//----------------------------------------------------------------------------
+		const ECS::EngineServices& GetEngineServices() const { return *m_upEngineServices; }
+		ECS::EngineServices* RefEngineServices() { return m_upEngineServices.get(); }
+
 		// コンフィグ取得
 		EBuildConfiguration GetBuildMode() const { return m_buildMode; }
 
@@ -94,15 +116,23 @@ namespace Engine
 		// アセットマネージャーの初期化
 		void InitializeAssetDatabase();
 
+		// アプリ寿命のサービス一式を組む : 載せる実体が揃ってから呼ぶ
+		void BuildEngineServices();
+
 	private:
 
 		// クラス
+		//
+		// リソースマネージャーは先頭に置く : メンバは宣言の逆順に壊れるので、これが最後になる。
+		// 後ろのメンバや他のシングルトンが持つ ResourceRef は、破棄のときに参照を返しに来る
+		std::unique_ptr<Resource::ResourceManager> m_upResourceManager = nullptr;		// リソース(とアセットデータベース)の持ち主
 		std::unique_ptr<Window::NativeWindow> m_upWindow = nullptr;						// ウィンドウクラス
 		std::unique_ptr<Time::TimeManager> m_upTimeManager = nullptr;					// 時間管理クラス
 		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス
 		std::unique_ptr<Particle::ParticleBufferManager> m_upParticleManager = nullptr;	// パーティクルマネージャー
 		std::unique_ptr<Thread::JobSystem> m_upJobSystem = nullptr;						// ジョブシステム
 		std::unique_ptr<Graphics::MouseCursor> m_upMouseCursor = nullptr;				// 自前で描くマウスカーソル
+		std::unique_ptr<ECS::EngineServices> m_upEngineServices = nullptr;				// アプリ寿命のサービス一式(正本)
 
 		// エンジン設定
 		EAppMode m_appMode = EAppMode::Editor;								// アプリケーションのモード

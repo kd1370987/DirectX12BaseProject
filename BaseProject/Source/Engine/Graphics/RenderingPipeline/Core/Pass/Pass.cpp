@@ -1,4 +1,5 @@
 ﻿#include "Pass.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../RenderGraph/RenderGraph.h"
 #include "../../RenderGraph/Resource/VirtualResource/VirtualResource.h"
@@ -291,7 +292,7 @@ namespace Engine::Graphics::Pipeline
 		Handle<ID3D12PipelineState>* a_pOutPSOHandle)
 	{
 		if (!a_context.pGraphicsEngine || !a_context.pGraph) return false;
-		if (!a_context.pResourceManager) return false;
+		if (!a_context.pResourceManager || !a_context.pAssetDatabase) return false;
 
 		auto* _pPSOManager = a_context.pGraphicsEngine->RefPipelineStateManager();
 		if (!_pPSOManager) return false;
@@ -303,7 +304,7 @@ namespace Engine::Graphics::Pipeline
 		_desc.SetInputLayout(a_inputLayout);
 
 		// 頂点シェーダー : ルートシグネチャもこのブロブから起こす
-		auto _vsHandle = Resource::ShaderIO::Request(a_vsPath);
+		auto _vsHandle = Resource::ShaderIO::Request(*a_context.pResourceManager, a_vsPath);
 		auto* _pVS = _resManager.Ref(_vsHandle);
 		if (!_pVS || !_pVS->Get())
 		{
@@ -315,7 +316,7 @@ namespace Engine::Graphics::Pipeline
 		// ピクセルシェーダー : 深度だけ書くパスでは空でよい
 		if (!a_psPath.empty())
 		{
-			auto _psHandle = Resource::ShaderIO::Request(a_psPath);
+			auto _psHandle = Resource::ShaderIO::Request(*a_context.pResourceManager, a_psPath);
 			if (auto* _pPS = _resManager.Ref(_psHandle))
 			{
 				_desc.SetPS(_pPS->GetByteCode());
@@ -364,13 +365,13 @@ namespace Engine::Graphics::Pipeline
 		const std::string& a_psoName,
 		EPassHeapMode a_heapMode)
 	{
-		if (!a_context.pGraphicsEngine || !a_context.pResourceManager) return false;
+		if (!a_context.pGraphicsEngine || !a_context.pResourceManager || !a_context.pAssetDatabase) return false;
 
 		auto* _pPSOManager = a_context.pGraphicsEngine->RefPipelineStateManager();
 		if (!_pPSOManager) return false;
 
 		// シェーダー
-		auto _csHandle = Resource::ShaderIO::Request(a_csPath);
+		auto _csHandle = Resource::ShaderIO::Request(*a_context.pResourceManager, a_csPath);
 		auto* _pShader = a_context.pResourceManager->Ref(_csHandle);
 		if (!_pShader || !_pShader->Get())
 		{

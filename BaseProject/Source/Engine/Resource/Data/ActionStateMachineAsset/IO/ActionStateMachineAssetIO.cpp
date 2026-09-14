@@ -11,15 +11,12 @@ namespace Engine::Resource
 		return _asset;
 	}
 
-	void ActionStateMachineAssetIO::Create(
-		const std::string& a_path,
-		const std::string& a_name
-	)
+	void ActionStateMachineAssetIO::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
 		static std::string _dir = "Asset/ActionStateMachine/";
 		auto _basePath = _dir + a_path + "/" + a_name;
 
-		Engine::GUID _checkGUID = AssetDatabase::Instance().GetGUIDFromFilePath(_basePath);
+		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
 		if (_checkGUID != Engine::DefaultGUID)
 		{
 			ENGINE_LOG("すでに作成されたステートマシンです : %s", _basePath.c_str());

@@ -281,9 +281,9 @@ namespace Engine::Resource
 		Archive(_ar);
 	}
 
-	void EffectAsset::ResolveReferences()
+	void EffectAsset::ResolveReferences(ResourceManager& a_resourceManager)
 	{
-		auto& _resourceManager = ResourceManager::Instance();
+		auto& _resourceManager = a_resourceManager;
 
 		for (auto& _part : m_particleParts)
 		{

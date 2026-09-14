@@ -71,7 +71,7 @@ namespace Engine::Raytracing
 		);
 
 		// テクスチャのハンドルを獲得
-		D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGPUHandle(const Resource::Material* a_pMaterial, Graphics::RenderContext* a_pRCT);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGPUHandle(const Resource::ResourceManager& a_resourceManager, const Resource::Material* a_pMaterial, Graphics::RenderContext* a_pRCT);
 
 		
 	private:

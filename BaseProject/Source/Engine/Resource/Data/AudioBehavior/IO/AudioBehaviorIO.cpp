@@ -16,14 +16,14 @@ namespace Engine::Resource
 		return _behavior;
 	}
 
-	void AudioBehaviorIO::Create(const std::string& a_path, const std::string& a_name)
+	void AudioBehaviorIO::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
 		// ディレクトリ
 		static std::string _dir = "Asset/AudioBehavior/";
 		auto _basePath = _dir + a_path + "/" + a_name;
 
 		// すでにないかチェック
-		Engine::GUID _checkGUID = AssetDatabase::Instance().GetGUIDFromFilePath(_basePath);
+		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
 		if (_checkGUID != Engine::DefaultGUID)
 		{
 			ENGINE_LOG("すでに作成済みのオーディオビヘイビアです : %s", _basePath.c_str());

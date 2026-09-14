@@ -396,7 +396,7 @@ namespace App::Object
 				}
 				ImGui::TextDisabled("押すと確認ボックスが出る");
 
-				Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Scene", "Scene", _mission.sceneGUID);
+				Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pServices, "Scene", "Scene", _mission.sceneGUID);
 				ImGui::TextDisabled("Yes で飛ぶ先");
 
 				ImGui::TextDisabled("カーソルが乗っている間だけ出すUI(画像・説明文)");

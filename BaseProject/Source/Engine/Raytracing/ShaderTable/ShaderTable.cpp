@@ -230,13 +230,13 @@ void Engine::Raytracing::ShaderTable::CalucShaderNum(
 }
 
 
-D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::ShaderTable::GetTextureGPUHandle(const Resource::Material* a_pMaterial, Graphics::RenderContext* a_pRCT)
+D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::ShaderTable::GetTextureGPUHandle(const Resource::ResourceManager& a_resourceManager, const Resource::Material* a_pMaterial, Graphics::RenderContext* a_pRCT)
 {
 	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuHandles = {};
-	const auto* _pBaseTex = Resource::ResourceManager::Instance().Get(a_pMaterial->baseColorTex);
-	const auto* _pMetaTex = Resource::ResourceManager::Instance().Get(a_pMaterial->metaRoughTex);
-	const auto* _pEmiTex = Resource::ResourceManager::Instance().Get(a_pMaterial->emissiveTex);
-	const auto* _pNormalTex = Resource::ResourceManager::Instance().Get(a_pMaterial->normalTex);
+	const auto* _pBaseTex = a_resourceManager.Get(a_pMaterial->baseColorTex);
+	const auto* _pMetaTex = a_resourceManager.Get(a_pMaterial->metaRoughTex);
+	const auto* _pEmiTex = a_resourceManager.Get(a_pMaterial->emissiveTex);
+	const auto* _pNormalTex = a_resourceManager.Get(a_pMaterial->normalTex);
 
 	// ビューの置き場はレンダーコンテキストから借りる
 	auto* _pHeapManager = a_pRCT->RefDescriptorHeapManager();

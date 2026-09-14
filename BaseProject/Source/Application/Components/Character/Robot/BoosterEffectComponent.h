@@ -112,10 +112,10 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 	// ECS がエンティティを消すとき・コンポーネントを外すとき・
 	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
 	//----------------------------------------------------------------------------------
-	static void Release(void* a_pData)
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		BoosterEffectComponent& _comp = Engine::Editor::GetValue<BoosterEffectComponent>(a_pData);
-		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+		auto& _resourceManager = *a_services.pResourceManager;
 
 		_resourceManager.ReleaseHandle(_comp.sparkHandle);
 	}
@@ -187,6 +187,7 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 		ImGui::SeparatorText("Boost Spark");
 		ImGui::TextDisabled("踏み込んだ瞬間に噴射口へ1回だけ出す。ジェットとは別のアセット");
 		Engine::Editor::EditorHelper::DrawAssetSelectCombo<Engine::Resource::EffectAsset>(
+			*a_context.pWorld->RefEngineServices(),
 			"Spark Effect",
 			"EffectAsset",
 			_comp.sparkEffectGUID,

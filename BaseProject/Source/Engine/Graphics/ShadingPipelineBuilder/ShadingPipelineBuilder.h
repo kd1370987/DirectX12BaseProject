@@ -29,7 +29,8 @@ namespace Engine::Graphics
 		/// </summary>
 		/// <param name="a_key">PSO検索用キー</param>
 		/// <returns>PSOマネージャーから帰ってきたハンドルを返す</returns>
-		Handle<ID3D12PipelineState> Request(PSOKey a_key, PipelineStateManager* a_pPSOManager);
+		/// <param name="a_resourceManager">シェーダーの実体を引く先</param>
+		Handle<ID3D12PipelineState> Request(PSOKey a_key, PipelineStateManager* a_pPSOManager, Resource::ResourceManager& a_resourceManager);
 
 		/// <summary>
 		/// フラグに対応したVSを登録する

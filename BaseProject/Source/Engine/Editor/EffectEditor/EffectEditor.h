@@ -51,7 +51,8 @@ namespace Engine::Editor
 	{
 	public:
 
-		EffectEditor();
+		// a_pServices : アプリ寿命のサービス一式(借り物)。アセットの読み込みに使う
+		explicit EffectEditor(ECS::EngineServices* a_pServices);
 		~EffectEditor();
 
 		/// <summary>
@@ -151,6 +152,9 @@ namespace Engine::Editor
 		// プレビュー用のエディターシーン。
 		// 閉じても捨てずに使い回す。World::Release() はリソースのGC掃除まで走るので、
 		// ゲームのシーンが生きている間に呼ぶとゲーム側のモデルまで解放してしまう
+		// アプリ寿命のサービス一式(借り物)
+		ECS::EngineServices* m_pServices = nullptr;
+
 		std::unique_ptr<Engine::ECS::World> m_upWorld = nullptr;
 
 		// シーンビューと同じフリーカメラ。

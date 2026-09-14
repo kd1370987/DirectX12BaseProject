@@ -14,6 +14,11 @@
 #include "Engine/Resource/StateGraph/StateGraph.h"
 #include "Engine/Editor/Widget/StateGraphEditor/StateGraphEditor.h"
 
+namespace Engine::ECS
+{
+	struct EngineServices;
+}
+
 namespace Engine::Resource
 {
 	//--------------------------------------------------------------------------------------
@@ -75,7 +80,8 @@ namespace Engine::Resource
 		void Release();
 
 		// エディターからの呼び出し用
-		void EditImGui(const Handle<ActionStateMachineAsset>& a_handle);
+		// a_services : 保存先のパス解決に使う
+		void EditImGui(const Handle<ActionStateMachineAsset>& a_handle, const ECS::EngineServices& a_services);
 
 		// 名前
 		void SetName(const std::string& a_name) { m_name = a_name; }

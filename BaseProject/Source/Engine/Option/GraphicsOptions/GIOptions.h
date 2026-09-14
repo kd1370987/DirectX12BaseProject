@@ -32,7 +32,7 @@ namespace Engine::Option::GraphicsOptions
 		}
 
 		// エディター
-		void DrawEdit() override
+		void DrawEdit(const ECS::EngineServices&) override
 		{
 			// テンポラルデノイズ
 			//if (ImGui::TreeNodeEx("GITemporalAccumulationOption", ImGuiTreeNodeFlags_SpanFullWidth))

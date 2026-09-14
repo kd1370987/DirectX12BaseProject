@@ -16,7 +16,7 @@ namespace Engine::Particle
 		m_pGraphicsEngine = a_pGraphicsEngine;
 
 		// パーティクルのデータとバッファ自体は軽いのでいったん初期化時に全生成
-		//auto _propVec = Resource::AssetDatabase::Instance().GetTypeMetaVec("ParticlesAsset");
+		//auto _propVec = a_assetDB.GetTypeMetaVec("ParticlesAsset");
 		//for (const auto& _prop : _propVec)
 		//{
 		//	auto _handle = Resource::ParticlesAssetLoader::Load(_prop.guid);
@@ -285,7 +285,7 @@ namespace Engine::Particle
 			// ロード処理
 			[this,_pDevice,a_handle](D3D12::GraphicsCommandList* a_pCmdList)
 			{
-				m_pools[a_handle]->Init(_pDevice, m_pHeapManager, a_pCmdList, a_handle);
+				m_pools[a_handle]->Init(_pDevice, m_pHeapManager, a_pCmdList, a_handle, *m_pGraphicsEngine->RefResourceManager());
 				m_emitBuffer[a_handle].Create(_pDevice, m_pHeapManager, a_pCmdList, 100, nullptr);
 			},
 			// コールバック処理

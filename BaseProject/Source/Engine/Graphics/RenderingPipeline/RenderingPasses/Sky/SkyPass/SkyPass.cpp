@@ -1,4 +1,5 @@
 ﻿#include "SkyPass.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicEngine.h"

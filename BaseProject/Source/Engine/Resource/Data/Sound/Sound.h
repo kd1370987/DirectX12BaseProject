@@ -23,7 +23,8 @@ namespace Engine::Resource
 		/// false で作ったインスタンスに Play3D / SetPos / Apply3D は使えない
 		/// (DirectXTK が例外を投げるため、こちら側で弾いている)
 		/// </param>
-		bool Init(const ResourceRef<Sound>& a_resourceRef, bool a_is3D = false);
+		// a_resourceManager : 元データ(Sound)の実体を引く先
+		bool Init(ResourceManager& a_resourceManager, const ResourceRef<Sound>& a_resourceRef, bool a_is3D = false);
 
 		//==================================================================
 		// 操作

@@ -449,11 +449,12 @@ namespace App::Object
 		// 正距円筒(横:縦 = 2:1)のテクスチャを想定している。
 		// 選ぶだけで空になるので、スカイドームのモデルは置かなくてよい
 		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			*a_context.pServices,
 			"Sky Texture", "Texture", m_skyTexGUID))
 		{
 			m_skyTexRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_skyTexGUID);
 		}
-		Engine::Editor::EditorHelper::DrawTexture(m_skyTexRef, 256, 128);
+		Engine::Editor::EditorHelper::DrawTexture(*a_context.pServices, m_skyTexRef, 256, 128);
 
 		if (!m_skyTexGUID.IsValid())
 		{
@@ -519,6 +520,7 @@ namespace App::Object
 
 		// 差し替えたら次の Update が古いエンティティを片付けて出し直す
 		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			*a_context.pServices,
 			"Dast Effect", "EffectAsset", m_dast.effectGUID))
 		{
 			m_dast.m_effectAsset = (m_dast.effectGUID != Engine::DefaultGUID)

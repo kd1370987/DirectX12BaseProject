@@ -40,10 +40,10 @@ struct Engine::ECS::ComponentTraits<AudioBehaviorComponent>
 	// ECS がエンティティを消すとき・コンポーネントを外すとき・
 	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
 	//----------------------------------------------------------------------------------
-	static void Release(void* a_pData)
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		AudioBehaviorComponent& _comp = Engine::Editor::GetValue<AudioBehaviorComponent>(a_pData);
-		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+		auto& _resourceManager = *a_services.pResourceManager;
 
 		_resourceManager.ReleaseHandle(_comp.behaviorHandle);
 	}
@@ -59,6 +59,7 @@ struct Engine::ECS::ComponentTraits<AudioBehaviorComponent>
 		AudioBehaviorComponent& _comp = Engine::Editor::GetValue<AudioBehaviorComponent>(a_context.pData);
 
 		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			*a_context.pWorld->RefEngineServices(),
 			"Change AudioBehavior",
 			"AudioBehavior",
 			_comp.behaviorGUID))
@@ -79,7 +80,7 @@ struct Engine::ECS::ComponentTraits<AudioBehaviorComponent>
 		}
 
 		// 中身の確認用。細かい編集はアセット側のインスペクターで行う
-		auto* _pBehavior = Engine::Resource::ResourceManager::Instance().Ref(_comp.behaviorHandle);
+		auto* _pBehavior = a_context.pWorld->RefEngineServices()->pResourceManager->Ref(_comp.behaviorHandle);
 		if (!_pBehavior)
 		{
 			ImGui::TextDisabled("(読み込み中)");

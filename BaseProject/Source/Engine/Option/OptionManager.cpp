@@ -44,14 +44,14 @@ namespace Engine::Option
 		);
 		Archive(_archive);
 	}
-	void Engine::Option::OptionManager::DrawEdit()
+	void Engine::Option::OptionManager::DrawEdit(const ECS::EngineServices& a_services)
 	{
 		for (auto* _pOption : m_pOptionList)
 		{
 			ImGui::Separator();
 			if (ImGui::TreeNodeEx(_pOption->GetName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth))
 			{
-				_pOption->DrawEdit();
+				_pOption->DrawEdit(a_services);
 				ImGui::TreePop();
 			}
 		}

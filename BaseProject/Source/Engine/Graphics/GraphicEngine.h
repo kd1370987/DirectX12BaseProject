@@ -20,6 +20,7 @@ namespace Engine
 
 	namespace Resource
 	{
+		class ResourceManager;
 		class Mesh;
 		class Material;
 		class QuadPolygon;
@@ -85,6 +86,11 @@ namespace Engine::Graphics
 	{
 		UINT width = 0;						// ウィンドウの横幅
 		UINT height = 0;					// ウィンドウの縦幅
+
+		// リソースの持ち主(借り物)。
+		// 描画アイテムの組み立てでメッシュやマテリアルを引くので、Init() で受け取って持っておく。
+		// シェーダーのパスからGUIDを引くときは、この中のアセットデータベースを使う
+		Resource::ResourceManager* pResourceManager = nullptr;
 	};
 
 	//==========================================================================================
@@ -246,6 +252,9 @@ namespace Engine::Graphics
 		// ResourceBuildContext 経由でローダーへ渡される(ScopedResourceBuild が詰める)
 		//--------------------------------------------------------------------------------------------
 		Pipeline::PassMetaRegistry* RefPassMetaRegistry();
+
+		// リソースの持ち主(借り物) : 持ち主は MainEngine
+		Resource::ResourceManager* RefResourceManager() const { return m_pResourceManager; }
 
 		//--------------------------------------------------------------------------------------------
 		// カメラごとの描画構成(新レンダーグラフ)
@@ -713,6 +722,9 @@ namespace Engine::Graphics
 
 		// PSOやルートシグネチャの管理
 		std::unique_ptr<PipelineStateManager> m_upPipelineStateManager = nullptr;
+
+		// リソースの持ち主(借り物) : Init() で受け取る
+		Resource::ResourceManager* m_pResourceManager = nullptr;
 
 		// レンダーコンテキスト : 一フレーム内の描画情報を扱う
 		std::vector<std::unique_ptr<RenderContext>> m_upRenderContextVec = {};

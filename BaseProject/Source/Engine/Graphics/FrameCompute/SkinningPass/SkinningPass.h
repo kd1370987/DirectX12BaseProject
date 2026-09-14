@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+namespace Engine::Resource
+{
+	class ResourceManager;
+}
+
 namespace Engine::Graphics
 {
 	class GraphicsEngine;
@@ -13,7 +18,8 @@ namespace Engine::Graphics
 	// GraphicsEngine が直接呼ぶ
 	//======================================================================================
 	// ルートシグネチャとPSOの用意(初期化時に1回)
-	void SetupSkinning(PipelineStateManager* a_pPSOManager);
+	// a_resourceManager : シェーダーを読み込む先
+	void SetupSkinning(PipelineStateManager* a_pPSOManager, Resource::ResourceManager& a_resourceManager);
 
 	// 実行(毎フレーム1回)
 	void ExecuteSkinning(GraphicsEngine* a_pGE, RenderContext* a_pCtx);

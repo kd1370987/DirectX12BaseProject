@@ -63,10 +63,10 @@ struct Engine::ECS::ComponentTraits<ExplosionComponent>
 	// パーツのプレハブは初回に解決して参照を1つ取っているので、
 	// ここで全部返す。
 	//----------------------------------------------------------------------------------
-	static void Release(void* a_pData)
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		ExplosionComponent& _comp = Engine::Editor::GetValue<ExplosionComponent>(a_pData);
-		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+		auto& _resourceManager = *a_services.pResourceManager;
 
 		for (PartsEffect& _parts : _comp.parts)
 		{
@@ -98,7 +98,7 @@ struct Engine::ECS::ComponentTraits<ExplosionComponent>
 			ImGui::PushID(_i);
 			ImGui::SeparatorText(("Parts " + std::to_string(_i)).c_str());
 
-			if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Effect Prefab", "Prefab", _parts.prefabGUID))
+			if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pWorld->RefEngineServices(), "Effect Prefab", "Prefab", _parts.prefabGUID))
 			{
 				_parts.prefabHandle = {};	// GUIDが変わったら作り直し
 			}

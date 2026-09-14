@@ -18,6 +18,11 @@
 #include "Engine/Editor/Widget/StateGraphEditor/StateGraphEditor.h"
 #include "AdditivePoseTypes.h"
 
+namespace Engine::ECS
+{
+	struct EngineServices;
+}
+
 namespace Engine::Resource
 {
 	// Animator のステートノード。
@@ -59,15 +64,18 @@ namespace Engine::Resource
 		const std::vector<AdditiveBoneDef>& GetAdditiveBones() const { return m_additiveBones; }
 
 		// 保存と読み込み
-		void Save(const std::string& a_savePath);
-		void Load(const std::string& a_fileDir, const std::string& a_fileName);
-		void Load(const std::string& a_filePath);
+		// a_resourceManager : 参照モデルからアニメのGUIDを引く
+		void Save(const std::string& a_savePath, const ResourceManager& a_resourceManager);
+		// a_resourceManager : 参照モデルを読み込む先
+		void Load(const std::string& a_fileDir, const std::string& a_fileName, ResourceManager& a_resourceManager);
+		void Load(const std::string& a_filePath, ResourceManager& a_resourceManager);
 
 		// 解放
 		void Release();
 
 		// エディターからの呼び出し用(設計図を編集する)
-		void EditImGui(const Handle<AnimatorAsset>& a_handle);
+		// a_services : 保存先のパス解決と、参照モデルの選び直しに使う
+		void EditImGui(const Handle<AnimatorAsset>& a_handle, const ECS::EngineServices& a_services);
 
 		// 名前
 		void SetName(const std::string& a_name) { m_name = a_name; }
@@ -108,16 +116,16 @@ namespace Engine::Resource
 
 	private:
 		// 参照モデル選択UI(Animator固有)
-		void BindModelComb();
+		void BindModelComb(const ECS::EngineServices& a_services);
 
 		// 加算ポーズのボーン定義編集UI
-		void AdditiveBoneEdit();
+		void AdditiveBoneEdit(const ResourceManager& a_resourceManager);
 
 		// 加算ポーズのボーン定義のシリアライズ(Save/Load共通)
 		void ArchiveAdditiveBones(Persistence::Archive& a_arch);
 
 		// 共通のロード処理
-		void LoadInternal(const std::string& a_fileDir, const std::string& a_fileName);
+		void LoadInternal(const std::string& a_fileDir, const std::string& a_fileName, ResourceManager& a_resourceManager);
 
 	private:
 		// 参照モデル(アニメ選択用)

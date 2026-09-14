@@ -51,7 +51,7 @@ namespace Engine::Resource
 	//======================================================================================
 	// 読み込み後の後始末
 	//======================================================================================
-	void ParticlesAsset::OnLoaded()
+	void ParticlesAsset::OnLoaded(ResourceManager& a_resourceManager)
 	{
 		// キャパシティが0だとリソース生成ができないので最低値を入れておく
 		if (m_capacity == 0)
@@ -84,7 +84,7 @@ namespace Engine::Resource
 		if (m_drag < 0.0f) m_drag = 0.0f;
 
 		// テクスチャのハンドル取得
-		m_texHandle = ResourceManager::Instance().LoadImmediate<Texture>(m_texGUID);
+		m_texHandle = a_resourceManager.LoadImmediate<Texture>(m_texGUID);
 	}
 
 	void ParticlesAsset::Save(const std::string& a_filePath)
@@ -96,29 +96,19 @@ namespace Engine::Resource
 		Archive(_archi);
 	}
 
-	void ParticlesAsset::Load(const std::string& a_fileDir, const std::string& a_fileName)
+	void ParticlesAsset::Load(const std::string& a_fileDir, const std::string& a_fileName, ResourceManager& a_resourceManager)
 	{
 		Persistence::Archive _archi(Persistence::Archive::Mode::Load, a_fileDir, a_fileName, "ptic");
 
 		Archive(_archi);
-
-		//----------------------------------------------------------------------------------
-		// 自分のGUIDは読んだ中身ではなくメタファイル側を正とする
-		//
-		// 新規作成のときはまだメタファイルが無く、GUIDは監視が見つけてから発行される。
-		// 書き出した中身の方は空のままなので、ここで引き直しておかないと
-		// インスペクターの保存先(GetFilePathFromGUID)が解決できない
-		//----------------------------------------------------------------------------------
-		m_guid = AssetDatabase::Instance().GetGUIDFromFilePath(a_fileDir + a_fileName);
-
-		OnLoaded();
+		OnLoaded(a_resourceManager);
 	}
 
-	void ParticlesAsset::Load(const std::string& a_filePath)
+	void ParticlesAsset::Load(const std::string& a_filePath, ResourceManager& a_resourceManager)
 	{
 		auto _fileDir = Engine::File::GetDirFromPath(a_filePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
 
-		Load(_fileDir, _fileName);
+		Load(_fileDir, _fileName, a_resourceManager);
 	}
 }

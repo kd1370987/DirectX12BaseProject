@@ -220,6 +220,7 @@ namespace App::Object
 
 		// 合図の音(アセットDBの Sound 一覧から選ぶ)
 		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			*a_context.pServices,
 			"Wave Sound",
 			"Sound",
 			m_soundGUID))

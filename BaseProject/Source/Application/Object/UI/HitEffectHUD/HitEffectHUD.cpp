@@ -220,6 +220,7 @@ namespace App::Object
 
 		// ヒット音(アセットDBの Sound 一覧から選ぶ)
 		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			*a_context.pServices,
 			"Hit Sound",
 			"Sound",
 			m_soundGUID))

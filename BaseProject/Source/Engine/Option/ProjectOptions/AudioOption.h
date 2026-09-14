@@ -45,7 +45,7 @@ namespace Engine::Option::ProjectOptions
 			return EOptionCategory::Project;
 		}
 
-		void DrawEdit() override;
+		void DrawEdit(const ECS::EngineServices& a_services) override;
 		void Archive(Persistence::Archive& a_archive) override;
 	};
 }

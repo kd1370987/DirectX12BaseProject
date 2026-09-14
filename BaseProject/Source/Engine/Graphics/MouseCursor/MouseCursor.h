@@ -38,7 +38,8 @@ namespace Engine::Graphics
 		/// 初期化
 		/// </summary>
 		/// <param name="a_pHeapManager">ImGuiへ渡すSRVを引くためのディスクリプタヒープ(借り物)</param>
-		void Init(D3D12::DescriptorHeapManager* a_pHeapManager);
+		// a_pResourceManager : カーソル画像を読み込む先(借り物)
+		void Init(D3D12::DescriptorHeapManager* a_pHeapManager, Resource::ResourceManager* a_pResourceManager);
 		void Release();
 
 		/// <summary>
@@ -77,6 +78,7 @@ namespace Engine::Graphics
 		// ImGuiへ渡すSRVを引くためのディスクリプタヒープ(借り物)。
 		// 実体は GraphicsEngine が持っている
 		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
+		Resource::ResourceManager* m_pResourceManager = nullptr;		// カーソル画像を読み込む先(借り物)
 
 		// 描画に使うテクスチャ。設定のGUIDが変わったら読み直す
 		ResourceRef<Resource::Texture> m_texRef = {};

@@ -1,4 +1,6 @@
 ﻿#include "ModelConverter.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 namespace Engine::Resource::Converter
 {
@@ -286,21 +288,21 @@ namespace Engine::Resource::Converter
 
 		return _modelData;
 	}
-	bool ModelConverter::ConvertModelDataToBinary(const std::string& a_filePath)
+	bool ModelConverter::ConvertModelDataToBinary(ResourceManager& a_resourceManager, const std::string& a_filePath)
 	{
 		ENGINE_LOG("モデルのconvert開始 : %s",a_filePath.c_str());
-		auto _guid = AssetDatabase::Instance().GetGUIDFromFilePath(a_filePath);
-		return ConvertModelDataToBinary(_guid);
+		auto _guid = a_resourceManager.RefAssetDatabase().GetGUIDFromFilePath(a_filePath);
+		return ConvertModelDataToBinary(a_resourceManager, _guid);
 	}
-	bool ModelConverter::ConvertModelDataToBinary(const Engine::GUID& a_guid)
+	bool ModelConverter::ConvertModelDataToBinary(ResourceManager& a_resourceManager, const Engine::GUID& a_guid)
 	{
-		auto _refHandle = ResourceManager::Instance().LoadImmediate<Model>(a_guid);
-		return ConvertModelDataToBinary(_refHandle);
+		auto _refHandle = a_resourceManager.LoadImmediate<Model>(a_guid);
+		return ConvertModelDataToBinary(a_resourceManager, _refHandle);
 	}
-	bool ModelConverter::ConvertModelDataToBinary(const ResourceRef<Model>& a_modelHandle)
+	bool ModelConverter::ConvertModelDataToBinary(ResourceManager& a_resourceManager, const ResourceRef<Model>& a_modelHandle)
 	{
 		// モデル取得
-		const auto* _pModel = ResourceManager::Instance().Get(a_modelHandle);
+		const auto* _pModel = a_resourceManager.Get(a_modelHandle);
 		if (!_pModel)
 		{
 			ENGINE_LOG("コンバート対象のモデル取得に失敗");
@@ -318,15 +320,15 @@ namespace Engine::Resource::Converter
 		std::string _mtrlBasePath		= "Asset/Material/";
 		std::string _meshBasePath		= "Asset/Mesh/";
 		std::string _animationBasePath	= "Asset/Animation/";
-		ConvertMaterialToBinary(_mtrlBasePath, _saveAssetData,_runtimeData);
-		ConvertMeshToBinary(_meshBasePath,_saveAssetData,_runtimeData);
-		ConvertAnimationToBinary(_animationBasePath,_saveAssetData,_runtimeData);
+		ConvertMaterialToBinary(a_resourceManager, _mtrlBasePath, _saveAssetData,_runtimeData);
+		ConvertMeshToBinary(a_resourceManager, _meshBasePath,_saveAssetData,_runtimeData);
+		ConvertAnimationToBinary(a_resourceManager, _animationBasePath,_saveAssetData,_runtimeData);
 
 		// モデルデータのコンバート処理
 
 		// コンバートパスの取得
-		auto _guid = ResourceManager::Instance().GetCache(a_modelHandle.GetRaw());
-		auto _filePath = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+		auto _guid = a_resourceManager.GetCache(a_modelHandle.GetRaw());
+		auto _filePath = a_resourceManager.RefAssetDatabase().GetFilePathFromGUID(_guid);
 
 		auto _dir = Engine::File::GetDirFromPath(_filePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(_filePath);
@@ -352,7 +354,7 @@ namespace Engine::Resource::Converter
 
 		return true;
 	}
-	void ModelConverter::ConvertMaterialToBinary(const std::string& a_basePath, ModelAssetData& a_asset,const ModelRuntimeData& a_runtime)
+	void ModelConverter::ConvertMaterialToBinary(ResourceManager& a_resourceManager, const std::string& a_basePath, ModelAssetData& a_asset,const ModelRuntimeData& a_runtime)
 	{
 
 		UINT _mtrlHandleSize = a_runtime.materials.size();
@@ -361,7 +363,7 @@ namespace Engine::Resource::Converter
 		{
 			// マテリアル取得
 			auto _mtrlHandle = a_runtime.materials[_i];
-			auto* _pMaterial = Resource::ResourceManager::Instance().Ref(_mtrlHandle);
+			auto* _pMaterial = a_resourceManager.Ref(_mtrlHandle);
 			if (!_pMaterial) continue;
 
 			// コンバートパスの作成
@@ -371,20 +373,20 @@ namespace Engine::Resource::Converter
 			auto _fullPath = _convertDir + "/" + _fileName;
 
 			// テクスチャのconvert
-			ConvertTexture(_pMaterial->baseColorTex);
-			ConvertTexture(_pMaterial->metaRoughTex);
-			ConvertTexture(_pMaterial->emissiveTex);
-			ConvertTexture(_pMaterial->normalTex);
+			ConvertTexture(a_resourceManager, _pMaterial->baseColorTex);
+			ConvertTexture(a_resourceManager, _pMaterial->metaRoughTex);
+			ConvertTexture(a_resourceManager, _pMaterial->emissiveTex);
+			ConvertTexture(a_resourceManager, _pMaterial->normalTex);
 
 			// アセットデータベースに登録
-			a_asset.materialGUIDs[_i] = AssetDatabase::Instance().AddMetaData(_fullPath, "Material");
+			a_asset.materialGUIDs[_i] = a_resourceManager.RefAssetDatabase().AddMetaData(_fullPath, "Material");
 
 			// マテリアルのセーブ
 			Persistence::Archive _ar(Persistence::Archive::Mode::Save, _convertDir, _fileName, "mtrl");
 			_pMaterial->Archive(_ar);
 		}
 	}
-	void ModelConverter::ConvertMeshToBinary(const std::string& a_basePath, ModelAssetData& a_asset, const ModelRuntimeData& a_runtime)
+	void ModelConverter::ConvertMeshToBinary(ResourceManager& a_resourceManager, const std::string& a_basePath, ModelAssetData& a_asset, const ModelRuntimeData& a_runtime)
 	{
 		size_t _meshHandleSize = a_runtime.meshes.size();
 		a_asset.meshGUIDs.resize(_meshHandleSize);
@@ -392,7 +394,7 @@ namespace Engine::Resource::Converter
 		{
 			// メッシュ取得
 			auto _meshHandle = a_runtime.meshes[_i];
-			auto* _pMesh = Resource::ResourceManager::Instance().Ref(_meshHandle);
+			auto* _pMesh = a_resourceManager.Ref(_meshHandle);
 			if (!_pMesh) continue;
 
 			// コンバートパスの作成
@@ -402,11 +404,11 @@ namespace Engine::Resource::Converter
 			auto _fullPath = _convertDir + "/" + _fileName;
 
 			// 保存
-			a_asset.meshGUIDs[_i] = AssetDatabase::Instance().AddMetaData(_fullPath, "Mesh");
+			a_asset.meshGUIDs[_i] = a_resourceManager.RefAssetDatabase().AddMetaData(_fullPath, "Mesh");
 			_pMesh->Save(_convertDir, _fileName);
 		}
 	}
-	void ModelConverter::ConvertAnimationToBinary(const std::string & a_basePath, ModelAssetData & a_asset, const ModelRuntimeData & a_runtime)
+	void ModelConverter::ConvertAnimationToBinary(ResourceManager& a_resourceManager, const std::string & a_basePath, ModelAssetData & a_asset, const ModelRuntimeData & a_runtime)
 	{
 		size_t _animHandleSize = a_runtime.animations.size();
 		a_asset.animationGUIDs.resize(_animHandleSize);
@@ -414,7 +416,7 @@ namespace Engine::Resource::Converter
 		{
 			// アニメーションの取得
 			auto _animHandle = a_runtime.animations[_i];
-			auto* _pAnim = Resource::ResourceManager::Instance().Ref(_animHandle);
+			auto* _pAnim = a_resourceManager.Ref(_animHandle);
 			if (!_pAnim) continue;
 
 			// コンバートパスの作成
@@ -424,24 +426,24 @@ namespace Engine::Resource::Converter
 			auto _fullPath = _convertDir + "/" + _fileName;
 
 			// 保存
-			a_asset.animationGUIDs[_i] = AssetDatabase::Instance().AddMetaData(_fullPath, "Animation");
+			a_asset.animationGUIDs[_i] = a_resourceManager.RefAssetDatabase().AddMetaData(_fullPath, "Animation");
 			_pAnim->Save(_convertDir, _fileName);
 		}
 	}
-	void ModelConverter::ConvertTexture(const ResourceRef<Texture>& a_ref)
+	void ModelConverter::ConvertTexture(ResourceManager& a_resourceManager, const ResourceRef<Texture>& a_ref)
 	{
-		auto* _pTex = GetTexture(a_ref);
+		auto* _pTex = GetTexture(a_resourceManager, a_ref);
 		if (!_pTex) return;
 
-		auto _guid = ResourceManager::Instance().GetCache(a_ref.GetRaw());
+		auto _guid = a_resourceManager.GetCache(a_ref.GetRaw());
 		if (_guid == Engine::DefaultGUID) return;
 
-		auto _path = AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+		auto _path = a_resourceManager.RefAssetDatabase().GetFilePathFromGUID(_guid);
 
 		_pTex->Save(_path);
 	}
-	Texture* ModelConverter::GetTexture(const ResourceRef<Texture>& a_ref)
+	Texture* ModelConverter::GetTexture(ResourceManager& a_resourceManager, const ResourceRef<Texture>& a_ref)
 	{
-		return ResourceManager::Instance().Ref(a_ref);
+		return a_resourceManager.Ref(a_ref);
 	}
 }

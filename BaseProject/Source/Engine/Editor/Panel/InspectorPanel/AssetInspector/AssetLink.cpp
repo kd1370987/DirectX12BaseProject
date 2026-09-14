@@ -1,4 +1,5 @@
 ﻿#include "AssetLink.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 namespace Engine::Editor::Inspector
 {
@@ -61,7 +62,7 @@ namespace Engine::Editor::Inspector
 		if (IsEmptyGUID(a_guid)) return false;
 
 		// 引けないGUIDへは飛ばない(参照が切れているアセットを開いても何も出せない)
-		auto* _pAsset = Resource::AssetDatabase::Instance().FindAssetProperty(a_guid);
+		auto* _pAsset = a_editContext.pServices->pAssetDatabase->FindAssetProperty(a_guid);
 		if (!_pAsset) return false;
 
 		// 同じものを開き直したときは履歴だけが伸びるので積まない
@@ -102,7 +103,10 @@ namespace Engine::Editor::Inspector
 		}
 
 		// ---- データベースに無い ----
-		auto* _pAsset = Resource::AssetDatabase::Instance().FindAssetProperty(a_guid);
+		// 飛び先を引くのにもエディターのコンテキストが要る。無ければ名前も出せない
+		auto* _pAsset = (a_pEditContext && a_pEditContext->pServices)
+			? a_pEditContext->pServices->pAssetDatabase->FindAssetProperty(a_guid)
+			: nullptr;
 		if (!_pAsset)
 		{
 			DrawLabel(a_label);
@@ -163,7 +167,7 @@ namespace Engine::Editor::Inspector
 
 		// 戻り先の名前を出しておく : 何段も辿ったときに現在地を見失わないため
 		const auto* _pBackAsset =
-			Resource::AssetDatabase::Instance().FindAssetProperty(_historyVec.back());
+			a_editContext.pServices->pAssetDatabase->FindAssetProperty(_historyVec.back());
 
 		ImGui::TextDisabled("Back : %s",
 			_pBackAsset ? _pBackAsset->fileName.c_str() : "(missing)");

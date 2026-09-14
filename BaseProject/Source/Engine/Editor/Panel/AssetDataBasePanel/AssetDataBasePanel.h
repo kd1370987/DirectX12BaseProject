@@ -26,7 +26,9 @@ namespace Engine::Editor
 		char m_pathCach[256] = "";
 
 		// "アセット名" -> "生成処理" の辞書
-		using AssetCreateFunc = std::function<void(const std::string&, const std::string&)>;
+		// 同名チェック(アセットデータベース)や、作った中身の保存(リソースマネージャー)で使うので、
+		// サービス一式を呼ぶ側から渡す
+		using AssetCreateFunc = std::function<void(const ECS::EngineServices&, const std::string&, const std::string&)>;
 		std::unordered_map<std::string, AssetCreateFunc> m_assetCreateFuncs;
 	};
 }

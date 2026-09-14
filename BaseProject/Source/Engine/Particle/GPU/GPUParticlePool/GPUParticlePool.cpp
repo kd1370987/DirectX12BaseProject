@@ -8,9 +8,9 @@
 
 namespace Engine::Particle
 {
-	void Engine::Particle::GPUParticlePool::Init(D3D12::Device* a_pDevice, D3D12::DescriptorHeapManager* a_pHeapManager, D3D12::GraphicsCommandList* a_pCmdList,Engine::Handle<Resource::ParticlesAsset> a_particleHandle)
+	void Engine::Particle::GPUParticlePool::Init(D3D12::Device* a_pDevice, D3D12::DescriptorHeapManager* a_pHeapManager, D3D12::GraphicsCommandList* a_pCmdList,Engine::Handle<Resource::ParticlesAsset> a_particleHandle, const Resource::ResourceManager& a_resourceManager)
 	{
-		auto* _pParticleAsset = Resource::ResourceManager::Instance().Get(a_particleHandle);
+		auto* _pParticleAsset = a_resourceManager.Get(a_particleHandle);
 		if (!_pParticleAsset)
 		{
 			ENGINE_WARNING("パーティクルプールの作成に失敗 : パーティクルアセットが読み込めませんでした");

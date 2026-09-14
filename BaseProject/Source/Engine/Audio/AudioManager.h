@@ -24,7 +24,8 @@ namespace Engine::Audio
 		//----------------------------------------------------------------------------------------------------
 		// 初期化・解放
 		//----------------------------------------------------------------------------------------------------
-		bool Init();
+		// a_pResourceManager : サウンドの実体を引く先(借り物)
+		bool Init(Resource::ResourceManager* a_pResourceManager);
 
 		/// <summary>
 		/// 発行済みのサウンドインスタンスをすべて停止・破棄する
@@ -79,9 +80,8 @@ namespace Engine::Audio
 		/// 音のグループ。オプションの音量はこの単位で掛かる。
 		/// 省略すると効果音(Se)扱い
 		/// </param>
-		Handle<Resource::SoundInstance> RequestSoundInstance(
-			const std::string& a_filePath, bool a_is3D = false,
-			ESoundGroup a_group = ESoundGroup::Se);
+		// GUIDから発行する。
+		// (ファイルパス版はどこからも呼ばれておらず、アセットデータベースを直に引いていたので消した)
 		Handle<Resource::SoundInstance> RequestSoundInstance(
 			const Engine::GUID& a_guid, bool a_is3D = false,
 			ESoundGroup a_group = ESoundGroup::Se);
@@ -145,6 +145,9 @@ namespace Engine::Audio
 		//----------------------------------------------------------------------------------
 		float m_masterVolume = 1.0f;
 		std::array<float, SOUND_GROUP_COUNT> m_groupVolumeArray = {};
+
+		// サウンドの実体を引く先(借り物) : 持ち主は MainEngine
+		Resource::ResourceManager* m_pResourceManager = nullptr;
 
 	// シングルトン
 	private:

@@ -96,10 +96,10 @@ struct Engine::ECS::ComponentTraits<CameraParamComponent>
 	//
 	// コンポーネントはデストラクタが走らないので、参照を返すのはここの仕事
 	//----------------------------------------------------------------------------------
-	static void Release(void* a_pData)
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		CameraParamComponent& _comp = Engine::Editor::GetValue<CameraParamComponent>(a_pData);
-		Engine::Resource::ResourceManager::Instance().ReleaseHandle(_comp.pipelineHandle);
+		a_services.pResourceManager->ReleaseHandle(_comp.pipelineHandle);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -113,6 +113,7 @@ struct Engine::ECS::ComponentTraits<CameraParamComponent>
 
 		// 描画構成 : 空なら従来のレンダーグラフだけが動く
 		Engine::Editor::EditorHelper::DrawAssetSelectCombo<Engine::Graphics::Pipeline::RenderingPipelineAsset>(
+			*a_context.pWorld->RefEngineServices(),
 			"Pipeline",
 			"RenderingPipelineAsset",
 			_comp.pipelineGUID,

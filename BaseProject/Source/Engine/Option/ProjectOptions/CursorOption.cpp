@@ -9,7 +9,7 @@ namespace
 	constexpr float MAX_SIZE = 512.0f;
 }
 
-void Engine::Option::ProjectOptions::CursorOption::DrawEdit()
+void Engine::Option::ProjectOptions::CursorOption::DrawEdit(const ECS::EngineServices& a_services)
 {
 	ImGui::Checkbox("Enable", &isEnable);
 	ImGui::SameLine();
@@ -17,7 +17,7 @@ void Engine::Option::ProjectOptions::CursorOption::DrawEdit()
 
 	ImGui::SeparatorText("Texture");
 
-	Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Cursor", "Texture", textureGUID);
+	Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(a_services, "Cursor", "Texture", textureGUID);
 	if (!textureGUID.IsValid())
 	{
 		ImGui::TextDisabled("(未設定 : OSのカーソルを消さずにそのまま出す)");

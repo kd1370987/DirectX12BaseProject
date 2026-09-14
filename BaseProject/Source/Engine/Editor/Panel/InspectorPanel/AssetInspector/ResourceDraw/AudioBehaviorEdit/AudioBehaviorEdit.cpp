@@ -49,7 +49,7 @@ namespace Engine::Editor::Inspector
 			ImGui::PushID(static_cast<int>(a_phase));
 
 			// 音の差し替え
-			if (EditorHelper::DrawAssetSelectComboGUID("Sound", "Sound", a_part.soundGUID))
+			if (EditorHelper::DrawAssetSelectComboGUID(*a_editContext.pServices, "Sound", "Sound", a_part.soundGUID))
 			{
 				_isChanged = true;
 			}
@@ -106,7 +106,7 @@ namespace Engine::Editor::Inspector
 		// 保存ボタン
 		if (ImGui::Button("Save Asset"))
 		{
-			auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+			auto _filePath = a_editContext.pServices->pAssetDatabase->GetFilePathFromGUID(_guid);
 			a_pBehavior->Save(_filePath);
 			ENGINE_LOG("Save AudioBehavior : %s", _filePath.c_str());
 		}

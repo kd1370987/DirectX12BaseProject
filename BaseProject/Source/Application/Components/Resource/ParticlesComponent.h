@@ -88,10 +88,10 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 	// ECS がエンティティを消すとき・コンポーネントを外すとき・
 	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
 	//----------------------------------------------------------------------------------
-	static void Release(void* a_pData)
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		ParticlesComponent& _comp = Engine::Editor::GetValue<ParticlesComponent>(a_pData);
-		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+		auto& _resourceManager = *a_services.pResourceManager;
 
 		_resourceManager.ReleaseHandle(_comp.particlesAssetHandle);
 		_resourceManager.ReleaseHandle(_comp.sparkAssetHandle);
@@ -194,12 +194,13 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		Editor::EditorHelper::DrawHandle(_comp.particlesAssetHandle);
 		GUID _selectedGUID = {};
 		if (Editor::EditorHelper::DrawAssetGUIDCombo(
+			*a_context.pWorld->RefEngineServices(),
 			"Change Particle",
 			"ParticlesAsset",
 			_comp.particleGUID,
 			_selectedGUID))
 		{
-			_comp.particlesAssetHandle = Resource::ResourceManager::Instance().GetCache<Resource::ParticlesAsset>(_selectedGUID);
+			_comp.particlesAssetHandle = a_context.pWorld->RefEngineServices()->pResourceManager->GetCache<Resource::ParticlesAsset>(_selectedGUID);
 			_comp.particleGUID = _selectedGUID;
 		}
 
@@ -223,12 +224,13 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 			Editor::EditorHelper::DrawHandle(_comp.sparkAssetHandle);
 			GUID _selectedSparkGUID = {};
 			if (Editor::EditorHelper::DrawAssetGUIDCombo(
+				*a_context.pWorld->RefEngineServices(),
 				"Change Spark Particle",
 				"ParticlesAsset",
 				_comp.sparkGUID,
 				_selectedSparkGUID))
 			{
-				_comp.sparkAssetHandle = Resource::ResourceManager::Instance().GetCache<Resource::ParticlesAsset>(_selectedSparkGUID);
+				_comp.sparkAssetHandle = a_context.pWorld->RefEngineServices()->pResourceManager->GetCache<Resource::ParticlesAsset>(_selectedSparkGUID);
 				_comp.sparkGUID = _selectedSparkGUID;
 			}
 		}

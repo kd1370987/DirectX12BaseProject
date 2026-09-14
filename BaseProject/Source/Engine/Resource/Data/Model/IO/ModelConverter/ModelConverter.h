@@ -2,6 +2,11 @@
 
 #include "../Parser/ParserStruct.h"
 
+namespace Engine::Resource
+{
+	class ResourceManager;
+}
+
 namespace Engine::Resource::Converter
 {
 	class ModelConverter
@@ -26,20 +31,21 @@ namespace Engine::Resource::Converter
 		/// <summary>
 		/// 指定したモデルファイルをbinary、DDSなどに変換したファイルを作る。
 		/// </summary>
-		static bool ConvertModelDataToBinary(const std::string& a_filePath);		// ファイルパスから
-		static bool ConvertModelDataToBinary(const Engine::GUID& a_guid);			// guidから
-		static bool ConvertModelDataToBinary(const ResourceRef<Model>& a_modelHandle);	// ハンドルから
+		// a_resourceManager : 変換元の実体を引く先。保存先のパス解決とサブアセットのGUID発行は、この中のアセットデータベースで行う
+		static bool ConvertModelDataToBinary(ResourceManager& a_resourceManager, const std::string& a_filePath);		// ファイルパスから
+		static bool ConvertModelDataToBinary(ResourceManager& a_resourceManager, const Engine::GUID& a_guid);			// guidから
+		static bool ConvertModelDataToBinary(ResourceManager& a_resourceManager, const ResourceRef<Model>& a_modelHandle);	// ハンドルから
 
 	private:
 
 		// binaryにコンバート
-		static void ConvertMaterialToBinary(const std::string& a_basePath,ModelAssetData& a_asset,const ModelRuntimeData& a_runtime);
-		static void ConvertMeshToBinary(const std::string& a_basePath,ModelAssetData& a_asset,const ModelRuntimeData& a_runtime);
-		static void ConvertAnimationToBinary(const std::string& a_basePath,ModelAssetData& a_asset,const ModelRuntimeData& a_runtime);
+		static void ConvertMaterialToBinary(ResourceManager& a_resourceManager, const std::string& a_basePath,ModelAssetData& a_asset,const ModelRuntimeData& a_runtime);
+		static void ConvertMeshToBinary(ResourceManager& a_resourceManager, const std::string& a_basePath,ModelAssetData& a_asset,const ModelRuntimeData& a_runtime);
+		static void ConvertAnimationToBinary(ResourceManager& a_resourceManager, const std::string& a_basePath,ModelAssetData& a_asset,const ModelRuntimeData& a_runtime);
 
 
-		static void ConvertTexture(const ResourceRef<Texture>& a_ref);
-		static Texture* GetTexture(const ResourceRef<Texture>& a_ref);
+		static void ConvertTexture(ResourceManager& a_resourceManager, const ResourceRef<Texture>& a_ref);
+		static Texture* GetTexture(ResourceManager& a_resourceManager, const ResourceRef<Texture>& a_ref);
 
 	};
 }

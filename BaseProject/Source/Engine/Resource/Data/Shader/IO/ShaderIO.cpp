@@ -12,15 +12,15 @@ namespace Engine::Resource
 		return _shader;
 	}
 
-	Handle<Shader> Engine::Resource::ShaderIO::Request(const std::string& a_path)
+	Handle<Shader> Engine::Resource::ShaderIO::Request(ResourceManager& a_resourceManager, const std::string& a_path)
 	{
 		// アセットデータベースに問い合わせ
-		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(a_path);
+		auto _guid = a_resourceManager.RefAssetDatabase().GetGUIDFromFilePath(a_path);
 		if (_guid != Engine::DefaultGUID)
 		{
 			// 見つかれば
 			auto _shader = LoadShaderFromFile(a_path);
-			return ResourceManager::Instance().AddResourceAndGUID(std::move(_shader), _guid);
+			return a_resourceManager.AddResourceAndGUID(std::move(_shader), _guid);
 		}
 
 		ENGINE_LOG("シェーダーの読み込みに失敗しました : %s",a_path.c_str());

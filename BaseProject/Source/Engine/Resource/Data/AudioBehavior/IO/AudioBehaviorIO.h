@@ -1,6 +1,8 @@
 #pragma once
 namespace Engine::Resource
 {
+	class AssetDatabase;
+
 	class AudioBehaviorIO
 	{
 	public:
@@ -17,6 +19,6 @@ namespace Engine::Resource
 		/// </summary>
 		/// <param name="a_path">Asset/AudioBehavior/ 以下のディレクトリ名</param>
 		/// <param name="a_name">ファイルとビヘイビアの名前</param>
-		static void Create(const std::string& a_path, const std::string& a_name);
+		static void Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name);
 	};
 }

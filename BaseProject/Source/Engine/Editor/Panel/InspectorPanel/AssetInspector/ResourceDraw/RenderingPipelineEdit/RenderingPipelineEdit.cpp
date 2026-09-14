@@ -1,4 +1,5 @@
 ﻿#include "RenderingPipelineEdit.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicEngine.h"
@@ -27,7 +28,7 @@ namespace Engine::Editor::Inspector
 
 		m_pAsset = nullptr;
 
-		auto& _manager = Resource::ResourceManager::Instance();
+		auto& _manager = *a_editContext.pServices->pResourceManager;
 
 		// 読み込まれていなければ、ここで読み込む口だけ出す
 		if (!_manager.Has<RenderingPipelineAsset>(m_assetGUID))

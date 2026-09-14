@@ -57,9 +57,10 @@ namespace App::Object::Decoration
 		//
 		// 中身は 4x4 の白1色。ResourceManager 側がGUIDでキャッシュしているので、
 		// 毎フレーム呼んでも作り直しにはならない
-		Engine::Handle<Engine::Resource::Texture> GetWhiteTexture()
+		Engine::Handle<Engine::Resource::Texture> GetWhiteTexture(Engine::Resource::ResourceManager& a_resourceManager)
 		{
-			return Engine::Resource::TextureIO::LoadTexture(Engine::GUID(), Engine::TexColor::WHITE);
+			const auto _context = Engine::Resource::MakeManagerOnlyContext(&a_resourceManager, &a_resourceManager.RefAssetDatabase());
+			return Engine::Resource::TextureIO::LoadTexture(Engine::GUID(), Engine::TexColor::WHITE, &_context);
 		}
 
 		//----------------------------------------------------------------------------------
@@ -394,7 +395,7 @@ namespace App::Object::Decoration
 			if (_thickness <= 0.0f) return;
 			if (a_decoration.edgeSide == EDirection::NONE) return;
 
-			const Engine::Handle<Engine::Resource::Texture> _white = GetWhiteTexture();
+			const Engine::Handle<Engine::Resource::Texture> _white = GetWhiteTexture(*a_pGE->RefResourceManager());
 			const Math::Vector2& _size = a_resolved.size;
 
 			// 太さが矩形を超えたら塗りつぶしと同じになるので詰める
@@ -773,7 +774,7 @@ namespace App::Object::Decoration
 			}
 			else
 			{
-				_texHandle = GetWhiteTexture();
+				_texHandle = GetWhiteTexture(*a_pResourceManager);
 			}
 
 			if (_texHandle.IsValid())
@@ -1083,7 +1084,7 @@ namespace App::Object::Decoration
 		}
 	}
 
-	bool DrawDecorationInspector(Decoration& a_decoration, Engine::Resource::ResourceManager* a_pResourceManager)
+	bool DrawDecorationInspector(Decoration& a_decoration, const Engine::ECS::EngineServices& a_services)
 	{
 		bool _isChanged = false;
 
@@ -1134,12 +1135,12 @@ namespace App::Object::Decoration
 		{
 			ImGui::SeparatorText("Image");
 
-			if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Texture", "Texture", a_decoration.texGUID))
+			if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(a_services, "Texture", "Texture", a_decoration.texGUID))
 			{
-				RequestResources(a_decoration, a_pResourceManager);
+				RequestResources(a_decoration, a_services.pResourceManager);
 				_isChanged = true;
 			}
-			Engine::Editor::EditorHelper::DrawTexture(a_decoration.texRef, 128, 128);
+			Engine::Editor::EditorHelper::DrawTexture(a_services, a_decoration.texRef, 128, 128);
 
 			if (ImGui::DragFloat2("UVOffset", &a_decoration.uvOffset.x, 0.01f)) _isChanged = true;
 			if (ImGui::DragFloat2("UVScale", &a_decoration.uvScale.x, 0.01f)) _isChanged = true;
@@ -1153,9 +1154,9 @@ namespace App::Object::Decoration
 
 			if (ImGui::InputTextMultiline("Text", &a_decoration.text)) _isChanged = true;
 
-			if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Font", "Font", a_decoration.fontGUID))
+			if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(a_services, "Font", "Font", a_decoration.fontGUID))
 			{
-				RequestResources(a_decoration, a_pResourceManager);
+				RequestResources(a_decoration, a_services.pResourceManager);
 				_isChanged = true;
 			}
 

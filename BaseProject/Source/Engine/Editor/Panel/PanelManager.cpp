@@ -1,4 +1,5 @@
 ﻿#include "PanelManager.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 #include "../Panel/RenderGraphResourceViewPanel/RenderGraphResourceViewPanel.h"
 #include "../Panel/AssetDataBasePanel/AssetDataBasePanel.h"
@@ -16,7 +17,7 @@
 
 namespace  Engine::Editor
 {
-	void PanelManager::Init(EditorCamera* a_pEditorCamera, Profiler* a_pProfiler)
+	void PanelManager::Init(EditorCamera* a_pEditorCamera, Profiler* a_pProfiler, ECS::EngineServices* a_pServices)
 	{
 		RegisterPanel<RenderGraphResourceViewPanel>();
 		RegisterPanel<AssetDataBasePanel>();
@@ -30,6 +31,7 @@ namespace  Engine::Editor
 
 		m_editContext.pEditorCamera = a_pEditorCamera;
 		m_editContext.pProfiler = a_pProfiler;
+		m_editContext.pServices = a_pServices;
 	}
 
 	void PanelManager::OnDrawPanels()
@@ -69,8 +71,9 @@ namespace  Engine::Editor
 		//------------------------------------------------------------------
 		if (m_editContext.selectedAssetGUID.IsValid())
 		{
-			m_editContext.pAssetProp =
-				Resource::AssetDatabase::Instance().FindAssetProperty(m_editContext.selectedAssetGUID);
+			m_editContext.pAssetProp = (m_editContext.pServices && m_editContext.pServices->pAssetDatabase)
+				? m_editContext.pServices->pAssetDatabase->FindAssetProperty(m_editContext.selectedAssetGUID)
+				: nullptr;
 
 			if (!m_editContext.pAssetProp)
 			{

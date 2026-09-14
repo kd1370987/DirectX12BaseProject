@@ -2,45 +2,9 @@
 
 // CreateMetaData() の戻り値の型を名乗るだけなので前方宣言で足りる
 #include "Engine/Utility/JSONHelper/JSONForward.h"
+#include "AssetTypes.h"
 namespace Engine::Resource
 {
-	// タイプに対応する拡張子
-	struct TypeExtension
-	{
-		// 追加
-		void AddExtensions(const std::string& a_ext) { extensions.push_back(a_ext); }
-
-		std::string type;						// タイプ
-		std::vector<std::string> extensions;	// ベースとなる拡張子(.gltf,.fbxなど)
-		std::vector<std::string> typeExt;		// 独自規格(.ob,.oj)
-	};
-
-	// アセット一つ当たりの情報 : メタ情報データ
-	struct AssetProperty
-	{
-		// アセットで変わらない情報
-		std::string type = "";								// アセットの種別
-		Engine::GUID guid = {};								// GUID
-		std::string fileName = "";							// ファイル名
-		std::string filePath = "";							// 拡張子なしのベースパス
-
-		std::vector<std::string> extensionsVec = {};		// アセットが持っている拡張子
-	};
-
-	// アセットの階層構造用ノード
-	struct AssetNode
-	{
-		std::map<std::string, AssetNode> children;
-		std::vector<AssetProperty*> assets;
-
-		// リセット
-		void Clear()
-		{
-			children.clear();
-			assets.clear();
-		}
-	};
-
 	// アセットグループ : タイプごとに分けるプロパティを作る中間素材
 	// 初回にできたものを基準として集める
 	struct AssetGroup
@@ -55,6 +19,10 @@ namespace Engine::Resource
 	class AssetDatabase
 	{
 	public:
+
+		AssetDatabase() = default;
+		~AssetDatabase() = default;
+		NON_COPYABLE_NON_MOVABLE(AssetDatabase);
 
 		//-----------------------------------------------------------------------------------------------------
 		// 初期化
@@ -104,10 +72,10 @@ namespace Engine::Resource
 		bool IsValid(const Engine::GUID& a_guid) const;
 
 		// ---- アクセサ ----
-		std::string GetFilePathFromGUID(const std::string& a_guid);			// GUIDから現在のファイルパスを取得
-		std::string GetFilePathFromGUID(const Engine::GUID& a_guid);		// GUIDから現在のファイルパスを取得
-		std::string GetBaseFilePathFromGUID(const Engine::GUID& a_guid);	// ベースファイルパスの取得
-		std::string GetFileNameFromGUID(const Engine::GUID& a_guid);		// ファイルネームの取得
+		std::string GetFilePathFromGUID(const std::string& a_guid) const;		// GUIDから現在のファイルパスを取得
+		std::string GetFilePathFromGUID(const Engine::GUID& a_guid) const;		// GUIDから現在のファイルパスを取得
+		std::string GetBaseFilePathFromGUID(const Engine::GUID& a_guid) const;	// ベースファイルパスの取得
+		std::string GetFileNameFromGUID(const Engine::GUID& a_guid) const;		// ファイルネームの取得
 		Engine::GUID GetGUIDFromFilePath(const std::string& a_path) const;		// ファイルパスからGUIDを取得
 		const AssetNode& GetAssetRootNode() const { return m_assetRootNode; }		// アセット構造取得
 		const std::unordered_map<std::string, TypeExtension>& GetAssetTypeExtensionsMap() const;
@@ -180,7 +148,6 @@ namespace Engine::Resource
 		AssetNode m_assetRootNode = {};
 
 		// ランタイム中のディレクトリ管理
-
 		std::thread m_fileWatcherThread;
 		std::atomic_bool m_isWatching = false;
 		std::mutex m_mutex;
@@ -192,22 +159,5 @@ namespace Engine::Resource
 		std::array<std::byte, 64 * 1024> m_buffer;											// 変更点
 		std::unordered_map<std::string, std::vector<AssetGroup>> m_typeAssetGroupTemp = {};	// 変更をためるバッファ
 		std::unordered_map<Engine::GUID, AssetProperty> m_changedAssetPropMap = { };		// 既存に対しての変更点
-
-
-
-	// シングルトン
-	private:
-
-		AssetDatabase() = default;
-		~AssetDatabase() = default;
-
-	public:
-
-		static AssetDatabase& Instance()
-		{
-			static AssetDatabase _instance;
-			return _instance;
-		}
-
 	};
 }

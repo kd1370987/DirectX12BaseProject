@@ -32,6 +32,6 @@ namespace Engine::Editor::Inspector
 
 		// ---- ノードエディタ ----
 		// ImNodesのコンテキストをアセット側が持っているため、描画はアセットに任せる
-		a_pAnimator->EditImGui(a_handle);
+		if (a_editContext.pServices) a_pAnimator->EditImGui(a_handle, *a_editContext.pServices);
 	}
 }

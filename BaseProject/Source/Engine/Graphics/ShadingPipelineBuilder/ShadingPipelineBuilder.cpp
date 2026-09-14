@@ -25,7 +25,7 @@ namespace Engine::Graphics
 	// リソースマネージャーがメモリに持っているので、パスを引き直して
 	// ファイルから読み直してはいけない
 	//======================================================================================
-	Handle<ID3D12PipelineState> ShadingPipelineBuilder::Request(PSOKey a_key, PipelineStateManager* a_pPSOManager)
+	Handle<ID3D12PipelineState> ShadingPipelineBuilder::Request(PSOKey a_key, PipelineStateManager* a_pPSOManager, Resource::ResourceManager& a_resourceManager)
 	{
 		// キャッシュを検索
 		auto _it = m_psoMap.find(a_key);
@@ -34,7 +34,7 @@ namespace Engine::Graphics
 			return _it->second; // すでに完成していればそれを返す
 		}
 
-		auto& _resMgr = Resource::ResourceManager::Instance();
+		auto& _resMgr = a_resourceManager;
 
 		D3D12::RenderPipelineBuilder _builder;
 

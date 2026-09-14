@@ -4,7 +4,7 @@
 
 namespace Engine::Resource
 {
-	EffectAsset EffectAssetIO::LoadFromFile(const std::string& a_path)
+	EffectAsset EffectAssetIO::LoadFromFile(const std::string& a_path, ResourceManager& a_resourceManager)
 	{
 		auto _fileDir = Engine::File::GetDirFromPath(a_path);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_path);
@@ -15,19 +15,19 @@ namespace Engine::Resource
 		_effect.Archive(_ar);
 
 		// GUID しか入っていないので、参照アセットをここで引き当てる
-		_effect.ResolveReferences();
+		_effect.ResolveReferences(a_resourceManager);
 
 		return _effect;
 	}
 
-	void EffectAssetIO::Create(const std::string& a_path, const std::string& a_name)
+	void EffectAssetIO::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
 		// ディレクトリ
 		static std::string _dir = "Asset/Effect/";
 		auto _basePath = _dir + a_path + "/" + a_name;
 
 		// すでにないかチェック
-		Engine::GUID _checkGUID = AssetDatabase::Instance().GetGUIDFromFilePath(_basePath);
+		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
 		if (_checkGUID != Engine::DefaultGUID)
 		{
 			ENGINE_LOG("すでに作成済みのエフェクトです : %s", _basePath.c_str());

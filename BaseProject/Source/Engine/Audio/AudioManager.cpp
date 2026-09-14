@@ -56,8 +56,10 @@ namespace Engine::Audio
 		}
 	}
 
-	bool AudioManager::Init()
+	bool AudioManager::Init(Resource::ResourceManager* a_pResourceManager)
 	{
+		m_pResourceManager = a_pResourceManager;
+
 		
 		Release();
 
@@ -144,15 +146,6 @@ namespace Engine::Audio
 		return m_soundInstancePool.Ref(a_handle);
 	}
 	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(
-		const std::string& a_filePath, bool a_is3D, ESoundGroup a_group)
-	{
-		// ファイルパスの存在チェック
-		if(a_filePath.empty()) return Handle<Resource::SoundInstance>();
-		auto _guid = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(a_filePath);
-		return RequestSoundInstance(_guid, a_is3D, a_group);
-
-	}
-	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(
 		const Engine::GUID& a_guid, bool a_is3D, ESoundGroup a_group)
 	{
 		// サウンドエンジンがなければ発行しない
@@ -168,20 +161,20 @@ namespace Engine::Audio
 		Resource::SoundInstance _instance = {};
 
 		// ロード済みのサウンドかチェック
-		if (Resource::ResourceManager::Instance().Has<Resource::Sound>(a_guid))
+		if (m_pResourceManager->Has<Resource::Sound>(a_guid))
 		{
 			// サウンドの取得
-			auto _soundRef = Resource::ResourceManager::Instance().GetCache<Resource::Sound>(a_guid);
+			auto _soundRef = m_pResourceManager->GetCache<Resource::Sound>(a_guid);
 			if (!_soundRef.IsValid()) return Handle<Resource::SoundInstance>();
-			_instance.Init(_soundRef, a_is3D);// インスタンスの初期化
+			_instance.Init(*m_pResourceManager, _soundRef, a_is3D);// インスタンスの初期化
 
 		}
 		else
 		{
 			// サウンドのロード
-			auto _soundRef = Resource::ResourceManager::Instance().LoadImmediate<Resource::Sound>(a_guid);
+			auto _soundRef = m_pResourceManager->LoadImmediate<Resource::Sound>(a_guid);
 			if (!_soundRef.IsValid()) return Handle<Resource::SoundInstance>();
-			_instance.Init(_soundRef, a_is3D);// インスタンスの初期化
+			_instance.Init(*m_pResourceManager, _soundRef, a_is3D);// インスタンスの初期化
 		}
 
 		// グループの札を付けてから預ける。

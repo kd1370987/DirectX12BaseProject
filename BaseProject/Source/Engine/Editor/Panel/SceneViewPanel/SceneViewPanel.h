@@ -61,12 +61,12 @@ namespace Engine::Editor
 		void SceneFileMenu(EditorContext& a_editContext);
 
 		// シーンファイル操作
-		void LoadScenePopup();
-		void SaveScenePopup();
-		void CreateScenePopup();
+		void LoadScenePopup(EditorContext& a_editContext);
+		void SaveScenePopup(EditorContext& a_editContext);
+		void CreateScenePopup(EditorContext& a_editContext);
 
 		void OpenSavePopup();
-		void SaveScene(const Engine::GUID& a_guid);
+		void SaveScene(EditorContext& a_editContext, const Engine::GUID& a_guid);
 
 		// エンティティコピー : Ctrl+C / Ctrl+V のショートカット処理
 		void CopyEntities(EditorContext& a_editContext, Engine::ECS::World* a_pWorld);

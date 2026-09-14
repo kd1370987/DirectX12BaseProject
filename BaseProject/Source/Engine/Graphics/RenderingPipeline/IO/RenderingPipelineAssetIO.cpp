@@ -42,12 +42,12 @@ namespace Engine::Graphics::Pipeline
 		return _asset;
 	}
 
-	void RenderingPipelineAssetIO::Create(const std::string& a_path, const std::string& a_name, PassMetaRegistry* a_pRegistry)
+	void RenderingPipelineAssetIO::Create(Resource::AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name, PassMetaRegistry* a_pRegistry)
 	{
 		auto _basePath = kAssetDir + a_path + "/" + a_name;
 
 		// すでにないかチェック
-		Engine::GUID _checkGUID = Resource::AssetDatabase::Instance().GetGUIDFromFilePath(_basePath);
+		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
 		if (_checkGUID != Engine::DefaultGUID)
 		{
 			ENGINE_LOG("すでに作成済みのパイプラインです : %s", _basePath.c_str());

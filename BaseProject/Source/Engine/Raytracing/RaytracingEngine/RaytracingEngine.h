@@ -58,9 +58,11 @@ namespace Engine::Raytracing
 			const Math::Vector3& a_emissiveAdd = { 0,0,0 }
 		);
 		// レイトレワールドの構築
+		// a_pResourceManager : 登録されたモデルのメッシュ・マテリアルを引く先(借り物)
 		void CommitWorld(D3D12::Device* a_pDevice,
 			D3D12::DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList);
+			D3D12::GraphicsCommandList* a_pCmdList,
+			Resource::ResourceManager* a_pResourceManager);
 
 		// フレーム開始処理
 		void BeginFrame();
@@ -75,6 +77,12 @@ namespace Engine::Raytracing
 		
 
 		bool m_isCommit = false;		// コミットされたかどうか
+
+		// リソースの持ち主(借り物) : CommitWorld で受け取り、レイトレワールドへ配る
+		Resource::ResourceManager* m_pResourceManager = nullptr;
+
+		// レイトレワールドが無ければ作る : 作ったらリソースの持ち主を渡しておく
+		RayWorld& RefOrCreateWorld();
 
 	private:
 

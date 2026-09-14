@@ -2,7 +2,7 @@
 #include "../../../Manager/ResourceManager/ResourceManager.h"
 namespace Engine::Resource
 {
-	Material MaterialIO::LoadFromFile(const std::string& a_path)
+	Material MaterialIO::LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 	{
 		Material _mat = {};
 		auto _fileDir = Engine::File::GetDirFromPath(a_path);
@@ -11,10 +11,10 @@ namespace Engine::Resource
 		_mat.Archive(_ar);
 
 		// 読み込み
-		_mat.baseColorTex = TextureIO::LoadTexture(_mat.baseColorTexGUID, TexColor::WHITE);
-		_mat.metaRoughTex = TextureIO::LoadTexture(_mat.metaRoughTexGUID, TexColor::ORM);
-		_mat.emissiveTex = TextureIO::LoadTexture(_mat.emissiveTexGUID, TexColor::BLACK);
-		_mat.normalTex = TextureIO::LoadTexture(_mat.normalTexGUID, TexColor::NORMAL);
+		_mat.baseColorTex = TextureIO::LoadTexture(_mat.baseColorTexGUID, TexColor::WHITE, a_pContext);
+		_mat.metaRoughTex = TextureIO::LoadTexture(_mat.metaRoughTexGUID, TexColor::ORM, a_pContext);
+		_mat.emissiveTex = TextureIO::LoadTexture(_mat.emissiveTexGUID, TexColor::BLACK, a_pContext);
+		_mat.normalTex = TextureIO::LoadTexture(_mat.normalTexGUID, TexColor::NORMAL, a_pContext);
 
 		return _mat;
 	}

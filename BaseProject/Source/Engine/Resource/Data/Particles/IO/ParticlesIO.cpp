@@ -6,20 +6,20 @@
 
 namespace Engine::Resource
 {
-	ParticlesAsset ParticlesAssetIO::LoadFromFile(const std::string& a_path)
+	ParticlesAsset ParticlesAssetIO::LoadFromFile(const std::string& a_path, ResourceManager& a_resourceManager)
 	{
 		ParticlesAsset _pa = {};
-		_pa.Load(a_path);
+		_pa.Load(a_path, a_resourceManager);
 		return _pa;
 	}
-	void ParticlesAssetIO::Create(const std::string& a_path, const std::string& a_name)
+	void ParticlesAssetIO::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
 		// ディレクトリ
 		static std::string _dir = "Asset/ParticlesAsset/";
 		auto _basePath = _dir + a_path +"/" + a_name;
 
 		// すでにないかチェック
-		Engine::GUID _checkGUID = AssetDatabase::Instance().GetGUIDFromFilePath(_basePath);
+		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
 		if (_checkGUID != Engine::DefaultGUID)
 		{
 			// すでに作成されていた場合

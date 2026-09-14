@@ -19,7 +19,8 @@ namespace Engine::Resource
 	{
 	public:
 
-		explicit ScopedResourceBuild(bool a_useCopy = true, bool a_useCompute = true);
+		// a_pResourceManager : 作ったものを登録する先。コンテキストへそのまま載せる
+		explicit ScopedResourceBuild(ResourceManager* a_pResourceManager, bool a_useCopy = true, bool a_useCompute = true);
 		~ScopedResourceBuild();
 
 		// コピーもムーブも禁止 : スコープと寿命を一致させる
@@ -55,8 +56,9 @@ namespace Engine::Resource
 				return;
 			}
 
-			// 呼び出し元が持っていないので、その場で開く
-			m_upOwned = std::make_unique<ScopedResourceBuild>();
+			// 呼び出し元が持っていないので、その場で開く。
+			// 登録先のマネージャーだけは呼び出し元のものを引き継ぐ
+			m_upOwned = std::make_unique<ScopedResourceBuild>(a_pContext ? a_pContext->pResourceManager : nullptr);
 			m_pContext = &m_upOwned->GetContext();
 		}
 

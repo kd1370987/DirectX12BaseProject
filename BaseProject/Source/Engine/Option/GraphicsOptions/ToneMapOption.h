@@ -56,7 +56,7 @@ namespace Engine::Option::GraphicsOptions
 			return EOptionCategory::Graphics;
 		}
 
-		void DrawEdit() override
+		void DrawEdit(const ECS::EngineServices&) override
 		{
 			Editor::EditorHelper::DrawEnumCombo("ToneMapType", type);
 

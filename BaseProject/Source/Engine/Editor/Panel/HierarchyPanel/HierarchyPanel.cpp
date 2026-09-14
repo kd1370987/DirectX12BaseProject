@@ -78,7 +78,7 @@ namespace Engine::Editor
 				ImGui::TextDisabled("From Prefab");
 
 				// アセットデータベースに登録されているプレハブ一覧
-				const auto& _prefabList = Resource::AssetDatabase::Instance().GetTypeMetaVec("Prefab");
+				const auto& _prefabList = a_editContext.pServices->pAssetDatabase->GetTypeMetaVec("Prefab");
 				if (_prefabList.empty())
 				{
 					ImGui::TextDisabled("  (no prefab)");
@@ -190,14 +190,14 @@ namespace Engine::Editor
 	void Engine::Editor::HierarchyPanel::InstantiatePrefab(EditorContext& a_editContext,ECS::World* a_pWorld, const Engine::GUID& a_guid)
 	{
 		// プレハブをロード(未ロードならここで読み込まれる)
-		if (!Resource::ResourceManager::Instance().Has<Resource::Prefab>(a_guid))
+		if (!a_editContext.pServices->pResourceManager->Has<Resource::Prefab>(a_guid))
 		{
-			Resource::ResourceManager::Instance().LoadImmediate<Resource::Prefab>(a_guid);
+			a_editContext.pServices->pResourceManager->LoadImmediate<Resource::Prefab>(a_guid);
 		}
 
 		// プレハブ取得
-		auto _handle = Resource::ResourceManager::Instance().GetCache<Resource::Prefab>(a_guid);
-		auto* _pPrefab = Resource::ResourceManager::Instance().Ref(_handle);
+		auto _handle = a_editContext.pServices->pResourceManager->GetCache<Resource::Prefab>(a_guid);
+		auto* _pPrefab = a_editContext.pServices->pResourceManager->Ref(_handle);
 		if (!_pPrefab) return;
 
 		//------------------------------------------------------------------

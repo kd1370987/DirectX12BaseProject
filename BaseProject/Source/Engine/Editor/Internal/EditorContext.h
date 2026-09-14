@@ -1,8 +1,16 @@
 ﻿#pragma once
 
+// 選択中のアセット(AssetProperty)の中身を触るので型だけ読む
+#include "Engine/Resource/Manager/AssetDatabase/AssetTypes.h"
+
 namespace Engine::GameObject
 {
 	class BaseObject;
+}
+
+namespace Engine::ECS
+{
+	struct EngineServices;
 }
 
 namespace Engine::Editor
@@ -178,6 +186,10 @@ namespace Engine::Editor
 
 		// エディターカメラポインタ
 		EditorCamera* pEditorCamera = nullptr;
+
+		// アプリ寿命のサービス一式(借り物) : 正本は MainEngine が持っている。
+		// アセットデータベースやリソースマネージャーはここから引くこと
+		ECS::EngineServices* pServices = nullptr;
 
 		// プロファイラポインタ : 計測はプロファイラ側が行い、パネルは結果を読むだけ
 		Profiler* pProfiler = nullptr;

@@ -334,6 +334,9 @@ namespace Engine::Editor
 		Engine::ECS::Entity _picked = Engine::ECS::Limits::INVALID_ENTITY;
 		if (!a_pWorld) return _picked;
 
+		// 描画メッシュの実体はワールドのサービスから引く
+		const auto& _resourceManager = *a_pWorld->RefEngineServices()->pResourceManager;
+
 		// レイ方向を正規化しておく(AABB判定は単位ベクトルを前提にしている)
 		Collision::RayInfo _ray = a_ray;
 		{
@@ -355,7 +358,7 @@ namespace Engine::Editor
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
-					const auto* _pModel = Resource::ResourceManager::Instance().Get(a_models[_i].handle);
+					const auto* _pModel = _resourceManager.Get(a_models[_i].handle);
 					if (!_pModel) continue;
 
 					// 描画メッシュノードごとに判定
@@ -370,7 +373,7 @@ namespace Engine::Editor
 						for (int _meshIdx : _node.meshIndices)
 						{
 							const auto& _meshHandle = _pModel->GetMeshHandles()[_meshIdx];
-							const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
+							const auto* _pMesh = _resourceManager.Get(_meshHandle);
 							if (!_pMesh) continue;
 
 							// --- ブロードフェーズ ---
@@ -979,22 +982,22 @@ namespace Engine::Editor
 		}
 
 		// ポップアップ処理
-		LoadScenePopup();
-		SaveScenePopup();
-		CreateScenePopup();
+		LoadScenePopup(a_editContext);
+		SaveScenePopup(a_editContext);
+		CreateScenePopup(a_editContext);
 
 		// 実際のセーブ処理の実行
 		if (m_doOverwrite)
 		{
-			SaveScene(m_currentSceneGUID);
+			SaveScene(a_editContext, m_currentSceneGUID);
 		}
 	}
-	void SceneViewPanel::LoadScenePopup()
+	void SceneViewPanel::LoadScenePopup(EditorContext& a_editContext)
 	{
 		if (m_openLoadPopup) { ImGui::OpenPopup("Load Scene Asset"); m_openLoadPopup = false; }
 		if (ImGui::BeginPopupModal("Load Scene Asset", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			const auto& _sceneMetaVec = Resource::AssetDatabase::Instance().GetTypeMetaVec("Scene");
+			const auto& _sceneMetaVec = a_editContext.pServices->pAssetDatabase->GetTypeMetaVec("Scene");
 			if (_sceneMetaVec.empty())
 			{
 				ImGui::TextDisabled("Not find SceneAsset");
@@ -1047,7 +1050,7 @@ namespace Engine::Editor
 			ImGui::EndPopup();
 		}
 	}
-	void SceneViewPanel::SaveScenePopup()
+	void SceneViewPanel::SaveScenePopup(EditorContext& a_editContext)
 	{
 		if (m_openSaveAsPopup) { ImGui::OpenPopup("Save Scene As"); m_openSaveAsPopup = false; }
 		if (ImGui::BeginPopupModal("Save Scene As", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
@@ -1067,7 +1070,7 @@ namespace Engine::Editor
 					// サブディレクトリを作成するように修正
 					std::filesystem::create_directories(dirPath);
 
-					Engine::GUID _guid = Resource::AssetDatabase::Instance().AddMetaData(filepath, "Scene");
+					Engine::GUID _guid = a_editContext.pServices->pAssetDatabase->AddMetaData(filepath, "Scene");
 					m_currentSceneGUID = _guid;
 					m_canOverwrite = true;
 
@@ -1079,7 +1082,7 @@ namespace Engine::Editor
 						_pCurrentScene->SetGUID(_guid);
 					}
 
-					SaveScene(m_currentSceneGUID);
+					SaveScene(a_editContext, m_currentSceneGUID);
 					ImGui::CloseCurrentPopup(); // 保存後に閉じる
 				}
 			}
@@ -1096,7 +1099,7 @@ namespace Engine::Editor
 	// 「名前を付けて保存」は今開いている中身を別名で書き出すものなので、
 	// 空から始めたいときには使えない(前のシーンの中身が付いてくる)。
 	//======================================================================================
-	void SceneViewPanel::CreateScenePopup()
+	void SceneViewPanel::CreateScenePopup(EditorContext& a_editContext)
 	{
 		if (m_openCreatePopup) { ImGui::OpenPopup("Create New Scene"); m_openCreatePopup = false; }
 		if (!ImGui::BeginPopupModal("Create New Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) return;
@@ -1116,7 +1119,7 @@ namespace Engine::Editor
 		if ((_isCreatePressed || _isEnterPressed) && !m_sceneNameInput.empty())
 		{
 			const Engine::GUID _guid =
-				Engine::Scene::SceneManager::Instance().CreateEmptyScene("", m_sceneNameInput);
+				Engine::Scene::SceneManager::Instance().CreateEmptyScene(*a_editContext.pServices->pAssetDatabase, "", m_sceneNameInput);
 
 			if (_guid.IsValid())
 			{
@@ -1143,7 +1146,7 @@ namespace Engine::Editor
 		m_openSaveAsPopup = true;
 		m_sceneNameInput = "";
 	}
-	void SceneViewPanel::SaveScene(const Engine::GUID & a_guid)
+	void SceneViewPanel::SaveScene(EditorContext& a_editContext, const Engine::GUID & a_guid)
 	{
 		// 現在のシーンを取得
 		auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
@@ -1154,7 +1157,7 @@ namespace Engine::Editor
 		}
 
 		// ファイルパスを取得
-		auto _path = Resource::AssetDatabase::Instance().GetFilePathFromGUID(a_guid);
+		auto _path = a_editContext.pServices->pAssetDatabase->GetFilePathFromGUID(a_guid);
 		if (_path.empty())
 		{
 			ENGINE_LOG("シーンのセーブに失敗しました");

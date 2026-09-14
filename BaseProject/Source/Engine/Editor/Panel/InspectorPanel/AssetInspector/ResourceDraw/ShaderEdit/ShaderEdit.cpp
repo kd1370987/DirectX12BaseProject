@@ -1,4 +1,5 @@
 #include "ShaderEdit.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 namespace Engine::Editor::Inspector
 {
@@ -10,7 +11,7 @@ namespace Engine::Editor::Inspector
 		if (!a_pShader) { return; }
 
 		auto _guid = a_editContext.pAssetProp->guid;
-		auto _filePath = Resource::AssetDatabase::Instance().GetFilePathFromGUID(_guid);
+		auto _filePath = a_editContext.pServices->pAssetDatabase->GetFilePathFromGUID(_guid);
 
 		ImGui::Text("Stage    : %s", std::string(magic_enum::enum_name(a_pShader->GetStage())).c_str());
 		ImGui::Text("FilePath : %s", _filePath.c_str());

@@ -68,10 +68,7 @@ namespace Engine::Raytracing
 		const Math::Vector3& a_emissiveAdd
 	)
 	{
-		if (!m_upRayWorld)
-		{
-			m_upRayWorld = std::make_unique<RayWorld>();
-		}
+		RefOrCreateWorld();
 
 		// モデル登録
 		m_upRayWorld->Register(a_worldMat, a_modelHandle,a_colorScale,a_emissiveScale,a_emissiveAdd);
@@ -81,10 +78,7 @@ namespace Engine::Raytracing
 
 	void RayEngine::RegisterSkinningModel(ECS::World& a_world, const Math::Matrix& a_worldMat, const Engine::Handle<Engine::Resource::Model>& a_modelHandle, const Handle<DynamicRaytracingData>& a_dynamicData, const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatVec, const Math::Color& a_colorScale, const Math::Vector3& a_emissiveScale, const Math::Vector3& a_emissiveAdd)
 	{
-		if (!m_upRayWorld)
-		{
-			m_upRayWorld = std::make_unique<RayWorld>();
-		}
+		RefOrCreateWorld();
 
 		// モデル登録
 		m_upRayWorld->Register(a_world,a_worldMat,a_modelHandle,a_dynamicData,a_nodeposeMatVec,a_colorScale,a_emissiveScale,a_emissiveAdd);
@@ -97,16 +91,28 @@ namespace Engine::Raytracing
 	void Engine::Raytracing::RayEngine::CommitWorld(
 		D3D12::Device* a_pDevice,
 		D3D12::DescriptorHeapManager* a_pHeapManager,
-		D3D12::GraphicsCommandList* a_pCmdList
+		D3D12::GraphicsCommandList* a_pCmdList,
+		Resource::ResourceManager* a_pResourceManager
 	)
 	{
+		m_pResourceManager = a_pResourceManager;
+
 		// レイワールドの作成
+		RefOrCreateWorld();
+		// ヒットグループ数がいるが仮置き
+		m_upRayWorld->Init(a_pDevice,a_pHeapManager,a_pCmdList,2,a_pResourceManager);
+	}
+
+	Engine::Raytracing::RayWorld& Engine::Raytracing::RayEngine::RefOrCreateWorld()
+	{
 		if (!m_upRayWorld)
 		{
 			m_upRayWorld = std::make_unique<RayWorld>();
 		}
-		// ヒットグループ数がいるが仮置き
-		m_upRayWorld->Init(a_pDevice,a_pHeapManager,a_pCmdList,2);
+
+		// 登録が CommitWorld より先に来ても引けるように、ここでも渡しておく
+		m_upRayWorld->SetResourceManager(m_pResourceManager);
+		return *m_upRayWorld;
 	}
 
 	void Engine::Raytracing::RayEngine::BeginFrame()

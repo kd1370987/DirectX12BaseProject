@@ -50,8 +50,12 @@ namespace Engine::Raytracing
 			D3D12::Device* a_pDevice,
 			D3D12::DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList, 
-			uint32_t a_hitGroupNum
+			uint32_t a_hitGroupNum,
+			Resource::ResourceManager* a_pResourceManager
 		);
+
+		// 登録されたモデルのメッシュ・マテリアル・テクスチャを引く先(借り物)
+		void SetResourceManager(Resource::ResourceManager* a_pResourceManager) { m_pResourceManager = a_pResourceManager; }
 
 		// 解放
 		void Release();
@@ -93,6 +97,9 @@ namespace Engine::Raytracing
 
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている
 		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
+
+		// リソースの持ち主(借り物)。実体は MainEngine が持っている
+		Resource::ResourceManager* m_pResourceManager = nullptr;
 
 		std::vector<Instance> m_instanceVec = {};		// レイトレワールドインスタンス
 		std::unique_ptr<TLAS> m_upTLAS = nullptr;		// レイトレワールドTLAS

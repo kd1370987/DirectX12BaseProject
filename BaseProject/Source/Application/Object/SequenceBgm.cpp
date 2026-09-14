@@ -186,7 +186,7 @@ namespace App::Object
 		ImGui::SeparatorText("BGM");
 
 		// 曲を差し替えたら、借りている分を返して鳴らし直させる
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Bgm", "Sound", m_guid))
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pServices, "Bgm", "Sound", m_guid))
 		{
 			Release(a_context);
 		}

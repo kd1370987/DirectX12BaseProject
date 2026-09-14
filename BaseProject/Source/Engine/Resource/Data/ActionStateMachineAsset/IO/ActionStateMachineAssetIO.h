@@ -1,6 +1,8 @@
 #pragma once
 namespace Engine::Resource
 {
+	class AssetDatabase;
+
 	class ActionStateMachineAssetIO
 	{
 	public:
@@ -10,6 +12,6 @@ namespace Engine::Resource
 		/// <summary>作成 : メタファイルと空のファイルを作成</summary>
 		/// <param name="a_path">ディレクトリ名</param>
 		/// <param name="a_name">ファイルとステートマシンの名前</param>
-		static void Create(const std::string& a_path, const std::string& a_name);
+		static void Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name);
 	};
 }

@@ -26,8 +26,9 @@ namespace Engine::Resource
 
 		// シリアライズ
 		void Save(const std::string& a_filePath);
-		void Load(const std::string& a_fileDir, const std::string& a_fileName);
-		void Load(const std::string& a_filePath);
+		// a_resourceManager : 参照テクスチャを読み込む先
+		void Load(const std::string& a_fileDir, const std::string& a_fileName, ResourceManager& a_resourceManager);
+		void Load(const std::string& a_filePath, ResourceManager& a_resourceManager);
 
 	private:
 
@@ -44,13 +45,16 @@ namespace Engine::Resource
 		/// <summary>
 		/// 読み込み後の後始末(値の下限補正とテクスチャの解決)
 		/// </summary>
-		void OnLoaded();
+		void OnLoaded(ResourceManager& a_resourceManager);
 
 	public:
 
 		// ---- アクセサ ----
 		const std::string& GetName()const { return m_name; }				// パーティクル名
-		const Engine::GUID& GetGUID() const { return m_guid; }				// パーティクルGUID
+		// 中身に書き込まれているGUID。
+		// 新規作成直後のファイルでは空のまま(GUIDは監視がメタファイルへ発行する)なので、
+		// 保存先を引く用途には使わず、呼び出し側が持っているGUIDを使うこと
+		const Engine::GUID& GetGUID() const { return m_guid; }
 		const Engine::GUID& GetTexGUID() const { return m_texGUID; }		// テクスチャGUID
 		Handle<Texture> GetTexHandle() const { return m_texHandle; }		// テクスチャハンドル
 		float GetInitalSpeedMin() const { return m_initialSpeedMin; }		// 最小初速

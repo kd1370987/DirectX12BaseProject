@@ -29,7 +29,7 @@ namespace Engine::Editor
 	{}
 
 
-	bool MainEditor::Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager)
+	bool MainEditor::Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager, ECS::EngineServices* a_pServices)
 	{
 		if (m_isInit) return true;
 
@@ -51,7 +51,7 @@ namespace Engine::Editor
 		// エフェクト確認用のモーダル画面
 		if (!m_upEffectEditor)
 		{
-			m_upEffectEditor = std::make_unique<EffectEditor>();
+			m_upEffectEditor = std::make_unique<EffectEditor>(a_pServices);
 		}
 
 		// プロファイラ
@@ -65,7 +65,7 @@ namespace Engine::Editor
 		if (!m_upPanelManager)
 		{
 			m_upPanelManager = std::make_unique<PanelManager>();
-			m_upPanelManager->Init(m_upEditorCamera.get(), m_upProfiler.get());
+			m_upPanelManager->Init(m_upEditorCamera.get(), m_upProfiler.get(), a_pServices);
 		}
 
 		// ログパネルの参照を取得しておく。

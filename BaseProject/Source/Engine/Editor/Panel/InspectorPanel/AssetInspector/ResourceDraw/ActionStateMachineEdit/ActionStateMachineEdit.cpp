@@ -30,6 +30,6 @@ namespace Engine::Editor::Inspector
 		ImGui::Separator();
 
 		// ---- ノードエディタ ----
-		a_pAsset->EditImGui(a_handle);
+		if (a_editContext.pServices) a_pAsset->EditImGui(a_handle, *a_editContext.pServices);
 	}
 }

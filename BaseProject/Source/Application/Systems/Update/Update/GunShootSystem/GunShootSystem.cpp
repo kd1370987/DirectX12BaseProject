@@ -270,7 +270,7 @@ void GunShootSystem::Init(App::ECS::APPWorld& a_world)
 				Math::Vector3 _spawnPos = _pos;
 				if (_gun.nullPtrNodeHash != 0)
 				{
-					auto* _pModel = Engine::Resource::ResourceManager::Instance().Get(_modelComp.handle);
+					auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 					if (_pModel)
 					{
 						const auto& _nodeVec = _pModel->GetOriginalNodeVec();
@@ -339,7 +339,7 @@ void GunShootSystem::Init(App::ECS::APPWorld& a_world)
 				{
 					auto* _pMuzzleComp = a_ctx.pWorld->RefData<EffectAssetComponent>(_self);
 					auto* _pMuzzleEffect = _pMuzzleComp
-						? Engine::Resource::ResourceManager::Instance().Ref(_pMuzzleComp->effectHandle)
+						? a_ctx.pServices->pResourceManager->Ref(_pMuzzleComp->effectHandle)
 						: nullptr;
 
 					if (_pMuzzleEffect)

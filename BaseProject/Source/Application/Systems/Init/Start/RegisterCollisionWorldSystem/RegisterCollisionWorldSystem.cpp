@@ -54,6 +54,7 @@ void RegisterCollisionWorldSystem::Init(App::ECS::APPWorld& a_world)
 				
 				// モデル全体のローカルAABBを計算（モデル内ノードのworldTransform込み）
 				DirectX::BoundingBox _localAABB = Engine::Collision::CalcModelLocalAABB(
+					*a_ctx.pServices->pResourceManager,
 					_pModel,
 					_collComp.shapeType.type == Engine::Collision::EShapeType::Mesh);
 

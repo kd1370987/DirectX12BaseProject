@@ -34,10 +34,10 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 	// ECS がエンティティを消すとき・コンポーネントを外すとき・
 	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
 	//----------------------------------------------------------------------------------
-	static void Release(void* a_pData)
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		StateMachineComponent& _comp = Engine::Editor::GetValue<StateMachineComponent>(a_pData);
-		auto& _resourceManager = Engine::Resource::ResourceManager::Instance();
+		auto& _resourceManager = *a_services.pResourceManager;
 
 		_resourceManager.ReleaseHandle(_comp.stateMachineHandle);
 	}
@@ -56,6 +56,7 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 
 		// ステートマシンの選択
 		Editor::EditorHelper::DrawAssetSelectCombo<Resource::AnimatorAsset>(
+			*a_context.pWorld->RefEngineServices(),
 			"Change StateMachine",
 			"AnimatorAsset",
 			_comp.stateMachineGUID,
@@ -63,7 +64,7 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 		);
 
 		// 現在のステートを表示
-		const auto* _sm = Resource::ResourceManager::Instance().Get(_comp.stateMachineHandle);
+		const auto* _sm = a_context.pWorld->RefEngineServices()->pResourceManager->Get(_comp.stateMachineHandle);
 		if (_sm)
 		{
 			std::string _nodeNameStr(_sm->GetNodeName(_comp.currentStateHash));

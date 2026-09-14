@@ -22,6 +22,7 @@ namespace
 	struct ParticleRuntime
 	{
 		Engine::Graphics::PipelineStateManager* pPSOManager = nullptr;
+		Engine::Resource::ResourceManager* pResourceManager = nullptr;	// アセットの値を引く(借り物)
 
 		// PSOはハンドルで持つ。
 		// 8bitの添字へ落として持つと、PSOが256個を超えたところで
@@ -40,6 +41,7 @@ namespace
 	// シェーダーからルートシグネチャとコンピュートPSOを起こす
 	bool SetupComputeShader(
 		Engine::Graphics::PipelineStateManager* a_pPSOManager,
+		Engine::Resource::ResourceManager& a_resourceManager,
 		const std::string& a_csPath,
 		const std::string& a_psoName,
 		Engine::Handle<ID3D12RootSignature>& a_outRootSig,
@@ -47,8 +49,8 @@ namespace
 	{
 		using namespace Engine;
 
-		auto _csHandle = Resource::ShaderIO::Request(a_csPath);
-		auto* _pShader = Resource::ResourceManager::Instance().Ref(_csHandle);
+		auto _csHandle = Resource::ShaderIO::Request(a_resourceManager, a_csPath);
+		auto* _pShader = a_resourceManager.Ref(_csHandle);
 		if (!_pShader || !_pShader->Get()) return false;
 
 		a_outRootSig = a_pPSOManager->Request(_pShader->Get());
@@ -67,19 +69,22 @@ namespace
 
 namespace Engine::Graphics
 {
-	void SetupParticleSimulation(PipelineStateManager* a_pPSOManager)
+	void SetupParticleSimulation(PipelineStateManager* a_pPSOManager, Resource::ResourceManager& a_resourceManager)
 	{
 		if (!a_pPSOManager) return;
 		g_particle.pPSOManager = a_pPSOManager;
+		g_particle.pResourceManager = &a_resourceManager;
 
 		SetupComputeShader(
 			a_pPSOManager,
+			a_resourceManager,
 			"Asset/Shader/Source/Particle/Emit/EmitParticleShaeder.cso",
 			"EmitParticleShader",
 			g_particle.emitRootSig, g_particle.emitPSO);
 
 		SetupComputeShader(
 			a_pPSOManager,
+			a_resourceManager,
 			"Asset/Shader/Source/Particle/Update/UpdateParticleShader.cso",
 			"UpdateParticleShader",
 			g_particle.updateRootSig, g_particle.updatePSO);
@@ -197,7 +202,7 @@ namespace Engine::Graphics
 			_cbData.deltaTime = MainEngine::Instance().GetDeltaTime();
 
 			// 重力と減衰はアセット単位。プールごとに回しているのでここで引ける
-			if (const auto* _pParticle = Resource::ResourceManager::Instance().Get(_handle))
+			if (const auto* _pParticle = g_particle.pResourceManager ? g_particle.pResourceManager->Get(_handle) : nullptr)
 			{
 				// GravityPow は「重力をどれだけ受けるか」の倍率。
 				// 1 で普通に落ち、0 で無重力、負にすると浮き上がる(煙向き)

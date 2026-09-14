@@ -11,9 +11,10 @@
 
 namespace Engine::Graphics
 {
-	void MouseCursor::Init(D3D12::DescriptorHeapManager* a_pHeapManager)
+	void MouseCursor::Init(D3D12::DescriptorHeapManager* a_pHeapManager, Resource::ResourceManager* a_pResourceManager)
 	{
 		m_pHeapManager = a_pHeapManager;
+		m_pResourceManager = a_pResourceManager;
 
 		// 実際の読み込み要求は Update で出す。
 		// 設定はエディターから触れるので、初回だけでなく「変わったら読み直す」形に
@@ -57,14 +58,14 @@ namespace Engine::Graphics
 		// 設定が差し替わっていたら読み直す
 		if (!(m_loadedGUID == _cursorOp.textureGUID))
 		{
-			m_texRef = Resource::ResourceManager::Instance()
+			m_texRef = (*m_pResourceManager)
 				.RequestLoad<Resource::Texture>(_cursorOp.textureGUID);
 			m_loadedGUID = _cursorOp.textureGUID;
 		}
 
 		// 読み込みが終わるまではOSのカーソルを消さない。
 		// 消してから絵が出るまでの間、カーソルが1つも無い状態になってしまうため
-		if (!Resource::ResourceManager::Instance().IsReady(m_texRef)) return;
+		if (!(*m_pResourceManager).IsReady(m_texRef)) return;
 
 		// ここまで来たら自前の絵を出せる
 		m_isHideOSCursor = true;
@@ -183,7 +184,7 @@ namespace Engine::Graphics
 
 		if (!m_isDraw) return;
 
-		auto& _resMgr = Resource::ResourceManager::Instance();
+		auto& _resMgr = (*m_pResourceManager);
 		if (!_resMgr.IsReady(m_texRef)) return;
 
 		auto* _pTex = _resMgr.Get(m_texRef);

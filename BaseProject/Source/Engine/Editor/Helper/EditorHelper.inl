@@ -15,6 +15,7 @@ namespace Engine::Editor
 {
 	template<typename TResource, typename THandle>
 	bool EditorHelper::DrawAssetSelectCombo(
+		const ECS::EngineServices& a_services,
 		const char* a_lable,
 		const char* a_assetTypeName,
 		Engine::GUID& a_inoutGUID,
@@ -22,13 +23,15 @@ namespace Engine::Editor
 	)
 	{
 		GUID _selectedGUID = {};
-		if (!DrawAssetGUIDCombo(a_lable, a_assetTypeName, a_inoutGUID, _selectedGUID))
+		if (!DrawAssetGUIDCombo(a_services, a_lable, a_assetTypeName, a_inoutGUID, _selectedGUID))
 		{
 			return false;
 		}
 
+		if (!a_services.pResourceManager) return false;
+
 		// ハンドルとGUIDを更新
-		a_inoutHandle = Resource::ResourceManager::Instance().LoadImmediate<TResource>(_selectedGUID);
+		a_inoutHandle = a_services.pResourceManager->LoadImmediate<TResource>(_selectedGUID);
 		a_inoutGUID = _selectedGUID;
 		return true;
 	}

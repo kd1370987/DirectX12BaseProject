@@ -16,6 +16,7 @@
 #include "Application/Components/Resource/ModelComponent.h"
 
 DirectX::BoundingBox Engine::Collision::CalcModelLocalAABB(
+	const Engine::Resource::ResourceManager& a_resourceManager,
 	const Engine::Resource::Model* a_pModel,
 	bool a_isMeshShape
 )
@@ -46,7 +47,7 @@ DirectX::BoundingBox Engine::Collision::CalcModelLocalAABB(
 		{
 			if (_meshIdx < 0 || _meshIdx >= static_cast<int>(_meshHandles.size())) continue;
 
-			const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandles[_meshIdx]);
+			const auto* _pMesh = a_resourceManager.Get(_meshHandles[_meshIdx]);
 			if (!_pMesh) continue;
 
 			// メッシュローカルAABB → モデル空間（ノード変換込み）
@@ -70,7 +71,7 @@ DirectX::BoundingBox Engine::Collision::CalcModelLocalAABB(
 	{
 		for (const auto& _handle : _meshHandles)
 		{
-			const auto* _pMesh = Resource::ResourceManager::Instance().Get(_handle);
+			const auto* _pMesh = a_resourceManager.Get(_handle);
 			if (!_pMesh) continue;
 
 			const auto& _meta = _pMesh->GetMetaData();
@@ -90,6 +91,7 @@ DirectX::BoundingBox Engine::Collision::CalcModelLocalAABB(
 }
 
 bool Engine::Collision::Ray::VSModel(
+	const Engine::Resource::ResourceManager& a_resourceManager,
 	const RayInfo& a_rayInfo,
 	const Engine::Resource::Model* a_pModel,
 	const Math::Matrix& a_worldMat,
@@ -116,7 +118,7 @@ bool Engine::Collision::Ray::VSModel(
 		{
 			// ノードが持つメッシュを取得
 			const auto& _meshHandle = a_pModel->GetMeshHandles()[_meshIdx];
-			const auto* _pMesh = Resource::ResourceManager::Instance().Get(_meshHandle);
+			const auto* _pMesh = a_resourceManager.Get(_meshHandle);
 			if (!_pMesh) continue;
 
 			// メッシュとの判定（手前のものを残す）
@@ -310,7 +312,7 @@ namespace
 
 	// プリミティブ vs モデル（オーバーラップ）
 	template<typename TInfo>
-	bool OverlapModel(const TInfo& a_worldInfo, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
+	bool OverlapModel(const Engine::Resource::ResourceManager& a_resourceManager, const TInfo& a_worldInfo, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
 	{
 		if (!a_pModel) return false;
 
@@ -324,7 +326,7 @@ namespace
 			for (auto& _meshIdx : _node.meshIndices)
 			{
 				const auto& _meshHandle = a_pModel->GetMeshHandles()[_meshIdx];
-				const auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandle);
+				const auto* _pMesh = a_resourceManager.Get(_meshHandle);
 				if (!_pMesh) continue;
 
 				if (OverlapMesh(a_worldInfo, _pMesh, _meshWorldMat, a_outResult))
@@ -394,18 +396,18 @@ namespace
 
 // ---- 各プリミティブの公開関数（共通テンプレートへ委譲） ------------------------------
 
-bool Engine::Collision::Sphere::VSModel(const SphereInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
+bool Engine::Collision::Sphere::VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const SphereInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
-	return OverlapModel(a_info, a_pModel, a_worldMat, a_outResult);
+	return OverlapModel(a_resourceManager, a_info, a_pModel, a_worldMat, a_outResult);
 }
 bool Engine::Collision::Sphere::VSMesh(const SphereInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
 	return OverlapMesh(a_info, a_pMesh, a_worldMat, a_outResult);
 }
 
-bool Engine::Collision::Capsule::VSModel(const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
+bool Engine::Collision::Capsule::VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
-	return OverlapModel(a_info, a_pModel, a_worldMat, a_outResult);
+	return OverlapModel(a_resourceManager, a_info, a_pModel, a_worldMat, a_outResult);
 }
 bool Engine::Collision::Capsule::VSMesh(const CapsuleInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
@@ -436,7 +438,7 @@ bool Engine::Collision::Capsule::ResolveVSMesh(const CapsuleInfo& a_info, const 
 	return true;
 }
 
-bool Engine::Collision::Capsule::ResolveVSModel(const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Contact& a_outContact)
+bool Engine::Collision::Capsule::ResolveVSModel(const Engine::Resource::ResourceManager& a_resourceManager, const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Contact& a_outContact)
 {
 	if (!a_pModel) return false;
 
@@ -452,7 +454,7 @@ bool Engine::Collision::Capsule::ResolveVSModel(const CapsuleInfo& a_info, const
 		for (auto& _meshIdx : _node.meshIndices)
 		{
 			const auto& _meshHandle = a_pModel->GetMeshHandles()[_meshIdx];
-			const auto* _pMesh = Engine::Resource::ResourceManager::Instance().Get(_meshHandle);
+			const auto* _pMesh = a_resourceManager.Get(_meshHandle);
 			if (!_pMesh) continue;
 
 			Contact _ct;
@@ -468,18 +470,18 @@ bool Engine::Collision::Capsule::ResolveVSModel(const CapsuleInfo& a_info, const
 	return true;
 }
 
-bool Engine::Collision::OBB::VSModel(const OBBInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
+bool Engine::Collision::OBB::VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const OBBInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
-	return OverlapModel(a_info, a_pModel, a_worldMat, a_outResult);
+	return OverlapModel(a_resourceManager, a_info, a_pModel, a_worldMat, a_outResult);
 }
 bool Engine::Collision::OBB::VSMesh(const OBBInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
 	return OverlapMesh(a_info, a_pMesh, a_worldMat, a_outResult);
 }
 
-bool Engine::Collision::Frustum::VSModel(const FrustumInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
+bool Engine::Collision::Frustum::VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const FrustumInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
 {
-	return OverlapModel(a_info, a_pModel, a_worldMat, a_outResult);
+	return OverlapModel(a_resourceManager, a_info, a_pModel, a_worldMat, a_outResult);
 }
 bool Engine::Collision::Frustum::VSMesh(const FrustumInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult)
 {

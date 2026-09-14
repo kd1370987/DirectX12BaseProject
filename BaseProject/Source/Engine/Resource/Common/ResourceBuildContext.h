@@ -73,4 +73,18 @@ namespace Engine::Resource
 			pKeepAliveUploads->push_back(a_cpResource);
 		}
 	};
+
+	/// <summary>
+	/// バッチを持たない呼び出し元用 : マネージャーだけを載せたコンテキストを作る
+	///
+	/// これを受け取ったローダーは、GPUへ積む必要があれば自分でバッチを開く(ResourceBuildScope)。
+	/// エディターから単発で読むときなど、手元にサービスしか無い場所で使う
+	/// </summary>
+	inline ResourceBuildContext MakeManagerOnlyContext(ResourceManager* a_pResourceManager, AssetDatabase* a_pAssetDatabase)
+	{
+		ResourceBuildContext _context = {};
+		_context.pResourceManager = a_pResourceManager;
+		_context.pAssetDatabase = a_pAssetDatabase;
+		return _context;
+	}
 }

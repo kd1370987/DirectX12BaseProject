@@ -140,7 +140,8 @@ namespace App::Game
 		ENGINE_PROFILE_SCOPE("GameUpdate");
 
 		// シーンマネージャーの更新
-		Engine::Scene::SceneManager::Instance().Update(a_dt);
+		const auto& _services = Engine::MainEngine::Instance().GetEngineServices();
+		Engine::Scene::SceneManager::Instance().Update(*_services.pResourceManager, a_dt);
 	}
 	void GameManager::Draw()
 	{
@@ -188,6 +189,7 @@ namespace App::Game
 		ImGui::Text("Farst Scene : %s", m_farstScene.String().c_str());
 
 		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			Engine::MainEngine::Instance().GetEngineServices(),
 			"##FarstScene",
 			"Scene",
 			m_farstScene);

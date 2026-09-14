@@ -40,7 +40,7 @@ namespace Engine::Option::GraphicsOptions
 		}
 
 		// エディター
-		void DrawEdit() override;
+		void DrawEdit(const ECS::EngineServices& a_services) override;
 
 		// アーカイブ
 		void Archive(Persistence::Archive& a_archive) override;

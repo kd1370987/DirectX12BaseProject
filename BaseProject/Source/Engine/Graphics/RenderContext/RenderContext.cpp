@@ -37,6 +37,9 @@ namespace Engine::Graphics
 		// ビューの置き場をキャッシュ : 以降はここから引く
 		m_pHeapManager = a_desc.pHeapManager;
 
+		// テクスチャの実体を引く先
+		m_pResourceManager = a_desc.pResourceManager;
+
 		// 借り物の参照。どれも GraphicsEngine の持ち物で、このコンテキストより長生きする
 		m_pPipelineStateManager = a_desc.pPipelineStateManager;
 		m_pDrawLists = a_desc.pDrawLists;
@@ -170,7 +173,7 @@ namespace Engine::Graphics
 		for (auto& _texHandle : a_texHandles)
 		{
 			if (_texHandle == Handle<Resource::Texture>()) continue;
-			const auto* _tex = Resource::ResourceManager::Instance().Get(_texHandle);
+			const auto* _tex = (*m_pResourceManager).Get(_texHandle);
 			if (!_tex) continue;
 			_cpuHandles.push_back(m_pHeapManager->GetCPU(_tex->GetSRV()));
 		}
@@ -309,7 +312,7 @@ namespace Engine::Graphics
 
 	void RenderContext::ClearRenderTarget(const Handle<Resource::Texture>& a_texHandle)
 	{
-		auto* _tex = Resource::ResourceManager::Instance().Ref(a_texHandle);
+		auto* _tex = (*m_pResourceManager).Ref(a_texHandle);
 
 		// もしテクスチャのステートがレンダーターゲットでなければリターン
 		if (

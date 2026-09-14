@@ -3,7 +3,7 @@
 #include "../../MainEngine.h"
 #include "../../Window/NativeWindow.h"
 
-void Engine::Option::GraphicsOptions::WindowOption::DrawEdit()
+void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineServices&)
 {
 	// ウィンドウサイズ
 	ImGui::Text("WindowSize");

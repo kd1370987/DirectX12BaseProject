@@ -85,7 +85,7 @@ namespace Engine::Resource
 	{
 		static AnimatorAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
-			return AnimatorAssetIO::LoadFromFile(a_path);
+			return AnimatorAssetIO::LoadFromFile(a_path, *a_pContext->pResourceManager);
 		}
 	};
 	// ゲームプレイ用ステートマシン
@@ -112,7 +112,7 @@ namespace Engine::Resource
 	{
 		static ParticlesAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
-			return ParticlesAssetIO::LoadFromFile(a_path);
+			return ParticlesAssetIO::LoadFromFile(a_path, *a_pContext->pResourceManager);
 		}
 	};
 	// マテリアル
@@ -121,7 +121,7 @@ namespace Engine::Resource
 	{
 		static Material LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
-			return MaterialIO::LoadFromFile(a_path);
+			return MaterialIO::LoadFromFile(a_path, a_pContext);
 		}
 	};
 	// メッシュ
@@ -175,7 +175,7 @@ namespace Engine::Resource
 	{
 		static EffectAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
-			return EffectAssetIO::LoadFromFile(a_path);
+			return EffectAssetIO::LoadFromFile(a_path, *a_pContext->pResourceManager);
 		}
 	};
 	// フォント

@@ -5,6 +5,11 @@ namespace Engine::D3D12
 	class DescriptorHeapManager;
 }
 
+namespace Engine::ECS
+{
+	struct EngineServices;
+}
+
 namespace Engine::Editor
 {
 	// 前方宣言
@@ -26,7 +31,8 @@ namespace Engine::Editor
 	public:
 
 		// 初期化
-		bool Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager);
+		// a_pServices : アプリ寿命のサービス一式(借り物)。パネルへはここから配る
+		bool Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager, ECS::EngineServices* a_pServices);
 
 		// 解放
 		void Release();

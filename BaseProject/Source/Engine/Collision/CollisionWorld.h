@@ -84,6 +84,10 @@ namespace Engine::Collision
 		// 球（内部でカプセル押し出しを流用）。a_center は押し出し後に更新される。
 		bool ResolveSphere(Math::Vector3& a_center, float a_radius,
 			const ECS::Entity& a_myID, Math::Vector3& a_outCorrection, int a_iterations = 4);
+
+		// メッシュ形状の厳密判定でモデルのメッシュを引く先(借り物)。
+		// ワールドを作るところ(CreateSceneWorld)でサービスから渡す
+		void SetResourceManager(Resource::ResourceManager* a_pResourceManager) { m_pResourceManager = a_pResourceManager; }
 	private:
 
 		// TLASの再構築
@@ -91,6 +95,9 @@ namespace Engine::Collision
 		void ReBuildDynamicTLAS();
 
 	private:
+
+		// モデルのメッシュを引く先(借り物)
+		Resource::ResourceManager* m_pResourceManager = nullptr;
 
 		// 静的データ管理
 		Pool::HandlePool<CollisionInstance> m_staticHandlePool = {};		// 静的ハンドルの管理

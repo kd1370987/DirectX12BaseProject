@@ -43,6 +43,7 @@ struct Engine::ECS::ComponentTraits<FlyingSoundComponent>
 		// 鳴っているボイスはエンティティごとにリソース側が持っているので、
 		// ここでの変更は「次に生成されたエンティティ」から効く
 		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			*a_context.pWorld->RefEngineServices(),
 			"Change Sound",
 			"Sound",
 			_comp.soundGUID);

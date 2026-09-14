@@ -1,4 +1,5 @@
 #include "ModelEdit.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../AssetLink.h"
 
@@ -142,7 +143,7 @@ namespace Engine::Editor::Inspector
 			{
 				ImGui::PushID(static_cast<int>(_i));
 
-				const auto* _pAnim = Resource::ResourceManager::Instance().Ref(_animHandleVec[_i]);
+				const auto* _pAnim = a_editContext.pServices->pResourceManager->Ref(_animHandleVec[_i]);
 
 				// 未ロードでもアセットとしては飛べるので、リンクだけは出す
 				if (!_pAnim)
@@ -215,7 +216,7 @@ namespace Engine::Editor::Inspector
 				const std::string _index = "[" + std::to_string(_i) + "]";
 				DrawAssetLink(&a_editContext, _index.c_str(), _meshGUID);
 
-				const auto* _pMesh = Resource::ResourceManager::Instance().Ref(_meshHandleVec[_i]);
+				const auto* _pMesh = a_editContext.pServices->pResourceManager->Ref(_meshHandleVec[_i]);
 				if (!_pMesh)
 				{
 					ImGui::SameLine();
@@ -248,7 +249,7 @@ namespace Engine::Editor::Inspector
 
 				ImGui::PushID(static_cast<int>(_i));
 
-				const auto* _pMaterial = Resource::ResourceManager::Instance().Ref(_materialHandleVec[_i]);
+				const auto* _pMaterial = a_editContext.pServices->pResourceManager->Ref(_materialHandleVec[_i]);
 
 				// 表示はマテリアル名を優先する(ファイル名と食い違うことがある)。
 				// ロードできていなければアセット名に任せる

@@ -178,7 +178,7 @@ namespace App::Object
 
 		ImGui::SeparatorText("Title Scene");
 
-		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID("Scene", "Scene", m_titleSceneGUID);
+		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pServices, "Scene", "Scene", m_titleSceneGUID);
 
 		m_bgm.DrawInspector(a_context);
 

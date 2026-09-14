@@ -7,8 +7,10 @@
 
 namespace Engine::Resource
 {
-	void Model::Save(const std::string& a_fileDir)
+	void Model::Save(ResourceManager& a_resourceManager, const std::string& a_fileDir)
 	{
+		auto& _assetDB = a_resourceManager.RefAssetDatabase();
+
 		// ---- 参照しているデータもセーブ ----
 		// マテリアルの保存
 		UINT _mtrlHandleSize = m_runtimeData.materials.size();
@@ -17,7 +19,7 @@ namespace Engine::Resource
 		{
 			// マテリアル取得
 			auto _mateHandle = m_runtimeData.materials[_i];
-			auto* _matrial = Resource::ResourceManager::Instance().Ref(_mateHandle);
+			auto* _matrial = a_resourceManager.Ref(_mateHandle);
 
 			// 保存データ作成
 			auto _fileName = Engine::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
@@ -25,7 +27,7 @@ namespace Engine::Resource
 
 			// 保存
 			auto _fullBasePath = basePath + "/" + _fileName;													// 拡張子なしのパス
-			m_AssetData.materialGUIDs[_i] = AssetDatabase::Instance().AddMetaData(_fullBasePath, "Material");	// メタファイルを作成
+			m_AssetData.materialGUIDs[_i] = _assetDB.AddMetaData(_fullBasePath, "Material");	// メタファイルを作成
 			Persistence::Archive _ar(Persistence::Archive::Mode::Save, basePath, _fileName, "mtrl");
 			_matrial->Archive(_ar);
 			//_matrial->Save(basePath, _fileName);														// メタファイルの隣にデータ作成
@@ -38,7 +40,7 @@ namespace Engine::Resource
 		{
 			// メッシュ取得
 			auto _meshHandle = m_runtimeData.meshes[_i];
-			auto* _mesh = Resource::ResourceManager::Instance().Ref(_meshHandle);
+			auto* _mesh = a_resourceManager.Ref(_meshHandle);
 
 			// 保存データ作成
 			auto _fileName = Engine::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
@@ -46,7 +48,7 @@ namespace Engine::Resource
 
 			// 保存
 			auto _fullBasePath = basePath + "/" + _fileName;
-			m_AssetData.meshGUIDs[_i] = AssetDatabase::Instance().AddMetaData(_fullBasePath, "Mesh");
+			m_AssetData.meshGUIDs[_i] = _assetDB.AddMetaData(_fullBasePath, "Mesh");
 			_mesh->Save(basePath, _fileName);
 
 		}
@@ -57,7 +59,7 @@ namespace Engine::Resource
 		{
 			// アニメーションの取得
 			auto _animHandle = m_runtimeData.animations[_i];
-			auto* _anim = Resource::ResourceManager::Instance().Ref(_animHandle);
+			auto* _anim = a_resourceManager.Ref(_animHandle);
 
 			// 保存データ作成
 			auto _fileName = Engine::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
@@ -65,7 +67,7 @@ namespace Engine::Resource
 
 			// 保存
 			auto _fullBasePath = basePath + "/" + _fileName;
-			m_AssetData.animationGUIDs[_i] = AssetDatabase::Instance().AddMetaData(_fullBasePath, "Animation");
+			m_AssetData.animationGUIDs[_i] = _assetDB.AddMetaData(_fullBasePath, "Animation");
 			_anim->Save(basePath, _fileName);
 		}
 

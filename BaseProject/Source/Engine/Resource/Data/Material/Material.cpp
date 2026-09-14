@@ -25,8 +25,8 @@ void Engine::Resource::Material::SetTexture2D(
 )
 {
 	// 参照するマネージャーはコンテキストから引く
-	auto& _assetDb = a_ctx.pAssetDatabase ? *a_ctx.pAssetDatabase : AssetDatabase::Instance();
-	auto& _resMgr = a_ctx.pResourceManager ? *a_ctx.pResourceManager : ResourceManager::Instance();
+	assert(a_ctx.pResourceManager && "ResourceBuildContext.pResourceManager が空です");
+	auto& _assetDb = a_ctx.pAssetDatabase ? *a_ctx.pAssetDatabase : a_ctx.pResourceManager->RefAssetDatabase();
 
 	baseColorTexGUID	= _assetDb.GetGUIDFromFilePath(a_fileDir + a_baseColorTexFileName);
 	metaRoughTexGUID	= _assetDb.GetGUIDFromFilePath(a_fileDir + a_metallicRoughnessTexFileName);
