@@ -377,6 +377,7 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\FollowLeaderSystem.cpp" />
     <ClCompile Include="Source\Application\Utility\PrefabSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Utility\EffectSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.cpp" />
@@ -836,6 +837,7 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem\BossCombatIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem\BossMissileSalvoSystem.h" />
     <ClInclude Include="Source\Application\Components\Character\Boss\BossComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Boss\BoidLeaderComponent.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.h" />
@@ -851,6 +853,7 @@
     <ClInclude Include="Source\Application\Components\Effect\ExplosionComponent.h" />
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\FollowLeaderSystem.h" />
     <ClInclude Include="Source\Application\Utility\PrefabSpawnHelper.h" />
     <ClInclude Include="Source\Application\Utility\EffectSpawnHelper.h" />
     <ClInclude Include="Source\Application\Components\Character\HealthComponent.h" />

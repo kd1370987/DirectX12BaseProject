@@ -38,6 +38,11 @@ namespace App::Utility
 		// spawnerGUID が無効なら印は付けない。
 		Engine::GUID spawnerGUID = Engine::DefaultGUID;
 		int          waveIndex   = -1;
+
+		// 追従先(FollowTargetComponent)。ボイドのリーダーなど、出した側を追わせるときに使う。
+		// followTarget が無効なら触らない(プレハブの保存値のまま)
+		Engine::ECS::Entity followTarget     = Engine::ECS::Limits::INVALID_ENTITY;
+		Engine::GUID        followTargetGUID = Engine::DefaultGUID;	// Awake の張り直しで上書きされないよう合わせて入れる
 	};
 
 	/// <summary>

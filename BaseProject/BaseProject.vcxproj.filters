@@ -1633,6 +1633,9 @@
     <Filter Include="Source\Application\Game\InputActions\InputManager">
       <UniqueIdentifier>{cd2a8b37-fc10-494e-a304-a675badd8309}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\BoidSystem">
+      <UniqueIdentifier>{b593e5e2-5358-4df3-8d95-89f218d80d64}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\BuiltinCompositeNodes.cpp">
@@ -2766,6 +2769,12 @@
     <ClCompile Include="Source\Application\Game\InputActions\InputManager\InputActionManager.cpp">
       <Filter>Source\Application\Game\InputActions\InputManager</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\BoidSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\FollowLeaderSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\BoidSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\CompositeNode.h">
@@ -2883,6 +2892,9 @@
       <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Boss\BossComponent.h">
+      <Filter>Source\Application\Components\Character\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Boss\BoidLeaderComponent.h">
       <Filter>Source\Application\Components\Character\Boss</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h">
@@ -4471,6 +4483,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Game\InputActions\InputManager\InputActionManager.h">
       <Filter>Source\Application\Game\InputActions\InputManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\BoidComponent.h">
+      <Filter>Source\Application\Components\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\BoidSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\FollowLeaderSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\BoidSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -87,8 +87,7 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 
 									// アライメント
 									_alignment += _boid.velocity;
-									++_neighborCount;
-
+									
 									// Cohesion
 									_cohesion += _boid.position;
 
@@ -118,7 +117,10 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 						_steering += _alignment * 1.0f;
 						_steering += _cohesion * 0.5f;
 
-						_steering += Math::Vector3(0,0,1);
+						// 目的地のベクトルを足す
+						Math::Vector3 _targetDir = _boidComp.targetPos - _trsComp.pos;
+						_targetDir.Normalize();
+						_steering += _targetDir * _boidComp.pow;
 
 						// ベロシティ更新
 						_velComp.value += _steering * a_ctx.dt;

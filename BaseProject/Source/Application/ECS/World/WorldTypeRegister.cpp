@@ -76,6 +76,7 @@
 #include "../../Components/Character/Weapon/Missile/MissileLockComponent.h"
 #include "../../Components/Character/Boss/BossComponent.h"
 #include "../../Components/Character/BoidComponent.h"
+#include "../../Components/Character/Boss/BoidLeaderComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -201,6 +202,7 @@
 #include "../../Systems/Update/PostUpdate/ScoreSystem/ScoreSystem.h"
 #include "../../Systems/Update/PostUpdate/ExplosionSystem/ExplosionSystem.h"
 #include "../../Systems/Update/Update/Boid/BoidSystem.h"
+#include "../../Systems/Update/Update/Boid/FollowLeaderSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -313,6 +315,8 @@ namespace App::ECS
 		// エンティティの位置を光源にする点光源。実体は LightManager のプールにある
 		a_world.RegisterComponent<PointLightComponent>("PointLightComponent");
 		a_world.RegisterComponent<BoidComponent>("BoidComponent");
+		// ボイドの群れを率いる側。出したボイドの追従先に自分を入れる
+		a_world.RegisterComponent<BoidLeaderComponent>("BoidLeaderComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -476,6 +480,7 @@ namespace App::ECS
 		a_world.RegisterSystem<FlyingSoundSystem>();
 		a_world.RegisterSystem<GunStateStartSystem>();
 		a_world.RegisterSystem<BoidSystem>();
+		a_world.RegisterSystem<FollowLeaderSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();

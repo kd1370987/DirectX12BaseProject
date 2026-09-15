@@ -8,6 +8,7 @@
 
 #include "../Components/Transform/LocalTransformComponent.h"
 #include "../Components/Hierarchy/SpawnerComponent.h"
+#include "../Components/Camera/FollowTargetComponent.h"
 
 namespace App::Utility
 {
@@ -101,6 +102,20 @@ namespace App::Utility
 				_spawner.spawnerGUID = a_params.spawnerGUID;
 				_spawner.waveIndex   = a_params.waveIndex;
 				std::memcpy(_pBuf, &_spawner, sizeof(_spawner));
+			}
+		}
+
+		// 追従先。FollowTargetLinkSystem(Awake)が GUID から引き直すので GUID も同じ相手に揃える
+		if (a_params.followTarget != Engine::ECS::Limits::INVALID_ENTITY)
+		{
+			if (uint8_t* _pBuf = EnsureComponentBuffer(
+				a_world, _sig, _data, a_world.GetCompTypeID<FollowTargetComponent>()))
+			{
+				FollowTargetComponent _follow = {};
+				std::memcpy(&_follow, _pBuf, sizeof(_follow));
+				_follow.target     = a_params.followTarget;
+				_follow.targetGUID = a_params.followTargetGUID;
+				std::memcpy(_pBuf, &_follow, sizeof(_follow));
 			}
 		}
 

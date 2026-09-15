@@ -1,0 +1,38 @@
+﻿#pragma once
+
+#include "Engine/GameObject/BaseObject/BaseObject.h"
+
+
+namespace App::Object
+{
+	/// <summary>
+	/// 砂漠ステージのワームボスの管理用クラス
+	/// 
+	/// リーダー、小隊長を動かして制御するがボイドは各自に任せる
+	/// </summary>
+	class SwarmBossController : public Engine::GameObject::BaseObject
+	{
+	public:
+		//------------------------------------------------------------------------------------------
+		// 初期化
+		//------------------------------------------------------------------------------------------
+		void PostDeserialize(Engine::GameObject::ObjectContext& a_context) override;
+		void Awake(Engine::GameObject::ObjectContext& a_context) override;
+		void Start(Engine::GameObject::ObjectContext& a_context) override;
+
+	private:
+		// 先頭のリーダ
+		Engine::ResourceRef<Engine::Resource::Prefab> m_leaderPrefabHandle;
+		Engine::ECS::Entity m_leaderEntity = Engine::ECS::Limits::INVALID_ENTITY;
+
+		// 構成する小隊長
+		Engine::ResourceRef<Engine::Resource::Prefab> m_platoonPrefab;	// 小隊長のプレハブ
+		std::vector<Engine::ECS::Entity> m_platoonLeaderEntites = {};	// 生存している小隊長
+		uint32_t m_maxPlatoonLeader = 0;								// 最大小隊長数
+
+		// 自身の体を構成しているボイド数 : タグをつけて収集
+		uint32_t m_currentBoids = 0;									// 残りの生存数 : HP代わり
+		uint32_t m_maxBoid = 0;											// 最大生成数 : 小隊長の数で割って振り分ける
+
+	};
+}
