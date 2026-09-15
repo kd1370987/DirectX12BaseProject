@@ -290,6 +290,7 @@
     <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp" />
     <ClCompile Include="Source\Application\Game\InputActions\InputManager\InputActionManager.cpp" />
     <ClCompile Include="Source\Application\Game\UserData\UserData.cpp" />
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.cpp" />
     <ClCompile Include="Source\Application\Object\Scene\InputBinding\InputBinding.cpp" />
     <ClCompile Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.cpp" />
     <ClCompile Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.cpp" />
@@ -677,6 +678,8 @@
     <ClInclude Include="Source\Application\Components\Camera\CameraDeadZoneComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\AimTargetPosComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\BoidComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Boss\BoidSpownerComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Boss\PlatoonLeaderComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\TargetEntityComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\LockOnTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Weapon\Missile\MissileLockComponent.h" />
@@ -699,6 +702,7 @@
     <ClInclude Include="Source\Application\Game\Core\InputSettings.h" />
     <ClInclude Include="Source\Application\Game\InputActions\InputManager\InputActionManager.h" />
     <ClInclude Include="Source\Application\Game\UserData\UserData.h" />
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.h" />
     <ClInclude Include="Source\Application\Object\Scene\InputBinding\InputBinding.h" />
     <ClInclude Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.h" />
     <ClInclude Include="Source\Application\Object\UI\Decoration.h" />

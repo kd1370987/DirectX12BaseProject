@@ -264,206 +264,227 @@ def dump(sheet, path, legend_pos):
 # 1. 全体俯瞰
 # =====================================================================
 s1 = Sheet("① 全体俯瞰 — アプリケーションとシングルトン",
-           "App が Instance() を叩いて回し、MainEngine が実体を unique_ptr で抱える。")
+           "2026-09-15 時点。D3D12Wrapper / DescriptorHeapManager / AssetDatabase はシングルトンを外れ、所有ツリーの中に入った。")
 s1.n("App", "Application", 3, 0)
 s1.n("MainEngine", "MainEngine", 3, 1, "sing")
 # MainEngine が所有
-s1.n("NativeWindow", "NativeWindow", 0.0, 2)
-s1.n("TimeManager", "TimeManager", 1.1, 2)
-s1.n("GraphicsEngine", "GraphicsEngine", 2.3, 2)
-s1.n("PipelineStateManager", "PipelineStateManager", 3.6, 2)
-s1.n("ParticleBufferManager", "ParticleBufferManager", 5.0, 2)
-s1.n("JobSystem", "JobSystem", 6.3, 2)
-s1.n("MouseCursor", "MouseCursor", 7.3, 2)
-# 下層シングルトン
-s1.n("InputManager", "InputManager", 0.0, 3.2, "sing")
-s1.n("OptionManager", "OptionManager", 1.2, 3.2, "sing")
-s1.n("D3D12Wrapper", "D3D12Wrapper", 2.5, 3.2, "sing")
-s1.n("DescriptorHeapManager", "DescriptorHeapManager", 3.9, 3.2, "sing")
-s1.n("RayEngine", "RayEngine", 5.3, 3.2, "sing")
-s1.n("AudioManager", "AudioManager", 6.5, 3.2, "sing")
-s1.n("MainEditor", "MainEditor", 7.6, 3.2, "sing")
-# リソース系
-s1.n("ResourceManager", "ResourceManager", 2.5, 4.3, "sing")
-s1.n("AssetDatabase", "AssetDatabase", 4.0, 4.3, "sing")
-s1.n("ObjectMetaRegistry", "ObjectMetaRegistry", 6.5, 4.3, "sing")
+s1.n("ResourceManager", "ResourceManager\n(Instance() は ResourceRef 用の入口)", -0.3, 2.1, "sing")
+s1.n("NativeWindow", "NativeWindow", 1.2, 2.1)
+s1.n("TimeManager", "TimeManager", 2.2, 2.1)
+s1.n("GraphicsEngine", "GraphicsEngine", 3.6, 2.1)
+s1.n("ParticleBufferManager", "ParticleBufferManager", 4.9, 2.1)
+s1.n("JobSystem", "JobSystem", 6.1, 2.1)
+s1.n("MouseCursor", "MouseCursor", 7.1, 2.1)
+s1.n("EngineServices", "EngineServices\n(アプリ寿命の置き場・正本)", 8.5, 2.1, "struct")
+# 所有の2段目
+s1.n("AssetDatabase", "AssetDatabase", -0.3, 3.2)
+s1.n("GraphicsDevice", "GraphicsDevice", 2.9, 3.2)
+s1.n("DescriptorHeapManager", "DescriptorHeapManager", 4.2, 3.2)
+s1.n("DebugDraw", "DebugDraw", 5.5, 3.2)
+# 残っているシングルトン
+s1.n("InputManager", "InputManager", 0.4, 4.4, "sing")
+s1.n("OptionManager", "OptionManager", 1.6, 4.4, "sing")
+s1.n("AudioManager", "AudioManager", 2.8, 4.4, "sing")
+s1.n("RayEngine", "RayEngine", 4.0, 4.4, "sing")
+s1.n("MainEditor", "MainEditor", 5.3, 4.4, "sing")
+s1.n("ObjectMetaRegistry", "ObjectMetaRegistry", 6.8, 4.4, "sing")
 # ゲーム/シーン
-s1.n("GameManager", "GameManager", 0.6, 5.4, "sing")
-s1.n("SceneManager", "SceneManager", 3.2, 5.4, "sing")
-s1.n("UserData", "UserData", 0.0, 6.4)
-s1.n("InputActionManager", "InputActionManager", 1.2, 6.4)
-s1.n("BaseScene", "BaseScene", 3.2, 6.4)
-s1.n("World", "World", 2.4, 7.4)
-s1.n("GameObjectManager", "GameObjectManager", 4.2, 7.4)
+s1.n("GameManager", "GameManager", 0.8, 5.6, "sing")
+s1.n("SceneManager", "SceneManager", 3.4, 5.6, "sing")
+s1.n("UserData", "UserData", 0.0, 6.6)
+s1.n("InputActionManager", "InputActionManager", 1.3, 6.6)
+s1.n("BaseScene", "BaseScene", 3.9, 6.6)
+s1.n("World", "World", 3.1, 7.6)
+s1.n("GameObjectManager", "GameObjectManager", 4.8, 7.6)
 
 for t in ["MainEngine", "GameManager", "SceneManager", "MainEditor", "InputManager"]:
     s1.e("App", t)
-for t in ["AssetDatabase", "AudioManager", "D3D12Wrapper", "DescriptorHeapManager",
-          "InputManager", "MainEditor", "OptionManager", "RayEngine", "ResourceManager"]:
+for t in ["AudioManager", "InputManager", "MainEditor", "OptionManager", "RayEngine"]:
     s1.e("MainEngine", t)
-for t in ["MainEngine", "OptionManager"]:
-    s1.e("MainEditor", t)
-for t in ["AssetDatabase", "AudioManager", "D3D12Wrapper", "MainEditor", "ResourceManager"]:
+s1.e("MainEditor", "MainEngine")
+for t in ["AudioManager", "MainEditor", "MainEngine"]:
     s1.e("SceneManager", t)
-for t in ["MainEditor", "SceneManager", "ObjectMetaRegistry"]:
+for t in ["MainEngine", "SceneManager"]:
+    s1.e("BaseScene", t)
+for t in ["MainEditor", "MainEngine", "ObjectMetaRegistry", "SceneManager"]:
     s1.e("GameManager", t)
 for t in ["MainEngine", "OptionManager"]:
     s1.e("InputManager", t)
-for t in ["AssetDatabase", "ResourceManager"]:
-    s1.e("AudioManager", t)
-s1.e("ResourceManager", "AssetDatabase")
-s1.e("AssetDatabase", "MainEditor")
-s1.e("D3D12Wrapper", "DescriptorHeapManager")
-s1.e("DescriptorHeapManager", "D3D12Wrapper")
 s1.e("NativeWindow", "InputManager")
-for t in ["DescriptorHeapManager", "InputManager", "MainEngine", "OptionManager", "ResourceManager"]:
+for t in ["InputManager", "MainEngine", "OptionManager"]:
     s1.e("MouseCursor", t)
-for t in ["AssetDatabase", "D3D12Wrapper"]:
-    s1.e("ParticleBufferManager", t)
-for t in ["D3D12Wrapper", "DescriptorHeapManager", "GameManager", "MainEditor",
-          "MainEngine", "OptionManager", "ResourceManager", "SceneManager"]:
+for t in ["GameManager", "MainEngine", "OptionManager", "SceneManager"]:
     s1.e("GraphicsEngine", t)
-for t in ["AssetDatabase", "AudioManager", "InputManager", "MainEditor", "MainEngine",
-          "OptionManager", "RayEngine", "ResourceManager", "SceneManager"]:
-    s1.e("BaseScene", t)
 for t in ["MainEngine", "AudioManager", "InputManager"]:
     s1.e("OptionManager", t)
 s1.e("GameObjectManager", "ObjectMetaRegistry")
-for t in ["NativeWindow", "TimeManager", "GraphicsEngine", "PipelineStateManager",
-          "ParticleBufferManager", "JobSystem", "MouseCursor"]:
+s1.e("InputActionManager", "InputManager")
+s1.e("InputActionManager", "MainEditor")
+s1.e("DebugDraw", "OptionManager")
+for t in ["ResourceManager", "NativeWindow", "TimeManager", "GraphicsEngine",
+          "ParticleBufferManager", "JobSystem", "MouseCursor", "EngineServices"]:
     s1.e("MainEngine", t, "own")
+s1.e("ResourceManager", "AssetDatabase", "own")
+for t in ["GraphicsDevice", "DescriptorHeapManager", "DebugDraw"]:
+    s1.e("GraphicsEngine", t, "own")
 s1.e("SceneManager", "BaseScene", "own")
 s1.e("BaseScene", "World", "own")
 s1.e("BaseScene", "GameObjectManager", "own")
 s1.e("GameManager", "UserData", "own")
 s1.e("GameManager", "InputActionManager", "own")
-s1.note("シングルトンは 13 個。実体を持つのは MainEngine / SceneManager / GameManager で、\n"
-        "残りは「どこからでも引ける置き場」として使われている。", -0.9, 8.6, 16)
+s1.e("GraphicsEngine", "ResourceManager", "ref")
+s1.e("AudioManager", "ResourceManager", "ref")
+s1.e("RayEngine", "ResourceManager", "ref")
+s1.note("シングルトンは 13 個 → 10 個。Instance() の呼び出しは 629 回 / 142 ファイル → 205 回 / 62 ファイル。\n"
+        "GraphicsEngine の持ち物は ② と ⑥、EngineServices が配る先は ③ に載せた。", -0.9, 8.7, 16)
 
 # =====================================================================
 # 2. Graphics
 # =====================================================================
 s2 = Sheet("② Graphics — 描画エンジンとレンダーグラフ",
-           "カメラごとに GraphicsPipeline(実行インスタンス)を持ち、その中身が RenderGraph。")
-s2.n("MainEngine", "MainEngine", 3.0, 0, "sing")
-s2.n("GraphicsEngine", "GraphicsEngine", 3.0, 1)
-s2.n("PipelineStateManager", "PipelineStateManager", 6.6, 1)
-s2.n("MouseCursor", "MouseCursor", 8.0, 1)
-s2.n("RenderContext", "RenderContext\n(フレーム数だけ)", 0.6, 2)
-s2.n("CBAllocator", "CBAllocator", 0.6, 3)
-s2.n("MeshBufferAllocator", "MeshBufferAllocator", 1.9, 2)
-s2.n("PassMetaRegistry", "PassMetaRegistry", 4.6, 2.0)
-s2.n("LightManager", "LightManager", 5.9, 2.0)
-s2.n("QuadPolygon", "QuadPolygon", 7.1, 2.0)
-s2.n("CameraPipelineData", "CameraPipelineData", 3.1, 2.6)
-s2.n("GraphicsPipeline", "GraphicsPipeline", 3.1, 3.5)
-s2.n("RenderGraph", "RenderGraph", 3.1, 4.4)
-s2.n("RenderGraphCompiler", "RenderGraphCompiler", 1.5, 4.4)
-s2.n("ResourceRegistry", "ResourceRegistry", 4.7, 4.0)
-s2.n("ResourceAllocator", "ResourceAllocator", 6.0, 4.0)
-s2.n("GraphHeap", "GraphHeap", 7.2, 4.0)
-s2.n("VirtualResource", "VirtualResource", 5.4, 4.9)
-s2.n("RenderingPipelineAsset", "RenderingPipelineAsset\n(設計図)", 1.3, 3.5)
-s2.n("Pass", "Pass (基底)", 3.1, 5.4)
-s2.n("PassContext", "PassContext", 1.4, 5.9, "struct")
-s2.n("GBufferPass", "GBufferPass", 0.4, 7.0)
-s2.n("ZPrePass", "ZPrePass", 1.6, 7.0)
-s2.n("DeferredLightingPass", "DeferredLightingPass", 3.0, 7.0)
-s2.n("RaytracingGIPass", "RaytracingGIPass", 4.5, 7.0)
-s2.n("RaytracingShadowPass", "RaytracingShadowPass", 6.0, 7.0)
-s2.n("SkyPass", "SkyPass", 7.3, 7.0)
-s2.n("ParticlePass", "ParticlePass", 8.4, 7.0)
-s2.n("MonitorPass", "MonitorPass", 9.5, 7.0)
-s2.n("ParticleSimulation", "ParticleSimulation", 8.6, 2.6)
-s2.n("SkinningPass", "SkinningPass", 8.6, 3.4)
-s2.n("ShadingPipelineBuilder", "ShadingPipelineBuilder", 8.6, 4.2)
-# 参照されるシングルトン
-s2.n("D3D12Wrapper", "D3D12Wrapper", 0.2, 0, "sing")
-s2.n("DescriptorHeapManager", "DescriptorHeapManager", 1.5, 0, "sing")
-s2.n("ResourceManager", "ResourceManager", 4.5, 0, "sing")
-s2.n("AssetDatabase", "AssetDatabase", 5.7, 0, "sing")
-s2.n("OptionManager", "OptionManager", 6.8, 0, "sing")
-s2.n("MainEditor", "MainEditor", 7.9, 0, "sing")
-s2.n("SceneManager", "SceneManager", 9.0, 0, "sing")
-s2.n("GameManager", "GameManager", 10.0, 0, "sing")
-s2.n("RayEngine", "RayEngine", 9.6, 5.9, "sing")
-s2.n("InputManager", "InputManager", 9.6, 1.0, "sing")
+           "GraphicsEngine がデバイスからパイプラインまで全部持つ。パスは PassContext だけを見て、Instance() を呼ばない。")
+s2.n("MainEngine", "MainEngine", 1.5, 0, "sing")
+s2.n("OptionManager", "OptionManager", 4.4, 0, "sing")
+s2.n("SceneManager", "SceneManager", 5.6, 0, "sing")
+s2.n("GameManager", "GameManager", 6.8, 0, "sing")
+s2.n("RayEngine", "RayEngine", 8.0, 0, "sing")
+s2.n("InputManager", "InputManager", 9.2, 0, "sing")
+s2.n("ResourceManager", "ResourceManager", -0.5, 1.1, "sing")
+s2.n("GraphicsEngine", "GraphicsEngine", 2.6, 1.1)
+s2.n("ParticleBufferManager", "ParticleBufferManager", 6.4, 1.1)
+s2.n("MouseCursor", "MouseCursor", 8.7, 1.1)
+# GraphicsEngine が所有(D3D12 まわり。詳細は ⑥)
+s2.n("GraphicsDevice", "GraphicsDevice", -0.6, 2.3)
+s2.n("CommandContext", "CommandContext", 0.5, 2.3)
+s2.n("FrameManager", "FrameManager", 1.6, 2.3)
+s2.n("AsyncGPUManager", "AsyncGPUManager", 2.7, 2.3)
+s2.n("DescriptorHeapManager", "DescriptorHeapManager", 4.0, 2.3)
+s2.n("BackBuffer", "BackBuffer", 5.2, 2.3)
+s2.n("PipelineStateManager", "PipelineStateManager", 6.4, 2.3)
+s2.n("GPUParticlePool", "GPUParticlePool", 7.9, 2.3)
+s2.n("ParticleSimulation", "ParticleSimulation", 9.2, 2.3)
+# GraphicsEngine が所有(描画データ)
+s2.n("RenderContext", "RenderContext\n(フレーム数だけ)", -0.3, 3.4)
+s2.n("MeshBufferAllocator", "MeshBufferAllocator", 1.0, 3.4)
+s2.n("PassMetaRegistry", "PassMetaRegistry", 2.3, 3.4)
+s2.n("LightManager", "LightManager", 3.4, 3.4)
+s2.n("QuadPolygon", "QuadPolygon", 4.4, 3.4)
+s2.n("DebugDraw", "DebugDraw", 5.4, 3.4)
+s2.n("DrawLists", "DrawLists", 6.4, 3.4)
+s2.n("FrameCompute", "SkinningPass /\nUpdateBLASPass", 9.2, 3.4)
+s2.n("CBAllocator", "CBAllocator", -0.3, 4.5)
+s2.n("CameraPipelineData", "CameraPipelineData\n(カメラ1台ぶん)", 3.0, 4.5)
+s2.n("RenderingPipelineAsset", "RenderingPipelineAsset\n(設計図)", 5.6, 4.5)
+s2.n("GraphicsPipeline", "GraphicsPipeline\n(実行インスタンス)", 3.0, 5.5)
+s2.n("RenderGraphCompiler", "RenderGraphCompiler", 1.3, 6.5)
+s2.n("RenderGraph", "RenderGraph", 3.0, 6.5)
+s2.n("ResourceRegistry", "ResourceRegistry", 4.7, 6.0)
+s2.n("ResourceAllocator", "ResourceAllocator", 5.0, 6.9)
+s2.n("GraphHeap", "GraphHeap", 4.2, 7.6)
+s2.n("AliasingReport", "AliasingReport", 1.2, 5.6)
+s2.n("Pass", "Pass (基底)", 3.0, 7.5)
+s2.n("VirtualResource", "VirtualResource", 6.3, 6.0)
+s2.n("ShadingPipelineBuilder", "ShadingPipelineBuilder", 1.6, 8.1)
+s2.n("PassContext", "PassContext\n(組むのは RenderGraph::MakeContext だけ)", 0.4, 7.7, "struct")
+s2.n("GBufferPass", "GBufferPass", 0.0, 8.9)
+s2.n("ZPrePass", "ZPrePass", 1.1, 8.9)
+s2.n("DeferredLightingPass", "DeferredLightingPass", 2.3, 8.9)
+s2.n("RaytracingGIPass", "RaytracingGIPass", 3.6, 8.9)
+s2.n("TAAPass", "TAAPass", 4.6, 8.9)
+s2.n("ToneMapPass", "ToneMapPass", 5.5, 8.9)
+s2.n("UIPass", "UIPass", 6.4, 8.9)
+s2.n("FinalOutputPass", "FinalOutputPass", 7.5, 8.9)
+s2.n("MonitorPass", "MonitorPass", 8.6, 8.9)
 
-for t in ["D3D12Wrapper", "DescriptorHeapManager", "GameManager", "MainEditor",
-          "MainEngine", "OptionManager", "ResourceManager", "SceneManager"]:
+# シングルトン直引き(残っているもの)
+for t in ["GameManager", "MainEngine", "OptionManager", "SceneManager"]:
     s2.e("GraphicsEngine", t)
-for t in ["D3D12Wrapper", "DescriptorHeapManager", "MainEditor", "MainEngine", "ResourceManager"]:
-    s2.e("RenderContext", t)
-s2.e("Pass", "ResourceManager")
-s2.e("RenderGraph", "DescriptorHeapManager")
-s2.e("VirtualResource", "D3D12Wrapper")
-for t in ["AssetDatabase", "ResourceManager"]:
-    s2.e("GBufferPass", t); s2.e("ZPrePass", t)
-s2.e("DeferredLightingPass", "DescriptorHeapManager")
-for t in ["D3D12Wrapper", "RayEngine"]:
-    s2.e("RaytracingGIPass", t); s2.e("RaytracingShadowPass", t)
-s2.e("SkyPass", "ResourceManager")
-s2.e("ParticlePass", "MainEngine"); s2.e("ParticlePass", "ResourceManager")
-s2.e("MonitorPass", "MainEngine")
-s2.e("ParticleSimulation", "MainEngine"); s2.e("ParticleSimulation", "ResourceManager")
-s2.e("SkinningPass", "ResourceManager")
-s2.e("ShadingPipelineBuilder", "ResourceManager")
-for t in ["DescriptorHeapManager", "InputManager", "MainEngine", "OptionManager", "ResourceManager"]:
+s2.e("RenderGraph", "MainEngine")
+s2.e("RenderGraph", "RayEngine")
+s2.e("ParticleSimulation", "MainEngine")
+s2.e("GPUParticlePool", "MainEngine")
+for t in ["InputManager", "MainEngine", "OptionManager"]:
     s2.e("MouseCursor", t)
+s2.e("DebugDraw", "OptionManager")
+# 所有
 s2.e("MainEngine", "GraphicsEngine", "own")
-s2.e("MainEngine", "PipelineStateManager", "own")
+s2.e("MainEngine", "ParticleBufferManager", "own")
 s2.e("MainEngine", "MouseCursor", "own")
-for t in ["RenderContext", "MeshBufferAllocator", "PassMetaRegistry", "LightManager",
-          "QuadPolygon", "CameraPipelineData"]:
+for t in ["GraphicsDevice", "CommandContext", "FrameManager", "AsyncGPUManager",
+          "DescriptorHeapManager", "BackBuffer", "PipelineStateManager",
+          "RenderContext", "MeshBufferAllocator", "PassMetaRegistry", "LightManager",
+          "QuadPolygon", "DebugDraw", "DrawLists", "CameraPipelineData"]:
     s2.e("GraphicsEngine", t, "own")
+s2.e("ParticleBufferManager", "GPUParticlePool", "own")
 s2.e("RenderContext", "CBAllocator", "own")
 s2.e("CameraPipelineData", "GraphicsPipeline", "own")
 s2.e("GraphicsPipeline", "RenderGraph", "own")
 for t in ["Pass", "ResourceRegistry", "ResourceAllocator", "GraphHeap"]:
     s2.e("RenderGraph", t, "own")
 s2.e("ResourceRegistry", "VirtualResource", "own")
-s2.e("RenderGraphCompiler", "RenderGraph", "ref")
+s2.e("Pass", "ShadingPipelineBuilder", "own")
+s2.e("ResourceManager", "RenderingPipelineAsset", "own")
+# 参照
+s2.e("GraphicsEngine", "ResourceManager", "ref")
+s2.e("GraphicsEngine", "ParticleSimulation", "ref")
+s2.e("GraphicsEngine", "FrameCompute", "ref")
 s2.e("RenderingPipelineAsset", "RenderGraph", "ref")
+s2.e("RenderGraphCompiler", "RenderGraph", "ref")
+s2.e("AliasingReport", "RenderGraph", "ref")
+s2.e("RenderContext", "DescriptorHeapManager", "ref")
+s2.e("RenderContext", "PipelineStateManager", "ref")
+s2.e("ParticleBufferManager", "GraphicsEngine", "ref")
+s2.e("ParticleBufferManager", "DescriptorHeapManager", "ref")
+s2.e("MouseCursor", "DescriptorHeapManager", "ref")
 s2.e("Pass", "PassContext", "ref")
-for t in ["RenderGraph", "GraphicsEngine", "RenderContext"]:
+for t in ["RenderGraph", "GraphicsEngine", "RenderContext", "ResourceManager",
+          "DescriptorHeapManager", "ParticleBufferManager", "RayEngine", "MainEngine"]:
     s2.e("PassContext", t, "ref")
 for p in ["GBufferPass", "ZPrePass", "DeferredLightingPass", "RaytracingGIPass",
-          "RaytracingShadowPass", "SkyPass", "ParticlePass", "MonitorPass"]:
+          "TAAPass", "ToneMapPass", "UIPass", "FinalOutputPass", "MonitorPass"]:
     s2.e(p, "Pass", "inherit")
-s2.note("パスは 30 種類以上ある。ここに出しているのは\nシングルトンを直接引いているものだけ。", 0.0, 8.4, 16)
+s2.note("パスは 30 種類。以前は GBufferPass など 8 種類がシングルトンを直接引いていたが、今は 0。\n"
+        "ここに並べたのは代表だけ。", -0.9, 9.9, 16)
 
 # =====================================================================
 # 3. Scene / ECS / GameObject
 # =====================================================================
 s3 = Sheet("③ Scene / ECS / GameObject — シーンの中身",
-           "EngineServices と各種 Context が『シングルトンを名指ししない』ための経路。")
+           "EngineServices は MainEngine が正本を持ち、World が写しを持つ。System / GameObject はそこから引く。")
 s3.n("SceneManager", "SceneManager", 3.0, 0, "sing")
+s3.n("GameManager", "GameManager", 8.6, 0, "sing")
 s3.n("BaseScene", "BaseScene", 3.0, 1)
 s3.n("World", "World", 1.6, 2.2)
 s3.n("GameObjectManager", "GameObjectManager", 5.2, 2.2)
+s3.n("ObjectMetaRegistry", "ObjectMetaRegistry", 7.2, 2.2, "sing")
 s3.n("EntityManager", "EntityManager", 0.0, 3.3)
 s3.n("SystemManager", "SystemManager", 1.2, 3.3)
-s3.n("ArchetypeChunkManager", "ArchetypeChunkManager", 2.6, 3.3)
-s3.n("ComponentMetaRegistry", "ComponentMetaRegistry", 4.0, 3.3)
-s3.n("ResourceWrapper", "IResourceWrapper\n(ワールド寿命のリソース)", 0.5, 4.4)
-s3.n("CollisionWorld", "CollisionWorld", 2.0, 4.4)
-s3.n("ISystem", "ISystem", 1.2, 4.4)
+s3.n("ArchetypeChunkManager", "ArchetypeChunkManager", 2.5, 3.3)
+s3.n("ComponentMetaRegistry", "ComponentMetaRegistry", 3.9, 3.3)
+s3.n("BaseObject", "BaseObject", 5.6, 3.3)
+s3.n("Prefab", "Prefab", 7.2, 3.4)
+s3.n("ResourceWrapper", "IResourceWrapper\n(ワールド寿命のリソース)", -0.2, 4.3)
+s3.n("ISystem", "ISystem", 0.8, 4.4)
+s3.n("CollisionWorld", "CollisionWorld", -0.2, 5.4)
 s3.n("SystemContext", "SystemContext\n(pWorld / pServices / dt)", 1.2, 5.4, "struct")
-s3.n("EngineServices", "EngineServices\n(アプリ寿命の置き場)", 3.4, 6.4, "struct")
-s3.n("BaseObject", "BaseObject", 5.8, 3.3)
 s3.n("ObjectContext", "ObjectContext\n(pWorld / pServices / pObjectManager)", 5.4, 5.4, "struct")
-s3.n("ObjectMetaRegistry", "ObjectMetaRegistry", 7.2, 2.2, "sing")
-s3.n("Prefab", "Prefab", 7.2, 3.6)
-# EngineServices が配る先(すべてシングルトン)
-s3.n("MainEngine", "MainEngine", 0.4, 7.6, "sing")
-s3.n("ResourceManager", "ResourceManager", 1.6, 7.6, "sing")
-s3.n("AssetDatabase", "AssetDatabase", 2.8, 7.6, "sing")
-s3.n("InputManager", "InputManager", 3.9, 7.6, "sing")
-s3.n("MainEditor", "MainEditor", 5.0, 7.6, "sing")
-s3.n("RayEngine", "RayEngine", 6.0, 7.6, "sing")
-s3.n("AudioManager", "AudioManager", 7.0, 7.6, "sing")
-s3.n("JobSystem", "JobSystem", 8.1, 7.6)
-s3.n("OptionManager", "OptionManager", 9.2, 7.6, "sing")
+s3.n("EngineServices", "EngineServices\n(アプリ寿命の置き場)", 3.4, 6.4, "struct")
+# EngineServices が配る先
+s3.n("ResourceManager", "ResourceManager", 0.2, 7.6, "sing")
+s3.n("AssetDatabase", "AssetDatabase", 1.4, 7.6)
+s3.n("InputManager", "InputManager", 2.5, 7.6, "sing")
+s3.n("RayEngine", "RayEngine", 3.5, 7.6, "sing")
+s3.n("JobSystem", "JobSystem", 4.5, 7.6)
+s3.n("DebugDraw", "DebugDraw", 5.5, 7.6)
+s3.n("MainEngine", "MainEngine", 9.0, 7.6, "sing")
+s3.n("OptionManager", "OptionManager", 6.6, 7.6, "sing")
+s3.n("AudioManager", "AudioManager", 7.8, 7.6, "sing")
+# アプリ側でまだ直引きしているもの
+s3.n("AppFollow", "FollowTargetComponent /\nAttachmentSlotsComponent", 10.6, 0.9)
+s3.n("AppSequence", "Sequence 群\n(Title / Pause / Result / Scene / MissionSelect)", 10.6, 3.1)
+s3.n("AppScore", "ScoreSystem / ScoreHUD", 10.6, 2.0)
+s3.n("AppCamera", "CameraStartSystem", 10.6, 5.2)
+s3.n("AppSound", "SoundComponent / HitSoundComponent /\nFlyingSoundResource", 10.6, 6.4)
 
 s3.e("SceneManager", "BaseScene", "own")
 s3.e("BaseScene", "World", "own")
@@ -472,6 +493,7 @@ for t in ["EntityManager", "SystemManager", "ArchetypeChunkManager",
           "ComponentMetaRegistry", "ResourceWrapper"]:
     s3.e("World", t, "own")
 s3.e("World", "EngineServices", "own")
+s3.e("MainEngine", "EngineServices", "own")
 s3.e("SystemManager", "ISystem", "own")
 s3.e("ResourceWrapper", "CollisionWorld", "own")
 s3.e("GameObjectManager", "BaseObject", "own")
@@ -483,170 +505,153 @@ s3.e("BaseObject", "ObjectContext", "ref")
 s3.e("ObjectContext", "World", "ref")
 s3.e("ObjectContext", "EngineServices", "ref")
 s3.e("ObjectContext", "GameObjectManager", "ref")
-for t in ["MainEngine", "ResourceManager", "AssetDatabase", "InputManager", "MainEditor",
-          "RayEngine", "AudioManager", "JobSystem", "OptionManager"]:
+for t in ["MainEngine", "ResourceManager", "AssetDatabase", "InputManager",
+          "RayEngine", "AudioManager", "JobSystem", "OptionManager", "DebugDraw"]:
     s3.e("EngineServices", t, "ref")
-for t in ["AssetDatabase", "AudioManager", "InputManager", "MainEditor", "MainEngine",
-          "OptionManager", "RayEngine", "ResourceManager", "SceneManager"]:
-    s3.e("BaseScene", t)
-s3.e("World", "MainEditor")
-s3.e("ComponentMetaRegistry", "MainEditor")
+# シングルトン直引き
+s3.e("BaseScene", "SceneManager")
+s3.e("BaseScene", "MainEngine")
+s3.e("GameManager", "SceneManager")
+s3.e("GameManager", "ObjectMetaRegistry")
 s3.e("GameObjectManager", "ObjectMetaRegistry")
-for t in ["AssetDatabase", "ResourceManager", "SceneManager"]:
-    s3.e("Prefab", t)
-s3.e("CollisionWorld", "MainEditor")
-s3.e("CollisionWorld", "ResourceManager")
-s3.note("EngineServices はシングルトンの実体を集めて配る箱。\n"
-        "System / GameObject はここから引くので、自分では Instance() を呼ばない。", -0.9, 9.0, 16)
+s3.e("Prefab", "SceneManager")
+s3.e("AppFollow", "SceneManager")
+s3.e("AppSequence", "SceneManager")
+s3.e("AppSequence", "GameManager")
+s3.e("AppScore", "GameManager")
+s3.e("AppCamera", "OptionManager")
+s3.e("AppSound", "AudioManager")
+s3.note("BaseScene の直引きは 9 個 → 2 個(ワールドの作成と EngineServices の写し)。\n"
+        "ECS / CollisionWorld / ComponentMetaRegistry からエディターへの依存は無くなった。\n"
+        "右端はアプリ側に残っている直引き。", -0.9, 9.0, 16)
 
 # =====================================================================
 # 4. Resource
 # =====================================================================
 s4 = Sheet("④ Resource — アセットとリソースの実体化",
-           "AssetDatabase = ファイルの台帳 / ResourceManager = 実体の置き場。生成は ResourceBuildContext 経由。")
-s4.n("ResourceManager", "ResourceManager", 2.0, 0, "sing")
-s4.n("AssetDatabase", "AssetDatabase", 5.0, 0, "sing")
-s4.n("MainEditor", "MainEditor", 7.6, 0, "sing")
-s4.n("D3D12Wrapper", "D3D12Wrapper", 8.9, 0, "sing")
+           "ResourceManager は MainEngine の持ち物で、AssetDatabase はその中。生成に要るものは ResourceBuildContext で受け取る。")
 s4.n("MainEngine", "MainEngine", 0.0, 0, "sing")
-s4.n("AudioManager", "AudioManager", 10.0, 0, "sing")
-s4.n("SceneManager", "SceneManager", 6.3, 0, "sing")
-s4.n("OptionManager", "OptionManager", 11.1, 0, "sing")
-s4.n("ScopedResourceBuild", "ScopedResourceBuild\n(モデル1体分をまとめて submit)", 1.2, 1.4)
-s4.n("ResourceBuildContext", "ResourceBuildContext", 4.2, 1.4, "struct")
-s4.n("MeshBufferAllocator", "MeshBufferAllocator", 6.6, 1.4)
-s4.n("PassMetaRegistry", "PassMetaRegistry", 8.2, 1.4)
+s4.n("ResourceManager", "ResourceManager", 2.4, 0, "sing")
+s4.n("GraphicsEngine", "GraphicsEngine", 5.2, 0)
+s4.n("DescriptorHeapManager", "DescriptorHeapManager", 6.6, 0)
+s4.n("MeshBufferAllocator", "MeshBufferAllocator", 8.1, 0)
+s4.n("PassMetaRegistry", "PassMetaRegistry", 9.5, 0)
+s4.n("AudioManager", "AudioManager", 12.6, 0, "sing")
+s4.n("SceneManager", "SceneManager", 13.9, 0, "sing")
+s4.n("ScopedResourceBuild", "ScopedResourceBuild\n(モデル1体分をまとめて submit)", 0.0, -1.0)
+s4.n("ResourceBuildContext", "ResourceBuildContext\n(Device / Heap / CmdList / RM / AD ...)", 2.6, -1.0, "struct")
+s4.n("AssetDatabase", "AssetDatabase", 5.0, -1.0)
+s4.n("ResourceRef", "ResourceRef<T>\n(値で埋まる参照カウント)", 6.6, -1.0)
 # 実体
-s4.n("Model", "Model", 0.4, 2.8)
-s4.n("Mesh", "Mesh", 1.5, 2.8)
-s4.n("Material", "Material", 2.6, 2.8)
-s4.n("Texture", "Texture", 3.7, 2.8)
-s4.n("Shader", "Shader", 4.8, 2.8)
-s4.n("AnimatorAsset", "AnimatorAsset", 6.0, 2.8)
-s4.n("ActionStateMachineAsset", "ActionStateMachineAsset", 7.6, 2.8)
-s4.n("EffectAsset", "EffectAsset", 9.2, 2.8)
-s4.n("ParticlesAsset", "ParticlesAsset", 10.5, 2.8)
-s4.n("Sound", "Sound", 11.6, 2.8)
-s4.n("Prefab", "Prefab", 12.6, 2.8)
-s4.n("Font", "Font", 13.5, 2.8)
-s4.n("ShadingModelTable", "ShadingModelTable", 14.7, 2.8)
+s4.n("Model", "Model", 0.0, 2.8)
+s4.n("Mesh", "Mesh", 1.1, 2.8)
+s4.n("Material", "Material", 2.1, 2.8)
+s4.n("Texture", "Texture", 3.1, 2.8)
+s4.n("Shader", "Shader", 4.1, 2.8)
+s4.n("Animation", "Animation", 5.1, 2.8)
+s4.n("AnimatorAsset", "AnimatorAsset", 6.2, 2.8)
+s4.n("ActionStateMachineAsset", "ActionStateMachineAsset", 7.7, 2.8)
+s4.n("EffectAsset", "EffectAsset", 9.1, 2.8)
+s4.n("ParticlesAsset", "ParticlesAsset", 10.3, 2.8)
+s4.n("Sound", "Sound", 11.4, 2.8)
+s4.n("AudioBehavior", "AudioBehavior", 12.5, 2.8)
+s4.n("Prefab", "Prefab", 13.5, 2.8)
+s4.n("Font", "Font", 14.4, 2.8)
+s4.n("RenderingPipelineAsset", "RenderingPipelineAsset", 15.8, 2.8)
 # IO
 s4.n("ModelIO", "ModelIO", 0.0, 4.2)
-s4.n("ModelConverter", "ModelConverter", 1.1, 4.2)
-s4.n("ModelProcessor", "ModelProcessor", 1.1, 5.2)
-s4.n("MeshIO", "MeshIO", 2.3, 4.2)
-s4.n("MaterialIO", "MaterialIO", 3.3, 4.2)
-s4.n("TextureIO", "TextureIO", 4.4, 4.2)
-s4.n("TextureImporter", "TextureImporter", 4.4, 5.2)
-s4.n("ShaderIO", "ShaderIO", 5.6, 4.2)
-s4.n("DXCCompiler", "DXCCompiler", 5.6, 5.2)
-s4.n("AnimatorAssetIO", "AnimatorAssetIO", 6.9, 4.2)
-s4.n("ActionStateMachineAssetIO", "ActionStateMachineAssetIO", 8.6, 4.2)
-s4.n("EffectAssetIO", "EffectAssetIO", 10.1, 4.2)
-s4.n("ParticlesIO", "ParticlesIO", 11.3, 4.2)
-s4.n("SoundIO", "SoundIO", 12.3, 4.2)
-s4.n("AudioBehaviorIO", "AudioBehaviorIO", 13.4, 4.2)
-s4.n("ShadingModelTableIO", "ShadingModelTableIO", 14.9, 4.2)
-s4.n("RenderingPipelineAssetIO", "RenderingPipelineAssetIO", 16.6, 4.2)
-s4.n("RenderingPipelineAsset", "RenderingPipelineAsset", 16.6, 2.8)
+s4.n("ModelConverter", "ModelConverter", 0.0, 5.2)
+s4.n("ModelProcessor", "ModelProcessor", 0.0, 6.2)
+s4.n("MeshIO", "MeshIO", 1.1, 4.2)
+s4.n("MaterialIO", "MaterialIO", 2.1, 4.2)
+s4.n("TextureIO", "TextureIO", 3.1, 4.2)
+s4.n("TextureImporter", "TextureImporter\n/ TextureCreater", 3.1, 5.2)
+s4.n("ShaderIO", "ShaderIO", 4.1, 4.2)
+s4.n("DXCCompiler", "DXCCompiler", 4.1, 5.2)
+s4.n("AnimationIO", "AnimationIO", 5.1, 4.2)
+s4.n("AnimatorAssetIO", "AnimatorAssetIO", 6.2, 4.2)
+s4.n("ActionStateMachineAssetIO", "ActionStateMachineAssetIO", 7.7, 4.2)
+s4.n("EffectAssetIO", "EffectAssetIO", 9.1, 4.2)
+s4.n("ParticlesIO", "ParticlesIO", 10.3, 4.2)
+s4.n("SoundIO", "SoundIO", 11.4, 4.2)
+s4.n("AudioBehaviorIO", "AudioBehaviorIO", 12.6, 4.2)
+s4.n("FontIO", "FontIO", 14.4, 4.2)
+s4.n("RenderingPipelineAssetIO", "RenderingPipelineAssetIO", 15.8, 4.2)
 
-s4.e("ResourceManager", "AssetDatabase")
-s4.e("AssetDatabase", "MainEditor")
-for t in ["AssetDatabase", "D3D12Wrapper", "MainEngine", "ResourceManager"]:
-    s4.e("ScopedResourceBuild", t)
-for t in ["ResourceManager", "AssetDatabase", "MeshBufferAllocator", "PassMetaRegistry"]:
-    s4.e("ResourceBuildContext", t, "ref")
+s4.e("MainEngine", "ResourceManager", "own")
+s4.e("ResourceManager", "AssetDatabase", "own")
 s4.e("ScopedResourceBuild", "ResourceBuildContext", "own")
-for a, ts in [
-    ("Model", ["AssetDatabase", "ResourceManager"]),
-    ("Mesh", ["MainEngine"]),
-    ("Material", ["AssetDatabase", "OptionManager", "ResourceManager"]),
-    ("Texture", ["D3D12Wrapper", "ResourceManager"]),
-    ("AnimatorAsset", ["AssetDatabase", "MainEditor", "ResourceManager"]),
-    ("ActionStateMachineAsset", ["AssetDatabase", "MainEditor", "ResourceManager"]),
-    ("EffectAsset", ["ResourceManager"]),
-    ("ParticlesAsset", ["ResourceManager"]),
-    ("Sound", ["AudioManager", "ResourceManager"]),
-    ("Prefab", ["AssetDatabase", "ResourceManager", "SceneManager"]),
-    ("Font", ["ResourceManager"]),
-    ("ShadingModelTable", ["ResourceManager"]),
-    ("ModelIO", ["AssetDatabase", "ResourceManager"]),
-    ("ModelConverter", ["AssetDatabase", "ResourceManager"]),
-    ("MaterialIO", ["ResourceManager"]),
-    ("TextureIO", ["AssetDatabase", "ResourceManager"]),
-    ("TextureImporter", ["D3D12Wrapper"]),
-    ("ShaderIO", ["AssetDatabase", "ResourceManager"]),
-    ("AnimatorAssetIO", ["AssetDatabase", "ResourceManager"]),
-    ("ActionStateMachineAssetIO", ["AssetDatabase", "ResourceManager"]),
-    ("EffectAssetIO", ["AssetDatabase", "ResourceManager"]),
-    ("ParticlesIO", ["AssetDatabase", "ResourceManager"]),
-    ("SoundIO", ["AudioManager"]),
-    ("AudioBehaviorIO", ["AssetDatabase", "ResourceManager"]),
-    ("ShadingModelTableIO", ["AssetDatabase", "ResourceManager"]),
-    ("RenderingPipelineAssetIO", ["AssetDatabase", "ResourceManager"]),
-]:
-    for t in ts:
-        s4.e(a, t)
+for t in ["ResourceManager", "AssetDatabase", "GraphicsEngine", "DescriptorHeapManager",
+          "MeshBufferAllocator", "PassMetaRegistry"]:
+    s4.e("ResourceBuildContext", t, "ref")
+# シングルトン直引き(残っているもの)
+s4.e("ScopedResourceBuild", "MainEngine")
+s4.e("Mesh", "MainEngine")
+s4.e("Sound", "AudioManager")
+s4.e("SoundIO", "AudioManager")
+s4.e("Prefab", "SceneManager")
+s4.e("ResourceRef", "ResourceManager")
 for a, b in [("Model", "ModelIO"), ("ModelIO", "ModelConverter"), ("ModelConverter", "ModelProcessor"),
              ("Mesh", "MeshIO"), ("Material", "MaterialIO"), ("Texture", "TextureIO"),
              ("TextureIO", "TextureImporter"), ("Shader", "ShaderIO"), ("ShaderIO", "DXCCompiler"),
+             ("Animation", "AnimationIO"),
              ("AnimatorAsset", "AnimatorAssetIO"), ("ActionStateMachineAsset", "ActionStateMachineAssetIO"),
              ("EffectAsset", "EffectAssetIO"), ("ParticlesAsset", "ParticlesIO"),
-             ("Sound", "SoundIO"), ("ShadingModelTable", "ShadingModelTableIO"),
+             ("Sound", "SoundIO"), ("AudioBehavior", "AudioBehaviorIO"), ("Font", "FontIO"),
              ("RenderingPipelineAsset", "RenderingPipelineAssetIO")]:
     s4.e(a, b, "ref")
-for t in ["Model", "Mesh", "Material", "Texture", "Shader", "AnimatorAsset",
+for t in ["Model", "Mesh", "Material", "Texture", "Shader", "Animation", "AnimatorAsset",
           "ActionStateMachineAsset", "EffectAsset", "ParticlesAsset", "Sound",
-          "Prefab", "Font", "ShadingModelTable", "RenderingPipelineAsset"]:
+          "AudioBehavior", "Prefab", "Font", "RenderingPipelineAsset"]:
     s4.e("ResourceManager", t, "own")
-s4.note("ResourceManager が ResourceData<T> で実体を持つ(所有)。\n"
-        "IO は実体を作る側で、生成に必要なものは ResourceBuildContext から受け取るのが方針。\n"
-        "※ 図の緑矢印は、その方針から外れて今もシングルトンを直接引いている箇所。", -0.9, 6.4, 16)
+s4.note("ResourceManager.Instance() 158 回 → 12 回(すべて ResourceRef<T> の中)、AssetDatabase 95 回 → 0 回。\n"
+        "IO 群の緑矢印はほぼ消え、残りは SoundIO → AudioManager だけ。\n"
+        "ShadingModelTable はシェーディングモデルごと削除した。", -0.9, 7.0, 16)
 
 # =====================================================================
 # 5. Editor
 # =====================================================================
 s5 = Sheet("⑤ Editor — MainEditor とパネル",
-           "MainEditor が ImGui とパネルを抱え、パネル側は必要なシングルトンを直接引いている。")
-s5.n("MainEditor", "MainEditor", 3.0, 0, "sing")
-s5.n("ImGuiContext", "ImGuiContext", 0.4, 1.2)
-s5.n("PanelManager", "PanelManager", 2.0, 1.2)
-s5.n("Profiler", "Profiler", 4.0, 1.2)
-s5.n("EditorCamera", "EditorCamera", 5.4, 1.2)
-s5.n("EffectEditor", "EffectEditor", 6.8, 1.2)
-s5.n("CPUProfiler", "CPUProfiler", 3.6, 2.2)
-s5.n("GPUProfiler", "GPUProfiler", 4.8, 2.2)
-s5.n("EditorContext", "EditorContext", 1.0, 2.2, "struct")
-s5.n("IPanel", "IPanel", 2.2, 2.2)
-s5.n("HierarchyPanel", "HierarchyPanel", 0.2, 3.4)
-s5.n("GameObjectHierarchyPanel", "GameObjectHierarchyPanel", 1.9, 3.4)
-s5.n("InspectorPanel", "InspectorPanel", 3.5, 3.4)
-s5.n("SceneViewPanel", "SceneViewPanel", 4.8, 3.4)
-s5.n("AssetDataBasePanel", "AssetDataBasePanel", 6.2, 3.4)
-s5.n("ProfilerPanel", "ProfilerPanel", 7.6, 3.4)
-s5.n("OptionPanel", "OptionPanel", 8.8, 3.4)
-s5.n("LogPanel", "LogPanel", 9.9, 3.4)
-s5.n("RGResourceViewPanel", "RenderGraphResourceViewPanel", 11.4, 3.4)
-s5.n("EntityInspector", "EntityInspector", 2.6, 4.5)
-s5.n("AssetInspector", "AssetInspector", 4.0, 4.5)
-s5.n("ResourceDraw", "ResourceDraw\n(アセット種別ごとの編集)", 4.0, 5.5)
-s5.n("AssetLink", "AssetLink", 5.6, 5.5)
-s5.n("EditorHelper", "EditorHelper", 7.0, 5.5)
-# 参照先
-s5.n("MainEngine", "MainEngine", 0.0, 6.8, "sing")
-s5.n("SceneManager", "SceneManager", 1.2, 6.8, "sing")
-s5.n("ResourceManager", "ResourceManager", 2.5, 6.8, "sing")
-s5.n("AssetDatabase", "AssetDatabase", 3.8, 6.8, "sing")
-s5.n("DescriptorHeapManager", "DescriptorHeapManager", 5.3, 6.8, "sing")
-s5.n("D3D12Wrapper", "D3D12Wrapper", 6.8, 6.8, "sing")
-s5.n("OptionManager", "OptionManager", 8.0, 6.8, "sing")
-s5.n("AudioManager", "AudioManager", 9.2, 6.8, "sing")
-s5.n("ObjectMetaRegistry", "ObjectMetaRegistry", 10.5, 6.8, "sing")
+           "ログと計測は Engine::Debug のコールバックに一本化。パネルは EditorContext.pServices から引くのが基本になった。")
+s5.n("MainEngine", "MainEngine", 0.2, 0, "sing")
+s5.n("SceneManager", "SceneManager", 1.6, 0, "sing")
+s5.n("OptionManager", "OptionManager", 2.9, 0, "sing")
+s5.n("AudioManager", "AudioManager", 4.1, 0, "sing")
+s5.n("ObjectMetaRegistry", "ObjectMetaRegistry", 5.4, 0, "sing")
+s5.n("App", "Application", 7.0, 0)
+s5.n("GameManager", "GameManager", 8.2, 0, "sing")
+s5.n("InputActionManager", "InputActionManager", 9.6, 0)
+s5.n("MainEditor", "MainEditor", 3.4, 1.2, "sing")
+s5.n("DebugCallback", "Engine::Debug\n(ログ・計測のコールバック)", 7.2, 1.3)
+s5.n("ImGuiContext", "ImGuiContext", 0.0, 2.4)
+s5.n("PanelManager", "PanelManager", 1.6, 2.4)
+s5.n("Profiler", "Profiler", 3.2, 2.4)
+s5.n("EditorCamera", "EditorCamera", 4.4, 2.4)
+s5.n("EffectEditor", "EffectEditor", 5.7, 2.4)
+s5.n("EditorContext", "EditorContext\n(pServices / pProfiler / pEditorCamera)", 0.4, 3.6, "struct")
+s5.n("IPanel", "IPanel", 2.6, 3.3)
+s5.n("EngineServices", "EngineServices", 1.2, 1.2, "struct")
+s5.n("HierarchyPanel", "HierarchyPanel", 0.0, 4.9)
+s5.n("GameObjectHierarchyPanel", "GameObjectHierarchyPanel", 1.6, 4.9)
+s5.n("InspectorPanel", "InspectorPanel", 3.2, 4.9)
+s5.n("SceneViewPanel", "SceneViewPanel", 4.5, 4.9)
+s5.n("AssetDataBasePanel", "AssetDataBasePanel", 5.9, 4.9)
+s5.n("ProfilerPanel", "ProfilerPanel", 7.2, 4.9)
+s5.n("OptionPanel", "OptionPanel", 8.3, 4.9)
+s5.n("LogPanel", "LogPanel", 9.3, 4.9)
+s5.n("RGResourceViewPanel", "RenderGraphResourceViewPanel", 10.8, 4.9)
+s5.n("EntityInspector", "EntityInspector", 2.6, 6.0)
+s5.n("AssetInspector", "AssetInspector", 4.0, 6.0)
+s5.n("ResourceDraw", "ResourceDraw\n(アセット種別ごとの編集)", 4.0, 7.0)
+s5.n("AssetLink", "AssetLink", 5.6, 7.0)
+s5.n("EditorHelper", "EditorHelper", 7.0, 7.0)
+s5.n("AudioBehaviorEdit", "AudioBehaviorEdit", 1.9, 8.1)
+s5.n("EffectAssetEdit", "EffectAssetEdit", 3.3, 8.1)
+s5.n("TextureEdit", "TextureEdit", 4.5, 8.1)
+s5.n("RenderingPipelineEdit", "RenderingPipelineEdit\n/ BuiltinPassEditors", 6.0, 8.1)
 
 for t in ["ImGuiContext", "PanelManager", "Profiler", "EditorCamera", "EffectEditor"]:
     s5.e("MainEditor", t, "own")
-s5.e("Profiler", "CPUProfiler", "own")
-s5.e("Profiler", "GPUProfiler", "own")
 s5.e("PanelManager", "IPanel", "own")
 s5.e("PanelManager", "EditorContext", "own")
 for p in ["HierarchyPanel", "GameObjectHierarchyPanel", "InspectorPanel", "SceneViewPanel",
@@ -656,174 +661,184 @@ s5.e("InspectorPanel", "EntityInspector", "own")
 s5.e("InspectorPanel", "AssetInspector", "own")
 s5.e("AssetInspector", "ResourceDraw", "ref")
 s5.e("AssetInspector", "AssetLink", "ref")
-s5.e("MainEditor", "MainEngine")
-s5.e("MainEditor", "OptionManager")
+for t in ["AudioBehaviorEdit", "EffectAssetEdit", "TextureEdit", "RenderingPipelineEdit"]:
+    s5.e("ResourceDraw", t, "ref")
+s5.e("EditorContext", "EngineServices", "ref")
+s5.e("EditorContext", "Profiler", "ref")
+s5.e("EditorContext", "EditorCamera", "ref")
+s5.e("MainEditor", "DebugCallback", "ref")
+# エディターの外からエディターへ(逆向き)
+s5.e("MainEngine", "MainEditor")
+s5.e("SceneManager", "MainEditor")
+s5.e("App", "MainEditor")
+s5.e("GameManager", "MainEditor")
+s5.e("InputActionManager", "MainEditor")
+# エディター側の直引き
 for a, ts in [
+    ("MainEditor", ["MainEngine"]),
     ("EditorCamera", ["OptionManager"]),
-    ("EffectEditor", ["AssetDatabase", "AudioManager", "DescriptorHeapManager", "MainEditor",
-                      "MainEngine", "OptionManager", "ResourceManager"]),
-    ("EditorHelper", ["AssetDatabase", "DescriptorHeapManager", "ResourceManager"]),
-    ("ImGuiContext", ["D3D12Wrapper", "DescriptorHeapManager"]),
-    ("AssetDataBasePanel", ["AssetDatabase", "MainEngine", "SceneManager"]),
+    ("EffectEditor", ["AudioManager", "MainEngine", "OptionManager"]),
+    ("EditorHelper", ["MainEngine"]),
+    ("ImGuiContext", ["MainEngine"]),
+    ("PanelManager", ["SceneManager"]),
+    ("AssetDataBasePanel", ["MainEngine", "SceneManager"]),
     ("GameObjectHierarchyPanel", ["ObjectMetaRegistry", "SceneManager"]),
-    ("HierarchyPanel", ["AssetDatabase", "ResourceManager", "SceneManager"]),
-    ("AssetLink", ["AssetDatabase"]),
-    ("ResourceDraw", ["AssetDatabase", "ResourceManager", "SceneManager"]),
-    ("EntityInspector", ["AssetDatabase", "ResourceManager", "SceneManager"]),
+    ("HierarchyPanel", ["SceneManager"]),
     ("InspectorPanel", ["SceneManager"]),
+    ("EntityInspector", ["SceneManager"]),
+    ("ResourceDraw", ["SceneManager"]),
+    ("AudioBehaviorEdit", ["AudioManager"]),
+    ("EffectAssetEdit", ["MainEditor"]),
+    ("TextureEdit", ["OptionManager"]),
+    ("RenderingPipelineEdit", ["MainEngine"]),
     ("OptionPanel", ["OptionManager"]),
-    ("ProfilerPanel", ["D3D12Wrapper", "MainEngine"]),
-    ("RGResourceViewPanel", ["DescriptorHeapManager", "MainEngine"]),
-    ("SceneViewPanel", ["AssetDatabase", "DescriptorHeapManager", "MainEditor", "MainEngine",
-                        "OptionManager", "ResourceManager", "SceneManager"]),
-    ("Profiler", ["D3D12Wrapper"]),
-    ("GPUProfiler", ["D3D12Wrapper"]),
+    ("ProfilerPanel", ["MainEngine"]),
+    ("RGResourceViewPanel", ["MainEngine"]),
+    ("SceneViewPanel", ["MainEditor", "MainEngine", "OptionManager", "SceneManager"]),
 ]:
     for t in ts:
         s5.e(a, t)
-s5.note("SceneViewPanel と EffectEditor がいちばん多くのシングルトンを直接引いている。", -0.9, 8.0, 16)
+s5.note("エンジン → エディターの直引きは 38 本 → 11 本(MainEngine の Init/Update/Draw/Release と SceneManager の通知)。\n"
+        "AddLog / StartTimer / DrawBox 系は削除済み。SceneViewPanel は今も 17 回の直引きで最多。", -0.9, 9.0, 16)
 
 # =====================================================================
 # 6. D3D12 / Raytracing
 # =====================================================================
 s6 = Sheet("⑥ D3D12 / Raytracing — GPU まわりの下層",
-           "D3D12Wrapper と DescriptorHeapManager が互いを直接引き合っている。")
+           "D3D12Wrapper は削除。デバイスもヒープも GraphicsEngine が持ち、D3D12 層は引数で受け取るだけで上を見ない。")
 s6.n("MainEngine", "MainEngine", 3.0, 0, "sing")
-s6.n("D3D12Wrapper", "D3D12Wrapper", 1.2, 1.2, "sing")
-s6.n("DescriptorHeapManager", "DescriptorHeapManager", 4.4, 1.2, "sing")
-s6.n("CommandContext", "CommandContext", 0.0, 2.4)
-s6.n("FrameManager", "FrameManager", 1.2, 2.4)
-s6.n("AsyncGPUManager", "AsyncGPUManager", 2.4, 2.4)
-s6.n("DescriptorHeap", "DescriptorHeap\n(CBV_SRV_UAV / RTV / DSV / Sampler / ImGui)", 4.6, 2.4)
-s6.n("HeapAllocator", "HeapAllocator<T>", 6.6, 2.4)
-s6.n("SamplerAllocator", "SamplerAllocator", 8.0, 2.4)
-s6.n("GPUResource", "GPUResource", 1.0, 3.6)
-s6.n("GPUBuffer", "GPUBuffer", 2.2, 3.6)
-s6.n("StaticBuffer", "StaticBuffer", 3.3, 3.6)
-s6.n("MegaBuffer", "MegaBuffer", 4.4, 3.6)
-s6.n("Texture", "Texture", 5.5, 3.6)
-s6.n("RootSignatureBuilder", "RootSignatureBuilder", 6.9, 3.6)
-s6.n("RootSignature", "RootSignature", 8.3, 3.6)
-s6.n("PipelineState", "PipelineState", 9.5, 3.6)
-s6.n("PipelineStateManager", "PipelineStateManager", 8.3, 1.2)
-s6.n("MainEditor", "MainEditor", 9.7, 1.2, "sing")
-s6.n("ResourceManager", "ResourceManager", 6.6, 0.2, "sing")
+s6.n("GraphicsEngine", "GraphicsEngine", 3.0, 1.1)
+s6.n("GraphicsDevice", "GraphicsDevice\n(Device / Factory / Adapter)", 0.2, 1.1)
+s6.n("CommandContext", "CommandContext", 0.3, 2.3)
+s6.n("FrameManager", "FrameManager", 1.5, 2.3)
+s6.n("AsyncGPUManager", "AsyncGPUManager", 2.7, 2.3)
+s6.n("BackBuffer", "BackBuffer", 3.8, 2.3)
+s6.n("DescriptorHeapManager", "DescriptorHeapManager", 5.2, 2.3)
+s6.n("PipelineStateManager", "PipelineStateManager\n(PSO / ルートシグネチャをハンドルで配る)", 7.6, 2.3)
+s6.n("CommandPool", "CommandPool\n(Direct / Copy / Compute)", 0.3, 3.4)
+s6.n("DescriptorHeap", "DescriptorHeap\n(CBV_SRV_UAV / RTV / DSV / ImGui)", 4.6, 3.4)
+s6.n("HeapAllocator", "HeapAllocator<T>", 6.4, 3.4)
+s6.n("SamplerAllocator", "SamplerAllocator", 7.7, 3.4)
+# D3D12 層
+s6.n("GPUResource", "GPUResource", 0.4, 4.8)
+s6.n("GPUBuffer", "GPUBuffer", 1.6, 4.8)
+s6.n("Texture", "Texture", 2.8, 4.8)
+s6.n("RootSignatureBuilder", "RootSignatureBuilder", 4.2, 4.8)
+s6.n("PipelineBuilder", "RenderPipelineBuilder", 5.6, 4.8)
+s6.n("CBAllocator", "CBAllocator", 6.8, 4.8)
+s6.n("StaticBuffer", "StaticBuffer", 0.6, 5.8)
+s6.n("MegaBuffer", "MegaBuffer", 1.7, 5.8)
+s6.n("OtherBuffer", "Structured / Dynamic /\nVertex / Index ...", 3.0, 5.8)
 # レイトレ
-s6.n("RayEngine", "RayEngine", 1.5, 5.0, "sing")
-s6.n("RayWorld", "RayWorld", 1.5, 6.0)
-s6.n("TLAS", "TLAS", 0.6, 7.0)
-s6.n("BLAS", "BLAS", 1.8, 7.0)
-s6.n("ShaderTable", "ShaderTable", 3.0, 7.0)
-s6.n("RayPSO", "RayPSO", 4.2, 7.0)
+s6.n("RayEngine", "RayEngine", 1.5, 7.0, "sing")
+s6.n("RenderGraph", "RenderGraph", 4.0, 6.4)
+s6.n("ResourceManager", "ResourceManager", 6.4, 7.0, "sing")
+s6.n("RayWorld", "RayWorld", 1.5, 8.0)
+s6.n("ShaderTable", "ShaderTable", 3.0, 8.0)
+s6.n("RayPSO", "RayPSO", 4.1, 8.0)
+s6.n("BLAS", "BLAS", 5.2, 8.0)
+s6.n("TLAS", "TLAS", 1.5, 9.0)
 
-s6.e("MainEngine", "D3D12Wrapper")
-s6.e("MainEngine", "DescriptorHeapManager")
-s6.e("MainEngine", "RayEngine")
-s6.e("D3D12Wrapper", "DescriptorHeapManager")
-s6.e("DescriptorHeapManager", "D3D12Wrapper")
-for t in ["CommandContext", "FrameManager", "AsyncGPUManager"]:
-    s6.e("D3D12Wrapper", t, "own")
+s6.e("MainEngine", "GraphicsEngine", "own")
+for t in ["GraphicsDevice", "CommandContext", "FrameManager", "AsyncGPUManager",
+          "BackBuffer", "DescriptorHeapManager", "PipelineStateManager"]:
+    s6.e("GraphicsEngine", t, "own")
+s6.e("CommandContext", "CommandPool", "own")
 for t in ["DescriptorHeap", "HeapAllocator", "SamplerAllocator"]:
     s6.e("DescriptorHeapManager", t, "own")
-s6.e("MainEngine", "PipelineStateManager", "own")
-s6.e("GPUResource", "DescriptorHeapManager")
-s6.e("GPUBuffer", "DescriptorHeapManager")
-s6.e("StaticBuffer", "DescriptorHeapManager")
-s6.e("MegaBuffer", "D3D12Wrapper")
-s6.e("Texture", "D3D12Wrapper")
-s6.e("Texture", "DescriptorHeapManager")
-s6.e("RootSignatureBuilder", "D3D12Wrapper")
-s6.e("RootSignature", "D3D12Wrapper")
-s6.e("PipelineState", "MainEditor")
-s6.e("PipelineStateManager", "RootSignature", "own")
-s6.e("PipelineStateManager", "PipelineState", "own")
-s6.e("RayEngine", "RayWorld", "own")
-s6.e("RayWorld", "TLAS", "own")
-s6.e("RayWorld", "DescriptorHeapManager")
-s6.e("RayWorld", "ResourceManager")
-s6.e("BLAS", "MainEngine")
-s6.e("ShaderTable", "DescriptorHeapManager")
-s6.e("ShaderTable", "ResourceManager")
-s6.e("TLAS", "DescriptorHeapManager")
 s6.e("GPUBuffer", "GPUResource", "inherit")
 s6.e("StaticBuffer", "GPUBuffer", "inherit")
 s6.e("MegaBuffer", "GPUBuffer", "inherit")
-s6.e("Texture", "GPUResource", "inherit")
-s6.note("GPU リソース側(GPUResource / Texture / Buffer)は、\nディスクリプタを取るために DescriptorHeapManager を直接引いている。", -0.9, 8.2, 16)
+s6.e("OtherBuffer", "GPUBuffer", "inherit")
+s6.e("GPUResource", "DescriptorHeapManager", "ref")
+s6.e("Texture", "DescriptorHeapManager", "ref")
+s6.e("DescriptorHeapManager", "GraphicsDevice", "ref")
+s6.e("PipelineStateManager", "GraphicsDevice", "ref")
+s6.e("PipelineStateManager", "RootSignatureBuilder", "ref")
+s6.e("PipelineStateManager", "PipelineBuilder", "ref")
+s6.e("MainEngine", "RayEngine")
+s6.e("RenderGraph", "RayEngine")
+s6.e("BLAS", "MainEngine")
+s6.e("RayEngine", "RayWorld", "own")
+s6.e("RayWorld", "TLAS", "own")
+s6.e("RayEngine", "ResourceManager", "ref")
+s6.e("RayWorld", "ResourceManager", "ref")
+s6.e("RayWorld", "DescriptorHeapManager", "ref")
+s6.e("TLAS", "DescriptorHeapManager", "ref")
+s6.note("D3D12Wrapper(68 回)と DescriptorHeapManager::Instance()(62 回)は 0 回に。相互参照も消えた。\n"
+        "レイトレ側で残る緑矢印は RayEngine 本体と、BLAS の遅延解放だけ。", -0.9, 9.9, 16)
 
 # =====================================================================
 # 7. Input / Audio / Option / Particle / Job
 # =====================================================================
 s7 = Sheet("⑦ Input / Audio / Option / Particle / JobSystem",
-           "アプリ寿命のサービス群。Option は各シングルトンへ設定を流し込む側でもある。")
+           "アプリ寿命のサービス群。Option が各マネージャーへ設定を押し込む形はまだ残っている。")
 s7.n("MainEngine", "MainEngine", 3.0, 0, "sing")
+s7.n("EngineServices", "EngineServices", 5.4, 0, "struct")
+s7.n("ResourceManager", "ResourceManager", 7.2, 0, "sing")
+s7.n("GraphicsEngine", "GraphicsEngine", 8.8, 0)
 s7.n("NativeWindow", "NativeWindow", 0.0, 1.2)
 s7.n("InputManager", "InputManager", 1.3, 1.2, "sing")
 s7.n("AudioManager", "AudioManager", 3.0, 1.2, "sing")
-s7.n("OptionManager", "OptionManager", 4.6, 1.2, "sing")
+s7.n("OptionManager", "OptionManager", 4.6, 0.7, "sing")
 s7.n("ParticleBufferManager", "ParticleBufferManager", 6.4, 1.2)
 s7.n("JobSystem", "JobSystem", 8.2, 1.2)
 s7.n("InputCollector", "InputCollector", 1.0, 2.4)
-s7.n("InputAxisBase", "InputAxisBase", 0.3, 3.4)
-s7.n("InputButtonBase", "InputButtonBase", 1.6, 3.4)
-s7.n("InputAxisForWindows", "InputAxisForWindows", 0.0, 4.4)
-s7.n("InputAxisForXInput", "InputAxisForXInput", 1.3, 4.4)
-s7.n("InputButtonForWindows", "InputButtonForWindows", 2.7, 4.4)
-s7.n("InputButtonForWindowsChord", "InputButtonForWindowsChord", 4.3, 4.4)
-s7.n("InputButtonForXInput", "InputButtonForXInput", 5.8, 4.4)
 s7.n("AudioEngineDX", "DirectX::AudioEngine", 2.6, 2.4)
 s7.n("SoundInstancePool", "SoundInstance プール", 3.9, 2.4)
-s7.n("IOption", "IOption", 5.2, 2.4)
-s7.n("WindowOption", "WindowOption", 5.0, 3.4)
-s7.n("AudioOption", "AudioOption", 6.2, 3.4)
-s7.n("InputOption", "InputOption", 7.3, 3.4)
-s7.n("OtherOption", "RenderingOption / GIOption /\nBloomOption / CursorOption ...", 9.0, 3.4)
-s7.n("GPUParticlePool", "GPUParticlePool", 6.4, 2.4)
-s7.n("JobContext", "JobContext", 7.7, 2.4)
-s7.n("JobWorker", "JobWorker", 8.9, 2.4)
-s7.n("AssetDatabase", "AssetDatabase", 8.6, 0.2, "sing")
-s7.n("ResourceManager", "ResourceManager", 7.2, 0.2, "sing")
-s7.n("D3D12Wrapper", "D3D12Wrapper", 10.0, 0.2, "sing")
-s7.n("GameManager", "GameManager", 0.0, 5.6, "sing")
-s7.n("InputActionManager", "InputActionManager", 1.6, 5.6)
-s7.n("UserData", "UserData", 3.0, 5.6)
-s7.n("MainEditor", "MainEditor", 4.4, 5.6, "sing")
-s7.n("SceneManager", "SceneManager", 5.7, 5.6, "sing")
-s7.n("ObjectMetaRegistry", "ObjectMetaRegistry", 7.2, 5.6, "sing")
+s7.n("IOption", "IOption\n(DrawEdit に EngineServices)", 5.4, 2.4)
+s7.n("GPUParticlePool", "GPUParticlePool", 6.9, 2.4)
+s7.n("JobContext", "JobContext", 8.1, 2.4)
+s7.n("JobWorker", "JobWorker", 9.2, 2.4)
+s7.n("InputAxisBase", "InputAxisBase", 0.3, 3.4)
+s7.n("InputButtonBase", "InputButtonBase", 1.7, 3.4)
+s7.n("WindowOption", "WindowOption", 4.0, 3.5)
+s7.n("AudioOption", "AudioOption", 5.1, 3.5)
+s7.n("InputOption", "InputOption", 6.2, 3.5)
+s7.n("CursorOption", "CursorOption", 7.3, 3.5)
+s7.n("OtherOption", "GIOption / RenderingOption / LightingOption /\nBloomOption / ToneMapOption / DebugDrawOption", 9.4, 3.5)
+s7.n("InputAxisForWindows", "InputAxisForWindows", -0.2, 4.5)
+s7.n("InputAxisForWindowsMouse", "InputAxisForWindowsMouse", 1.2, 4.5)
+s7.n("InputAxisForXInput", "InputAxisForXInput", 2.6, 4.5)
+s7.n("InputButtonForWindows", "InputButtonForWindows", 0.2, 5.4)
+s7.n("InputButtonForWindowsChord", "InputButtonForWindowsChord", 1.7, 5.4)
+s7.n("InputButtonForXInput", "InputButtonForXInput", 3.2, 5.4)
+s7.n("GameManager", "GameManager", 5.2, 5.7, "sing")
+s7.n("InputActionManager", "InputActionManager", -0.6, 6.8)
+s7.n("UserData", "UserData", 3.8, 7.6)
+s7.n("MainEditor", "MainEditor", 5.2, 6.8, "sing")
+s7.n("SceneManager", "SceneManager", 6.5, 6.8, "sing")
+s7.n("ObjectMetaRegistry", "ObjectMetaRegistry", 7.9, 6.8, "sing")
 
 for t in ["InputManager", "AudioManager", "OptionManager"]:
     s7.e("MainEngine", t)
-s7.e("MainEngine", "ParticleBufferManager", "own")
-s7.e("MainEngine", "JobSystem", "own")
-s7.e("MainEngine", "NativeWindow", "own")
+for t in ["NativeWindow", "ParticleBufferManager", "JobSystem"]:
+    s7.e("MainEngine", t, "own")
 s7.e("NativeWindow", "InputManager")
 s7.e("InputManager", "MainEngine")
 s7.e("InputManager", "OptionManager")
 s7.e("InputManager", "InputCollector", "own")
 s7.e("InputCollector", "InputAxisBase", "own")
 s7.e("InputCollector", "InputButtonBase", "own")
-for a, b in [("InputAxisForWindows", "InputAxisBase"), ("InputAxisForXInput", "InputAxisBase"),
+for a, b in [("InputAxisForWindows", "InputAxisBase"), ("InputAxisForWindowsMouse", "InputAxisBase"),
+             ("InputAxisForXInput", "InputAxisBase"),
              ("InputButtonForWindows", "InputButtonBase"),
              ("InputButtonForWindowsChord", "InputButtonBase"),
              ("InputButtonForXInput", "InputButtonBase")]:
     s7.e(a, b, "inherit")
 s7.e("AudioManager", "AudioEngineDX", "own")
 s7.e("AudioManager", "SoundInstancePool", "own")
-s7.e("AudioManager", "AssetDatabase")
-s7.e("AudioManager", "ResourceManager")
-for t in ["WindowOption", "AudioOption", "InputOption", "OtherOption"]:
+s7.e("AudioManager", "ResourceManager", "ref")
+for t in ["WindowOption", "AudioOption", "InputOption", "CursorOption", "OtherOption"]:
     s7.e("OptionManager", t, "own")
-for a, b in [("WindowOption", "IOption"), ("AudioOption", "IOption"),
-             ("InputOption", "IOption"), ("OtherOption", "IOption")]:
-    s7.e(a, b, "inherit")
+    s7.e(t, "IOption", "inherit")
+s7.e("IOption", "EngineServices", "ref")
 s7.e("WindowOption", "MainEngine")
 s7.e("AudioOption", "AudioManager")
 s7.e("InputOption", "InputManager")
 s7.e("ParticleBufferManager", "GPUParticlePool", "own")
-s7.e("ParticleBufferManager", "AssetDatabase")
-s7.e("ParticleBufferManager", "D3D12Wrapper")
+s7.e("ParticleBufferManager", "GraphicsEngine", "ref")
 s7.e("GPUParticlePool", "MainEngine")
-s7.e("GPUParticlePool", "ResourceManager")
 s7.e("JobSystem", "JobContext", "own")
 s7.e("JobSystem", "JobWorker", "own")
 s7.e("GameManager", "InputActionManager", "own")
@@ -834,109 +849,102 @@ s7.e("GameManager", "ObjectMetaRegistry")
 s7.e("InputActionManager", "InputManager")
 s7.e("InputActionManager", "MainEditor")
 s7.note("入力は必ず InputManager 経由。アプリ側の割り当ては UserData に入り、\n"
-        "InputActionManager が InputManager へ流し込む。", -0.9, 6.8, 16)
+        "InputActionManager が InputManager へ流し込む。\n"
+        "ParticleBufferManager / AudioManager は Init の引数で持ち物を受け取る形になった(MouseCursor は ② に載せた)。", -0.9, 8.5, 16)
 
 # =====================================================================
 # 改善点(各シートの右下)
 # =====================================================================
 s1.imp(
-    ("シングルトンが13個。実体を持っているのは3つだけ", [
-        "MainEngine / SceneManager / GameManager 以外の10個は",
-        "「どこからでも引ける置き場」になっていて、依存の向きが追えない。",
-        "MainEngine が起動時に組み立てて配れば緑矢印はかなり減らせる。"]),
-    ("相互に引き合っている組がある", [
-        "D3D12Wrapper ⇄ DescriptorHeapManager",
-        "OptionManager ⇄ MainEngine / InputManager / AudioManager",
-        "初期化順と解放順が暗黙の了解になっている。片方向に倒したい。"]),
-    ("BaseScene が9個のシングルトンを直接引いている", [
-        "EngineServices を組み立てているのは BaseScene 自身なので、",
-        "作ったあとは自分もそこ経由で引けば直引きを消せる。"]),
-    ("Application が MainEditor を15箇所で叩いている", [
-        "中身はプロファイラのタイマー。スコープガード(RAII)かマクロに包めば、",
-        "アプリの入口からエディター依存が消える。"]),
+    ("MainEngine が新しい「置き場」になりつつある", [
+        "Instance() の総数は 629 → 205 に減ったが、MainEngine だけは 62 → 64 回。",
+        "D3D12Wrapper / DescriptorHeapManager を引いていた箇所の一部が",
+        "MainEngine::Instance().RefGraphicsEngine() に付け替わっただけのものがある",
+        "(BLAS / Mesh / ScopedResourceBuild / ImGuiContext / EditorHelper / SceneViewPanel)。"]),
+    ("OptionManager ⇄ MainEngine / InputManager / AudioManager は相互のまま", [
+        "D3D12Wrapper ⇄ DescriptorHeapManager の循環は消えた。",
+        "残る循環はオプションの押し込み。受け手が起動時と変更通知で読む形にしたい。"]),
+    ("描画層 → シーン / ゲームの逆流が残っている", [
+        "GraphicsEngine → GameManager::Draw()(テスト呼び出し)と",
+        "GraphicsEngine → SceneManager::RefWorld()(BLAS 初期化キュー)。"]),
+    ("MainEngine に使われていないメンバーがある", [
+        "RenderContext の配列は GraphicsEngine へ移ったが、",
+        "MainEngine.h 側の m_upRenderContextVec が宣言だけ残っている。"]),
 )
 
 s2.imp(
-    ("PassContext にリソースへの経路が無い", [
-        "30種以上あるパスが ResourceManager / AssetDatabase / RayEngine を直引き。",
-        "PassContext は既に RenderGraph / GraphicsEngine / RenderContext を配って",
-        "いるので、ここへ足せばパス側の緑矢印をまとめて消せる。"]),
+    ("パスの直引きは 0 になった。残りは MakeContext の中の2本", [
+        "RenderGraph::MakeContext が MainEngine と RayEngine を Instance() で引いて詰める。",
+        "GraphicsEngine から RayEngine / ParticleBufferManager を受け取れば",
+        "描画層の中でシングルトンを引くのは GraphicsEngine の入口だけになる。"]),
     ("GraphicsEngine → SceneManager / GameManager は層の逆流", [
-        "描画層がシーンとゲームを見に行っている。",
-        "必要なデータはシーン更新側から積む形にしたい。"]),
-    ("MainEngine 直引きは「持ち物が欲しいだけ」", [
-        "ParticlePass / ParticleSimulation / MonitorPass が欲しいのは",
-        "ParticleBufferManager や PipelineStateManager。",
-        "PassContext か初期化時の引数で渡せば済む。"]),
-    ("計測のためだけに描画層がエディターを見ている", [
-        "RenderContext / GraphicsEngine → MainEditor はプロファイル用。",
-        "計測インターフェースを切って挟みたい。"]),
+        "GameManager::Draw() は「テスト」とコメントされた呼び出し。",
+        "BLAS の初期化要求はワールドのリソースから読んでいるので、",
+        "シーン更新側から積むか、Submit の引数で World を渡したい。"]),
+    ("ParticleSimulation / GPUParticlePool → MainEngine", [
+        "欲しいのは ParticleBufferManager・デルタタイム・遅延解放。",
+        "ExecuteParticleSimulation の引数か PassContext で足りる。"]),
+    ("OptionManager を描画層の3箇所が直接読む", [
+        "GraphicsEngine / MouseCursor / DebugDraw。",
+        "解像度などは GraphicsEngineDesc と変更通知で受け取る形にしたい。"]),
 )
 
 s3.imp(
-    ("経路は用意できているが、使い切れていない", [
-        "EngineServices / SystemContext / ObjectContext の3経路は機能している。",
-        "ただしアプリ側にはまだ直引きが残っている(この図には未掲載):",
-        "GunShootSystem → ResourceManager / ScoreSystem → GameManager /",
-        "CameraStartSystem → OptionManager / 各 Sequence → SceneManager"]),
+    ("アプリ側の直引きが残っている(右端)", [
+        "Sequence 群 → SceneManager / GameManager、ScoreSystem → GameManager、",
+        "CameraStartSystem → OptionManager。",
+        "SystemContext / ObjectContext に経路があるので、そちらへ寄せる。"]),
     ("コンポーネントのヘルパーがヘッダーで Instance() を呼んでいる", [
-        "ModelComponent / ParticlesComponent / SoundComponent など。",
-        "コンポーネントは POD なので、取得と返却はシステム側か",
-        "ComponentTraits::Release 経由に寄せたい。"]),
-    ("BaseScene だけが例外で9個を直引き", [
-        "EngineServices を作る当人なので、作ったあとは自分も経由する。"]),
-    ("ECS がエディターを見ている", [
-        "World.h / ComponentMetaRegistry → MainEditor はログ目的。",
-        "ログ用の細いインターフェースを挟めば ECS からエディターが消える。"]),
-    ("Prefab / CollisionWorld の直引き", [
-        "Prefab は生成に SceneManager、CollisionWorld は ResourceManager が要る。",
-        "どちらも引数で World / Context を受け取れば片付く。"]),
+        "ModelComponent / ParticlesComponent は解消。",
+        "SoundComponent / HitSoundComponent → AudioManager、",
+        "FollowTargetComponent / AttachmentSlotsComponent → SceneManager が残り。"]),
+    ("Prefab → SceneManager", [
+        "生成先のワールドを SceneManager::RefWorld() で決めている。",
+        "引数で World を受け取れば片付く。"]),
+    ("EngineServices に SceneManager が無い", [
+        "アプリ側の SceneManager 直引きが消えない理由がここ。",
+        "載せるか、シーン遷移だけの細いインターフェースを足すか決めたい。"]),
 )
 
 s4.imp(
-    ("決めた方針(ResourceBuildContext 経由)がまだ徹底されていない", [
-        "ResourceManager は157箇所、AssetDatabase は95箇所から直接呼ばれている。",
-        "この図の緑矢印はほぼ全部それ。IO の入口の引数を Context に",
-        "統一するのが一番効く。"]),
-    ("Context に足りないものがある", [
-        "Material は OptionManager、Mesh は MainEngine(遅延解放)を直引き。",
-        "足りない分を Context に載せれば、直引きする理由が無くなる。"]),
-    ("ResourceManager.h が自分自身の Instance() を呼んでいる", [
-        "ヘッダーのテンプレート実装の中で12箇所。",
-        "呼び出し側が「どの ResourceManager か」を選べない。"]),
-    ("実体と IO が相互に絡んでいる", [
-        "Model / AnimatorAsset などが IO から呼ばれつつ、自分でも Instance() を引く。",
-        "読み込みの入口を IO 側に寄せて、実体は受け取るだけにしたい。"]),
+    ("方針(ResourceBuildContext 経由)はほぼ徹底できた", [
+        "IO 群・Model / Texture / Material / Shader の緑矢印は消えた。",
+        "ResourceManager::Instance() が残るのは ResourceRef<T> の中だけで、",
+        "値として資産に埋まるので引数で渡せない、という理由が付いている。"]),
+    ("GraphicsEngine が欲しくて MainEngine を引いている", [
+        "ScopedResourceBuild はバッチを開くため、Mesh::Release は",
+        "MeshBufferAllocator へ返すため(Release には Context が来ない)。",
+        "ScopedResourceBuild は引数で受け取り、Mesh は解放の口を渡しておきたい。"]),
+    ("Sound / SoundIO → AudioManager", [
+        "サウンドの読み込みにオーディオエンジンが要る。",
+        "AudioManager のポインタを Context に載せるのが素直。"]),
 )
 
 s5.imp(
-    ("EditorContext があるのに使い切れていない", [
-        "PanelManager が EditorContext を持っているのに、パネルは各自 Instance()。",
-        "よく使うもの(MainEngine / SceneManager / ResourceManager / AssetDatabase)",
-        "を載せれば、パネル側は Context だけ見ればよくなる。"]),
-    ("SceneViewPanel(7個) と EffectEditor(7個) が突出している", [
-        "EffectEditor は専用ワールドを持つほぼミニアプリ。",
-        "パネルではなく別レイヤーとして切り出したほうが見通しがよい。"]),
-    ("エンジン側からエディターへの逆向き依存", [
-        "AssetDatabase / Archive / PipelineState / World / ComponentMetaRegistry /",
-        "CollisionWorld / BVHTraverser が MainEditor を直引き。",
-        "用途はログ・計測・デバッグ描画なので、そこだけ細いインターフェースを",
-        "切って挟めば、エンジンがエディターを知らなくて済む。"]),
+    ("エンジン → エディターの逆流は「駆動」と「通知」だけになった", [
+        "MainEngine が Init / Update / Draw / Release を呼ぶのは入口として許容。",
+        "SceneManager → MainEditor::OnSceneChanged() は通知なので、",
+        "コールバック登録の形にすればシーン層からエディターが消える。"]),
+    ("アプリ側からエディターを直接呼んでいる", [
+        "GameManager / InputActionManager → MainEditor::RegisterEditFunc。",
+        "App.cpp も EndProfileFrame / IsModalActive を直接呼ぶ。",
+        "エディター初期化の後に登録する、という順序の縛りも暗黙。"]),
+    ("SceneViewPanel(17 回)と EffectEditor(9 回)が突出", [
+        "EditorContext.pServices は既にある。",
+        "SceneManager と GraphicsEngine への経路を足せば、パネルの直引きはほぼ消せる。"]),
     ("エディター自身の直引きは許容範囲", [
-        "アプリ寿命のツール層なので、上の逆向き依存だけ直せば十分。"]),
+        "アプリ寿命のツール層なので、上の2点が直れば十分。"]),
 )
 
 s6.imp(
-    ("D3D12Wrapper ⇄ DescriptorHeapManager の相互参照", [
-        "DescriptorHeapManager が欲しいのは Device だけ。",
-        "初期化時に受け取って保持すれば片方向になる。"]),
-    ("GPU リソースがディスクリプタ確保のため直引きしている", [
-        "GPUResource / Texture / Buffer 群 → DescriptorHeapManager。",
-        "生成時にアロケーターの参照を渡す(ResourceBuildContext と同じ考え方)。"]),
-    ("BLAS → MainEngine は遅延解放の登録だけ", [
-        "「解放を後回しにする」インターフェースを切って渡せば依存が消える。"]),
-    ("PipelineState → MainEditor はログ", [
-        "シェーダー再コンパイルの結果表示。ログ経路を分ければよい。"]),
+    ("循環と D3D12Wrapper は解消済み", [
+        "GraphicsDevice / CommandContext / FrameManager / BackBuffer に分けて",
+        "GraphicsEngine へ集約した。D3D12 層は Device* / HeapManager* を引数で受け取る。"]),
+    ("RayEngine は描画層の外に置かれたシングルトンのまま", [
+        "持ち主が居ないので MainEngine と RenderGraph が Instance() で引く。",
+        "GraphicsEngine の持ち物にすると ② と同じ所有ツリーに収まる。"]),
+    ("BLAS → MainEngine は GraphicsEngine と遅延解放が欲しいだけ", [
+        "生成時の ResourceBuildContext から取れば依存が消える。"]),
 )
 
 s7.imp(
@@ -944,15 +952,13 @@ s7.imp(
         "WindowOption → MainEngine / AudioOption → AudioManager /",
         "InputOption → InputManager。Option 側から押し込むのをやめ、",
         "受け手が起動時と変更通知で読む形にすると片方向になる。"]),
-    ("所有されている側が Instance() で親を引いている", [
-        "ParticleBufferManager / GPUParticlePool / MouseCursor → MainEngine。",
-        "所有者が初期化時に必要なものを渡せばよい。"]),
-    ("InputActionManager → MainEditor はモード判定", [
-        "アプリのモードを持っているのは MainEngine。",
-        "そちらから取ればゲーム側がエディターを見なくて済む。"]),
-    ("GameManager がゲーム側の各所から引かれている", [
-        "Sequence / ScoreHUD / ScoreSystem に加えて GraphicsEngine からも。",
-        "描画層からゲーム層への逆流は特に切り離したい。"]),
+    ("所有されている側が親を引いている箇所が残る", [
+        "ParticleBufferManager は解消。GPUParticlePool → MainEngine(遅延解放)と",
+        "MouseCursor → MainEngine(ウィンドウ)が残り。"]),
+    ("InputManager → MainEngine はモードとウィンドウ", [
+        "Init でウィンドウを受け取り、モードは切り替え時に知らせれば片方向になる。"]),
+    ("InputActionManager → MainEditor は編集関数の登録", [
+        "エディターを知らない形(登録口をエンジン側に置く)にしたい。"]),
 )
 
 # =====================================================================
@@ -961,12 +967,12 @@ OUT = os.environ.get("OUTDIR", OUT)
 os.makedirs(OUT, exist_ok=True)
 for fn, sh, lg in [
     ("01_Overview.excalidraw", s1, (-XP * 0.9, YP * 9.6)),
-    ("02_Graphics.excalidraw", s2, (-XP * 0.9, YP * 9.2)),
+    ("02_Graphics.excalidraw", s2, (-XP * 0.9, YP * 10.6)),
     ("03_Scene_ECS_GameObject.excalidraw", s3, (-XP * 0.9, YP * 10.0)),
-    ("04_Resource.excalidraw", s4, (-XP * 0.9, YP * 7.6)),
-    ("05_Editor.excalidraw", s5, (-XP * 0.9, YP * 9.0)),
-    ("06_D3D12_Raytracing.excalidraw", s6, (-XP * 0.9, YP * 9.2)),
-    ("07_Input_Audio_Option.excalidraw", s7, (-XP * 0.9, YP * 7.8)),
+    ("04_Resource.excalidraw", s4, (-XP * 0.9, YP * 7.9)),
+    ("05_Editor.excalidraw", s5, (-XP * 0.9, YP * 10.0)),
+    ("06_D3D12_Raytracing.excalidraw", s6, (-XP * 0.9, YP * 10.6)),
+    ("07_Input_Audio_Option.excalidraw", s7, (-XP * 0.9, YP * 9.2)),
 ]:
     dump(sh, os.path.join(OUT, fn), lg)
 
@@ -979,6 +985,9 @@ def svg(sheet, path):
     for n in sheet.nodes.values():
         xs += [n["cx"] - n["w"] / 2, n["cx"] + n["w"] / 2]
         ys += [n["cy"] - n["h"] / 2, n["cy"] + n["h"] / 2]
+    for text, x, y, fs in sheet.notes:
+        xs.append(x)
+        ys.append(y)
     ibox = sheet.improve_box()
     if ibox:
         xs += [ibox[0], ibox[0] + ibox[2]]

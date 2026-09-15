@@ -1,157 +1,159 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-195 -245 3872 2271" width="2400">
-<rect x="-195" y="-245" width="3872" height="2271" fill="#121212"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-390 -245 3887 2421" width="2400">
+<rect x="-390" y="-245" width="3887" height="2421" fill="#121212"/>
 <defs><marker id="aw" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#ffffff" stroke-width="1.2"/></marker><marker id="ag" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#51cf66" stroke-width="1.2"/></marker></defs>
-<text x="-155" y="-185" fill="#fff" font-size="34" font-family="sans-serif">⑤ Editor — MainEditor とパネル</text>
-<text x="-155" y="-153" fill="#aaa" font-size="16" font-family="sans-serif">MainEditor が ImGui とパネルを抱え、パネル側は必要なシングルトンを直接引いている。</text>
-<line x1="819.0" y1="18.7" x2="201.0" y2="161.3" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="848.3" y1="31.0" x2="651.7" y2="149.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="951.7" y1="31.0" x2="1148.3" y2="149.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="981.0" y1="20.2" x2="1539.0" y2="159.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="981.0" y1="12.8" x2="1959.0" y2="167.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="1175.2" y1="211.0" x2="1104.8" y2="299.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="1249.6" y1="211.0" x2="1390.4" y2="299.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="612.4" y1="211.0" x2="647.6" y2="299.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="538.0" y1="211.0" x2="362.0" y2="299.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="143.2" y1="485.0" x2="579.0" y2="354.3" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
-<line x1="585.5" y1="479.0" x2="644.5" y2="361.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
-<line x1="982.8" y1="479.0" x2="727.2" y2="361.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
-<line x1="1356.8" y1="490.8" x2="741.0" y2="348.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
-<line x1="1759.6" y1="494.9" x2="741.0" y2="342.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
-<line x1="2199.0" y1="501.0" x2="741.0" y2="339.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
-<line x1="2559.0" y1="502.6" x2="741.0" y2="337.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
-<line x1="2889.0" y1="503.7" x2="741.0" y2="336.3" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
-<line x1="3276.6" y1="500.6" x2="741.0" y2="335.3" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
-<line x1="999.3" y1="541.0" x2="830.7" y2="644.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="1078.2" y1="541.0" x2="1171.8" y2="644.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="1200.0" y1="706.0" x2="1200.0" y2="784.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
-<line x1="1283.2" y1="701.0" x2="1599.0" y2="799.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
-<line x1="872.6" y1="31.0" x2="27.4" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="945.6" y1="31.0" x2="2354.4" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1648.8" y1="211.0" x2="2371.2" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="2006.8" y1="211.0" x2="1173.2" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="2066.6" y1="211.0" x2="2733.4" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="2023.4" y1="211.0" x2="1606.6" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1959.0" y1="167.2" x2="981.0" y2="12.8" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1964.7" y1="211.0" x2="75.3" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="2053.3" y1="211.0" x2="2386.7" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1992.4" y1="211.0" x2="797.6" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="2019.0" y1="841.5" x2="1221.0" y2="1003.5" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="2019.0" y1="856.0" x2="1671.1" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="2019.0" y1="836.7" x2="837.5" y2="1007.4" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="190.9" y1="211.0" x2="1969.1" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="174.2" y1="211.0" x2="1535.8" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1816.2" y1="541.0" x2="1183.8" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1759.6" y1="537.5" x2="81.0" y2="997.8" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1768.8" y1="541.0" x2="441.0" y2="992.5" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="696.2" y1="534.9" x2="3049.6" y2="1000.2" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="557.2" y1="541.0" x2="372.8" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="125.6" y1="541.0" x2="1074.4" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="101.9" y1="541.0" x2="708.1" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="78.2" y1="541.0" x2="341.8" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1599.0" y1="854.2" x2="1221.0" y2="990.8" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1187.4" y1="866.0" x2="1149.5" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1105.4" y1="866.0" x2="821.5" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1080.4" y1="852.8" x2="441.0" y2="1001.2" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="812.3" y1="706.0" x2="1107.7" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="777.3" y1="706.0" x2="752.7" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="742.3" y1="706.0" x2="397.7" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1008.1" y1="541.0" x2="401.9" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="2625.4" y1="541.0" x2="2414.6" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="2265.4" y1="541.0" x2="2054.6" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="2199.0" y1="528.1" x2="81.0" y2="1001.9" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="3308.8" y1="541.0" x2="1701.2" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="3276.6" y1="531.4" x2="81.0" y2="1007.9" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1421.8" y1="541.0" x2="1158.2" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1449.1" y1="541.0" x2="1580.9" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1407.2" y1="479.0" x2="932.8" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1356.8" y1="539.5" x2="81.0" y2="991.3" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1498.4" y1="541.0" x2="2341.6" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1398.1" y1="541.0" x2="791.9" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1374.4" y1="541.0" x2="425.6" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1231.0" y1="211.0" x2="2009.0" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1467.0" y1="361.0" x2="2013.0" y2="989.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<rect x="825.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
-<text x="900.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEditor</text>
-<rect x="45.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="120.0" y="185.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ImGuiContext</text>
-<rect x="525.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="600.0" y="185.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PanelManager</text>
-<rect x="1125.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1200.0" y="185.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Profiler</text>
-<rect x="1545.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1620.0" y="185.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EditorCamera</text>
-<rect x="1965.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="2040.0" y="185.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EffectEditor</text>
-<rect x="1005.0" y="305.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1080.0" y="335.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CPUProfiler</text>
-<rect x="1365.0" y="305.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1440.0" y="335.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GPUProfiler</text>
-<rect x="225.0" y="305.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
-<text x="300.0" y="335.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EditorContext</text>
-<rect x="585.0" y="305.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="660.0" y="335.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">IPanel</text>
-<rect x="-17.2" y="485.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="60.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">HierarchyPanel</text>
-<rect x="449.8" y="485.0" width="240.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="570.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GameObjectHierarchyPanel</text>
-<rect x="972.8" y="485.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1050.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InspectorPanel</text>
-<rect x="1362.8" y="485.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1440.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SceneViewPanel</text>
-<rect x="1765.6" y="485.0" width="188.8" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1860.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AssetDataBasePanel</text>
-<rect x="2205.0" y="485.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="2280.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ProfilerPanel</text>
-<rect x="2565.0" y="485.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="2640.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">OptionPanel</text>
-<rect x="2895.0" y="485.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="2970.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">LogPanel</text>
-<rect x="3282.6" y="485.0" width="274.8" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="3420.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderGraphResourceViewPanel</text>
-<rect x="698.5" y="650.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="780.0" y="680.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EntityInspector</text>
-<rect x="1122.8" y="650.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1200.0" y="680.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AssetInspector</text>
-<rect x="1086.4" y="790.0" width="227.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1200.0" y="820.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceDraw</text>
-<text x="1200.0" y="840.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(アセット種別ごとの編集)</text>
-<rect x="1605.0" y="800.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1680.0" y="830.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AssetLink</text>
-<rect x="2025.0" y="800.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="2100.0" y="830.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EditorHelper</text>
-<rect x="-75.0" y="995.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
-<text x="0.0" y="1025.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEngine</text>
-<rect x="285.0" y="995.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
-<text x="360.0" y="1025.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">SceneManager</text>
-<rect x="668.5" y="995.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
-<text x="750.0" y="1025.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceManager</text>
-<rect x="1065.0" y="995.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
-<text x="1140.0" y="1025.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">AssetDatabase</text>
-<rect x="1482.7" y="995.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
-<text x="1590.0" y="1025.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">DescriptorHeapManager</text>
-<rect x="1965.0" y="995.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
-<text x="2040.0" y="1025.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">D3D12Wrapper</text>
-<rect x="2325.0" y="995.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
-<text x="2400.0" y="1025.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">OptionManager</text>
-<rect x="2685.0" y="995.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
-<text x="2760.0" y="1025.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">AudioManager</text>
-<rect x="3055.6" y="995.0" width="188.8" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
-<text x="3150.0" y="1025.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ObjectMetaRegistry</text>
-<text x="-270.0" y="1200.0" fill="#bbb" font-size="16" font-family="sans-serif">SceneViewPanel と EffectEditor がいちばん多くのシングルトンを直接引いている。</text>
-<rect x="2811.2" y="1350.0" width="746.2" height="416.0" rx="10" fill="#1a1410" stroke="#ff922b" stroke-width="2"/>
-<text x="2837.2" y="1392.0" fill="#ff922b" font-size="23" font-family="sans-serif">改善点</text>
-<text x="2837.2" y="1427.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">1. EditorContext があるのに使い切れていない</text>
-<text x="2837.2" y="1447.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    PanelManager が EditorContext を持っているのに、パネルは各自 Instance()。</text>
-<text x="2837.2" y="1467.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    よく使うもの(MainEngine / SceneManager / ResourceManager / AssetDatabase)</text>
-<text x="2837.2" y="1487.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    を載せれば、パネル側は Context だけ見ればよくなる。</text>
-<text x="2837.2" y="1527.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">2. SceneViewPanel(7個) と EffectEditor(7個) が突出している</text>
-<text x="2837.2" y="1547.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    EffectEditor は専用ワールドを持つほぼミニアプリ。</text>
-<text x="2837.2" y="1567.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    パネルではなく別レイヤーとして切り出したほうが見通しがよい。</text>
-<text x="2837.2" y="1607.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">3. エンジン側からエディターへの逆向き依存</text>
-<text x="2837.2" y="1627.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    AssetDatabase / Archive / PipelineState / World / ComponentMetaRegistry /</text>
-<text x="2837.2" y="1647.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    CollisionWorld / BVHTraverser が MainEditor を直引き。</text>
-<text x="2837.2" y="1667.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    用途はログ・計測・デバッグ描画なので、そこだけ細いインターフェースを</text>
-<text x="2837.2" y="1687.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    切って挟めば、エンジンがエディターを知らなくて済む。</text>
-<text x="2837.2" y="1727.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">4. エディター自身の直引きは許容範囲</text>
-<text x="2837.2" y="1747.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    アプリ寿命のツール層なので、上の逆向き依存だけ直せば十分。</text>
+<text x="-350" y="-185" fill="#fff" font-size="34" font-family="sans-serif">⑤ Editor — MainEditor とパネル</text>
+<text x="-350" y="-153" fill="#aaa" font-size="16" font-family="sans-serif">ログと計測は Engine::Debug のコールバックに一本化。パネルは EditorContext.pServices から引くのが基本になった。</text>
+<line x1="939.0" y1="194.3" x2="81.0" y2="345.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="939.0" y1="207.0" x2="561.0" y2="333.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1009.7" y1="211.0" x2="970.3" y2="329.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1071.7" y1="211.0" x2="1268.3" y2="329.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1101.0" y1="201.1" x2="1629.0" y2="338.9" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="548.9" y1="391.0" x2="711.1" y2="464.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="418.0" y1="391.0" x2="202.0" y2="499.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="83.2" y1="709.4" x2="699.0" y2="519.9" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="518.8" y1="704.0" x2="741.2" y2="526.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="936.8" y1="704.0" x2="803.2" y2="526.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1276.4" y1="704.0" x2="853.6" y2="526.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1669.6" y1="710.7" x2="861.0" y2="514.6" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="2079.0" y1="720.9" x2="861.0" y2="509.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="2409.0" y1="723.6" x2="861.0" y2="506.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="2709.0" y1="725.3" x2="861.0" y2="504.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="3096.6" y1="721.0" x2="861.0" y2="502.9" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="926.2" y1="766.0" x2="813.8" y2="869.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1005.1" y1="766.0" x2="1154.9" y2="869.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1200.0" y1="931.0" x2="1200.0" y2="1009.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1283.2" y1="926.0" x2="1599.0" y2="1024.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1080.4" y1="1081.3" x2="666.1" y2="1189.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1147.8" y1="1091.0" x2="1029.5" y2="1184.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1237.3" y1="1091.0" x2="1321.8" y2="1184.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1319.6" y1="1082.9" x2="1686.7" y2="1183.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="147.3" y1="499.0" x2="339.3" y2="211.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="310.7" y1="499.1" x2="879.0" y2="377.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="310.7" y1="511.4" x2="1239.0" y2="372.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1101.0" y1="181.1" x2="2032.4" y2="193.3" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="141.0" y1="15.2" x2="939.0" y2="164.8" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="561.0" y1="27.0" x2="939.0" y2="153.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2019.0" y1="13.5" x2="1101.0" y2="166.5" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2379.0" y1="10.1" x2="1101.0" y2="169.9" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2779.6" y1="9.7" x2="1101.0" y2="172.2" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="939.0" y1="164.8" x2="141.0" y2="15.2" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1281.2" y1="329.0" x2="908.8" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1668.7" y1="329.0" x2="1271.3" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1629.0" y1="342.3" x2="141.0" y2="17.7" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1637.7" y1="329.0" x2="942.3" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2039.8" y1="1019.0" x2="120.2" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="5.2" y1="329.0" x2="54.8" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="480.0" y1="329.0" x2="480.0" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1697.9" y1="704.0" x2="132.1" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1715.6" y1="704.0" x2="534.4" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="528.1" y1="704.0" x2="1571.9" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="480.0" y1="704.0" x2="480.0" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="20.2" y1="704.0" x2="459.8" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="939.8" y1="704.0" x2="500.2" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="769.7" y1="869.0" x2="490.3" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1171.9" y1="1009.0" x2="501.3" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="586.8" y1="1184.0" x2="1213.2" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="990.9" y1="1184.0" x2="1019.1" y2="211.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1337.8" y1="1184.0" x2="882.2" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1741.3" y1="1174.0" x2="104.4" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2421.7" y1="704.0" x2="938.3" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2079.0" y1="706.6" x2="141.0" y2="28.3" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="3105.9" y1="704.0" x2="141.0" y2="18.7" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1331.6" y1="704.0" x2="1038.4" y2="211.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1295.6" y1="704.0" x2="114.4" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1329.8" y1="704.0" x2="890.2" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1313.3" y1="704.0" x2="516.7" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<rect x="-15.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="60.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEngine</text>
+<rect x="405.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="480.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">SceneManager</text>
+<rect x="795.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="870.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">OptionManager</text>
+<rect x="1155.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="1230.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">AudioManager</text>
+<rect x="1525.6" y="-25.0" width="188.8" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="1620.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ObjectMetaRegistry</text>
+<rect x="2025.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2100.0" y="5.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Application</text>
+<rect x="2385.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="2460.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">GameManager</text>
+<rect x="2785.6" y="-25.0" width="188.8" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2880.0" y="5.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputActionManager</text>
+<rect x="945.0" y="155.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="1020.0" y="185.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEditor</text>
+<rect x="2038.4" y="160.0" width="243.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2160.0" y="190.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Engine::Debug</text>
+<text x="2160.0" y="210.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(ログ・計測のコールバック)</text>
+<rect x="-75.0" y="335.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ImGuiContext</text>
+<rect x="405.0" y="335.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="480.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PanelManager</text>
+<rect x="885.0" y="335.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="960.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Profiler</text>
+<rect x="1245.0" y="335.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1320.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EditorCamera</text>
+<rect x="1635.0" y="335.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1710.0" y="365.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EffectEditor</text>
+<rect x="-64.7" y="505.0" width="369.4" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="120.0" y="535.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EditorContext</text>
+<text x="120.0" y="555.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(pServices / pProfiler / pEditorCamera)</text>
+<rect x="705.0" y="470.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="780.0" y="500.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">IPanel</text>
+<rect x="282.8" y="155.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="360.0" y="185.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EngineServices</text>
+<rect x="-77.2" y="710.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="740.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">HierarchyPanel</text>
+<rect x="359.8" y="710.0" width="240.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="480.0" y="740.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GameObjectHierarchyPanel</text>
+<rect x="882.8" y="710.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="960.0" y="740.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InspectorPanel</text>
+<rect x="1272.8" y="710.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1350.0" y="740.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SceneViewPanel</text>
+<rect x="1675.6" y="710.0" width="188.8" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1770.0" y="740.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AssetDataBasePanel</text>
+<rect x="2085.0" y="710.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2160.0" y="740.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ProfilerPanel</text>
+<rect x="2415.0" y="710.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2490.0" y="740.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">OptionPanel</text>
+<rect x="2715.0" y="710.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2790.0" y="740.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">LogPanel</text>
+<rect x="3102.6" y="710.0" width="274.8" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="3240.0" y="740.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderGraphResourceViewPanel</text>
+<rect x="698.5" y="875.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="780.0" y="905.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EntityInspector</text>
+<rect x="1122.8" y="875.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1200.0" y="905.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AssetInspector</text>
+<rect x="1086.4" y="1015.0" width="227.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1200.0" y="1045.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceDraw</text>
+<text x="1200.0" y="1065.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(アセット種別ごとの編集)</text>
+<rect x="1605.0" y="1025.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1680.0" y="1055.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AssetLink</text>
+<rect x="2025.0" y="1025.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2100.0" y="1055.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EditorHelper</text>
+<rect x="479.9" y="1190.0" width="180.2" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="570.0" y="1220.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AudioBehaviorEdit</text>
+<rect x="908.5" y="1190.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="990.0" y="1220.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EffectAssetEdit</text>
+<rect x="1275.0" y="1190.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1350.0" y="1220.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">TextureEdit</text>
+<rect x="1692.7" y="1180.0" width="214.6" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1800.0" y="1210.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderingPipelineEdit</text>
+<text x="1800.0" y="1230.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">/ BuiltinPassEditors</text>
+<text x="-270.0" y="1350.0" fill="#bbb" font-size="16" font-family="sans-serif">エンジン → エディターの直引きは 38 本 → 11 本(MainEngine の Init/Update/Draw/Release と SceneManager の通知)。</text>
+<text x="-270.0" y="1370.8" fill="#bbb" font-size="16" font-family="sans-serif">AddLog / StartTimer / DrawBox 系は削除済み。SceneViewPanel は今も 17 回の直引きで最多。</text>
+<rect x="2625.6" y="1520.0" width="751.8" height="396.0" rx="10" fill="#1a1410" stroke="#ff922b" stroke-width="2"/>
+<text x="2651.6" y="1562.0" fill="#ff922b" font-size="23" font-family="sans-serif">改善点</text>
+<text x="2651.6" y="1597.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">1. エンジン → エディターの逆流は「駆動」と「通知」だけになった</text>
+<text x="2651.6" y="1617.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    MainEngine が Init / Update / Draw / Release を呼ぶのは入口として許容。</text>
+<text x="2651.6" y="1637.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    SceneManager → MainEditor::OnSceneChanged() は通知なので、</text>
+<text x="2651.6" y="1657.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    コールバック登録の形にすればシーン層からエディターが消える。</text>
+<text x="2651.6" y="1697.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">2. アプリ側からエディターを直接呼んでいる</text>
+<text x="2651.6" y="1717.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    GameManager / InputActionManager → MainEditor::RegisterEditFunc。</text>
+<text x="2651.6" y="1737.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    App.cpp も EndProfileFrame / IsModalActive を直接呼ぶ。</text>
+<text x="2651.6" y="1757.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    エディター初期化の後に登録する、という順序の縛りも暗黙。</text>
+<text x="2651.6" y="1797.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">3. SceneViewPanel(17 回)と EffectEditor(9 回)が突出</text>
+<text x="2651.6" y="1817.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    EditorContext.pServices は既にある。</text>
+<text x="2651.6" y="1837.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    SceneManager と GraphicsEngine への経路を足せば、パネルの直引きはほぼ消せる。</text>
+<text x="2651.6" y="1877.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">4. エディター自身の直引きは許容範囲</text>
+<text x="2651.6" y="1897.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    アプリ寿命のツール層なので、上の2点が直れば十分。</text>
 </svg>
