@@ -28,6 +28,7 @@
 #include "Application/Object/Sequence/MissionSelect/MissionSelect.h"
 #include "../../Object/Scene/SceneAmbientObject/SceneAmbientObject.h"
 #include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
+#include "Application/Object/Controller/SwarmBossController/SwarmBossController.h"
 
 // App
 #include "../UserData/UserData.h"
@@ -98,6 +99,7 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::MissionSelect>("MissionSelect");				// ミッションセレクト。ホームから出し入れされ、選ぶと確認ボックスを出して出撃する
 			_objRegistry.RegisterType<App::Object::UIGauge>("UIGauge");							// ゲージ(HP / オーバーヒート / ブーストなど)。値は SetValue で外から入れる
 			_objRegistry.RegisterType<App::Object::WaveAnnounceHUD>("WaveAnnounceHUD");			// ウェーブが出た合図(何番目かの表示と音)
+			_objRegistry.RegisterType<App::Object::SwarmBossController>("SwarmBossController");	// 群れのボス。リーダー→小隊長→ボイドを生成して束ねる
 		}
 
 		// ------------------------------------------------------------------

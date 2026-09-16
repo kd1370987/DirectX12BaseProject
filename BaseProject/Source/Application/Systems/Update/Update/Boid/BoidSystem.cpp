@@ -16,13 +16,26 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 		[](const Engine::ECS::SystemContext& a_ctx)
 		{
 			if (!a_ctx.pWorld) return;
+			// ============================================================ 
+			// 近傍検索用の一時データ 
+			// 現在はテスト段階なので、全Boidを一度配列へコピーして O(N^2) で近傍検索する。 
+			// Boid数が増えた段階ではSpatial Hash / Grid / BVHなどへ 
+			// 置き換えることを想定。 
+			// ============================================================
 			struct BoidData
 			{
 				Math::Vector3 position;
 				Math::Vector3 velocity;
+				// 同じ小隊のBoid同士だけで群体制御を行う。
+				Engine::ECS::Entity platoonID = Engine::ECS::Limits::INVALID_ENTITY;
 			};
-			// 全ボイドの居場所を取得 : テスト段階なため全走査
 			std::vector<BoidData> _boidPosVec = {};
+
+			// ============================================================ 
+			// 全Boidの現在状態をスナップショットとして取得する 
+			// ここで取得した状態を使って全Boidを更新することで
+			// 更新順によって結果が変わることを防ぐ。 
+			// ============================================================
 			a_ctx.pWorld->ForEach<
 				const ActiveTag,
 				const BoidComponent,
@@ -39,15 +52,16 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 					{
 						for (size_t _i = 0; _i < a_count; ++_i)
 						{
-							_boidPosVec.push_back({
-								a_localTRSArray[_i].pos,
-								a_velArray[_i].value
-								});
+							_boidPosVec.push_back(
+								{ a_localTRSArray[_i].pos,a_velArray[_i].value,a_boidArray[_i].platoonID }
+							);
 						}
 					}
 				);
 
-			// ボイドごとにディスタンスを確保
+			// ============================================================ 
+			// 各Boidを更新 
+			// ============================================================
 			a_ctx.pWorld->ForEach<const ActiveTag, const BoidComponent, const LocalTransformComponent,VelocityComponent>(
 				[&_boidPosVec,&a_ctx](
 					Engine::ECS::ArchetypeChunk* a_pChunk,
@@ -71,59 +85,145 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 
 						uint32_t _neighborCount = 0;
 
-						for (auto& _boid : _boidPosVec)
+						// ============================================================ 
+						// 同じ小隊のボイドを検索
+						// ============================================================
+						for (const auto& _other : _boidPosVec)
 						{
-							Math::Vector3 _offset = _trsComp.pos - _boid.position;
-							float _length = _offset.Length();
+							// 所属部隊ごとに分ける
+							if (_other.platoonID == Engine::ECS::Limits::INVALID_ENTITY) continue;
+							if (_other.platoonID != _boidComp.platoonID) continue;
 
-							if (_length < _boidComp.distanceLenge)
+							Math::Vector3 _offset = _trsComp.pos - _other.position;
+							float _distanceSquared = _offset.LengthSquared();
+
+							// 同一座標の場合は方向を求められないので無視
+							if (_distanceSquared <= 0.000001f) continue;
+							const float _distance = std::sqrt(_distanceSquared);
+
+							// -------------------------------------------------------------
+							// Separation
+							// 
+							// 近すぎるボイドを押し返す、separationDistanceを超えたボイドは
+							// 反発力を受けない
+							// -------------------------------------------------------------
+							if (_distance < _boidComp.separationDistance)
 							{
-								if (_length > 0)
-								{
-									_offset.Normalize();
+								// 反発方向
+								const Math::Vector3 _direction = _offset / _distance;
 
-									// 反発
-									_separation += _offset / _length;
+								// 近いほど１に近づく。separationDistanceに近づけば0になる
+								const float _ratio = (_boidComp.separationDistance - _distance) / _boidComp.separationDistance;
 
-									// アライメント
-									_alignment += _boid.velocity;
-									
-									// Cohesion
-									_cohesion += _boid.position;
+								// 少し近い場合は弱く、極端に近ければ強く押し返す
+								_separation += _direction * (_ratio * _ratio);
+							}
 
-									++_neighborCount;
-								}
+							// -------------------------------------------------------------
+							// Alignment / Cohesion
+							// 
+							// Separationとは別の範囲を使用する
+							// Separation : 近すぎる個体を押し返す
+							// Neighbor : 周囲の個体と軍隊として行動する
+							// -------------------------------------------------------------
+							if (_distance < _boidComp.distanceLenge)
+							{
+								_alignment += _other.velocity;
+								_cohesion += _other.position;
+								++_neighborCount;
 							}
 						}
-
+						// -------------------------------------------------------------
+						// Alignment / Cohesion を平均化
+						// -------------------------------------------------------------
 						if (_neighborCount > 0)
 						{
-							_alignment /= static_cast<float>(_neighborCount);
+							const float _neighborCountInv = 1.0f / static_cast<float>(_neighborCount);
+
+							// Alignment 周囲の平均速度との差を求める
+							_alignment *= _neighborCountInv;
 							_alignment -= _velComp.value;
 
-							_cohesion /= static_cast<float>(_neighborCount);
+							// Cohesion 周囲の平均位置へ向かう方向を求める
+							_cohesion *= _neighborCountInv;
 							_cohesion -= _trsComp.pos;
 						}
 
+						// -------------------------------------------------------------
+						// Steering を合成
+						// -------------------------------------------------------------
 						Math::Vector3 _steering = {};
 
-						// 反発があれば移動方向として記録
-						if (_separation.LengthSquared() > 0.0f)
+						// Separation 
+						_steering += _separation * _boidComp.separationWeight;
+						
+						// Alignment
+						_steering += _alignment * _boidComp.alignmentWeight;
+
+						// Cohesion
+						_steering += _cohesion * _boidComp.cohesionWeight;
+
+						// -------------------------------------------------------------
+						// Seek
+						// 
+						// 目標地点へ向かうべき速度と現在速度との差から作る
+						// -------------------------------------------------------------
+						Math::Vector3 _toTarget = _boidComp.targetPos - _trsComp.pos;
+						const float _targetDistance = _toTarget.Length();
+						
+						// 目標地点から離れていれば近づく
+						if (_targetDistance > 0.001f)
 						{
-							_separation.Normalize();
-							_steering += _separation * 2.0f;
+							_toTarget /= _targetDistance;
+
+							// 目標地点付近では減速する
+							const float _slowRadius = _boidComp.slowRadius;
+							float _targetSpeed = _boidComp.maxSpeed;
+
+							if (_targetDistance < _slowRadius)
+							{
+								_targetSpeed *= _targetDistance / _slowRadius;
+							}
+
+							const Math::Vector3 _targetVelocity = _toTarget * _targetSpeed;
+
+							// 現在速度との差をSteeringとして扱う
+							const Math::Vector3 _seek = _targetVelocity - _velComp.value;
+
+							_steering += _seek * _boidComp.seekWeight;
+
 						}
 
-						_steering += _alignment * 1.0f;
-						_steering += _cohesion * 0.5f;
+						// -------------------------------------------------------------
+						// Steeringの最大値を制限
+						// 
+						// Separation / Cohesion / Seek に上限を設けて吹き飛ぶ挙動を阻止
+						// -------------------------------------------------------------
+						const float _steeringLengthSquared = _steering.LengthSquared();
+						if (_steeringLengthSquared > _boidComp.maxSteeringForce * _boidComp.maxSteeringForce)
+						{
+							_steering.Normalize();
+							_steering *= _boidComp.maxSteeringForce;
+						}
 
-						// 目的地のベクトルを足す
-						Math::Vector3 _targetDir = _boidComp.targetPos - _trsComp.pos;
-						_targetDir.Normalize();
-						_steering += _targetDir * _boidComp.pow;
-
-						// ベロシティ更新
+						// -------------------------------------------------------------
+						// Velocity更新
+						// -------------------------------------------------------------
 						_velComp.value += _steering * a_ctx.dt;
+
+						// -------------------------------------------------------------
+						// 最大速度制限
+						// 
+						// Seek だけでなくほかの Steeringによって速度が上がるため
+						// 最終的な速度にも制限
+						// -------------------------------------------------------------
+						const float _velocityLengthSquared = _velComp.value.LengthSquared();
+
+						if (_velocityLengthSquared > _boidComp.maxSpeed * _boidComp.maxSpeed)
+						{
+							_velComp.value.Normalize();
+							_velComp.value *= _boidComp.maxSpeed;
+						}
 					}
 				}
 			);

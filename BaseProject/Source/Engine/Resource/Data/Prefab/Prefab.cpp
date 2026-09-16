@@ -93,6 +93,19 @@ namespace Engine::Resource
 	//======================================================================================
 	void Prefab::Save(ECS::World* a_pWorld, const std::string& a_savePath)
 	{
+		//------------------------------------------------------------------------------
+		// ワールドが無いと何も書けない
+		//
+		// コンポーネント名はワールドのメタ情報から引くので、ワールドが無いと
+		// 名前が1つも出ず「コンポーネントを持たないプレハブ」を書き出してしまう。
+		// 書き出し先は既存のアセットなので、それは中身の消去になる。
+		//------------------------------------------------------------------------------
+		if (!a_pWorld)
+		{
+			ENGINE_WARNING("[Prefab] ワールドが無いので保存しません(中身が消えるため) : %s", a_savePath.c_str());
+			return;
+		}
+
 		auto _dir = Engine::File::GetDirFromPath(a_savePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_savePath);
 
@@ -294,7 +307,18 @@ namespace Engine::Resource
 		if (_pWorld && _pWorld->IsInit())
 		{
 			_prefab.Load(_pWorld, a_path);
+			return _prefab;
 		}
+
+		//----------------------------------------------------------------------------------
+		// ワールドが引けないと中身を読めない(空のプレハブが返る)
+		//
+		// 返した空の実体はキャッシュに残るので、そのままだと
+		//   ・実体化しても何も乗っていないエンティティが出る
+		//   ・エディターのインスペクターにも空のまま出るので、保存するとアセットが消える
+		// 黙って空を返すのがいちばん危ないため、必ず知らせる。
+		//----------------------------------------------------------------------------------
+		ENGINE_WARNING("[Prefab] ワールドが無いので読み込めませんでした : %s", a_path.c_str());
 
 		return _prefab;
 	}
@@ -353,7 +377,14 @@ namespace Engine::Resource
 			for (const std::string& _name : _compNames)
 			{
 				ECS::ComponentTypeID _typeID = a_pWorld->GetCompTypeID(_name);
-				if (_typeID == ECS::Limits::INVALID_COMPONENTTYPEID) continue;
+				if (_typeID == ECS::Limits::INVALID_COMPONENTTYPEID)
+				{
+					// 名前を引けないものは落ちる。そのまま保存すると
+					// プレハブからそのコンポーネントが消えるので知らせておく
+					// (コンポーネントの登録漏れ / 登録名の変更)
+					ENGINE_WARNING("[Prefab] 未登録のコンポーネントを読み飛ばしました : %s", _name.c_str());
+					continue;
+				}
 
 				// バッファ確保 + 既定構築(このあと各データで上書きされる)
 				AddComponentDefault(a_pWorld, _typeID);

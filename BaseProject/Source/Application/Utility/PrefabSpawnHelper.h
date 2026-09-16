@@ -11,12 +11,16 @@
 // 生成はシステム反復中に即時に行えない(アーキタイプが壊れる)ため、
 // World の遅延生成コマンドに積む。実体化は次の BeginFrame。
 //
+// ・反復の外(GameObject の初期化や Update)から出して、出したエンティティIDをすぐ
+//   握りたいときは即時生成の経路(BuildSpawnInstanceData → CreateInstanceNow)を使う。
+//   群れのボス(SwarmBossController)が「一つ前の小隊長」を覚えさせるのに使っている。
+//
 //==========================================================================================
 
 namespace Engine
 {
 	namespace ECS { class APPWorld; }
-	namespace Resource { class ResourceManager; class Prefab; }
+	namespace Resource { class ResourceManager; class Prefab; struct PrefabInstanceData; }
 }
 
 namespace App::Utility
@@ -68,4 +72,45 @@ namespace App::Utility
 		const Engine::GUID& a_prefabGUID,
 		Engine::Handle<Engine::Resource::Prefab>& a_refHandle,
 		const Math::Vector3& a_pos);
+
+	//======================================================================================
+	// 即時生成
+	//
+	// 材料作り → (呼び出し側で足したいコンポーネントを足す) → 生成、の3段に分けてある。
+	// 生成する側だけが知っている必須コンポーネント(移動に要るもの・役割の印など)を
+	// プレハブに入れ忘れていても、ここで足してから出せるようにするため。
+	//
+	// CreateInstanceNow はその場で World::CreateEntity を呼ぶので、
+	// システムの反復中からは呼ばないこと(遅延生成の SpawnPrefab を使う)。
+	//======================================================================================
+
+	/// <summary>
+	/// 生成の材料を作り、位置・向き・印・追従先をルートへ書き込む(まだ生成はしない)
+	/// </summary>
+	/// <param name="a_prefab">生成するプレハブ</param>
+	/// <param name="a_params">位置・向き・生成元の印・追従先</param>
+	/// <param name="a_outInstanceVec">材料の書き込み先。先頭がルートで、親が子より前に並ぶ</param>
+	/// <returns>材料を作れたら true(プレハブが空なら false)</returns>
+	bool BuildSpawnInstanceData(
+		Engine::ECS::World& a_world,
+		const Engine::Resource::Prefab& a_prefab,
+		const SpawnParams& a_params,
+		std::vector<Engine::Resource::PrefabInstanceData>& a_outInstanceVec);
+
+	/// <summary>
+	/// 材料に指定コンポーネントの領域を用意する。持っていなければ足して既定構築する
+	/// </summary>
+	/// <returns>そのコンポーネントの書き込み先(バイト列の先頭)。用意できなければ nullptr</returns>
+	uint8_t* EnsureInstanceComponent(
+		Engine::ECS::World& a_world,
+		Engine::Resource::PrefabInstanceData& a_data,
+		Engine::ECS::ComponentTypeID a_typeID);
+
+	/// <summary>
+	/// 材料からエンティティをその場で生成する(子も一緒に作る)
+	/// </summary>
+	/// <returns>ルートのエンティティ。作れなければ INVALID_ENTITY</returns>
+	Engine::ECS::Entity CreateInstanceNow(
+		Engine::ECS::World& a_world,
+		std::vector<Engine::Resource::PrefabInstanceData>& a_instanceVec);
 }

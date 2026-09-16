@@ -113,6 +113,15 @@ namespace Engine::Scene
 		/// <summary>
 		/// 現在のシーンのワールドを参照
 		/// </summary>
+		/// <remarks>
+		/// 読み込み中のシーンがあるあいだは、そのシーンのワールドを返す。
+		///
+		/// シーンの読み込み(PushScene)は「ワールドを作る → 保存データを流し込む →
+		/// スタックへ積む」の順なので、流し込んでいる最中はまだスタックに乗っていない。
+		/// その間にワールドを要るもの(プレハブのように、コンポーネントのメタ情報が無いと
+		/// 読めないリソース)を読むと、一つ前のシーンのワールドか nullptr が返ってしまい、
+		/// 読めなかったことに気付かないまま空の実体がキャッシュに載る。
+		/// </remarks>
 		Engine::ECS::World* RefWorld();
 
 		/// <summary>
@@ -146,6 +155,9 @@ namespace Engine::Scene
 
 		// シーンスタック
 		std::vector<std::unique_ptr<BaseScene>> m_upBaseSceneVec;
+
+		// 今読み込んでいるシーン。スタックへ積むまでの間だけ入る(RefWorld がこれを優先する)
+		BaseScene* m_pLoadingScene = nullptr;
 
 		// 更新するのは一番上のシーンだけか(重ねたシーンの後ろを止めるための既定)
 		bool m_isUpdateTopSceneOnly = true;

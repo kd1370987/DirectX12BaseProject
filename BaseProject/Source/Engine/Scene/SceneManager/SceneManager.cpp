@@ -219,12 +219,27 @@ namespace Engine::Scene
 		// シーンの初期化
 		_upScene->Enter();
 
+		//------------------------------------------------------------------
+		// 読み込み中のシーンを覚えておく
+		//
+		// このシーンがスタックへ乗るのは読み終えた後なので、
+		// 読み込みの最中に RefWorld() を引かれると一つ前のシーン(または nullptr)が返る。
+		// ワールドが無いと読めないリソース(プレハブ)がその隙に読まれると、
+		// 空の実体がキャッシュに載ってしまうため、ここで行き先を教えておく
+		//------------------------------------------------------------------
+		m_pLoadingScene = _upScene.get();
+
 		// シーンの再構築
 		auto _fileDir = Engine::File::GetDirFromPath(_sceneFilePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(_sceneFilePath);
 		// 形式はビルドモード任せ(Auto)。Development までは .ojscene 優先、Shipping は .obscene のみ
-		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "scene");
-		_upScene->Archive(_ar);
+		{
+			Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "scene");
+			_upScene->Archive(_ar);
+		}
+
+		m_pLoadingScene = nullptr;
+
 		_upScene->SetGUID(a_guid);
 		// スタックに積む
 		m_upBaseSceneVec.push_back(std::move(_upScene));
@@ -314,6 +329,10 @@ namespace Engine::Scene
 
 	Engine::ECS::World* SceneManager::RefWorld()
 	{
+		// 読み込み中のシーンがあるならそちらが「今のシーン」。
+		// まだスタックに乗っていないので、ここで拾わないと引けない
+		if (m_pLoadingScene) return m_pLoadingScene->RefWorld();
+
 		if (m_upBaseSceneVec.empty()) return nullptr;
 
 		return m_upBaseSceneVec.back()->RefWorld();

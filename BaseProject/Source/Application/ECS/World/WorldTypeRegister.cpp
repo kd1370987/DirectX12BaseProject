@@ -77,6 +77,8 @@
 #include "../../Components/Character/Boss/BossComponent.h"
 #include "../../Components/Character/BoidComponent.h"
 #include "../../Components/Character/Boss/BoidLeaderComponent.h"
+#include "../../Components/Character/Boss/PlatoonLeaderComponent.h"
+#include "../../Components/Character/Boss/BoidSpownerComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -203,6 +205,7 @@
 #include "../../Systems/Update/PostUpdate/ExplosionSystem/ExplosionSystem.h"
 #include "../../Systems/Update/Update/Boid/BoidSystem.h"
 #include "../../Systems/Update/Update/Boid/FollowLeaderSystem.h"
+#include "../../Systems/Update/Update/Boid/PlatoonFollowSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -315,8 +318,12 @@ namespace App::ECS
 		// エンティティの位置を光源にする点光源。実体は LightManager のプールにある
 		a_world.RegisterComponent<PointLightComponent>("PointLightComponent");
 		a_world.RegisterComponent<BoidComponent>("BoidComponent");
-		// ボイドの群れを率いる側。出したボイドの追従先に自分を入れる
+		// 群れのボスの先頭(SwarmBossController が指示を出す相手)の印
 		a_world.RegisterComponent<BoidLeaderComponent>("BoidLeaderComponent");
+		// リーダーに連なる小隊長。一つ前の相手は SwarmBossController が生成時に書き込む
+		a_world.RegisterComponent<PlatoonLeaderComponent>("PlatoonLeaderComponent");
+		// 自分の周りに出すボイドの設定(数は出す側が決める)
+		a_world.RegisterComponent<BoidSpownerComponent>("BoidSpownerComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -481,6 +488,8 @@ namespace App::ECS
 		a_world.RegisterSystem<GunStateStartSystem>();
 		a_world.RegisterSystem<BoidSystem>();
 		a_world.RegisterSystem<FollowLeaderSystem>();
+		// 小隊長を一つ前の相手へ間隔をあけて追従させる(目標速度だけ書く)
+		a_world.RegisterSystem<PlatoonFollowSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
