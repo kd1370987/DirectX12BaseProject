@@ -15,7 +15,14 @@
 #include "../../../Components/Force/VelocityComponent.h"
 #include "../../../Components/Persistence/GUIDComponent.h"
 #include "../../../Components/Hierarchy/SpawnerComponent.h"
+#include "../../../Components/Tag/SwarmBossBoidTag.h"
+#include "../../../Components/Collision/Collider.h"
+#include "../../../Components/Collision/SphereCollider.h"
+#include "../../../Components/Character/HealthComponent.h"
+#include "Engine/ECS/Internal/CollisionEvent.h"
 #include "../../../Components/Character/BoidComponent.h"
+#include "../../../Components/Character/LookAngleComponent.h"
+#include "../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../Components/Character/Boss/BoidLeaderComponent.h"
 #include "../../../Components/Character/Boss/PlatoonLeaderComponent.h"
 #include "../../../Components/Character/Boss/BoidSpownerComponent.h"
@@ -24,7 +31,8 @@ namespace App::Object
 {
 	namespace
 	{
-		// 小隊長を並べる向き(リーダーの後ろ)。左手系 +Z 前方なので -Z
+		// 小隊長を並べる向き(リーダーの後ろ)。左手系 +Z 前方なので -Z。
+		// 生成直後の LookAngle は既定(Yaw 0 = +Z 前方)なので、その後ろに並ぶ形になる
 		const Math::Vector3 PLATOON_LINE_DIR = { 0.0f, 0.0f, -1.0f };
 
 		//----------------------------------------------------------------------
@@ -58,6 +66,28 @@ namespace App::Object
 			std::vector<Engine::Resource::PrefabInstanceData>& a_instanceVec)
 		{
 			return EditRootComponent<T>(a_world, a_instanceVec, [](T&) {});
+		}
+
+		//----------------------------------------------------------------------
+		// 移動速度を流し込む(加減速は速度から決める)
+		//
+		// 追従できるかは速さの配分で決まるので、プレハブの値ではなく
+		// こちら(群れ全体の持ち主)が決めた値を入れる。
+		// 加減速が小さいと最高速に乗る前に目標が変わってしまうので、速さに比例させる
+		//----------------------------------------------------------------------
+		void ApplyMoveSpeed(
+			Engine::ECS::World& a_world,
+			std::vector<Engine::Resource::PrefabInstanceData>& a_instanceVec,
+			float a_speed)
+		{
+			EditRootComponent<MovementComponent>(a_world, a_instanceVec,
+				[a_speed](MovementComponent& a_comp)
+				{
+					a_comp.moveSpeed    = a_speed;
+					a_comp.acceleration = a_speed * 4.0f;
+					a_comp.deceleration = a_speed * 4.0f;
+				}
+			);
 		}
 
 		//----------------------------------------------------------------------
@@ -133,8 +163,69 @@ namespace App::Object
 	{
 		if (!m_isSpown || !a_context.pWorld) return;
 
+		// リーダーの行動(入力を作る)
+		UpdateLeaderBrain(a_context);
+
 		// 残りの生存数(HP代わり)。印を数え直すだけ
 		m_currentBoids = CountAliveBoids(a_context);
+	}
+
+	//======================================================================================
+	// リーダーの行動 : ランダムな目標地点へ向かうだけ
+	//--------------------------------------------------------------------------------------
+	// このクラスはプレイヤーのキーボード/マウスと同じ立場で、作るのは移動入力だけ。
+	// 入力を速度へ変えるのは SwarmLeaderMoveSystem、向きを変えるのは SwarmLookSystem。
+	//
+	// 目標地点は「着いたら」か「時間が来たら」選び直す。時間切れも見るのは、
+	// 障害物などで着けないまま止まってしまわないようにするため
+	//======================================================================================
+	void SwarmBossController::UpdateLeaderBrain(Engine::GameObject::ObjectContext& a_context)
+	{
+		auto& _world = *a_context.pWorld;
+
+		if (!_world.IsAliveEntity(m_leaderEntity)) return;
+		if (!_world.HasComponent<MoveIntentComponent>(m_leaderEntity)) return;
+		if (!_world.HasComponent<LocalTransformComponent>(m_leaderEntity)) return;
+
+		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(m_leaderEntity)->pos;
+
+		// 目標地点を選び直すか
+		m_wanderTimer -= a_context.dt;
+
+		const Math::Vector3 _toTarget = m_targetPos - _pos;
+		if (m_wanderTimer <= 0.0f || _toTarget.Length() <= m_arriveDistance)
+		{
+			PickWanderTarget();
+		}
+
+		// 目標地点へ向かう入力。長さがスロットルになる(向きは世界空間)
+		Math::Vector3 _dir = m_targetPos - _pos;
+		if (_dir.LengthSquared() > 1e-6f)
+		{
+			_dir.Normalize();
+			_dir *= std::clamp(m_throttle, 0.0f, 1.0f);
+		}
+		else
+		{
+			_dir = Math::Vector3(0.0f, 0.0f, 0.0f);
+		}
+
+		_world.RefData<MoveIntentComponent>(m_leaderEntity)->value = _dir;
+	}
+
+	void SwarmBossController::PickWanderTarget()
+	{
+		// 水平は円の中から、高さは振れ幅の中から選ぶ。
+		// 円内の一様分布にするため半径は平方根を取る(そのまま掛けると中心に寄る)
+		const float _angle  = Math::Random::Float(0.0f, DirectX::XM_2PI);
+		const float _radius = m_wanderRadius * std::sqrt(Math::Random::Float(0.0f, 1.0f));
+
+		m_targetPos = m_spawnPos + Math::Vector3(
+			std::cos(_angle) * _radius,
+			Math::Random::Float(-m_wanderHeight, m_wanderHeight),
+			std::sin(_angle) * _radius);
+
+		m_wanderTimer = m_wanderInterval;
 	}
 
 	//======================================================================================
@@ -182,9 +273,23 @@ namespace App::Object
 
 		// リーダーに必須なコンポーネントを付与 : すでにあればスキップ
 		// (LocalTransform は BuildSpawnInstanceData が足している)
-		EnsureRootComponent<MovementComponent>(_world, _instanceVec);
+		ApplyMoveSpeed(_world, _instanceVec, m_leaderSpeed);
 		EnsureRootComponent<VelocityComponent>(_world, _instanceVec);
 		EnsureRootComponent<BoidLeaderComponent>(_world, _instanceVec);
+
+		// 移動入力の受け皿。中身を書くのはこのクラス(UpdateLeaderBrain)
+		EnsureRootComponent<MoveIntentComponent>(_world, _instanceVec);
+
+		// どちらを向いているか。進んでいる向きへ寄せるのは SwarmLookSystem、
+		// 体の向きにするのは RotationSystem。既定は Yaw 0 = +Z 前方で、
+		// 小隊長を並べる向き(PLATOON_LINE_DIR)と揃えてある。
+		// 上下も体ごと向かせる(空を泳ぐので、人型のように上体だけでは向かない)
+		EditRootComponent<LookAngleComponent>(_world, _instanceVec,
+			[](LookAngleComponent& a_comp)
+			{
+				a_comp.isApplyPitchToBody = true;
+			}
+		);
 
 		// リーダー生成
 		m_leaderEntity = App::Utility::CreateInstanceNow(_world, _instanceVec);
@@ -252,9 +357,19 @@ namespace App::Object
 					a_comp.isDirty = true;
 				});
 
-			// 必須なコンポーネントを付与 : すでにあればスキップ
-			EnsureRootComponent<MovementComponent>(_world, _instanceVec);
+			// 必須なコンポーネントを付与 : すでにあればスキップ。
+			// 速さはリーダーより速くしておく(同じだと離された分を詰められない)
+			ApplyMoveSpeed(_world, _instanceVec, m_leaderSpeed * m_platoonSpeedScale);
 			EnsureRootComponent<VelocityComponent>(_world, _instanceVec);
+
+			// 前の相手の後ろを狙うのに前方が要る(LookAngle から作る)。
+			// 上下も体ごと向く(列が潜っても機体の向きが進路と揃う)
+			EditRootComponent<LookAngleComponent>(_world, _instanceVec,
+				[](LookAngleComponent& a_comp)
+				{
+					a_comp.isApplyPitchToBody = true;
+				}
+			);
 
 			const Engine::ECS::Entity _entity = App::Utility::CreateInstanceNow(_world, _instanceVec);
 			if (_entity == Engine::ECS::Limits::INVALID_ENTITY)
@@ -353,15 +468,69 @@ namespace App::Object
 			std::vector<Engine::Resource::PrefabInstanceData> _instanceVec = {};
 			if (!App::Utility::BuildSpawnInstanceData(_world, *_pBoidPrefab, _params, _instanceVec)) break;
 
-			// 必須なコンポーネントを付与 : すでにあればスキップ
+			// 必須なコンポーネントを付与 : すでにあればスキップ。
+			// 速さはリーダー・小隊長より速くしておく(最後尾なので一番速さが要る)。
+			// 舵(maxSteeringForce)も速さに比例させないと、最高速に乗る前に曲がれなくなる
+			const float _boidSpeed = m_leaderSpeed * m_boidSpeedScale;
 			EditRootComponent<BoidComponent>(_world, _instanceVec,
 				[&](BoidComponent& a_comp)
 				{
-					a_comp.platoonID = a_platoonLeader;
+					a_comp.platoonID        = a_platoonLeader;
+					a_comp.maxSpeed         = _boidSpeed;
+					a_comp.maxSteeringForce = _boidSpeed * 4.0f;
 				}
 			);
-			EnsureRootComponent<MovementComponent>(_world, _instanceVec);
+			ApplyMoveSpeed(_world, _instanceVec, _boidSpeed);
 			EnsureRootComponent<VelocityComponent>(_world, _instanceVec);
+
+			// ボスの体である印。Controller はこれを数えて体力にする
+			EnsureRootComponent<SwarmBossBoidTag>(_world, _instanceVec);
+
+			//--------------------------------------------------------------
+			// 当たり判定
+			//
+			// 当たりに行く相手はボイド同士とプレイヤーの攻撃だけ。
+			// 押し出し(isPhysical)は切ってある。ぶつかった分だけ離れるのは
+			// ボイド側の反発(BoidComponent の separation)の仕事で、
+			// そこへ押し出しを重ねると動きが硬くなる
+			//--------------------------------------------------------------
+			EditRootComponent<ColliderComponent>(_world, _instanceVec,
+				[&](ColliderComponent& a_comp)
+				{
+					a_comp.layer        = Layer::SwarmBoid;
+					a_comp.collideLayer = Layer::SwarmBoid | Layer::PlayerProjectile;
+					a_comp.isPhysical   = 0;
+
+					a_comp.shapeType.type          = Engine::Collision::EShapeType::Sphere;
+					a_comp.shapeType.sphere.radius = m_boidColliderRadius;
+				}
+			);
+
+			// 判定を出す側(HitDetectSystem)に要る球と、当たった結果の受け皿
+			EditRootComponent<SphereColliderComponent>(_world, _instanceVec,
+				[&](SphereColliderComponent& a_comp)
+				{
+					a_comp.radius = m_boidColliderRadius;
+				}
+			);
+			EnsureRootComponent<Engine::ECS::CollisionEvent>(_world, _instanceVec);
+
+			// 体力 : 落とされた1体ぶんがボスの体力1になる
+			EditRootComponent<HealthComponent>(_world, _instanceVec,
+				[&](HealthComponent& a_comp)
+				{
+					a_comp.maxHealth    = m_boidHealth;
+					a_comp.releaseDelay = m_boidReleaseDelay;
+				}
+			);
+
+			// 向きは所属している小隊長の向きへ寄せる(SwarmLookSystem)。上下も体ごと向く
+			EditRootComponent<LookAngleComponent>(_world, _instanceVec,
+				[](LookAngleComponent& a_comp)
+				{
+					a_comp.isApplyPitchToBody = true;
+				}
+			);
 
 			if (App::Utility::CreateInstanceNow(_world, _instanceVec) == Engine::ECS::Limits::INVALID_ENTITY) break;
 			++_created;
@@ -388,23 +557,43 @@ namespace App::Object
 		return _base + (a_platoonIndex < _rest ? 1u : 0u);
 	}
 
+	//======================================================================================
+	// ボスの体力 : 自分が出したボイドの数
+	//--------------------------------------------------------------------------------------
+	// 印(SwarmBossBoidTag)を数えるだけ。ボイドのIDは持ち歩かないので、撃ち落とされて
+	// 消えたぶんは次のフレームの数え上げで自然に減る。
+	//
+	// ・同じシーンに群れのボスが2体居ても混ざらないよう、生成元の印(SpawnerComponent)も見る。
+	// ・死亡状態のものは数えない。体力が尽きてもすぐには消えず(演出の猶予)、
+	//   ActiveTag はその間も付いたままなので、ここで外さないと落としたぶんが反映されない。
+	//======================================================================================
 	uint32_t SwarmBossController::CountAliveBoids(Engine::GameObject::ObjectContext& a_context) const
 	{
 		uint32_t _count = 0;
 		const Engine::GUID _self = m_guid;
 
 		// 解放待ち(ActiveTag が外れたもの)は数えない
-		a_context.pWorld->ForEach<const ActiveTag, const SpawnerComponent, const BoidComponent>(
-			[&_count, &_self](
+		a_context.pWorld->ForEach<const ActiveTag, const SwarmBossBoidTag, const SpawnerComponent>(
+			[&_count, &_self, &a_context](
 				Engine::ECS::ArchetypeChunk* a_pChunk,
 				uint32_t a_count,
 				const ActiveTag* a_activeTagArray,
-				const SpawnerComponent* a_spawnerArray,
-				const BoidComponent* a_boidArray)
+				const SwarmBossBoidTag* a_boidTagArray,
+				const SpawnerComponent* a_spawnerArray)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
-					if (a_spawnerArray[_i].spawnerGUID == _self) ++_count;
+					if (a_spawnerArray[_i].spawnerGUID != _self) continue;
+
+					// 死亡状態(消えるのを待っているだけ)のものは体力に数えない
+					const Engine::ECS::Entity _entity = a_pChunk->entityData[_i];
+					if (a_context.pWorld->HasComponent<HealthComponent>(_entity))
+					{
+						const auto* _pHealth = a_context.pWorld->RefData<HealthComponent>(_entity);
+						if (_pHealth && _pHealth->isDead) continue;
+					}
+
+					++_count;
 				}
 			}
 		);
@@ -427,9 +616,22 @@ namespace App::Object
 
 		// ---- ボイド ----
 		a_ar.Field("MaxBoid", m_maxBoid);
+		a_ar.Field("BoidColliderRadius", m_boidColliderRadius);
+		a_ar.Field("BoidHealth", m_boidHealth);
+		a_ar.Field("BoidReleaseDelay", m_boidReleaseDelay);
 
-		// ---- 行動(テスト用) ----
-		a_ar.Field("TargetPos", m_targetPos);
+		// ---- 速さの配分 ----
+		a_ar.Field("LeaderSpeed", m_leaderSpeed);
+		a_ar.Field("PlatoonSpeedScale", m_platoonSpeedScale);
+		a_ar.Field("BoidSpeedScale", m_boidSpeedScale);
+
+		// ---- 行動 ----
+		// 目標地点は走り出してから抽選するので保存しない
+		a_ar.Field("WanderRadius", m_wanderRadius);
+		a_ar.Field("WanderHeight", m_wanderHeight);
+		a_ar.Field("WanderInterval", m_wanderInterval);
+		a_ar.Field("ArriveDistance", m_arriveDistance);
+		a_ar.Field("Throttle", m_throttle);
 	}
 
 	//======================================================================================
@@ -458,8 +660,28 @@ namespace App::Object
 		}
 		ImGui::TextDisabled("Boid prefab / radius : BoidSpownerComponent on the platoon prefab");
 
-		ImGui::SeparatorText("Action (test)");
-		ImGui::DragFloat3("Target Pos", &m_targetPos.x, 0.1f);
+		ImGui::DragFloat("Boid Collider Radius", &m_boidColliderRadius, 0.05f, 0.0f);
+		ImGui::DragFloat("Boid Health", &m_boidHealth, 1.0f, 0.0f);
+		ImGui::DragFloat("Boid Release Delay", &m_boidReleaseDelay, 0.05f, 0.0f);
+		ImGui::TextDisabled("Hit : boid vs boid / player attacks only");
+
+		ImGui::SeparatorText("Speed");
+		ImGui::DragFloat("Leader Speed", &m_leaderSpeed, 0.5f, 0.0f);
+		ImGui::DragFloat("Platoon Scale", &m_platoonSpeedScale, 0.05f, 0.0f);
+		ImGui::DragFloat("Boid Scale", &m_boidSpeedScale, 0.05f, 0.0f);
+		ImGui::TextDisabled("Platoon %.1f / Boid %.1f (written on spawn, overrides prefab)",
+			m_leaderSpeed * m_platoonSpeedScale, m_leaderSpeed * m_boidSpeedScale);
+
+		ImGui::SeparatorText("Leader Action");
+		ImGui::DragFloat("Wander Radius", &m_wanderRadius, 0.5f, 0.0f);
+		ImGui::DragFloat("Wander Height", &m_wanderHeight, 0.5f, 0.0f);
+		ImGui::DragFloat("Wander Interval", &m_wanderInterval, 0.1f, 0.0f);
+		ImGui::DragFloat("Arrive Distance", &m_arriveDistance, 0.1f, 0.0f);
+		ImGui::DragFloat("Throttle", &m_throttle, 0.01f, 0.0f, 1.0f);
+
+		// 目標地点は毎フレーム上書きされるので表示のみ
+		ImGui::Text("Target  : %.1f, %.1f, %.1f (next %.1f s)",
+			m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
 
 		// ここから下は実行中の状態なので表示のみ
 		ImGui::SeparatorText("Runtime");
@@ -481,6 +703,6 @@ namespace App::Object
 			ImGui::BulletText("[%u] %llu", static_cast<uint32_t>(_i),
 				static_cast<unsigned long long>(m_platoonLeaderEntities[_i]));
 		}
-		ImGui::Text("Boids   : %u / %u", m_currentBoids, m_maxBoid);
+		ImGui::Text("HP      : %u / %u (alive boids)", m_currentBoids, m_maxBoid);
 	}
 }

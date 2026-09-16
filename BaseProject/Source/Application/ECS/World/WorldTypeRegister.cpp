@@ -79,6 +79,7 @@
 #include "../../Components/Character/Boss/BoidLeaderComponent.h"
 #include "../../Components/Character/Boss/PlatoonLeaderComponent.h"
 #include "../../Components/Character/Boss/BoidSpownerComponent.h"
+#include "../../Components/Tag/SwarmBossBoidTag.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -206,6 +207,8 @@
 #include "../../Systems/Update/Update/Boid/BoidSystem.h"
 #include "../../Systems/Update/Update/Boid/FollowLeaderSystem.h"
 #include "../../Systems/Update/Update/Boid/PlatoonFollowSystem.h"
+#include "../../Systems/Update/Update/Boid/SwarmLookSystem.h"
+#include "../../Systems/Update/Update/Boid/SwarmLeaderMoveSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -324,6 +327,8 @@ namespace App::ECS
 		a_world.RegisterComponent<PlatoonLeaderComponent>("PlatoonLeaderComponent");
 		// 自分の周りに出すボイドの設定(数は出す側が決める)
 		a_world.RegisterComponent<BoidSpownerComponent>("BoidSpownerComponent");
+		// 群れのボスの体を作っているボイドの印。数がそのままボスの体力
+		a_world.RegisterComponent<SwarmBossBoidTag>("SwarmBossBoidTag");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -488,7 +493,12 @@ namespace App::ECS
 		a_world.RegisterSystem<GunStateStartSystem>();
 		a_world.RegisterSystem<BoidSystem>();
 		a_world.RegisterSystem<FollowLeaderSystem>();
-		// 小隊長を一つ前の相手へ間隔をあけて追従させる(目標速度だけ書く)
+		// 群れのボスの向き(リーダー/小隊長は進行方向、ボイドは小隊長の向きへ)。
+		// 前方を使う PlatoonFollowSystem より前に置く
+		a_world.RegisterSystem<SwarmLookSystem>();
+		// リーダーの移動入力(SwarmBossController が作る)を目標速度へ
+		a_world.RegisterSystem<SwarmLeaderMoveSystem>();
+		// 小隊長を一つ前の相手の後ろへ追従させる(目標速度だけ書く)
 		a_world.RegisterSystem<PlatoonFollowSystem>();
 
 		// インスタンスデータの登録

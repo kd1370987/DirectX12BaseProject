@@ -15,6 +15,8 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 		Engine::ECS::WriteList<LocalTransformComponent,VelocityComponent>{},
 		[](const Engine::ECS::SystemContext& a_ctx)
 		{
+			ENGINE_PROFILE_SCOPE("BoidSystem");
+
 			if (!a_ctx.pWorld) return;
 			// ============================================================ 
 			// 近傍検索用の一時データ 

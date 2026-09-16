@@ -45,6 +45,21 @@ namespace App::Object
 		const char* GetEditorName() const override { return "SwarmBossController"; }
 		void DrawInspector(Engine::GameObject::ObjectContext& a_context) override;
 
+		//------------------------------------------------------------------------------------------
+		// ボスの体力 : 生きているボイドの数
+		//
+		// 毎フレーム印(SwarmBossBoidTag)を数え直した結果。
+		// 体力ゲージのように外から見たい側はここから引く(m_currentBoids を直接触らせない)
+		//------------------------------------------------------------------------------------------
+		uint32_t GetHealth() const { return m_currentBoids; }
+		uint32_t GetMaxHealth() const { return m_maxBoid; }
+		float GetHealthRate() const
+		{
+			return (m_maxBoid > 0)
+				? static_cast<float>(m_currentBoids) / static_cast<float>(m_maxBoid)
+				: 0.0f;
+		}
+
 	private:
 		//------------------------------------------------------------------------------------------
 		// 生成
@@ -66,8 +81,18 @@ namespace App::Object
 		// 小隊長 a_platoonIndex 番に振り分けるボイド数(最大数を小隊長の数で割り、余りは前から1体ずつ)
 		uint32_t GetBoidCountForPlatoon(size_t a_platoonIndex, size_t a_platoonCount) const;
 
-		// 自分の印が付いた生存ボイドを数える
+		// 自分の印(SwarmBossBoidTag)が付いた生存ボイドを数える。これがボスの体力
 		uint32_t CountAliveBoids(Engine::GameObject::ObjectContext& a_context) const;
+
+		//------------------------------------------------------------------------------------------
+		// リーダーの行動(このクラスが脳。作るのは入力だけ)
+		//------------------------------------------------------------------------------------------
+		// 目標地点へ向かう移動入力(MoveIntentComponent)を作る。
+		// 入力を速度に変えるのは SwarmLeaderMoveSystem、座標を進めるのは MovementIntegrationSystem
+		void UpdateLeaderBrain(Engine::GameObject::ObjectContext& a_context);
+
+		// 次の目標地点を抽選する(生成位置を中心にした範囲の中)
+		void PickWanderTarget();
 
 	private:
 		// 生成されたかどうか
@@ -95,8 +120,43 @@ namespace App::Object
 		uint32_t m_maxBoid = 0;											// 最大生成数 : 小隊長の数で割って振り分ける
 
 		//------------------------------------------------------------------------------------------
-		// ボスの行動データ
+		// ボイドの当たり判定と体力
+		//
+		// 当たりに行く相手は「ボイド同士」と「プレイヤーの攻撃」だけ(Layer::SwarmBoid)。
+		// 体力を持たせているのは、撃たれた1体が死んで印が1つ減る = ボスの体力が減る
+		// という流れにするため。
 		//------------------------------------------------------------------------------------------
-		Math::Vector3 m_targetPos = {};		// テスト用 : リーダーのターゲット位置
+		float m_boidColliderRadius = 1.0f;	// ボイドの判定半径(m)
+		float m_boidHealth         = 10.0f;	// ボイド1体の体力(弾1発で落としたいなら弾のダメージ以下にする)
+		float m_boidReleaseDelay   = 0.5f;	// 落ちてから消えるまでの猶予(秒。死亡演出の尺)
+
+		//------------------------------------------------------------------------------------------
+		// 群れの速さ
+		//
+		// 追従できるかは「後ろほど速いか」で決まるので、1か所で配分を決める。
+		// 生成時に各エンティティへ流し込む(プレハブの値より優先する)。
+		//   リーダー  … MovementComponent.moveSpeed
+		//   小隊長    … MovementComponent.moveSpeed(リーダー × platoonSpeedScale)
+		//   ボイド    … BoidComponent.maxSpeed(リーダー × boidSpeedScale)
+		//------------------------------------------------------------------------------------------
+		float m_leaderSpeed       = 20.0f;	// リーダーの移動速度(units/秒)
+		float m_platoonSpeedScale = 1.6f;	// 小隊長の速さ(リーダーに対する倍率。1未満だと離される)
+		float m_boidSpeedScale    = 2.2f;	// ボイドの速さ(リーダーに対する倍率)
+
+		//------------------------------------------------------------------------------------------
+		// ボスの行動データ
+		//
+		// 今はランダムに目標地点を選んでそこへ向かうだけ。
+		// 「どう動くか」を足していくのはこのクラスの仕事で、動かす側はECSに任せる
+		//------------------------------------------------------------------------------------------
+		Math::Vector3 m_targetPos = {};		// リーダーのターゲット位置(ワールド)
+
+		float m_wanderRadius   = 60.0f;		// 生成位置からこの半径内で目標地点を選ぶ(水平)
+		float m_wanderHeight   = 20.0f;		// 高さの振れ幅(生成位置から ±m)
+		float m_wanderInterval = 6.0f;		// 目標地点を選び直す間隔(秒)
+		float m_arriveDistance = 8.0f;		// この距離まで近づいたら次の目標地点へ
+		float m_throttle       = 1.0f;		// 移動入力の強さ(0〜1)
+
+		float m_wanderTimer = 0.0f;			// 次に選び直すまでの残り時間(秒。保存しない)
 	};
 }

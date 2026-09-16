@@ -68,11 +68,19 @@ namespace App::Systems::ProjectileSpawn
 		//------------------------------------------------------------------------------
 		Layer MakeProjectileCollideLayer(Layer a_myLayer)
 		{
-			const Layer _otherSide = (a_myLayer == Layer::EnemyProjectile)
+			const bool _isEnemySide = (a_myLayer == Layer::EnemyProjectile);
+
+			const Layer _otherSide = _isEnemySide
 				? Layer::PlayerProjectile
 				: Layer::EnemyProjectile;
 
-			return Layer::StaticObject | Layer::DiynamicObject | _otherSide;
+			Layer _result = Layer::StaticObject | Layer::DiynamicObject | _otherSide;
+
+			// 群れのボスのボイドはプレイヤー側の攻撃でだけ落ちる。
+			// 敵の弾にも当てると、敵同士の流れ弾でボスの体力が減ってしまう
+			if (!_isEnemySide) _result |= Layer::SwarmBoid;
+
+			return _result;
 		}
 	}
 

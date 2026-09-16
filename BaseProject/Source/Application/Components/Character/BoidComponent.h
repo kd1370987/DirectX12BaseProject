@@ -19,6 +19,10 @@ struct BoidComponent
 	float cohesionWeight = 1.0f;			// 周囲の平均位置へ向かう重さ
 
 	float maxSteeringForce = 1.0f;			// 力の最大値
+
+	// 向き : 所属している小隊長(platoonID)の向きへ寄せる速さ(度/秒)
+	// 寄せるのは SwarmLookSystem。体の向きにするのは RotationSystem(Yaw のみ)
+	float turnSpeedDeg = 540.0f;
 };
 
 template<>
@@ -43,6 +47,7 @@ struct Engine::ECS::ComponentTraits<BoidComponent>
 		a_ar.Field("cohesionWeight", _comp.cohesionWeight);
 
 		a_ar.Field("maxSteeringForce", _comp.maxSteeringForce);
+		a_ar.Field("turnSpeedDeg", _comp.turnSpeedDeg);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -63,6 +68,16 @@ struct Engine::ECS::ComponentTraits<BoidComponent>
 		ImGui::DragFloat("cohesionWeight",&_comp.cohesionWeight);
 		ImGui::Separator();
 		ImGui::DragFloat("maxSteeringForce",&_comp.maxSteeringForce);
+		ImGui::Separator();
+		ImGui::DragFloat("turnSpeedDeg",&_comp.turnSpeedDeg);
+		if (_comp.platoonID == Engine::ECS::Limits::INVALID_ENTITY)
+		{
+			ImGui::TextDisabled("PlatoonID : (none)");
+		}
+		else
+		{
+			ImGui::Text("PlatoonID : %llu", static_cast<unsigned long long>(_comp.platoonID));
+		}
 
 	}
 };
