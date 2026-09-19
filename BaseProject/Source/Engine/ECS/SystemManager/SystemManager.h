@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../Internal/SystemComon.h"
 #include "../Internal/SystemContext.h"

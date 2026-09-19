@@ -2,6 +2,7 @@
 
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 
+#include "SwarmBossStates/StateMachine.h"
 
 namespace App::Object
 {
@@ -25,6 +26,9 @@ namespace App::Object
 	class SwarmBossController : public Engine::GameObject::BaseObject
 	{
 	public:
+		// ステートは調整値を読み込みで受けるので、Archive より前にここで登録しておく
+		SwarmBossController() { m_stateMachine.Init(); }
+
 		//------------------------------------------------------------------------------------------
 		// 初期化
 		//------------------------------------------------------------------------------------------
@@ -87,12 +91,9 @@ namespace App::Object
 		//------------------------------------------------------------------------------------------
 		// リーダーの行動(このクラスが脳。作るのは入力だけ)
 		//------------------------------------------------------------------------------------------
-		// 目標地点へ向かう移動入力(MoveIntentComponent)を作る。
+		// ステートマシンを1フレームぶん回す。中身の行動は SwarmBossStates の各ステート。
 		// 入力を速度に変えるのは SwarmLeaderMoveSystem、座標を進めるのは MovementIntegrationSystem
 		void UpdateLeaderBrain(Engine::GameObject::ObjectContext& a_context);
-
-		// 次の目標地点を抽選する(生成位置を中心にした範囲の中)
-		void PickWanderTarget();
 
 	private:
 		// 生成されたかどうか
@@ -144,19 +145,11 @@ namespace App::Object
 		float m_boidSpeedScale    = 2.2f;	// ボイドの速さ(リーダーに対する倍率)
 
 		//------------------------------------------------------------------------------------------
-		// ボスの行動データ
+		// ボスの行動
 		//
-		// 今はランダムに目標地点を選んでそこへ向かうだけ。
-		// 「どう動くか」を足していくのはこのクラスの仕事で、動かす側はECSに任せる
+		// 「どう動くか」はステートごとに分けて足していく(調整値も各ステートが持つ)。
+		// 動かす側はECSに任せる
 		//------------------------------------------------------------------------------------------
-		Math::Vector3 m_targetPos = {};		// リーダーのターゲット位置(ワールド)
-
-		float m_wanderRadius   = 60.0f;		// 生成位置からこの半径内で目標地点を選ぶ(水平)
-		float m_wanderHeight   = 20.0f;		// 高さの振れ幅(生成位置から ±m)
-		float m_wanderInterval = 6.0f;		// 目標地点を選び直す間隔(秒)
-		float m_arriveDistance = 8.0f;		// この距離まで近づいたら次の目標地点へ
-		float m_throttle       = 1.0f;		// 移動入力の強さ(0〜1)
-
-		float m_wanderTimer = 0.0f;			// 次に選び直すまでの残り時間(秒。保存しない)
+		SwarmBossStateMachine m_stateMachine;
 	};
 }

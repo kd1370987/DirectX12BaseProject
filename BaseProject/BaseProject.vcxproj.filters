@@ -1633,8 +1633,35 @@
     <Filter Include="Source\Application\Game\InputActions\InputManager">
       <UniqueIdentifier>{cd2a8b37-fc10-494e-a304-a675badd8309}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\BoidSystem">
+    <Filter Include="Source\Application\Systems\Update\Update\Boid">
       <UniqueIdentifier>{b593e5e2-5358-4df3-8d95-89f218d80d64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\Controller">
+      <UniqueIdentifier>{52065757-3e80-43ec-b7b9-672759c2d848}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\Controller\SwarmBossController">
+      <UniqueIdentifier>{4f662b73-378e-4a98-b532-e3bb62e79379}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates">
+      <UniqueIdentifier>{5ddd0139-fd32-485d-8bd8-ec095023aa64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk">
+      <UniqueIdentifier>{d13a0299-dfa4-4e5f-a68a-c7fbb17f9c98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Physics">
+      <UniqueIdentifier>{211011ca-21d0-4ea0-b769-1c3f82fd35b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Physics\Core">
+      <UniqueIdentifier>{dbadc413-c262-4921-a7ec-5aae8a82a003}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Physics\Core\PhysicsBroadPhaseLayer">
+      <UniqueIdentifier>{2af85f5b-1ea7-4589-80fc-e9815bab2932}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Physics\Core\PhysicsObjectVsBroadPhaseLayerFilter">
+      <UniqueIdentifier>{9d24b36b-94b3-451e-b3df-6f40b5602b88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter">
+      <UniqueIdentifier>{a288b10f-d350-4929-af84-199ba965e86f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -2770,10 +2797,40 @@
       <Filter>Source\Application\Game\InputActions\InputManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\BoidSystem</Filter>
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\FollowLeaderSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\BoidSystem</Filter>
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.cpp">
+      <Filter>Source\Application\Object\Controller\SwarmBossController</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\PlatoonFollowSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SwarmLeaderMoveSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.cpp">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.cpp">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Physics\PhysicsEngine.cpp">
+      <Filter>Source\Engine\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Physics\Core\PhysicsBroadPhaseLayer\PhysicsBroadPhaseLayer.cpp">
+      <Filter>Source\Engine\Physics\Core\PhysicsBroadPhaseLayer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Physics\Core\PhysicsObjectVsBroadPhaseLayerFilter\PhysicsObjectVsBroadPhaseLayerFilter.cpp">
+      <Filter>Source\Engine\Physics\Core\PhysicsObjectVsBroadPhaseLayerFilter</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter\PysicsObjectLayerPairFilter.cpp">
+      <Filter>Source\Engine\Physics\Core\PysicsObjectLayerPairFilter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -4488,10 +4545,55 @@
       <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\BoidSystem</Filter>
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\FollowLeaderSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\BoidSystem</Filter>
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Boss\BoidSpownerComponent.h">
+      <Filter>Source\Application\Components\Character\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Boss\PlatoonLeaderComponent.h">
+      <Filter>Source\Application\Components\Character\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.h">
+      <Filter>Source\Application\Object\Controller\SwarmBossController</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\PlatoonFollowSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SwarmLeaderMoveSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\IState.h">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.h">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.h">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Physics\PhysicsEngine.h">
+      <Filter>Source\Engine\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Physics\Core\PhysicsLayer.h">
+      <Filter>Source\Engine\Physics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Physics\Core\PhysicsBroadPhaseLayer\PhysicsBroadPhaseLayer.h">
+      <Filter>Source\Engine\Physics\Core\PhysicsBroadPhaseLayer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Physics\Core\PhysicsObjectVsBroadPhaseLayerFilter\PhysicsObjectVsBroadPhaseLayerFilter.h">
+      <Filter>Source\Engine\Physics\Core\PhysicsObjectVsBroadPhaseLayerFilter</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter\PysicsObjectLayerPairFilter.h">
+      <Filter>Source\Engine\Physics\Core\PysicsObjectLayerPairFilter</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Physics\Core\BodyID.h">
+      <Filter>Source\Engine\Physics\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

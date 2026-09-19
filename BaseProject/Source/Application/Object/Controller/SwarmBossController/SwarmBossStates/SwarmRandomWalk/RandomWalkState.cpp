@@ -1,0 +1,110 @@
+﻿#include "RandomWalkState.h"
+
+// エンジン
+#include "Engine/GameObject/BaseObject/BaseObject.h"
+#include "Engine/Persistence/Archive/Archive.h"
+#include "Engine/ECS/Internal/SystemContext.h"
+#include "Engine/Editor/Helper/EditorHelper.h"	// コンポーネントの Traits が使うので先に置く
+
+// App
+#include "../../../../../ECS/World/APPWorld.h"
+
+#include "../../../../../Components/Transform/LocalTransformComponent.h"
+#include "../../../../../Components/Intent/MoveIntentComponent.h"
+
+namespace App::Object
+{
+	void SwarmBossRandomWalkState::Enter(SwarmBossStateContext& a_context)
+	{
+		// 入った瞬間に行き先を決める(前のステートの目標を引きずらない)
+		PickWanderTarget(a_context.spawnPos);
+	}
+
+	void SwarmBossRandomWalkState::Update(SwarmBossStateContext& a_context)
+	{
+		if (!a_context.pObject || !a_context.pObject->pWorld) return;
+		auto& _world = *a_context.pObject->pWorld;
+
+		const auto _leader = a_context.leaderEntity;
+		if (!_world.IsAliveEntity(_leader)) return;
+		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
+		if (!_world.HasComponent<LocalTransformComponent>(_leader)) return;
+
+		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(_leader)->pos;
+
+		// 目標地点を選び直すか
+		m_wanderTimer -= a_context.pObject->dt;
+
+		const Math::Vector3 _toTarget = m_targetPos - _pos;
+		if (m_wanderTimer <= 0.0f || _toTarget.Length() <= m_arriveDistance)
+		{
+			PickWanderTarget(a_context.spawnPos);
+		}
+
+		// 目標地点へ向かう入力。長さがスロットルになる(向きは世界空間)
+		Math::Vector3 _dir = m_targetPos - _pos;
+		if (_dir.LengthSquared() > 1e-6f)
+		{
+			_dir.Normalize();
+			_dir *= std::clamp(m_throttle, 0.0f, 1.0f);
+		}
+		else
+		{
+			_dir = Math::Vector3(0.0f, 0.0f, 0.0f);
+		}
+
+		_world.RefData<MoveIntentComponent>(_leader)->value = _dir;
+	}
+
+	void SwarmBossRandomWalkState::Exit(SwarmBossStateContext& a_context)
+	{
+		// 入力を残したまま抜けると、次のステートが書かない限り走り続けるので止めておく
+		if (!a_context.pObject || !a_context.pObject->pWorld) return;
+		auto& _world = *a_context.pObject->pWorld;
+
+		const auto _leader = a_context.leaderEntity;
+		if (!_world.IsAliveEntity(_leader)) return;
+		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
+
+		_world.RefData<MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
+	}
+
+	void SwarmBossRandomWalkState::PickWanderTarget(const Math::Vector3& a_center)
+	{
+		// 水平は円の中から、高さは振れ幅の中から選ぶ。
+		// 円内の一様分布にするため半径は平方根を取る(そのまま掛けると中心に寄る)
+		const float _angle  = Math::Random::Float(0.0f, DirectX::XM_2PI);
+		const float _radius = m_wanderRadius * std::sqrt(Math::Random::Float(0.0f, 1.0f));
+
+		m_targetPos = a_center + Math::Vector3(
+			std::cos(_angle) * _radius,
+			Math::Random::Float(-m_wanderHeight, m_wanderHeight),
+			std::sin(_angle) * _radius);
+
+		m_wanderTimer = m_wanderInterval;
+	}
+
+	void SwarmBossRandomWalkState::Archive(Engine::Persistence::Archive& a_ar)
+	{
+		// コントローラーに直に持っていた頃と同じ名前(既存シーンをそのまま読める)
+		// 目標地点は走り出してから抽選するので保存しない
+		a_ar.Field("WanderRadius", m_wanderRadius);
+		a_ar.Field("WanderHeight", m_wanderHeight);
+		a_ar.Field("WanderInterval", m_wanderInterval);
+		a_ar.Field("ArriveDistance", m_arriveDistance);
+		a_ar.Field("Throttle", m_throttle);
+	}
+
+	void SwarmBossRandomWalkState::DrawInspector()
+	{
+		ImGui::DragFloat("Wander Radius", &m_wanderRadius, 0.5f, 0.0f);
+		ImGui::DragFloat("Wander Height", &m_wanderHeight, 0.5f, 0.0f);
+		ImGui::DragFloat("Wander Interval", &m_wanderInterval, 0.1f, 0.0f);
+		ImGui::DragFloat("Arrive Distance", &m_arriveDistance, 0.1f, 0.0f);
+		ImGui::DragFloat("Throttle", &m_throttle, 0.01f, 0.0f, 1.0f);
+
+		// 目標地点は毎フレーム上書きされるので表示のみ
+		ImGui::Text("Target  : %.1f, %.1f, %.1f (next %.1f s)",
+			m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
+	}
+}

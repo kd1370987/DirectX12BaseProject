@@ -171,61 +171,22 @@ namespace App::Object
 	}
 
 	//======================================================================================
-	// リーダーの行動 : ランダムな目標地点へ向かうだけ
+	// リーダーの行動 : ステートマシンを回す
 	//--------------------------------------------------------------------------------------
 	// このクラスはプレイヤーのキーボード/マウスと同じ立場で、作るのは移動入力だけ。
-	// 入力を速度へ変えるのは SwarmLeaderMoveSystem、向きを変えるのは SwarmLookSystem。
-	//
-	// 目標地点は「着いたら」か「時間が来たら」選び直す。時間切れも見るのは、
-	// 障害物などで着けないまま止まってしまわないようにするため
+	// 何をするかは各ステート(SwarmBossStates)。切り替え要求は次のフレームの PreUpdate で反映
 	//======================================================================================
 	void SwarmBossController::UpdateLeaderBrain(Engine::GameObject::ObjectContext& a_context)
 	{
-		auto& _world = *a_context.pWorld;
+		SwarmBossStateContext _stateContext = {};
+		_stateContext.pObject      = &a_context;
+		_stateContext.pMachine     = &m_stateMachine;
+		_stateContext.leaderEntity = m_leaderEntity;
+		_stateContext.spawnPos     = m_spawnPos;
 
-		if (!_world.IsAliveEntity(m_leaderEntity)) return;
-		if (!_world.HasComponent<MoveIntentComponent>(m_leaderEntity)) return;
-		if (!_world.HasComponent<LocalTransformComponent>(m_leaderEntity)) return;
-
-		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(m_leaderEntity)->pos;
-
-		// 目標地点を選び直すか
-		m_wanderTimer -= a_context.dt;
-
-		const Math::Vector3 _toTarget = m_targetPos - _pos;
-		if (m_wanderTimer <= 0.0f || _toTarget.Length() <= m_arriveDistance)
-		{
-			PickWanderTarget();
-		}
-
-		// 目標地点へ向かう入力。長さがスロットルになる(向きは世界空間)
-		Math::Vector3 _dir = m_targetPos - _pos;
-		if (_dir.LengthSquared() > 1e-6f)
-		{
-			_dir.Normalize();
-			_dir *= std::clamp(m_throttle, 0.0f, 1.0f);
-		}
-		else
-		{
-			_dir = Math::Vector3(0.0f, 0.0f, 0.0f);
-		}
-
-		_world.RefData<MoveIntentComponent>(m_leaderEntity)->value = _dir;
-	}
-
-	void SwarmBossController::PickWanderTarget()
-	{
-		// 水平は円の中から、高さは振れ幅の中から選ぶ。
-		// 円内の一様分布にするため半径は平方根を取る(そのまま掛けると中心に寄る)
-		const float _angle  = Math::Random::Float(0.0f, DirectX::XM_2PI);
-		const float _radius = m_wanderRadius * std::sqrt(Math::Random::Float(0.0f, 1.0f));
-
-		m_targetPos = m_spawnPos + Math::Vector3(
-			std::cos(_angle) * _radius,
-			Math::Random::Float(-m_wanderHeight, m_wanderHeight),
-			std::sin(_angle) * _radius);
-
-		m_wanderTimer = m_wanderInterval;
+		m_stateMachine.PreUpdate(_stateContext);
+		m_stateMachine.Update(_stateContext);
+		m_stateMachine.PostUpdate(_stateContext);
 	}
 
 	//======================================================================================
@@ -626,12 +587,8 @@ namespace App::Object
 		a_ar.Field("BoidSpeedScale", m_boidSpeedScale);
 
 		// ---- 行動 ----
-		// 目標地点は走り出してから抽選するので保存しない
-		a_ar.Field("WanderRadius", m_wanderRadius);
-		a_ar.Field("WanderHeight", m_wanderHeight);
-		a_ar.Field("WanderInterval", m_wanderInterval);
-		a_ar.Field("ArriveDistance", m_arriveDistance);
-		a_ar.Field("Throttle", m_throttle);
+		// 調整値は各ステートが持つ(名前は以前と同じなので既存シーンもそのまま読める)
+		m_stateMachine.Archive(a_ar);
 	}
 
 	//======================================================================================
@@ -673,15 +630,7 @@ namespace App::Object
 			m_leaderSpeed * m_platoonSpeedScale, m_leaderSpeed * m_boidSpeedScale);
 
 		ImGui::SeparatorText("Leader Action");
-		ImGui::DragFloat("Wander Radius", &m_wanderRadius, 0.5f, 0.0f);
-		ImGui::DragFloat("Wander Height", &m_wanderHeight, 0.5f, 0.0f);
-		ImGui::DragFloat("Wander Interval", &m_wanderInterval, 0.1f, 0.0f);
-		ImGui::DragFloat("Arrive Distance", &m_arriveDistance, 0.1f, 0.0f);
-		ImGui::DragFloat("Throttle", &m_throttle, 0.01f, 0.0f, 1.0f);
-
-		// 目標地点は毎フレーム上書きされるので表示のみ
-		ImGui::Text("Target  : %.1f, %.1f, %.1f (next %.1f s)",
-			m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
+		m_stateMachine.DrawInspector();
 
 		// ここから下は実行中の状態なので表示のみ
 		ImGui::SeparatorText("Runtime");
