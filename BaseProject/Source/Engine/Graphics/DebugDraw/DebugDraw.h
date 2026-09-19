@@ -65,6 +65,10 @@ namespace Engine::Graphics
 		// 積んだものを捨てる。フレームの頭で1回だけ呼ぶ
 		void Clear();
 
+		// 今積める状態か(オプションが on で、上限に達していない)。
+		// 積む前に大量の走査をする側が、無駄に回さないために見る
+		bool IsEnabled() const;
+
 		const std::vector<DebugLineData>& GetLineDataVec() const { return m_lineDataVec; }
 
 	private:

@@ -70,7 +70,7 @@ void SphereCollisionSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 
-			// ---- Jolt : 今は静的なボディだけ(動くものは Phase 4 で入る)。レイヤーは旧と同じく全部 ----
+			// ---- Jolt : 静的も動く敵も。旧と同じく判定メッシュのボディだけから押し出す(弾・ボイドの箱は無視) ----
 			if (_migration.RunsJolt())
 			{
 				ENGINE_PROFILE_SCOPE("Physics_ResolveSphere");
@@ -86,8 +86,8 @@ void SphereCollisionSystem::Init(App::ECS::APPWorld& a_world)
 			}
 
 			// ---- 比較 ----
-			// 旧は動く敵のメッシュからも押し出すが、どの相手から押されたかは取れないので、
-			// 敵に触れているときのずれも「ずれ」として数えている(Phase 4 までは出ることがある)
+			// 旧も Jolt も、静的な地形と動く敵のメッシュの両方から押し出す。
+			// どの相手から押されたかは取れないので、ずれたときは位置から切り分ける
 			if (_migration.compareQueries)
 			{
 				static App::Systems::PhysicsCompare::Stats s_stats{ "ResolveSphere" };

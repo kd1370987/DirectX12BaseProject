@@ -13,6 +13,8 @@
 #include <Jolt/Physics/Collision/CollideShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Body/BodyFilter.h>
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Core/JobSystem.h>
@@ -37,8 +39,8 @@ namespace Engine::Physics
 	struct PhysicsWorld::Detail
 	{
 		// モデルごとの形状(モデル空間)。ボディはこれに ScaledShape を被せて使う。
-		// ワールドと一緒に捨てる(シーンの切れ目で作り直す)
-		std::unordered_map<uint32_t, JPH::RefConst<JPH::Shape>> modelShapeCache;
+		// 鍵はモデルと形状の種類(MakeShapeKey)。ワールドと一緒に捨てる(シーンの切れ目で作り直す)
+		std::unordered_map<uint64_t, JPH::RefConst<JPH::Shape>> modelShapeCache;
 
 		// 作ったがまだ空間へ入れていないボディ。Update でまとめて入れる
 		std::vector<JPH::BodyID> pendingAdd;
@@ -51,23 +53,48 @@ namespace Engine::Physics
 
 	namespace
 	{
+		// 形状が判定メッシュか(拡大率を被せたものは中身を見る)
+		bool IsMeshShape(const JPH::Shape* a_pShape)
+		{
+			if (!a_pShape) return false;
+			if (a_pShape->GetSubType() == JPH::EShapeSubType::Scaled)
+			{
+				a_pShape = static_cast<const JPH::ScaledShape*>(a_pShape)->GetInnerShape();
+			}
+			return a_pShape->GetSubType() == JPH::EShapeSubType::Mesh;
+		}
+
 		//----------------------------------------------------------------------------------
 		// 持ち主が a_ignore のボディを外す(自分自身に当たらないように)。
 		// ボディの UserData に持ち主のエンティティを入れてある
+		//
+		// a_onlyMesh : 判定メッシュのボディだけを相手にする。
+		//              旧 CollisionWorld の押し出しはメッシュ形状だけを見ていて、
+		//              箱で概算している弾・ボイドからは押し出さなかったので、それに合わせる
 		//----------------------------------------------------------------------------------
 		class IgnoreOwnerBodyFilter final : public JPH::BodyFilter
 		{
 		public:
-			explicit IgnoreOwnerBodyFilter(ECS::Entity a_ignore) noexcept : m_ignore(a_ignore) {}
+			explicit IgnoreOwnerBodyFilter(ECS::Entity a_ignore, bool a_onlyMesh = false) noexcept
+				: m_ignore(a_ignore), m_onlyMesh(a_onlyMesh) {}
 
 			bool ShouldCollideLocked(const JPH::Body& a_body) const override
 			{
-				return a_body.GetUserData() != static_cast<JPH::uint64>(m_ignore);
+				if (a_body.GetUserData() == static_cast<JPH::uint64>(m_ignore)) return false;
+				if (m_onlyMesh && !IsMeshShape(a_body.GetShape())) return false;
+				return true;
 			}
 
 		private:
 			ECS::Entity m_ignore = ECS::Limits::INVALID_ENTITY;
+			bool m_onlyMesh = false;
 		};
+
+		// 形状の使い回しの鍵 : モデルのハンドル × 形状の種類
+		uint64_t MakeShapeKey(uint32_t a_modelId, EModelBodyShape a_shape)
+		{
+			return (static_cast<uint64_t>(a_modelId) << 8) | static_cast<uint64_t>(a_shape);
+		}
 
 		bool IsFinite(const Math::Vector3& a_value)
 		{
@@ -195,6 +222,74 @@ namespace Engine::Physics
 		}
 
 		//----------------------------------------------------------------------------------
+		// 描画メッシュ全体のAABB(モデル空間)を箱の形状にする。作れなければ nullptr。
+		//
+		// 旧 CollisionWorld は Mesh 以外の形状(弾・ミサイル・ボイド)を、
+		// CalcModelLocalAABB(描画メッシュノードのAABBをノード変換込みで合成)を
+		// ワールドへ移したAABBで概算していた。それと同じ範囲を箱にする。
+		// (旧は回転後にAABBを取り直していたので、斜めを向くとこちらの方が少し小さい)
+		//----------------------------------------------------------------------------------
+		JPH::RefConst<JPH::Shape> CreateBoundsShape(
+			const Resource::ResourceManager& a_resourceManager,
+			const Resource::Model& a_model,
+			uint32_t a_modelId)
+		{
+			const auto& _nodeVec = a_model.GetOriginalNodeVec();
+			const auto& _meshHandles = a_model.GetMeshHandles();
+
+			bool _hasBox = false;
+			DirectX::BoundingBox _box = {};
+
+			for (int _nodeIdx : a_model.GetMeshNodeVec())
+			{
+				if (_nodeIdx < 0 || _nodeIdx >= static_cast<int>(_nodeVec.size())) continue;
+				const DirectX::XMMATRIX _nodeMat = Math::DX::Load(_nodeVec[_nodeIdx].worldTransform);
+
+				for (int _meshIdx : _nodeVec[_nodeIdx].meshIndices)
+				{
+					if (_meshIdx < 0 || _meshIdx >= static_cast<int>(_meshHandles.size())) continue;
+					const Resource::Mesh* _pMesh = a_resourceManager.Get(_meshHandles[_meshIdx]);
+					if (!_pMesh) continue;
+
+					DirectX::BoundingBox _nodeBox = {};
+					_pMesh->GetMetaData().aabb.Transform(_nodeBox, _nodeMat);
+					if (_hasBox)
+					{
+						DirectX::BoundingBox::CreateMerged(_box, _box, _nodeBox);
+					}
+					else
+					{
+						_box = _nodeBox;
+						_hasBox = true;
+					}
+				}
+			}
+
+			if (!_hasBox)
+			{
+				ENGINE_WARNING("[Physics] 描画メッシュが無いので箱を作れません(model=0x%08x)", a_modelId);
+				return nullptr;
+			}
+
+			// 厚みが0の箱は作れないので最小値を入れる
+			constexpr float _minHalf = 1e-3f;
+			const JPH::Vec3 _half = JPH::Vec3::sMax(
+				JPH::Vec3(_box.Extents.x, _box.Extents.y, _box.Extents.z), JPH::Vec3::sReplicate(_minHalf));
+
+			// 角の丸め(convex radius)は箱の薄い方の辺を超えられない
+			const float _convexRadius = (std::min)(JPH::cDefaultConvexRadius, _half.ReduceMin());
+			JPH::RefConst<JPH::Shape> _shape = new JPH::BoxShape(_half, _convexRadius);
+
+			// 箱の中心がモデルの原点からずれていれば、ずらして置く
+			const JPH::Vec3 _center(_box.Center.x, _box.Center.y, _box.Center.z);
+			if (!_center.IsNearZero())
+			{
+				_shape = new JPH::RotatedTranslatedShape(_center, JPH::Quat::sIdentity(), _shape);
+			}
+			return _shape;
+		}
+
+		//----------------------------------------------------------------------------------
 		// 行列を 拡大縮小・回転・平行移動 に分けられるか。
 		// 親の非等方スケールの下で回っているとせん断が混ざり、分けると元に戻らない
 		//----------------------------------------------------------------------------------
@@ -258,6 +353,16 @@ namespace Engine::Physics
 	{
 		if (!m_upPhysicsSystem) return;
 
+		// ボディの取りこぼしの検出。
+		// シーンを抜けるとき(World::Release)は全エンティティが Release フェーズを通り、
+		// PhysicsBodyFreeSystem がボディを消すので、ここには1体も残らないはず。
+		// 残っていれば Release フェーズを通らずに消えたエンティティがある
+		// (エフェクトエディターのプレビューは World::Release を呼ばずに捨てるので、ボディがあれば出る)
+		if (const uint32_t _remaining = m_upPhysicsSystem->GetNumBodies(); _remaining > 0)
+		{
+			ENGINE_WARNING("[Physics] PhysicsWorld を壊す時点でボディが %u 体残っていました", _remaining);
+		}
+
 		// PhysicsSystem を先に壊す(レイヤー定義を参照で持っているため)。
 		// 残っているボディは PhysicsSystem が一緒に消す
 		m_upPhysicsSystem.reset();
@@ -303,21 +408,20 @@ namespace Engine::Physics
 		_bodyInterface.AddBodiesFinalize(_pending.data(), _count, _state, JPH::EActivation::DontActivate);
 		_pending.clear();
 
-		// 一度にたくさん入れた後は木を組み直しておく(シーン読み込み直後の地形など)
-		m_upPhysicsSystem->OptimizeBroadPhase();
-
-		// シーン読み込み(最初の追加・まとまった数)のときだけ残す。
-		// 弾のように毎フレーム少しずつ入るものは出さない
-		constexpr int _logThreshold = 32;
+		// まとまった数(シーン読み込み直後の地形・ボイドの群れ)を入れたときだけ、木を組み直して残す。
+		// 弾のように毎フレーム少しずつ入るものは、PhysicsSystem::Update の差分更新に任せる
+		// (毎回組み直すと、ボイド4000体ぶんの木を毎フレーム作り直すことになる)
+		constexpr int _batchThreshold = 32;
 		const bool _isFirst = m_upDetail->isFirstFlush;
 		m_upDetail->isFirstFlush = false;
-		if (_isFirst || _count >= _logThreshold)
+		if (_isFirst || _count >= _batchThreshold)
 		{
+			m_upPhysicsSystem->OptimizeBroadPhase();
 			ENGINE_LOG("[Physics] %d bodies added (total %u)", _count, m_upPhysicsSystem->GetNumBodies());
 		}
 	}
 
-	BodyHandle PhysicsWorld::CreateStaticModelBody(const Resource::ResourceManager& a_resourceManager, const StaticModelBodyDesc& a_desc)
+	BodyHandle PhysicsWorld::CreateModelBody(const Resource::ResourceManager& a_resourceManager, const ModelBodyDesc& a_desc)
 	{
 		if (!m_upPhysicsSystem) return {};
 
@@ -337,16 +441,36 @@ namespace Engine::Physics
 		JPH::RVec3 _position = JPH::RVec3::sZero();
 		JPH::Quat _rotation = JPH::Quat::sIdentity();
 
-		if (IsDecomposable(a_desc.worldMat, _trs))
+		// 焼き込みが使えるのは、動かない判定メッシュだけ(動くものは毎フレーム行列が変わる)
+		const bool _canBake = !a_desc.isMoving && a_desc.shape == EModelBodyShape::CollisionMesh;
+		const bool _isDecomposable = IsDecomposable(a_desc.worldMat, _trs);
+
+		if (_isDecomposable || !_canBake)
 		{
+			if (!_isDecomposable)
+			{
+				// 動くものはせん断を捨てて近似する
+				ENGINE_WARNING("[Physics] 動くボディの行列にせん断が混ざっているので近似します(model=0x%08x)", _modelId);
+			}
+
 			// モデル空間の形状を使い回し、インスタンスの拡大縮小だけ被せる
 			auto& _cache = m_upDetail->modelShapeCache;
-			auto _it = _cache.find(_modelId);
+			const uint64_t _key = MakeShapeKey(_modelId, a_desc.shape);
+			auto _it = _cache.find(_key);
 			if (_it == _cache.end())
 			{
-				JPH::TriangleList _triangles;
-				CollectModelTriangles(a_resourceManager, *_pModel, Math::Matrix::Identity(), _triangles);
-				_it = _cache.emplace(_modelId, CreateMeshShape(_triangles, _modelId)).first;
+				JPH::RefConst<JPH::Shape> _modelShape;
+				if (a_desc.shape == EModelBodyShape::CollisionMesh)
+				{
+					JPH::TriangleList _triangles;
+					CollectModelTriangles(a_resourceManager, *_pModel, Math::Matrix::Identity(), _triangles);
+					_modelShape = CreateMeshShape(_triangles, _modelId);
+				}
+				else
+				{
+					_modelShape = CreateBoundsShape(a_resourceManager, *_pModel, _modelId);
+				}
+				_it = _cache.emplace(_key, _modelShape).first;
 			}
 			if (_it->second.GetPtr() == nullptr) return {};
 
@@ -378,9 +502,18 @@ namespace Engine::Physics
 			_shape,
 			_position,
 			_rotation,
-			JPH::EMotionType::Static,
-			Layer::Make(a_desc.group, a_desc.mask, false));
+			a_desc.isMoving ? JPH::EMotionType::Kinematic : JPH::EMotionType::Static,
+			Layer::Make(a_desc.group, a_desc.mask, a_desc.isMoving));
 		_settings.mUserData = static_cast<JPH::uint64>(a_desc.owner);
+
+		if (a_desc.isMoving)
+		{
+			// 動くものは Kinematic(こちらが位置を決め、シミュレーションには押されない)。
+			// メッシュ形状は体積から質量を出せないので、形だけの質量を渡しておく
+			_settings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
+			_settings.mMassPropertiesOverride.mMass = 1.0f;
+			_settings.mMassPropertiesOverride.mInertia = JPH::Mat44::sIdentity();
+		}
 
 		JPH::BodyInterface& _bodyInterface = m_upPhysicsSystem->GetBodyInterfaceNoLock();
 		JPH::Body* _pBody = _bodyInterface.CreateBody(_settings);
@@ -395,6 +528,58 @@ namespace Engine::Physics
 		BodyHandle _handle;
 		_handle.id = _pBody->GetID().GetIndexAndSequenceNumber();
 		return _handle;
+	}
+
+	void PhysicsWorld::SetBodyTransform(BodyHandle a_handle, ECS::Entity a_owner, const Math::Matrix& a_worldMat)
+	{
+		if (!m_upPhysicsSystem || !a_handle.IsValid()) return;
+
+		const Math::TRS _trs = Math::Decompose(a_worldMat);
+		const JPH::Vec3 _scale = Internal::ToJolt(_trs.scale);
+		if (JPH::ScaleHelpers::IsZeroScale(_scale)) return;
+
+		const JPH::BodyID _id(a_handle.id);
+
+		// 持ち主の照合と、今の拡大率の読み取り
+		JPH::RefConst<JPH::Shape> _innerShape;
+		bool _isScaleChanged = false;
+		{
+			JPH::BodyLockRead _lock(m_upPhysicsSystem->GetBodyLockInterfaceNoLock(), _id);
+			if (!_lock.Succeeded()) return;
+			const JPH::Body& _body = _lock.GetBody();
+			if (_body.GetUserData() != static_cast<JPH::uint64>(a_owner)) return;
+
+			const JPH::Shape* _pShape = _body.GetShape();
+			JPH::Vec3 _currentScale = JPH::Vec3::sOne();
+			if (_pShape->GetSubType() == JPH::EShapeSubType::Scaled)
+			{
+				const auto* _pScaled = static_cast<const JPH::ScaledShape*>(_pShape);
+				_currentScale = _pScaled->GetScale();
+				_pShape = _pScaled->GetInnerShape();
+			}
+
+			constexpr float _scaleToleranceSq = 1e-8f;
+			_isScaleChanged = !_scale.IsClose(_currentScale, _scaleToleranceSq);
+			if (_isScaleChanged) _innerShape = _pShape;
+		}
+
+		JPH::BodyInterface& _bodyInterface = m_upPhysicsSystem->GetBodyInterfaceNoLock();
+
+		// 拡大率が変わったときだけ形状を被せ直す(ほとんどのフレームは位置と向きだけ)
+		if (_isScaleChanged)
+		{
+			const JPH::RefConst<JPH::Shape> _newShape = _scale.IsClose(JPH::Vec3::sOne())
+				? _innerShape
+				: JPH::RefConst<JPH::Shape>(new JPH::ScaledShape(_innerShape, _scale));
+			_bodyInterface.SetShape(_id, _newShape, false, JPH::EActivation::DontActivate);
+		}
+
+		// 瞬間移動。ブロードフェーズの位置もここで更新される
+		_bodyInterface.SetPositionAndRotation(
+			_id,
+			Internal::ToJoltR(_trs.pos),
+			Internal::ToJolt(_trs.rotation).Normalized(),
+			JPH::EActivation::DontActivate);
 	}
 
 	void PhysicsWorld::DestroyBody(BodyHandle a_handle, ECS::Entity a_owner)
@@ -483,7 +668,8 @@ namespace Engine::Physics
 
 		const JPH::NarrowPhaseQuery& _query = m_upPhysicsSystem->GetNarrowPhaseQueryNoLock();
 		const LayerMaskQueryFilter _layerFilter(a_queryMask);
-		const IgnoreOwnerBodyFilter _bodyFilter(a_ignore);
+		// 押し出す相手は判定メッシュのボディだけ(旧と同じく、箱で概算している弾・ボイドは無視)
+		const IgnoreOwnerBodyFilter _bodyFilter(a_ignore, true);
 
 		Math::Vector3 _total = {};
 		bool _anyPush = false;
@@ -560,8 +746,12 @@ namespace Engine::Physics
 	{
 		if (!a_pDebugDraw || !m_upPhysicsSystem) return;
 
+		// 表示が切られていればボディを回すこともしない(ボイドで4000体ある)
+		if (!a_pDebugDraw->IsEnabled()) return;
+
 		// 旧 CollisionWorld(白)と重ねて見比べられるよう、別の色で描く
-		constexpr Math::Color _color = { 0.0f, 1.0f, 1.0f, 1.0f };
+		constexpr Math::Color _staticColor = { 0.0f, 1.0f, 1.0f, 1.0f };	// 水色 : 静的
+		constexpr Math::Color _movingColor = { 1.0f, 1.0f, 0.0f, 1.0f };	// 黄色 : 動く
 
 		JPH::BodyIDVector _ids;
 		m_upPhysicsSystem->GetBodies(_ids);
@@ -572,7 +762,13 @@ namespace Engine::Physics
 			JPH::BodyLockRead _lock(_lockInterface, _id);
 			if (!_lock.Succeeded()) continue;
 
-			const JPH::AABox _bounds = _lock.GetBody().GetWorldSpaceBounds();
+			const JPH::Body& _body = _lock.GetBody();
+
+			// 箱で概算しているもの(弾・ボイド)は描かない。数が多く線の上限(1万本)を食い潰す
+			if (!IsMeshShape(_body.GetShape())) continue;
+
+			const Math::Color& _color = _body.IsStatic() ? _staticColor : _movingColor;
+			const JPH::AABox _bounds = _body.GetWorldSpaceBounds();
 			const JPH::Vec3 _center = _bounds.GetCenter();
 			const JPH::Vec3 _extent = _bounds.GetExtent();
 

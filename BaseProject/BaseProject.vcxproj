@@ -401,6 +401,7 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem\LockOnRotationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem\SyncPhysicsBodySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem\CharacterMovementSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp" />
@@ -896,6 +897,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem\LockOnRotationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem\SyncPhysicsBodySystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem\CharacterMovementSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h" />

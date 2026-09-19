@@ -787,6 +787,9 @@
     <Filter Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem">
       <UniqueIdentifier>{92bdc9dc-6de6-4b4c-888e-3f25d1edcafd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem">
+      <UniqueIdentifier>{1965eec3-c7ea-4dbd-b6be-c121d853227d}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem">
       <UniqueIdentifier>{a7d3f091-6c48-4b2e-8f15-9e07a3c1d5b6}</UniqueIdentifier>
     </Filter>
@@ -2129,6 +2132,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\StateMachineCommitSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem\SyncPhysicsBodySystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\SyncPhysicsBodySystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem</Filter>
@@ -3577,6 +3583,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h">
       <Filter>Source\Application\Systems\Update\Update\StateMachineCommitSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem\SyncPhysicsBodySystem.h">
+      <Filter>Source\Application\Systems\Update\Update\SyncPhysicsBodySystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.h">
       <Filter>Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem</Filter>

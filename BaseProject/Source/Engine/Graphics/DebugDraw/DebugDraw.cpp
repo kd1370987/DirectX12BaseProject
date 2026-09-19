@@ -144,6 +144,12 @@ namespace Engine::Graphics
 		m_lineDataVec.reserve(m_capacity);
 	}
 
+	bool DebugDraw::IsEnabled() const
+	{
+		return Option::OptionManager::GetInstance().GetDebugDrawOption().drawWire &&
+			m_lineDataVec.size() < m_capacity;
+	}
+
 	bool DebugDraw::CanPush()
 	{
 		// オプションで切られていれば1本も積まない。

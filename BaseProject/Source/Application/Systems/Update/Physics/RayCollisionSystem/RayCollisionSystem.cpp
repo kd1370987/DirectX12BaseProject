@@ -30,6 +30,7 @@ namespace
 
 		bool joltHit = false;
 		Math::Vector3 joltPos = {};
+		Engine::ECS::Entity joltEntity = Engine::ECS::Limits::INVALID_ENTITY;
 	};
 }
 
@@ -86,7 +87,7 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 
-			// ---- Jolt : 今は静的なボディだけ(動くものは Phase 4 で入る)。レイヤーは旧と同じく全部 ----
+			// ---- Jolt : 静的も動くもの(敵・弾・ボイド)も。レイヤーは旧と同じく全部 ----
 			if (_migration.RunsJolt())
 			{
 				ENGINE_PROFILE_SCOPE("Physics_GroundRay");
@@ -98,6 +99,7 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 					_probe.joltHit = _physicsWorld.CastRay(
 						_probe.ray, Engine::Physics::kQueryAllLayers, a_pChunk->entityData[_i], _hit);
 					_probe.joltPos = _hit.position;
+					_probe.joltEntity = _hit.entity;
 				}
 			}
 
@@ -116,27 +118,14 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 
 					++s_stats.mismatches;
 
-					// 旧が動くもの(敵・弾)に当たったぶんは、Jolt 側にまだ居ないのでずれて当然
-					bool _isExpected = false;
-					if (_probe.oldHit && _probe.oldEntity != Engine::ECS::Limits::INVALID_ENTITY &&
-						a_ctx.pWorld->HasComponent<ColliderComponent>(_probe.oldEntity))
-					{
-						const auto* _pColl = a_ctx.pWorld->RefData<ColliderComponent>(_probe.oldEntity);
-						_isExpected = _pColl && IsDynamicLayer(_pColl->layer);
-					}
-					if (_isExpected)
-					{
-						++s_stats.expected;
-						continue;
-					}
-
+					// どの相手に当たったかも出す(動くもの同士の食い違いの切り分け用)
 					if (App::Systems::PhysicsCompare::ShouldLogDetail(s_stats))
 					{
-						ENGINE_LOG("[PhysicsCompare] GroundRay mismatch entity=%llu origin=(%.3f,%.3f,%.3f) old=%d(%.4f,%.4f,%.4f) jolt=%d(%.4f,%.4f,%.4f)",
+						ENGINE_LOG("[PhysicsCompare] GroundRay mismatch entity=%llu origin=(%.3f,%.3f,%.3f) old=%d(%.4f,%.4f,%.4f)->%llu jolt=%d(%.4f,%.4f,%.4f)->%llu",
 							a_pChunk->entityData[_i],
 							_probe.ray.origin.x, _probe.ray.origin.y, _probe.ray.origin.z,
-							_probe.oldHit ? 1 : 0, _probe.oldPos.x, _probe.oldPos.y, _probe.oldPos.z,
-							_probe.joltHit ? 1 : 0, _probe.joltPos.x, _probe.joltPos.y, _probe.joltPos.z);
+							_probe.oldHit ? 1 : 0, _probe.oldPos.x, _probe.oldPos.y, _probe.oldPos.z, _probe.oldEntity,
+							_probe.joltHit ? 1 : 0, _probe.joltPos.x, _probe.joltPos.y, _probe.joltPos.z, _probe.joltEntity);
 					}
 				}
 				App::Systems::PhysicsCompare::Report(s_stats);

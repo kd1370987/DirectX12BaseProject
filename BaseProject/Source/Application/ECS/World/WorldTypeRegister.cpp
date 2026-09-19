@@ -158,6 +158,7 @@
 #include "../../Systems/Update/PreUpdate/ThrusterEffectSystem/ThrusterEffectSystem.h"
 #include "../../Systems/Init/PostDeserialize/AttachmentSlotLinkSystem/AttachmentSlotLinkSystem.h"
 #include "../../Systems/Update/Update/SubmitDynamicColliderSystem/SubmitDynamicColliderSystem.h"
+#include "Application/Systems/Update/Update/SyncPhysicsBodySystem/SyncPhysicsBodySystem.h"
 #include "../../Systems/Init/Start/AdditivePoseLinkSystem/AdditivePoseLinkSystem.h"
 #include "../../Systems/Update/PostUpdate/AdditivePoseSystem/AdditivePoseSystem.h"
 #include "../../Systems/Release/AdditivePoseFreeSystem/AdditivePoseFreeSystem.h"
@@ -460,6 +461,8 @@ namespace App::ECS
 		a_world.RegisterSystem<InputActionSystem>();
 		a_world.RegisterSystem<GunShootSystem>();
 		a_world.RegisterSystem<SubmitDynamicColliderSystem>();
+		// 動くコライダーの Jolt ボディを同じタイミングで今の姿勢へ(移行中は両方)
+		a_world.RegisterSystem<SyncPhysicsBodySystem>();
 		a_world.RegisterSystem<CollisionEventClearSystem>();
 		a_world.RegisterSystem<HitEventClearSystem>();
 		// 死亡イベントも読み手が複数(エフェクトとスコア)になったので、

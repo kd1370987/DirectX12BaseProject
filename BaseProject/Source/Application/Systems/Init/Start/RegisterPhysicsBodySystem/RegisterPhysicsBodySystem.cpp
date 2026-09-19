@@ -25,7 +25,7 @@ void RegisterPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 			const LocalTransformComponent*		// 行列は親を辿って組むのでここでは使わない
 			)
 		{
-			ENGINE_PROFILE_SCOPE("Physics_RegisterStatic");
+			ENGINE_PROFILE_SCOPE("Physics_RegisterBody");
 
 			auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
 			const auto& _resourceManager = *a_ctx.pServices->pResourceManager;
@@ -35,22 +35,11 @@ void RegisterPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 				ColliderComponent& _collComp = a_collArray[_i];
 				const Engine::ECS::Entity _entity = a_pChunk->entityData[_i];
 
-				// 動くものは Phase 4(常駐ボディ化)で扱う。ここは静的だけ
-				if (IsDynamicLayer(_collComp.layer)) continue;
-
-				// 静的で Mesh 以外の形状はアセット上に無い(2026-09-19 時点で0件)。
-				// 旧実装は描画メッシュのAABBで概算していたが、こちらでは作らずに知らせる
-				if (_collComp.shapeType.type != Engine::Collision::EShapeType::Mesh)
-				{
-					ENGINE_WARNING("[Physics] 静的コライダーの形状が Mesh ではないので登録しません(entity=%llu)", _entity);
-					continue;
-				}
-
 				// 作り直し(Release → PostDeserialize → Start)で戻ってきたときに備えて、
 				// 前のボディが残っていれば消してから作る(持ち主が違えば何もしない)
 				_physicsWorld.DestroyBody(_collComp.physicsBody, _entity);
 
-				Engine::Physics::StaticModelBodyDesc _desc;
+				Engine::Physics::ModelBodyDesc _desc;
 				_desc.owner = _entity;
 				_desc.modelHandle = a_modelArray[_i].handle;
 
@@ -58,10 +47,20 @@ void RegisterPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 				// Start の時点では WorldMatrixComponent がまだ空なので使えない
 				_desc.worldMat = App::Systems::HierarchyTransform::CalcWorldMatrix(*a_ctx.pWorld, _entity);
 
+				// 形状は旧 CollisionWorld と同じ決め方 : Mesh は判定メッシュ、それ以外は描画メッシュのAABBの箱。
+				// (ColliderShape の球の半径は保存されておらず、旧でも使われていなかった)
+				_desc.shape = (_collComp.shapeType.type == Engine::Collision::EShapeType::Mesh)
+					? Engine::Physics::EModelBodyShape::CollisionMesh
+					: Engine::Physics::EModelBodyShape::DrawBounds;
+
+				// 動くもの(敵・弾・ボイド)は Kinematic で常駐させ、SyncPhysicsBodySystem が毎フレーム位置を合わせる。
+				// 旧は動的ワールドを毎フレーム作り直していた
+				_desc.isMoving = IsDynamicLayer(_collComp.layer);
+
 				_desc.group = static_cast<uint32_t>(_collComp.layer);
 				_desc.mask = static_cast<uint32_t>(_collComp.collideLayer);
 
-				_collComp.physicsBody = _physicsWorld.CreateStaticModelBody(_resourceManager, _desc);
+				_collComp.physicsBody = _physicsWorld.CreateModelBody(_resourceManager, _desc);
 			}
 		});
 }

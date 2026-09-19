@@ -61,12 +61,24 @@ namespace Engine::Physics
 		float distance = 0.0f;			// 始点からの距離
 	};
 
-	// モデルの判定メッシュから静的ボディを作るときに渡すもの
-	struct StaticModelBodyDesc
+	// モデルからボディを作るときの形状
+	enum class EModelBodyShape : uint8_t
+	{
+		CollisionMesh,	// 判定メッシュ(COL ノード)の三角形
+		DrawBounds,		// 描画メッシュ全体のAABBの箱(旧 CollisionWorld が Mesh 以外の形状をこれで概算していた)
+	};
+
+	// モデルからボディを作るときに渡すもの
+	struct ModelBodyDesc
 	{
 		ECS::Entity owner = ECS::Limits::INVALID_ENTITY;	// 持ち主。削除のときに照合する
 		Handle<Resource::Model> modelHandle = {};			// 形状の元。同じモデルの形状はワールドの中で使い回す
 		Math::Matrix worldMat = {};							// 親込みのワールド行列
+
+		EModelBodyShape shape = EModelBodyShape::CollisionMesh;
+
+		// 動くボディか。動くものは Kinematic で作り、SetBodyTransform で毎フレーム位置を合わせる
+		bool isMoving = false;
 
 		uint32_t group = 0;		// 自分のレイヤー(アプリの ColliderComponent::layer のビット)
 		uint32_t mask = 0;		// 当たりに行く相手(collideLayer のビット)
@@ -97,10 +109,15 @@ namespace Engine::Physics
 		// ボディ
 		//----------------------------------------------------------------------------------
 
-		// モデルの判定メッシュ(COL ノード)から静的ボディを作る。
+		// モデルからボディを作る。
 		// 空間へ入るのは次の Update(Start で作れば、そのフレームの判定クエリに間に合う)。
 		// 作れなかったときは無効な札を返す
-		BodyHandle CreateStaticModelBody(const Resource::ResourceManager& a_resourceManager, const StaticModelBodyDesc& a_desc);
+		BodyHandle CreateModelBody(const Resource::ResourceManager& a_resourceManager, const ModelBodyDesc& a_desc);
+
+		// 動くボディの位置・向き・拡大率を合わせる(瞬間移動)。
+		// 旧 CollisionWorld の動的 submit と同じ位置(Update フェーズ)で毎フレーム呼ぶ。
+		// a_owner が作ったときの持ち主と違えば何もしない
+		void SetBodyTransform(BodyHandle a_handle, ECS::Entity a_owner, const Math::Matrix& a_worldMat);
 
 		// ボディを消す。a_owner が作ったときの持ち主と違えば何もしない
 		// (コンポーネントの中身ごと複製されたエンティティが、他人のボディを消さないため)
@@ -118,7 +135,8 @@ namespace Engine::Physics
 		bool CastRay(const Math::Ray& a_ray, uint32_t a_queryMask, ECS::Entity a_ignore, RayHit& a_outHit) const;
 
 		// カプセル(線分 A-B + 半径)を押し出す。反復して床と壁などを順に解決する。
-		// a_pointA / a_pointB は押し出し後の位置に更新され、a_outCorrection に合計の補正が入る
+		// a_pointA / a_pointB は押し出し後の位置に更新され、a_outCorrection に合計の補正が入る。
+		// 押し出す相手は判定メッシュのボディだけ(箱で概算しているもの = 弾・ボイドからは押し出さない。旧と同じ)
 		bool ResolveCapsule(Math::Vector3& a_pointA, Math::Vector3& a_pointB, float a_radius,
 			uint32_t a_queryMask, ECS::Entity a_ignore, Math::Vector3& a_outCorrection, int a_iterations = 4) const;
 
@@ -133,7 +151,9 @@ namespace Engine::Physics
 		// 登録されているボディの数
 		uint32_t GetBodyCount() const;
 
-		// 全ボディのワールドAABBを積む(表示の可否は DebugDraw 側のオプションが決める)
+		// 判定メッシュのボディのワールドAABBを積む(静的=水色、動く=黄色)。
+		// 箱で概算しているもの(弾・ボイド)は数が多く、線の上限を食い潰すので描かない。
+		// 表示の可否は DebugDraw 側のオプションが決める
 		void DrawDebug(Graphics::DebugDraw* a_pDebugDraw) const;
 
 		bool IsValid() const { return m_upPhysicsSystem != nullptr; }

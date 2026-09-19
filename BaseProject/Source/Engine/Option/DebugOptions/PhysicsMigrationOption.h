@@ -19,7 +19,7 @@ namespace Engine::Option::DebugOptions
 	//==========================================================================================
 	struct PhysicsMigrationOption : IOption
 	{
-		// 静的な相手への判定(接地レイ・押し出し)の結果に Jolt を使う
+		// 接地レイ・押し出しの結果に Jolt を使う(相手は静的・動く敵とも。名前は保存済みの設定に合わせて据え置き)
 		bool useJoltStaticQueries = false;
 
 		// 旧と Jolt を両方走らせて、差を記録する

@@ -20,7 +20,6 @@ namespace App::Systems::PhysicsCompare
 
 		uint64_t queries = 0;		// 比べた回数
 		uint64_t mismatches = 0;	// ずれた回数
-		uint64_t expected = 0;		// うち、Phase 4 まではずれて当然のもの(旧が動くものに当たった)
 
 		int detailLogged = 0;
 		std::chrono::steady_clock::time_point lastReport = {};
@@ -52,12 +51,11 @@ namespace App::Systems::PhysicsCompare
 
 		if (a_stats.queries == 0) return;
 
-		ENGINE_LOG("[PhysicsCompare] %s : %llu queries, %llu mismatch (expected until Phase 4: %llu)",
-			a_stats.name, a_stats.queries, a_stats.mismatches, a_stats.expected);
+		ENGINE_LOG("[PhysicsCompare] %s : %llu queries, %llu mismatch",
+			a_stats.name, a_stats.queries, a_stats.mismatches);
 
 		a_stats.queries = 0;
 		a_stats.mismatches = 0;
-		a_stats.expected = 0;
 	}
 
 	// 2点が許容差の内にあるか
