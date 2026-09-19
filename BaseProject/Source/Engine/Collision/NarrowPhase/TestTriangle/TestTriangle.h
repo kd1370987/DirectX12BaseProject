@@ -32,22 +32,4 @@ namespace Engine::Collision::NarrowPhase
 		const DirectX::XMVECTOR& a_v2,
 		float& a_outDist
 	);
-
-	// OBB vs 三角形
-	bool TestTriangle(
-		const OBBInfo& a_info,
-		const DirectX::XMVECTOR& a_v0,
-		const DirectX::XMVECTOR& a_v1,
-		const DirectX::XMVECTOR& a_v2,
-		float& a_outDist
-	);
-
-	// フラスタム vs 三角形
-	bool TestTriangle(
-		const FrustumInfo& a_info,
-		const DirectX::XMVECTOR& a_v0,
-		const DirectX::XMVECTOR& a_v1,
-		const DirectX::XMVECTOR& a_v2,
-		float& a_outDist
-	);
 }

@@ -31,8 +31,7 @@
 
 // CollisionWorld は使わない。エディターでは当たり判定の有無に関わらず、
 // 描画メッシュのAABBに対して直接レイ判定してエンティティを選択する。
-#include "../../../Collision/CollisionCommon.h"
-#include "../../../Collision/NarrowPhase/TestAABB/TestAABB.h"
+// (レイと AABB 判定は Math 側のもの。当たり判定の実装には依存しない)
 
 #include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Resource/Data/Model/Model.h"
@@ -321,7 +320,7 @@ namespace Engine::Editor
 		_gameMouse.y = _localMouse.y * (static_cast<float>(_windowOp.windowHeight) / a_rect.y);
 
 		// スクリーン座標からワールド空間のレイを作成
-		Collision::RayInfo _ray = a_editContext.pEditorCamera->ScreenPointToRay(_gameMouse);
+		Math::Ray _ray = a_editContext.pEditorCamera->ScreenPointToRay(_gameMouse);
 
 		// CollisionWorld を使わず、描画エンティティを直接ピッキングする
 		Engine::ECS::Entity _picked = PickEntityByRay(a_pWorld, _ray);
@@ -331,7 +330,7 @@ namespace Engine::Editor
 			a_editContext.SelectEntity(_picked, a_editContext.m_isSelecting);
 		}
 	}
-	Engine::ECS::Entity SceneViewPanel::PickEntityByRay(Engine::ECS::World* a_pWorld, const Engine::Collision::RayInfo& a_ray)
+	Engine::ECS::Entity SceneViewPanel::PickEntityByRay(Engine::ECS::World* a_pWorld, const Math::Ray& a_ray)
 	{
 		Engine::ECS::Entity _picked = Engine::ECS::Limits::INVALID_ENTITY;
 		if (!a_pWorld) return _picked;
@@ -340,7 +339,7 @@ namespace Engine::Editor
 		const auto& _resourceManager = *a_pWorld->RefEngineServices()->pResourceManager;
 
 		// レイ方向を正規化しておく(AABB判定は単位ベクトルを前提にしている)
-		Collision::RayInfo _ray = a_ray;
+		Math::Ray _ray = a_ray;
 		{
 			Math::Vector3 _dir(_ray.direction);
 			if (_dir.LengthSquared() < 1e-12f) return _picked;
@@ -387,7 +386,7 @@ namespace Engine::Editor
 							DirectX::BoundingBox _worldBox;
 							_pMesh->GetMetaData().aabb.Transform(_worldBox, _meshWorldSimd);
 							float _boxDist = 0.0f;
-							if (!Collision::NarrowPhase::TestAABB(_ray, _worldBox, _boxDist)) continue;
+							if (!Math::DX::IntersectsRayAABB(_ray, _worldBox, _boxDist)) continue;
 							if (_boxDist > _closest) continue;	// 既に手前で当たっていれば不要
 
 							// --- ナローフェーズ ---

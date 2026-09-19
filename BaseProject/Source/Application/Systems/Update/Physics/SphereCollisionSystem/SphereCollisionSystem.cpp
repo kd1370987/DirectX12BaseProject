@@ -24,6 +24,7 @@ void SphereCollisionSystem::Init(App::ECS::APPWorld& a_world)
 			LocalTransformComponent* a_transArray
 			)
 		{
+			ENGINE_PROFILE_SCOPE("Collision_ResolveSphere");
 			auto* _pCollWorld = &a_ctx.pWorld->GetResource<Engine::Collision::CollisionWorld>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)

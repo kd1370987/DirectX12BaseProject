@@ -120,7 +120,10 @@ namespace Engine::Scene
 		// 動的ワールドは毎フレーム詰めなおす。
 		// この後の Update フェーズ(SubmitDynamicColliderSystem)が積み直すので、
 		// 積む前に空にしておくこと
-		_collWorld.ClearDynamicWorld(kDynamicColliderReserve);
+		{
+			ENGINE_PROFILE_SCOPE("Collision_ClearDynamic");
+			_collWorld.ClearDynamicWorld(kDynamicColliderReserve);
+		}
 
 		// シーンのシステム処理
 		//
@@ -144,8 +147,14 @@ namespace Engine::Scene
 		// (以前は全シーンの更新が終わった後=BeginDraw で構築していたため、
 		//  静的コライダーが判定へ反映されるのが1フレーム遅れていた)
 		// 中身に変更が無ければ ReBuildStaticTLAS は素通りするので、毎フレーム呼んでよい
-		_collWorld.BuildDynamicWorld();
-		_collWorld.BuildWorld();
+		{
+			ENGINE_PROFILE_SCOPE("Collision_BuildDynamic");
+			_collWorld.BuildDynamicWorld();
+		}
+		{
+			ENGINE_PROFILE_SCOPE("Collision_BuildStatic");
+			_collWorld.BuildWorld();
+		}
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Physics, a_dt);
 

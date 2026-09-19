@@ -28,6 +28,7 @@ void RegisterCollisionWorldSystem::Init(App::ECS::APPWorld& a_world)
 			const LocalTransformComponent*		// 行列は親を辿って組むのでここでは使わない
 			)
 		{
+			ENGINE_PROFILE_SCOPE("Collision_RegisterStatic");
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				ColliderComponent& _collComp = a_collArray[_i];

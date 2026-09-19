@@ -38,6 +38,7 @@
 #include "Utility/Math/Matrix.h"						// 行列
 #include "Utility/Math/Color.h"							// 色
 #include "Utility/Math/TRS.h"							// 行列の分解結果
+#include "Utility/Math/Ray.h"							// レイ
 #include "Utility/Math/DirectX/Math_DirectX.h"			// DirectXMath との橋渡し
 
 // ---- 共通クラス・構造体 ---- 

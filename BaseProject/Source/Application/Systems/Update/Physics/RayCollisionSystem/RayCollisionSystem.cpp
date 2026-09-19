@@ -31,6 +31,7 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 			StateMachineComponent* a_stateArray
 			)
 		{
+			ENGINE_PROFILE_SCOPE("Collision_GroundRay");
 			auto* _pCollWorld = &a_ctx.pWorld->GetResource<Engine::Collision::CollisionWorld>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)

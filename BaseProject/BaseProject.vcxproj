@@ -350,12 +350,10 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\MainCameraSystem\MainCameraSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Input\InputActionSystem\InputActionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\HitDetectSystem\HitDetectSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem\MovementIntegrationSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.cpp" />
@@ -733,11 +731,9 @@
     <ClInclude Include="Source\Application\Components\Character\Robot\AttachmentSlotsComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Weapon\Gun\GunStateComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Weapon\WeaponTriggerComponent.h" />
-    <ClInclude Include="Source\Application\Components\Collision\BoxCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\Collider.h" />
     <ClInclude Include="Source\Application\Components\Collision\ExplodeOnHitComponent.h" />
-    <ClInclude Include="Source\Application\Components\Collision\OBBCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\RayCollider.h" />
     <ClInclude Include="Source\Application\Components\Collision\SphereCollider.h" />
     <ClInclude Include="Source\Application\Components\Force\GravityComponent.h" />
@@ -831,12 +827,10 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\MainCameraSystem\MainCameraSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Input\InputActionSystem\InputActionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\HitDetectSystem\HitDetectSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem\MovementIntegrationSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.h" />
@@ -962,6 +956,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass\TestGBufferPass.h" />
     <ClInclude Include="Source\Engine\Physics\Core\BodyID.h" />
+    <ClInclude Include="Source\Engine\Physics\Internal\JoltMath.h" />
     <ClInclude Include="Source\Engine\Physics\Core\PhysicsBroadPhaseLayer\PhysicsBroadPhaseLayer.h" />
     <ClInclude Include="Source\Engine\Physics\Core\PhysicsLayer.h" />
     <ClInclude Include="Source\Engine\Physics\Core\PhysicsObjectVsBroadPhaseLayerFilter\PhysicsObjectVsBroadPhaseLayerFilter.h" />
@@ -1249,6 +1244,7 @@
     <ClInclude Include="Source\Engine\Utility\Math\Vector\Vector3.h" />
     <ClInclude Include="Source\Engine\Utility\Math\Vector\Vector4.h" />
     <ClInclude Include="Source\Engine\Utility\Math\TRS.h" />
+    <ClInclude Include="Source\Engine\Utility\Math\Ray.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\HandlePool\HandlePool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\AtomicItemPool.h" />
     <ClInclude Include="Source\Engine\Utility\Pool\ItemPool\ItemPool.h" />

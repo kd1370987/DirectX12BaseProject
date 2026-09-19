@@ -499,51 +499,6 @@ namespace Engine::Collision
 			a_info, a_myID, &Engine::Collision::Capsule::VSModel, a_outResult, a_ignoreID, a_layerMask);
 	}
 
-	bool CollisionWorld::VsBox(const BoxInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
-	{
-		// 軸並行BoxはOBB（回転なし）に変換してOBB経路を通す
-		OBBInfo _obb;
-		_obb.center = a_info.center;
-		_obb.extents = a_info.extents;
-		_obb.orientation = Math::Quaternion::Identity();
-
-		if (QueryOverlap(
-			*m_pResourceManager,
-			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
-			_obb, a_myID, &Engine::Collision::OBB::VSModel, a_outResult)) return true;
-
-		return QueryOverlap(
-			*m_pResourceManager,
-			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
-			_obb, a_myID, &Engine::Collision::OBB::VSModel, a_outResult);
-	}
-
-	bool CollisionWorld::VsOBB(const OBBInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
-	{
-		if (QueryOverlap(
-			*m_pResourceManager,
-			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
-			a_info, a_myID, &Engine::Collision::OBB::VSModel, a_outResult)) return true;
-
-		return QueryOverlap(
-			*m_pResourceManager,
-			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
-			a_info, a_myID, &Engine::Collision::OBB::VSModel, a_outResult);
-	}
-
-	bool CollisionWorld::VsFrustum(const FrustumInfo& a_info, Result& a_outResult, const ECS::Entity& a_myID)
-	{
-		if (QueryOverlap(
-			*m_pResourceManager,
-			m_staticNodeVec, m_staticRootNodeIndex, m_staticInstanceIndexVec, m_staticInstanceVec,
-			a_info, a_myID, &Engine::Collision::Frustum::VSModel, a_outResult)) return true;
-
-		return QueryOverlap(
-			*m_pResourceManager,
-			m_dynamicNodeVec, m_dynamicRootNodeIndex, m_dynamicInstanceIndexVec, m_dynamicInstanceVec,
-			a_info, a_myID, &Engine::Collision::Frustum::VSModel, a_outResult);
-	}
-
 	bool CollisionWorld::ResolveCapsule(
 		Math::Vector3& a_pointA, Math::Vector3& a_pointB, float a_radius,
 		const ECS::Entity& a_myID, Math::Vector3& a_outCorrection, int a_iterations)

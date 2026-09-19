@@ -7,11 +7,7 @@ namespace Engine::Collision::NarrowPhase
 	bool TestAABB(const RayInfo& a_ray, const DirectX::BoundingBox& a_box, float& a_outDist)
 	{
 		// レイ情報とボックスの交差判定を行う
-		// BoundingBox::Intersects は XMVECTOR しか受けないので、渡す直前に積む
-		return a_box.Intersects(
-			Math::DX::Load(a_ray.origin),
-			Math::DX::Load(a_ray.direction),
-			a_outDist);
+		return Math::DX::IntersectsRayAABB(a_ray, a_box, a_outDist);
 	}
 	bool TestAABB(const SphereInfo& a_info, const DirectX::BoundingBox& a_box, float& a_outDist)
 	{
@@ -23,15 +19,5 @@ namespace Engine::Collision::NarrowPhase
 		// ブロードフェーズは保守的にカプセルのAABB同士で判定する
 		a_outDist = 0.0f;
 		return a_box.Intersects(MakeCapsuleAABB(a_info));
-	}
-	bool TestAABB(const OBBInfo& a_info, const DirectX::BoundingBox& a_box, float& a_outDist)
-	{
-		a_outDist = 0.0f;
-		return MakeOBB(a_info).Intersects(a_box);
-	}
-	bool TestAABB(const FrustumInfo& a_info, const DirectX::BoundingBox& a_box, float& a_outDist)
-	{
-		a_outDist = 0.0f;
-		return MakeFrustum(a_info).Intersects(a_box);
 	}
 }

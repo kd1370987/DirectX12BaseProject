@@ -239,33 +239,6 @@ namespace
 		return _o;
 	}
 
-	OBBInfo TransformToLocal(const OBBInfo& a_w, DirectX::FXMMATRIX a_inv)
-	{
-		DirectX::BoundingOrientedBox _lb;
-		MakeOBB(a_w).Transform(_lb, a_inv);
-		OBBInfo _o;
-		_o.center = _lb.Center;
-		_o.extents = _lb.Extents;
-		_o.orientation = _lb.Orientation;
-		return _o;
-	}
-
-	FrustumInfo TransformToLocal(const FrustumInfo& a_w, DirectX::FXMMATRIX a_inv)
-	{
-		DirectX::BoundingFrustum _lf;
-		MakeFrustum(a_w).Transform(_lf, a_inv);
-		FrustumInfo _o;
-		_o.origin = _lf.Origin;
-		_o.orientation = _lf.Orientation;
-		_o.rightSlope = _lf.RightSlope;
-		_o.leftSlope = _lf.LeftSlope;
-		_o.topSlope = _lf.TopSlope;
-		_o.bottomSlope = _lf.BottomSlope;
-		_o.nearPlane = _lf.Near;
-		_o.farPlane = _lf.Far;
-		return _o;
-	}
-
 	CapsuleInfo TransformToLocal(const CapsuleInfo& a_w, DirectX::FXMMATRIX a_inv)
 	{
 		const Math::Matrix _inv = Math::DX::StoreMatrix(a_inv);
@@ -468,24 +441,6 @@ bool Engine::Collision::Capsule::ResolveVSModel(const Engine::Resource::Resource
 	if (!_best.hit) return false;
 	a_outContact = _best;
 	return true;
-}
-
-bool Engine::Collision::OBB::VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const OBBInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
-{
-	return OverlapModel(a_resourceManager, a_info, a_pModel, a_worldMat, a_outResult);
-}
-bool Engine::Collision::OBB::VSMesh(const OBBInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult)
-{
-	return OverlapMesh(a_info, a_pMesh, a_worldMat, a_outResult);
-}
-
-bool Engine::Collision::Frustum::VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const FrustumInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult)
-{
-	return OverlapModel(a_resourceManager, a_info, a_pModel, a_worldMat, a_outResult);
-}
-bool Engine::Collision::Frustum::VSMesh(const FrustumInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult)
-{
-	return OverlapMesh(a_info, a_pMesh, a_worldMat, a_outResult);
 }
 
 } // namespace Engine::Collision

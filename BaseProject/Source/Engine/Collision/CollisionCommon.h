@@ -64,13 +64,8 @@ namespace Engine::Collision
 		bool hit = false;			// 接触しているか
 	};
 
-	// レイ判定時に渡す情報
-	struct RayInfo
-	{
-		Math::Vector3 origin = { 0.0f,0.0f,0.0f };
-		Math::Vector3 direction = { 0.0f,0.0f,1.0f };
-		float maxDistance = 1000.0f;
-	};
+	// レイ判定時に渡す情報。実体はエディターとも共有する Math::Ray
+	using RayInfo = Math::Ray;
 
 	// 球判定時に渡す情報
 	struct SphereInfo
@@ -85,36 +80,5 @@ namespace Engine::Collision
 		Math::Vector3 pointA = {};		// 線分の端点A
 		Math::Vector3 pointB = {};		// 線分の端点B
 		float radius = 0.0f;			// 半径
-	};
-
-	// ボックス(AABB)判定時に渡す情報（ワールド軸に平行）
-	struct BoxInfo
-	{
-		Math::Vector3 center = {};		// 中心点
-		Math::Vector3 extents = {};		// 各軸の半分の長さ
-	};
-
-	// OBB判定時に渡す情報（向きあり）
-	struct OBBInfo
-	{
-		Math::Vector3 center = {};						// 中心点
-		Math::Vector3 extents = {};						// 各軸の半分の長さ
-		Math::Quaternion orientation = Math::Quaternion::Identity();	// 回転
-	};
-
-	// フラスタム判定時に渡す情報（DirectX::BoundingFrustum と同じパラメータ）
-	struct FrustumInfo
-	{
-		Math::Vector3 origin = {};						// 視点
-		Math::Quaternion orientation = Math::Quaternion::Identity();	// 向き
-
-		// 各面の傾き（近平面から見たスロープ）
-		float rightSlope = 1.0f;
-		float leftSlope = -1.0f;
-		float topSlope = 1.0f;
-		float bottomSlope = -1.0f;
-
-		float nearPlane = 0.1f;		// 近平面までの距離
-		float farPlane = 100.0f;	// 遠平面までの距離
 	};
 }

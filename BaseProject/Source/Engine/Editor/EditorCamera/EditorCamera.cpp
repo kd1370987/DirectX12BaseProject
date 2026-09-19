@@ -183,7 +183,7 @@ namespace Engine::Editor
 			m_moveSpeed = 10.0f;
 		}
 	}
-	Collision::RayInfo EditorCamera::ScreenPointToRay(const Math::Vector2& a_mousePos, float a_maxDistance)
+	Math::Ray EditorCamera::ScreenPointToRay(const Math::Vector2& a_mousePos, float a_maxDistance)
 	{
 		// スクリーン情報取得
 		const auto& _windowOp = Option::OptionManager::GetInstance().GetWindowOption();
@@ -226,7 +226,7 @@ namespace Engine::Editor
 		// レイの射出方向を取得
 		Math::Vector3 _dir = _farPos - _nearPos;
 
-		Collision::RayInfo _rayInfo = {};
+		Math::Ray _rayInfo = {};
 		_rayInfo.origin = _nearPos;
 		_rayInfo.direction = _dir;
 		_rayInfo.maxDistance = a_maxDistance;

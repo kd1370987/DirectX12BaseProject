@@ -111,26 +111,4 @@ namespace Engine::Collision::NarrowPhase
 		float _distSq = ClosestDistSqSegmentTriangle(a_info.pointA, a_info.pointB, _a, _b, _c);
 		return _distSq <= a_info.radius * a_info.radius;
 	}
-
-	bool TestTriangle(
-		const OBBInfo& a_info,
-		const DirectX::XMVECTOR& a_v0,
-		const DirectX::XMVECTOR& a_v1,
-		const DirectX::XMVECTOR& a_v2,
-		float& a_outDist)
-	{
-		a_outDist = 0.0f;
-		return MakeOBB(a_info).Intersects(a_v0, a_v1, a_v2);
-	}
-
-	bool TestTriangle(
-		const FrustumInfo& a_info,
-		const DirectX::XMVECTOR& a_v0,
-		const DirectX::XMVECTOR& a_v1,
-		const DirectX::XMVECTOR& a_v2,
-		float& a_outDist)
-	{
-		a_outDist = 0.0f;
-		return MakeFrustum(a_info).Intersects(a_v0, a_v1, a_v2);
-	}
 }

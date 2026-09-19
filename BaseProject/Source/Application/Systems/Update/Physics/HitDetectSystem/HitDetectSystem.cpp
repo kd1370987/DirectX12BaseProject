@@ -29,6 +29,7 @@ void HitDetectSystem::Init(App::ECS::APPWorld& a_world)
 			const ColliderComponent* a_collArray
 			)
 		{
+			ENGINE_PROFILE_SCOPE("Collision_HitDetect");
 			auto* _pCollWorld = &a_ctx.pWorld->GetResource<Engine::Collision::CollisionWorld>();
 
 			// ワールド側のヒット履歴(反応系が横から読む)

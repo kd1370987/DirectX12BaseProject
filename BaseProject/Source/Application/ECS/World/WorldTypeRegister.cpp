@@ -53,8 +53,6 @@
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
 #include "Application/Components/Camera/TPSFollowComponent.h"
 #include "Application/Components/Collision/SphereCollider.h"
-#include "Application/Components/Collision/BoxCollider.h"
-#include "Application/Components/Collision/OBBCollider.h"
 #include "../../Components/Tag/EnemyTag.h"
 #include "../../Components/Collision/CapsuleCollider.h"
 #include "../../Components/Intent/ActionIntentComponent.h"
@@ -148,8 +146,6 @@
 #include "../../Systems/Draw/Draw/RegisterAnimatedRayWorldSystem/RegisterAnimatedRayWorldSystem.h"
 #include "../../Systems/Update/Physics/CapsuleCollisionSystem/CapsuleCollisionSystem.h"
 #include "../../Systems/Update/Physics/SphereCollisionSystem/SphereCollisionSystem.h"
-#include "../../Systems/Update/Physics/BoxCollisionSystem/BoxCollisionSystem.h"
-#include "../../Systems/Update/Physics/OBBCollisionSystem/OBBCollisionSystem.h"
 #include "../../Systems/Update/Input/InputActionSystem/InputActionSystem.h"
 #include "../../Systems/Update/Update/GunShootSystem/GunShootSystem.h"
 #include "../../Systems/Update/PreUpdate/CollisionEventClearSystem/CollisionEventClearSystem.h"
@@ -273,8 +269,6 @@ namespace App::ECS
 		a_world.RegisterComponent<TPSFollowComponent>("TPSFollowComponent");
 		a_world.RegisterComponent<CapsuleColliderComponent>("CapsuleColliderComponent");
 		a_world.RegisterComponent<SphereColliderComponent>("SphereColliderComponent");
-		a_world.RegisterComponent<BoxColliderComponent>("BoxColliderComponent");
-		a_world.RegisterComponent<OBBColliderComponent>("OBBColliderComponent");
 		a_world.RegisterComponent<ActionIntentComponent>("ActionIntentComponent");
 		a_world.RegisterComponent<GunStateComponent>("GunStateComponent");
 		// 武器が外から受け取る引き金。持ち主の命令と武器の挙動を分ける受け口
@@ -458,8 +452,6 @@ namespace App::ECS
 		a_world.RegisterSystem<RegisterAnimatedRayWorldSystem>();
 		a_world.RegisterSystem<CapsuleCollisionSystem>();
 		a_world.RegisterSystem<SphereCollisionSystem>();
-		a_world.RegisterSystem<BoxCollisionSystem>();
-		a_world.RegisterSystem<OBBCollisionSystem>();
 		a_world.RegisterSystem<InputActionSystem>();
 		a_world.RegisterSystem<GunShootSystem>();
 		a_world.RegisterSystem<SubmitDynamicColliderSystem>();

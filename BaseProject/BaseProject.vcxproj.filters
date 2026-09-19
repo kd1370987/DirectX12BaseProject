@@ -562,9 +562,6 @@
     <Filter Include="Source\Application\Systems\Update\Physics">
       <UniqueIdentifier>{b6e81472-8dc5-4f90-8151-63c41b7b1c91}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem">
-      <UniqueIdentifier>{7702b738-78e0-4488-8a9f-2f487215d957}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem">
       <UniqueIdentifier>{6a2281ea-cd2f-4161-bcfa-8d33120db163}</UniqueIdentifier>
     </Filter>
@@ -579,9 +576,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem">
       <UniqueIdentifier>{29d208e6-31fb-42f8-8dc2-2f171faa9124}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem">
-      <UniqueIdentifier>{6e959bf9-d070-486e-90b1-7fd73d7cf1ec}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\Physics\RayCollisionSystem">
       <UniqueIdentifier>{dd3f9846-de26-4539-bf1c-aa5bceea153e}</UniqueIdentifier>
@@ -1651,6 +1645,9 @@
     <Filter Include="Source\Engine\Physics">
       <UniqueIdentifier>{211011ca-21d0-4ea0-b769-1c3f82fd35b4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Physics\Internal">
+      <UniqueIdentifier>{64d50f21-a0a9-4260-9186-0fc691d3e11c}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Physics\Core">
       <UniqueIdentifier>{dbadc413-c262-4921-a7ec-5aae8a82a003}</UniqueIdentifier>
     </Filter>
@@ -1932,9 +1929,6 @@
     <ClCompile Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.cpp">
       <Filter>Source\Application\Systems\Update\Input\InputMoveSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Physics\BoxCollisionSystem</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.cpp">
       <Filter>Source\Application\Systems\Update\Physics\CapsuleCollisionSystem</Filter>
     </ClCompile>
@@ -1946,9 +1940,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp">
       <Filter>Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Physics\OBBCollisionSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp">
       <Filter>Source\Application\Systems\Update\Physics\RayCollisionSystem</Filter>
@@ -2984,9 +2975,6 @@
     <ClInclude Include="Source\Application\Components\Character\Weapon\Projectile\ProjectileComponent.h">
       <Filter>Source\Application\Components\Character\Weapon\Projectile</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Collision\BoxCollider.h">
-      <Filter>Source\Application\Components\Collision</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h">
       <Filter>Source\Application\Components\Collision</Filter>
     </ClInclude>
@@ -2994,9 +2982,6 @@
       <Filter>Source\Application\Components\Collision</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Collision\ExplodeOnHitComponent.h">
-      <Filter>Source\Application\Components\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Components\Collision\OBBCollider.h">
       <Filter>Source\Application\Components\Collision</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Collision\RayCollider.h">
@@ -3380,9 +3365,6 @@
     <ClInclude Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.h">
       <Filter>Source\Application\Systems\Update\Input\InputMoveSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Physics\BoxCollisionSystem\BoxCollisionSystem.h">
-      <Filter>Source\Application\Systems\Update\Physics\BoxCollisionSystem</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.h">
       <Filter>Source\Application\Systems\Update\Physics\CapsuleCollisionSystem</Filter>
     </ClInclude>
@@ -3394,9 +3376,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.h">
       <Filter>Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Physics\OBBCollisionSystem\OBBCollisionSystem.h">
-      <Filter>Source\Application\Systems\Update\Physics\OBBCollisionSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.h">
       <Filter>Source\Application\Systems\Update\Physics\RayCollisionSystem</Filter>
@@ -4310,6 +4289,9 @@
     <ClInclude Include="Source\Engine\Utility\Math\Random.h">
       <Filter>Source\Engine\Utility\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\Math\Ray.h">
+      <Filter>Source\Engine\Utility\Math</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Math\TRS.h">
       <Filter>Source\Engine\Utility\Math</Filter>
     </ClInclude>
@@ -4591,6 +4573,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter\PysicsObjectLayerPairFilter.h">
       <Filter>Source\Engine\Physics\Core\PysicsObjectLayerPairFilter</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Physics\Internal\JoltMath.h">
+      <Filter>Source\Engine\Physics\Internal</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Physics\Core\BodyID.h">
       <Filter>Source\Engine\Physics\Core</Filter>

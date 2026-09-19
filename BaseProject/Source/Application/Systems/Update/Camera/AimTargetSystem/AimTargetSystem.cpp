@@ -143,7 +143,11 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 			_info.maxDistance	= _pAim->maxDistance;
 
 			Engine::Collision::Result _res = {};
-			bool _isHit = _pCollWorld->Raycast(_info, _res, _target);
+			bool _isHit = false;
+			{
+				ENGINE_PROFILE_SCOPE("Collision_AimRay");
+				_isHit = _pCollWorld->Raycast(_info, _res, _target);
+			}
 
 			//============================================================
 			// 狙点の確定

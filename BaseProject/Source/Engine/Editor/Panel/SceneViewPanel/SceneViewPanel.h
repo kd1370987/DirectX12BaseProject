@@ -7,10 +7,10 @@ namespace Engine
 	{
 		class World;
 	}
-	namespace Collision
-	{
-		struct RayInfo;
-	}
+}
+namespace Math
+{
+	struct Ray;
 }
 
 
@@ -31,7 +31,7 @@ namespace Engine::Editor
 
 		// レイと描画メッシュのAABBでエンティティをピッキングする(CollisionWorldは使わない)。
 		// 当たり判定を持たないエンティティも選択できるよう、描画メッシュから直接判定する。
-		Engine::ECS::Entity PickEntityByRay(Engine::ECS::World* a_pWorld, const Engine::Collision::RayInfo& a_ray);
+		Engine::ECS::Entity PickEntityByRay(Engine::ECS::World* a_pWorld, const Math::Ray& a_ray);
 
 		// ギズモ
 		// ギズモ本体はプライマリ選択に出し、動かした分は選択中の全エンティティへ適用する。

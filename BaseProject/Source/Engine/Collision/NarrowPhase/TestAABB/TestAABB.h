@@ -14,11 +14,4 @@ namespace Engine::Collision::NarrowPhase
 
 	// カプセル vs AABB
 	bool TestAABB(const CapsuleInfo& a_info,const DirectX::BoundingBox& a_box,float& a_outDist);
-
-	// OBB vs AABB
-	bool TestAABB(const OBBInfo& a_info,const DirectX::BoundingBox& a_box,float& a_outDist);
-
-	// フラスタム vs AABB
-	bool TestAABB(const FrustumInfo& a_info,const DirectX::BoundingBox& a_box,float& a_outDist);
-
 }

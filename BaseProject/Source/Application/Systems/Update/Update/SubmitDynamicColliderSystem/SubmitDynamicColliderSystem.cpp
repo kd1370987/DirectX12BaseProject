@@ -35,6 +35,7 @@ void SubmitDynamicColliderSystem::Init(App::ECS::APPWorld& a_world)
 			const LocalTransformComponent*		// 行列は親を辿って組むのでここでは使わない
 			)
 		{
+			ENGINE_PROFILE_SCOPE("Collision_SubmitDynamic");
 			auto* _pCollWorld = &a_ctx.pWorld->GetResource<Engine::Collision::CollisionWorld>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)

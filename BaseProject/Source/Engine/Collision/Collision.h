@@ -61,19 +61,5 @@ namespace Engine
 			bool ResolveVSMesh(const CapsuleInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Contact& a_outContact);
 			bool ResolveVSModel(const Engine::Resource::ResourceManager& a_resourceManager, const CapsuleInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Contact& a_outContact);
 		}
-
-		// OBB判定（軸並行BoxもこのOBB経路を通す）
-		namespace OBB
-		{
-			bool VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const OBBInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult);
-			bool VSMesh(const OBBInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult);
-		}
-
-		// フラスタム判定
-		namespace Frustum
-		{
-			bool VSModel(const Engine::Resource::ResourceManager& a_resourceManager, const FrustumInfo& a_info, const Engine::Resource::Model* a_pModel, const Math::Matrix& a_worldMat, Result& a_outResult);
-			bool VSMesh(const FrustumInfo& a_info, const Engine::Resource::Mesh* a_pMesh, const Math::Matrix& a_worldMat, Result& a_outResult);
-		}
 	}
 }

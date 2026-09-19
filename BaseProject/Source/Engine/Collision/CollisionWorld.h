@@ -64,15 +64,6 @@ namespace Engine::Collision
 			const ECS::Entity& a_ignoreID = ECS::Limits::INVALID_ENTITY,
 			uint32_t a_layerMask = kLayerMaskAll);
 
-		// ボックス(AABB)判定
-		bool VsBox(const BoxInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
-
-		// OBB判定
-		bool VsOBB(const OBBInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
-
-		// フラスタム判定
-		bool VsFrustum(const FrustumInfo& a_info,Result& a_outResult,const ECS::Entity& a_myID = ECS::Limits::INVALID_ENTITY);
-
 		// ---- 押し出し（デペネトレーション） ----
 		// 静的メッシュから押し出す。反復して複数面（床＋壁など）を解決する。
 

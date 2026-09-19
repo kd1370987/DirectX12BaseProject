@@ -16,31 +16,6 @@ namespace Engine::Collision::NarrowPhase
 		return _s;
 	}
 
-	// OBB
-	inline DirectX::BoundingOrientedBox MakeOBB(const OBBInfo& a_info)
-	{
-		DirectX::BoundingOrientedBox _b;
-		_b.Center = a_info.center;
-		_b.Extents = a_info.extents;
-		_b.Orientation = a_info.orientation;
-		return _b;
-	}
-
-	// フラスタム
-	inline DirectX::BoundingFrustum MakeFrustum(const FrustumInfo& a_info)
-	{
-		DirectX::BoundingFrustum _f;
-		_f.Origin = a_info.origin;
-		_f.Orientation = a_info.orientation;
-		_f.RightSlope = a_info.rightSlope;
-		_f.LeftSlope = a_info.leftSlope;
-		_f.TopSlope = a_info.topSlope;
-		_f.BottomSlope = a_info.bottomSlope;
-		_f.Near = a_info.nearPlane;
-		_f.Far = a_info.farPlane;
-		return _f;
-	}
-
 	// カプセルを包む保守的な AABB（ブロードフェーズ用）
 	inline DirectX::BoundingBox MakeCapsuleAABB(const CapsuleInfo& a_info)
 	{
