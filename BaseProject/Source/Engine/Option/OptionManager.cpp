@@ -20,6 +20,7 @@ namespace Engine::Option
 		m_pOptionList.push_back(&m_audioOption);
 
 		m_pOptionList.push_back(&m_debugDrawOption);
+		m_pOptionList.push_back(&m_physicsMigrationOption);
 	}
 	void OptionManager::Serialize()
 	{
@@ -67,4 +68,4 @@ namespace Engine::Option
 			}
 		}
 	}
-}
+}

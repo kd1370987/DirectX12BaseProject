@@ -18,6 +18,7 @@
 
 // デバッグオプション
 #include "DebugOptions/DebugDrawOption.h"
+#include "DebugOptions/PhysicsMigrationOption.h"
 
 namespace Engine::Option
 {
@@ -86,6 +87,10 @@ namespace Engine::Option
 		const DebugOptions::DebugDrawOption& GetDebugDrawOption() const { return m_debugDrawOption; }
 		DebugOptions::DebugDrawOption& RefDebugDrawOption() { return m_debugDrawOption; }
 
+		// 当たり判定の移行中の切り替え(旧 CollisionWorld / Jolt)
+		const DebugOptions::PhysicsMigrationOption& GetPhysicsMigrationOption() const { return m_physicsMigrationOption; }
+		DebugOptions::PhysicsMigrationOption& RefPhysicsMigrationOption() { return m_physicsMigrationOption; }
+
 	private:
 
 		void Archive(Persistence::Archive& a_ar);
@@ -108,6 +113,7 @@ namespace Engine::Option
 
 		// デバッグオプション
 		DebugOptions::DebugDrawOption m_debugDrawOption = {};
+		DebugOptions::PhysicsMigrationOption m_physicsMigrationOption = {};
 
 		// ループ処理用
 		std::vector<IOption*> m_pOptionList;
@@ -124,4 +130,4 @@ namespace Engine::Option
 			return _instance;
 		}
 	};
-}
+}

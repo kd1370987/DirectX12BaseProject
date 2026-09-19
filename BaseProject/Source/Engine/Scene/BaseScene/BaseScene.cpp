@@ -190,6 +190,11 @@ namespace Engine::Scene
 		m_upWorld->GetResource<Engine::Collision::CollisionWorld>()
 			.DrawDebug(m_upWorld->RefEngineServices()->pDebugDraw);
 
+		// 物理空間(Jolt)のボディも水色で重ねる。
+		// 移行中は白(旧)と重なっていれば同じ場所に登録できている
+		m_upWorld->GetResource<Engine::Physics::PhysicsWorld>()
+			.DrawDebug(m_upWorld->RefEngineServices()->pDebugDraw);
+
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::PreDraw, 0.0f);
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Draw, 0.0f);

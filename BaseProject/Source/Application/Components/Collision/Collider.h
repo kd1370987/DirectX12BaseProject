@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Engine/Physics/Core/BodyID.h"
+
 //==========================================================================================
 // 当たり判定のレイヤー
 //
@@ -43,6 +45,10 @@ struct ColliderComponent
 
 	// コリジョンワールドに登録されているハンドル
 	Engine::Handle<Engine::Collision::CollisionInstance> collWorldHandle = {};
+
+	// 物理空間(Jolt)に登録されているボディ。
+	// 移行中は collWorldHandle と両方を持つ。登録は Start、削除は Release フェーズ
+	Engine::Physics::BodyHandle physicsBody = {};
 };
 
 inline Layer operator|(Layer a, Layer b)

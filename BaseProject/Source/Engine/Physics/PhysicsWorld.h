@@ -1,6 +1,9 @@
 ﻿#pragma once
 
 #include "Engine/Utility/Math/Vector/Vector3.h"
+#include "Engine/Utility/Math/Matrix.h"
+#include "Engine/Utility/Math/Ray.h"
+#include "Core/BodyID.h"
 
 namespace JPH
 {
@@ -8,6 +11,17 @@ namespace JPH
 	class BroadPhaseLayerInterface;
 	class ObjectVsBroadPhaseLayerFilter;
 	class ObjectLayerPairFilter;
+}
+
+namespace Engine::Resource
+{
+	class ResourceManager;
+	class Model;
+}
+
+namespace Engine::Graphics
+{
+	class DebugDraw;
 }
 
 namespace Engine::Physics
@@ -34,6 +48,30 @@ namespace Engine::Physics
 		}
 	};
 
+	// クエリで全レイヤーを相手にするときのマスク。
+	// アプリの Layer のビットはこの範囲(7ビット)に収めること
+	inline constexpr uint32_t kQueryAllLayers = 0x7Fu;
+
+	// レイが当たったところ
+	struct RayHit
+	{
+		ECS::Entity entity = ECS::Limits::INVALID_ENTITY;	// 当たったボディの持ち主
+		Math::Vector3 position = {};	// 当たった位置(ワールド)
+		Math::Vector3 normal = {};		// 当たった面の法線(ワールド・単位長)
+		float distance = 0.0f;			// 始点からの距離
+	};
+
+	// モデルの判定メッシュから静的ボディを作るときに渡すもの
+	struct StaticModelBodyDesc
+	{
+		ECS::Entity owner = ECS::Limits::INVALID_ENTITY;	// 持ち主。削除のときに照合する
+		Handle<Resource::Model> modelHandle = {};			// 形状の元。同じモデルの形状はワールドの中で使い回す
+		Math::Matrix worldMat = {};							// 親込みのワールド行列
+
+		uint32_t group = 0;		// 自分のレイヤー(アプリの ColliderComponent::layer のビット)
+		uint32_t mask = 0;		// 当たりに行く相手(collideLayer のビット)
+	};
+
 	//======================================================================================
 	// シーン(ECSワールド)ごとの物理空間
 	//
@@ -51,13 +89,59 @@ namespace Engine::Physics
 		~PhysicsWorld();
 		NON_COPYABLE_NON_MOVABLE(PhysicsWorld);
 
-		// 1ステップ進める。判定クエリ(Physics フェーズ)の前に呼ぶ
+		// 1ステップ進める。判定クエリ(Physics フェーズ)の前に呼ぶ。
+		// 作ったボディの空間への追加もここでまとめて行う
 		void Update(float a_dt);
 
-		// 登録されているボディの数(確認用)
+		//----------------------------------------------------------------------------------
+		// ボディ
+		//----------------------------------------------------------------------------------
+
+		// モデルの判定メッシュ(COL ノード)から静的ボディを作る。
+		// 空間へ入るのは次の Update(Start で作れば、そのフレームの判定クエリに間に合う)。
+		// 作れなかったときは無効な札を返す
+		BodyHandle CreateStaticModelBody(const Resource::ResourceManager& a_resourceManager, const StaticModelBodyDesc& a_desc);
+
+		// ボディを消す。a_owner が作ったときの持ち主と違えば何もしない
+		// (コンポーネントの中身ごと複製されたエンティティが、他人のボディを消さないため)
+		void DestroyBody(BodyHandle a_handle, ECS::Entity a_owner);
+
+		//----------------------------------------------------------------------------------
+		// クエリ
+		//
+		// a_queryMask : 当たりに行く相手のレイヤー(ビット和)。ボディ側の mask は見ない
+		// a_ignore    : 判定から外す持ち主(自分自身)
+		// 三角形は表裏どちらにも当たる(旧 CollisionWorld と同じ)
+		//----------------------------------------------------------------------------------
+
+		// レイ。いちばん手前の1つを返す。方向は正規化しなくてよい
+		bool CastRay(const Math::Ray& a_ray, uint32_t a_queryMask, ECS::Entity a_ignore, RayHit& a_outHit) const;
+
+		// カプセル(線分 A-B + 半径)を押し出す。反復して床と壁などを順に解決する。
+		// a_pointA / a_pointB は押し出し後の位置に更新され、a_outCorrection に合計の補正が入る
+		bool ResolveCapsule(Math::Vector3& a_pointA, Math::Vector3& a_pointB, float a_radius,
+			uint32_t a_queryMask, ECS::Entity a_ignore, Math::Vector3& a_outCorrection, int a_iterations = 4) const;
+
+		// 球を押し出す。a_center は押し出し後の位置に更新される
+		bool ResolveSphere(Math::Vector3& a_center, float a_radius,
+			uint32_t a_queryMask, ECS::Entity a_ignore, Math::Vector3& a_outCorrection, int a_iterations = 4) const;
+
+		//----------------------------------------------------------------------------------
+		// 確認用
+		//----------------------------------------------------------------------------------
+
+		// 登録されているボディの数
 		uint32_t GetBodyCount() const;
 
+		// 全ボディのワールドAABBを積む(表示の可否は DebugDraw 側のオプションが決める)
+		void DrawDebug(Graphics::DebugDraw* a_pDebugDraw) const;
+
 		bool IsValid() const { return m_upPhysicsSystem != nullptr; }
+
+	private:
+
+		// 追加待ちのボディを空間へ入れる
+		void FlushPendingBodies();
 
 	private:
 
@@ -70,5 +154,9 @@ namespace Engine::Physics
 		std::unique_ptr<JPH::ObjectLayerPairFilter> m_upObjectLayerPairFilter;
 
 		std::unique_ptr<JPH::PhysicsSystem> m_upPhysicsSystem;
+
+		// 形状の使い回しと追加待ちの一覧(Jolt の型を持つので中身は .cpp)
+		struct Detail;
+		std::unique_ptr<Detail> m_upDetail;
 	};
 }

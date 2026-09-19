@@ -339,9 +339,11 @@
     <ClCompile Include="Source\Application\Systems\Init\Start\SpawnSoundSystem\SpawnSoundSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem\RegisterPhysicsBodySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Release\PhysicsBodyFreeSystem\PhysicsBodyFreeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Camera\AimTargetSystem\AimTargetSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp" />
@@ -818,8 +820,10 @@
     <ClInclude Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem\RegisterPhysicsBodySystem.h" />
     <ClInclude Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Release\PhysicsBodyFreeSystem\PhysicsBodyFreeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Camera\AimTargetSystem\AimTargetSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h" />
@@ -844,6 +848,7 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem\MissileSalvoSystem.h" />
     <ClInclude Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.h" />
     <ClInclude Include="Source\Application\Systems\Shared\HierarchyTransform\HierarchyTransform.h" />
+    <ClInclude Include="Source\Application\Systems\Shared\PhysicsCompare\PhysicsCompare.h" />
     <ClInclude Include="Source\Application\Systems\Shared\MissileSalvo\MissileSalvo.h" />
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem\BossCombatIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem\BossMissileSalvoSystem.h" />
@@ -1121,6 +1126,7 @@
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\LightingOption.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\BloomOption.h" />
     <ClInclude Include="Source\Engine\Option\DebugOptions\DebugDrawOption.h" />
+    <ClInclude Include="Source\Engine\Option\DebugOptions\PhysicsMigrationOption.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\WindowOption.h" />
     <ClInclude Include="Source\Engine\Option\IOption.h" />
     <ClInclude Include="Source\Engine\Option\OptionManager.h" />

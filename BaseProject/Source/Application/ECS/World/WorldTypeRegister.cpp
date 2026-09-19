@@ -89,6 +89,7 @@
 #include "Application/Systems/Init/Start/CameraStartSystem/CameraStartSystem.h"
 #include "Application/Systems/Init/Start/AnimationModelStartSystem/AnimationModelStartSystem.h"
 #include "Application/Systems/Init/Start/RegisterCollisionWorldSystem/RegisterCollisionWorldSystem.h"
+#include "Application/Systems/Init/Start/RegisterPhysicsBodySystem/RegisterPhysicsBodySystem.h"
 #include "Application/Systems/Init/Start/AttachmentNodeLinkSystem/AttachmentNodeLinkSystem.h"
 #include "Application/Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
 #include "Application/Systems/Update/Update/Rotation/RotationSystem/RotationSystem.h"
@@ -171,6 +172,7 @@
 #include "../../Systems/Update/PreUpdate/BoostSoundSystem/BoostSoundSystem.h"
 #include "../../Systems/Init/Start/SpawnSoundSystem/SpawnSoundSystem.h"
 #include "../../Systems/Release/SoundFreeSystem/SoundFreeSystem.h"
+#include "../../Systems/Release/PhysicsBodyFreeSystem/PhysicsBodyFreeSystem.h"
 #include "../../Systems/Init/Start/GunStateStartSystem/GunStateStartSystem.h"
 #include "../../Systems/Update/PreUpdate/HitEventClearSystem/HitEventClearSystem.h"
 #include "../../Systems/Update/PreUpdate/DeathEventClearSystem/DeathEventClearSystem.h"
@@ -371,6 +373,8 @@ namespace App::ECS
 		a_world.RegisterSystem<StateMachineCommitSystem>();
 		a_world.RegisterSystem<ActionStateCommitSystem>();
 		a_world.RegisterSystem<RegisterCollisionWorldSystem>();
+		// 同じ静的コライダーを物理空間(Jolt)へも入れる(移行中は両方)
+		a_world.RegisterSystem<RegisterPhysicsBodySystem>();
 		a_world.RegisterSystem<CameraStartSystem>();
 		a_world.RegisterSystem<AnimationModelStartSystem>();
 		a_world.RegisterSystem<AttachmentNodeLinkSystem>();
@@ -445,6 +449,7 @@ namespace App::ECS
 		a_world.RegisterSystem<AnimationMatrixFreeSystem>();
 		a_world.RegisterSystem<AdditivePoseFreeSystem>();
 		a_world.RegisterSystem<SoundFreeSystem>();
+		a_world.RegisterSystem<PhysicsBodyFreeSystem>();
 		a_world.RegisterSystem<RegisterPrevWorldMatSystem>();
 		a_world.RegisterSystem<UpdateHierarchyDepthSystem>();
 		a_world.RegisterSystem<CommitHierarchyWorldMatrixSystem>();
