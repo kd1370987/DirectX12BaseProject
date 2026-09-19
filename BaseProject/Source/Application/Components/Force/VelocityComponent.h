@@ -8,11 +8,6 @@ struct VelocityComponent
 template<>
 struct Engine::ECS::ComponentTraits<VelocityComponent>
 {
-	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
-	{
-		VelocityComponent& _comp = Engine::Editor::GetValue<VelocityComponent>(a_pData);
-	}
-
 	static void Edit(CompEditContext& a_context)
 	{
 		VelocityComponent& _comp = Engine::Editor::GetValue<VelocityComponent>(a_context.pData);

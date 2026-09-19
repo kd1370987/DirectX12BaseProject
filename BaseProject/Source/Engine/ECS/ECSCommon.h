@@ -45,12 +45,16 @@ namespace Engine::ECS
 	template<typename T>
 	inline constexpr bool IsQueryOnlyTag_v = IsQueryOnlyTag<T>::value;
 
-	// コンポーネントのシリアライズ登録構造体
+	//--------------------------------------------------------------------------------------
+	// コンポーネントに付随する処理の登録構造体
+	//
+	// 必要なものだけ特殊化して書く。書かなかったものは登録されず、呼ぶ側が飛ばす。
+	//   static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData);	// セーブロード
+	//   static void Edit(CompEditContext& a_context);								// エディター
+	//   static void Release(void* a_pData, const EngineServices& a_services);		// 借りたものを返す
+	// 何も要らない(タグなど)なら特殊化自体を書かなくてよい
+	//--------------------------------------------------------------------------------------
 	template<typename T>
-	struct ComponentTraits {
-		// コンポーネント側で特殊化されることを期待する
-		static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData) = delete;
-		static void Edit(void* a_pData) = delete;
-	};
+	struct ComponentTraits {};
 };
 

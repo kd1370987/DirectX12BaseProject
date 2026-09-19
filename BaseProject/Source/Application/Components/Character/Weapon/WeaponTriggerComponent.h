@@ -25,11 +25,6 @@ struct WeaponTriggerComponent
 template<>
 struct Engine::ECS::ComponentTraits<WeaponTriggerComponent>
 {
-	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
-	{
-		// ランタイム専用。保存するフィールドは無い
-	}
-
 	static void Edit(CompEditContext& a_context)
 	{
 		WeaponTriggerComponent& _comp = Engine::Editor::GetValue<WeaponTriggerComponent>(a_context.pData);

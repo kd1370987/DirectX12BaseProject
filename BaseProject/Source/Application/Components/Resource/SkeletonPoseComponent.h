@@ -9,11 +9,6 @@ struct SkeletonPoseComponent
 template<>
 struct Engine::ECS::ComponentTraits<SkeletonPoseComponent>
 {
-	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
-	{
-		SkeletonPoseComponent& _comp = Engine::Editor::GetValue<SkeletonPoseComponent>(a_pData);
-	}
-
 	static void Edit(CompEditContext& a_context)
 	{
 		using namespace Engine;

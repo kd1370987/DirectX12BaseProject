@@ -130,10 +130,28 @@ namespace Engine::ECS
 		// 関数登録
 		ComponentFunc _func = {};
 		_func.construct = [](void* a_ptr) {new (a_ptr) Comp(); };		// すでに作られたメモリ上を初期化
-		_func.archive = ComponentTraits<Comp>::Archive;					// セーブロード用
-		_func.edit = ComponentTraits<Comp>::Edit;						// エディター用
 
-		// 解放処理は持っているものだけ。書いていないコンポーネントは空のまま
+		// セーブロード・エディター・解放は持っているものだけ。書いていないコンポーネントは空のまま
+		// (呼ぶ側は空なら飛ばす。セーブではグループを書かず、コンポーネントの有無は名前一覧で残る)
+		if constexpr (requires (Persistence::Archive& a_ar, void* a_pData) { ComponentTraits<Comp>::Archive(a_ar, a_pData); })
+		{
+			_func.archive = ComponentTraits<Comp>::Archive;
+		}
+		else if constexpr (requires { &ComponentTraits<Comp>::Archive; })
+		{
+			// 名前はあるのに引数が合わない = 黙って保存されなくなる。気付けるように止める
+			static_assert(sizeof(Comp) == 0, "ComponentTraits<T>::Archive は (Persistence::Archive&, void*) で書くこと");
+		}
+
+		if constexpr (requires (CompEditContext& a_context) { ComponentTraits<Comp>::Edit(a_context); })
+		{
+			_func.edit = ComponentTraits<Comp>::Edit;
+		}
+		else if constexpr (requires { &ComponentTraits<Comp>::Edit; })
+		{
+			static_assert(sizeof(Comp) == 0, "ComponentTraits<T>::Edit は (CompEditContext&) で書くこと");
+		}
+
 		if constexpr (requires (void* a_pData, const EngineServices& a_services) { ComponentTraits<Comp>::Release(a_pData, a_services); })
 		{
 			_func.release = ComponentTraits<Comp>::Release;

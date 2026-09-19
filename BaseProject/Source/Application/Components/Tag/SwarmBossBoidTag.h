@@ -13,10 +13,3 @@
 //   どのボスのものかは一緒に付く SpawnerComponent のGUIDで見分ける。
 //==========================================================================================
 struct SwarmBossBoidTag {};
-
-template<>
-struct Engine::ECS::ComponentTraits<SwarmBossBoidTag>
-{
-	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData) {}
-	static void Edit(CompEditContext& a_context) {}
-};

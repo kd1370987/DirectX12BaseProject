@@ -15,11 +15,6 @@ namespace Engine::ECS
 template<>
 struct Engine::ECS::ComponentTraits<Engine::ECS::CollisionEvent>
 {
-	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
-	{
-		// ランタイム専用(毎フレーム再生成)なので保存しない
-	}
-
 	static void Edit(CompEditContext& a_context)
 	{
 		Engine::ECS::CollisionEvent& _comp =

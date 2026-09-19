@@ -16,10 +16,6 @@ struct EffectComponent
 template<>
 struct Engine::ECS::ComponentTraits<EffectComponent>
 {
-	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
-	{
-	}
-
 	static void Edit(CompEditContext& a_context)
 	{
 		ImGui::TextDisabled("Marker only. LifeTime is LifeTimeComponent.");
