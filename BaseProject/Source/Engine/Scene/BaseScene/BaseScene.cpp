@@ -12,6 +12,7 @@
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Option/OptionManager.h"
 #include "../../Collision/CollisionWorld.h"
+#include "../../Physics/PhysicsWorld.h"
 #include "../../Input/InputManager/InputManager.h"
 #include "../../Editor/Editor.h"
 #include "../../Graphics/GraphicEngine.h"
@@ -39,7 +40,7 @@ namespace Engine::Scene
 	//--------------------------------------------------------------------------------------
 	// 通常のシーンとエディターのプレビュー用シーンで同じものを使う。詳細はヘッダを参照。
 	//======================================================================================
-	std::unique_ptr<Engine::ECS::World> CreateSceneWorld()
+	std::unique_ptr<Engine::ECS::World> CreateSceneWorld(bool a_isPreview)
 	{
 		// 実体を作るのは上位層(App::ECS::APPWorld)。
 		// エンジンは基盤の Engine::ECS::World としてしか触らない
@@ -69,6 +70,13 @@ namespace Engine::Scene
 		// メッシュ形状の厳密判定でモデルのメッシュを引くので、リソースの持ち主を渡しておく
 		_upWorld->GetResource<Collision::CollisionWorld>().SetResourceManager(
 			_upWorld->RefEngineServices()->pResourceManager);
+
+		// 物理空間(Jolt)。CollisionWorld と同じくワールドごとに1つ。
+		// 移行中は両方を持ち、呼び出し元を1つずつこちらへ移していく。
+		// PhysicsSystem::Init で先に確保するので、プレビューは小さくしておく
+		_upWorld->AddResource<Physics::PhysicsWorld>(
+			_upWorld->RefEngineServices()->pPhysicsEngine,
+			a_isPreview ? Physics::PhysicsWorldDesc::MakePreview() : Physics::PhysicsWorldDesc{});
 
 		// ゲーム固有のコンポーネントとシステムの登録。
 		// 何を登録するかはワールドの実体(派生)が持っている
@@ -154,6 +162,13 @@ namespace Engine::Scene
 		{
 			ENGINE_PROFILE_SCOPE("Collision_BuildStatic");
 			_collWorld.BuildWorld();
+		}
+
+		// 物理空間も同じ位置で1ステップ進める。
+		// 動くボディの位置合わせ(Update フェーズ)の後、判定クエリ(Physics フェーズ)の前
+		{
+			ENGINE_PROFILE_SCOPE("Physics_Update");
+			m_upWorld->GetResource<Physics::PhysicsWorld>().Update(a_dt);
 		}
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Physics, a_dt);

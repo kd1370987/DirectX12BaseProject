@@ -6,22 +6,13 @@ namespace Engine::Physics
 {
 	JPH::uint PhysicsBroadPhaseLayer::GetNumBroadPhaseLayers() const
 	{
-		return static_cast<JPH::uint>(EBroadPhaseLayer::NumLayers);
+		return EBroadPhaseLayer::NumLayers;
 	}
 
 	JPH::BroadPhaseLayer PhysicsBroadPhaseLayer::GetBroadPhaseLayer(JPH::ObjectLayer a_layer) const
 	{
-		switch (static_cast<EObjectLayer>(a_layer))
-		{
-		case EObjectLayer::NonMoving:
-			return static_cast<JPH::BroadPhaseLayer>(EBroadPhaseLayer::Static);
-
-		case EObjectLayer::Moving:
-			return static_cast<JPH::BroadPhaseLayer>(EBroadPhaseLayer::Dynamic);
-
-		default:
-			JPH_ASSERT(false);
-			return static_cast<JPH::BroadPhaseLayer>(EBroadPhaseLayer::Static);
-		}
+		// 動くかどうかの印だけで振り分ける。
+		// 静的な地形はツリーを作り直さずに済み、毎フレーム動く弾やボイドとは別のツリーに乗る
+		return Layer::IsMoving(a_layer) ? EBroadPhaseLayer::Dynamic : EBroadPhaseLayer::Static;
 	}
 }

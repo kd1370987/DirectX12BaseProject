@@ -2811,6 +2811,9 @@
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.cpp">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Physics\PhysicsWorld.cpp">
+      <Filter>Source\Engine\Physics</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Physics\PhysicsEngine.cpp">
       <Filter>Source\Engine\Physics</Filter>
     </ClCompile>
@@ -4558,6 +4561,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.h">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Physics\PhysicsWorld.h">
+      <Filter>Source\Engine\Physics</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Physics\PhysicsEngine.h">
       <Filter>Source\Engine\Physics</Filter>

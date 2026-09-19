@@ -11,6 +11,7 @@
 #include "../../ECS/World/World.h"
 #include "../../Scene/BaseScene/BaseScene.h"
 #include "../../Collision/CollisionWorld.h"
+#include "../../Physics/PhysicsWorld.h"
 #include "../../Graphics/GraphicEngine.h"
 #include "../../Graphics/DebugDraw/DebugDraw.h"
 #include "../../Option/OptionManager.h"
@@ -145,7 +146,7 @@ namespace Engine::Editor
 
 		// ゲームのシーンとまったく同じ構成(コンポーネント・システム・ワールドリソース)で作る。
 		// 描画のされ方を本番と揃えるのが目的なので、ここで簡易版を組んではいけない
-		m_upWorld = Scene::CreateSceneWorld();
+		m_upWorld = Scene::CreateSceneWorld(true);
 	}
 
 	void EffectEditor::RequestSpawn()
@@ -280,6 +281,7 @@ namespace Engine::Editor
 		// 判定クエリ(Physics)の前にTLASを作る。BaseScene::Update と同じ位置
 		_collWorld.BuildDynamicWorld();
 		_collWorld.BuildWorld();
+		m_upWorld->GetResource<Physics::PhysicsWorld>().Update(_dt);
 
 		m_upWorld->RunSystem(ECS::ESystemType::Physics, _dt);
 		m_upWorld->RunSystem(ECS::ESystemType::Animation, _dt);

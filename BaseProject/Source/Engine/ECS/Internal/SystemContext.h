@@ -33,6 +33,10 @@ namespace Engine::Thread
 {
 	class JobSystem;
 }
+namespace Engine::Physics
+{
+	class PhysicsEngine;
+}
 
 namespace Engine::ECS
 {
@@ -53,6 +57,10 @@ namespace Engine::ECS
 		Raytracing::RayEngine*		pRayEngine			= nullptr;
 		Audio::AudioManager*		pAudioManager		= nullptr;
 		Thread::JobSystem*			pJobSystem			= nullptr;
+
+		// Jolt 全体の持ち主(アロケータ・JobSystem)。
+		// シーンごとの物理空間は World リソースの Physics::PhysicsWorld のほう
+		Physics::PhysicsEngine*		pPhysicsEngine		= nullptr;
 		Option::OptionManager*		pOptionManager		= nullptr;
 
 		// デバッグ用ワイヤーの置き場(GraphicsEngine が持っている)。

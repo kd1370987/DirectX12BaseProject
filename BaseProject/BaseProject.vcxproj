@@ -575,6 +575,7 @@
     <ClCompile Include="Source\Engine\Physics\Core\PhysicsObjectVsBroadPhaseLayerFilter\PhysicsObjectVsBroadPhaseLayerFilter.cpp" />
     <ClCompile Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter\PysicsObjectLayerPairFilter.cpp" />
     <ClCompile Include="Source\Engine\Physics\PhysicsEngine.cpp" />
+    <ClCompile Include="Source\Engine\Physics\PhysicsWorld.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\BLAS\BLAS.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RayPSO\RayPSO.cpp" />
     <ClCompile Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.cpp" />
@@ -962,6 +963,7 @@
     <ClInclude Include="Source\Engine\Physics\Core\PhysicsObjectVsBroadPhaseLayerFilter\PhysicsObjectVsBroadPhaseLayerFilter.h" />
     <ClInclude Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter\PysicsObjectLayerPairFilter.h" />
     <ClInclude Include="Source\Engine\Physics\PhysicsEngine.h" />
+    <ClInclude Include="Source\Engine\Physics\PhysicsWorld.h" />
     <ClInclude Include="Source\Engine\Utility\Algorithm\Graph\GroupTopologicalSort.h" />
     <ClInclude Include="Source\Engine\Utility\Algorithm\Graph\TopologicalSort.h" />
     <ClInclude Include="Source\Engine\Utility\EnumFlags.h" />

@@ -31,6 +31,11 @@ namespace Engine
 		class JobSystem;
 	}
 
+	namespace Physics
+	{
+		class PhysicsEngine;
+	}
+
 	namespace Resource
 	{
 		class ResourceManager;
@@ -131,6 +136,7 @@ namespace Engine
 		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス
 		std::unique_ptr<Particle::ParticleBufferManager> m_upParticleManager = nullptr;	// パーティクルマネージャー
 		std::unique_ptr<Thread::JobSystem> m_upJobSystem = nullptr;						// ジョブシステム
+		std::unique_ptr<Physics::PhysicsEngine> m_upPhysicsEngine = nullptr;			// Jolt 全体(シーンごとの空間は PhysicsWorld)
 		std::unique_ptr<Graphics::MouseCursor> m_upMouseCursor = nullptr;				// 自前で描くマウスカーソル
 		std::unique_ptr<ECS::EngineServices> m_upEngineServices = nullptr;				// アプリ寿命のサービス一式(正本)
 

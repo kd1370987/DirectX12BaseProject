@@ -30,6 +30,8 @@
 
 #include "JobSystem/JobSystem.h"
 
+#include "Physics/PhysicsEngine.h"
+
 #include "Engine/Editor/Editor.h"
 
 // DXGIのデバッグ機能(ライブオブジェクト報告)はここだけで使う。
@@ -137,6 +139,15 @@ namespace Engine
 		// 非同期ロードの実行先として登録する。
 		// ResourceManager 側からエンジンのシングルトンを引かせないよう、ここで渡す
 		m_upResourceManager->SetJobSystem(m_upJobSystem.get());
+
+		// Jolt 全体(アロケータ・型の登録・JobSystem)。シーンごとの空間は CreateSceneWorld が作る。
+		// Jolt のワーカーが動くのは Physics フェーズの PhysicsWorld::Update の中だけで、
+		// 自前のジョブはシステムの中で待ち終わっている時間帯なので、同じ本数にしておく
+		m_upPhysicsEngine = std::make_unique<Physics::PhysicsEngine>();
+		{
+			const int _hardwareThreads = static_cast<int>(std::thread::hardware_concurrency());
+			m_upPhysicsEngine->Init((std::max)(1, _hardwareThreads - 5));
+		}
 
 		// オーディオエンジンの初期化
 		Audio::AudioManager::Instance().Init(m_upResourceManager.get());
@@ -249,6 +260,16 @@ namespace Engine
 
 		// エディター（ImGui）解放
 		Engine::Editor::MainEditor::Instance().Release();
+
+		// Jolt 全体の解放。
+		// すべての PhysicsWorld が消えた後でないといけない : シーンのワールドは
+		// SceneManager::Release(このRelease より前)、エフェクトエディターのプレビューは
+		// 直前の MainEditor::Release で消えている
+		if (m_upPhysicsEngine)
+		{
+			m_upPhysicsEngine->Release();
+			m_upPhysicsEngine.reset();
+		}
 
 		// グラフィックスエンジンの解放（RenderContextやPSO管理などが持つリソースを解放）。
 		// デバイス・ディスクリプタヒープ・バックバッファはまだ捨てない :
@@ -601,6 +622,7 @@ namespace Engine
 		_services.pRayEngine		= &Raytracing::RayEngine::Instance();
 		_services.pAudioManager		= &Audio::AudioManager::Instance();
 		_services.pJobSystem		= m_upJobSystem.get();
+		_services.pPhysicsEngine	= m_upPhysicsEngine.get();
 		_services.pOptionManager	= &Option::OptionManager::GetInstance();
 		_services.pDebugDraw		= m_upGraphicsEngine ? m_upGraphicsEngine->RefDebugDraw() : nullptr;
 	}
