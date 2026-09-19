@@ -56,9 +56,9 @@ namespace Engine::ECS
 		/// <summary>
 		/// 単体にアクセス
 		/// </summary>
-		/// <param name="a_loca"></param>
-		/// <param name="a_typeID"></param>
-		/// <returns></returns>
+		/// <param name="a_loca">エンティティの住所</param>
+		/// <param name="a_typeID">コンポーネントのタイプID</param>
+		/// <returns>持っていなければ nullptr</returns>
 		uint8_t* RefComponent(const EntityLocation& a_loca, const ComponentTypeID& a_typeID);
 
 		uint8_t* RefComponentArray(ArchetypeChunk* a_chunk, const ComponentTypeID& a_typeID);
@@ -71,7 +71,7 @@ namespace Engine::ECS
 		/// エンティティの消去
 		/// </summary>
 		/// <param name="a_location">削除エンティティロケーション</param>
-		/// <returns>スワップされたエンティティとインデックスを返す</returns>
+		/// <returns>スワップされたエンティティとインデックスを返す(誰も動かなければ INVALID_ENTITY)</returns>
 		std::pair<Entity, uint32_t> RemoveEntity(const EntityLocation& a_location);
 
 

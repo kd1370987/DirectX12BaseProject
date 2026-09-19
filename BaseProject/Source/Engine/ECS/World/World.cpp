@@ -188,8 +188,11 @@ namespace Engine::ECS
 
 	bool World::HasComponent(const Entity& a_entity, const ComponentTypeID& a_comptype)
 	{
-		auto _sig = m_entityManager.GetSignature(a_entity);
-		return _sig.test(a_comptype);
+		// 未登録の型は誰も持っていない。
+		// INVALID(=255)のまま test するとシグネチャの範囲外で例外になる
+		if (!IsValidTypeID(a_comptype)) return false;
+
+		return m_entityManager.GetSignature(a_entity).test(a_comptype);
 	}
 
 	void World::CreateAllEntity()
@@ -287,9 +290,11 @@ namespace Engine::ECS
 		// エンティティマネージャーからも消去
 		m_entityManager.DestroyEntity(a_entity);
 
-		// 移動したエンティティのロケーションを変更
-		auto& _swapLoca = m_entityManager.RefEntityLocation(_entity);
-		_swapLoca.chunkIndex = _idx;
+		// 移動したエンティティのロケーションを変更(末尾を消したときは誰も動いていない)
+		if (_entity != ECS::Limits::INVALID_ENTITY)
+		{
+			m_entityManager.RefEntityLocation(_entity).chunkIndex = _idx;
+		}
 	}
 
 	//======================================================================================
@@ -407,9 +412,14 @@ namespace Engine::ECS
 
 	void World::ChangeSignature(ChangeEntityCmd a_cmd)
 	{
-		// エンティティシグネチャの取得
-		const Signature& _oldSig = m_entityManager.GetSignature(a_cmd.entity);
-		const EntityLocation& _oldLoca = m_entityManager.GetLocation(a_cmd.entity);
+		// 予約した後に消えたエンティティ(古いID)は動かしようがない
+		if (!m_entityManager.IsAlive(a_cmd.entity)) return;
+
+		// 引っ越し前の状態は値で持つ。
+		// 参照で持つと、途中の SetSignature / SetEntityLocation で新しい値に
+		// 書き換わり、後半の「元から持っていたか」の判定が意味を失う
+		const Signature _oldSig = m_entityManager.GetSignature(a_cmd.entity);
+		const EntityLocation _oldLoca = m_entityManager.GetLocation(a_cmd.entity);
 		
 		// 古いエンティティのデータを値として退避する
 		std::unordered_map<ComponentTypeID, std::vector<uint8_t>> _oldData = {};
@@ -457,9 +467,11 @@ namespace Engine::ECS
 			// アーキタイプから削除して、移動したエンティティの情報をもらう
 			auto [_entity, _idx] = m_archetypeChunkManager.RemoveEntity(_oldLoca);
 
-			// 移動したエンティティのロケーションを変更
-			auto& _swapLoca = m_entityManager.RefEntityLocation(_entity);
-			_swapLoca.chunkIndex = _idx;
+			// 移動したエンティティのロケーションを変更(末尾を抜いたときは誰も動いていない)
+			if (_entity != ECS::Limits::INVALID_ENTITY)
+			{
+				m_entityManager.RefEntityLocation(_entity).chunkIndex = _idx;
+			}
 		}
 
 		// 新しい場所にエンティティを割り当てる
@@ -472,13 +484,17 @@ namespace Engine::ECS
 		// 新しいシグネチャのデータを初期化する
 		for (ComponentTypeID _compID = 0; _compID < a_cmd.toSig.size(); ++_compID)
 		{
-			// 前のシグネチャと一致していたらそのデータをコピー
+			// 引っ越し先に無いものは書く場所が無い
+			if (!a_cmd.toSig.test(_compID)) continue;
+
+			// 前から持っていたものはそのデータを書き戻す
 			if (_oldSig.test(_compID))
 			{
-				uint8_t* _pData = NRefData(a_cmd.entity,_compID);
-				if (_oldData[_compID].data())
+				auto _oldIt = _oldData.find(_compID);
+				uint8_t* _pData = NRefData(a_cmd.entity, _compID);
+				if (_oldIt != _oldData.end() && _pData)
 				{
-					memcpy(_pData, _oldData[_compID].data(), GetComponentMetaData(_compID).compSize);
+					memcpy(_pData, _oldIt->second.data(), GetComponentMetaData(_compID).compSize);
 				}
 			}
 
@@ -487,7 +503,13 @@ namespace Engine::ECS
 			if (_it != a_cmd.dataMap.end())
 			{
 				uint8_t* _pData = NRefData(a_cmd.entity, _compID);
-				memcpy(_pData, _it->second.data(), GetComponentMetaData(_compID).compSize);
+				if (_pData)
+				{
+					// バッファが短いときに読み越さない(CreateAllEntity と揃える)
+					const size_t _size = GetComponentMetaData(_compID).compSize;
+					const size_t _copy = (_size < _it->second.size()) ? _size : _it->second.size();
+					memcpy(_pData, _it->second.data(), _copy);
+				}
 			}
 		}
 	}

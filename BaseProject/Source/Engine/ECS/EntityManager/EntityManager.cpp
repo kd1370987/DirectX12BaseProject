@@ -99,6 +99,7 @@ namespace Engine::ECS
 	// GetSignature と同じ理由で、無効なエンティティが来ても落ちないようにしてある。
 	// 空の住所(チャンク無し)を返すと、この先の RefComponent が nullptr を返すので、
 	// 「持っていない」として扱われる。
+	// 世代も見るので、消えたエンティティの古いIDで引いても別の個体には届かない。
 	//======================================================================================
 	const EntityLocation& EntityManager::GetLocation(const ECS::Entity& a_entity)
 	{
@@ -110,6 +111,10 @@ namespace Engine::ECS
 
 		// 別ワールドのIDなどで添え字が範囲外になることがある
 		if (_idx >= m_entityLocationVec.size()) return _emptyLoca;
+
+		// 消えたエンティティの古いIDは、同じ添え字を使い回した別のエンティティを指す。
+		// 世代が合わなければ「もう居ない」として空の住所を返す
+		if (m_entityGeneVec[_idx] != GetGeneration(a_entity)) return _emptyLoca;
 
 		return m_entityLocationVec[_idx];
 	}
@@ -174,6 +179,10 @@ namespace Engine::ECS
 
 		// 別ワールドのIDなどで添え字が範囲外になることがある
 		if (_idx >= m_signatureVec.size()) return _emptySig;
+
+		// 古いIDで引いたときに、添え字を使い回した別のエンティティの構成を返さない
+		// (GetLocation と同じ理由。HasComponent もここで弾かれる)
+		if (m_entityGeneVec[_idx] != GetGeneration(a_entity)) return _emptySig;
 
 		return m_signatureVec[_idx];
 	}

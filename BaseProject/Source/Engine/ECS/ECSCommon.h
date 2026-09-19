@@ -28,6 +28,18 @@ namespace Engine::ECS
 	// コンポーネントタイプのビットセット
 	using Signature = std::bitset<ECS::Limits::MAX_COMPONENT_TYPES>;
 
+	//--------------------------------------------------------------------------------------
+	// シグネチャの添え字として使えるタイプIDか
+	//
+	// 未登録の型は INVALID_COMPONENTTYPEID(=255)で返ってくるが、シグネチャは
+	// MAX_COMPONENT_TYPES(=200)ビットしかないので、そのまま test / set に渡すと
+	// std::out_of_range で落ちる。ビットを触る前に必ずこれを通すこと
+	//--------------------------------------------------------------------------------------
+	constexpr bool IsValidTypeID(ComponentTypeID a_typeID)
+	{
+		return a_typeID < ECS::Limits::MAX_COMPONENT_TYPES;
+	}
+
 	using Flg = uint8_t;
 
 	//--------------------------------------------------------------------------------------

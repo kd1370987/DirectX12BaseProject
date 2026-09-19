@@ -42,8 +42,11 @@ namespace Engine::ECS
 			return _it->second;
 		}
 
+		// 参照で返すので、一時オブジェクトではなく寿命のある空配列を返す
+		static const std::vector<ArchetypeChunk*> _empty = {};
+
 		assert(0 && "登録されていないアーキタイプです");
-		return std::vector<ArchetypeChunk*>();
+		return _empty;
 	}
 
 	std::vector<ArchetypeChunk*> ArchetypeChunkManager::MatchingArchetypeChunkVec(const ECS::Signature& a_sig)
@@ -122,32 +125,26 @@ namespace Engine::ECS
 	{
 		ArchetypeChunk* _chunk = a_loca.pArchetypeChunk;
 		if (!_chunk) return nullptr;
-		size_t _offset = 0;
-		size_t _stride = 0;
-		auto _it = _chunk->layoutMap.find(a_typeID);
-		if (_it != _chunk->layoutMap.end())
-		{
-			_offset = _it->second.offset;
-			_stride = _it->second.stride;
-		}
 
-		return _chunk->data + _offset + (_stride * a_loca.chunkIndex);
+		// このアーキタイプが持っていないコンポーネントは nullptr。
+		// 以前は offset=0 / stride=0 のまま計算してチャンク先頭を返していたので、
+		// 持っていないものへの書き込みが先頭のコンポーネント配列を黙って壊していた
+		auto _it = _chunk->layoutMap.find(a_typeID);
+		if (_it == _chunk->layoutMap.end()) return nullptr;
+
+		const Layout& _layout = _it->second;
+		return _chunk->data + _layout.offset + (_layout.stride * a_loca.chunkIndex);
 	}
 
 	uint8_t* ArchetypeChunkManager::RefComponentArray(ArchetypeChunk* a_chunk, const ECS::ComponentTypeID& a_typeID)
 	{
-		ArchetypeChunk* _chunk = a_chunk;
-		size_t _offset = 0;
-		size_t _stride = 0;
+		if (!a_chunk) return nullptr;
 
-		auto _it = _chunk->layoutMap.find(a_typeID);
-		if (_it != _chunk->layoutMap.end())
-		{
-			_offset = _it->second.offset;
-			_stride = _it->second.stride;
-		}
+		// 持っていないコンポーネントは nullptr(RefComponent と同じ理由)
+		auto _it = a_chunk->layoutMap.find(a_typeID);
+		if (_it == a_chunk->layoutMap.end()) return nullptr;
 
-		return _chunk->data + _offset;
+		return a_chunk->data + _it->second.offset;
 	}
 
 	std::pair<ECS::Entity, uint32_t> ArchetypeChunkManager::RemoveEntity(const EntityLocation& a_location)
@@ -157,8 +154,11 @@ namespace Engine::ECS
 		uint32_t _idx = a_location.chunkIndex;
 		uint32_t _lastIdx = _pChunk->count - 1;
 
-		// スワップしたエンティティとインデックス
-		std::pair<ECS::Entity, uint32_t> _swapEntity;
+		// スワップしたエンティティとインデックス。
+		// 末尾を消したときは誰も動かないので INVALID のまま返す。
+		// (既定構築の {0,0} を返すと、呼び出し側がエンティティ番号0の住所を
+		//  chunkIndex=0 で上書きしてしまい、別のエンティティを指すようになっていた)
+		std::pair<ECS::Entity, uint32_t> _swapEntity = { ECS::Limits::INVALID_ENTITY, 0 };
 
 		// 削除するエンティティが最後のエンティティでは無ければ
 		if (_idx != _lastIdx)

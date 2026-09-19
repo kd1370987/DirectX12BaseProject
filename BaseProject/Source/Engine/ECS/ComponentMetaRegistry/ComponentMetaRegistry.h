@@ -104,7 +104,8 @@ namespace Engine::ECS
 		static_assert(std::is_standard_layout_v<Comp>, "標準レイアウトでない");
 
 		// 上限チェック
-		if (m_typeIndexMap.size() > Limits::MAX_COMPONENT_TYPES)
+		// 次に振るIDは size() なので、size() == MAX の時点でシグネチャの範囲外になる
+		if (m_typeIndexMap.size() >= Limits::MAX_COMPONENT_TYPES)
 		{
 			assert(0 && "登録できるコンポーネント数の上限に達しました");
 			return Limits::INVALID_COMPONENTTYPEID;

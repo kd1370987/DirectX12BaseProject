@@ -381,6 +381,16 @@ namespace Engine::ECS
 		// エンティティの削除
 		void RemoveEntity(const Entity& a_entity);
 
+		//------------------------------------------------------------------------------------------
+		// 型の並びからシグネチャを組む
+		//
+		// 未登録の型は INVALID_COMPONENTTYPEID で返り、そのままビットを立てると
+		// シグネチャの範囲外で std::out_of_range になる。立てられなかった型があれば false。
+		// 絞り込み(持っていてほしい側)で false なら、一致するアーキタイプは存在しない
+		//------------------------------------------------------------------------------------------
+		template<typename... Comps>
+		bool BuildSignature(Signature& a_outSig);
+
 	protected:
 
 		// マネージャー軍
@@ -477,8 +487,9 @@ namespace Engine::ECS
 	inline void World::ForEach(Func a_func)
 	{
 		// シグネチャを生成
+		// 未登録の型を含むなら、それを持つエンティティは居ない
 		Signature _sig;
-		(_sig.set(m_componentMetaRegistry.GetTypeID<Components>()), ...);
+		if (!BuildSignature<Components...>(_sig)) return;
 
 		// チャンクの配列を取得
 		for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVec(_sig))
@@ -504,10 +515,13 @@ namespace Engine::ECS
 	inline void World::ForEachEx(Func a_func, Exclude<Excludes...>)
 	{
 		// シグネチャを生成
+		// 未登録の型を含むなら、それを持つエンティティは居ない
 		Signature _sig;
-		(_sig.set(m_componentMetaRegistry.GetTypeID<Components>()), ...);
+		if (!BuildSignature<Components...>(_sig)) return;
+
+		// 除外側の未登録の型は、誰も持っていないので無視してよい
 		Signature _excludeSig;
-		(_excludeSig.set(m_componentMetaRegistry.GetTypeID<Excludes>()), ...);
+		BuildSignature<Excludes...>(_excludeSig);
 		// チャンクの配列を取得
 		for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_sig, _excludeSig))
 		{
@@ -539,6 +553,9 @@ namespace Engine::ECS
 		// コンポーネントのタイプIDを取得
 		ComponentTypeID _befforID = GetCompTypeID<Before>();
 		ComponentTypeID _affterID = GetCompTypeID<After>();
+
+		// どちらかが未登録なら張り替えようがない(ビットを触ると範囲外で落ちる)
+		if (!IsValidTypeID(_befforID) || !IsValidTypeID(_affterID)) return;
 
 		ForEach<Before>(
 			[this,_befforID,_affterID,&a_canTransition]
@@ -607,6 +624,14 @@ namespace Engine::ECS
 					// const を外した元の型でTypeIDを取得
 					auto _typeID = m_componentMetaRegistry.GetTypeID<_CompType>();
 
+					// 型の登録より先にタスクを登録すると未登録のまま来る
+					if (!IsValidTypeID(_typeID))
+					{
+						ENGINE_WARNING("[ECS] %s : 未登録のコンポーネントを依存に含めようとしました (%s)",
+							a_taskName.c_str(), typeid(_CompType).name());
+						return;
+					}
+
 					if constexpr (std::is_const_v<Components>)
 					{
 						_task.readSig.set(_typeID);
@@ -645,10 +670,13 @@ namespace Engine::ECS
 	inline void World::DispatchTask(const SystemContext& a_context, Func a_func, Exclude<Excludes...>)
 	{
 		// 実行用のシグネチャ
+		// 未登録の型を含むなら、それを持つエンティティは居ない
 		Signature _querySig;
-		(_querySig.set(m_componentMetaRegistry.GetTypeID<std::remove_const_t<Components>>()), ...);
+		if (!BuildSignature<Components...>(_querySig)) return;
+
+		// 除外側の未登録の型は、誰も持っていないので無視してよい
 		Signature _excludeSig;
-		(_excludeSig.set(m_componentMetaRegistry.GetTypeID<Excludes>()), ...);
+		BuildSignature<Excludes...>(_excludeSig);
 
 		// チャンクの配列を取得
 		for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_querySig, _excludeSig))
@@ -672,16 +700,11 @@ namespace Engine::ECS
 	{
 		SystemTask _task;
 
-		// ReadList から読み込みシグネチャを生成
-		if constexpr (sizeof...(Read) > 0)
+		// ReadList / WriteList から読み書きシグネチャを生成
+		// (型の登録より先に呼ばれて未登録のまま来たものは、依存に数えられない)
+		if (!BuildSignature<Read...>(_task.readSig) || !BuildSignature<Write...>(_task.writeSig))
 		{
-			(_task.readSig.set(m_componentMetaRegistry.GetTypeID<Read>()), ...);
-		}
-
-		// WriteList から書き込みシグネチャを生成
-		if constexpr (sizeof...(Write) > 0)
-		{
-			(_task.writeSig.set(m_componentMetaRegistry.GetTypeID<Write>()), ...);
+			ENGINE_WARNING("[ECS] カスタムタスク : 未登録のコンポーネントを依存に含めようとしました");
 		}
 		// 実行関数は自動ループせず、そのまま登録する
 		_task.executeFunc = [a_func](const SystemContext& a_context)
@@ -691,6 +714,27 @@ namespace Engine::ECS
 
 		m_systemManager.AddSystemTask(a_phase, _task,"CatamTask");
 	}
+	template<typename ...Comps>
+	inline bool World::BuildSignature(Signature& a_outSig)
+	{
+		bool _isAllValid = true;
+		(
+			[&]()
+			{
+				const ComponentTypeID _typeID = m_componentMetaRegistry.GetTypeID<std::remove_const_t<Comps>>();
+				if (IsValidTypeID(_typeID))
+				{
+					a_outSig.set(_typeID);
+				}
+				else
+				{
+					_isAllValid = false;
+				}
+			}(), ...
+		);
+		return _isAllValid;
+	}
+
 	template<typename ResourceType, typename ...Args>
 	inline void World::AddResource(Args && ...a_args)
 	{
@@ -711,10 +755,13 @@ namespace Engine::ECS
 		ResourceTypeID _id = ResourceTypeManager::GetID<ResourceType>();
 		auto _it = m_resourceMap.find(_id);
 
-		// 見つからなければエラー
+		// 見つからなければ止める。
+		// 参照で返すので返せるものが無く、ログだけ出して進むと end() を参照外しする
 		if(_it == m_resourceMap.end())
 		{
-			ENGINE_ERROR("ECS::World : Resource not found");
+			ENGINE_ERROR("ECS::World : Resource not found (%s)", typeid(ResourceType).name());
+			assert(0 && "ECS::World : 登録されていないリソースです");
+			std::abort();
 		}
 
 		// RTTIによる型チェックを行わずに型が一致している前提でキャスト

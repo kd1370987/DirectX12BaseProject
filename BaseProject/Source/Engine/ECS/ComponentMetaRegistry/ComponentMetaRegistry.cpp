@@ -2,6 +2,18 @@
 
 namespace Engine::ECS
 {
+	//======================================================================================
+	// 見つからなかったときに返す空の情報
+	//--------------------------------------------------------------------------------------
+	// 取得関数は参照で返すので、ローカル変数や一時オブジェクトを返すと
+	// 呼び出し側がぶら下がった参照を読むことになる。寿命のある空を1つずつ置いておく
+	//======================================================================================
+	namespace
+	{
+		const ComponentMeta s_emptyMeta = {};
+		const ComponentFunc s_emptyFunc = {};
+	}
+
 	ComponentTypeID ComponentMetaRegistry::GetTypeID(const std::string& a_name)
 	{
 		auto _it = m_compNameMap.find(a_name);
@@ -30,8 +42,7 @@ namespace Engine::ECS
 		}
 
 		assert(0 && "登録していないコンポーネントです");
-		ComponentMeta _meta = {};
-		return _meta;
+		return s_emptyMeta;
 	}
 
 	const ComponentMeta& ComponentMetaRegistry::GetMetaData(const std::type_index& a_index) const
@@ -43,8 +54,7 @@ namespace Engine::ECS
 		}
 
 		assert(0 && "登録していないコンポーネントです");
-		ComponentMeta _meta = {};
-		return _meta;
+		return s_emptyMeta;
 	}
 
 	const std::unordered_map<ComponentTypeID, ComponentMeta>& ComponentMetaRegistry::GetAllMetaData() const
@@ -59,6 +69,8 @@ namespace Engine::ECS
 		{
 			return _it->second;
 		}
-		return {};
+
+		// 未登録の型は、どの関数も空のまま(呼ぶ側は空なら飛ばす)
+		return s_emptyFunc;
 	}
 }
