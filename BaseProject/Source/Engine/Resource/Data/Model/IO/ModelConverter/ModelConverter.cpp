@@ -134,46 +134,14 @@ namespace Engine::Resource::Converter
 				}
 			}
 
-			// 当たり判定用ノードがなければ、a_dst.drawMeshNodeと同じ割り当てを行う
+			// 当たり判定用ノードがなければ、a_dst.drawMeshNodeと同じ割り当てを行う。
+			//
+			// 判定の形状は、物理空間(Physics::PhysicsWorld)がここで決めた判定ノードの
+			// メッシュの頂点と面から作る。判定専用のデータはメッシュに持たせない
+			// (以前は頂点と面を複製した CollisionMesh を作っていた)
 			if (a_destModel.collisionMeshNodeIndices.size() == 0)
 			{
 				a_destModel.collisionMeshNodeIndices = a_destModel.drawMeshNodeIndices;
-			}
-
-			// 判定ノードが持つメッシュに判定用の三角形を持たせる(物理空間がこれを形状にする)
-			//
-			// この構築は以前フォールバックの中(判定用ノードが無かったとき)にしかなく、
-			// 名前に COL を付けた判定用メッシュを1つでも入れたモデルは
-			// 判定ノードとして登録だけされて三角形が空のままだった。
-			// 空だと「COLを用意したのに一切当たらない」という壊れ方をする。
-			// 判定に使うノードが決まったあとで必ず通す
-			for (auto& _idx : a_destModel.collisionMeshNodeIndices)
-			{
-				for (auto& _meshIdx : a_destModel.originalNodes[_idx].meshIndices)
-				{
-					const auto& _srcMesh = a_rawModel.meshes[_meshIdx];
-
-					// 頂点配列作成
-					std::vector<Math::Vector3> _collisionVertices;
-					_collisionVertices.resize(_srcMesh.vertices.size());
-
-					for (size_t _j = 0; _j < _srcMesh.vertices.size(); ++_j)
-					{
-						_collisionVertices[_j] = _srcMesh.vertices[_j].pos;
-					}
-					std::vector<UINT> _indices = {};
-					_indices.reserve(_srcMesh.faces.size() * 3);
-					for (auto& _f : _srcMesh.faces)
-					{
-						_indices.push_back(_f.idx[0]);
-						_indices.push_back(_f.idx[1]);
-						_indices.push_back(_f.idx[2]);
-					}
-					a_destModel.MeshVec[_meshIdx].CreateCollisionMesh(
-						_collisionVertices,
-						_indices
-					);
-				}
 			}
 		}
 

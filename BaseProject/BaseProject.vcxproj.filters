@@ -1270,9 +1270,6 @@
     <Filter Include="Source\Engine\Resource\Data\Mesh">
       <UniqueIdentifier>{904e2046-b2ec-438d-8105-63721717d9ff}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Resource\Data\Mesh\CollisionMesh">
-      <UniqueIdentifier>{b6ffb845-47ab-4c22-97b1-e1e737d62e16}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Resource\Data\Mesh\IO">
       <UniqueIdentifier>{c0de000a-1111-4222-8333-0000c0de000a}</UniqueIdentifier>
     </Filter>
@@ -2462,9 +2459,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\Mesh.cpp">
       <Filter>Source\Engine\Resource\Data\Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.cpp">
-      <Filter>Source\Engine\Resource\Data\Mesh\CollisionMesh</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\IO\MeshIO.cpp">
       <Filter>Source\Engine\Resource\Data\Mesh\IO</Filter>
@@ -4057,9 +4051,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\Mesh.h">
       <Filter>Source\Engine\Resource\Data\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.h">
-      <Filter>Source\Engine\Resource\Data\Mesh\CollisionMesh</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\IO\MeshIO.h">
       <Filter>Source\Engine\Resource\Data\Mesh\IO</Filter>

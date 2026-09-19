@@ -108,8 +108,9 @@ namespace Engine::Physics
 
 		//----------------------------------------------------------------------------------
 		// モデルの判定メッシュ(COL ノード)の三角形を集める。
-		// モデル読み込み時に作られた判定用の三角形(Mesh::GetCollisionMesh)を、
-		// ノードの行列 × a_extra で変換して積む
+		// 判定ノードが持つメッシュの頂点と面(描画と同じデータ)を、
+		// ノードの行列 × a_extra で変換して積む。
+		// COL ノードが無いモデルは描画ノードがそのまま判定ノードになっている(ModelConverter)
 		//----------------------------------------------------------------------------------
 		void CollectModelTriangles(
 			const Resource::ResourceManager& a_resourceManager,
@@ -120,6 +121,7 @@ namespace Engine::Physics
 			const auto& _nodeVec = a_model.GetOriginalNodeVec();
 			const auto& _meshHandles = a_model.GetMeshHandles();
 
+			std::vector<JPH::Float3> _positions;
 			for (int _nodeIdx : a_model.GetCollisionMeshNodeVec())
 			{
 				if (_nodeIdx < 0 || _nodeIdx >= static_cast<int>(_nodeVec.size())) continue;
@@ -132,17 +134,25 @@ namespace Engine::Physics
 					if (_meshIdx < 0 || _meshIdx >= static_cast<int>(_meshHandles.size())) continue;
 
 					const Resource::Mesh* _pMesh = a_resourceManager.Get(_meshHandles[_meshIdx]);
-					if (!_pMesh || !_pMesh->HasCollisionMesh()) continue;
+					if (!_pMesh) continue;
 
-					for (const auto& _tri : _pMesh->GetCollisionMesh().triangleVec)
+					// 頂点は面から何度も参照されるので、先に1回ずつ変換しておく
+					const auto& _vertices = _pMesh->GetVertexVec();
+					_positions.resize(_vertices.size());
+					for (size_t _v = 0; _v < _vertices.size(); ++_v)
 					{
-						const Math::Vector3 _v0 = Math::Vector3::TransformCoord(_tri.v[0], _mat);
-						const Math::Vector3 _v1 = Math::Vector3::TransformCoord(_tri.v[1], _mat);
-						const Math::Vector3 _v2 = Math::Vector3::TransformCoord(_tri.v[2], _mat);
+						const Math::Vector3 _p = Math::Vector3::TransformCoord(_vertices[_v].pos, _mat);
+						_positions[_v] = JPH::Float3(_p.x, _p.y, _p.z);
+					}
+
+					const size_t _vertexCount = _positions.size();
+					for (const Resource::MeshFace& _face : _pMesh->GetFaceVec())
+					{
+						if (_face.idx[0] >= _vertexCount || _face.idx[1] >= _vertexCount || _face.idx[2] >= _vertexCount) continue;
 						a_outTriangles.push_back(JPH::Triangle(
-							JPH::Float3(_v0.x, _v0.y, _v0.z),
-							JPH::Float3(_v1.x, _v1.y, _v1.z),
-							JPH::Float3(_v2.x, _v2.y, _v2.z)));
+							_positions[_face.idx[0]],
+							_positions[_face.idx[1]],
+							_positions[_face.idx[2]]));
 					}
 				}
 			}

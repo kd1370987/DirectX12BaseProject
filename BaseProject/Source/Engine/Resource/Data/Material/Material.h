@@ -18,8 +18,6 @@ namespace Engine::Resource
 		~Material() = default;
 		NON_COPYABLE_MOVABLE(Material);
 
-
-
 		// 解放
 		void Release();
 

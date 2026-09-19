@@ -18,11 +18,10 @@ namespace Engine::Editor::Inspector
 
 		// 実体化しているドメインデータ
 		ImGui::Text(
-			"Domains    : %s%s%s%s",
+			"Domains    : %s%s%s",
 			a_pMesh->HasRasterData() ? "[Raster]" : "",
 			a_pMesh->HasRtData() ? "[Raytracing]" : "",
-			a_pMesh->HasMeshShaderData() ? "[MeshShader]" : "",
-			a_pMesh->HasCollisionMesh() ? "[Collision]" : ""
+			a_pMesh->HasMeshShaderData() ? "[MeshShader]" : ""
 		);
 
 		ImGui::Separator();
@@ -88,18 +87,6 @@ namespace Engine::Editor::Inspector
 				}
 				ImGui::TreePop();
 			}
-		}
-
-		// ---- 当たり判定データ ----
-		if (a_pMesh->HasCollisionMesh() && ImGui::CollapsingHeader("Collision Mesh"))
-		{
-			const auto& _collisionMesh = a_pMesh->GetCollisionMesh();
-
-			ImGui::Text("Triangles     : %zu", _collisionMesh.triangleVec.size());
-
-			const auto& _localAABB = _collisionMesh._localAABB;
-			ImGui::Text("LocalAABB Center : %.3f, %.3f, %.3f", _localAABB.Center.x, _localAABB.Center.y, _localAABB.Center.z);
-			ImGui::Text("LocalAABB Extents: %.3f, %.3f, %.3f", _localAABB.Extents.x, _localAABB.Extents.y, _localAABB.Extents.z);
 		}
 	}
 }

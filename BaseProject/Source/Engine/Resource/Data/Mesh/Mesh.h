@@ -3,7 +3,6 @@
 #include "MeshMetaData/MeshMetaData.h"
 #include "RasterizationMesh/RasterizationMesh.h"
 #include "RaytracingMesh/RaytracingMesh.h"
-#include "CollisionMesh/CollisionMesh.h"
 #include "MeshShaderData/MeshShaderData.h"
 
 namespace Engine::Resource
@@ -56,11 +55,6 @@ namespace Engine::Resource
 			const ResourceBuildContext& a_ctx,
 			const std::vector<MeshSubset>& a_subset								// サブセット配列
 		);
-		// 判定用の三角形を作る(判定ノードのメッシュだけ)
-		void CreateCollisionMesh(
-			const std::vector<Math::Vector3>& a_vertices,
-			const std::vector<UINT>& a_indices
-		);
 		// メッシュシェーダー用データの作成 : メッシュレット生成(CPU)と転送コマンドの記録
 		void CreateMeshShaderData(
 			const ResourceBuildContext& a_ctx,
@@ -92,11 +86,9 @@ namespace Engine::Resource
 		// メッシュレットデータ
 		bool HasMeshShaderData() const { return m_opMeshShaderData.has_value(); }
 		const MeshShaderData& GetMeshShaderData() const { return m_opMeshShaderData.value(); }
-		// 当たり判定データ
-		bool HasCollisionMesh() const { return m_opCollMesh.has_value(); };				// 当たり判定を持っているかどうか
-		const CollisionMesh& GetCollisionMesh()const { return m_opCollMesh.value(); }	// 当たり判定取得
-
-		// データ取得
+		// データ取得。
+		// 頂点と面は CPU 側にも持ち続ける : 物理空間(Physics::PhysicsWorld)が判定ノードの
+		// メッシュからここを読んで形状を作り、エディターのピッキングも使う
 		const std::vector<MeshVertexFloat>& GetVertexVec() const { return m_vertices; }
 		std::vector<MeshVertexFloat>& RefVertexVec(){ return m_vertices; }
 		const std::vector<MeshFace>& GetFaceVec() const { return m_face; }	// 面インデックス(描画メッシュの三角形)
@@ -109,7 +101,6 @@ namespace Engine::Resource
 		// 各ドメインデータ : 必要なもののみ実体化
 		std::optional<RasterizationMesh>		m_opRasterData;		// ラスタライザデータ
 		std::optional<RaytracingMesh>			m_opRtData;			// レイトレデータ
-		std::optional<CollisionMesh>			m_opCollMesh;		// 当たり判定
 		std::optional<MeshShaderData>			m_opMeshShaderData;	// メッシュシェーダーデータ
 
 		// セーブ用データ

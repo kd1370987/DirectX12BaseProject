@@ -580,7 +580,6 @@
     <ClCompile Include="Source\Engine\Resource\Data\Animation\IO\AnimationIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Material\IO\MaterialIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Material\Material.cpp" />
-    <ClCompile Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\IO\MeshIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\Mesh.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.cpp" />
@@ -1141,7 +1140,6 @@
     <ClInclude Include="Source\Engine\Resource\Data\AnimatorAsset\AdditivePoseTypes.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Material\IO\MaterialIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Material\Material.h" />
-    <ClInclude Include="Source\Engine\Resource\Data\Mesh\CollisionMesh\CollisionMesh.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\IO\MeshIO.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\Mesh.h" />
     <ClInclude Include="Source\Engine\Resource\Data\Mesh\MeshMetaData\MeshMetaData.h" />

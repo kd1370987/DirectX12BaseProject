@@ -102,12 +102,6 @@ void Engine::Resource::Mesh::CreateRtData(
 	m_opRtData->Create(a_ctx, a_subset);
 }
 
-void Engine::Resource::Mesh::CreateCollisionMesh(const std::vector<Math::Vector3>& a_vertices, const std::vector<UINT>& a_indices)
-{
-	auto& _collMesh = m_opCollMesh.emplace();
-	_collMesh.Create(a_vertices,a_indices);
-}
-
 void Engine::Resource::Mesh::CreateMeshShaderData(
 	const ResourceBuildContext& a_ctx,
 	const std::vector<MeshVertexFloat>& a_vertices,
@@ -296,10 +290,6 @@ void Engine::Resource::Mesh::Release()
 	{
 		m_opRasterData->Release();
 	}
-	if (m_opCollMesh.has_value())
-	{
-		m_opCollMesh->Release();
-	}
 	if (m_opRtData.has_value())
 	{
 		m_opRtData->Release();
@@ -376,10 +366,11 @@ void Engine::Resource::Mesh::Save(const std::string& a_fileDir, const std::strin
 
 	_ar.Field("IsSkinMesh", m_isSkinMesh);
 
-	if (HasCollisionMesh())
-	{
-		m_opCollMesh->Archive(_ar);
-	}
+	// 以前はこの後ろに当たり判定用の三角形(と、さらに前は BVH)を書いていた。
+	// 物理空間は上の頂点と面から形状を作るので、今は書かない。
+	// 古いファイルの末尾に残っている分は、読み込みで読まれずに無視される。
+	// ここより後ろにフィールドを足すなら、先にすべての .mesh を再変換すること
+	// (古いファイルの末尾の残骸を読んでしまう)
 }
 
 void Engine::Resource::Mesh::Load(const ResourceBuildContext& a_ctx, const std::string& a_fileDir, const std::string& a_name)
@@ -454,8 +445,7 @@ void Engine::Resource::Mesh::Load(const ResourceBuildContext& a_ctx, const std::
 
 	_ar.Field("IsSkinMesh", m_isSkinMesh);
 
-	auto& _collMesh = m_opCollMesh.emplace();
-	_collMesh.Archive(_ar);
+	// 古いファイルはこの後ろに当たり判定用の三角形が残っているが、読まない(Save の説明を参照)
 
 	// 読み込んだデータでGPUリソースを構築 : 実体はコンテキストのコマンドリストへ積まれる
 	CreateFloat(
