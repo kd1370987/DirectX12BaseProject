@@ -70,8 +70,8 @@ namespace Engine::Physics
 		// ボディの UserData に持ち主のエンティティを入れてある
 		//
 		// a_onlyMesh : 判定メッシュのボディだけを相手にする。
-		//              旧 CollisionWorld の押し出しはメッシュ形状だけを見ていて、
-		//              箱で概算している弾・ボイドからは押し出さなかったので、それに合わせる
+		//              押し出しは地形と敵のメッシュだけを相手にし、
+		//              箱で概算している弾・ボイドからは押し出さないために使う
 		//----------------------------------------------------------------------------------
 		class IgnoreOwnerBodyFilter final : public JPH::BodyFilter
 		{
@@ -108,7 +108,7 @@ namespace Engine::Physics
 
 		//----------------------------------------------------------------------------------
 		// モデルの判定メッシュ(COL ノード)の三角形を集める。
-		// 旧 CollisionWorld と同じデータ(Mesh::GetCollisionMesh の三角形)を、
+		// モデル読み込み時に作られた判定用の三角形(Mesh::GetCollisionMesh)を、
 		// ノードの行列 × a_extra で変換して積む
 		//----------------------------------------------------------------------------------
 		void CollectModelTriangles(
@@ -229,10 +229,9 @@ namespace Engine::Physics
 		//----------------------------------------------------------------------------------
 		// 描画メッシュ全体のAABB(モデル空間)を箱の形状にする。作れなければ nullptr。
 		//
-		// 旧 CollisionWorld は Mesh 以外の形状(弾・ミサイル・ボイド)を、
-		// CalcModelLocalAABB(描画メッシュノードのAABBをノード変換込みで合成)を
-		// ワールドへ移したAABBで概算していた。それと同じ範囲を箱にする。
-		// (旧は回転後にAABBを取り直していたので、斜めを向くとこちらの方が少し小さい)
+		// Mesh 以外の形状(弾・ミサイル・ボイド)は寸法を持っていないので、
+		// 描画メッシュノードのAABBをノード変換込みで合成した範囲を箱にする。
+		// (箱はボディと一緒に回るので、回転後にAABBを取り直すより体にぴったり沿う)
 		//----------------------------------------------------------------------------------
 		JPH::RefConst<JPH::Shape> CreateBoundsShape(
 			const Resource::ResourceManager& a_resourceManager,
@@ -618,7 +617,7 @@ namespace Engine::Physics
 	{
 		if (!m_upPhysicsSystem) return false;
 
-		// NaN や長さ0の方向で Jolt の中まで行かせない(旧 CollisionWorld::Raycast と同じ弾き方)
+		// NaN や長さ0の方向で Jolt の中まで行かせない(カメラ行列などから NaN が流れ込むことがある)
 		if (!IsFinite(a_ray.origin) || !IsFinite(a_ray.direction)) return false;
 		if (!(a_ray.maxDistance > 0.0f)) return false;
 
@@ -663,17 +662,17 @@ namespace Engine::Physics
 		if (!m_upPhysicsSystem) return false;
 		if (!(a_radius > 0.0f) || !IsFinite(a_pointA) || !IsFinite(a_pointB)) return false;
 
-		// 旧 CollisionWorld::ResolveCapsule と同じ値
+		// めり込みの許容と、離しきるための余白
 		constexpr float _minDepth = 1e-4f;	// これ以下のめり込みは無視
 		constexpr float _bias = 1e-3f;		// 完全に離すための微小バイアス
 
-		// 三角形は表裏どちらにも当たる(旧実装の押し出しは面の向きを見ていなかった)
+		// 三角形は表裏どちらにも当たる(判定メッシュの巻きの向きに頼らない)
 		JPH::CollideShapeSettings _settings;
 		_settings.mBackFaceMode = JPH::EBackFaceMode::CollideWithBackFaces;
 
 		const JPH::NarrowPhaseQuery& _query = m_upPhysicsSystem->GetNarrowPhaseQueryNoLock();
 		const LayerMaskQueryFilter _layerFilter(a_queryMask);
-		// 押し出す相手は判定メッシュのボディだけ(旧と同じく、箱で概算している弾・ボイドは無視)
+		// 押し出す相手は判定メッシュのボディだけ(箱で概算している弾・ボイドは無視)
 		const IgnoreOwnerBodyFilter _bodyFilter(a_ignore, true);
 
 		Math::Vector3 _total = {};
@@ -734,7 +733,7 @@ namespace Engine::Physics
 	bool PhysicsWorld::ResolveSphere(Math::Vector3& a_center, float a_radius,
 		uint32_t a_queryMask, ECS::Entity a_ignore, Math::Vector3& a_outCorrection, int a_iterations) const
 	{
-		// 球は長さ0のカプセルとして押し出しを流用する(旧実装と同じ)
+		// 球は長さ0のカプセルとして押し出しを流用する
 		Math::Vector3 _a = a_center;
 		Math::Vector3 _b = a_center;
 		const bool _pushed = ResolveCapsule(_a, _b, a_radius, a_queryMask, a_ignore, a_outCorrection, a_iterations);
@@ -756,7 +755,7 @@ namespace Engine::Physics
 			JPH::RMat44::sTranslation(Internal::ToJoltR(a_from)),
 			Internal::ToJolt(a_to - a_from));
 
-		// 三角形も凸形状も表裏どちらにも当たる(旧の重なり判定は向きを見ていなかった)。
+		// 三角形も凸形状も表裏どちらにも当たる(判定メッシュの巻きの向きに頼らない)。
 		// 始点で重なっていたときは、いちばん深い点を返させる
 		JPH::ShapeCastSettings _settings;
 		_settings.SetBackFaceMode(JPH::EBackFaceMode::CollideWithBackFaces);
@@ -832,7 +831,7 @@ namespace Engine::Physics
 		// 表示が切られていればボディを回すこともしない(ボイドで4000体ある)
 		if (!a_pDebugDraw->IsEnabled()) return;
 
-		// 旧 CollisionWorld(白)と重ねて見比べられるよう、別の色で描く
+		// 静的と動くものを色で分ける
 		constexpr Math::Color _staticColor = { 0.0f, 1.0f, 1.0f, 1.0f };	// 水色 : 静的
 		constexpr Math::Color _movingColor = { 1.0f, 1.0f, 0.0f, 1.0f };	// 黄色 : 動く
 

@@ -10,7 +10,6 @@
 #include "../../MainEngine.h"
 #include "../../ECS/World/World.h"
 #include "../../Scene/BaseScene/BaseScene.h"
-#include "../../Collision/CollisionWorld.h"
 #include "../../Physics/PhysicsWorld.h"
 #include "../../Graphics/GraphicEngine.h"
 #include "../../Graphics/DebugDraw/DebugDraw.h"
@@ -271,16 +270,11 @@ namespace Engine::Editor
 		// プレビューにコライダーが居なければ空のまま素通りするだけ
 		m_upWorld->BeginFrame();
 
-		auto& _collWorld = m_upWorld->GetResource<Collision::CollisionWorld>();
-		_collWorld.ClearDynamicWorld(Scene::kDynamicColliderReserve);
-
 		m_upWorld->RunSystem(ECS::ESystemType::Input, _dt);
 		m_upWorld->RunSystem(ECS::ESystemType::PreUpdate, _dt);
 		m_upWorld->RunSystem(ECS::ESystemType::Update, _dt);
 
-		// 判定クエリ(Physics)の前にTLASを作る。BaseScene::Update と同じ位置
-		_collWorld.BuildDynamicWorld();
-		_collWorld.BuildWorld();
+		// 判定クエリ(Physics)の前に物理空間を進める。BaseScene::Update と同じ位置
 		m_upWorld->GetResource<Physics::PhysicsWorld>().Update(_dt);
 
 		m_upWorld->RunSystem(ECS::ESystemType::Physics, _dt);

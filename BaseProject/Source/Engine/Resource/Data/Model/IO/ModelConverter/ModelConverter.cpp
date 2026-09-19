@@ -140,13 +140,12 @@ namespace Engine::Resource::Converter
 				a_destModel.collisionMeshNodeIndices = a_destModel.drawMeshNodeIndices;
 			}
 
-			// 判定ノードが持つメッシュにBVHを作る
+			// 判定ノードが持つメッシュに判定用の三角形を持たせる(物理空間がこれを形状にする)
 			//
 			// この構築は以前フォールバックの中(判定用ノードが無かったとき)にしかなく、
 			// 名前に COL を付けた判定用メッシュを1つでも入れたモデルは
-			// 判定ノードとして登録だけされてBVHが空のままだった。
-			// BVHTraverser は空を見た時点で false を返すので、
-			// 「COLを用意したのに一切当たらない」という壊れ方をする。
+			// 判定ノードとして登録だけされて三角形が空のままだった。
+			// 空だと「COLを用意したのに一切当たらない」という壊れ方をする。
 			// 判定に使うノードが決まったあとで必ず通す
 			for (auto& _idx : a_destModel.collisionMeshNodeIndices)
 			{

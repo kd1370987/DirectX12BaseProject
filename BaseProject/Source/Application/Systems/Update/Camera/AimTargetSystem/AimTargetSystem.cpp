@@ -12,11 +12,8 @@
 #include "Application/InstanceResource/SingletonEntityResource.h"
 
 #include "Engine/MainEngine.h"
-#include "Engine/Collision/CollisionWorld.h"
 #include "Engine/Physics/PhysicsWorld.h"
-#include "Engine/Option/OptionManager.h"
 
-#include "../../../Shared/PhysicsCompare/PhysicsCompare.h"
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
@@ -29,7 +26,7 @@
 //
 // ・Camera フェーズに置く理由
 //     TPSSystem がカメラ姿勢を確定させた後に撃たないと、1フレーム前の向きで狙うことになる。
-//     また動的TLASは Update 後(Physics の前)に構築済みなので、
+//     また動くボディの位置は Update フェーズ(SyncPhysicsBodySystem)で合わせ済みなので、
 //     このフェーズなら静的地形も動く敵も両方拾える。
 //   → 狙点が銃に届くのは次フレームの PreUpdate(AttachmentDispatchSystem)。
 //
@@ -68,7 +65,7 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 			const auto* _pTrs		= a_ctx.pWorld->RefData<LocalTransformComponent>(_self);
 			if (!_pFollow || !_pTrs) return;
 
-			auto* _pCollWorld = &a_ctx.pWorld->GetResource<Engine::Collision::CollisionWorld>();
+			const auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
 
 			const FollowTargetComponent&	_followComp = *_pFollow;
 			const LocalTransformComponent&	_trsComp	= *_pTrs;
@@ -141,65 +138,17 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 			//------------------------------------------------------------
 			// フォーカス対象自身は myID で除外する。
 			//============================================================
-			Engine::Collision::RayInfo _info;
+			Math::Ray _info;
 			_info.origin		= Math::Vector3(_trsComp.pos) + _fwd * _startDist;
 			_info.direction		= _fwd;
 			_info.maxDistance	= _pAim->maxDistance;
 
-			// 旧(CollisionWorld)/ Jolt(PhysicsWorld)のどちらで判定するか。移行中だけの切り替え
-			const auto& _migration = a_ctx.pServices->pOptionManager->GetPhysicsMigrationOption();
-
-			// 旧 : 静的・動的の両方、全レイヤー
-			bool _oldHit = false;
-			Engine::Collision::Result _oldRes = {};
-			if (_migration.RunsOldHit())
-			{
-				ENGINE_PROFILE_SCOPE("Collision_AimRay");
-				_oldHit = _pCollWorld->Raycast(_info, _oldRes, _target);
-			}
-
-			// Jolt : 旧と同じく全レイヤー
-			bool _joltHit = false;
-			Engine::Physics::RayHit _joltRes = {};
-			if (_migration.RunsJoltHit())
+			// 静的・動くもの(敵・弾・ボイド)のどれにも当たる。全レイヤー
+			Engine::Physics::RayHit _hit = {};
+			bool _isHit = false;
 			{
 				ENGINE_PROFILE_SCOPE("Physics_AimRay");
-				_joltHit = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>().CastRay(
-					_info, Engine::Physics::kQueryAllLayers, _target, _joltRes);
-			}
-
-			// 比較 : 当たった/外れた と、当たった位置
-			if (_migration.compareQueries)
-			{
-				static App::Systems::PhysicsCompare::Stats s_stats{ "AimRay" };
-				++s_stats.queries;
-				const bool _isSame = (_oldHit == _joltHit) &&
-					(!_oldHit || App::Systems::PhysicsCompare::IsClose(_oldRes.hitPos, _joltRes.position, _migration.compareTolerance));
-				if (!_isSame)
-				{
-					++s_stats.mismatches;
-					if (App::Systems::PhysicsCompare::ShouldLogDetail(s_stats))
-					{
-						ENGINE_LOG("[PhysicsCompare] AimRay mismatch origin=(%.3f,%.3f,%.3f) old=%d(%.3f,%.3f,%.3f)->%llu jolt=%d(%.3f,%.3f,%.3f)->%llu",
-							_info.origin.x, _info.origin.y, _info.origin.z,
-							_oldHit ? 1 : 0, _oldRes.hitPos.x, _oldRes.hitPos.y, _oldRes.hitPos.z, _oldRes.hitEntity,
-							_joltHit ? 1 : 0, _joltRes.position.x, _joltRes.position.y, _joltRes.position.z, _joltRes.entity);
-					}
-				}
-				App::Systems::PhysicsCompare::Report(s_stats);
-			}
-
-			// 使う方の結果に寄せる
-			const bool _isHit = _migration.useJoltHitQueries ? _joltHit : _oldHit;
-			Engine::Collision::Result _res = _oldRes;
-			if (_migration.useJoltHitQueries)
-			{
-				_res = {};
-				_res.hitEntity = _joltRes.entity;
-				_res.hitPos = _joltRes.position;
-				_res.hitNormal = _joltRes.normal;
-				_res.hitDistance = _joltRes.distance;
-				_res.isHit = _joltHit;
+				_isHit = _physicsWorld.CastRay(_info, Engine::Physics::kQueryAllLayers, _target, _hit);
 			}
 
 			//============================================================
@@ -210,8 +159,8 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 			//============================================================
 			if (_isHit)
 			{
-				_pAim->pos			= _res.hitPos;
-				_pAim->hitEntity	= _res.hitEntity;
+				_pAim->pos			= _hit.position;
+				_pAim->hitEntity	= _hit.entity;
 			}
 			else
 			{

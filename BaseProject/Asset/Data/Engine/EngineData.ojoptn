@@ -55,12 +55,6 @@
         "directionalIntensity": 1.0,
         "giIntensity": 1.0
     },
-    "PhysicsMigrationOption": {
-        "compareQueries": false,
-        "compareTolerance": 0.004999999888241291,
-        "useJoltHitQueries": true,
-        "useJoltStaticQueries": true
-    },
     "RenderingOption": {
         "isZPre": true,
         "useJitter": true

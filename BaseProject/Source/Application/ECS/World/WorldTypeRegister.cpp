@@ -88,7 +88,6 @@
 #include "Application/Systems/Init/Awake/HierarchyLinkSystem/HierarchyLinkSystem.h"
 #include "Application/Systems/Init/Start/CameraStartSystem/CameraStartSystem.h"
 #include "Application/Systems/Init/Start/AnimationModelStartSystem/AnimationModelStartSystem.h"
-#include "Application/Systems/Init/Start/RegisterCollisionWorldSystem/RegisterCollisionWorldSystem.h"
 #include "Application/Systems/Init/Start/RegisterPhysicsBodySystem/RegisterPhysicsBodySystem.h"
 #include "Application/Systems/Init/Start/AttachmentNodeLinkSystem/AttachmentNodeLinkSystem.h"
 #include "Application/Systems/Update/Input/InputMoveSystem/InputMoveSystem.h"
@@ -157,7 +156,6 @@
 #include "../../Systems/Update/PreUpdate/SelfWeaponTriggerSystem/SelfWeaponTriggerSystem.h"
 #include "../../Systems/Update/PreUpdate/ThrusterEffectSystem/ThrusterEffectSystem.h"
 #include "../../Systems/Init/PostDeserialize/AttachmentSlotLinkSystem/AttachmentSlotLinkSystem.h"
-#include "../../Systems/Update/Update/SubmitDynamicColliderSystem/SubmitDynamicColliderSystem.h"
 #include "Application/Systems/Update/Update/SyncPhysicsBodySystem/SyncPhysicsBodySystem.h"
 #include "../../Systems/Init/Start/AdditivePoseLinkSystem/AdditivePoseLinkSystem.h"
 #include "../../Systems/Update/PostUpdate/AdditivePoseSystem/AdditivePoseSystem.h"
@@ -373,8 +371,7 @@ namespace App::ECS
 		a_world.RegisterSystem<LostTargetBridgeSystem>();
 		a_world.RegisterSystem<StateMachineCommitSystem>();
 		a_world.RegisterSystem<ActionStateCommitSystem>();
-		a_world.RegisterSystem<RegisterCollisionWorldSystem>();
-		// 同じ静的コライダーを物理空間(Jolt)へも入れる(移行中は両方)
+		// コライダーを物理空間(Jolt)へ登録する(静的も動くものも)
 		a_world.RegisterSystem<RegisterPhysicsBodySystem>();
 		a_world.RegisterSystem<CameraStartSystem>();
 		a_world.RegisterSystem<AnimationModelStartSystem>();
@@ -460,8 +457,7 @@ namespace App::ECS
 		a_world.RegisterSystem<SphereCollisionSystem>();
 		a_world.RegisterSystem<InputActionSystem>();
 		a_world.RegisterSystem<GunShootSystem>();
-		a_world.RegisterSystem<SubmitDynamicColliderSystem>();
-		// 動くコライダーの Jolt ボディを同じタイミングで今の姿勢へ(移行中は両方)
+		// 動くコライダーのボディを今の姿勢へ合わせる
 		a_world.RegisterSystem<SyncPhysicsBodySystem>();
 		a_world.RegisterSystem<CollisionEventClearSystem>();
 		a_world.RegisterSystem<HitEventClearSystem>();

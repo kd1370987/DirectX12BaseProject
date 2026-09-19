@@ -462,8 +462,9 @@ namespace App::Object
 					a_comp.collideLayer = Layer::SwarmBoid | Layer::PlayerProjectile;
 					a_comp.isPhysical   = 0;
 
-					a_comp.shapeType.type          = Engine::Collision::EShapeType::Sphere;
-					a_comp.shapeType.sphere.radius = m_boidColliderRadius;
+					// Mesh 以外なので、ボディは描画メッシュのAABBの箱になる。
+					// 半径は判定を出す側の SphereColliderComponent が持つ(下)
+					a_comp.shapeType = Engine::Physics::EShapeType::Sphere;
 				}
 			);
 

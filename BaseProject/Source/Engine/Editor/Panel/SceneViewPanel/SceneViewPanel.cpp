@@ -29,7 +29,7 @@
 #include "../../../../Application/Components/Camera/TPSOffsetComponent.h"
 #include "../../../../Application/Components/Camera/FollowTargetComponent.h"
 
-// CollisionWorld は使わない。エディターでは当たり判定の有無に関わらず、
+// 物理空間(PhysicsWorld)は使わない。エディターでは当たり判定の有無に関わらず、
 // 描画メッシュのAABBに対して直接レイ判定してエンティティを選択する。
 // (レイと AABB 判定は Math 側のもの。当たり判定の実装には依存しない)
 
@@ -322,7 +322,7 @@ namespace Engine::Editor
 		// スクリーン座標からワールド空間のレイを作成
 		Math::Ray _ray = a_editContext.pEditorCamera->ScreenPointToRay(_gameMouse);
 
-		// CollisionWorld を使わず、描画エンティティを直接ピッキングする
+		// 物理空間を使わず、描画エンティティを直接ピッキングする
 		Engine::ECS::Entity _picked = PickEntityByRay(a_pWorld, _ray);
 		if (_picked != Engine::ECS::Limits::INVALID_ENTITY)
 		{
@@ -352,7 +352,7 @@ namespace Engine::Editor
 
 		// ModelComponent と WorldMatrixComponent を持つ全エンティティを走査し、
 		// AABBで枝刈りしたうえで描画メッシュの三角形とレイを厳密判定する。
-		// CollisionWorld を介さないので、当たり判定を持たないエンティティも選択できる。
+		// 物理空間を介さないので、当たり判定を持たないエンティティも選択できる。
 		a_pWorld->ForEach<ModelComponent, WorldMatrixComponent>(
 			[&](Engine::ECS::ArchetypeChunk* a_pChunk, uint32_t a_count,
 				ModelComponent* a_models, WorldMatrixComponent* a_worlds)

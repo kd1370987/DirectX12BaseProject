@@ -499,9 +499,6 @@
     <Filter Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem">
       <UniqueIdentifier>{f5695fa2-8a00-4740-969a-af0fc9681517}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem">
-      <UniqueIdentifier>{65b34580-d12c-440a-a3c7-b26a12e1ad60}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Init\Start\SpawnSoundSystem">
       <UniqueIdentifier>{9a4c7e21-0d63-4b58-8f17-2c95b6ea4d70}</UniqueIdentifier>
     </Filter>
@@ -522,9 +519,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Shared">
       <UniqueIdentifier>{8a1b0c01-4f2e-4c3a-9d51-7e6b2f0a9101}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Shared\PhysicsCompare">
-      <UniqueIdentifier>{7a02078b-d1e6-4f47-a987-774a0fc7649c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Shared\HierarchyTransform">
       <UniqueIdentifier>{8a1b0c04-4f2e-4c3a-9d51-7e6b2f0a9104}</UniqueIdentifier>
@@ -790,9 +784,6 @@
     <Filter Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem">
       <UniqueIdentifier>{1965eec3-c7ea-4dbd-b6be-c121d853227d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem">
-      <UniqueIdentifier>{a7d3f091-6c48-4b2e-8f15-9e07a3c1d5b6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Utility">
       <UniqueIdentifier>{18be77b3-0b87-4b8b-b895-d89ff72571df}</UniqueIdentifier>
     </Filter>
@@ -810,33 +801,6 @@
     </Filter>
     <Filter Include="Source\Engine\Audio">
       <UniqueIdentifier>{dc1380b3-99b4-42e9-b2a9-6521c9e453a8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Collision">
-      <UniqueIdentifier>{fa21b5c7-49e4-440c-a50c-3b190fdac3e4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Collision\BroadPhase">
-      <UniqueIdentifier>{d5a5abef-fb1f-43f8-bee4-1fe568fc196d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Collision\BroadPhase\RayCheck">
-      <UniqueIdentifier>{1918eadc-f9f9-4a30-8a1c-ee36f2c7960a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Collision\MidPhase">
-      <UniqueIdentifier>{1e574f83-a99d-44ec-a25f-69baa4e37b5f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Collision\MidPhase\BVHTraverser">
-      <UniqueIdentifier>{9d1f3920-6a5d-40b4-845c-d715eda1d982}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Collision\NarrowPhase">
-      <UniqueIdentifier>{c1bed41e-ccf7-4279-b5cd-d08bccac7b13}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Collision\NarrowPhase\PrimitiveHelper">
-      <UniqueIdentifier>{8f2cfe09-ef5f-5f91-aac1-a44d0ea3653e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Collision\NarrowPhase\TestAABB">
-      <UniqueIdentifier>{b2bde3b1-695f-4f9e-a45a-6b09caf90dec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Collision\NarrowPhase\TestTriangle">
-      <UniqueIdentifier>{8aff15af-b71f-4eb5-8889-ca99a656d65b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Common">
       <UniqueIdentifier>{07b77938-0301-436b-9ed7-35f996590c7b}</UniqueIdentifier>
@@ -1899,9 +1863,6 @@
     <ClCompile Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem\RegisterPhysicsBodySystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Start\SpawnSoundSystem\SpawnSoundSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\SpawnSoundSystem</Filter>
     </ClCompile>
@@ -2136,9 +2097,6 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem\SyncPhysicsBodySystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\SyncPhysicsBodySystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Utility\EffectSpawnHelper.cpp">
       <Filter>Source\Application\Utility</Filter>
     </ClCompile>
@@ -2153,27 +2111,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Audio\AudioManager.cpp">
       <Filter>Source\Engine\Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Collision\Collision.cpp">
-      <Filter>Source\Engine\Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Collision\CollisionWorld.cpp">
-      <Filter>Source\Engine\Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Collision\BroadPhase\BroadPhase.cpp">
-      <Filter>Source\Engine\Collision\BroadPhase</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.cpp">
-      <Filter>Source\Engine\Collision\BroadPhase\RayCheck</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Collision\MidPhase\BVHTraverser\BVHTraverser.cpp">
-      <Filter>Source\Engine\Collision\MidPhase\BVHTraverser</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Collision\NarrowPhase\TestAABB\TestAABB.cpp">
-      <Filter>Source\Engine\Collision\NarrowPhase\TestAABB</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Collision\NarrowPhase\TestTriangle\TestTriangle.cpp">
-      <Filter>Source\Engine\Collision\NarrowPhase\TestTriangle</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\AsyncGPUManager\AsyncGPUManager.cpp">
       <Filter>Source\Engine\Graphics\AsyncGPUManager</Filter>
@@ -3347,9 +3284,6 @@
     <ClInclude Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem\RegisterPhysicsBodySystem.h">
       <Filter>Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem\RegisterCollisionWorldSystem.h">
-      <Filter>Source\Application\Systems\Init\Start\RegisterCollisionWorldSystem</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Start\SpawnSoundSystem\SpawnSoundSystem.h">
       <Filter>Source\Application\Systems\Init\Start\SpawnSoundSystem</Filter>
     </ClInclude>
@@ -3364,9 +3298,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.h">
       <Filter>Source\Application\Systems\Release\SoundFreeSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Shared\PhysicsCompare\PhysicsCompare.h">
-      <Filter>Source\Application\Systems\Shared\PhysicsCompare</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Shared\HierarchyTransform\HierarchyTransform.h">
       <Filter>Source\Application\Systems\Shared\HierarchyTransform</Filter>
@@ -3587,9 +3518,6 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem\SyncPhysicsBodySystem.h">
       <Filter>Source\Application\Systems\Update\Update\SyncPhysicsBodySystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem\SubmitDynamicColliderSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\SubmitDynamicColliderSystem</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Utility\EffectSpawnHelper.h">
       <Filter>Source\Application\Utility</Filter>
     </ClInclude>
@@ -3613,33 +3541,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Audio\SoundGroup.h">
       <Filter>Source\Engine\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\Collision.h">
-      <Filter>Source\Engine\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\CollisionCommon.h">
-      <Filter>Source\Engine\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\CollisionWorld.h">
-      <Filter>Source\Engine\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\BroadPhase\BroadPhase.h">
-      <Filter>Source\Engine\Collision\BroadPhase</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\BroadPhase\RayCheck\RayCheck.h">
-      <Filter>Source\Engine\Collision\BroadPhase\RayCheck</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\MidPhase\BVHTraverser\BVHTraverser.h">
-      <Filter>Source\Engine\Collision\MidPhase\BVHTraverser</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\NarrowPhase\PrimitiveHelper\PrimitiveHelper.h">
-      <Filter>Source\Engine\Collision\NarrowPhase\PrimitiveHelper</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\NarrowPhase\TestAABB\TestAABB.h">
-      <Filter>Source\Engine\Collision\NarrowPhase\TestAABB</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Collision\NarrowPhase\TestTriangle\TestTriangle.h">
-      <Filter>Source\Engine\Collision\NarrowPhase\TestTriangle</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Common\Color.h">
       <Filter>Source\Engine\Common</Filter>
@@ -4021,9 +3922,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Option\OptionManager.h">
       <Filter>Source\Engine\Option</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Option\DebugOptions\PhysicsMigrationOption.h">
-      <Filter>Source\Engine\Option\DebugOptions</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Option\DebugOptions\DebugDrawOption.h">
       <Filter>Source\Engine\Option\DebugOptions</Filter>
@@ -4618,6 +4516,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Physics\Internal\JoltMath.h">
       <Filter>Source\Engine\Physics\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Physics\Core\ColliderShapeType.h">
+      <Filter>Source\Engine\Physics\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Physics\Core\BodyID.h">
       <Filter>Source\Engine\Physics\Core</Filter>

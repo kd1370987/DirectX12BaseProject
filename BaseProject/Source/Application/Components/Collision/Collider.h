@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Engine/Physics/Core/BodyID.h"
+#include "Engine/Physics/Core/ColliderShapeType.h"
 
 //==========================================================================================
 // 当たり判定のレイヤー
@@ -41,13 +42,11 @@ struct ColliderComponent
 	Layer collideLayer = Layer::None;		// 衝突したいレイヤー
 	Engine::ECS::Flg isPhysical = 1;		// 物理解決するかどうか(衝突時にイベントだけほしいとか)
 
-	Engine::Collision::ColliderShape shapeType;
-
-	// コリジョンワールドに登録されているハンドル
-	Engine::Handle<Engine::Collision::CollisionInstance> collWorldHandle = {};
+	// 形状の種類。Mesh は判定メッシュ、それ以外は描画メッシュのAABBの箱になる
+	Engine::Physics::EShapeType shapeType = Engine::Physics::EShapeType::Sphere;
 
 	// 物理空間(Jolt)に登録されているボディ。
-	// 移行中は collWorldHandle と両方を持つ。登録は Start、削除は Release フェーズ
+	// 登録は Start(RegisterPhysicsBodySystem)、削除は Release フェーズ(PhysicsBodyFreeSystem)。保存はしない
 	Engine::Physics::BodyHandle physicsBody = {};
 };
 
@@ -77,11 +76,11 @@ inline bool HasLayer(Layer value, Layer test)
 }
 
 //------------------------------------------------------------------------------------------
-// 毎フレーム位置が変わる側のレイヤーか(=動的ワールドへ毎フレーム submit する側か)
+// 毎フレーム位置が変わる側のレイヤーか(=動くボディ(Kinematic)にして毎フレーム位置を合わせる側か)
 //
 // 弾を撃った側で分けたことで、動くものが DiynamicObject だけではなくなった。
 // 静的か動的かを見るところは必ずここを通すこと。
-// == Layer::DiynamicObject で見たままにしておくと、弾が静的ワールドへ登録され、
+// == Layer::DiynamicObject で見たままにしておくと、弾が静的ボディとして登録され、
 // 撃った瞬間の場所に当たり判定が置き去りになる(絵だけ飛んでいく)。
 //------------------------------------------------------------------------------------------
 inline bool IsDynamicLayer(Layer a_layer)
@@ -102,25 +101,7 @@ struct Engine::ECS::ComponentTraits<ColliderComponent>
 		a_ar.Field("collideLayer", _comp.collideLayer);
 		a_ar.Field("isPhysical", _comp.isPhysical);
 
-		a_ar.Field("shapeType",_comp.shapeType.type);
-
-		//switch (_comp.shapeType.type)
-		//{
-		//case Collision::EShapeType::Sphere :
-		//	a_ar.Field("sphereRadius",_comp.shapeType.sphere.radius);
-		//	break;
-		//case Collision::EShapeType::Box:
-		//	a_ar.Field("extents",_comp.shapeType.box.extents);
-		//	break;
-		//case Collision::EShapeType::Capsule:
-		//	a_ar.Field("capsuleRadius",_comp.shapeType.capsule.radius);
-		//	a_ar.Field("capsuleHeight",_comp.shapeType.capsule.height);
-		//	break;
-		//case Collision::EShapeType::Mesh:
-		//	break;
-		//default:
-		//	break;
-		//}
+		a_ar.Field("shapeType",_comp.shapeType);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -141,6 +122,6 @@ struct Engine::ECS::ComponentTraits<ColliderComponent>
 		}
 
 		// シェープタイプ
-		Editor::EditorHelper::DrawEnumCombo("ShapeType",_comp.shapeType.type);
+		Editor::EditorHelper::DrawEnumCombo("ShapeType",_comp.shapeType);
 	}
 };

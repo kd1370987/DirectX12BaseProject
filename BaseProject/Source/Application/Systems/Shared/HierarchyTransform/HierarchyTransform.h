@@ -9,11 +9,11 @@
 //
 // ワールド行列を作るのは本来 CommitHierarchyWorldMatrixSystem(PostUpdate)の仕事で、
 // 結果は WorldMatrixComponent に入る。ただし Start フェーズはそれより前に走るので、
-// Start で登録を済ませたい側(コリジョンワールドへの静的登録)は
+// Start で登録を済ませたい側(物理空間へのボディ登録 RegisterPhysicsBodySystem)は
 // WorldMatrixComponent を読んでも単位行列しか取れない。
 //
 // かといって LocalTransformComponent だけで組むと親の変換が丸ごと抜ける。
-// 実際 RegisterCollisionWorldSystem がそれをやっていて、
+// 実際 以前の当たり判定の登録(RegisterCollisionWorldSystem)がそれをやっていて、
 // 親のグループノードに位置が入っているステージ(Desert_02 の Terrain)で
 // 絵と当たり判定が別の場所に出ていた。
 // 親が全部原点のステージでは答えが偶然一致するので、長いあいだ表に出ていない。

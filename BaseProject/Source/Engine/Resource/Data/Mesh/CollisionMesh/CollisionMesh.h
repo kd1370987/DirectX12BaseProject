@@ -8,24 +8,16 @@ namespace Engine::Resource
 		Math::Vector3 v[3];
 	};
 
-	// 一つのボックス・依存関係
-	struct BVHNode
-	{
-		void Archive(Persistence::Archive& a_ar,int a_idx);
-
-		bool IsLeaf() const { return (leftChild == -1); }
-
-		DirectX::BoundingBox box = {};		// このノードを包むAABB
-		int leftChild = -1;			// 左のノード（-1なら葉ノード）
-		int rightChild = -1;		// 右のノード
-
-		// 葉ノードの場合のみ、含まれるポリゴンのインデックス
-		int dataStart = 0;		// スタート位置
-		int dataCount = 0;		// ポリゴン数
-	};
-
-
+	//======================================================================================
 	// コリジョンメッシュ
+	//
+	// 判定用ノード(COL)の三角形をメッシュローカルのまま持つ。
+	// 物理空間(Physics::PhysicsWorld)がこれを Jolt のメッシュ形状にする。
+	//
+	// 以前は自作の当たり判定のために三角形の BVH も作って保存していた。
+	// 今は作らないが、保存形式(.mesh はバイナリ固定)はそのままにしてあるので、
+	// 古いファイルに残っている BVH は読み込み時に読み飛ばして捨てる(Archive)
+	//======================================================================================
 	struct CollisionMesh
 	{
 		// 保存
@@ -40,10 +32,5 @@ namespace Engine::Resource
 		DirectX::BoundingBox _localAABB = {};		// メッシュ全体のローカルAABB
 
 		std::vector<CollisionTriangle> triangleVec = {};    // 判定用ポリゴン配列
-		std::vector<BVHNode> nodeVec = {};					// ノード配列
-		std::vector<int> triangleIndiccesVec = {};			// 全ノードポリゴン
-
-		// ルートノードインデックス
-		int rootNodeIndex = 0;
 	};
 }

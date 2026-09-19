@@ -5,11 +5,10 @@
 //==========================================================================================
 // 動くコライダーのボディ(Jolt, Kinematic)を今の姿勢へ合わせる(Update)
 //
-// 旧 CollisionWorld は動的ワールドを毎フレーム作り直していた(SubmitDynamicColliderSystem)。
-// Jolt ではボディを Start で作って持ち続け、ここで位置・向き・拡大率だけ動かす。
+// ボディは Start(RegisterPhysicsBodySystem)で作って持ち続け、ここで位置・向き・拡大率だけ動かす。
 //
-// 置き場所は SubmitDynamicColliderSystem と同じ Update フェーズ。
-// 判定クエリ(Physics フェーズ)が見る姿勢が旧と同じタイミング(1フレーム遅れ)になる
+// 判定クエリ(Physics フェーズ)が見る姿勢は、ここで合わせた Update フェーズ時点のもの。
+// 位置の積分(Physics フェーズ)より前なので1フレーム遅れるが、弾も同じ条件なので実用上問題ない
 //==========================================================================================
 class SyncPhysicsBodySystem : public App::ECS::APPISystem
 {

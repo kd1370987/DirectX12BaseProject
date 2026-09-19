@@ -74,7 +74,7 @@ namespace Engine::Physics
 	enum class EModelBodyShape : uint8_t
 	{
 		CollisionMesh,	// 判定メッシュ(COL ノード)の三角形
-		DrawBounds,		// 描画メッシュ全体のAABBの箱(旧 CollisionWorld が Mesh 以外の形状をこれで概算していた)
+		DrawBounds,		// 描画メッシュ全体のAABBの箱(寸法を持たない Mesh 以外の形状=弾・ミサイル・ボイド)
 	};
 
 	// モデルからボディを作るときに渡すもの
@@ -96,7 +96,7 @@ namespace Engine::Physics
 	//======================================================================================
 	// シーン(ECSワールド)ごとの物理空間
 	//
-	// CollisionWorld と同じく World のリソースとして持つ(CreateSceneWorld で足す)。
+	// World のリソースとして持つ(CreateSceneWorld で足す)。
 	// システムからは a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>() で引く。
 	//
 	// Jolt の型は外へ出さない。ボディの出し入れやクエリはここに口を足していく
@@ -124,7 +124,7 @@ namespace Engine::Physics
 		BodyHandle CreateModelBody(const Resource::ResourceManager& a_resourceManager, const ModelBodyDesc& a_desc);
 
 		// 動くボディの位置・向き・拡大率を合わせる(瞬間移動)。
-		// 旧 CollisionWorld の動的 submit と同じ位置(Update フェーズ)で毎フレーム呼ぶ。
+		// Update フェーズ(SyncPhysicsBodySystem)で毎フレーム呼ぶ。
 		// a_owner が作ったときの持ち主と違えば何もしない
 		void SetBodyTransform(BodyHandle a_handle, ECS::Entity a_owner, const Math::Matrix& a_worldMat);
 
@@ -137,7 +137,7 @@ namespace Engine::Physics
 		//
 		// a_queryMask : 当たりに行く相手のレイヤー(ビット和)。ボディ側の mask は見ない
 		// a_ignore    : 判定から外す持ち主(自分自身)
-		// 三角形は表裏どちらにも当たる(旧 CollisionWorld と同じ)
+		// 三角形は表裏どちらにも当たる
 		//----------------------------------------------------------------------------------
 
 		// レイ。いちばん手前の1つを返す。方向は正規化しなくてよい
@@ -145,7 +145,7 @@ namespace Engine::Physics
 
 		// カプセル(線分 A-B + 半径)を押し出す。反復して床と壁などを順に解決する。
 		// a_pointA / a_pointB は押し出し後の位置に更新され、a_outCorrection に合計の補正が入る。
-		// 押し出す相手は判定メッシュのボディだけ(箱で概算しているもの = 弾・ボイドからは押し出さない。旧と同じ)
+		// 押し出す相手は判定メッシュのボディだけ(箱で概算しているもの = 弾・ボイドからは押し出さない)
 		bool ResolveCapsule(Math::Vector3& a_pointA, Math::Vector3& a_pointB, float a_radius,
 			uint32_t a_queryMask, ECS::Entity a_ignore, Math::Vector3& a_outCorrection, int a_iterations = 4) const;
 

@@ -5,12 +5,8 @@
 #include "Application/Components/Collision/CapsuleCollider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 
-#include "../../../Shared/PhysicsCompare/PhysicsCompare.h"
-
 #include "Engine/MainEngine.h"
-#include "Engine/Collision/CollisionWorld.h"
 #include "Engine/Physics/PhysicsWorld.h"
-#include "Engine/Option/OptionManager.h"
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
@@ -39,18 +35,6 @@ namespace
 			Math::Matrix::CreateTranslation(a_center);
 		a_pDebugDraw->DrawCapsule(_mat, a_color);
 	}
-
-	// 1体ぶんの押し出し。旧と Jolt の結果を並べて持つ
-	struct CapsuleResolve
-	{
-		Math::Vector3 center = {};
-
-		bool oldHit = false;
-		Math::Vector3 oldCorrection = {};
-
-		bool joltHit = false;
-		Math::Vector3 joltCorrection = {};
-	};
 }
 
 void CapsuleCollisionSystem::Init(App::ECS::APPWorld& a_world)
@@ -67,97 +51,27 @@ void CapsuleCollisionSystem::Init(App::ECS::APPWorld& a_world)
 			LocalTransformComponent* a_transArray
 			)
 		{
-			// 旧(CollisionWorld)/ Jolt(PhysicsWorld)のどちらで判定するか。移行中だけの切り替え
-			const auto& _migration = a_ctx.pServices->pOptionManager->GetPhysicsMigrationOption();
+			ENGINE_PROFILE_SCOPE("Physics_ResolveCapsule");
+			const auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
 
-			// ECS はシングルスレッドなので置き場は使い回す
-			static std::vector<CapsuleResolve> s_resolves;
-			s_resolves.assign(a_count, {});
-
-			// 中心（ワールドY軸方向の直立カプセル）
-			for (size_t _i = 0; _i < a_count; ++_i)
-			{
-				s_resolves[_i].center = Math::Vector3(a_transArray[_i].pos) + Math::Vector3(a_capArray[_i].offset);
-			}
-
-			// 線分の端点(下端・上端の球中心)
-			auto _makeSegment = [&](size_t a_i, Math::Vector3& a_outA, Math::Vector3& a_outB)
-			{
-				const Math::Vector3 _half = { 0.0f, a_capArray[a_i].height * 0.5f, 0.0f };
-				a_outA = s_resolves[a_i].center - _half;	// 下端の球中心
-				a_outB = s_resolves[a_i].center + _half;	// 上端の球中心
-			};
-
-			// ---- 旧 : 静的・動的の両方のツリーのメッシュから押し出す ----
-			if (_migration.RunsOld())
-			{
-				ENGINE_PROFILE_SCOPE("Collision_ResolveCapsule");
-				auto& _collWorld = a_ctx.pWorld->GetResource<Engine::Collision::CollisionWorld>();
-				for (size_t _i = 0; _i < a_count; ++_i)
-				{
-					Math::Vector3 _pointA, _pointB;
-					_makeSegment(_i, _pointA, _pointB);
-					CapsuleResolve& _resolve = s_resolves[_i];
-					_resolve.oldHit = _collWorld.ResolveCapsule(
-						_pointA, _pointB, a_capArray[_i].radius, a_pChunk->entityData[_i], _resolve.oldCorrection, 4);
-				}
-			}
-
-			// ---- Jolt : 静的も動く敵も。旧と同じく判定メッシュのボディだけから押し出す(弾・ボイドの箱は無視) ----
-			if (_migration.RunsJolt())
-			{
-				ENGINE_PROFILE_SCOPE("Physics_ResolveCapsule");
-				const auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
-				for (size_t _i = 0; _i < a_count; ++_i)
-				{
-					Math::Vector3 _pointA, _pointB;
-					_makeSegment(_i, _pointA, _pointB);
-					CapsuleResolve& _resolve = s_resolves[_i];
-					_resolve.joltHit = _physicsWorld.ResolveCapsule(
-						_pointA, _pointB, a_capArray[_i].radius,
-						Engine::Physics::kQueryAllLayers, a_pChunk->entityData[_i], _resolve.joltCorrection, 4);
-				}
-			}
-
-			// ---- 比較 ----
-			// 旧も Jolt も、静的な地形と動く敵のメッシュの両方から押し出す。
-			// どの相手から押されたかは取れないので、ずれたときは位置から切り分ける
-			if (_migration.compareQueries)
-			{
-				static App::Systems::PhysicsCompare::Stats s_stats{ "ResolveCapsule" };
-				for (size_t _i = 0; _i < a_count; ++_i)
-				{
-					const CapsuleResolve& _resolve = s_resolves[_i];
-					++s_stats.queries;
-
-					const bool _isSame = (_resolve.oldHit == _resolve.joltHit) &&
-						App::Systems::PhysicsCompare::IsClose(_resolve.oldCorrection, _resolve.joltCorrection, _migration.compareTolerance);
-					if (_isSame) continue;
-
-					++s_stats.mismatches;
-					if (App::Systems::PhysicsCompare::ShouldLogDetail(s_stats))
-					{
-						ENGINE_LOG("[PhysicsCompare] ResolveCapsule mismatch entity=%llu center=(%.3f,%.3f,%.3f) old=%d(%.4f,%.4f,%.4f) jolt=%d(%.4f,%.4f,%.4f)",
-							a_pChunk->entityData[_i],
-							_resolve.center.x, _resolve.center.y, _resolve.center.z,
-							_resolve.oldHit ? 1 : 0, _resolve.oldCorrection.x, _resolve.oldCorrection.y, _resolve.oldCorrection.z,
-							_resolve.joltHit ? 1 : 0, _resolve.joltCorrection.x, _resolve.joltCorrection.y, _resolve.joltCorrection.z);
-					}
-				}
-				App::Systems::PhysicsCompare::Report(s_stats);
-			}
-
-			// ---- 結果を反映 ----
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const CapsuleColliderComponent& _cap = a_capArray[_i];
 				LocalTransformComponent& _trans = a_transArray[_i];
-				const CapsuleResolve& _resolve = s_resolves[_i];
 
-				const bool _isHit = _migration.useJoltStaticQueries ? _resolve.joltHit : _resolve.oldHit;
-				const Math::Vector3 _correction = _isHit
-					? (_migration.useJoltStaticQueries ? _resolve.joltCorrection : _resolve.oldCorrection)
-					: Math::Vector3{};
+				// 中心（ワールドY軸方向の直立カプセル）
+				Math::Vector3 _center = Math::Vector3(_trans.pos) + Math::Vector3(_cap.offset);
+
+				Math::Vector3 _half = { 0.0f, _cap.height * 0.5f, 0.0f };
+				Math::Vector3 _pointA = _center - _half;	// 下端の球中心
+				Math::Vector3 _pointB = _center + _half;	// 上端の球中心
+
+				// 地形と動く敵の判定メッシュから押し出す（pointA/B は押し出し後に更新される）。
+				// 弾・ボイドの箱からは押し出さない
+				Math::Vector3 _correction = {};
+				bool _isHit = _physicsWorld.ResolveCapsule(
+					_pointA, _pointB, _cap.radius,
+					Engine::Physics::kQueryAllLayers, a_pChunk->entityData[_i], _correction, 4);
 
 				// 補正をトランスフォームへ反映
 				if (_isHit)
@@ -169,9 +83,10 @@ void CapsuleCollisionSystem::Init(App::ECS::APPWorld& a_world)
 				}
 
 				// デバッグ描画（押し出しが起きたら赤、なければ緑）。押し出し後の中心で描画。
+				Math::Vector3 _drawCenter = _center + _correction;
 				DrawCapsuleUpright(
 					a_ctx.pServices->pDebugDraw,
-					_resolve.center + _correction, _cap.radius, _cap.height,
+					_drawCenter, _cap.radius, _cap.height,
 					_isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}
 		}

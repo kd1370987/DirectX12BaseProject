@@ -12,7 +12,7 @@
 
 void SyncPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 {
-	// 対象は SubmitDynamicColliderSystem と同じ(動的レイヤーのコライダー + モデル + トランスフォーム)
+	// 対象は動的レイヤーのコライダー(+ モデル + トランスフォーム)
 	a_world.ActiveTask<const ColliderComponent, const ModelComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,
 		"SyncPhysicsBodySystem",
@@ -38,7 +38,7 @@ void SyncPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 				if (!IsDynamicLayer(_collComp.layer)) continue;
 				if (!_collComp.physicsBody.IsValid()) continue;
 
-				// ワールド行列は旧の動的 submit と同じ組み方(親を辿る)
+				// ワールド行列は親を辿って組む(登録と同じ)
 				const Engine::ECS::Entity _entity = a_pChunk->entityData[_i];
 				const Math::Matrix _mat = App::Systems::HierarchyTransform::CalcWorldMatrix(*a_ctx.pWorld, _entity);
 

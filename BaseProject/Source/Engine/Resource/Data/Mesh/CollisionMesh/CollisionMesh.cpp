@@ -1,95 +1,37 @@
 ﻿#include "CollisionMesh.h"
+
 namespace Engine::Resource
 {
-	struct BuildTriangle
+	namespace
 	{
-		int originalIndex = 0;			// 元のトライアングルでのインデックス
-		Math::Vector3 centroid;		// 三角形の中心点
-	};
-
-	// 再帰的にBVHを子駆逐する内部関数
-	int BuildBVHInternal(
-		CollisionMesh& a_outMesh,
-		std::vector<BuildTriangle>& a_buildTriangles,
-		int a_start,
-		int a_count,
-		const int a_maxTrianglesPerLeaf = 4		//一つの葉ノードに入れる最大ポリゴン数
-	)
-	{
-		// 新しいノードを作成して配列に追加
-		BVHNode _node;
-		int _nodeIndex = static_cast<int>(a_outMesh.nodeVec.size());
-		a_outMesh.nodeVec.push_back(_node);
-
-		// このノードに含まれる全三角形を含むAABBを計算
-		// 全頂点を集めて１つのAABBを作成
-		std::vector<Math::Vector3> _points;
-		_points.reserve(a_count * 3);
-		for (int _i = 0; _i < a_count; ++_i)
+		//----------------------------------------------------------------------------------
+		// 以前の保存形式に入っている BVH ノード。
+		//
+		// 自作の当たり判定を Jolt へ移したので BVH はもう作らないが、.mesh の保存形式は
+		// バイナリ固定で、フィールドを抜くと既存のファイルが読めなくなる。
+		// なので形式はそのままにして、読むときはここへ読み飛ばして捨て、
+		// 書くときは 0 個として書く。並び(キー名と順番)は変えないこと
+		//----------------------------------------------------------------------------------
+		struct LegacyBVHNode
 		{
-			int _triIdx = a_buildTriangles[a_start + _i].originalIndex;
-			const auto& _tri = a_outMesh.triangleVec[_triIdx];
-			_points.push_back(_tri.v[0]);
-			_points.push_back(_tri.v[1]);
-			_points.push_back(_tri.v[2]);
-		}
-		// この CreateFromPoints は先頭アドレスとストライドで配列を舐めるだけ。
-		// Math::Vector3 は XMFLOAT3 とバイナリ配置が同じ(static_assert 済み)なので、
-		// 詰め替えずにそのまま渡す
-		DirectX::BoundingBox::CreateFromPoints(
-			a_outMesh.nodeVec[_nodeIndex].box,
-			_points.size(),
-			reinterpret_cast<const DirectX::XMFLOAT3*>(_points.data()),
-			sizeof(Math::Vector3));
+			DirectX::BoundingBox box = {};
+			int leftChild = -1;
+			int rightChild = -1;
+			int dataStart = 0;
+			int dataCount = 0;
 
-		// 終了条件
-		// ポリゴン数が閾値以下なら葉ノードにする
-		if (a_count <= a_maxTrianglesPerLeaf)
-		{
-			a_outMesh.nodeVec[_nodeIndex].leftChild = -1;
-			a_outMesh.nodeVec[_nodeIndex].rightChild = -1;
-			a_outMesh.nodeVec[_nodeIndex].dataStart = static_cast<int>(a_outMesh.triangleIndiccesVec.size());
-			a_outMesh.nodeVec[_nodeIndex].dataCount = a_count;
-
-			// 葉ノードが参照するポリゴンインデックスを確定させる
-			for (int _i = 0; _i < a_count; ++_i)
+			void Archive(Persistence::Archive& a_ar, int a_idx)
 			{
-				a_outMesh.triangleIndiccesVec.push_back(a_buildTriangles[a_start + _i].originalIndex);
+				a_ar.Field("BVHNode_BoxCenter" + std::to_string(a_idx), box.Center);
+				a_ar.Field("BVHNode_BoxExtents" + std::to_string(a_idx), box.Extents);
+
+				a_ar.Field("BVHNode_LeftChild" + std::to_string(a_idx), leftChild);
+				a_ar.Field("BVHNode_RightChild" + std::to_string(a_idx), rightChild);
+
+				a_ar.Field("BVHNode_DataStart" + std::to_string(a_idx), dataStart);
+				a_ar.Field("BVHNode_DataCount" + std::to_string(a_idx), dataCount);
 			}
-
-			return _nodeIndex;
-		}
-
-		// 枝ノードの場合 
-		// 一番広がっている軸(x,y,z)を見つける
-		const auto& _extents = a_outMesh.nodeVec[_nodeIndex].box.Extents;
-		int _axis = 0;	 // 0 : x , 1 : y , 2 : z
-		if (_extents.y > _extents.x && _extents.y > _extents.z) _axis = 1;
-		if (_extents.z > _extents.x && _extents.z > _extents.y) _axis = 2;
-
-		// 選んだ軸の座標で三角形をソートする
-		std::sort(a_buildTriangles.begin() + a_start, a_buildTriangles.begin() + a_start + a_count,
-			[_axis](const BuildTriangle& a, const BuildTriangle& b)
-			{
-				if (_axis == 0) return a.centroid.x < b.centroid.x;
-				if (_axis == 1) return a.centroid.y < b.centroid.y;
-				return a.centroid.z < b.centroid.z;
-			}
-		);
-
-		// 中央値で分割して再帰ビルド
-		int _mid = a_count / 2;
-
-		// 左側の子をビルド
-		int _leftChildIndex = BuildBVHInternal(a_outMesh,a_buildTriangles,a_start,_mid,a_maxTrianglesPerLeaf);
-		// 右側の子をビルド
-		int _rightChildIndex = BuildBVHInternal(a_outMesh,a_buildTriangles,a_start + _mid,a_count - _mid,a_maxTrianglesPerLeaf);
-
-		// 親ノードに子供のインデックスを設定
-		a_outMesh.nodeVec[_nodeIndex].leftChild = _leftChildIndex;
-		a_outMesh.nodeVec[_nodeIndex].rightChild = _rightChildIndex;
-
-		return _nodeIndex;
+		};
 	}
 
 	void CollisionMesh::Archive(Persistence::Archive& a_ar)
@@ -97,7 +39,7 @@ namespace Engine::Resource
 		a_ar.Field("BoxCenter", _localAABB.Center);
 		a_ar.Field("BoxExtents", _localAABB.Extents);
 
-		// 【修正】三角形配列のサイズを保存・復元してリサイズ
+		// 三角形配列のサイズを保存・復元してリサイズ
 		size_t _triSize = triangleVec.size();
 		a_ar.Field("TriangleCount", _triSize); // Load時はファイルから個数が _triSize に上書きされる
 		triangleVec.resize(_triSize);          // 適切なサイズにリサイズ！
@@ -112,24 +54,27 @@ namespace Engine::Resource
 			_i++;
 		}
 
-		// 【修正】BVHノード配列のサイズを保存・復元してリサイズ
-		size_t _nodeSize = nodeVec.size();
+		//----------------------------------------------------------------------------------
+		// 以前の BVH の場所。保存は 0 個、読み込みは読み飛ばして捨てる(LegacyBVHNode を参照)
+		//----------------------------------------------------------------------------------
+		size_t _nodeSize = 0;
 		a_ar.Field("NodeCount", _nodeSize);
-		nodeVec.resize(_nodeSize);             // 適切なサイズにリサイズ！
 
-		_i = 0;
-		for (auto& _node : nodeVec)
+		LegacyBVHNode _discardNode = {};
+		for (size_t _n = 0; _n < _nodeSize; ++_n)
 		{
-			_node.Archive(a_ar, _i);
-			_i++;
+			_discardNode.Archive(a_ar, static_cast<int>(_n));
 		}
 
-		a_ar.VectorField("TrglIndicces", triangleIndiccesVec);
-		a_ar.Field("RootNodeIndex", rootNodeIndex);
+		std::vector<int> _discardIndices = {};
+		a_ar.VectorField("TrglIndicces", _discardIndices);
+
+		int _discardRoot = 0;
+		a_ar.Field("RootNodeIndex", _discardRoot);
 	}
 
-	void Engine::Resource::CollisionMesh::Create(
-		const std::vector<Math::Vector3>& a_vertices, 
+	void CollisionMesh::Create(
+		const std::vector<Math::Vector3>& a_vertices,
 		const std::vector<UINT>& a_indices
 	)
 	{
@@ -138,59 +83,26 @@ namespace Engine::Resource
 
 		// 生の三角形配列を構築
 		triangleVec.resize(_triangleCount);
-		std::vector<BuildTriangle> _buildTriangles(_triangleCount);
-
-		// ベクターの自動拡張による無駄を防ぐため、ある程度のリザーブをしておく
-		nodeVec.reserve(_triangleCount * 2);
-		triangleIndiccesVec.reserve(_triangleCount);
-
 		for (UINT _i = 0; _i < _triangleCount; ++_i)
 		{
-			UINT _idx0 = a_indices[_i * 3 + 0];
-			UINT _idx1 = a_indices[_i * 3 + 1];
-			UINT _idx2 = a_indices[_i * 3 + 2];
-
-			triangleVec[_i].v[0] = a_vertices[_idx0];
-			triangleVec[_i].v[1] = a_vertices[_idx1];
-			triangleVec[_i].v[2] = a_vertices[_idx2];
-
-			// ソート用の中央値
-			_buildTriangles[_i].originalIndex = _i;
-			_buildTriangles[_i].centroid.x = 
-				(triangleVec[_i].v[0].x + triangleVec[_i].v[1].x + triangleVec[_i].v[2].x) / 3.0f;
-			_buildTriangles[_i].centroid.y =
-				(triangleVec[_i].v[0].y + triangleVec[_i].v[1].y + triangleVec[_i].v[2].y) / 3.0f;
-			_buildTriangles[_i].centroid.z =
-				(triangleVec[_i].v[0].z + triangleVec[_i].v[1].z + triangleVec[_i].v[2].z) / 3.0f;
+			triangleVec[_i].v[0] = a_vertices[a_indices[_i * 3 + 0]];
+			triangleVec[_i].v[1] = a_vertices[a_indices[_i * 3 + 1]];
+			triangleVec[_i].v[2] = a_vertices[a_indices[_i * 3 + 2]];
 		}
 
-		// BVHのビルドを開始
-		rootNodeIndex = BuildBVHInternal(*this, _buildTriangles, 0, _triangleCount);
-
-		// メッシュ全体のローカルAABBは、ルートノードのAABBと同じになる
-		if (!nodeVec.empty())
-		{
-			_localAABB = nodeVec[rootNodeIndex].box;
-		}
+		// メッシュ全体のローカルAABB(三角形の全頂点を包む)。
+		// CollisionTriangle は Vector3 を3つ並べただけなので、頂点の並びとしてそのまま舐める。
+		// Math::Vector3 は XMFLOAT3 とバイナリ配置が同じ(static_assert 済み)なので、詰め替えずに渡す
+		static_assert(sizeof(CollisionTriangle) == sizeof(Math::Vector3) * 3, "CollisionTriangle に詰め物が入っている");
+		DirectX::BoundingBox::CreateFromPoints(
+			_localAABB,
+			triangleVec.size() * 3,
+			reinterpret_cast<const DirectX::XMFLOAT3*>(triangleVec.data()),
+			sizeof(Math::Vector3));
 	}
 
 	void CollisionMesh::Release()
 	{
 		triangleVec.clear();
-		triangleIndiccesVec.clear();
-		nodeVec.clear();
 	}
-
-	void BVHNode::Archive(Persistence::Archive& a_ar,int a_idx)
-	{
-		a_ar.Field("BVHNode_BoxCenter" + std::to_string(a_idx),box.Center);
-		a_ar.Field("BVHNode_BoxExtents" + std::to_string(a_idx),box.Extents);
-
-		a_ar.Field("BVHNode_LeftChild" + std::to_string(a_idx),leftChild);
-		a_ar.Field("BVHNode_RightChild" + std::to_string(a_idx),rightChild);
-
-		a_ar.Field("BVHNode_DataStart" + std::to_string(a_idx),dataStart);
-		a_ar.Field("BVHNode_DataCount" + std::to_string(a_idx),dataCount);
-	}
-
 }

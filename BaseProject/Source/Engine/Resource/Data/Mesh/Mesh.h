@@ -56,7 +56,7 @@ namespace Engine::Resource
 			const ResourceBuildContext& a_ctx,
 			const std::vector<MeshSubset>& a_subset								// サブセット配列
 		);
-		// BVHでの当たり判定構築
+		// 判定用の三角形を作る(判定ノードのメッシュだけ)
 		void CreateCollisionMesh(
 			const std::vector<Math::Vector3>& a_vertices,
 			const std::vector<UINT>& a_indices

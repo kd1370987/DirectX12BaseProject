@@ -11,7 +11,6 @@
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Option/OptionManager.h"
-#include "../../Collision/CollisionWorld.h"
 #include "../../Physics/PhysicsWorld.h"
 #include "../../Input/InputManager/InputManager.h"
 #include "../../Editor/Editor.h"
@@ -54,25 +53,17 @@ namespace Engine::Scene
 		// 各システムは SystemContext 経由で受け取る。
 		_upWorld->SetEngineServices(Engine::MainEngine::Instance().GetEngineServices());
 
-		// 当たり判定の空間。
+		// 物理空間(Jolt)。当たり判定はすべてここ。
 		//
-		// シーン(ワールド)ごとに1つ持つ。以前はエンジンが1つだけ持つ共有物だったため、
+		// シーン(ワールド)ごとに1つ持つ。エンジンが1つだけ持つ共有物にすると、
 		//   ・ポーズ画面を重ねただけで消すと後ろのゲームの静的コライダーが失われる
 		//     (登録は Start の一度きりなので戻らない)
 		//   ・エフェクトエディターのプレビューがゲームのコライダーと同じ空間に乗る
-		// といった具合に、持ち主が誰なのかを場所ごとに考える必要があった。
+		// といった具合に、持ち主が誰なのかを場所ごとに考える必要がある(以前の自作判定がそうだった)。
 		// ワールドと同じ寿命にしておけば、シーンを消せば当たり判定も一緒に消える。
 		//
 		// ここで足しているのでプレビュー用のワールドにも必ず1つある。
-		// システムは a_ctx.pWorld->GetResource<CollisionWorld>() で引くこと。
-		_upWorld->AddResource<Collision::CollisionWorld>();
-
-		// メッシュ形状の厳密判定でモデルのメッシュを引くので、リソースの持ち主を渡しておく
-		_upWorld->GetResource<Collision::CollisionWorld>().SetResourceManager(
-			_upWorld->RefEngineServices()->pResourceManager);
-
-		// 物理空間(Jolt)。CollisionWorld と同じくワールドごとに1つ。
-		// 移行中は両方を持ち、呼び出し元を1つずつこちらへ移していく。
+		// システムは a_ctx.pWorld->GetResource<Physics::PhysicsWorld>() で引くこと。
 		// PhysicsSystem::Init で先に確保するので、プレビューは小さくしておく
 		_upWorld->AddResource<Physics::PhysicsWorld>(
 			_upWorld->RefEngineServices()->pPhysicsEngine,
@@ -118,20 +109,8 @@ namespace Engine::Scene
 
 		// シーンの初めに一括でエンティティを生成・削除
 		// 解放処理と初期化処理も含まれているため、呼び出しはシングルスレッド限定
-		// (この中で Start フェーズが走り、静的コライダーの登録もここで行われる)
+		// (この中で Start フェーズが走り、コライダーのボディ登録もここで行われる)
 		m_upWorld->BeginFrame();
-
-		// このシーンの当たり判定の空間。ワールドの持ち物なので、
-		// 重ねているシーンがあっても互いのコライダーが混ざることはない
-		auto& _collWorld = m_upWorld->GetResource<Engine::Collision::CollisionWorld>();
-
-		// 動的ワールドは毎フレーム詰めなおす。
-		// この後の Update フェーズ(SubmitDynamicColliderSystem)が積み直すので、
-		// 積む前に空にしておくこと
-		{
-			ENGINE_PROFILE_SCOPE("Collision_ClearDynamic");
-			_collWorld.ClearDynamicWorld(kDynamicColliderReserve);
-		}
 
 		// シーンのシステム処理
 		//
@@ -146,26 +125,11 @@ namespace Engine::Scene
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Update, a_dt);
 
-		// 動的コライダーの submit（Update まで）が終わったこのタイミングでTLASを構築する。
-		// Physics フェーズの判定クエリが最新のワールドを参照できるようにするため、
-		// 必ず Physics の前に置くこと。
-		//
-		// 静的側もここで構築する。登録は上の BeginFrame(Start フェーズ)で済んでいるので、
-		// 置いたそのフレームから判定に乗る。
-		// (以前は全シーンの更新が終わった後=BeginDraw で構築していたため、
-		//  静的コライダーが判定へ反映されるのが1フレーム遅れていた)
-		// 中身に変更が無ければ ReBuildStaticTLAS は素通りするので、毎フレーム呼んでよい
-		{
-			ENGINE_PROFILE_SCOPE("Collision_BuildDynamic");
-			_collWorld.BuildDynamicWorld();
-		}
-		{
-			ENGINE_PROFILE_SCOPE("Collision_BuildStatic");
-			_collWorld.BuildWorld();
-		}
-
-		// 物理空間も同じ位置で1ステップ進める。
-		// 動くボディの位置合わせ(Update フェーズ)の後、判定クエリ(Physics フェーズ)の前
+		// 物理空間を1ステップ進める。必ず Physics フェーズの前に置くこと。
+		//   ・上の BeginFrame(Start フェーズ)で作ったボディをここでまとめて空間へ入れるので、
+		//     置いたそのフレームから判定クエリに乗る
+		//   ・動くボディの位置合わせ(Update フェーズの SyncPhysicsBodySystem)の後なので、
+		//     判定クエリ(Physics フェーズ)は今フレームの位置を見る
 		{
 			ENGINE_PROFILE_SCOPE("Physics_Update");
 			m_upWorld->GetResource<Physics::PhysicsWorld>().Update(a_dt);
@@ -184,14 +148,9 @@ namespace Engine::Scene
 
 	void BaseScene::Draw()
 	{
-		// 静的コライダーのAABBをデバッグ表示へ積む。
+		// 判定メッシュのボディのAABBをデバッグ表示へ積む(静的=水色、動く=黄色)。
 		// 積む先はエンジン側の置き場で、実際に出すかどうかは
 		// DebugDrawOption(エディターの表示設定)が決める
-		m_upWorld->GetResource<Engine::Collision::CollisionWorld>()
-			.DrawDebug(m_upWorld->RefEngineServices()->pDebugDraw);
-
-		// 物理空間(Jolt)のボディも水色で重ねる。
-		// 移行中は白(旧)と重なっていれば同じ場所に登録できている
 		m_upWorld->GetResource<Engine::Physics::PhysicsWorld>()
 			.DrawDebug(m_upWorld->RefEngineServices()->pDebugDraw);
 

@@ -96,8 +96,6 @@ namespace Engine::Editor::Inspector
 			const auto& _collisionMesh = a_pMesh->GetCollisionMesh();
 
 			ImGui::Text("Triangles     : %zu", _collisionMesh.triangleVec.size());
-			ImGui::Text("BVHNodes      : %zu", _collisionMesh.nodeVec.size());
-			ImGui::Text("RootNodeIndex : %d", _collisionMesh.rootNodeIndex);
 
 			const auto& _localAABB = _collisionMesh._localAABB;
 			ImGui::Text("LocalAABB Center : %.3f, %.3f, %.3f", _localAABB.Center.x, _localAABB.Center.y, _localAABB.Center.z);

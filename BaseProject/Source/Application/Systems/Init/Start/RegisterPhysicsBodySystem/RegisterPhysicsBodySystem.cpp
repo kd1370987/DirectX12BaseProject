@@ -47,14 +47,13 @@ void RegisterPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 				// Start の時点では WorldMatrixComponent がまだ空なので使えない
 				_desc.worldMat = App::Systems::HierarchyTransform::CalcWorldMatrix(*a_ctx.pWorld, _entity);
 
-				// 形状は旧 CollisionWorld と同じ決め方 : Mesh は判定メッシュ、それ以外は描画メッシュのAABBの箱。
-				// (ColliderShape の球の半径は保存されておらず、旧でも使われていなかった)
-				_desc.shape = (_collComp.shapeType.type == Engine::Collision::EShapeType::Mesh)
+				// 形状 : Mesh は判定メッシュ、それ以外は描画メッシュのAABBの箱。
+				// (Sphere/Box/Capsule の寸法はコンポーネントに無い。以前の自作判定もAABBで概算していた)
+				_desc.shape = (_collComp.shapeType == Engine::Physics::EShapeType::Mesh)
 					? Engine::Physics::EModelBodyShape::CollisionMesh
 					: Engine::Physics::EModelBodyShape::DrawBounds;
 
-				// 動くもの(敵・弾・ボイド)は Kinematic で常駐させ、SyncPhysicsBodySystem が毎フレーム位置を合わせる。
-				// 旧は動的ワールドを毎フレーム作り直していた
+				// 動くもの(敵・弾・ボイド)は Kinematic で常駐させ、SyncPhysicsBodySystem が毎フレーム位置を合わせる
 				_desc.isMoving = IsDynamicLayer(_collComp.layer);
 
 				_desc.group = static_cast<uint32_t>(_collComp.layer);

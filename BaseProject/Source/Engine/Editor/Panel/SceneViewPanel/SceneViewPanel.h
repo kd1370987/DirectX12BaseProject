@@ -29,7 +29,7 @@ namespace Engine::Editor
 		// シーンビュー上でのエンティティ選択
 		void SelectEntityForMouse(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, const ImVec2& a_pos, const ImVec2& a_rect);
 
-		// レイと描画メッシュのAABBでエンティティをピッキングする(CollisionWorldは使わない)。
+		// レイと描画メッシュのAABBでエンティティをピッキングする(物理空間は使わない)。
 		// 当たり判定を持たないエンティティも選択できるよう、描画メッシュから直接判定する。
 		Engine::ECS::Entity PickEntityByRay(Engine::ECS::World* a_pWorld, const Math::Ray& a_ray);
 
