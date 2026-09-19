@@ -22,6 +22,9 @@ namespace Engine::Option::DebugOptions
 		// 接地レイ・押し出しの結果に Jolt を使う(相手は静的・動く敵とも。名前は保存済みの設定に合わせて据え置き)
 		bool useJoltStaticQueries = false;
 
+		// 弾の当たり判定(HitDetect)・照準のレイ(AimTarget)の結果に Jolt を使う(Phase 5)
+		bool useJoltHitQueries = false;
+
 		// 旧と Jolt を両方走らせて、差を記録する
 		bool compareQueries = true;
 
@@ -41,7 +44,8 @@ namespace Engine::Option::DebugOptions
 
 		void DrawEdit(const ECS::EngineServices&) override
 		{
-			ImGui::Checkbox("Use Jolt (static queries)", &useJoltStaticQueries);
+			ImGui::Checkbox("Use Jolt (ground / push-out)", &useJoltStaticQueries);
+			ImGui::Checkbox("Use Jolt (hit / aim)", &useJoltHitQueries);
 			ImGui::Checkbox("Compare with old collision", &compareQueries);
 			ImGui::DragFloat("Compare tolerance (m)", &compareTolerance, 0.0005f, 0.0f, 1.0f, "%.4f");
 		}
@@ -49,6 +53,7 @@ namespace Engine::Option::DebugOptions
 		void Archive(Persistence::Archive& a_archive) override
 		{
 			a_archive.Field("useJoltStaticQueries", useJoltStaticQueries);
+			a_archive.Field("useJoltHitQueries", useJoltHitQueries);
 			a_archive.Field("compareQueries", compareQueries);
 			a_archive.Field("compareTolerance", compareTolerance);
 		}
@@ -56,5 +61,9 @@ namespace Engine::Option::DebugOptions
 		// 旧の判定を走らせるか / Jolt の判定を走らせるか
 		bool RunsOld() const { return !useJoltStaticQueries || compareQueries; }
 		bool RunsJolt() const { return useJoltStaticQueries || compareQueries; }
+
+		// 弾・照準のほう
+		bool RunsOldHit() const { return !useJoltHitQueries || compareQueries; }
+		bool RunsJoltHit() const { return useJoltHitQueries || compareQueries; }
 	};
 }

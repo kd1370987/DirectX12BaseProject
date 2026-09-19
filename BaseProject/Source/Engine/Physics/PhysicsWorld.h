@@ -61,6 +61,15 @@ namespace Engine::Physics
 		float distance = 0.0f;			// 始点からの距離
 	};
 
+	// 形状(球など)が当たったところ
+	struct ShapeHit
+	{
+		ECS::Entity entity = ECS::Limits::INVALID_ENTITY;	// 当たったボディの持ち主
+		Math::Vector3 position = {};	// 相手の表面の接触点(ワールド)
+		Math::Vector3 normal = {};		// 相手の表面の法線(こちらを向く・単位長)
+		float fraction = 0.0f;			// 掃いたときの、当たった位置までの割合(0 = 始点で既に重なっていた)
+	};
+
 	// モデルからボディを作るときの形状
 	enum class EModelBodyShape : uint8_t
 	{
@@ -143,6 +152,16 @@ namespace Engine::Physics
 		// 球を押し出す。a_center は押し出し後の位置に更新される
 		bool ResolveSphere(Math::Vector3& a_center, float a_radius,
 			uint32_t a_queryMask, ECS::Entity a_ignore, Math::Vector3& a_outCorrection, int a_iterations = 4) const;
+
+		// 球を a_from から a_to へ掃き、進む向きでいちばん手前に当たった相手を返す(弾の当たり判定)。
+		// 始点で既に重なっていれば、それを返す(fraction = 0)。
+		// a_ignore2 : もう1体外す持ち主(弾から見た発射元。銃口は撃った本人の体の中にある)
+		bool SweepSphere(const Math::Vector3& a_from, const Math::Vector3& a_to, float a_radius,
+			uint32_t a_queryMask, ECS::Entity a_ignore, ECS::Entity a_ignore2, ShapeHit& a_outHit) const;
+
+		// 球の重なり。いちばん深く重なっている相手を返す
+		bool OverlapSphere(const Math::Vector3& a_center, float a_radius,
+			uint32_t a_queryMask, ECS::Entity a_ignore, ECS::Entity a_ignore2, ShapeHit& a_outHit) const;
 
 		//----------------------------------------------------------------------------------
 		// 確認用

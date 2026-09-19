@@ -11,6 +11,7 @@
 #include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
@@ -75,18 +76,22 @@ namespace Engine::Physics
 		class IgnoreOwnerBodyFilter final : public JPH::BodyFilter
 		{
 		public:
-			explicit IgnoreOwnerBodyFilter(ECS::Entity a_ignore, bool a_onlyMesh = false) noexcept
-				: m_ignore(a_ignore), m_onlyMesh(a_onlyMesh) {}
+			explicit IgnoreOwnerBodyFilter(ECS::Entity a_ignore, bool a_onlyMesh = false,
+				ECS::Entity a_ignore2 = ECS::Limits::INVALID_ENTITY) noexcept
+				: m_ignore(a_ignore), m_ignore2(a_ignore2), m_onlyMesh(a_onlyMesh) {}
 
 			bool ShouldCollideLocked(const JPH::Body& a_body) const override
 			{
-				if (a_body.GetUserData() == static_cast<JPH::uint64>(m_ignore)) return false;
+				const JPH::uint64 _owner = a_body.GetUserData();
+				if (_owner == static_cast<JPH::uint64>(m_ignore)) return false;
+				if (_owner == static_cast<JPH::uint64>(m_ignore2)) return false;
 				if (m_onlyMesh && !IsMeshShape(a_body.GetShape())) return false;
 				return true;
 			}
 
 		private:
 			ECS::Entity m_ignore = ECS::Limits::INVALID_ENTITY;
+			ECS::Entity m_ignore2 = ECS::Limits::INVALID_ENTITY;
 			bool m_onlyMesh = false;
 		};
 
@@ -735,6 +740,84 @@ namespace Engine::Physics
 		const bool _pushed = ResolveCapsule(_a, _b, a_radius, a_queryMask, a_ignore, a_outCorrection, a_iterations);
 		a_center += a_outCorrection;
 		return _pushed;
+	}
+
+	bool PhysicsWorld::SweepSphere(const Math::Vector3& a_from, const Math::Vector3& a_to, float a_radius,
+		uint32_t a_queryMask, ECS::Entity a_ignore, ECS::Entity a_ignore2, ShapeHit& a_outHit) const
+	{
+		if (!m_upPhysicsSystem) return false;
+		if (!(a_radius > 0.0f) || !IsFinite(a_from) || !IsFinite(a_to)) return false;
+
+		JPH::SphereShape _sphere(a_radius);
+		_sphere.SetEmbedded();
+
+		const JPH::RShapeCast _cast(
+			&_sphere, JPH::Vec3::sOne(),
+			JPH::RMat44::sTranslation(Internal::ToJoltR(a_from)),
+			Internal::ToJolt(a_to - a_from));
+
+		// 三角形も凸形状も表裏どちらにも当たる(旧の重なり判定は向きを見ていなかった)。
+		// 始点で重なっていたときは、いちばん深い点を返させる
+		JPH::ShapeCastSettings _settings;
+		_settings.SetBackFaceMode(JPH::EBackFaceMode::CollideWithBackFaces);
+		_settings.mReturnDeepestPoint = true;
+
+		// 進む向きでいちばん手前(始点で重なっていれば、そのうち最も深いもの)
+		JPH::ClosestHitCollisionCollector<JPH::CastShapeCollector> _collector;
+		const LayerMaskQueryFilter _layerFilter(a_queryMask);
+		const IgnoreOwnerBodyFilter _bodyFilter(a_ignore, false, a_ignore2);
+
+		m_upPhysicsSystem->GetNarrowPhaseQueryNoLock().CastShape(
+			_cast, _settings, JPH::RVec3::sZero(), _collector, {}, _layerFilter, _bodyFilter);
+
+		if (!_collector.HadHit()) return false;
+
+		const JPH::ShapeCastResult& _hit = _collector.mHit;
+		JPH::BodyLockRead _lock(m_upPhysicsSystem->GetBodyLockInterfaceNoLock(), _hit.mBodyID2);
+		if (!_lock.Succeeded()) return false;
+
+		// mPenetrationAxis は「相手を押し出す向き」なので、相手の表面の法線(こちらを向く)はその逆
+		const JPH::Vec3 _axis = _hit.mPenetrationAxis;
+		a_outHit.entity = static_cast<ECS::Entity>(_lock.GetBody().GetUserData());
+		a_outHit.position = Internal::ToMath(JPH::Vec3(_hit.mContactPointOn2));
+		a_outHit.normal = (_axis.LengthSq() > 1e-12f) ? Internal::ToMath(-_axis.Normalized()) : Math::Vector3{};
+		a_outHit.fraction = _hit.mFraction;
+		return true;
+	}
+
+	bool PhysicsWorld::OverlapSphere(const Math::Vector3& a_center, float a_radius,
+		uint32_t a_queryMask, ECS::Entity a_ignore, ECS::Entity a_ignore2, ShapeHit& a_outHit) const
+	{
+		if (!m_upPhysicsSystem) return false;
+		if (!(a_radius > 0.0f) || !IsFinite(a_center)) return false;
+
+		JPH::SphereShape _sphere(a_radius);
+		_sphere.SetEmbedded();
+
+		JPH::CollideShapeSettings _settings;
+		_settings.mBackFaceMode = JPH::EBackFaceMode::CollideWithBackFaces;
+
+		// いちばん深く重なっているもの
+		JPH::ClosestHitCollisionCollector<JPH::CollideShapeCollector> _collector;
+		const LayerMaskQueryFilter _layerFilter(a_queryMask);
+		const IgnoreOwnerBodyFilter _bodyFilter(a_ignore, false, a_ignore2);
+
+		m_upPhysicsSystem->GetNarrowPhaseQueryNoLock().CollideShape(
+			&_sphere, JPH::Vec3::sOne(), JPH::RMat44::sTranslation(Internal::ToJoltR(a_center)),
+			_settings, JPH::RVec3::sZero(), _collector, {}, _layerFilter, _bodyFilter);
+
+		if (!_collector.HadHit()) return false;
+
+		const JPH::CollideShapeResult& _hit = _collector.mHit;
+		JPH::BodyLockRead _lock(m_upPhysicsSystem->GetBodyLockInterfaceNoLock(), _hit.mBodyID2);
+		if (!_lock.Succeeded()) return false;
+
+		const JPH::Vec3 _axis = _hit.mPenetrationAxis;
+		a_outHit.entity = static_cast<ECS::Entity>(_lock.GetBody().GetUserData());
+		a_outHit.position = Internal::ToMath(JPH::Vec3(_hit.mContactPointOn2));
+		a_outHit.normal = (_axis.LengthSq() > 1e-12f) ? Internal::ToMath(-_axis.Normalized()) : Math::Vector3{};
+		a_outHit.fraction = 0.0f;
+		return true;
 	}
 
 	uint32_t PhysicsWorld::GetBodyCount() const

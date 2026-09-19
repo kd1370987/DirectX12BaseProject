@@ -58,6 +58,7 @@
     "PhysicsMigrationOption": {
         "compareQueries": false,
         "compareTolerance": 0.004999999888241291,
+        "useJoltHitQueries": true,
         "useJoltStaticQueries": true
     },
     "RenderingOption": {

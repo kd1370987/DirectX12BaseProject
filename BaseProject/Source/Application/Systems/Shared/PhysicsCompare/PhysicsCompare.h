@@ -20,6 +20,7 @@ namespace App::Systems::PhysicsCompare
 
 		uint64_t queries = 0;		// 比べた回数
 		uint64_t mismatches = 0;	// ずれた回数
+		uint64_t differentTarget = 0;	// 両方当たったが相手が違った回数(ずれには数えない。弾の判定で使う)
 
 		int detailLogged = 0;
 		std::chrono::steady_clock::time_point lastReport = {};
@@ -51,11 +52,12 @@ namespace App::Systems::PhysicsCompare
 
 		if (a_stats.queries == 0) return;
 
-		ENGINE_LOG("[PhysicsCompare] %s : %llu queries, %llu mismatch",
-			a_stats.name, a_stats.queries, a_stats.mismatches);
+		ENGINE_LOG("[PhysicsCompare] %s : %llu queries, %llu mismatch, %llu different target",
+			a_stats.name, a_stats.queries, a_stats.mismatches, a_stats.differentTarget);
 
 		a_stats.queries = 0;
 		a_stats.mismatches = 0;
+		a_stats.differentTarget = 0;
 	}
 
 	// 2点が許容差の内にあるか
