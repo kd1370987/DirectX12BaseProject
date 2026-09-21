@@ -1,12 +1,11 @@
 ﻿#pragma once
 
 // マネージャー関係
-#include "../EntityManager/EntityManager.h"
 #include "../SystemManager/SystemManager.h"
-#include "../Manager/ArchetypeManager/ArchetypeManager.h"
 #include "../Core/Chunk.h"
-#include "../ResourceTypeManager/ResourceTypeManager.h"
-#include "../ResourceWrapper/ResourceWrapper.h"
+#include "../Core/CommandBuffer.h"
+#include "../Core/ResourceStore.h"
+#include "../Core/EntityStorage.h"
 
 #include "../ComponentMetaRegistry/ComponentMetaRegistry.h"
 
@@ -17,24 +16,6 @@ namespace Engine::ECS
 
 	template<typename... Excludes>
 	struct Exclude {};
-
-	// エンティティの移動用
-	struct ChangeEntityCmd
-	{
-		Entity entity;		// エンティティ
-		Signature toSig;	// 変更予定シグネチャ
-
-		// 指定したデータに書き換え
-		std::unordered_map<ComponentTypeID, std::vector<uint8_t>> dataMap = {};
-	};
-
-	// データ付きエンティティ生成用(プレハブ実体化など)
-	// シグネチャで生成し、dataMap のバイト列を各コンポーネントへ流し込む。
-	struct CreateEntityWithDataCmd
-	{
-		Signature sig;
-		std::unordered_map<ComponentTypeID, std::vector<uint8_t>> dataMap = {};
-	};
 
 	// カスタムタスク用依存情報
 	template<typename ...Comp> struct ReadList {};
@@ -75,24 +56,6 @@ namespace Engine::ECS
 		// 基盤がやるのは「積まれた命令を捌く」ところまで。
 		// ライフサイクル(初期化フェーズの進行)を持つ層は override して差し込む
 		virtual void BeginFrame();
-
-		/// <summary>
-		/// コンポーネントが借りているものを返させる
-		/// </summary>
-		/// <remarks>
-		/// コンポーネントは trivially copyable 縛りでデストラクタが走らないので、
-		/// リソースの参照カウントのように「取ったら返す」ものは
-		/// ComponentTraits<T>::Release に書き、ここから呼ばせる。
-		/// 呼ぶのはエンティティを消すときと、コンポーネントを外す/入れ直すとき。
-		/// </remarks>
-		void ReleaseComponents(const ECS::Entity& a_entity, const Signature& a_sig);
-
-		/// <summary>
-		/// 退避したコンポーネントのデータに対して解放フックを呼ぶ
-		/// (アーキタイプの引っ越し中は実体の置き場所が変わるため)
-		/// </summary>
-		void ReleaseComponentData(ComponentTypeID a_compID, uint8_t* a_pData);
-
 
 		//==========================================================================================
 		// 
@@ -144,7 +107,7 @@ namespace Engine::ECS
 
 		void ReserveCreateEntity(const Signature& a_sig);			// コマンド発行
 		// データ付き生成コマンド(プレハブ実体化など)。BeginFrameで安全に生成される。
-		void ReserveCreateEntityWithData(const Signature& a_sig, std::unordered_map<ComponentTypeID, std::vector<uint8_t>> a_dataMap);
+		void ReserveCreateEntityWithData(const Signature& a_sig, ComponentDataMap a_dataMap);
 
 		// 実体の即時作成 : 反復(ForEach / システム)の外でだけ呼ぶこと
 		Entity CreateEntity(const Signature& a_sig);
@@ -179,7 +142,7 @@ namespace Engine::ECS
 		//------------------------------------------------------------------------------------------
 		// エンティティの操作
 		//------------------------------------------------------------------------------------------
-		// エンティティに対してコンポーネントを操作(どちらも予約で、反映は ApplyChangeSignatures)
+		// エンティティに対してコンポーネントを操作(どちらも予約で、反映は ApplyReservedChange)
 		void ReserveAddComponent(ComponentTypeID a_typeID,Entity a_entity,uint8_t* a_pData = nullptr);		// 追加
 		void ReserveRemoveComponent(ComponentTypeID a_typeID,Entity a_entity);		// 削除
 		void ReserveChangeSignature(ChangeEntityCmd a_cmd);					// 指定シグネチャに変更するコマンド
@@ -195,7 +158,7 @@ namespace Engine::ECS
 		/// 反復が終わった直後にこれを呼べば同じフレームのうちに反映できる。
 		/// 反復中に呼んではいけない(チャンクの並びが変わる)。
 		/// </remarks>
-		void ApplyChangeSignatures();
+		void ApplyReservedChange();
 
 		void ReserveRefreshEntity(const Entity& a_entity);						// リフレッシュ
 
@@ -355,7 +318,7 @@ namespace Engine::ECS
 		virtual void OnEntityStructureChanged() {}
 
 		/// <summary>リフレッシュリストにたまったエンティティを一括で処理する</summary>
-		virtual void RefreshEntities();
+		virtual void ApplyReservedRefresh();
 
 		//------------------------------------------------------------------------------------------
 		// エンティティの即時削除
@@ -378,8 +341,8 @@ namespace Engine::ECS
 		// BeginFrame / Release の流れからのみ呼ぶこと
 		//------------------------------------------------------------------------------------------
 
-		void CreateAllEntity();								// 生成予約を一括で作る
-		void RemoveEntityStorage();							// 削除予約を一括で消す
+		void ApplyReservedCreate();								// 生成予約を一括で作る
+		void ApplyReservedRemove();							// 削除予約を一括で消す
 		void ChangeSignature(const ChangeEntityCmd& a_cmd);	// アーキタイプを実際に引っ越す
 
 		//------------------------------------------------------------------------------------------
@@ -421,10 +384,11 @@ namespace Engine::ECS
 
 	protected:
 
-		// マネージャー軍
-		EntityManager m_entityManager;
+		// エンティティの置き場(ID とチャンクの実体)
+		EntityStorage m_storage;
+
+		// システムの管理
 		SystemManager m_systemManager;
-		ArchetypeManager m_archetypeManager;
 
 		// コンポーネントメタ情報管理
 		ComponentMetaRegistry m_componentMetaRegistry;
@@ -435,23 +399,11 @@ namespace Engine::ECS
 		// 初期化済み
 		bool m_isInit = false;
 
-		// 生成予定エンティティリスト
-		std::vector<Signature> m_reservedCreateVec = {};
+		// 構造変更の予約(生成・削除・引っ越し・作り直し)
+		CommandBuffer m_commandBuffer;
 
-		// データ付き生成予定エンティティリスト(プレハブ実体化など)
-		std::vector<CreateEntityWithDataCmd> m_reservedCreateWithDataVec = {};
-
-		// 削除予定エンティティ
-		std::vector<Entity> m_reservedRemoveVec = {};
-
-		// 移動予定エンティティ
-		std::vector<ChangeEntityCmd> m_reservedChangeVec = {};
-
-		// リフレッシュ予定エンティティ
-		std::vector<Entity> m_reservedRefreshVec = {};
-
-		// インターフェースポインタでリソースを保存
-		std::unordered_map<ResourceTypeID, std::unique_ptr<IResourceWrapper>> m_resourceMap;
+		// ワールド寿命のリソース
+		ResourceStore m_resourceStore;
 
 	public:
 		// コンストラクタデストラクタ
@@ -501,7 +453,7 @@ namespace Engine::ECS
 		using RawType = std::remove_const_t<Comp>;
 		auto _typeID = m_componentMetaRegistry.GetTypeID<RawType>();
 
-		return reinterpret_cast<Comp*>(m_archetypeManager.RefComponentArray(a_chunk, _typeID));
+		return reinterpret_cast<Comp*>(m_storage.RefComponentArray(a_chunk, _typeID));
 	}
 
 	template<typename Comp>
@@ -660,13 +612,13 @@ namespace Engine::ECS
 		Signature _excludeSig;
 		BuildSignature<Excludes...>(_excludeSig);
 
-		return m_archetypeManager.MatchingChunkVec(_querySig, _excludeSig);
+		return m_storage.MatchingChunkVec(_querySig, _excludeSig);
 	}
 
 	template<typename ...Components, typename ...Excludes>
 	inline const std::vector<Chunk*>& World::ResolveQuery(QueryCache& a_cache, Exclude<Excludes...>)
 	{
-		const uint64_t _generation = m_archetypeManager.GetGeneration();
+		const uint64_t _generation = m_storage.GetArchetypeGeneration();
 		if (a_cache.IsStale(_generation))
 		{
 			a_cache.chunkVec = BuildChunkQuery<Components...>(Exclude<Excludes...>{});
@@ -729,41 +681,16 @@ namespace Engine::ECS
 	template<typename ResourceType, typename ...Args>
 	inline void World::AddResource(Args && ...a_args)
 	{
-		// ID取得
-		ResourceTypeID _id = ResourceTypeManager::GetID<ResourceType>();
-
-		if (m_resourceMap.find(_id) == m_resourceMap.end())
-		{
-			// unique_ptrを使って安全にアップキャストして保持
-			// ランタイム中では行わずに初期登録時のみ走る
-			m_resourceMap.emplace(_id, std::make_unique<ResourceWrapper<ResourceType>>(std::forward<Args>(a_args)...));
-		}
+		m_resourceStore.Add<ResourceType>(std::forward<Args>(a_args)...);
 	}
 	template<typename ResourceType>
 	inline ResourceType& World::GetResource()
 	{
-		// IDを検索
-		ResourceTypeID _id = ResourceTypeManager::GetID<ResourceType>();
-		auto _it = m_resourceMap.find(_id);
-
-		// 見つからなければ止める。
-		// 参照で返すので返せるものが無く、ログだけ出して進むと end() を参照外しする
-		if(_it == m_resourceMap.end())
-		{
-			ENGINE_ERROR("ECS::World : Resource not found (%s)", typeid(ResourceType).name());
-			assert(0 && "ECS::World : 登録されていないリソースです");
-			std::abort();
-		}
-
-		// RTTIによる型チェックを行わずに型が一致している前提でキャスト
-		auto* _wrapper = static_cast<ResourceWrapper<ResourceType>*>(_it->second.get());
-		return _wrapper->data;
+		return m_resourceStore.Get<ResourceType>();
 	}
 	template<typename ResourceType>
 	inline bool World::HasResource() const
 	{
-		// IDを検索してマップ内に存在するかどうかを返す
-		ResourceTypeID _id = ResourceTypeManager::GetID<ResourceType>();
-		return m_resourceMap.find(_id) != m_resourceMap.end();
+		return m_resourceStore.Has<ResourceType>();
 	}
 }

@@ -54,10 +54,10 @@ namespace App::ECS
 		m_systemManager.Sort();
 
 		// エンティティの一括作成
-		CreateAllEntity();
+		ApplyReservedCreate();
 
 		// エンティティの引っ越し
-		ApplyChangeSignatures();
+		ApplyReservedChange();
 
 		// 解放されるものの子孫にもタグを広げる。
 		// 引っ越しが済んだ後に呼ぶので、この時点で親にはもうタグが付いている。
@@ -69,24 +69,24 @@ namespace App::ECS
 		CollectReleasedEntities();
 
 		// エンティティの一括削除
-		RemoveEntityStorage();
+		ApplyReservedRemove();
 
 		// エンティティ削除後にエンティティをリフレッシュ
 		// 作り直しに回されたものは PostDeserializeTag が予約されるだけなので、
 		// ここで流しておかないと下の初期化フェーズに乗り遅れて1フレーム待たされる
-		RefreshEntities();
-		ApplyChangeSignatures();
+		ApplyReservedRefresh();
+		ApplyReservedChange();
 
 		// ---------------------------------------------------------
 		// 初期化システムズ
 		// ---------------------------------------------------------
 		RunSystem(ESystemType::PostDeserialize, 0.0f);
-		ApplyChangeSignatures();
+		ApplyReservedChange();
 		TransitionPhase<PostDeserializeTag, AwakeTag>();
-		ApplyChangeSignatures();
+		ApplyReservedChange();
 
 		RunSystem(ESystemType::Awake, 0.0f);
-		ApplyChangeSignatures();
+		ApplyReservedChange();
 
 		// リソースが揃ったエンティティだけ Start へ進める。
 		// 揃っていないものは AwakeTag のまま残り、次のフレームで再判定される。
@@ -104,16 +104,16 @@ namespace App::ECS
 				}
 			);
 
-			ApplyChangeSignatures();
+			ApplyReservedChange();
 
 			// 判定はフレームごとにやり直す
 			_waitRes.waitingEntities.clear();
 		}
 
 		RunSystem(ESystemType::Start, 0.0f);
-		ApplyChangeSignatures();
+		ApplyReservedChange();
 		TransitionPhase<StartTag, ActiveTag>();
-		ApplyChangeSignatures();
+		ApplyReservedChange();
 	}
 
 	//======================================================================================
@@ -130,14 +130,14 @@ namespace App::ECS
 	{
 		// 動いているものを後始末へ回す
 		TransitionPhase<ActiveTag, ReleaseTag>();
-		ApplyChangeSignatures();
+		ApplyReservedChange();
 
 		// 削除前にリリース処理を走らせる
 		RunSystem(ESystemType::Release, 0.0f);
 		CollectReleasedEntities();
 
 		// エンティティの一括削除
-		RemoveEntityStorage();
+		ApplyReservedRemove();
 
 		// 後始末を通さずに残っているもの(Release フェーズへ乗らなかったもの)を片付ける
 		Base::Release();
@@ -248,10 +248,10 @@ namespace App::ECS
 	// 後始末を通してから初期化フェーズへ戻す。
 	// モデルの差し替えなど、借りているものを取り直す必要がある編集で使う。
 	//======================================================================================
-	void APPWorld::RefreshEntities()
+	void APPWorld::ApplyReservedRefresh()
 	{
 		// 頻繁に呼ばれることはない想定なので、溜まったぶんをそのまま回す
-		for (const Entity& _entity : m_reservedRefreshVec)
+		for (const Entity& _entity : m_commandBuffer.TakeRefresh())
 		{
 			Signature _sig = GetSignature(_entity);
 			if (_sig.test(GetCompTypeID<ActiveTag>()))
@@ -271,9 +271,6 @@ namespace App::ECS
 
 		// リリースされたものを初期化処理に回す
 		TransitionPhase<ReleaseTag, PostDeserializeTag>();
-
-		// コマンドクリア
-		m_reservedRefreshVec.clear();
 	}
 
 	//======================================================================================

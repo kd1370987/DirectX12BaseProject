@@ -2772,6 +2772,9 @@
     <ClCompile Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter\PysicsObjectLayerPairFilter.cpp">
       <Filter>Source\Engine\Physics\Core\PysicsObjectLayerPairFilter</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Core\EntityStorage.cpp">
+      <Filter>Source\Engine\ECS\Core</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Manager\ArchetypeManager\ArchetypeManager.cpp">
       <Filter>Source\Engine\ECS\Manager\ArchetypeManager</Filter>
     </ClCompile>
@@ -4506,6 +4509,15 @@
       <Filter>Source\Engine\ECS\Internal</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Core\QueryCache.h">
+      <Filter>Source\Engine\ECS\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Core\CommandBuffer.h">
+      <Filter>Source\Engine\ECS\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Core\ResourceStore.h">
+      <Filter>Source\Engine\ECS\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Core\EntityStorage.h">
       <Filter>Source\Engine\ECS\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Core\Chunk.h">

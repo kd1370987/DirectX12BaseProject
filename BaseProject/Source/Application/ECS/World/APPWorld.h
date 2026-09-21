@@ -146,7 +146,7 @@ namespace App::ECS
 		void OnEntityStructureChanged() override;
 
 		/// <summary>作り直しに回されたエンティティを、後始末を通して初期化へ戻す</summary>
-		void RefreshEntities() override;
+		void ApplyReservedRefresh() override;
 
 	private:
 
