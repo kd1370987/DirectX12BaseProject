@@ -20,7 +20,7 @@ void CommitHierarchyWorldMatrixSystem::Init(App::ECS::APPWorld& a_world)
 			a_ctx.pWorld->ForEach<WorldMatrixComponent>(
 				[]
 				(
-					Engine::ECS::ArchetypeChunk* a_pChunk,
+					Engine::ECS::Chunk* a_pChunk,
 					uint32_t a_count,
 					WorldMatrixComponent* a_worldMatArray
 					)
@@ -40,7 +40,7 @@ void CommitHierarchyWorldMatrixSystem::Init(App::ECS::APPWorld& a_world)
 				a_ctx.pWorld->ForEach<LocalTransformComponent, WorldMatrixComponent, HierarchyComponent>(
 					[_depth, &a_ctx]
 					(
-						Engine::ECS::ArchetypeChunk* a_pChunk,
+						Engine::ECS::Chunk* a_pChunk,
 						uint32_t a_count,
 						LocalTransformComponent* a_trsArray,
 						WorldMatrixComponent* a_worldMatArray,

@@ -52,7 +52,7 @@ void FlyingSoundSystem::Init(App::ECS::APPWorld& a_world)
 			// ---- 2) 生きているエンティティのぶんを鳴らす / 位置を更新する ----
 			a_ctx.pWorld->ForEach<ActiveTag, FlyingSoundComponent, WorldMatrixComponent>(
 				[&_res, _pAudioManager](
-					Engine::ECS::ArchetypeChunk* a_pChunk,
+					Engine::ECS::Chunk* a_pChunk,
 					uint32_t                     a_count,
 					ActiveTag*                   a_tags,
 					FlyingSoundComponent*        a_flyingSoundArray,

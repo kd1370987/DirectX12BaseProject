@@ -195,7 +195,7 @@ namespace App::Object
 
 		a_context.pWorld->ForEach<const ActiveTag, const PlayerControllTag>(
 			[&](
-				Engine::ECS::ArchetypeChunk* a_pChunk,
+				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const ActiveTag* a_activeTagArray,
 				const PlayerControllTag* a_playerTagArray
@@ -342,7 +342,7 @@ namespace App::Object
 
 		a_context.pWorld->ForEach<const ActiveTag, const SpawnerComponent>(
 			[&](
-				Engine::ECS::ArchetypeChunk* a_pChunk,
+				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const ActiveTag* a_activeTagArray,
 				const SpawnerComponent* a_spawnerArray
@@ -543,7 +543,7 @@ namespace App::Object
 
 			a_context.pWorld->ForEach<const ActiveTag, BossComponent>(
 				[&](
-					Engine::ECS::ArchetypeChunk* a_pChunk,
+					Engine::ECS::Chunk* a_pChunk,
 					uint32_t a_count,
 					const ActiveTag* a_activeTagArray,
 					BossComponent* a_bossArray

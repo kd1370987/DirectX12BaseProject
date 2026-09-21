@@ -174,7 +174,7 @@ namespace Engine::Scene
 		if (a_ar.GetMode() == Persistence::Archive::Mode::Save)
 		{
 			m_upWorld->ForEach<GUIDComponent>(
-				[&_entityVec](ECS::ArchetypeChunk* a_pChunk, uint32_t a_count, GUIDComponent* a_guidArray)
+				[&_entityVec](ECS::Chunk* a_pChunk, uint32_t a_count, GUIDComponent* a_guidArray)
 				{
 					for (size_t _i = 0; _i < a_count; ++_i)
 					{

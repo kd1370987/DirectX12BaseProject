@@ -44,7 +44,7 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 				const LocalTransformComponent,
 				const VelocityComponent>(
 					[&_boidPosVec](
-						Engine::ECS::ArchetypeChunk* a_pChunk,
+						Engine::ECS::Chunk* a_pChunk,
 						uint32_t a_count,
 						const ActiveTag* a_tags,
 						const BoidComponent* a_boidArray,
@@ -66,7 +66,7 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 			// ============================================================
 			a_ctx.pWorld->ForEach<const ActiveTag, const BoidComponent, const LocalTransformComponent,VelocityComponent>(
 				[&_boidPosVec,&a_ctx](
-					Engine::ECS::ArchetypeChunk* a_pChunk,
+					Engine::ECS::Chunk* a_pChunk,
 					uint32_t a_count,
 					const ActiveTag* a_tags,
 					const BoidComponent* a_boidArray,

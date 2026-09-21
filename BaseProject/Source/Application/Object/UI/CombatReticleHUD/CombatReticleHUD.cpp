@@ -74,7 +74,7 @@ namespace App::Object
 
 		_pWorld->ForEach<const ActiveTag, const PlayerControllTag, MissileLockComponent>(
 			[&](
-				Engine::ECS::ArchetypeChunk* a_pChunk,
+				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const ActiveTag* a_activeTagArray,
 				const PlayerControllTag* a_playerTagArray,

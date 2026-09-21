@@ -416,6 +416,7 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.cpp" />
     <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.cpp" />
     <ClCompile Include="Source\Engine\Audio\AudioManager.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Manager\ArchetypeManager\ArchetypeManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\AsyncGPUManager\AsyncGPUManager.cpp" />
     <ClCompile Include="Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.cpp" />
     <ClCompile Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.cpp" />
@@ -437,10 +438,8 @@
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.cpp" />
     <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp" />
     <ClCompile Include="Source\Engine\Graphics\PipelineStateManager\PipelineStateManager.cpp" />
-    <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\ECS\EntityManager\EntityManager.cpp" />
-    <ClCompile Include="Source\Engine\ECS\Persistence\EntitySerializeField.cpp" />
     <ClCompile Include="Source\Engine\ECS\SystemManager\SystemManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\World\World.cpp" />
     <ClCompile Include="Source\Engine\Editor\Editor.cpp" />
@@ -894,6 +893,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h" />
     <ClInclude Include="Source\Engine\Common\ID.h" />
     <ClInclude Include="Source\Engine\Common\Index.h" />
+    <ClInclude Include="Source\Engine\ECS\Manager\ArchetypeManager\ArchetypeManager.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap\GraphHeap.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\AliasingBarrier.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\CompiledPass.h" />
@@ -1001,8 +1001,8 @@
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\DynamicVertexBuffer.h" />
     <ClInclude Include="Source\Engine\Graphics\PipelineStateManager\PipelineStateManager.h" />
-    <ClInclude Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.h" />
-    <ClInclude Include="Source\Engine\ECS\ArchetypeChunk\ArchetypeChunk.h" />
+    <ClInclude Include="Source\Engine\ECS\Core\Chunk.h" />
+    <ClInclude Include="Source\Engine\ECS\Internal\Archetype.h" />
     <ClInclude Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.h" />
     <ClInclude Include="Source\Engine\ECS\ECSCommon.h" />
     <ClInclude Include="Source\Engine\ECS\EntityManager\EntityManager.h" />
@@ -1011,7 +1011,6 @@
     <ClInclude Include="Source\Engine\ECS\Internal\EntityLocation.h" />
     <ClInclude Include="Source\Engine\ECS\Internal\SystemComon.h" />
     <ClInclude Include="Source\Engine\ECS\Internal\SystemContext.h" />
-    <ClInclude Include="Source\Engine\ECS\Persistence\EntitySerializeField.h" />
     <ClInclude Include="Source\Engine\ECS\ResourceTypeManager\ResourceTypeManager.h" />
     <ClInclude Include="Source\Engine\ECS\ResourceWrapper\ResourceWrapper.h" />
     <ClInclude Include="Source\Engine\ECS\SystemManager\SystemManager.h" />

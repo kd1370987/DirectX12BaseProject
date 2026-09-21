@@ -32,7 +32,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 		"EffectFixupSystem",
 		[]
 		(
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
@@ -92,7 +92,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 		"DeathEffectFixupSystem",
 		[]
 		(
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
@@ -125,7 +125,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 		"BoosterSparkFixupSystem",
 		[]
 		(
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
@@ -166,7 +166,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 		"MuzzleEffectFixupSystem",
 		[]
 		(
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,

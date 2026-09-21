@@ -354,7 +354,7 @@ namespace Engine::Editor
 		// AABBで枝刈りしたうえで描画メッシュの三角形とレイを厳密判定する。
 		// 物理空間を介さないので、当たり判定を持たないエンティティも選択できる。
 		a_pWorld->ForEach<ModelComponent, WorldMatrixComponent>(
-			[&](Engine::ECS::ArchetypeChunk* a_pChunk, uint32_t a_count,
+			[&](Engine::ECS::Chunk* a_pChunk, uint32_t a_count,
 				ModelComponent* a_models, WorldMatrixComponent* a_worlds)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
@@ -1332,7 +1332,7 @@ namespace Engine::Editor
 		a_pWorld->ForEach<HierarchyComponent>(
 			[&_childMap]
 			(
-				ECS::ArchetypeChunk* a_pChunk,
+				ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				HierarchyComponent* a_hierarchyArray
 				)

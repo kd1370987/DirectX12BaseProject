@@ -53,7 +53,7 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 		Engine::ECS::ESystemType::PreUpdate,
 		"DeathStateBridgeSystem",
 		[](
-			Engine::ECS::ArchetypeChunk*      a_pChunk,
+			Engine::ECS::Chunk*      a_pChunk,
 			uint32_t                          a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
@@ -90,7 +90,7 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 		Engine::ECS::ESystemType::Update,
 		"DeathMoveIntentGateSystem",
 		[](
-			Engine::ECS::ArchetypeChunk*      a_pChunk,
+			Engine::ECS::Chunk*      a_pChunk,
 			uint32_t                          a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
@@ -116,7 +116,7 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 		Engine::ECS::ESystemType::Update,
 		"DeathActionIntentGateSystem",
 		[](
-			Engine::ECS::ArchetypeChunk*      a_pChunk,
+			Engine::ECS::Chunk*      a_pChunk,
 			uint32_t                          a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
@@ -146,7 +146,7 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 		Engine::ECS::ESystemType::Update,
 		"DeathBoostGateSystem",
 		[](
-			Engine::ECS::ArchetypeChunk*      a_pChunk,
+			Engine::ECS::Chunk*      a_pChunk,
 			uint32_t                          a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
@@ -176,7 +176,7 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 		Engine::ECS::ESystemType::Update,
 		"DeathBossOrderGateSystem",
 		[](
-			Engine::ECS::ArchetypeChunk*      a_pChunk,
+			Engine::ECS::Chunk*      a_pChunk,
 			uint32_t                          a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
@@ -202,7 +202,7 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 		Engine::ECS::ESystemType::PostUpdate,
 		"DeathReleaseSystem",
 		[](
-			Engine::ECS::ArchetypeChunk*      a_pChunk,
+			Engine::ECS::Chunk*      a_pChunk,
 			uint32_t                          a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,

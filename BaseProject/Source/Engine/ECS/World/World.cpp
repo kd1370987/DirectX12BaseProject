@@ -12,7 +12,7 @@ namespace Engine::ECS
 		m_entityManager.Init();
 
 		// アーキタイプチャンクマネージャー作成
-		m_archetypeChunkManager.Init(&m_componentMetaRegistry);
+		m_archetypeManager.Init(&m_componentMetaRegistry);
 
 		// システムマネージャー
 		m_systemManager.Init();
@@ -27,12 +27,12 @@ namespace Engine::ECS
 
 	bool World::IsChangedArchetype(uint64_t a_generation)
 	{
-		return m_archetypeChunkManager.GetGeneration() != a_generation;
+		return m_archetypeManager.GetGeneration() != a_generation;
 	}
 
 	uint64_t World::GetArchetypeGeneration() const
 	{
-		return m_archetypeChunkManager.GetGeneration();
+		return m_archetypeManager.GetGeneration();
 	}
 
 	//======================================================================================
@@ -54,8 +54,8 @@ namespace Engine::ECS
 		// 借りているものは RemoveEntity が解放フックを呼んで返す
 		for (const auto& _loca : m_entityManager.GetAllEntityLocation())
 		{
-			if (!_loca.pArchetypeChunk) continue;
-			AddRemoveEntity(_loca.pArchetypeChunk->entityData[_loca.chunkIndex]);
+			if (!_loca.pChunk) continue;
+			AddRemoveEntity(_loca.pChunk->entityData[_loca.chunkIndex]);
 		}
 
 		// エンティティの一括削除
@@ -142,7 +142,7 @@ namespace Engine::ECS
 		ECS::Entity _entity = m_entityManager.CreateEntity(_sig);
 
 		// エンティティをチャンクに割り当てる
-		EntityLocation _loca = m_archetypeChunkManager.AllocateEntity(_entity, _sig);
+		EntityLocation _loca = m_archetypeManager.AllocationEntity(_entity, _sig);
 
 		// エンティティのロケーションを記録
 		m_entityManager.SetEntityLocation(_entity, _loca);
@@ -180,9 +180,9 @@ namespace Engine::ECS
 
 	const ECS::Entity& World::GetEntity(const EntityLocation& a_location)
 	{
-		if (!a_location.pArchetypeChunk) return ECS::Limits::INVALID_ENTITY;
+		if (!a_location.pChunk) return ECS::Limits::INVALID_ENTITY;
 
-		return a_location.pArchetypeChunk->entityData[a_location.chunkIndex];
+		return a_location.pChunk->entityData[a_location.chunkIndex];
 	}
 
 	ECS::Signature World::GetSignature(const ECS::Entity& a_entity)
@@ -287,7 +287,7 @@ namespace Engine::ECS
 	{
 		// ロケーション取得
 		const auto& _loca = m_entityManager.GetLocation(a_entity);
-		if (!_loca.pArchetypeChunk)return;
+		if (!_loca.pChunk)return;
 
 		// 消える前に、コンポーネントが借りているものを返させる。
 		// コンポーネントはデストラクタが走らない(trivially copyable 縛り)ので、
@@ -295,7 +295,7 @@ namespace Engine::ECS
 		ReleaseComponents(a_entity, m_entityManager.GetSignature(a_entity));
 
 		// アーキタイプから削除して、移動したエンティティの情報をもらう
-		auto [_entity, _idx] = m_archetypeChunkManager.RemoveEntity(_loca);
+		auto [_entity, _idx] = m_archetypeManager.RemoveEntity(_loca);
 
 		// エンティティマネージャーからも消去
 		m_entityManager.DestroyEntity(a_entity);
@@ -475,7 +475,7 @@ namespace Engine::ECS
 		// エンティティの削除
 		{
 			// アーキタイプから削除して、移動したエンティティの情報をもらう
-			auto [_entity, _idx] = m_archetypeChunkManager.RemoveEntity(_oldLoca);
+			auto [_entity, _idx] = m_archetypeManager.RemoveEntity(_oldLoca);
 
 			// 移動したエンティティのロケーションを変更(末尾を抜いたときは誰も動いていない)
 			if (_entity != ECS::Limits::INVALID_ENTITY)
@@ -485,7 +485,7 @@ namespace Engine::ECS
 		}
 
 		// 新しい場所にエンティティを割り当てる
-		EntityLocation _loca = m_archetypeChunkManager.AllocateEntity(a_cmd.entity,a_cmd.toSig);
+		EntityLocation _loca = m_archetypeManager.AllocationEntity(a_cmd.entity,a_cmd.toSig);
 
 		// エンティティのロケーションを記録
 		m_entityManager.SetEntityLocation(a_cmd.entity, _loca);
@@ -547,14 +547,14 @@ namespace Engine::ECS
 	{
 		const EntityLocation& _loca = m_entityManager.GetLocation(a_entity);
 		ECS::ComponentTypeID _typeID = m_componentMetaRegistry.GetTypeID(a_index);
-		if (!_loca.pArchetypeChunk) return nullptr;
-		return m_archetypeChunkManager.RefComponent(_loca, _typeID);
+		if (!_loca.pChunk) return nullptr;
+		return m_archetypeManager.RefComponent(_loca, _typeID);
 	}
 
 	uint8_t* World::NRefData(const ECS::Entity& a_entity, const ECS::ComponentTypeID& a_typeID)
 	{
 		const EntityLocation& _loca = m_entityManager.GetLocation(a_entity);
-		return m_archetypeChunkManager.RefComponent(_loca, a_typeID);
+		return m_archetypeManager.RefComponent(_loca, a_typeID);
 	}
 
 

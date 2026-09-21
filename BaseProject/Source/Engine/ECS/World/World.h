@@ -3,8 +3,8 @@
 // マネージャー関係
 #include "../EntityManager/EntityManager.h"
 #include "../SystemManager/SystemManager.h"
-#include "../ArchetypeChunkManager/ArchetypeChunkManager.h"
-#include "../ArchetypeChunk/ArchetypeChunk.h"
+#include "../Manager/ArchetypeManager/ArchetypeManager.h"
+#include "../Core/Chunk.h"
 #include "../ResourceTypeManager/ResourceTypeManager.h"
 #include "../ResourceWrapper/ResourceWrapper.h"
 
@@ -238,13 +238,13 @@ namespace Engine::ECS
 		Comp* RefData(const Entity& a_entity);
 
 		/// <summary>
-		/// 指定した ArchetypeChunk からテンプレート型 Comp のコンポーネント配列へのポインタを取得します
+		/// 指定した Chunk からテンプレート型 Comp のコンポーネント配列へのポインタを取得します
 		/// </summary>
 		/// <typeparam name="Comp">取得するコンポーネントの型</typeparam>
-		/// <param name="a_chunk">コンポーネント配列を取得する対象の ArchetypeChunk を指すポインタ</param>
+		/// <param name="a_chunk">コンポーネント配列を取得する対象の Chunk を指すポインタ</param>
 		/// <returns>チャンク内の Comp 型コンポーネント配列へのポインタ</returns>
 		template<typename Comp>
-		Comp* GetComponentArray(ArchetypeChunk* a_chunk);
+		Comp* GetComponentArray(Chunk* a_chunk);
 
 		// 指定コンポーネントの情報を取得
 		const ComponentMeta& GetComponentMetaData(const ComponentTypeID& a_typeID);	// メタデータ
@@ -281,7 +281,7 @@ namespace Engine::ECS
 
 		// チャンククエリー作成
 		template<typename ...Components, typename... Excludes>
-		std::vector<ArchetypeChunk*> BuildChunkQuery(const SystemContext& a_context, Exclude<Excludes...> a_ex = {});
+		std::vector<Chunk*> BuildChunkQuery(const SystemContext& a_context, Exclude<Excludes...> a_ex = {});
 
 		// 収集関数
 		// 指定したコンポーネント群を持つすべてのチャンクに対して、指定された関数を実行します
@@ -406,7 +406,7 @@ namespace Engine::ECS
 		// マネージャー軍
 		EntityManager m_entityManager;
 		SystemManager m_systemManager;
-		ArchetypeChunkManager m_archetypeChunkManager;
+		ArchetypeManager m_archetypeManager;
 
 		// コンポーネントメタ情報管理
 		ComponentMetaRegistry m_componentMetaRegistry;
@@ -477,13 +477,13 @@ namespace Engine::ECS
 	}
 
 	template<typename Comp>
-	inline Comp* World::GetComponentArray(ArchetypeChunk* a_chunk)
+	inline Comp* World::GetComponentArray(Chunk* a_chunk)
 	{
 		// タイプIDの取得はconst を外した純粋な型で行う
 		using RawType = std::remove_const_t<Comp>;
 		auto _typeID = m_componentMetaRegistry.GetTypeID<RawType>();
 
-		return reinterpret_cast<Comp*>(m_archetypeChunkManager.RefComponentArray(a_chunk, _typeID));
+		return reinterpret_cast<Comp*>(m_archetypeManager.RefComponentArray(a_chunk, _typeID));
 	}
 
 	template<typename Comp>
@@ -502,7 +502,7 @@ namespace Engine::ECS
 		if (!BuildSignature<Components...>(_sig)) return;
 
 		// チャンクの配列を取得
-		for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVec(_sig))
+		for (auto* _chunk : m_archetypeManager.MatchingChunkVec(_sig))
 		{
 			if (!_chunk || _chunk->count == 0) continue;
 
@@ -533,7 +533,7 @@ namespace Engine::ECS
 		Signature _excludeSig;
 		BuildSignature<Excludes...>(_excludeSig);
 		// チャンクの配列を取得
-		for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_sig, _excludeSig))
+		for (auto* _chunk : m_archetypeManager.MatchingChunkVec(_sig, _excludeSig))
 		{
 			if (!_chunk || _chunk->count == 0) continue;
 			// 操作しやすいように配列にして返す
@@ -570,7 +570,7 @@ namespace Engine::ECS
 		ForEach<Before>(
 			[this,_befforID,_affterID,&a_canTransition]
 			(
-				Engine::ECS::ArchetypeChunk* a_pChunk,
+				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				Before* a_compArray
 			)
@@ -650,7 +650,7 @@ namespace Engine::ECS
 		static_assert(
 			std::is_convertible_v<
 				Func,
-				void(*)(ArchetypeChunk*, uint32_t, const SystemContext&, Components*...)
+				void(*)(Chunk*, uint32_t, const SystemContext&, Components*...)
 			>,
 			"システムのラムダは無捕獲(ステートレス)にしてください。World などは SystemContext から取得します。"
 		);
@@ -702,7 +702,7 @@ namespace Engine::ECS
 		BuildSignature<Excludes...>(_excludeSig);
 
 		// チャンクの配列を取得
-		for (auto* _chunk : m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_querySig, _excludeSig))
+		for (auto* _chunk : m_archetypeManager.MatchingChunkVec(_querySig, _excludeSig))
 		{
 			if (!_chunk || _chunk->count == 0) continue;
 			// 操作しやすいように配列にして返す
@@ -719,19 +719,19 @@ namespace Engine::ECS
 		}
 	}
 	template<typename ...Components, typename ...Excludes>
-	inline std::vector<ArchetypeChunk*> World::BuildChunkQuery(const SystemContext& a_context, Exclude<Excludes...> a_ex)
+	inline std::vector<Chunk*> World::BuildChunkQuery(const SystemContext& a_context, Exclude<Excludes...> a_ex)
 	{
 		// 実行用のシグネチャ
 		// 未登録の型を含むなら、それを持つエンティティは居ない
 		Signature _querySig;
-		if (!BuildSignature<Components...>(_querySig)) return std::vector<ArchetypeChunk*>{};
+		if (!BuildSignature<Components...>(_querySig)) return std::vector<Chunk*>{};
 
 		// 除外側の未登録の型は、誰も持っていないので無視してよい
 		Signature _excludeSig;
 		BuildSignature<Excludes...>(_excludeSig);
 
 		// 条件に一致するチャンク配列を返す
-		return m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_querySig, _excludeSig);
+		return m_archetypeManager.MatchingChunkVec(_querySig, _excludeSig);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
 	inline void World::RegisterCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)

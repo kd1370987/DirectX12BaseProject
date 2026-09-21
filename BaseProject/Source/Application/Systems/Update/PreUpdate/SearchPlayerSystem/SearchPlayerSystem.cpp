@@ -71,7 +71,7 @@ void SearchPlayerSystem::Init(App::ECS::APPWorld& a_world)
 		Engine::ECS::ESystemType::PreUpdate,
 		"SearchPlayerSystem",
 		[](
-			Engine::ECS::ArchetypeChunk*     a_pChunk,
+			Engine::ECS::Chunk*     a_pChunk,
 			uint32_t                         a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                       a_tags,
@@ -102,7 +102,7 @@ void SearchPlayerSystem::Init(App::ECS::APPWorld& a_world)
 					{
 						a_ctx.pWorld->ForEach<const PlayerControllTag>(
 							[&_playerEntity](
-								Engine::ECS::ArchetypeChunk* a_chunk,
+								Engine::ECS::Chunk* a_chunk,
 								uint32_t                     a_cnt,
 								const PlayerControllTag*)
 							{

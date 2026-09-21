@@ -394,7 +394,7 @@ namespace Engine::Editor
 		Engine::GUID _parentGUID = a_pWorld->RefData<GUIDComponent>(a_parent)->guid;
 
 		a_pWorld->ForEach<HierarchyComponent>(
-			[&](ECS::ArchetypeChunk* a_pChunk, UINT a_count, HierarchyComponent* a_hieArray)
+			[&](ECS::Chunk* a_pChunk, UINT a_count, HierarchyComponent* a_hieArray)
 			{
 				for (UINT _i = 0; _i < a_count; ++_i)
 				{

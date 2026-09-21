@@ -166,7 +166,7 @@ namespace Engine::Editor
 		// プレビュー用ワールドにはエフェクトしか居ないので、見つけたものを全部片付ける
 		std::vector<ECS::Entity> _targets = {};
 		m_upWorld->ForEach<EffectAssetComponent>(
-			[&](ECS::ArchetypeChunk* a_pChunk, uint32_t a_count, EffectAssetComponent*)
+			[&](ECS::Chunk* a_pChunk, uint32_t a_count, EffectAssetComponent*)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
@@ -194,7 +194,7 @@ namespace Engine::Editor
 		if (!m_upWorld) return _ref;
 
 		m_upWorld->ForEach<EffectAssetComponent>(
-			[&](ECS::ArchetypeChunk* a_pChunk, uint32_t a_count, EffectAssetComponent* a_effectArray)
+			[&](ECS::Chunk* a_pChunk, uint32_t a_count, EffectAssetComponent* a_effectArray)
 			{
 				if (_ref.pComp) return;		// 先に見つけたものを使う(プレビューは常に1つ)
 				if (a_count == 0) return;

@@ -180,7 +180,7 @@ namespace App::ECS
 
 		ForEach<GUIDComponent>(
 			[&a_guid, &_res](
-				ArchetypeChunk* a_chunk,
+				Chunk* a_chunk,
 				uint32_t a_count,
 				GUIDComponent* a_guidArray
 				)
@@ -284,7 +284,7 @@ namespace App::ECS
 		ForEach<ReleaseTag>(
 			[this]
 			(
-				ArchetypeChunk* a_pChunk,
+				Chunk* a_pChunk,
 				uint32_t a_count,
 				ReleaseTag* a_releaseTag
 				)
@@ -328,7 +328,7 @@ namespace App::ECS
 		ForEach<ReleaseTag>(
 			[&_releasing]
 			(
-				ArchetypeChunk* a_pChunk,
+				Chunk* a_pChunk,
 				uint32_t a_count,
 				ReleaseTag* a_releaseTag
 				)
@@ -359,7 +359,7 @@ namespace App::ECS
 			ForEach<const HierarchyComponent>(
 				[&_releasing, &_found]
 				(
-					ArchetypeChunk* a_pChunk,
+					Chunk* a_pChunk,
 					uint32_t a_count,
 					const HierarchyComponent* a_hierarchyArray
 					)

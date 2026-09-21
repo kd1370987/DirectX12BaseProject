@@ -537,7 +537,7 @@ namespace App::Object
 		// 解放待ち(ActiveTag が外れたもの)は数えない
 		a_context.pWorld->ForEach<const ActiveTag, const SwarmBossBoidTag, const SpawnerComponent>(
 			[&_count, &_self, &a_context](
-				Engine::ECS::ArchetypeChunk* a_pChunk,
+				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const ActiveTag* a_activeTagArray,
 				const SwarmBossBoidTag* a_boidTagArray,

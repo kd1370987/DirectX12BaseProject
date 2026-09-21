@@ -53,7 +53,7 @@ void MainCameraSystem::Init(App::ECS::APPWorld& a_world)
 
 			a_ctx.pWorld->ForEach<const ActiveTag, const CameraTag, const CameraParamComponent>(
 				[&_singleton](
-					Engine::ECS::ArchetypeChunk*   a_pChunk,
+					Engine::ECS::Chunk*   a_pChunk,
 					uint32_t                       a_count,
 					const ActiveTag*               a_tags,
 					const CameraTag*               a_camTagArray,

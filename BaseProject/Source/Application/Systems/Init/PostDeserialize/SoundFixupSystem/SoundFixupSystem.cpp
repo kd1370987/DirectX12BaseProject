@@ -25,7 +25,7 @@ void SoundFixupSystem::Init(App::ECS::APPWorld& a_world)
 		"SoundFixupSystem",
 		[]
 		(
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
@@ -68,7 +68,7 @@ void SoundFixupSystem::Init(App::ECS::APPWorld& a_world)
 		"HitSoundFixupSystem",
 		[]
 		(
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
@@ -111,7 +111,7 @@ void SoundFixupSystem::Init(App::ECS::APPWorld& a_world)
 		"AudioBehaviorFixupSystem",
 		[]
 		(
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,

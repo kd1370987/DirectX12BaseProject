@@ -18,7 +18,7 @@ void AnimationMatrixFreeSystem::Init(App::ECS::APPWorld& a_world)
 		Engine::ECS::ESystemType::Release,
 		"AnimationMatrixFreeSystem",
 		[](
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ReleaseTag* a_releaseTag,

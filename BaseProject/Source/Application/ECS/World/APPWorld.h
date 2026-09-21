@@ -35,7 +35,7 @@ namespace App::ECS
 	using Signature			= Engine::ECS::Signature;
 	using ComponentTypeID	= Engine::ECS::ComponentTypeID;
 	using ESystemType		= Engine::ECS::ESystemType;
-	using ArchetypeChunk	= Engine::ECS::ArchetypeChunk;
+	using Chunk	= Engine::ECS::Chunk;
 	using SystemContext		= Engine::ECS::SystemContext;
 	using ChangeEntityCmd	= Engine::ECS::ChangeEntityCmd;
 

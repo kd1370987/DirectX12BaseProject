@@ -2,12 +2,12 @@
 
 namespace Engine::ECS
 {
-	struct ArchetypeChunk;
+	struct Chunk;
 
 	// エンティティの住所
 	struct EntityLocation
 	{
-		ArchetypeChunk* pArchetypeChunk = nullptr;
-		uint32_t chunkIndex = 0;
+		Chunk*		pChunk = nullptr;
+		uint32_t	chunkIndex = 0;
 	};
 }

@@ -43,7 +43,7 @@ void AudioListenerSystem::Init(App::ECS::APPWorld& a_world)
 
 			a_ctx.pWorld->ForEach<ActiveTag, AudioListenerComponent, WorldMatrixComponent>(
 				[_pAudioManager, _dt](
-					Engine::ECS::ArchetypeChunk* a_pChunk,
+					Engine::ECS::Chunk* a_pChunk,
 					uint32_t                     a_count,
 					ActiveTag*                   a_tags,
 					AudioListenerComponent*      a_listenerArray,

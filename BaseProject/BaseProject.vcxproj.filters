@@ -904,12 +904,6 @@
     <Filter Include="Source\Engine\ECS">
       <UniqueIdentifier>{12c35b8e-1beb-4790-a19a-e2272c7f4387}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\ECS\ArchetypeChunk">
-      <UniqueIdentifier>{a2549b44-9b16-43f1-9a15-aaefe5944170}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\ECS\ArchetypeChunkManager">
-      <UniqueIdentifier>{52f60f06-f7e5-4d57-b582-bd2a54bb1fca}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\ECS\ComponentMetaRegistry">
       <UniqueIdentifier>{cc2b9cac-1543-47b7-83bc-e32b967057fe}</UniqueIdentifier>
     </Filter>
@@ -918,9 +912,6 @@
     </Filter>
     <Filter Include="Source\Engine\ECS\Internal">
       <UniqueIdentifier>{b1f66a51-fdb3-4899-8779-3087dc0f4322}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\ECS\Persistence">
-      <UniqueIdentifier>{e35e9209-33c3-454b-85e5-6a6275d518a1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\ECS\ResourceTypeManager">
       <UniqueIdentifier>{b4f75028-8aa0-4fdc-ac16-d8fdc46f2c1f}</UniqueIdentifier>
@@ -1633,6 +1624,15 @@
     <Filter Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter">
       <UniqueIdentifier>{a288b10f-d350-4929-af84-199ba965e86f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\ECS\Core">
+      <UniqueIdentifier>{22622334-5a9c-41e9-8443-08683cc4979a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\Manager">
+      <UniqueIdentifier>{6ac69fce-a22d-4047-b586-f60c96f014be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\Manager\ArchetypeManager">
+      <UniqueIdentifier>{e4121ac6-8bf6-4b1d-8512-4875e3400245}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\BuiltinCompositeNodes.cpp">
@@ -2172,17 +2172,11 @@
     <ClCompile Include="Source\Engine\Graphics\PipelineStateManager\PipelineStateManager.cpp">
       <Filter>Source\Engine\Graphics\PipelineStateManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.cpp">
-      <Filter>Source\Engine\ECS\ArchetypeChunkManager</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.cpp">
       <Filter>Source\Engine\ECS\ComponentMetaRegistry</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\EntityManager\EntityManager.cpp">
       <Filter>Source\Engine\ECS\EntityManager</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\ECS\Persistence\EntitySerializeField.cpp">
-      <Filter>Source\Engine\ECS\Persistence</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\SystemManager\SystemManager.cpp">
       <Filter>Source\Engine\ECS\SystemManager</Filter>
@@ -2777,6 +2771,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter\PysicsObjectLayerPairFilter.cpp">
       <Filter>Source\Engine\Physics\Core\PysicsObjectLayerPairFilter</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Manager\ArchetypeManager\ArchetypeManager.cpp">
+      <Filter>Source\Engine\ECS\Manager\ArchetypeManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3644,12 +3641,6 @@
     <ClInclude Include="Source\Engine\ECS\ECSCommon.h">
       <Filter>Source\Engine\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\ArchetypeChunk\ArchetypeChunk.h">
-      <Filter>Source\Engine\ECS\ArchetypeChunk</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\ArchetypeChunkManager\ArchetypeChunkManager.h">
-      <Filter>Source\Engine\ECS\ArchetypeChunkManager</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.h">
       <Filter>Source\Engine\ECS\ComponentMetaRegistry</Filter>
     </ClInclude>
@@ -3670,9 +3661,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Internal\SystemContext.h">
       <Filter>Source\Engine\ECS\Internal</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Persistence\EntitySerializeField.h">
-      <Filter>Source\Engine\ECS\Persistence</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\ResourceTypeManager\ResourceTypeManager.h">
       <Filter>Source\Engine\ECS\ResourceTypeManager</Filter>
@@ -4513,6 +4501,15 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Physics\Core\BodyID.h">
       <Filter>Source\Engine\Physics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Internal\Archetype.h">
+      <Filter>Source\Engine\ECS\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Core\Chunk.h">
+      <Filter>Source\Engine\ECS\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Manager\ArchetypeManager\ArchetypeManager.h">
+      <Filter>Source\Engine\ECS\Manager\ArchetypeManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

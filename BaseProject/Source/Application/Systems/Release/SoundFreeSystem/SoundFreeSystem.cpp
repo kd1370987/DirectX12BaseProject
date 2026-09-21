@@ -15,7 +15,7 @@ void SoundFreeSystem::Init(App::ECS::APPWorld& a_world)
 		"SoundFreeSystem",
 		[]
 		(
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ReleaseTag* a_releaseTag,
@@ -42,7 +42,7 @@ void SoundFreeSystem::Init(App::ECS::APPWorld& a_world)
 		"HitSoundFreeSystem",
 		[]
 		(
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ReleaseTag* a_releaseTag,
@@ -70,7 +70,7 @@ void SoundFreeSystem::Init(App::ECS::APPWorld& a_world)
 		"EffectSoundFreeSystem",
 		[]
 		(
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ReleaseTag* a_releaseTag,
@@ -94,7 +94,7 @@ void SoundFreeSystem::Init(App::ECS::APPWorld& a_world)
 		"AudioBehaviorFreeSystem",
 		[]
 		(
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ReleaseTag* a_releaseTag,

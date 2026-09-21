@@ -212,7 +212,7 @@ namespace Engine::Editor::Inspector
 
 		a_pWorld->ForEach<const HierarchyComponent>(
 			[&_childMap](
-				ECS::ArchetypeChunk* a_pChunk,
+				ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const HierarchyComponent* a_hierarchyArray)
 			{

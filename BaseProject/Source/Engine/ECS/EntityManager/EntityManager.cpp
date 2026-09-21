@@ -134,7 +134,7 @@ namespace Engine::ECS
 
 		// 生成済みなら必ずチャンクに載っている。
 		// 一度も使われていない添え字(世代0のまま)はここで落ちる
-		return m_entityLocationVec[_idx].pArchetypeChunk != nullptr;
+		return m_entityLocationVec[_idx].pChunk != nullptr;
 	}
 
 	EntityLocation& EntityManager::RefEntityLocation(const ECS::Entity& a_entity)

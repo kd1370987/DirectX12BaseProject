@@ -56,7 +56,7 @@ void MissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 		Engine::ECS::ESystemType::PostUpdate,
 		"MissileSalvoSystem",
 		[](
-			Engine::ECS::ArchetypeChunk* a_pChunk,
+			Engine::ECS::Chunk* a_pChunk,
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
@@ -175,7 +175,7 @@ void MissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 					//----------------------------------------------------------
 					a_ctx.pWorld->ForEach<const ActiveTag, const EnemyTag, const WorldMatrixComponent>(
 						[&](
-							Engine::ECS::ArchetypeChunk* a_pEnemyChunk,
+							Engine::ECS::Chunk* a_pEnemyChunk,
 							uint32_t a_enemyCount,
 							const ActiveTag* a_activeTagArray,
 							const EnemyTag* a_enemyTagArray,

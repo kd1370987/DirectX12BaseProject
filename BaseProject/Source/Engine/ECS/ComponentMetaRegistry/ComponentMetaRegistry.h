@@ -19,24 +19,10 @@ namespace Engine::ECS
 	// コンポーネントに付随する特殊処理
 	struct ComponentFunc
 	{
-		std::function<void(void*)> construct;
-		std::function<void(CompEditContext&)> edit;
-		std::function<void(Persistence::Archive& a_ar, void*)> archive;
-
-		//----------------------------------------------------------------------------------
-		// 借りているものを返す処理(持っていないコンポーネントは空のまま)
-		//
-		// ECSが必ず呼ぶ場所 :
-		//   ・エンティティを消すとき
-		//   ・コンポーネントを外すとき / 初期値で上書きするとき
-		//   ・PostDeserialize へ入り直すとき(直後に fixup が取り直す)
-		//
-		// コンポーネントは trivially copyable でなければならず、デストラクタが
-		// 走らない。リソースの参照カウントのように「取ったら返す」ものは、
-		// ComponentTraits<T>::Release(void*, const EngineServices&) を書いてここへ載せること。
-		// 返す先(リソースマネージャーなど)はシングルトンを引かず、渡されたサービスから引く
-		//----------------------------------------------------------------------------------
-		std::function<void(void*, const EngineServices&)> release;
+		std::function<void(void*)> construct;							// コンストラクタ
+		std::function<void(CompEditContext&)> edit;						// エディター上から操作する処理
+		std::function<void(Persistence::Archive& a_ar, void*)> archive;	// データとして保存する処理
+		std::function<void(void*, const EngineServices&)> release;		// 借りているものを返す処理
 	};
 
 	class ComponentMetaRegistry
