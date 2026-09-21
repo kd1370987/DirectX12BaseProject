@@ -153,14 +153,14 @@ namespace Engine::Editor
 
 	void Engine::Editor::HierarchyPanel::AddEntity(EditorContext& a_editContext,ECS::World* a_pWorld)
 	{
-		auto _trsCompTypeID = a_pWorld->GetCompTypeID(typeid(LocalTransformComponent));
+		auto _trsCompTypeID = a_pWorld->GetCompTypeID<LocalTransformComponent>();
 
 		Engine::ECS::Signature _sig = {};
 		_sig.set(_trsCompTypeID);
-		_sig.set(a_pWorld->GetCompTypeID(typeid(WorldMatrixComponent)));
-		_sig.set(a_pWorld->GetCompTypeID(typeid(NameComponent)));
-		_sig.set(a_pWorld->GetCompTypeID(typeid(GUIDComponent)));
-		_sig.set(a_pWorld->GetCompTypeID(typeid(PostDeserializeTag)));
+		_sig.set(a_pWorld->GetCompTypeID<WorldMatrixComponent>());
+		_sig.set(a_pWorld->GetCompTypeID<NameComponent>());
+		_sig.set(a_pWorld->GetCompTypeID<GUIDComponent>());
+		_sig.set(a_pWorld->GetCompTypeID<PostDeserializeTag>());
 		
 		// ---- カメラの正面にエンティティを出現させる ----
 		// データ配列用意

@@ -393,8 +393,11 @@ namespace Engine::Editor::Inspector
 			// 数が増えると探せなくなるので名前で絞り込めるようにする
 			const std::string& _search = EditorHelper::DrawSearchBox();
 
-			for (auto& [_compTypeID, _meta] : _pWorld->GetAllComponentMetaData())
+			const auto& _metaVec = _pWorld->GetAllComponentMetaData();
+			for (ECS::ComponentTypeID _compTypeID = 0; _compTypeID < _metaVec.size(); ++_compTypeID)
 			{
+				const ECS::ComponentMeta& _meta = _metaVec[_compTypeID];
+
 				// すでに持っていたら出さない
 				if (_sig.test(_compTypeID)) continue;
 

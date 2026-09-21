@@ -32,8 +32,11 @@ namespace Engine::Editor::Inspector
 			const std::string& _search = EditorHelper::DrawSearchBox();
 
 			const ECS::Signature& _sig = a_pWorld->GetSignature(_entity);
-			for (auto& [_typeID, _meta] : a_pWorld->GetAllComponentMetaData())
+			const auto& _metaVec = a_pWorld->GetAllComponentMetaData();
+			for (ECS::ComponentTypeID _typeID = 0; _typeID < _metaVec.size(); ++_typeID)
 			{
+				const ECS::ComponentMeta& _meta = _metaVec[_typeID];
+
 				// 所持していたら表示しない
 				if (_sig.test(_typeID)) continue;
 

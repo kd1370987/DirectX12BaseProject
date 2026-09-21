@@ -113,11 +113,6 @@ namespace Engine::ECS
 		return m_storage.GetSignature(a_entity);
 	}
 
-	bool World::HasComponent(const Entity& a_entity, const std::type_index& a_typeid)
-	{
-		return HasComponent(a_entity, m_pComponentRegistry->GetTypeID(a_typeid));
-	}
-
 	bool World::HasComponent(const Entity& a_entity, const ComponentTypeID& a_comptype)
 	{
 		// 未登録の型(INVALID)のまま test するとシグネチャの範囲外で例外になる
@@ -241,11 +236,6 @@ namespace Engine::ECS
 	// コンポーネント : 型情報
 	//==============================================================================================
 
-	ComponentTypeID World::GetCompTypeID(const std::type_index& a_index)
-	{
-		return m_pComponentRegistry->GetTypeID(a_index);
-	}
-
 	ComponentTypeID World::GetCompTypeID(const std::string& a_name)
 	{
 		return m_pComponentRegistry->GetTypeID(a_name);
@@ -256,9 +246,25 @@ namespace Engine::ECS
 		return m_pComponentRegistry->GetMetaData(a_typeID);
 	}
 
-	const std::unordered_map<ComponentTypeID, ComponentMeta>& World::GetAllComponentMetaData() const
+	const std::vector<ComponentMeta>& World::GetAllComponentMetaData() const
 	{
 		return m_pComponentRegistry->GetAllMetaData();
+	}
+
+	std::vector<std::string> World::GetComponentNames(const Signature& a_sig) const
+	{
+		// タイプIDの順(= 登録順)に並ぶ。読み込みは名前で引き直すので順番に意味は無い
+		const auto& _metaVec = m_pComponentRegistry->GetAllMetaData();
+
+		std::vector<std::string> _names = {};
+		for (ComponentTypeID _typeID = 0; _typeID < _metaVec.size(); ++_typeID)
+		{
+			if (a_sig.test(_typeID))
+			{
+				_names.push_back(_metaVec[_typeID].name);
+			}
+		}
+		return _names;
 	}
 
 	const ComponentFunc& World::GetCompFunc(const ComponentTypeID& a_typeID) const
@@ -269,11 +275,6 @@ namespace Engine::ECS
 	//==============================================================================================
 	// コンポーネント : データ
 	//==============================================================================================
-
-	uint8_t* World::NRefData(const Entity& a_entity, const std::type_index& a_index)
-	{
-		return m_storage.RefComponent(a_entity, m_pComponentRegistry->GetTypeID(a_index));
-	}
 
 	uint8_t* World::NRefData(const Entity& a_entity, const ComponentTypeID& a_typeID)
 	{

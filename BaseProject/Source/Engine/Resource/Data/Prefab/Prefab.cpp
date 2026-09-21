@@ -356,13 +356,7 @@ namespace Engine::Resource
 		{
 			if (a_pWorld)
 			{
-				for (auto& [_typeID, _meta] : a_pWorld->GetAllComponentMetaData())
-				{
-					if (m_sigunature.test(_typeID))
-					{
-						_compNames.push_back(_meta.name);
-					}
-				}
+				_compNames = a_pWorld->GetComponentNames(m_sigunature);
 			}
 		}
 
@@ -442,10 +436,7 @@ namespace Engine::Resource
 			std::vector<std::string> _childCompNames = {};
 			if (a_ar.GetMode() == Persistence::Archive::Mode::Save)
 			{
-				for (auto& [_typeID, _meta] : a_pWorld->GetAllComponentMetaData())
-				{
-					if (_child.sig.test(_typeID)) _childCompNames.push_back(_meta.name);
-				}
+				_childCompNames = a_pWorld->GetComponentNames(_child.sig);
 			}
 			a_ar.VectorField("ComponentNames", _childCompNames);
 

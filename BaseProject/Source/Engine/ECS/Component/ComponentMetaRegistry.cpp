@@ -28,7 +28,7 @@ namespace Engine::ECS
 		}
 	}
 
-	ComponentTypeID ComponentMetaRegistry::GetTypeID(const std::string& a_name)
+	ComponentTypeID ComponentMetaRegistry::GetTypeID(const std::string& a_name) const
 	{
 		auto _it = m_compNameMap.find(a_name);
 		if (_it != m_compNameMap.end())
@@ -37,51 +37,25 @@ namespace Engine::ECS
 		}
 		return Limits::INVALID_COMPONENTTYPEID;
 	}
-	ComponentTypeID ComponentMetaRegistry::GetTypeID(const std::type_index& a_index) const
-	{
-		auto _it = m_typeIndexMap.find(a_index);
-		if (_it != m_typeIndexMap.end())
-		{
-			return _it->second;
-		}
-		return Limits::INVALID_COMPONENTTYPEID;
-	}
 
 	const ComponentMeta& ComponentMetaRegistry::GetMetaData(const ComponentTypeID& a_id) const
 	{
-		auto _it = m_compTypeMap.find(a_id);
-		if (_it != m_compTypeMap.end())
+		// タイプIDがそのまま添え字
+		if (a_id < m_metaVec.size())
 		{
-			return _it->second;
+			return m_metaVec[a_id];
 		}
 
 		assert(0 && "登録していないコンポーネントです");
 		return s_emptyMeta;
-	}
-
-	const ComponentMeta& ComponentMetaRegistry::GetMetaData(const std::type_index& a_index) const
-	{
-		auto _it = m_typeIndexMap.find(a_index);
-		if (_it != m_typeIndexMap.end())
-		{
-			return GetMetaData(_it->second);
-		}
-
-		assert(0 && "登録していないコンポーネントです");
-		return s_emptyMeta;
-	}
-
-	const std::unordered_map<ComponentTypeID, ComponentMeta>& ComponentMetaRegistry::GetAllMetaData() const
-	{
-		return m_compTypeMap;
 	}
 
 	const ComponentFunc& ComponentMetaRegistry::GetFunc(const ComponentTypeID& a_id) const
 	{
-		auto _it = m_compFuncMap.find(a_id);
-		if (_it != m_compFuncMap.end())
+		// タイプIDがそのまま添え字
+		if (a_id < m_funcVec.size())
 		{
-			return _it->second;
+			return m_funcVec[a_id];
 		}
 
 		// 未登録の型は、どの関数も空のまま(呼ぶ側は空なら飛ばす)

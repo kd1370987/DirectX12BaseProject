@@ -58,7 +58,7 @@ namespace Engine::ECS
 		// 参照で返すので返せるものが無く、ログだけ出して進むと end() を参照外しする
 		if (_it == m_resourceMap.end())
 		{
-			ENGINE_ERROR("ECS::World : Resource not found (%s)", typeid(ResourceType).name());
+			ENGINE_ERROR("ECS::World : Resource not found (%s)", std::string(DebugTypeName<ResourceType>()).c_str());
 			assert(0 && "ECS::World : 登録されていないリソースです");
 			std::abort();
 		}

@@ -92,7 +92,6 @@ namespace Engine::ECS
 		// コンポーネントを持っているか(未登録の型・居ないエンティティは false)
 		template<typename Comp>
 		bool HasComponent(const Entity& a_entity);
-		bool HasComponent(const Entity& a_entity, const std::type_index& a_typeid);
 		bool HasComponent(const Entity& a_entity, const ComponentTypeID& a_comptype);
 
 		//==========================================================================================
@@ -150,12 +149,14 @@ namespace Engine::ECS
 		// タイプIDの取得 : 未登録なら INVALID_COMPONENTTYPEID
 		template<typename Comp>
 		ComponentTypeID GetCompTypeID();
-		ComponentTypeID GetCompTypeID(const std::type_index& a_index);
 		ComponentTypeID GetCompTypeID(const std::string& a_name);
 
 		// メタ情報(サイズ・名前など)
 		const ComponentMeta& GetComponentMetaData(const ComponentTypeID& a_typeID);
-		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllComponentMetaData() const;
+		const std::vector<ComponentMeta>& GetAllComponentMetaData() const;	// 添え字がタイプID
+
+		// シグネチャに立っているコンポーネントの名前一覧(保存用。名前が保存データのキー)
+		std::vector<std::string> GetComponentNames(const Signature& a_sig) const;
 
 		// 付随する処理(構築・保存・編集・解放)
 		template<typename Comp>
@@ -171,7 +172,6 @@ namespace Engine::ECS
 		Comp* RefData(const Entity& a_entity);
 
 		// 単体の参照(バイト列) : 持っていなければ nullptr
-		uint8_t* NRefData(const Entity& a_entity, const std::type_index& a_index);
 		uint8_t* NRefData(const Entity& a_entity, const ComponentTypeID& a_typeID);
 
 		// チャンク内の配列の先頭 : 持っていなければ nullptr
@@ -520,7 +520,7 @@ namespace Engine::ECS
 					if (!IsValidTypeID(_typeID))
 					{
 						ENGINE_WARNING("[ECS] %s : 未登録のコンポーネントを依存に含めようとしました (%s)",
-							a_taskName.c_str(), typeid(_CompType).name());
+							a_taskName.c_str(), std::string(DebugTypeName<_CompType>()).c_str());
 						return;
 					}
 

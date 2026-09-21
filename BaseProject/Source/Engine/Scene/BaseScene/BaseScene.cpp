@@ -202,15 +202,7 @@ namespace Engine::Scene
 					if (a_ar.GetMode() == Persistence::Archive::Mode::Save)
 					{
 						_entity = _entityVec[_i];
-						ECS::Signature _sig = m_upWorld->GetSignature(_entity);
-
-						for (auto& [_typeID, _meta] : m_upWorld->GetAllComponentMetaData())
-						{
-							if (_sig.test(_typeID))
-							{
-								_compNames.push_back(_meta.name);
-							}
-						}
+						_compNames = m_upWorld->GetComponentNames(m_upWorld->GetSignature(_entity));
 					}
 
 					// コンポーネント名のリストを保存 or 読み込み

@@ -5,6 +5,7 @@ namespace Engine::ECS
 	struct EngineServices;
 
 	class World;
+	class ComponentMetaRegistry;
 
 	// コンポーネントの名前やサイズの情報
 	struct ComponentMeta
@@ -36,7 +37,8 @@ namespace Engine::ECS
 	template<typename T>
 	struct ComponentTypeSlot
 	{
-		inline static ComponentTypeID id = Limits::INVALID_COMPONENTTYPEID;
+		inline static ComponentTypeID				id		= Limits::INVALID_COMPONENTTYPEID;
+		inline static const ComponentMetaRegistry*	pOwner	= nullptr;	// 番号を書いたレジストリ
 	};
 
 	//==========================================================================================
@@ -45,9 +47,19 @@ namespace Engine::ECS
 	// プロセスに1つだけ置く(持ち主は MainEngine)。どのワールドも同じものを借りるので、
 	// 同じ型はどのワールドでも同じタイプIDになる。
 	//
+	// タイプIDは 0 から詰めて振る。そのまま
+	//   ・シグネチャのビットの位置
+	//   ・メタ情報 / 関数の配列の添え字
+	// として使うので、別の番号への変換はどこにも無い。
+	//
 	// タイプIDは登録順で決まる「実行中だけ通じる番号」。ファイルには書かないこと。
 	// 保存と読み込みはコンポーネント名で行い、読み込み時に名前から番号を引き直す。
 	// そのため、登録の順番を変えたりコンポーネントを足したりしても、保存データは壊れない
+	//
+	// 引き方は3つだけ
+	//   型から   : GetTypeID<T>()     システム・クエリ・ゲームコード
+	//   名前から : GetTypeID(name)    保存データの読み込み
+	//   番号から : GetMetaData(id) / GetFunc(id)   エディター・構築と解放のフック
 	//==========================================================================================
 	class ComponentMetaRegistry
 	{
@@ -66,31 +78,31 @@ namespace Engine::ECS
 		template<typename Comp>
 		ComponentTypeID RegisterType(const std::string& a_name);
 
-		// コンポーネントタイプIDの取得
+		// コンポーネントタイプIDの取得 : 未登録なら INVALID_COMPONENTTYPEID
 		template<typename Comp>
-		static ComponentTypeID GetTypeID();									// 型情報から直接取得(置き場所を読むだけ)
-		ComponentTypeID GetTypeID(const std::string& a_name);				// コンポーネント名から取得
-		ComponentTypeID GetTypeID(const std::type_index& a_index) const;	// タイプインデックスから取得
+		static ComponentTypeID GetTypeID();							// 型から(置き場所を読むだけ)
+		ComponentTypeID GetTypeID(const std::string& a_name) const;	// コンポーネント名から
+
+		// 登録済みの数(= 有効なタイプIDは 0 〜 GetCount()-1)
+		ComponentTypeID GetCount() const { return static_cast<ComponentTypeID>(m_metaVec.size()); }
 
 		// メタ情報取得
-		const ComponentMeta& GetMetaData(const ComponentTypeID& a_id) const;	// タイプIDから
-		const ComponentMeta& GetMetaData(const std::type_index& a_index) const;	// タイプインデックスから
+		const ComponentMeta& GetMetaData(const ComponentTypeID& a_id) const;
 
 		// 関数情報取得
 		const ComponentFunc& GetFunc(const ComponentTypeID& a_id) const;
 
-		// 全コンポーネントの情報を取得
-		const std::unordered_map<ComponentTypeID, ComponentMeta>& GetAllMetaData() const;
+		// 全コンポーネントの情報 : 添え字がそのままタイプID
+		const std::vector<ComponentMeta>& GetAllMetaData() const { return m_metaVec; }
 
 	private:
 
-		// ラインタイム用IDへの変換
-		std::unordered_map<std::type_index, ComponentTypeID>	m_typeIndexMap;		// C++型から
-		std::unordered_map<std::string, ComponentTypeID>		m_compNameMap;		// コンポーネント名から
+		// 名前からタイプIDへ(保存データの読み込みで使う)
+		std::unordered_map<std::string, ComponentTypeID> m_compNameMap;
 
-		// コンポーネントに付随するデータ
-		std::unordered_map<ComponentTypeID, ComponentMeta> m_compTypeMap;		// 型の情報
-		std::unordered_map<ComponentTypeID, ComponentFunc> m_compFuncMap;		// 関数情報
+		// コンポーネントに付随するデータ : 添え字がタイプID
+		std::vector<ComponentMeta> m_metaVec;	// 型の情報
+		std::vector<ComponentFunc> m_funcVec;	// 関数情報
 
 		// 型ごとの置き場所を未登録へ戻す処理(レジストリが消えるときに呼ぶ)
 		std::vector<void(*)()> m_resetSlotFuncVec;
@@ -108,23 +120,24 @@ namespace Engine::ECS
 	{
 		static_assert(!std::is_const_v<Comp> && !std::is_volatile_v<Comp>, "const / volatile を付けずに登録すること");
 
-		// 型情報を取得
-		std::type_index _typeIdx = typeid(Comp);
+		// トリビアルコピー可能かつ標準レイアウトであることを確認
+		// 現在はODB厳守
+		static_assert(std::is_trivially_copyable_v<Comp>, "トリビアルコピー不可能");
+		static_assert(std::is_standard_layout_v<Comp>, "標準レイアウトでない");
+
+		using Slot = ComponentTypeSlot<Comp>;
 
 		// 登録済み : ワールドを作るたびに同じ登録が流れてくるので、今の番号を返すだけ
-		if (const ComponentTypeID _registeredID = GetTypeID(_typeIdx);
-			_registeredID != Limits::INVALID_COMPONENTTYPEID)
+		if (Slot::pOwner == this)
 		{
-			assert(ComponentTypeSlot<Comp>::id == _registeredID && "型の置き場所とレジストリの番号が食い違っています");
-			return _registeredID;
+			return Slot::id;
 		}
 
-		// 置き場所に番号があるのにこのレジストリは知らない = 別のレジストリが生きている。
-		// 番号の出所が2つになるので止める
-		if (ComponentTypeSlot<Comp>::id != Limits::INVALID_COMPONENTTYPEID)
+		// 置き場所に番号があるのに書いたのは別のレジストリ = 番号の出所が2つになるので止める
+		if (Slot::pOwner != nullptr)
 		{
 			assert(0 && "別の ComponentMetaRegistry がこの型を登録しています。レジストリはプロセスに1つだけ置くこと");
-			return ComponentTypeSlot<Comp>::id;
+			return Slot::id;
 		}
 
 		// 名前は保存データのキーなので、別の型と被ってはいけない
@@ -134,29 +147,16 @@ namespace Engine::ECS
 			return Limits::INVALID_COMPONENTTYPEID;
 		}
 
-
-		// トリビアルコピー可能かつ標準レイアウトであることを確認
-		// 現在はODB厳守
-		static_assert(std::is_trivially_copyable_v<Comp>, "トリビアルコピー不可能");
-		static_assert(std::is_standard_layout_v<Comp>, "標準レイアウトでない");
-
 		// 上限チェック
 		// 次に振るIDは size() なので、size() == MAX の時点でシグネチャの範囲外になる
-		if (m_typeIndexMap.size() >= Limits::MAX_COMPONENT_TYPES)
+		if (m_metaVec.size() >= Limits::MAX_COMPONENT_TYPES)
 		{
 			assert(0 && "登録できるコンポーネント数の上限に達しました");
 			return Limits::INVALID_COMPONENTTYPEID;
 		}
 
-		// 登録
-		auto _it = m_typeIndexMap.find(_typeIdx);
-		if (_it != m_typeIndexMap.end())
-		{
-			return _it->second;
-		}
-
-		// 新たなタイプIDを生成
-		ECS::ComponentTypeID _typeID = static_cast<ECS::ComponentTypeID>(m_typeIndexMap.size());
+		// 新たなタイプID : 0 から詰めて振る(配列の添え字・シグネチャのビットと一致させる)
+		const ComponentTypeID _typeID = static_cast<ComponentTypeID>(m_metaVec.size());
 
 		// データの生成
 		ComponentMeta _data = {};
@@ -202,16 +202,19 @@ namespace Engine::ECS
 			static_assert(sizeof(Comp) == 0, "ComponentTraits<T>::Release は (void*, const EngineServices&) で書くこと");
 		}
 
-		// 登録
-		m_compNameMap.emplace(a_name,_typeID);		// 名前との対応表
-		m_typeIndexMap.emplace(_typeIdx, _typeID);	// タイプインデックスとの対応表
-
-		m_compTypeMap.emplace(_typeID, _data);	// メタデータの対応表
-		m_compFuncMap.emplace(_typeID, _func);	// 関数との対応表
+		// 登録 : 添え字 = タイプID になるよう末尾に積む
+		m_compNameMap.emplace(a_name, _typeID);
+		m_metaVec.push_back(std::move(_data));
+		m_funcVec.push_back(std::move(_func));
 
 		// 型ごとの置き場所へ書く(番号の出所はここだけ)
-		ComponentTypeSlot<Comp>::id = _typeID;
-		m_resetSlotFuncVec.push_back([]() { ComponentTypeSlot<Comp>::id = Limits::INVALID_COMPONENTTYPEID; });
+		Slot::id = _typeID;
+		Slot::pOwner = this;
+		m_resetSlotFuncVec.push_back([]()
+			{
+				Slot::id = Limits::INVALID_COMPONENTTYPEID;
+				Slot::pOwner = nullptr;
+			});
 
 		return _typeID;
 	}

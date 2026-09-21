@@ -40,6 +40,30 @@ namespace Engine::ECS
 		return a_typeID < ECS::Limits::MAX_COMPONENT_TYPES;
 	}
 
+	//--------------------------------------------------------------------------------------
+	// 型名(ログ用)
+	//
+	// RTTI(typeid)を使わずに、コンパイラが埋める関数シグネチャから型名を切り出す。
+	// 未登録の型はレジストリに名前が無いので、警告やエラーで型を示すときに使う。
+	// 見た目は MSVC の表記(struct Foo など)。識別子として保存・比較には使わないこと
+	//--------------------------------------------------------------------------------------
+	template<typename T>
+	std::string_view DebugTypeName()
+	{
+		constexpr std::string_view _funcSig = __FUNCSIG__;
+		constexpr std::string_view _prefix = "DebugTypeName<";
+		constexpr std::string_view _suffix = ">(void)";
+
+		const size_t _begin = _funcSig.find(_prefix);
+		const size_t _end = _funcSig.rfind(_suffix);
+		if (_begin == std::string_view::npos || _end == std::string_view::npos) return _funcSig;
+
+		const size_t _nameBegin = _begin + _prefix.size();
+		if (_end <= _nameBegin) return _funcSig;
+
+		return _funcSig.substr(_nameBegin, _end - _nameBegin);
+	}
+
 	using Flg = uint8_t;
 
 	//--------------------------------------------------------------------------------------
