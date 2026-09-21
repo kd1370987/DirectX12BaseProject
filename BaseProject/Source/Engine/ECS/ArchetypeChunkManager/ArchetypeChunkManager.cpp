@@ -32,6 +32,7 @@ namespace Engine::ECS
 	void ArchetypeChunkManager::Init(ComponentMetaRegistry* a_pMetaRegister)
 	{
 		m_pMetaRegister = a_pMetaRegister;
+		m_generation = 0;
 	}
 
 	const std::vector<ArchetypeChunk*>& ArchetypeChunkManager::GetArchetypeChunk(const ECS::Signature& a_sig)
@@ -188,7 +189,6 @@ namespace Engine::ECS
 
 	ArchetypeChunk* ArchetypeChunkManager::CreateArchetypeChunk(const ECS::Signature& a_sig)
 	{
-
 		// チャンクの生成
 		ArchetypeChunk* _chunk = new ArchetypeChunk;
 		size_t _chunkMemorySize = 64 * 1024;			// 64kbのサイズを確保
@@ -207,6 +207,9 @@ namespace Engine::ECS
 
 		// ０初期化
 		memset(_chunk->data,0,_chunkMemorySize);
+
+		// 世代を進める
+		m_generation++;
 
 		return _chunk;
 	}

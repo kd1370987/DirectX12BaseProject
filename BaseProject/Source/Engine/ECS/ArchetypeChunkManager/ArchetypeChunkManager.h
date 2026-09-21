@@ -17,6 +17,11 @@ namespace Engine::ECS
 		~ArchetypeChunkManager();
 
 		/// <summary>
+		/// 世代取得
+		/// </summary>
+		uint64_t GetGeneration() const { return m_generation; }
+
+		/// <summary>
 		/// 初期化
 		/// </summary>
 		/// <param name="a_pMetaRegister">コンポーネントメタレジストリ参照</param>
@@ -51,7 +56,6 @@ namespace Engine::ECS
 		/// <param name="a_sig">割り当て先</param>
 		/// <returns>割り当てた場所</returns>
 		EntityLocation AllocateEntity(const Entity& a_entity, const Signature& a_sig);
-
 
 		/// <summary>
 		/// 単体にアクセス
@@ -98,5 +102,6 @@ namespace Engine::ECS
 
 		std::unordered_map<Signature, std::vector<ArchetypeChunk*>> m_pArchetypeChunkMap;
 
+		uint64_t m_generation = 0;
 	};
 }

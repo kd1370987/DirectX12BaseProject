@@ -20,4 +20,16 @@ namespace Engine::ECS
 		size_t			maxAlign = 0;	// チャンク内のコンポーネントの最大アライメント
 		uint8_t* data = nullptr;		// バイトデータ
 	};
+
+	struct Chunk
+	{
+		ECS::Entity* entityData = nullptr;	// エンティティ配列
+		uint8_t* data = nullptr;			// バイトデータ
+	};
+
+
+	struct Archetype
+	{
+
+	};
 }

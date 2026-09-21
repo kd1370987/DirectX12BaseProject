@@ -25,6 +25,16 @@ namespace Engine::ECS
 		return m_isInit;
 	}
 
+	bool World::IsChangedArchetype(uint64_t a_generation)
+	{
+		return m_archetypeChunkManager.GetGeneration() != a_generation;
+	}
+
+	uint64_t World::GetArchetypeGeneration() const
+	{
+		return m_archetypeChunkManager.GetGeneration();
+	}
+
 	//======================================================================================
 	// ワールドの解放
 	//--------------------------------------------------------------------------------------

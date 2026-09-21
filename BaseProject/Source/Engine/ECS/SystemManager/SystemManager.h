@@ -9,16 +9,19 @@
 
 namespace Engine::ECS
 {
-
+	class ArchetypeChunk;
 	class World;
 
 	// システムの実行情報（ジョブ）を保持する
 	struct SystemTask
 	{
 		std::string name = {};
-		Signature readSig;		// 読み込みのみを行うコンポーネント
-		Signature writeSig;		// 書き込みを行うコンポーネント軍
-		std::function<void(const SystemContext&)> executeFunc;	// チャンク処理
+		Signature readSig;											// 読み込みのみを行うコンポーネント
+		Signature writeSig;											// 書き込みを行うコンポーネント軍
+
+		std::function<void(SystemTask&, const SystemContext&)> executeFunc;	// チャンク処理(自身のタスクを受け取る)
+		std::vector<ArchetypeChunk*> chunkCash;								// クエリー結果
+		uint64_t cashGeneration = 0;										
 	};
 
 	//==========================================================================================

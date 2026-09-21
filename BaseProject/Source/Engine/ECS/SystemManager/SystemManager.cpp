@@ -24,7 +24,7 @@ namespace Engine::ECS
 			// フェーズ内のソートされたシステムを順に回す
 			for (auto& _task : _cit->second)
 			{
-				_task->executeFunc(a_context);
+				_task->executeFunc(*_task, a_context);
 			}
 		}
 	}

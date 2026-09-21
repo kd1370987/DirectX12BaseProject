@@ -54,6 +54,12 @@ namespace Engine::ECS
 		void Init();	// 生成後に実行
 		bool IsInit();	// 初期化されているかどうか
 
+		// アーキタイプに変更が行われたか : 変更があったらtrue
+		bool IsChangedArchetype(uint64_t a_generation);
+
+		// 現在のアーキタイプの世代
+		uint64_t GetArchetypeGeneration() const;
+
 		//----------------------------------------------------------------------------------
 		// ゲーム固有の型(コンポーネント / システム)を登録する
 		//
@@ -272,6 +278,10 @@ namespace Engine::ECS
 		// 登録時の World を捕獲しないため、同じシステムを別 World へも流せる。
 		template<typename ...Components, typename... Excludes, typename Func>
 		void DispatchTask(const SystemContext& a_context, Func a_func, Exclude<Excludes...> a_ex = {});
+
+		// チャンククエリー作成
+		template<typename ...Components, typename... Excludes>
+		std::vector<ArchetypeChunk*> BuildChunkQuery(const SystemContext& a_context, Exclude<Excludes...> a_ex = {});
 
 		// 収集関数
 		// 指定したコンポーネント群を持つすべてのチャンクに対して、指定された関数を実行します
@@ -607,20 +617,9 @@ namespace Engine::ECS
 				using _CompType = std::remove_const_t<Components>;
 
 				// 問い合わせ専用のタグ(App::ECS のフェーズタグなど)は「データ」ではなく
-				// 絞り込み条件なので、実行順を決める依存(read/write)には含めない。
-				//
-				// 含めてしまうと、ActiveTask は先頭に ActiveTag を非constで足すので
-				// 「全ての ActiveTask が ActiveTag の書き手」になる。一方 ActiveCustomTask は
-				// ActiveTag を読み手として持つため、カスタムタスクが書いた成分を読む
-				// ActiveTask が1つでも現れた瞬間に相互依存(循環)が成立して
-				// トポロジカルソートが失敗する。タグは誰も書き換えないので外すのが正しい。
-				//
-				// どの型がタグなのかは IsQueryOnlyTag の特殊化で上位層が宣言する。
-				// 問い合わせ用のシグネチャは DispatchTask が Components... から作り直すので、
-				// ここで外してもタグによる絞り込みは効いたまま。
+				// 絞り込み条件なので、実行順を決める依存(read/write)には含めない
 				if constexpr (!IsQueryOnlyTag_v<_CompType>)
 				{
-					// const がついていたら読み込み用
 					// const を外した元の型でTypeIDを取得
 					auto _typeID = m_componentMetaRegistry.GetTypeID<_CompType>();
 
@@ -632,10 +631,12 @@ namespace Engine::ECS
 						return;
 					}
 
+					// const がついていたら読み込み用
 					if constexpr (std::is_const_v<Components>)
 					{
 						_task.readSig.set(_typeID);
 					}
+					// const がついていなかったら書き込み用
 					else
 					{
 						_task.writeSig.set(_typeID);
@@ -644,9 +645,8 @@ namespace Engine::ECS
 			}(), ...
 		);
 
-		// システムは状態を持てない(無捕獲ラムダのみ許可)。
-		// 捕獲を許すと登録時の値がシーンをまたいで残り、追いにくい不具合になる。
-		// 必要な参照は SystemContext から取ること。
+		// システムは状態を持てない(無捕獲ラムダのみ許可)
+		// 必要な参照は SystemContext から取る
 		static_assert(
 			std::is_convertible_v<
 				Func,
@@ -657,10 +657,33 @@ namespace Engine::ECS
 
 		// 実行ロジックをラムダ式に包んでタスクとして保存。
 		// World は捕獲せず、実行時に SystemContext から受け取る。
-		_task.executeFunc = [a_func](const SystemContext& a_context)
+		_task.executeFunc = [a_func](SystemTask& a_task, const SystemContext& a_context)
 			{
 				if (!a_context.pWorld) return;
-				a_context.pWorld->DispatchTask<Components...>(a_context, a_func, Exclude<Excludes...>{});
+
+				// 前回クエリーした世代から構造に変更があれば再クエリー
+				if(a_context.pWorld->IsChangedArchetype(a_task.cashGeneration))
+				{
+					a_task.chunkCash = a_context.pWorld->BuildChunkQuery<Components...>(a_context, Exclude<Excludes...>{});
+					a_task.cashGeneration = a_context.pWorld->GetArchetypeGeneration();
+				}
+
+				// チャンクのキャッシュから実行
+				for (auto* _chunk : a_task.chunkCash)
+				{
+					if (!_chunk || _chunk->count == 0) continue;
+					// 操作しやすいように配列にして返す
+					auto _arrays = std::forward_as_tuple(
+						a_context.pWorld->GetComponentArray<Components>(_chunk)...
+					);
+					std::apply(
+						[&](auto... a_data)
+						{
+							a_func(_chunk, _chunk->count, a_context, a_data...);
+						},
+						_arrays
+					);
+				}
 			};
 
 		m_systemManager.AddSystemTask(a_phase, _task,a_taskName);
@@ -695,6 +718,21 @@ namespace Engine::ECS
 			);
 		}
 	}
+	template<typename ...Components, typename ...Excludes>
+	inline std::vector<ArchetypeChunk*> World::BuildChunkQuery(const SystemContext& a_context, Exclude<Excludes...> a_ex)
+	{
+		// 実行用のシグネチャ
+		// 未登録の型を含むなら、それを持つエンティティは居ない
+		Signature _querySig;
+		if (!BuildSignature<Components...>(_querySig)) return std::vector<ArchetypeChunk*>{};
+
+		// 除外側の未登録の型は、誰も持っていないので無視してよい
+		Signature _excludeSig;
+		BuildSignature<Excludes...>(_excludeSig);
+
+		// 条件に一致するチャンク配列を返す
+		return m_archetypeChunkManager.MatchingArchetypeChunkVecEx(_querySig, _excludeSig);
+	}
 	template<typename ...Read, typename ...Write, typename Func>
 	inline void World::RegisterCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
@@ -707,7 +745,7 @@ namespace Engine::ECS
 			ENGINE_WARNING("[ECS] カスタムタスク : 未登録のコンポーネントを依存に含めようとしました");
 		}
 		// 実行関数は自動ループせず、そのまま登録する
-		_task.executeFunc = [a_func](const SystemContext& a_context)
+		_task.executeFunc = [a_func](SystemTask&, const SystemContext& a_context)
 			{
 				a_func(a_context);
 			};
