@@ -21,18 +21,21 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 			if (!a_ctx.pWorld) return;
 			// ============================================================ 
 			// 近傍検索用の一時データ 
-			// 現在はテスト段階なので、全Boidを一度配列へコピーして O(N^2) で近傍検索する。 
-			// Boid数が増えた段階ではSpatial Hash / Grid / BVHなどへ 
+			// 
+			// 群体制御は同じ小隊のBoid同士だけで行うので、小隊長ごとの配列に分けて持つ。
+			// 各Boidは自分の小隊の配列だけを見ればよく、他の小隊の分を読み飛ばさずに済む。
+			// 
+			// 小隊の中は現在はテスト段階なので O(N^2) で近傍検索する。 
+			// 小隊が大きくなった段階ではSpatial Hash / Grid / BVHなどへ 
 			// 置き換えることを想定。 
 			// ============================================================
 			struct BoidData
 			{
 				Math::Vector3 position;
 				Math::Vector3 velocity;
-				// 同じ小隊のBoid同士だけで群体制御を行う。
-				Engine::ECS::Entity platoonID = Engine::ECS::Limits::INVALID_ENTITY;
 			};
-			std::vector<BoidData> _boidPosVec = {};
+			// 小隊長 -> 所属Boidの配列
+			std::unordered_map<Engine::ECS::Entity, std::vector<BoidData>> _platoonBoidMap = {};
 
 			// ============================================================ 
 			// 全Boidの現在状態をスナップショットとして取得する 
@@ -44,7 +47,7 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 				const BoidComponent,
 				const LocalTransformComponent,
 				const VelocityComponent>(
-					[&_boidPosVec](
+					[&_platoonBoidMap](
 						Engine::ECS::Chunk* a_pChunk,
 						uint32_t a_count,
 						const ActiveTag* a_tags,
@@ -55,8 +58,12 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 					{
 						for (size_t _i = 0; _i < a_count; ++_i)
 						{
-							_boidPosVec.push_back(
-								{ a_localTRSArray[_i].pos,a_velArray[_i].value,a_boidArray[_i].platoonID }
+							// 小隊に属していないBoidは群体制御の対象外
+							const Engine::ECS::Entity _platoonID = a_boidArray[_i].platoonID;
+							if (_platoonID == Engine::ECS::Limits::INVALID_ENTITY) continue;
+
+							_platoonBoidMap[_platoonID].push_back(
+								{ a_localTRSArray[_i].pos,a_velArray[_i].value }
 							);
 						}
 					}
@@ -66,7 +73,7 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 			// 各Boidを更新 
 			// ============================================================
 			a_ctx.pWorld->ForEach<const ActiveTag, const BoidComponent, const LocalTransformComponent,VelocityComponent>(
-				[&_boidPosVec,&a_ctx](
+				[&_platoonBoidMap,&a_ctx](
 					Engine::ECS::Chunk* a_pChunk,
 					uint32_t a_count,
 					const ActiveTag* a_tags,
@@ -90,13 +97,17 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 
 						// ============================================================ 
 						// 同じ小隊のボイドを検索
+						// 
+						// 小隊に属していなければ近傍は無し(Seekだけ効く)
 						// ============================================================
-						for (const auto& _other : _boidPosVec)
+						std::span<const BoidData> _platoonBoidSpan = {};
+						if (auto _it = _platoonBoidMap.find(_boidComp.platoonID); _it != _platoonBoidMap.end())
 						{
-							// 所属部隊ごとに分ける
-							if (_other.platoonID == Engine::ECS::Limits::INVALID_ENTITY) continue;
-							if (_other.platoonID != _boidComp.platoonID) continue;
+							_platoonBoidSpan = _it->second;
+						}
 
+						for (const auto& _other : _platoonBoidSpan)
+						{
 							Math::Vector3 _offset = _trsComp.pos - _other.position;
 							float _distanceSquared = _offset.LengthSquared();
 
