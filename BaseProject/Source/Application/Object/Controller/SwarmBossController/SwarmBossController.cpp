@@ -1,7 +1,7 @@
 ﻿#include "SwarmBossController.h"
 
 // エンジン
-#include "Engine/ECS/Internal/SystemContext.h"
+#include "Engine/ECS/System/SystemContext.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/Prefab/Prefab.h"
 #include "Engine/Editor/Helper/EditorHelper.h"	// コンポーネントの Traits が使うので先に置く
@@ -19,7 +19,7 @@
 #include "../../../Components/Collision/Collider.h"
 #include "../../../Components/Collision/SphereCollider.h"
 #include "../../../Components/Character/HealthComponent.h"
-#include "Engine/ECS/Internal/CollisionEvent.h"
+#include "Engine/ECS/Component/CollisionEvent.h"
 #include "../../../Components/Character/BoidComponent.h"
 #include "../../../Components/Character/LookAngleComponent.h"
 #include "../../../Components/Intent/MoveIntentComponent.h"

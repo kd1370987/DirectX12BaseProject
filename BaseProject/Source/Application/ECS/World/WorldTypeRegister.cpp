@@ -58,7 +58,7 @@
 #include "../../Components/Intent/ActionIntentComponent.h"
 #include "../../Components/Character/Weapon/Gun/GunStateComponent.h"
 #include "../../Components/Character/Weapon/WeaponTriggerComponent.h"
-#include "Engine/ECS/Internal/CollisionEvent.h"
+#include "Engine/ECS/Component/CollisionEvent.h"
 #include "../../Components/Collision/ExplodeOnHitComponent.h"
 #include "../../Components/Camera/CameraFocusTargetComponent.h"
 #include "../../Components/Camera/CameraDeadZoneComponent.h"

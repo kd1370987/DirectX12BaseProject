@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "../ResourceTypeManager/ResourceTypeManager.h"
-#include "../ResourceWrapper/ResourceWrapper.h"
+#include "ResourceTypeManager.h"
+#include "ResourceWrapper.h"
 
 namespace Engine::ECS
 {

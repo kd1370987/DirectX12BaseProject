@@ -152,7 +152,7 @@ namespace Engine::Resource
 // 
 //==========================================================================================
 #include "Engine/ECS/ECSCommon.h"
-#include "ECS/Internal/CompEditContext.h"
+#include "ECS/Component/CompEditContext.h"
 //==========================================================================================
 // 
 // リソース
@@ -228,7 +228,7 @@ namespace Engine::Resource
 // コンテキスト関係
 // 
 //==========================================================================================
-#include "ECS/Internal/SystemContext.h"			// ECSのシステム間の共通データ
+#include "ECS/System/SystemContext.h"			// ECSのシステム間の共通データ
 
 
 

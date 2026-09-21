@@ -1,6 +1,6 @@
 ﻿#include "AimReticleHUD.h"
 
-#include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
+#include "Engine/ECS/System/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Option/OptionManager.h"			// ウィンドウ解像度(px)取得用
 

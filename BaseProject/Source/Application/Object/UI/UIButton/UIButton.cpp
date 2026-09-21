@@ -1,6 +1,6 @@
 ﻿#include "UIButton.h"
 
-#include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
+#include "Engine/ECS/System/SystemContext.h"	// ObjectContext が運ぶサービス群
 
 #include "Engine/Editor/Helper/EditorHelper.h"
 

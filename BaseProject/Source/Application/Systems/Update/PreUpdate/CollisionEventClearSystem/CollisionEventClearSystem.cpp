@@ -1,7 +1,7 @@
 #include "CollisionEventClearSystem.h"
 
 #include "Application/ECS/World/APPWorld.h"
-#include "Engine/ECS/Internal/CollisionEvent.h"
+#include "Engine/ECS/Component/CollisionEvent.h"
 
 void CollisionEventClearSystem::Init(App::ECS::APPWorld& a_world)
 {

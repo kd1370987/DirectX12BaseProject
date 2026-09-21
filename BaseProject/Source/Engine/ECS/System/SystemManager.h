@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "../Internal/SystemComon.h"
-#include "../Internal/SystemContext.h"
+#include "SystemCommon.h"
+#include "SystemContext.h"
 
-#include "../System/ISystem/ISystem.h"
+#include "ISystem.h"
 
-#include "../ComponentMetaRegistry/ComponentMetaRegistry.h"
-#include "../Core/QueryCache.h"
+#include "../Component/ComponentMetaRegistry.h"
+#include "../Query/QueryCache.h"
 
 namespace Engine::ECS
 {

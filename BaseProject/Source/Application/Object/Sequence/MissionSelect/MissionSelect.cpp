@@ -1,6 +1,6 @@
 ﻿#include "MissionSelect.h"
 
-#include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
+#include "Engine/ECS/System/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/GameObject/GameObjectManager/GameObjectManager.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
 #include "Engine/Editor/Helper/EditorHelper.h"

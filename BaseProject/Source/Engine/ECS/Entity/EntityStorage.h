@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "../EntityManager/EntityManager.h"
-#include "../Manager/ArchetypeManager/ArchetypeManager.h"
+#include "EntityManager.h"
+#include "../Archetype/ArchetypeManager.h"
 #include "CommandBuffer.h"
 
 namespace Engine::ECS

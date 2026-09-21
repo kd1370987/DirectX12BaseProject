@@ -1,8 +1,8 @@
 ﻿#include "ArchetypeManager.h"
 
-#include "../../Core/Chunk.h"
-#include "../../Internal/Archetype.h"
-#include "../../ComponentMetaRegistry/ComponentMetaRegistry.h"
+#include "Chunk.h"
+#include "Archetype.h"
+#include "../Component/ComponentMetaRegistry.h"
 
 namespace Engine::ECS
 {

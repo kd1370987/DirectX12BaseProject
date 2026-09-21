@@ -904,29 +904,23 @@
     <Filter Include="Source\Engine\ECS">
       <UniqueIdentifier>{12c35b8e-1beb-4790-a19a-e2272c7f4387}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\ECS\ComponentMetaRegistry">
-      <UniqueIdentifier>{cc2b9cac-1543-47b7-83bc-e32b967057fe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\ECS\EntityManager">
-      <UniqueIdentifier>{6511711c-4897-4dd7-ad7b-ef58eb315646}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\ECS\Internal">
-      <UniqueIdentifier>{b1f66a51-fdb3-4899-8779-3087dc0f4322}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\ECS\ResourceTypeManager">
-      <UniqueIdentifier>{b4f75028-8aa0-4fdc-ac16-d8fdc46f2c1f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\ECS\ResourceWrapper">
-      <UniqueIdentifier>{8a0de162-fe08-40f5-95cd-b644ac043495}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\ECS\System">
       <UniqueIdentifier>{30477082-dd3b-487a-bb4c-1689acad1fc6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\ECS\SystemManager">
-      <UniqueIdentifier>{8b4ef0c6-5cd7-44d9-9086-d7b9345f0dc2}</UniqueIdentifier>
+    <Filter Include="Source\Engine\ECS\Archetype">
+      <UniqueIdentifier>{dee3b127-f895-4a13-a076-c223fa3791df}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\ECS\System\ISystem">
-      <UniqueIdentifier>{ac483713-58d5-49b5-9f9e-97f242ca5db3}</UniqueIdentifier>
+    <Filter Include="Source\Engine\ECS\Component">
+      <UniqueIdentifier>{0929f936-e1ab-4fc2-9887-f870c13275fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\Entity">
+      <UniqueIdentifier>{e1c15fbb-4d31-46eb-ac28-5829e9d80086}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\Query">
+      <UniqueIdentifier>{962373da-aa39-4d84-9dce-a7f5dccf1bd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\ECS\Resource">
+      <UniqueIdentifier>{2b039294-c78e-45f7-86f6-f9dd79fcae31}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\ECS\World">
       <UniqueIdentifier>{a8bfb0ea-9994-4cff-ab08-9997f32b94bd}</UniqueIdentifier>
@@ -1624,15 +1618,6 @@
     <Filter Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter">
       <UniqueIdentifier>{a288b10f-d350-4929-af84-199ba965e86f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\ECS\Core">
-      <UniqueIdentifier>{22622334-5a9c-41e9-8443-08683cc4979a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\ECS\Manager">
-      <UniqueIdentifier>{6ac69fce-a22d-4047-b586-f60c96f014be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\ECS\Manager\ArchetypeManager">
-      <UniqueIdentifier>{e4121ac6-8bf6-4b1d-8512-4875e3400245}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\BuiltinCompositeNodes.cpp">
@@ -2172,14 +2157,14 @@
     <ClCompile Include="Source\Engine\Graphics\PipelineStateManager\PipelineStateManager.cpp">
       <Filter>Source\Engine\Graphics\PipelineStateManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.cpp">
-      <Filter>Source\Engine\ECS\ComponentMetaRegistry</Filter>
+    <ClCompile Include="Source\Engine\ECS\Component\ComponentMetaRegistry.cpp">
+      <Filter>Source\Engine\ECS\Component</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\ECS\EntityManager\EntityManager.cpp">
-      <Filter>Source\Engine\ECS\EntityManager</Filter>
+    <ClCompile Include="Source\Engine\ECS\Entity\EntityManager.cpp">
+      <Filter>Source\Engine\ECS\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\ECS\SystemManager\SystemManager.cpp">
-      <Filter>Source\Engine\ECS\SystemManager</Filter>
+    <ClCompile Include="Source\Engine\ECS\System\SystemManager.cpp">
+      <Filter>Source\Engine\ECS\System</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\World\World.cpp">
       <Filter>Source\Engine\ECS\World</Filter>
@@ -2772,11 +2757,11 @@
     <ClCompile Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter\PysicsObjectLayerPairFilter.cpp">
       <Filter>Source\Engine\Physics\Core\PysicsObjectLayerPairFilter</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\ECS\Core\EntityStorage.cpp">
-      <Filter>Source\Engine\ECS\Core</Filter>
+    <ClCompile Include="Source\Engine\ECS\Entity\EntityStorage.cpp">
+      <Filter>Source\Engine\ECS\Entity</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\ECS\Manager\ArchetypeManager\ArchetypeManager.cpp">
-      <Filter>Source\Engine\ECS\Manager\ArchetypeManager</Filter>
+    <ClCompile Include="Source\Engine\ECS\Archetype\ArchetypeManager.cpp">
+      <Filter>Source\Engine\ECS\Archetype</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3644,38 +3629,38 @@
     <ClInclude Include="Source\Engine\ECS\ECSCommon.h">
       <Filter>Source\Engine\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\ComponentMetaRegistry\ComponentMetaRegistry.h">
-      <Filter>Source\Engine\ECS\ComponentMetaRegistry</Filter>
+    <ClInclude Include="Source\Engine\ECS\Component\ComponentMetaRegistry.h">
+      <Filter>Source\Engine\ECS\Component</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\EntityManager\EntityManager.h">
-      <Filter>Source\Engine\ECS\EntityManager</Filter>
+    <ClInclude Include="Source\Engine\ECS\Entity\EntityManager.h">
+      <Filter>Source\Engine\ECS\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Internal\CollisionEvent.h">
-      <Filter>Source\Engine\ECS\Internal</Filter>
+    <ClInclude Include="Source\Engine\ECS\Component\CollisionEvent.h">
+      <Filter>Source\Engine\ECS\Component</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Internal\CompEditContext.h">
-      <Filter>Source\Engine\ECS\Internal</Filter>
+    <ClInclude Include="Source\Engine\ECS\Component\CompEditContext.h">
+      <Filter>Source\Engine\ECS\Component</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Internal\EntityLocation.h">
-      <Filter>Source\Engine\ECS\Internal</Filter>
+    <ClInclude Include="Source\Engine\ECS\Entity\EntityLocation.h">
+      <Filter>Source\Engine\ECS\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Internal\SystemComon.h">
-      <Filter>Source\Engine\ECS\Internal</Filter>
+    <ClInclude Include="Source\Engine\ECS\System\SystemCommon.h">
+      <Filter>Source\Engine\ECS\System</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Internal\SystemContext.h">
-      <Filter>Source\Engine\ECS\Internal</Filter>
+    <ClInclude Include="Source\Engine\ECS\System\SystemContext.h">
+      <Filter>Source\Engine\ECS\System</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\ResourceTypeManager\ResourceTypeManager.h">
-      <Filter>Source\Engine\ECS\ResourceTypeManager</Filter>
+    <ClInclude Include="Source\Engine\ECS\Resource\ResourceTypeManager.h">
+      <Filter>Source\Engine\ECS\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\ResourceWrapper\ResourceWrapper.h">
-      <Filter>Source\Engine\ECS\ResourceWrapper</Filter>
+    <ClInclude Include="Source\Engine\ECS\Resource\ResourceWrapper.h">
+      <Filter>Source\Engine\ECS\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\SystemManager\SystemManager.h">
-      <Filter>Source\Engine\ECS\SystemManager</Filter>
+    <ClInclude Include="Source\Engine\ECS\System\SystemManager.h">
+      <Filter>Source\Engine\ECS\System</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\System\ISystem\ISystem.h">
-      <Filter>Source\Engine\ECS\System\ISystem</Filter>
+    <ClInclude Include="Source\Engine\ECS\System\ISystem.h">
+      <Filter>Source\Engine\ECS\System</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\World\World.h">
       <Filter>Source\Engine\ECS\World</Filter>
@@ -4505,26 +4490,26 @@
     <ClInclude Include="Source\Engine\Physics\Core\BodyID.h">
       <Filter>Source\Engine\Physics\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Internal\Archetype.h">
-      <Filter>Source\Engine\ECS\Internal</Filter>
+    <ClInclude Include="Source\Engine\ECS\Archetype\Archetype.h">
+      <Filter>Source\Engine\ECS\Archetype</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Core\QueryCache.h">
-      <Filter>Source\Engine\ECS\Core</Filter>
+    <ClInclude Include="Source\Engine\ECS\Query\QueryCache.h">
+      <Filter>Source\Engine\ECS\Query</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Core\CommandBuffer.h">
-      <Filter>Source\Engine\ECS\Core</Filter>
+    <ClInclude Include="Source\Engine\ECS\Entity\CommandBuffer.h">
+      <Filter>Source\Engine\ECS\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Core\ResourceStore.h">
-      <Filter>Source\Engine\ECS\Core</Filter>
+    <ClInclude Include="Source\Engine\ECS\Resource\ResourceStore.h">
+      <Filter>Source\Engine\ECS\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Core\EntityStorage.h">
-      <Filter>Source\Engine\ECS\Core</Filter>
+    <ClInclude Include="Source\Engine\ECS\Entity\EntityStorage.h">
+      <Filter>Source\Engine\ECS\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Core\Chunk.h">
-      <Filter>Source\Engine\ECS\Core</Filter>
+    <ClInclude Include="Source\Engine\ECS\Archetype\Chunk.h">
+      <Filter>Source\Engine\ECS\Archetype</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\ECS\Manager\ArchetypeManager\ArchetypeManager.h">
-      <Filter>Source\Engine\ECS\Manager\ArchetypeManager</Filter>
+    <ClInclude Include="Source\Engine\ECS\Archetype\ArchetypeManager.h">
+      <Filter>Source\Engine\ECS\Archetype</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

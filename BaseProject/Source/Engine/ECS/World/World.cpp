@@ -1,6 +1,6 @@
 ﻿#include "World.h"
 
-#include "../Internal/EntityLocation.h"
+#include "../Entity/EntityLocation.h"
 
 
 namespace Engine::ECS

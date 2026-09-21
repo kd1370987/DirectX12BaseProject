@@ -3,7 +3,7 @@
 // エンジン
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Persistence/Archive/Archive.h"
-#include "Engine/ECS/Internal/SystemContext.h"
+#include "Engine/ECS/System/SystemContext.h"
 #include "Engine/Editor/Helper/EditorHelper.h"	// コンポーネントの Traits が使うので先に置く
 
 // App

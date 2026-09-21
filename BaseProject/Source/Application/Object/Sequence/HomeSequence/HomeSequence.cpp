@@ -1,6 +1,6 @@
 ﻿#include "HomeSequence.h"
 
-#include "Engine/ECS/Internal/SystemContext.h"	// ObjectContext が運ぶサービス群
+#include "Engine/ECS/System/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/GameObject/GameObjectManager/GameObjectManager.h"
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Option/OptionManager.h"

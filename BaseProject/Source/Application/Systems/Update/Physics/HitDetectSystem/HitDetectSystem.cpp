@@ -1,7 +1,7 @@
 ﻿#include "HitDetectSystem.h"
 
 #include "Application/ECS/World/APPWorld.h"
-#include "Engine/ECS/Internal/CollisionEvent.h"
+#include "Engine/ECS/Component/CollisionEvent.h"
 
 #include "Engine/MainEngine.h"
 #include "Engine/Physics/PhysicsWorld.h"

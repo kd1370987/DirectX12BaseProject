@@ -1,7 +1,7 @@
 ﻿#include "EntityStorage.h"
 
-#include "../Core/Chunk.h"
-#include "../ComponentMetaRegistry/ComponentMetaRegistry.h"
+#include "../Archetype/Chunk.h"
+#include "../Component/ComponentMetaRegistry.h"
 
 namespace Engine::ECS
 {

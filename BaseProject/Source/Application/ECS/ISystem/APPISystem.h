@@ -18,7 +18,7 @@
 //
 //==========================================================================================
 
-#include "../../../Engine/ECS/System/ISystem/ISystem.h"
+#include "../../../Engine/ECS/System/ISystem.h"
 
 namespace App::ECS
 {

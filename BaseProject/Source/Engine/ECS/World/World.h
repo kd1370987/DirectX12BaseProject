@@ -1,15 +1,15 @@
 ﻿#pragma once
 
 // マネージャー関係
-#include "../SystemManager/SystemManager.h"
-#include "../Core/Chunk.h"
-#include "../Core/CommandBuffer.h"
-#include "../Core/ResourceStore.h"
-#include "../Core/EntityStorage.h"
+#include "../System/SystemManager.h"
+#include "../Archetype/Chunk.h"
+#include "../Entity/CommandBuffer.h"
+#include "../Resource/ResourceStore.h"
+#include "../Entity/EntityStorage.h"
 
-#include "../ComponentMetaRegistry/ComponentMetaRegistry.h"
+#include "../Component/ComponentMetaRegistry.h"
 
-#include "../Internal/SystemComon.h"
+#include "../System/SystemCommon.h"
 
 namespace Engine::ECS
 {

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../Internal/EntityLocation.h"
+#include "EntityLocation.h"
 
 namespace Engine::ECS
 {
