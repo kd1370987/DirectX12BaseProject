@@ -25,16 +25,6 @@ namespace Engine::ECS
 		return m_isInit;
 	}
 
-	bool World::IsChangedArchetype(uint64_t a_generation)
-	{
-		return m_archetypeManager.GetGeneration() != a_generation;
-	}
-
-	uint64_t World::GetArchetypeGeneration() const
-	{
-		return m_archetypeManager.GetGeneration();
-	}
-
 	//======================================================================================
 	// ワールドの解放
 	//--------------------------------------------------------------------------------------
@@ -55,18 +45,13 @@ namespace Engine::ECS
 		for (const auto& _loca : m_entityManager.GetAllEntityLocation())
 		{
 			if (!_loca.pChunk) continue;
-			AddRemoveEntity(_loca.pChunk->entityData[_loca.chunkIndex]);
+			ReserveRemoveEntity(_loca.pChunk->entityData[_loca.chunkIndex]);
 		}
 
 		// エンティティの一括削除
 		RemoveEntityStorage();
 
 		ENGINE_LOG("Worldの解放");
-	}
-
-	void World::ClearMemory()
-	{
-		m_entityManager.Init();
 	}
 
 	//======================================================================================
@@ -106,29 +91,29 @@ namespace Engine::ECS
 	//======================================================================================
 	void World::ApplyChangeSignatures()
 	{
-		if (m_changeEntityVec.empty()) return;
+		if (m_reservedChangeVec.empty()) return;
 
-		for (auto& _chanCmd : m_changeEntityVec)
+		for (auto& _chanCmd : m_reservedChangeVec)
 		{
 			ChangeSignature(_chanCmd);
 		}
-		m_changeEntityVec.clear();
+		m_reservedChangeVec.clear();
 
 		// エンティティの構成が変わったことを派生へ知らせる
 		OnEntityStructureChanged();
 	}
 
-	void World::AddEntity(const Signature& a_sig)
+	void World::ReserveCreateEntity(const Signature& a_sig)
 	{
-		m_addEntityVec.push_back(a_sig);
+		m_reservedCreateVec.push_back(a_sig);
 	}
 
-	void World::AddEntityWithData(const Signature& a_sig, std::unordered_map<ComponentTypeID, std::vector<uint8_t>> a_dataMap)
+	void World::ReserveCreateEntityWithData(const Signature& a_sig, std::unordered_map<ComponentTypeID, std::vector<uint8_t>> a_dataMap)
 	{
 		CreateEntityWithDataCmd _cmd = {};
 		_cmd.sig = a_sig;
 		_cmd.dataMap = std::move(a_dataMap);
-		m_addEntityDataVec.push_back(std::move(_cmd));
+		m_reservedCreateWithDataVec.push_back(std::move(_cmd));
 	}
 
 	ECS::Entity World::CreateEntity(const ECS::Signature& a_sig)
@@ -207,17 +192,17 @@ namespace Engine::ECS
 
 	void World::CreateAllEntity()
 	{
-		for (auto& _sig : m_addEntityVec)
+		for (auto& _sig : m_reservedCreateVec)
 		{
 			CreateEntity(_sig);
 
 			// エンティティの構成が変わったことを派生へ知らせる
 			OnEntityStructureChanged();
 		}
-		m_addEntityVec.clear();
+		m_reservedCreateVec.clear();
 
 		// データ付き生成(プレハブ実体化など)
-		for (auto& _cmd : m_addEntityDataVec)
+		for (auto& _cmd : m_reservedCreateWithDataVec)
 		{
 			Entity _entity = CreateEntity(_cmd.sig);
 			if (_entity == ECS::Limits::INVALID_ENTITY) continue;
@@ -239,16 +224,16 @@ namespace Engine::ECS
 			// エンティティの構成が変わったことを派生へ知らせる
 			OnEntityStructureChanged();
 		}
-		m_addEntityDataVec.clear();
+		m_reservedCreateWithDataVec.clear();
 	}
 
 	void World::RemoveEntityStorage()
 	{
 		// 消去予定エンティティがなければスキップ
-		if (m_removeEntityVec.size() == 0) return;
+		if (m_reservedRemoveVec.size() == 0) return;
 
 		// ストレージにあるのは消去
-		for (auto& _entity : m_removeEntityVec)
+		for (auto& _entity : m_reservedRemoveVec)
 		{
 			RemoveEntity(_entity);
 
@@ -257,15 +242,15 @@ namespace Engine::ECS
 		}
 
 		// 空にする
-		m_removeEntityVec.clear();
+		m_reservedRemoveVec.clear();
 
 		// メモリだけ確保
-		m_removeEntityVec.reserve(100);
+		m_reservedRemoveVec.reserve(100);
 	}
 
-	void World::AddRemoveEntity(const ECS::Entity& a_entity)
+	void World::ReserveRemoveEntity(const ECS::Entity& a_entity)
 	{
-		m_removeEntityVec.push_back(a_entity);
+		m_reservedRemoveVec.push_back(a_entity);
 	}
 
 	//======================================================================================
@@ -276,11 +261,11 @@ namespace Engine::ECS
 	//
 	// 消える前に後始末のフェーズを通したい層は override すること。
 	//======================================================================================
-	void World::AddReleaseEntity(const ECS::Entity& a_entity)
+	void World::ReserveReleaseEntity(const ECS::Entity& a_entity)
 	{
 		if (a_entity == ECS::Limits::INVALID_ENTITY) return;
 
-		AddRemoveEntity(a_entity);
+		ReserveRemoveEntity(a_entity);
 	}
 
 	void World::RemoveEntity(const ECS::Entity& a_entity)
@@ -357,7 +342,7 @@ namespace Engine::ECS
 		return Limits::INVALID_ENTITY;
 	}
 
-	void World::AddComponent(ComponentTypeID a_typeID, Entity a_entity,uint8_t* a_pData)
+	void World::ReserveAddComponent(ComponentTypeID a_typeID, Entity a_entity,uint8_t* a_pData)
 	{
 		// エンティティのシグネチャを変更
 		Signature _oldSig = m_entityManager.GetSignature(a_entity);
@@ -388,7 +373,7 @@ namespace Engine::ECS
 			// ここを空のままにすると、チャンクの生メモリがそのまま新しいコンポーネントになり、
 			// C++側のメンバ初期化子(ModelComponent::emissiveScale = {1,1,1} など)が
 			// 一切効かないままゼロ値で始まってしまう。
-			// インスペクタの AddComponent はデータを渡さないので、必ずここを通る。
+			// インスペクタの ReserveAddComponent はデータを渡さないので、必ずここを通る。
 			auto _construct = GetCompFunc(a_typeID).construct;
 			if (_construct)
 			{
@@ -397,10 +382,10 @@ namespace Engine::ECS
 				_cmd.dataMap[a_typeID] = std::move(_buffer);
 			}
 		}
-		m_changeEntityVec.push_back(_cmd);
+		m_reservedChangeVec.push_back(_cmd);
 	}
 
-	void World::SubmitComponent(ComponentTypeID a_typeID, Entity a_entity)
+	void World::ReserveRemoveComponent(ComponentTypeID a_typeID, Entity a_entity)
 	{
 		// エンティティのシグネチャを変更
 		Signature _oldSig = m_entityManager.GetSignature(a_entity);
@@ -409,18 +394,18 @@ namespace Engine::ECS
 		if (!_oldSig.test(a_typeID)) return;	// 持っていなければコマンドを発行しない
 		_oldSig.reset(a_typeID);
 
-		AddChangeSigCommand({
+		ReserveChangeSignature({
 			.entity = a_entity,
 			.toSig = _oldSig,
 		});
 	}
 
-	void World::AddChangeSigCommand(ChangeEntityCmd a_cmd)
+	void World::ReserveChangeSignature(ChangeEntityCmd a_cmd)
 	{
-		m_changeEntityVec.push_back(std::move(a_cmd));
+		m_reservedChangeVec.push_back(std::move(a_cmd));
 	}
 
-	void World::ChangeSignature(ChangeEntityCmd a_cmd)
+	void World::ChangeSignature(const ChangeEntityCmd& a_cmd)
 	{
 		// 予約した後に消えたエンティティ(古いID)は動かしようがない
 		if (!m_entityManager.IsAlive(a_cmd.entity)) return;
@@ -524,13 +509,13 @@ namespace Engine::ECS
 		}
 	}
 
-	void World::AddRefreshEntity(const Entity& a_entity)
+	void World::ReserveRefreshEntity(const Entity& a_entity)
 	{
 		// 無効エンティティはリフレッシュ経路(GetSignature→GetLocation)で
 		// レンジ外参照になるため弾く。プレハブ編集など実体が無い呼び出し対策。
 		if (a_entity == ECS::Limits::INVALID_ENTITY) return;
 
-		m_refreshEntityVec.push_back(a_entity);
+		m_reservedRefreshVec.push_back(a_entity);
 	}
 
 	ECS::ComponentTypeID World::GetCompTypeID(const std::type_index& a_index)
@@ -599,7 +584,7 @@ namespace Engine::ECS
 	//======================================================================================
 	void World::RefreshEntities()
 	{
-		m_refreshEntityVec.clear();
+		m_reservedRefreshVec.clear();
 	}
 
 	World::World()

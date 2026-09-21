@@ -70,7 +70,7 @@ void GunStateStartSystem::Init(App::ECS::APPWorld& a_world)
 						const auto _typeID = a_ctx.pWorld->GetCompTypeID<EffectAssetComponent>();
 						if (_typeID != Engine::ECS::Limits::INVALID_COMPONENTTYPEID)
 						{
-							a_ctx.pWorld->AddComponent(
+							a_ctx.pWorld->ReserveAddComponent(
 								_typeID, _self, reinterpret_cast<uint8_t*>(&_effectComp));
 						}
 					}

@@ -47,7 +47,7 @@ namespace Engine::Editor::Inspector
 				if (ImGui::Selectable(_meta.name.c_str()))
 				{
 					// コンポーネントの追加
-					a_pWorld->AddComponent(_typeID, _entity);
+					a_pWorld->ReserveAddComponent(_typeID, _entity);
 				}
 
 				ImGui::PopID();
@@ -71,7 +71,7 @@ namespace Engine::Editor::Inspector
 			{
 				_cmd.toSig.reset(a_pWorld->GetCompTypeID<ActiveTag>());
 			}
-			a_pWorld->AddChangeSigCommand(_cmd);
+			a_pWorld->ReserveChangeSignature(_cmd);
 		}
 	}
 
@@ -83,7 +83,7 @@ namespace Engine::Editor::Inspector
 		// 削除系の色分けは EditorHelper に寄せてある(色をここで持たない)
 		if (Engine::Editor::EditorHelper::DeleteButton("RemoveComponnet"))
 		{
-			a_pWorld->SubmitComponent(a_typeID, a_editContext.GetPrimaryEntity());
+			a_pWorld->ReserveRemoveComponent(a_typeID, a_editContext.GetPrimaryEntity());
 		}
 	}
 
@@ -439,7 +439,7 @@ namespace Engine::Editor::Inspector
 			for (const Engine::ECS::Entity& _removeEntity : a_editContext.selectedEntities)
 			{
 				if (_removeEntity == Engine::ECS::Limits::INVALID_ENTITY) continue;
-				_pWorld->AddReleaseEntity(_removeEntity);
+				_pWorld->ReserveReleaseEntity(_removeEntity);
 			}
 			a_editContext.ClearEntitySelection();
 		}

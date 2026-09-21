@@ -57,7 +57,7 @@ struct Engine::ECS::ComponentTraits<HitSoundComponent>
 			// (プレハブ編集では実体が無く entity は無効値)
 			if (a_context.entity != Engine::ECS::Limits::INVALID_ENTITY)
 			{
-				a_context.pWorld->AddRefreshEntity(a_context.entity);
+				a_context.pWorld->ReserveRefreshEntity(a_context.entity);
 			}
 		}
 

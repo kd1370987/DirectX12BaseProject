@@ -37,11 +37,11 @@
 //       ここが書いたものを読む側になるため、依存の向きだけで自動的に後ろへ並ぶ。
 //
 //   [PostUpdate] 時間を進めて解放予約する
-//       releaseDelay を過ぎたら AddReleaseEntity。解放予約したエンティティは
+//       releaseDelay を過ぎたら ReserveReleaseEntity。解放予約したエンティティは
 //       次の BeginFrame で ActiveTag が外れるので、このタスクは二度と当たらない。
 //
 // ※ 死亡状態そのものを別コンポーネント(DeadTag 等)にしなかったのは、
-//   ランタイムの AddComponent が「アーキタイプの引っ越し + PostDeserialize からやり直し」に
+//   ランタイムの ReserveAddComponent が「アーキタイプの引っ越し + PostDeserialize からやり直し」に
 //   なるため。初期化系(ActionStateFixupSystem など)が死ぬたびに走り直してしまう。
 //==============================================================================
 void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
@@ -220,7 +220,7 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 
 				// 借りているもの(ポーズ行列・ボイスなど)を Release フェーズで
 				// 返してから消すため、直接消さずに解放予約を通す
-				a_ctx.pWorld->AddReleaseEntity(a_pChunk->entityData[_i]);
+				a_ctx.pWorld->ReserveReleaseEntity(a_pChunk->entityData[_i]);
 			}
 		}
 	);

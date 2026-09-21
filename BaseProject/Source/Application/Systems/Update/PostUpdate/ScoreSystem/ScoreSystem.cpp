@@ -44,6 +44,7 @@ void ScoreSystem::Init(App::ECS::APPWorld& a_world)
 	// コンポーネントを回さないのでカスタムタスクで登録する(フレームに1回だけ走る)
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,
+		"ScoreSystem",
 		Engine::ECS::ReadList<HealthComponent, ExplodeOnHitComponent>{},
 		Engine::ECS::WriteList<ScoreTargetComponent>{},
 		[](const Engine::ECS::SystemContext& a_ctx)

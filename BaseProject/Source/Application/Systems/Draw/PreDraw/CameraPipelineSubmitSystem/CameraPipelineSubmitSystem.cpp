@@ -28,6 +28,7 @@ void CameraPipelineSubmitSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PreDraw,
+		"CameraPipelineSubmitSystem",
 		Engine::ECS::ReadList<CameraTag, CameraParamComponent, ProjMatComponent, WorldMatrixComponent>{},
 		Engine::ECS::WriteList<>{},
 		[](const Engine::ECS::SystemContext& a_ctx)

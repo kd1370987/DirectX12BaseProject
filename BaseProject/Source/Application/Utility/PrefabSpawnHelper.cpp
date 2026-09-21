@@ -66,7 +66,7 @@ namespace App::Utility
 		// 反復中なので即時生成せず、遅延生成コマンドに積む
 		for (auto& _data : _instanceVec)
 		{
-			a_world.AddEntityWithData(_data.sig, std::move(_data.dataMap));
+			a_world.ReserveCreateEntityWithData(_data.sig, std::move(_data.dataMap));
 		}
 		return true;
 	}

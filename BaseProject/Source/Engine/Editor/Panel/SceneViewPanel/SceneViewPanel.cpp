@@ -1315,7 +1315,7 @@ namespace Engine::Editor
 			_sig.reset(_startTypeID);
 			_sig.reset(_activeTypeID);
 
-			a_pWorld->AddEntityWithData(_sig, std::move(_dataMap));
+			a_pWorld->ReserveCreateEntityWithData(_sig, std::move(_dataMap));
 		}
 
 		ENGINE_LOG("[Scene] エンティティを貼り付けました : %d 体", static_cast<int>(m_copyBufferVec.size()));

@@ -11,6 +11,7 @@ void BoidSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::Update,
+		"BoidSystem",
 		Engine::ECS::ReadList<BoidComponent,VelocityComponent>{},
 		Engine::ECS::WriteList<LocalTransformComponent,VelocityComponent>{},
 		[](const Engine::ECS::SystemContext& a_ctx)

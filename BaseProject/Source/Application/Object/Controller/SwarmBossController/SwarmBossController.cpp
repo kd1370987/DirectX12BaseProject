@@ -447,19 +447,12 @@ namespace App::Object
 			// ボスの体である印。Controller はこれを数えて体力にする
 			EnsureRootComponent<SwarmBossBoidTag>(_world, _instanceVec);
 
-			//--------------------------------------------------------------
 			// 当たり判定
-			//
-			// 当たりに行く相手はボイド同士とプレイヤーの攻撃だけ。
-			// 押し出し(isPhysical)は切ってある。ぶつかった分だけ離れるのは
-			// ボイド側の反発(BoidComponent の separation)の仕事で、
-			// そこへ押し出しを重ねると動きが硬くなる
-			//--------------------------------------------------------------
 			EditRootComponent<ColliderComponent>(_world, _instanceVec,
 				[&](ColliderComponent& a_comp)
 				{
 					a_comp.layer        = Layer::SwarmBoid;
-					a_comp.collideLayer = Layer::SwarmBoid | Layer::PlayerProjectile;
+					a_comp.collideLayer = Layer::None;
 					a_comp.isPhysical   = 0;
 
 					// Mesh 以外なので、ボディは描画メッシュのAABBの箱になる。

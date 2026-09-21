@@ -73,7 +73,7 @@ namespace App::ECS
 		/// 借りているものを返してから消えるので、寿命切れの弾やエフェクト、
 		/// 撃破された敵、エディターでの削除で各種プールが漏れない。
 		/// </remarks>
-		void AddReleaseEntity(const Entity& a_entity) override;
+		void ReserveReleaseEntity(const Entity& a_entity) override;
 
 		/// <summary>GUIDからエンティティを探す</summary>
 		Entity GetEntity(const Engine::GUID& a_guid) override;
@@ -115,15 +115,15 @@ namespace App::ECS
 		// カスタムタスク(システム内で何度も ForEach を回すとき)。
 		// こちらはタグを足さないので、フェーズは第1引数だけで決まる
 		template<typename ...Read, typename... Write, typename Func>
-		void PostDeserializeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		void PostDeserializeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void AwakeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		void AwakeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void StartCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		void StartCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void ActiveCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		void ActiveCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void ReleaseCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		void ReleaseCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 
 	protected:
 
@@ -212,28 +212,28 @@ namespace App::ECS
 	}
 
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::PostDeserializeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void APPWorld::PostDeserializeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
+		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::AwakeCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void APPWorld::AwakeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
+		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::StartCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void APPWorld::StartCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
+		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::ActiveCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void APPWorld::ActiveCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
+		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::ReleaseCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void APPWorld::ReleaseCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
+		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 }

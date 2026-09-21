@@ -88,7 +88,7 @@ void ExplosionSystem::Init(App::ECS::APPWorld& a_world)
 				// 全部炊き終わったので退場する(解放を予約。反復中に消すとチャンクが壊れるため)
 				if (_isAllEmitted)
 				{
-					a_ctx.pWorld->AddReleaseEntity(a_pChunk->entityData[_i]);
+					a_ctx.pWorld->ReserveReleaseEntity(a_pChunk->entityData[_i]);
 				}
 			}
 		}

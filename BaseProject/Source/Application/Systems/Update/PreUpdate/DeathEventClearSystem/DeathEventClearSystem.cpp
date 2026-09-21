@@ -20,6 +20,7 @@ void DeathEventClearSystem::Init(App::ECS::APPWorld& a_world)
 	// コンポーネントを回さないのでカスタムタスクで登録する(フレームに1回だけ走る)
 	a_world.RegisterCustomTask(
 		Engine::ECS::ESystemType::PreUpdate,
+		"DeathEventClearSystem",
 		Engine::ECS::ReadList<>{},
 		Engine::ECS::WriteList<>{},
 		[](const Engine::ECS::SystemContext& a_ctx)

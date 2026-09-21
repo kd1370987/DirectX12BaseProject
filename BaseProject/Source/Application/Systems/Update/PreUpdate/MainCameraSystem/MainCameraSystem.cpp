@@ -37,6 +37,7 @@ void MainCameraSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PreUpdate,
+		"MainCameraSystem",
 		Engine::ECS::ReadList<CameraTag, CameraParamComponent>{},
 		Engine::ECS::WriteList<>{},
 		[](const Engine::ECS::SystemContext& a_ctx)

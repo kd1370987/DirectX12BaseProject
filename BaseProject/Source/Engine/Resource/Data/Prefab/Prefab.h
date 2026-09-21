@@ -85,7 +85,7 @@ namespace Engine::Resource
 		/// バイト列に残っている保存時GUIDへの参照(親リンクやアタッチメント)も
 		/// 新しいGUIDへ張り替え済み。
 		///
-		/// 遅延生成(World::AddEntityWithData)側からも同じ材料を使えるように分けてある。
+		/// 遅延生成(World::ReserveCreateEntityWithData)側からも同じ材料を使えるように分けてある。
 		/// </summary>
 		std::vector<PrefabInstanceData> BuildInstanceData(ECS::World* a_pWorld) const;
 

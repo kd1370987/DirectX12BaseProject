@@ -184,7 +184,7 @@ namespace Engine::Editor
 		}
 
 		// エンティティの追加
-		a_pWorld->AddEntityWithData(_sig,_dataMap);
+		a_pWorld->ReserveCreateEntityWithData(_sig,_dataMap);
 	}
 
 	void Engine::Editor::HierarchyPanel::InstantiatePrefab(EditorContext& a_editContext,ECS::World* a_pWorld, const Engine::GUID& a_guid)
@@ -235,7 +235,7 @@ namespace Engine::Editor
 		// シーンに追加(ルート → 子の順。親が先に居ないと親子リンクが解決できない)
 		for (Resource::PrefabInstanceData& _instance : _instanceVec)
 		{
-			a_pWorld->AddEntityWithData(_instance.sig, std::move(_instance.dataMap));
+			a_pWorld->ReserveCreateEntityWithData(_instance.sig, std::move(_instance.dataMap));
 		}
 	}
 
@@ -365,7 +365,7 @@ namespace Engine::Editor
 			_initData.parentID = ECS::Limits::INVALID_ENTITY;
 			_initData.depth = 0;
 			// 内部でディープコピーしてるのでローカルでいい
-			a_pWorld->AddComponent(_compTypeID, a_parent, (uint8_t*)&_initData);
+			a_pWorld->ReserveAddComponent(_compTypeID, a_parent, (uint8_t*)&_initData);
 		}
 		// ヒエラルキーコンポーネントを持っていなかった場合
 		// 付与してデータを入れる
@@ -381,7 +381,7 @@ namespace Engine::Editor
 		else
 		{
 			auto _compTypeID = a_pWorld->GetCompTypeID<HierarchyComponent>();
-			a_pWorld->AddComponent(_compTypeID, a_child, (uint8_t*)&_newComp);
+			a_pWorld->ReserveAddComponent(_compTypeID, a_child, (uint8_t*)&_newComp);
 		}
 	}
 

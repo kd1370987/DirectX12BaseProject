@@ -44,6 +44,7 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::Camera,
+		"AimTargetSystem",
 		Engine::ECS::ReadList<CameraTag, FollowTargetComponent, LocalTransformComponent>{},
 		Engine::ECS::WriteList<>{},
 		[](const Engine::ECS::SystemContext& a_ctx)

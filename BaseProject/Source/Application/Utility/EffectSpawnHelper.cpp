@@ -126,7 +126,7 @@ namespace App::Utility
 		}
 
 		// 反復中なので即時生成せず、遅延生成コマンドに積む
-		a_world.AddEntityWithData(_sig, std::move(_data));
+		a_world.ReserveCreateEntityWithData(_sig, std::move(_data));
 		return true;
 	}
 

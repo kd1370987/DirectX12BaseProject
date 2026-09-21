@@ -44,6 +44,7 @@ void DeathEffectSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,
+		"DeathEffectSystem",
 		Engine::ECS::ReadList<DeathEffectComponent, HealthComponent, ExplodeOnHitComponent>{},
 		Engine::ECS::WriteList<>{},
 		[](const Engine::ECS::SystemContext& a_ctx)

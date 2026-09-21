@@ -54,12 +54,6 @@ namespace Engine::ECS
 		void Init();	// 生成後に実行
 		bool IsInit();	// 初期化されているかどうか
 
-		// アーキタイプに変更が行われたか : 変更があったらtrue
-		bool IsChangedArchetype(uint64_t a_generation);
-
-		// 現在のアーキタイプの世代
-		uint64_t GetArchetypeGeneration() const;
-
 		//----------------------------------------------------------------------------------
 		// ゲーム固有の型(コンポーネント / システム)を登録する
 		//
@@ -74,7 +68,6 @@ namespace Engine::ECS
 		//
 		// 基盤は「全部消す」だけ。消す前に何かを走らせたい層は override すること
 		virtual void Release();
-		void ClearMemory();	// 任意のリセットしたいタイミング
 
 		// フレームの初めに呼び出す関数
 		// シングルフレームで実行したい、生成や破棄、引っ越しを行う
@@ -149,18 +142,16 @@ namespace Engine::ECS
 		// エンティティの生成
 		//------------------------------------------------------------------------------------------
 
-		void AddEntity(const Signature& a_sig);			// コマンド発行
+		void ReserveCreateEntity(const Signature& a_sig);			// コマンド発行
 		// データ付き生成コマンド(プレハブ実体化など)。BeginFrameで安全に生成される。
-		void AddEntityWithData(const Signature& a_sig, std::unordered_map<ComponentTypeID, std::vector<uint8_t>> a_dataMap);
-		Entity CreateEntity(const Signature& a_sig);	// 実体の作成
-		void CreateAllEntity();							// 一括作成
+		void ReserveCreateEntityWithData(const Signature& a_sig, std::unordered_map<ComponentTypeID, std::vector<uint8_t>> a_dataMap);
+
+		// 実体の即時作成 : 反復(ForEach / システム)の外でだけ呼ぶこと
+		Entity CreateEntity(const Signature& a_sig);
 
 		//------------------------------------------------------------------------------------------
 		// エンティティの削除
 		//------------------------------------------------------------------------------------------
-
-		// フレームの初めにエンティティを削除する
-		void RemoveEntityStorage();
 
 		/// <summary>
 		/// エンティティの解放を予約する : 削除はすべてこれを通す
@@ -170,10 +161,10 @@ namespace Engine::ECS
 		/// 消える前に後始末を走らせたい層(App::ECS::APPWorld)は override して、
 		/// 解放フェーズを通してから消えるようにしている。
 		///
-		/// 解放処理を通さない即時削除(AddRemoveEntity / RemoveEntity)は、
+		/// 解放処理を通さない即時削除(ReserveRemoveEntity / RemoveEntity)は、
 		/// 借りているものを返す機会がないまま消えて漏れるため protected にしてある。
 		/// </remarks>
-		virtual void AddReleaseEntity(const Entity& a_entity);
+		virtual void ReserveReleaseEntity(const Entity& a_entity);
 
 		//------------------------------------------------------------------------------------------
 		// エンティティの検索
@@ -188,11 +179,10 @@ namespace Engine::ECS
 		//------------------------------------------------------------------------------------------
 		// エンティティの操作
 		//------------------------------------------------------------------------------------------
-		// エンティティに対してコンポーネントを操作
-		void AddComponent(ComponentTypeID a_typeID,Entity a_entity,uint8_t* a_pData = nullptr);		// 追加
-		void SubmitComponent(ComponentTypeID a_typeID,Entity a_entity);		// 削除
-		void AddChangeSigCommand(ChangeEntityCmd a_cmd);					// 指定シグネチャに変更するコマンド
-		void ChangeSignature(ChangeEntityCmd a_cmd);						// コマンドから実際にアーキタイプを移動させる
+		// エンティティに対してコンポーネントを操作(どちらも予約で、反映は ApplyChangeSignatures)
+		void ReserveAddComponent(ComponentTypeID a_typeID,Entity a_entity,uint8_t* a_pData = nullptr);		// 追加
+		void ReserveRemoveComponent(ComponentTypeID a_typeID,Entity a_entity);		// 削除
+		void ReserveChangeSignature(ChangeEntityCmd a_cmd);					// 指定シグネチャに変更するコマンド
 
 		/// <summary>
 		/// 溜まっているシグネチャ変更を今すぐ反映する
@@ -207,7 +197,7 @@ namespace Engine::ECS
 		/// </remarks>
 		void ApplyChangeSignatures();
 
-		void AddRefreshEntity(const Entity& a_entity);						// リフレッシュ
+		void ReserveRefreshEntity(const Entity& a_entity);						// リフレッシュ
 
 		//==========================================================================================
 		// 
@@ -273,16 +263,6 @@ namespace Engine::ECS
 		void SetEngineServices(const EngineServices& a_services) { m_engineServices = a_services; }
 		EngineServices* RefEngineServices() { return &m_engineServices; }
 
-		// 登録済みタスクの実行本体
-		// 実行時に渡された SystemContext の World に対してクエリを回す。
-		// 登録時の World を捕獲しないため、同じシステムを別 World へも流せる。
-		template<typename ...Components, typename... Excludes, typename Func>
-		void DispatchTask(const SystemContext& a_context, Func a_func, Exclude<Excludes...> a_ex = {});
-
-		// チャンククエリー作成
-		template<typename ...Components, typename... Excludes>
-		std::vector<Chunk*> BuildChunkQuery(const SystemContext& a_context, Exclude<Excludes...> a_ex = {});
-
 		// 収集関数
 		// 指定したコンポーネント群を持つすべてのチャンクに対して、指定された関数を実行します
 		template<typename... Components, typename Func>
@@ -324,7 +304,7 @@ namespace Engine::ECS
 		// カスタムタスク登録
 		// システム内で何度もForEachなどを使うときに使用
 		template<typename ...Read, typename... Write, typename Func>
-		void RegisterCustomTask(ESystemType a_phase, ReadList<Read...>,WriteList<Write...>,Func a_func);
+		void RegisterCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>,WriteList<Write...>,Func a_func);
 
 		//==========================================================================================
 		// 
@@ -382,14 +362,52 @@ namespace Engine::ECS
 		//
 		// 後始末を通さずに消すので、外からは使わせない。
 		// 片付け終わったエンティティを実際に消す最後の一手として、
-		// BeginFrame / Release からのみ呼ぶこと。削除の入口は AddReleaseEntity。
+		// BeginFrame / Release からのみ呼ぶこと。削除の入口は ReserveReleaseEntity。
 		//------------------------------------------------------------------------------------------
 
 		// 削除予定エンティティを追加
-		void AddRemoveEntity(const Entity& a_entity);
+		void ReserveRemoveEntity(const Entity& a_entity);
 
 		// エンティティの削除
 		void RemoveEntity(const Entity& a_entity);
+
+		//------------------------------------------------------------------------------------------
+		// 予約の消化
+		//
+		// 積まれた命令を実際に反映する。反復中に呼ぶとチャンクの並びが変わるので、
+		// BeginFrame / Release の流れからのみ呼ぶこと
+		//------------------------------------------------------------------------------------------
+
+		void CreateAllEntity();								// 生成予約を一括で作る
+		void RemoveEntityStorage();							// 削除予約を一括で消す
+		void ChangeSignature(const ChangeEntityCmd& a_cmd);	// アーキタイプを実際に引っ越す
+
+		//------------------------------------------------------------------------------------------
+		// クエリ
+		//------------------------------------------------------------------------------------------
+
+		// 条件に一致するチャンク配列を作る
+		template<typename ...Components, typename... Excludes>
+		std::vector<Chunk*> BuildChunkQuery(Exclude<Excludes...> a_ex = {});
+
+		/// <summary>
+		/// キャッシュが古ければ作り直して、条件に一致するチャンク配列を返す
+		/// </summary>
+		/// <remarks>
+		/// アーキタイプの世代(チャンクが増えるたびに進む)が変わっていなければ前回の結果をそのまま使う
+		/// </remarks>
+		template<typename ...Components, typename... Excludes>
+		const std::vector<Chunk*>& ResolveQuery(QueryCache& a_cache, Exclude<Excludes...> a_ex = {});
+
+		/// <summary>
+		/// チャンク配列を回し、チャンクごとにコンポーネント配列を揃えて渡す
+		/// </summary>
+		/// <remarks>
+		/// チャンクを回すループはここにしか書かない(ForEach / タスク実行の共通部分)。
+		/// a_invoke は (Chunk*, uint32_t 要素数, Components*...) を受け取る
+		/// </remarks>
+		template<typename ...Components, typename Invoke>
+		void ForEachChunk(const std::vector<Chunk*>& a_chunkVec, Invoke&& a_invoke);
 
 		//------------------------------------------------------------------------------------------
 		// 型の並びからシグネチャを組む
@@ -418,19 +436,19 @@ namespace Engine::ECS
 		bool m_isInit = false;
 
 		// 生成予定エンティティリスト
-		std::vector<Signature> m_addEntityVec = {};
+		std::vector<Signature> m_reservedCreateVec = {};
 
 		// データ付き生成予定エンティティリスト(プレハブ実体化など)
-		std::vector<CreateEntityWithDataCmd> m_addEntityDataVec = {};
+		std::vector<CreateEntityWithDataCmd> m_reservedCreateWithDataVec = {};
 
 		// 削除予定エンティティ
-		std::vector<Entity> m_removeEntityVec = {};
+		std::vector<Entity> m_reservedRemoveVec = {};
 
 		// 移動予定エンティティ
-		std::vector<ChangeEntityCmd> m_changeEntityVec = {};
+		std::vector<ChangeEntityCmd> m_reservedChangeVec = {};
 
 		// リフレッシュ予定エンティティ
-		std::vector<Entity> m_refreshEntityVec = {};
+		std::vector<Entity> m_reservedRefreshVec = {};
 
 		// インターフェースポインタでリソースを保存
 		std::unordered_map<ResourceTypeID, std::unique_ptr<IResourceWrapper>> m_resourceMap;
@@ -496,58 +514,13 @@ namespace Engine::ECS
 	template<typename ...Components, typename Func>
 	inline void World::ForEach(Func a_func)
 	{
-		// シグネチャを生成
-		// 未登録の型を含むなら、それを持つエンティティは居ない
-		Signature _sig;
-		if (!BuildSignature<Components...>(_sig)) return;
-
-		// チャンクの配列を取得
-		for (auto* _chunk : m_archetypeManager.MatchingChunkVec(_sig))
-		{
-			if (!_chunk || _chunk->count == 0) continue;
-
-			// 操作しやすいように配列にして返す
-			auto _arrays = std::forward_as_tuple(
-				GetComponentArray<Components>(_chunk)...
-			);
-
-			std::apply(
-				[&](auto... a_data)
-				{
-					a_func(_chunk, _chunk->count, a_data...);
-				},
-				_arrays
-			);
-		}
+		ForEachEx<Components...>(a_func, Exclude<>{});
 	}
 
 	template<typename ...Components, typename ...Excludes, typename Func>
 	inline void World::ForEachEx(Func a_func, Exclude<Excludes...>)
 	{
-		// シグネチャを生成
-		// 未登録の型を含むなら、それを持つエンティティは居ない
-		Signature _sig;
-		if (!BuildSignature<Components...>(_sig)) return;
-
-		// 除外側の未登録の型は、誰も持っていないので無視してよい
-		Signature _excludeSig;
-		BuildSignature<Excludes...>(_excludeSig);
-		// チャンクの配列を取得
-		for (auto* _chunk : m_archetypeManager.MatchingChunkVec(_sig, _excludeSig))
-		{
-			if (!_chunk || _chunk->count == 0) continue;
-			// 操作しやすいように配列にして返す
-			auto _arrays = std::forward_as_tuple(
-				GetComponentArray<Components>(_chunk)...
-			);
-			std::apply(
-				[&](auto... a_data)
-				{
-					a_func(_chunk, _chunk->count, a_data...);
-				},
-				_arrays
-			);
-		}
+		ForEachChunk<Components...>(BuildChunkQuery<Components...>(Exclude<Excludes...>{}), a_func);
 	}
 
 	template<typename Before, typename After>
@@ -561,18 +534,18 @@ namespace Engine::ECS
 	inline void World::TransitionPhase(Pred a_canTransition)
 	{
 		// コンポーネントのタイプIDを取得
-		ComponentTypeID _befforID = GetCompTypeID<Before>();
-		ComponentTypeID _affterID = GetCompTypeID<After>();
+		ComponentTypeID _beforeID = GetCompTypeID<Before>();
+		ComponentTypeID _afterID = GetCompTypeID<After>();
 
 		// どちらかが未登録なら張り替えようがない(ビットを触ると範囲外で落ちる)
-		if (!IsValidTypeID(_befforID) || !IsValidTypeID(_affterID)) return;
+		if (!IsValidTypeID(_beforeID) || !IsValidTypeID(_afterID)) return;
 
 		ForEach<Before>(
-			[this,_befforID,_affterID,&a_canTransition]
+			[this,_beforeID,_afterID,&a_canTransition]
 			(
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				Before* a_compArray
+				Before*		// タグは中身を読まない
 			)
 			{
 				for (size_t _i = 0; _i < a_count; ++_i)
@@ -587,14 +560,14 @@ namespace Engine::ECS
 					Signature _sig = GetSignature(_entity);
 
 					// シグネチャに対してBeforeIDを排除してAfterを入れる
-					_sig.reset(_befforID);
-					_sig.set(_affterID);
+					_sig.reset(_beforeID);
+					_sig.set(_afterID);
 
 					// 変更予定エンティティとしてリストに追加
 					ChangeEntityCmd _cmd = {};
 					_cmd.entity = _entity;
 					_cmd.toSig = _sig;
-					AddChangeSigCommand(_cmd);
+					ReserveChangeSignature(_cmd);
 				}
 			}
 		);
@@ -604,7 +577,7 @@ namespace Engine::ECS
 		ESystemType a_phase,
 		const std::string& a_taskName,
 		Func a_func,
-		Exclude<Excludes...> a_ex
+		Exclude<Excludes...>
 	)
 	{
 		SystemTask _task;
@@ -661,88 +634,68 @@ namespace Engine::ECS
 			{
 				if (!a_context.pWorld) return;
 
-				// 前回クエリーした世代から構造に変更があれば再クエリー
-				if(a_context.pWorld->IsChangedArchetype(a_task.cashGeneration))
-				{
-					a_task.chunkCash = a_context.pWorld->BuildChunkQuery<Components...>(a_context, Exclude<Excludes...>{});
-					a_task.cashGeneration = a_context.pWorld->GetArchetypeGeneration();
-				}
+				World& _world = *a_context.pWorld;
 
-				// チャンクのキャッシュから実行
-				for (auto* _chunk : a_task.chunkCash)
-				{
-					if (!_chunk || _chunk->count == 0) continue;
-					// 操作しやすいように配列にして返す
-					auto _arrays = std::forward_as_tuple(
-						a_context.pWorld->GetComponentArray<Components>(_chunk)...
-					);
-					std::apply(
-						[&](auto... a_data)
-						{
-							a_func(_chunk, _chunk->count, a_context, a_data...);
-						},
-						_arrays
-					);
-				}
+				// キャッシュしたクエリ結果のチャンクを回す
+				_world.ForEachChunk<Components...>(
+					_world.ResolveQuery<Components...>(a_task.query, Exclude<Excludes...>{}),
+					[&](Chunk* a_pChunk, uint32_t a_count, auto... a_data)
+					{
+						a_func(a_pChunk, a_count, a_context, a_data...);
+					}
+				);
 			};
 
 		m_systemManager.AddSystemTask(a_phase, _task,a_taskName);
 	}
 
-	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void World::DispatchTask(const SystemContext& a_context, Func a_func, Exclude<Excludes...>)
-	{
-		// 実行用のシグネチャ
-		// 未登録の型を含むなら、それを持つエンティティは居ない
-		Signature _querySig;
-		if (!BuildSignature<Components...>(_querySig)) return;
-
-		// 除外側の未登録の型は、誰も持っていないので無視してよい
-		Signature _excludeSig;
-		BuildSignature<Excludes...>(_excludeSig);
-
-		// チャンクの配列を取得
-		for (auto* _chunk : m_archetypeManager.MatchingChunkVec(_querySig, _excludeSig))
-		{
-			if (!_chunk || _chunk->count == 0) continue;
-			// 操作しやすいように配列にして返す
-			auto _arrays = std::forward_as_tuple(
-				GetComponentArray<Components>(_chunk)...
-			);
-			std::apply(
-				[&](auto... a_data)
-				{
-					a_func(_chunk, _chunk->count, a_context, a_data...);
-				},
-				_arrays
-			);
-		}
-	}
 	template<typename ...Components, typename ...Excludes>
-	inline std::vector<Chunk*> World::BuildChunkQuery(const SystemContext& a_context, Exclude<Excludes...> a_ex)
+	inline std::vector<Chunk*> World::BuildChunkQuery(Exclude<Excludes...>)
 	{
-		// 実行用のシグネチャ
 		// 未登録の型を含むなら、それを持つエンティティは居ない
 		Signature _querySig;
-		if (!BuildSignature<Components...>(_querySig)) return std::vector<Chunk*>{};
+		if (!BuildSignature<Components...>(_querySig)) return {};
 
 		// 除外側の未登録の型は、誰も持っていないので無視してよい
 		Signature _excludeSig;
 		BuildSignature<Excludes...>(_excludeSig);
 
-		// 条件に一致するチャンク配列を返す
 		return m_archetypeManager.MatchingChunkVec(_querySig, _excludeSig);
 	}
+
+	template<typename ...Components, typename ...Excludes>
+	inline const std::vector<Chunk*>& World::ResolveQuery(QueryCache& a_cache, Exclude<Excludes...>)
+	{
+		const uint64_t _generation = m_archetypeManager.GetGeneration();
+		if (a_cache.IsStale(_generation))
+		{
+			a_cache.chunkVec = BuildChunkQuery<Components...>(Exclude<Excludes...>{});
+			a_cache.generation = _generation;
+		}
+		return a_cache.chunkVec;
+	}
+
+	template<typename ...Components, typename Invoke>
+	inline void World::ForEachChunk(const std::vector<Chunk*>& a_chunkVec, Invoke&& a_invoke)
+	{
+		for (Chunk* _chunk : a_chunkVec)
+		{
+			if (!_chunk || _chunk->count == 0) continue;
+			a_invoke(_chunk, _chunk->count, GetComponentArray<Components>(_chunk)...);
+		}
+	}
+
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void World::RegisterCustomTask(ESystemType a_phase, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline void World::RegisterCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
 		SystemTask _task;
+		_task.name = a_taskName;
 
 		// ReadList / WriteList から読み書きシグネチャを生成
 		// (型の登録より先に呼ばれて未登録のまま来たものは、依存に数えられない)
 		if (!BuildSignature<Read...>(_task.readSig) || !BuildSignature<Write...>(_task.writeSig))
 		{
-			ENGINE_WARNING("[ECS] カスタムタスク : 未登録のコンポーネントを依存に含めようとしました");
+			ENGINE_WARNING("[ECS] %s : 未登録のコンポーネントを依存に含めようとしました", a_taskName.c_str());
 		}
 		// 実行関数は自動ループせず、そのまま登録する
 		_task.executeFunc = [a_func](SystemTask&, const SystemContext& a_context)
@@ -750,7 +703,7 @@ namespace Engine::ECS
 				a_func(a_context);
 			};
 
-		m_systemManager.AddSystemTask(a_phase, _task,"CatamTask");
+		m_systemManager.AddSystemTask(a_phase, _task, a_taskName);
 	}
 	template<typename ...Comps>
 	inline bool World::BuildSignature(Signature& a_outSig)

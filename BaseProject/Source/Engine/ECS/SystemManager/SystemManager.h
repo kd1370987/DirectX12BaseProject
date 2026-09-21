@@ -6,10 +6,10 @@
 #include "../System/ISystem/ISystem.h"
 
 #include "../ComponentMetaRegistry/ComponentMetaRegistry.h"
+#include "../Core/QueryCache.h"
 
 namespace Engine::ECS
 {
-	struct Chunk;
 	class World;
 
 	// システムの実行情報（ジョブ）を保持する
@@ -20,8 +20,7 @@ namespace Engine::ECS
 		Signature writeSig;											// 書き込みを行うコンポーネント軍
 
 		std::function<void(SystemTask&, const SystemContext&)> executeFunc;	// チャンク処理(自身のタスクを受け取る)
-		std::vector<Chunk*> chunkCash;								// クエリー結果
-		uint64_t cashGeneration = 0;										
+		QueryCache query;											// クエリ結果(RegisterTask のみ使う。カスタムタスクは空のまま)
 	};
 
 	//==========================================================================================

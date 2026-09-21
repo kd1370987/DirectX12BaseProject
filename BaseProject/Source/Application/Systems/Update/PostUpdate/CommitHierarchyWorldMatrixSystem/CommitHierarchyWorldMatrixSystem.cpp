@@ -12,6 +12,7 @@ void CommitHierarchyWorldMatrixSystem::Init(App::ECS::APPWorld& a_world)
 	// ヒエラルキーがついていない単体オブジェクトに対して最終行列を作成する
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,
+		"CommitHierarchyWorldMatrixSystem",
 		Engine::ECS::ReadList<LocalTransformComponent, HierarchyComponent>{},
 		Engine::ECS::WriteList<WorldMatrixComponent>{},
 		[](const Engine::ECS::SystemContext& a_ctx)

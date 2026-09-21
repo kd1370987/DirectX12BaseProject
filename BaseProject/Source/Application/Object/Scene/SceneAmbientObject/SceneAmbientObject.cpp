@@ -358,7 +358,7 @@ namespace App::Object
 	{
 		if (a_context.pWorld && a_context.pWorld->IsAliveEntity(m_dastEntity))
 		{
-			a_context.pWorld->AddReleaseEntity(m_dastEntity);
+			a_context.pWorld->ReserveReleaseEntity(m_dastEntity);
 		}
 
 		m_dastEntity = Engine::ECS::Limits::INVALID_ENTITY;

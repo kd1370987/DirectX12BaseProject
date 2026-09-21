@@ -146,7 +146,7 @@ namespace App::ECS
 	//======================================================================================
 	// エンティティの解放予約
 	//======================================================================================
-	void APPWorld::AddReleaseEntity(const Entity& a_entity)
+	void APPWorld::ReserveReleaseEntity(const Entity& a_entity)
 	{
 		if (a_entity == Engine::ECS::Limits::INVALID_ENTITY) return;
 
@@ -168,7 +168,7 @@ namespace App::ECS
 		_cmd.entity = a_entity;
 		_cmd.toSig = _sig;
 
-		AddChangeSigCommand(_cmd);
+		ReserveChangeSignature(_cmd);
 	}
 
 	//======================================================================================
@@ -251,7 +251,7 @@ namespace App::ECS
 	void APPWorld::RefreshEntities()
 	{
 		// 頻繁に呼ばれることはない想定なので、溜まったぶんをそのまま回す
-		for (const Entity& _entity : m_refreshEntityVec)
+		for (const Entity& _entity : m_reservedRefreshVec)
 		{
 			Signature _sig = GetSignature(_entity);
 			if (_sig.test(GetCompTypeID<ActiveTag>()))
@@ -273,7 +273,7 @@ namespace App::ECS
 		TransitionPhase<ReleaseTag, PostDeserializeTag>();
 
 		// コマンドクリア
-		m_refreshEntityVec.clear();
+		m_reservedRefreshVec.clear();
 	}
 
 	//======================================================================================
@@ -292,7 +292,7 @@ namespace App::ECS
 				(void)a_releaseTag;
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
-					AddRemoveEntity(a_pChunk->entityData[_i]);
+					ReserveRemoveEntity(a_pChunk->entityData[_i]);
 				}
 			}
 		);

@@ -4505,6 +4505,9 @@
     <ClInclude Include="Source\Engine\ECS\Internal\Archetype.h">
       <Filter>Source\Engine\ECS\Internal</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Core\QueryCache.h">
+      <Filter>Source\Engine\ECS\Core</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Core\Chunk.h">
       <Filter>Source\Engine\ECS\Core</Filter>
     </ClInclude>

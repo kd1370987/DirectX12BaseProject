@@ -97,7 +97,7 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 			// GUID の書き換えだけ行い、リフレッシュはしない(無効IDで参照するとレンジ外になる)。
 			if (a_context.entity != Engine::ECS::Limits::INVALID_ENTITY)
 			{
-				a_context.pWorld->AddRefreshEntity(a_context.entity);
+				a_context.pWorld->ReserveRefreshEntity(a_context.entity);
 			}
 		}
 

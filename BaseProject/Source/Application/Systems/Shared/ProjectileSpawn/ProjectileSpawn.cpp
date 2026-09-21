@@ -132,7 +132,7 @@ namespace App::Systems::ProjectileSpawn
 		// 子は保存された姿のまま出す(位置と向きは親に追従する)
 		for (size_t _c = 1; _c < _instanceVec.size(); ++_c)
 		{
-			a_world.AddEntityWithData(
+			a_world.ReserveCreateEntityWithData(
 				_instanceVec[_c].sig, std::move(_instanceVec[_c].dataMap));
 		}
 
@@ -249,6 +249,6 @@ namespace App::Systems::ProjectileSpawn
 		}
 
 		// 反復中なので即時生成せず、遅延生成コマンドに積む
-		a_world.AddEntityWithData(_sig, std::move(_data));
+		a_world.ReserveCreateEntityWithData(_sig, std::move(_data));
 	}
 }

@@ -30,6 +30,7 @@ void AudioListenerSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,
+		"AudioListenerSystem",
 		Engine::ECS::ReadList<WorldMatrixComponent>{},
 		Engine::ECS::WriteList<AudioListenerComponent>{},
 		[](const Engine::ECS::SystemContext& a_ctx)

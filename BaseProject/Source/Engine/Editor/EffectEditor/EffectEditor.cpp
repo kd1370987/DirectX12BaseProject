@@ -177,7 +177,7 @@ namespace Engine::Editor
 
 		for (const ECS::Entity& _entity : _targets)
 		{
-			m_upWorld->AddReleaseEntity(_entity);
+			m_upWorld->ReserveReleaseEntity(_entity);
 		}
 
 		// 解放予約は次の BeginFrame で消化される。

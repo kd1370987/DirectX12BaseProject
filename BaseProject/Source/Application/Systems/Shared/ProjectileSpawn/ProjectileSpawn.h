@@ -39,7 +39,7 @@ namespace App::Systems::ProjectileSpawn
 	/// <param name="a_homingTarget">誘導弾なら追う相手。不要なら INVALID_ENTITY</param>
 	/// <remarks>
 	/// システム反復中に即時生成するとアーキタイプが壊れるため、World の遅延生成
-	/// コマンド(AddEntityWithData)へ積む。実際の生成は BeginFrame。
+	/// コマンド(ReserveCreateEntityWithData)へ積む。実際の生成は BeginFrame。
 	/// </remarks>
 	void Spawn(
 		Engine::ECS::World&       a_world,

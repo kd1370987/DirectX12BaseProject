@@ -22,7 +22,7 @@
 //     自滅するエンティティ(寿命切れ・着弾)が Release フェーズを通らなかった頃の作りで、
 //     コンポーネント側にハンドルを持たせて返却させることができなかったため、
 //     「今フレーム見かけたか」で生死を判定して回収している。
-//     (現在は自滅も AddReleaseEntity 経由なので、Release で返す形にも寄せられる)
+//     (現在は自滅も ReserveReleaseEntity 経由なので、Release で返す形にも寄せられる)
 //     エンティティを直接引いて生存確認しないのは、添え字が再利用されると
 //     別のエンティティを本人と誤認してしまうため(ここでは世代込みの Entity をキーにしている)。
 //
@@ -34,6 +34,7 @@ void FlyingSoundSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,
+		"FlyingSoundSystem",
 		Engine::ECS::ReadList<FlyingSoundComponent, WorldMatrixComponent>{},
 		Engine::ECS::WriteList<>{},
 		[](const Engine::ECS::SystemContext& a_ctx)

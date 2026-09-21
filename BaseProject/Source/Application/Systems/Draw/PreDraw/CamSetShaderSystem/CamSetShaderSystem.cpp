@@ -30,6 +30,7 @@ void CamSetShaderSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PreDraw,
+		"CamSetShaderSystem",
 		Engine::ECS::ReadList<CameraTag, ProjMatComponent, WorldMatrixComponent, FocusParamComponent, RadialBlurComponent, FishEyeComponent>{},
 		Engine::ECS::WriteList<>{},
 		[](const Engine::ECS::SystemContext& a_ctx)

@@ -25,7 +25,7 @@
 // ・撃破しても ここでは消さない。HealthComponent を「死亡状態」にするだけで、
 //   実際に消す(解放予約する)のは releaseDelay 秒あとの DeathStateSystem。
 //
-//   以前はここで AddReleaseEntity まで済ませていたが、それだと死亡を読む側が
+//   以前はここで ReserveReleaseEntity まで済ませていたが、それだと死亡を読む側が
 //   1フレームでも遅れると本人がもう居らず、死亡エフェクトが出せなかった。
 //   死んだ本人のコンポーネントを引く処理(DeathEffectSystem など)のために、
 //   死んでからしばらくは生かしておく。
