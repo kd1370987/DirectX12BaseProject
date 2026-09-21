@@ -201,44 +201,87 @@ namespace Engine::ECS
 	{
 		const Signature& _sig = a_pArchetype->signature;
 
-		// 1エンティティが消費するバイト数を計算
-		size_t _entityStride = 0;		// 1エンティティが消費するバイト数
-		size_t _maxAligne = 1;			// コンポーネントのアライメント
-		for (ComponentTypeID _comTypeID = 0; _comTypeID < _sig.size(); ++_comTypeID)
+		//------------------------------------------------------------------
+		// 並べるコンポーネントを集める(タイプID順 = 配列を並べる順)
+		//------------------------------------------------------------------
+		struct CompInfo
 		{
-			// コンポーネント登録チェック
-			if (!_sig.test(_comTypeID)) continue;
+			ComponentTypeID typeID;
+			size_t			stride;		// 1要素のサイズ(配列の間隔)
+			size_t			align;		// 配列の先頭に要るアライメント
+		};
+		std::vector<CompInfo> _compVec = {};
 
-			// メタ情報の取得
-			const ComponentMeta& _data = m_pMetaRegister->GetMetaData(_comTypeID);
-			_entityStride += _data.compAlignSize;
-			_maxAligne = std::max(_maxAligne, _data.compAlign);
-		}
-
-		// 1エンティティが消費するメモリサイズ
-		_entityStride = Math::Alignment::Up(_entityStride, _maxAligne);
-
-		// １チャンクのキャパシティ決定
-		a_pArchetype->chunkCapacity = static_cast<uint32_t>(a_memorySize / _entityStride);
-
-		// オフセット位置計算
-		size_t _offset = 0;
+		size_t _entityStride = 0;		// 1エンティティが消費するバイト数(パディング抜き)
+		size_t _maxAligne = 1;			// コンポーネントの最大アライメント
 		for (ComponentTypeID _comTypeID = 0; _comTypeID < _sig.size(); ++_comTypeID)
 		{
 			// コンポーネント登録チェック
 			if (!_sig.test(_comTypeID)) continue;
 
 			const ComponentMeta& _meta = m_pMetaRegister->GetMetaData(_comTypeID);
-			_offset = Math::Alignment::Up(_offset, _meta.compAlign);
+			_compVec.push_back({ _comTypeID, _meta.compAlignSize, _meta.compAlign });
+
+			_entityStride += _meta.compAlignSize;
+			_maxAligne = std::max(_maxAligne, _meta.compAlign);
+		}
+
+		// 最大アライメント決定
+		a_pArchetype->maxAlign = _maxAligne;
+
+		// コンポーネントを1つも持たないアーキタイプは、エンティティ配列だけで容量が決まる
+		if (_compVec.empty())
+		{
+			a_pArchetype->chunkCapacity = static_cast<uint32_t>(a_memorySize / sizeof(Entity));
+			return;
+		}
+
+		//------------------------------------------------------------------
+		// 容量の決定
+		//------------------------------------------------------------------
+		// 配列は SoA でコンポーネントごとに並べ、各配列の先頭をアライメントへ切り上げる
+		// パディング抜きで割った値を上限にし、パディング込みで収まるまで減らす
+		//------------------------------------------------------------------
+		auto _calcRequiredSize = [&_compVec](size_t a_capacity)
+			{
+				size_t _size = 0;
+				for (const CompInfo& _comp : _compVec)
+				{
+					_size = Math::Alignment::Up(_size, _comp.align);
+					_size += _comp.stride * a_capacity;
+				}
+				return _size;
+			};
+
+		// 最大容量がメモリーサイズを下回るまで入るエンティティの数を１づつ減らしていく
+		size_t _capacity = a_memorySize / _entityStride;
+		while (_capacity > 0 && _calcRequiredSize(_capacity) > a_memorySize)
+		{
+			--_capacity;
+		}
+
+		// 1体ぶんすら入らない = コンポーネントが大きすぎる。
+		// 容量0のまま進むと、割り当てのたびにチャンクを作って範囲外へ書き込む
+		ENGINE_ERRLOG(_capacity > 0, "1エンティティのコンポーネントがチャンクのサイズを超えています");
+
+		a_pArchetype->chunkCapacity = static_cast<uint32_t>(_capacity);
+
+		//------------------------------------------------------------------
+		// オフセット位置計算 : 容量の決定と同じ並べ方
+		//------------------------------------------------------------------
+		size_t _offset = 0;
+		for (const CompInfo& _comp : _compVec)
+		{
+			_offset = Math::Alignment::Up(_offset, _comp.align);
 
 			Layout _lay = {};
 			_lay.offset = _offset;
-			_lay.stride = _meta.compAlignSize;
-			a_pArchetype->layoutMap.emplace(_comTypeID, _lay);
-			_offset += _meta.compSize * a_pArchetype->chunkCapacity;
-		}
+			_lay.stride = _comp.stride;
+			a_pArchetype->layoutMap.emplace(_comp.typeID, _lay);
 
-		a_pArchetype->maxAlign = _maxAligne;
+			// 要素は stride 間隔で置くので、配列の長さも stride で数える
+			_offset += _comp.stride * _capacity;
+		}
 	}
 
 	void ArchetypeManager::ReleaseAllChunks()
