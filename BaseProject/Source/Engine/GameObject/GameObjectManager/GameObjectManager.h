@@ -137,8 +137,8 @@ namespace Engine::GameObject
 		// ベースオブジェクトの継承がされているかのチェック
 		static_assert(std::is_base_of_v<BaseObject,T>);
 
-		// オブジェクトの生成
-		auto _upObject = std::make_unique<T>();
+		// オブジェクトの生成(実体の型を刻むため CreateObject を通す)
+		auto _upObject = CreateObject<T>();
 
 		// 新規GUIDを発行(まだ持っていなければ)
 		Engine::GUID _guid = {};

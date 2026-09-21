@@ -84,7 +84,7 @@ namespace Engine::GameObject
 		template<typename T>
 		ObjectTypeID GetTypeID() const;								// C++型から
 		ObjectTypeID GetTypeID(const std::string& a_name) const;	// クラス名から
-		ObjectTypeID GetTypeID(const std::type_index& a_index) const;	// タイプインデックスから
+		ObjectTypeID GetTypeID(TypeInfo::TypeKey a_key) const;		// 型キーから(実体は GetTypeChain()->key)
 
 		//----------------------------------------------------------------------------------
 		// シーンから読んだ値をタイプIDへ解決する
@@ -111,7 +111,7 @@ namespace Engine::GameObject
 		ObjectMetaRegistry() = default;
 
 		// C++型 / 名前 → タイプID
-		std::unordered_map<std::type_index, ObjectTypeID>	m_typeIndexMap;
+		std::unordered_map<TypeInfo::TypeKey, ObjectTypeID>	m_typeKeyMap;
 		std::unordered_map<std::string, ObjectTypeID>		m_nameMap;
 
 		// タイプID → 情報
@@ -126,7 +126,7 @@ namespace Engine::GameObject
 	template<typename T>
 	inline ObjectTypeID ObjectMetaRegistry::GetTypeID() const
 	{
-		return GetTypeID(std::type_index(typeid(T)));
+		return GetTypeID(TypeInfo::GetTypeKey<T>());
 	}
 
 	template<typename T>
@@ -136,8 +136,8 @@ namespace Engine::GameObject
 		static_assert(std::is_base_of_v<BaseObject, T>, "T は BaseObject を継承している必要があります");
 
 		// すでに登録済みなら既存IDを返す
-		std::type_index _typeIdx = typeid(T);
-		if (ObjectTypeID _existing = GetTypeID(_typeIdx); _existing != INVALID_OBJECT_TYPE_ID)
+		const TypeInfo::TypeKey _typeKey = TypeInfo::GetTypeKey<T>();
+		if (ObjectTypeID _existing = GetTypeID(_typeKey); _existing != INVALID_OBJECT_TYPE_ID)
 		{
 			return _existing;
 		}
@@ -172,10 +172,10 @@ namespace Engine::GameObject
 
 		// ファクトリ
 		ObjectFunc _func = {};
-		_func.create = []() -> std::unique_ptr<BaseObject> { return std::make_unique<T>(); };
+		_func.create = []() -> std::unique_ptr<BaseObject> { return CreateObject<T>(); };
 
 		// 各対応表へ登録
-		m_typeIndexMap.emplace(_typeIdx, _typeID);
+		m_typeKeyMap.emplace(_typeKey, _typeID);
 		m_nameMap.emplace(a_name, _typeID);
 		m_metaMap.emplace(_typeID, _meta);
 		m_funcMap.emplace(_typeID, _func);

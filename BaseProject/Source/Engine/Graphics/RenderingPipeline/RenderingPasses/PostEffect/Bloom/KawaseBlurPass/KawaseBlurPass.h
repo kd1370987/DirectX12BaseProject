@@ -10,7 +10,7 @@ namespace Engine::Graphics::Pipeline
 	// 縮小した4枚を1枚のブルームへまとめる。拡大はサンプリングが兼ねる。
 	// 調整値を持たないので、繋ぐだけで動く
 	//======================================================================================
-	class KawaseBlurPass : public Pass
+	class KawaseBlurPass final : public Pass
 	{
 	public:
 		~KawaseBlurPass() override = default;

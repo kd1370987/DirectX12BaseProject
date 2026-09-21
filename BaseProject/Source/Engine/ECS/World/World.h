@@ -520,7 +520,7 @@ namespace Engine::ECS
 					if (!IsValidTypeID(_typeID))
 					{
 						ENGINE_WARNING("[ECS] %s : 未登録のコンポーネントを依存に含めようとしました (%s)",
-							a_taskName.c_str(), std::string(DebugTypeName<_CompType>()).c_str());
+							a_taskName.c_str(), std::string(TypeInfo::GetTypeName<_CompType>()).c_str());
 						return;
 					}
 

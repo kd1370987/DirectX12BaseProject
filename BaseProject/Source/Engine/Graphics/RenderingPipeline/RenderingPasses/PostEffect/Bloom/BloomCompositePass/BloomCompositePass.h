@@ -9,7 +9,7 @@ namespace Engine::Graphics::Pipeline
 	//
 	// メインカラーへブルームを加算合成する。ブルームの最終段
 	//======================================================================================
-	class BloomCompositePass : public Pass
+	class BloomCompositePass final : public Pass
 	{
 	public:
 		~BloomCompositePass() override = default;

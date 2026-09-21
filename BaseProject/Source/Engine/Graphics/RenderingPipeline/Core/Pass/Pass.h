@@ -28,6 +28,9 @@ namespace Engine::Graphics::Pipeline
 	{
 	public:
 
+		// 実体の型を辿るための連鎖の根(Engine::TypeInfo)
+		ENGINE_TYPE_CHAIN_ROOT(Pass);
+
 		Pass() = default;
 		virtual ~Pass() = default;
 
@@ -209,6 +212,22 @@ namespace Engine::Graphics::Pipeline
 			m_editorGroupIndex = 0;
 		}
 
+		//----------------------------------------------------------------------------------
+		// 実体の型
+		//
+		// RTTI を使わないので、生成したときに実体の型を刻んでおく(CreatePass)。
+		// 型の変換は TypeInfo::Cast<T>(pPass) で行う
+		//----------------------------------------------------------------------------------
+		const TypeInfo::TypeChain* GetTypeChain() const { return m_pTypeChain; }
+
+	private:
+
+		template<typename T>
+		friend std::unique_ptr<T> CreatePass();
+
+		// 実体の型の連鎖。刻むのは CreatePass だけ
+		const TypeInfo::TypeChain* m_pTypeChain = TypeInfo::GetTypeChain<Pass>();
+
 	protected:
 
 		//----------------------------------------------------------------------------------
@@ -365,4 +384,21 @@ namespace Engine::Graphics::Pipeline
 		int m_editorGroupIndex = 0;
 		int m_nodeID = 0;			// ノード自身のID
 	};
+
+	/// <summary>
+	/// パスを生成する。実体はかならずここで作ること
+	/// </summary>
+	/// <remarks>
+	/// 実体の型を刻むのはここだけ。make_unique で直接作ると
+	/// 実体の型が Pass のままになり、編集UIも TypeInfo::Cast も引けなくなる
+	/// </remarks>
+	template<typename T>
+	std::unique_ptr<T> CreatePass()
+	{
+		static_assert(std::is_base_of_v<Pass, T>, "T は Pass を継承している必要があります");
+
+		auto _upPass = std::make_unique<T>();
+		static_cast<Pass*>(_upPass.get())->m_pTypeChain = TypeInfo::GetTypeChain<T>();
+		return _upPass;
+	}
 }

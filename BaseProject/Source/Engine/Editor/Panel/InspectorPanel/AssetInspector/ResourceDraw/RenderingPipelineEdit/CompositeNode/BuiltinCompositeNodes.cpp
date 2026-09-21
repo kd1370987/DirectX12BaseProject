@@ -546,7 +546,7 @@ namespace Engine::Editor::Inspector
 			{
 				for (Pass* _pPass : a_group.members)
 				{
-					if (auto* _pTyped = dynamic_cast<TPass*>(_pPass)) return _pTyped;
+					if (auto* _pTyped = TypeInfo::Cast<TPass>(_pPass)) return _pTyped;
 				}
 				return nullptr;
 			}

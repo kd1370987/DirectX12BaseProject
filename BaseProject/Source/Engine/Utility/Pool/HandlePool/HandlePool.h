@@ -67,8 +67,9 @@ namespace Engine::Pool
 			}
 			else
 			{
-				// インデックス上限が設定されていれば、上限に達したことをアサート
-				ENGINE_ERRLOG(false, "ストレージの設定上限に達しました");
+				// インデックス上限が設定されていれば、上限に達したことをアサート。
+				// どのプールが尽きたのか分からないと追えないので、型と上限も出す
+				ENGINE_ERRLOG(false, "ストレージの設定上限に達しました (%s / 上限 %u)", std::string(Engine::TypeInfo::GetTypeName<T>()).c_str(), m_maxCount);
 				return Handle<T>();
 			}
 		}

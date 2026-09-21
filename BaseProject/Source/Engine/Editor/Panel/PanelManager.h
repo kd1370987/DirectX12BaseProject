@@ -62,6 +62,9 @@ namespace Engine::Editor
 		// 描画パネル配列
 		std::vector<std::unique_ptr<IPanel>> m_upPanelVec = {};
 
+		// 各パネルの型(m_upPanelVec と同じ並び)。RefPanel で型から引くのに使う
+		std::vector<TypeInfo::TypeKey> m_panelTypeKeyVec = {};
+
 		// パネル間共通メモ帳
 		EditorContext m_editContext = {};
 	};
@@ -70,16 +73,19 @@ namespace Engine::Editor
 	inline void PanelManager::RegisterPanel()
 	{
 		m_upPanelVec.push_back(std::make_unique<T>());
+		m_panelTypeKeyVec.push_back(TypeInfo::GetTypeKey<T>());
 	}
 
 	template<typename T>
 	inline T* PanelManager::RefPanel()
 	{
-		for (auto& _upPanel : m_upPanelVec)
+		// 登録した型そのもので引く(基底の型では引けない)
+		const TypeInfo::TypeKey _key = TypeInfo::GetTypeKey<T>();
+		for (size_t _i = 0; _i < m_upPanelVec.size(); ++_i)
 		{
-			if (auto* _pTarget = dynamic_cast<T*>(_upPanel.get()))
+			if (m_panelTypeKeyVec[_i] == _key)
 			{
-				return _pTarget;
+				return static_cast<T*>(m_upPanelVec[_i].get());
 			}
 		}
 		return nullptr;

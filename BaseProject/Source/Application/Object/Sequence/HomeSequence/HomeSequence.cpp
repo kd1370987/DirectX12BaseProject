@@ -144,7 +144,7 @@ namespace App::Object
 			_pUI->SetVisible(_isHome);
 
 			// 倉庫の中身はまだ無い。既定では押せない状態(灰色)にしておく
-			if (auto* _pButton = dynamic_cast<UIButton*>(_pUI))
+			if (auto* _pButton = Engine::TypeInfo::Cast<UIButton>(_pUI))
 			{
 				_pButton->SetInteractable(m_isWarehouseInteractable);
 			}

@@ -23,7 +23,7 @@ namespace App::Object::Picker
 		if (a_pObjectManager == nullptr) return nullptr;
 		if (!a_guid.IsValid()) return nullptr;
 
-		return dynamic_cast<T*>(a_pObjectManager->FindByGUID(a_guid));
+		return Engine::TypeInfo::Cast<T>(a_pObjectManager->FindByGUID(a_guid));
 	}
 
 	/// <summary>
@@ -88,7 +88,7 @@ namespace App::Object::Picker
 			const auto& _objectVec = a_pObjectManager->GetObjects();
 			for (size_t _i = 0; _i < _objectVec.size(); ++_i)
 			{
-				auto* _pObject = dynamic_cast<T*>(_objectVec[_i].get());
+				auto* _pObject = Engine::TypeInfo::Cast<T>(_objectVec[_i].get());
 				if (!_pObject) continue;
 
 				// 同名でもIDがぶつからないようにする

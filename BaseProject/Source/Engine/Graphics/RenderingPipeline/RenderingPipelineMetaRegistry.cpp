@@ -57,10 +57,10 @@ namespace Engine::Graphics::Pipeline
 		// 見つからなければ無効値を返す
 		return ID<Pass>();
 	}
-	ID<Pass> PassMetaRegistry::GetTypeID(const std::type_index& a_index) const
+	ID<Pass> PassMetaRegistry::GetTypeID(TypeInfo::TypeKey a_key) const
 	{
-		auto _it = m_typeIndexMap.find(a_index);
-		if (_it != m_typeIndexMap.end())
+		auto _it = m_typeKeyMap.find(a_key);
+		if (_it != m_typeKeyMap.end())
 		{
 			return _it->second;
 		}

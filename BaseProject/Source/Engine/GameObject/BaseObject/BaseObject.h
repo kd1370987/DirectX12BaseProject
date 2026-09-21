@@ -129,6 +129,9 @@ namespace Engine::GameObject
 	{
 	public:
 
+		// 実体の型を辿るための連鎖の根(Engine::TypeInfo)
+		ENGINE_TYPE_CHAIN_ROOT(BaseObject);
+
 		BaseObject() = default;
 		virtual ~BaseObject() = default;
 
@@ -286,6 +289,22 @@ namespace Engine::GameObject
 		const Engine::GUID& GetParentGUID() const { return m_parentGUID; }
 		void SetParentGUID(const Engine::GUID& a_guid) { m_parentGUID = a_guid; }
 
+		//=======================================================================
+		// 実体の型
+		//
+		// RTTI を使わないので、生成したときに実体の型を刻んでおく(CreateObject)。
+		// 型の変換は TypeInfo::Cast<T>(pObject) で行う
+		//=======================================================================
+		const TypeInfo::TypeChain* GetTypeChain() const { return m_pTypeChain; }
+
+	private:
+
+		template<typename T>
+		friend std::unique_ptr<T> CreateObject();
+
+		// 実体の型の連鎖。刻むのは CreateObject だけ
+		const TypeInfo::TypeChain* m_pTypeChain = TypeInfo::GetTypeChain<BaseObject>();
+
 	protected:
 
 		// 存在フラグ : trueにしたら次フレームの初めにオブジェクトが消去される
@@ -300,4 +319,21 @@ namespace Engine::GameObject
 		// どこまで初期化を通したか。生成直後は何も通っていない
 		EObjectInitPhase m_initPhase = EObjectInitPhase::PostDeserialize;
 	};
+
+	/// <summary>
+	/// オブジェクトを生成する。実体はかならずここで作ること
+	/// </summary>
+	/// <remarks>
+	/// 実体の型を刻むのはここだけ。make_unique で直接作ると
+	/// 実体の型が BaseObject のままになり、保存も TypeInfo::Cast も効かなくなる
+	/// </remarks>
+	template<typename T>
+	std::unique_ptr<T> CreateObject()
+	{
+		static_assert(std::is_base_of_v<BaseObject, T>, "T は BaseObject を継承している必要があります");
+
+		auto _upObject = std::make_unique<T>();
+		static_cast<BaseObject*>(_upObject.get())->m_pTypeChain = TypeInfo::GetTypeChain<T>();
+		return _upObject;
+	}
 }

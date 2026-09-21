@@ -24,7 +24,7 @@ namespace App::Object
 	/// ※ カーソルを画面中央へ固定する設定(InputOption)が入っていると、カーソルは毎フレーム
 	///    中央へ戻されるため中央のボタンしか押せない。メニューを出す場面では固定を切ること。
 	/// </remarks>
-	class UIButton : public UIBase
+	class UIButton final : public UIBase
 	{
 	public:
 

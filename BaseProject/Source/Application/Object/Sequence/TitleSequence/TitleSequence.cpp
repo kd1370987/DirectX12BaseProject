@@ -64,7 +64,7 @@ namespace App::Object
 		if (!_pObject) return;
 
 		// 指定されたGUIDがボタン以外だった場合は差し込まない
-		auto* _pButton = dynamic_cast<UIButton*>(_pObject);
+		auto* _pButton = Engine::TypeInfo::Cast<UIButton>(_pObject);
 		if (!_pButton)
 		{
 			// 設定ミスに気付けるよう一度だけ知らせて、以降は試さない
@@ -157,7 +157,7 @@ namespace App::Object
 				const auto& _objectVec = a_context.pObjectManager->GetObjects();
 				for (size_t _i = 0; _i < _objectVec.size(); ++_i)
 				{
-					auto* _pButton = dynamic_cast<UIButton*>(_objectVec[_i].get());
+					auto* _pButton = Engine::TypeInfo::Cast<UIButton>(_objectVec[_i].get());
 					if (!_pButton) continue;
 
 					// 同名でもIDがぶつからないようにする

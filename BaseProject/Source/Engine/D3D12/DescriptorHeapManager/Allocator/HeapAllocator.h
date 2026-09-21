@@ -63,6 +63,12 @@ namespace Engine::D3D12
 	{
 		// ハンドルをアロケート
 		auto _handle = m_HandlePool.Allocate();
+
+		// 席が尽きた : 無効なハンドルのまま返す。
+		// ここで先頭位置を足すと、無効値(0xFFFF)が桁あふれして
+		// 隣の区画(SRV なら CBV の末尾)の席へビューを書き込んでしまう
+		if (!_handle.IsValid()) return _handle;
+
 		auto _idx = _handle.GetIndex();
 		_handle.SetIndex(_idx + (uint16_t)m_startIndex);
 

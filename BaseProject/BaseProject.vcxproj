@@ -89,6 +89,8 @@
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <!-- RTTI は使わない方針。型は Engine::TypeInfo で扱う(Utility/TypeInfo/TypeInfo.h) -->
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>false</TreatWarningAsError>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
@@ -134,6 +136,8 @@
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <!-- RTTI は使わない方針。型は Engine::TypeInfo で扱う(Utility/TypeInfo/TypeInfo.h) -->
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>false</TreatWarningAsError>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
@@ -178,6 +182,8 @@
            プロジェクト全体で一意にすること(アプリ側は APP 接頭辞で避ける) -->
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <!-- RTTI は使わない方針。型は Engine::TypeInfo で扱う(Utility/TypeInfo/TypeInfo.h) -->
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <TreatWarningAsError>false</TreatWarningAsError>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
@@ -226,6 +232,8 @@
            プロジェクト全体で一意にすること(アプリ側は APP 接頭辞で避ける) -->
       <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <!-- RTTI は使わない方針。型は Engine::TypeInfo で扱う(Utility/TypeInfo/TypeInfo.h) -->
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <TreatWarningAsError>false</TreatWarningAsError>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
@@ -965,6 +973,7 @@
     <ClInclude Include="Source\Engine\Utility\EnumFlags.h" />
     <ClInclude Include="Source\Engine\Utility\File\FileUtility.h" />
     <ClInclude Include="Source\Engine\Utility\String\StringUtility.h" />
+    <ClInclude Include="Source\Engine\Utility\TypeInfo\TypeInfo.h" />
     <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.h" />
     <ClInclude Include="Source\Engine\Animation\Common\AnimatedMeshVertex.h" />
     <ClInclude Include="Source\Engine\Audio\AudioManager.h" />

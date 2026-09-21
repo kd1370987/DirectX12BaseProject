@@ -6,8 +6,8 @@ namespace Engine::Editor::Inspector
 {
 	IPassEditor* PassEditorRegistry::Find(const Graphics::Pipeline::Pass& a_pass) const
 	{
-		// 実体の型で引く。Pass は仮想関数を持つので typeid は派生の型を返す
-		auto _it = m_editorMap.find(std::type_index(typeid(a_pass)));
+		// 実体の型で引く(生成時に CreatePass が刻んだもの)
+		auto _it = m_editorMap.find(a_pass.GetTypeChain()->key);
 		if (_it == m_editorMap.end()) return nullptr;
 
 		return _it->second.get();

@@ -83,9 +83,9 @@ namespace App::Object
 		if (m_isBound) return;
 		if (!a_context.pObjectManager) return;
 
-		auto* _pResume = dynamic_cast<UIButton*>(
+		auto* _pResume = Engine::TypeInfo::Cast<UIButton>(
 			m_resumeButtonGUID.IsValid() ? a_context.pObjectManager->FindByGUID(m_resumeButtonGUID) : nullptr);
-		auto* _pExit = dynamic_cast<UIButton*>(
+		auto* _pExit = Engine::TypeInfo::Cast<UIButton>(
 			m_exitButtonGUID.IsValid() ? a_context.pObjectManager->FindByGUID(m_exitButtonGUID) : nullptr);
 
 		// 設定されているのに見つからないものがあれば、まだ読み込みの途中とみなして次のフレームへ回す
@@ -201,7 +201,7 @@ namespace App::Object
 					const auto& _objectVec = a_context.pObjectManager->GetObjects();
 					for (size_t _i = 0; _i < _objectVec.size(); ++_i)
 					{
-						auto* _pButton = dynamic_cast<UIButton*>(_objectVec[_i].get());
+						auto* _pButton = Engine::TypeInfo::Cast<UIButton>(_objectVec[_i].get());
 						if (!_pButton) continue;
 
 						// 同名でもIDがぶつからないようにする

@@ -38,10 +38,10 @@ namespace Engine::GameObject
 		return INVALID_OBJECT_TYPE_ID;
 	}
 
-	ObjectTypeID ObjectMetaRegistry::GetTypeID(const std::type_index& a_index) const
+	ObjectTypeID ObjectMetaRegistry::GetTypeID(TypeInfo::TypeKey a_key) const
 	{
-		auto _it = m_typeIndexMap.find(a_index);
-		if (_it != m_typeIndexMap.end())
+		auto _it = m_typeKeyMap.find(a_key);
+		if (_it != m_typeKeyMap.end())
 		{
 			return _it->second;
 		}

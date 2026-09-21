@@ -9,7 +9,7 @@
 // ランタイムのパス30個すべてが ImGui を直接呼んでいた。
 // ここへ移して、パス側は「何を持っているか」だけを公開する形にしてある。
 //
-// 対応付けは C++ の型(type_index)で引く。
+// 対応付けは C++ の型(TypeInfo::TypeKey)で引く。
 // パス型IDでもよいが、それだと PassMetaRegistry を通す必要があり、
 // 編集UIを引くだけのために依存が1本増える
 //
@@ -95,7 +95,7 @@ namespace Engine::Editor::Inspector
 				"TEditor は PassEditor<TPass> を継承している必要があります");
 
 			m_editorMap.insert_or_assign(
-				std::type_index(typeid(TPass)),
+				TypeInfo::GetTypeKey<TPass>(),
 				std::make_unique<TEditor>(std::forward<TArgs>(a_args)...));
 		}
 
@@ -104,7 +104,7 @@ namespace Engine::Editor::Inspector
 
 	private:
 
-		std::unordered_map<std::type_index, std::unique_ptr<IPassEditor>> m_editorMap = {};
+		std::unordered_map<TypeInfo::TypeKey, std::unique_ptr<IPassEditor>> m_editorMap = {};
 	};
 
 	//--------------------------------------------------------------------------------------

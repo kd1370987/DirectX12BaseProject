@@ -12,7 +12,7 @@ namespace Engine::Graphics::Pipeline
 	// 調整値はこのパスのメンバ。もとは OptionManager の BloomOption を
 	// 抽出パスと合成パスの両方が引いていたが、パイプラインごとに変えられるようにした
 	//======================================================================================
-	class BloomExtractPass : public Pass
+	class BloomExtractPass final : public Pass
 	{
 	public:
 		~BloomExtractPass() override = default;

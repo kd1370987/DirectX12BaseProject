@@ -1429,6 +1429,9 @@
     <Filter Include="Source\Engine\Utility\String">
       <UniqueIdentifier>{a89720f8-c303-4c35-961b-802545baf70a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Utility\TypeInfo">
+      <UniqueIdentifier>{3f6d2b1e-8c47-4a1d-9e5b-7c2a0d4f6e81}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Window">
       <UniqueIdentifier>{4903a1c3-ef1a-452c-aa19-3c12f2daf394}</UniqueIdentifier>
     </Filter>
@@ -4231,6 +4234,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\String\StringUtility.h">
       <Filter>Source\Engine\Utility\String</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\TypeInfo\TypeInfo.h">
+      <Filter>Source\Engine\Utility\TypeInfo</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Window\NativeWindow.h">
       <Filter>Source\Engine\Window</Filter>

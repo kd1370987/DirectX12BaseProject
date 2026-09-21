@@ -47,7 +47,7 @@ namespace Engine::Graphics::Pipeline
 		template<typename T>
 		ID<Pass> GetTypeID() const;									// C++型から
 		ID<Pass> GetTypeID(const std::string& a_name) const;		// 名前から
-		ID<Pass> GetTypeID(const std::type_index& a_index) const;	// タイプインデックスから
+		ID<Pass> GetTypeID(TypeInfo::TypeKey a_key) const;			// 型キーから(実体は GetTypeChain()->key)
 
 		// メタ情報取得
 		const PassMeta* GetMeta(ID<Pass> a_id) const;
@@ -67,7 +67,7 @@ namespace Engine::Graphics::Pipeline
 	private:
 
 		// C++型 / 名前 ->タイプID
-		std::unordered_map<std::type_index, ID<Pass>> m_typeIndexMap = {};
+		std::unordered_map<TypeInfo::TypeKey, ID<Pass>> m_typeKeyMap = {};
 		std::unordered_map<std::string, ID<Pass>> m_nameMap = {};
 
 		// タイプID -> 情報
@@ -82,8 +82,8 @@ namespace Engine::Graphics::Pipeline
 		static_assert(std::is_base_of_v<Pass,T>,"T は Pass を継承している必要があります");
 
 		// すでに登録済みなら既存のIDを返す
-		std::type_index _typeIdx = typeid(T);
-		if (ID<Pass>  _existing = GetTypeID(_typeIdx); _existing.IsValid())
+		const TypeInfo::TypeKey _typeKey = TypeInfo::GetTypeKey<T>();
+		if (ID<Pass>  _existing = GetTypeID(_typeKey); _existing.IsValid())
 		{
 			return _existing;
 		}
@@ -114,7 +114,7 @@ namespace Engine::Graphics::Pipeline
 
 		// ファクトリ
 		PassFunc _func = {};
-		_func.factory = []() -> std::unique_ptr<Pass> {return std::make_unique<T>(); };
+		_func.factory = []() -> std::unique_ptr<Pass> {return CreatePass<T>(); };
 
 		// シェーディングモデル表の鍵は型ごとに決まっている。
 		// 固定文字列を返すだけの関数なので、スロット宣言を通していない実体からでも読める
@@ -127,7 +127,7 @@ namespace Engine::Graphics::Pipeline
 		}
 
 		// 各対応表へ登録
-		m_typeIndexMap.emplace(_typeIdx, _typeID);
+		m_typeKeyMap.emplace(_typeKey, _typeID);
 		m_nameMap.emplace(a_name, _typeID);
 		m_metaMap.emplace(_typeID, _meta);
 		m_funcMap.emplace(_typeID, _func);
@@ -137,7 +137,7 @@ namespace Engine::Graphics::Pipeline
 	template<typename T>
 	inline ID<Pass> PassMetaRegistry::GetTypeID() const
 	{
-		return GetTypeID(std::type_index(typeid(T)));
+		return GetTypeID(TypeInfo::GetTypeKey<T>());
 	}
 
 	// エンジン標準のパスをまとめて登録する

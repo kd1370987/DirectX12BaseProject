@@ -211,13 +211,14 @@ namespace Engine::GameObject
 
 					// C++型から登録済みタイプIDを引く
 					// (登録名のハッシュなので、GameManager::Init の登録順を変えても値は動かない)
-					ObjectTypeID _typeID = _registry.GetTypeID(std::type_index(typeid(*_pObject)));
+					const TypeInfo::TypeChain* _pTypeChain = _pObject->GetTypeChain();
+					ObjectTypeID _typeID = _registry.GetTypeID(_pTypeChain->key);
 
 					// 未登録のクラスは読み込み時に復元できない。
 					// 黙って書き出すとシーンから消えたようにしか見えないので、ここで気付かせる
 					if (_typeID == INVALID_OBJECT_TYPE_ID)
 					{
-						ENGINE_WARNING("[GameObjectManager] 未登録のクラスを保存しようとしました : %s", typeid(*_pObject).name());
+						ENGINE_WARNING("[GameObjectManager] 未登録のクラスを保存しようとしました : %s", std::string(_pTypeChain->name).c_str());
 					}
 
 					// GUIDが未発行なら発行しておく

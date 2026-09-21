@@ -28,6 +28,9 @@ namespace App::Object
 	{
 	public:
 
+		// 継承されるうえに Cast の行き先にもなるので、型の連鎖に載せる
+		ENGINE_TYPE_CHAIN_BASE(UIBase, Engine::GameObject::BaseObject);
+
 		// 解放処理
 		void Release(Engine::GameObject::ObjectContext& a_context) override;
 
