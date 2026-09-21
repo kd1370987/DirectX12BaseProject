@@ -47,8 +47,9 @@ namespace Engine::ECS
 		// ワールドの寿命
 		//==========================================================================================
 
-		// 初期化 : 生成後に1度だけ呼ぶ
-		void Init();
+		// 初期化 : 生成後に1度だけ呼ぶ。
+		// 型情報はプロセスに1つ(持ち主は MainEngine)なので、借りてくる
+		void Init(ComponentMetaRegistry* a_pComponentRegistry);
 		bool IsInit();
 
 		// ゲーム固有の型(コンポーネント / システム)を登録する。
@@ -322,7 +323,7 @@ namespace Engine::ECS
 
 		EntityStorage			m_storage;					// エンティティ(ID とチャンクの実体)
 		SystemManager			m_systemManager;			// システムのタスクと実行順
-		ComponentMetaRegistry	m_componentMetaRegistry;	// コンポーネントの型情報
+		ComponentMetaRegistry*	m_pComponentRegistry = nullptr;	// コンポーネントの型情報(借り物。持ち主は MainEngine)
 		EngineServices			m_engineServices = {};		// アプリ寿命のサービス(SystemContext で渡す)
 		bool					m_isInit = false;			// 初期化済みか
 		CommandBuffer			m_commandBuffer;			// 構造変更の予約
@@ -336,7 +337,7 @@ namespace Engine::ECS
 	template<typename Comp>
 	inline bool World::HasComponent(const Entity& a_entity)
 	{
-		return HasComponent(a_entity, typeid(Comp));
+		return HasComponent(a_entity, ComponentMetaRegistry::GetTypeID<Comp>());
 	}
 
 	template<typename Before, typename After>
@@ -380,32 +381,33 @@ namespace Engine::ECS
 	template<typename Comp>
 	inline ComponentTypeID World::RegisterComponent(const std::string& a_name)
 	{
-		return m_componentMetaRegistry.RegisterType<Comp>(a_name);
+		return m_pComponentRegistry->RegisterType<Comp>(a_name);
 	}
 
 	template<typename Comp>
 	inline ComponentTypeID World::GetCompTypeID()
 	{
-		return GetCompTypeID(typeid(Comp));
+		// 型ごとの置き場所を読むだけ(typeid やハッシュの検索をしない)
+		return ComponentMetaRegistry::GetTypeID<Comp>();
 	}
 
 	template<typename Comp>
 	inline const ComponentFunc& World::GetCompFunc() const
 	{
-		return GetCompFunc(m_componentMetaRegistry.GetTypeID(typeid(Comp)));
+		return GetCompFunc(ComponentMetaRegistry::GetTypeID<Comp>());
 	}
 
 	template<typename Comp>
 	inline Comp* World::RefData(const Entity& a_entity)
 	{
-		return reinterpret_cast<Comp*>(NRefData(a_entity, typeid(Comp)));
+		return reinterpret_cast<Comp*>(NRefData(a_entity, ComponentMetaRegistry::GetTypeID<Comp>()));
 	}
 
 	template<typename Comp>
 	inline Comp* World::GetComponentArray(Chunk* a_chunk)
 	{
-		// タイプIDは const を外した型で引く
-		const ComponentTypeID _typeID = m_componentMetaRegistry.GetTypeID<std::remove_const_t<Comp>>();
+		// const 付きの型でも同じ置き場所を読む
+		const ComponentTypeID _typeID = ComponentMetaRegistry::GetTypeID<Comp>();
 		return reinterpret_cast<Comp*>(m_storage.RefComponentArray(a_chunk, _typeID));
 	}
 
@@ -432,7 +434,7 @@ namespace Engine::ECS
 		(
 			[&]()
 			{
-				const ComponentTypeID _typeID = m_componentMetaRegistry.GetTypeID<std::remove_const_t<Comps>>();
+				const ComponentTypeID _typeID = ComponentMetaRegistry::GetTypeID<Comps>();
 				if (IsValidTypeID(_typeID))
 				{
 					a_outSig.set(_typeID);
@@ -512,7 +514,7 @@ namespace Engine::ECS
 				// 問い合わせ専用のタグは絞り込み条件であってデータではないので、依存に数えない
 				if constexpr (!IsQueryOnlyTag_v<_CompType>)
 				{
-					const ComponentTypeID _typeID = m_componentMetaRegistry.GetTypeID<_CompType>();
+					const ComponentTypeID _typeID = ComponentMetaRegistry::GetTypeID<_CompType>();
 
 					// 型の登録より先にタスクを登録すると未登録のまま来る
 					if (!IsValidTypeID(_typeID))

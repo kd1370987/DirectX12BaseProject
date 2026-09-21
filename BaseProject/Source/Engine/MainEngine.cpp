@@ -32,6 +32,8 @@
 
 #include "Physics/PhysicsEngine.h"
 
+#include "ECS/Component/ComponentMetaRegistry.h"
+
 #include "Engine/Editor/Editor.h"
 
 // DXGIのデバッグ機能(ライブオブジェクト報告)はここだけで使う。
@@ -139,6 +141,9 @@ namespace Engine
 		// 非同期ロードの実行先として登録する。
 		// ResourceManager 側からエンジンのシングルトンを引かせないよう、ここで渡す
 		m_upResourceManager->SetJobSystem(m_upJobSystem.get());
+
+		// コンポーネントの型情報。中身の登録は最初のワールドを作ったとき(RegisterGameTypes)に行われる
+		m_upComponentRegistry = std::make_unique<ECS::ComponentMetaRegistry>();
 
 		// Jolt 全体(アロケータ・型の登録・JobSystem)。シーンごとの空間は CreateSceneWorld が作る。
 		// Jolt のワーカーが動くのは Physics フェーズの PhysicsWorld::Update の中だけで、

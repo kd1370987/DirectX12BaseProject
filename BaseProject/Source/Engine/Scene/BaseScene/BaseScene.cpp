@@ -46,7 +46,8 @@ namespace Engine::Scene
 		auto _upWorld = SceneManager::Instance().CreateWorld();
 		if (!_upWorld) return nullptr;
 
-		_upWorld->Init();
+		// 型情報はエンジンに1つ。どのワールドも同じものを借りるので、タイプIDが揃う
+		_upWorld->Init(Engine::MainEngine::Instance().RefComponentRegistry());
 
 		// アプリ寿命のサービスを差し込む。
 		// 組むのは MainEngine::BuildEngineServices(合成の入り口)で、ここは写すだけ。

@@ -14,6 +14,20 @@ namespace Engine::ECS
 		const ComponentFunc s_emptyFunc = {};
 	}
 
+	//======================================================================================
+	// 型ごとの置き場所を未登録へ戻す
+	//--------------------------------------------------------------------------------------
+	// 置き場所は静的なので、レジストリが消えても番号が残る。
+	// 残したままだと、次に作ったレジストリが「別のレジストリが登録済み」と判断して止まる
+	//======================================================================================
+	ComponentMetaRegistry::~ComponentMetaRegistry()
+	{
+		for (auto _reset : m_resetSlotFuncVec)
+		{
+			_reset();
+		}
+	}
+
 	ComponentTypeID ComponentMetaRegistry::GetTypeID(const std::string& a_name)
 	{
 		auto _it = m_compNameMap.find(a_name);

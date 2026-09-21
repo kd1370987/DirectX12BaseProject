@@ -12,9 +12,12 @@ namespace Engine::ECS
 	// ワールドの寿命
 	//==============================================================================================
 
-	void World::Init()
+	void World::Init(ComponentMetaRegistry* a_pComponentRegistry)
 	{
-		m_storage.Init(&m_componentMetaRegistry, &m_engineServices);
+		assert(a_pComponentRegistry && "型情報(ComponentMetaRegistry)が渡されていません");
+		m_pComponentRegistry = a_pComponentRegistry;
+
+		m_storage.Init(m_pComponentRegistry, &m_engineServices);
 		m_systemManager.Init();
 
 		m_isInit = true;
@@ -112,7 +115,7 @@ namespace Engine::ECS
 
 	bool World::HasComponent(const Entity& a_entity, const std::type_index& a_typeid)
 	{
-		return HasComponent(a_entity, m_componentMetaRegistry.GetTypeID(a_typeid));
+		return HasComponent(a_entity, m_pComponentRegistry->GetTypeID(a_typeid));
 	}
 
 	bool World::HasComponent(const Entity& a_entity, const ComponentTypeID& a_comptype)
@@ -175,7 +178,7 @@ namespace Engine::ECS
 		_cmd.toSig = _toSig;
 
 		// 初期値はディープコピーして持つ
-		const size_t _size = m_componentMetaRegistry.GetMetaData(a_typeID).compSize;
+		const size_t _size = m_pComponentRegistry->GetMetaData(a_typeID).compSize;
 		if (a_pData)
 		{
 			_cmd.dataMap[a_typeID] = std::vector<uint8_t>(a_pData, a_pData + _size);
@@ -240,27 +243,27 @@ namespace Engine::ECS
 
 	ComponentTypeID World::GetCompTypeID(const std::type_index& a_index)
 	{
-		return m_componentMetaRegistry.GetTypeID(a_index);
+		return m_pComponentRegistry->GetTypeID(a_index);
 	}
 
 	ComponentTypeID World::GetCompTypeID(const std::string& a_name)
 	{
-		return m_componentMetaRegistry.GetTypeID(a_name);
+		return m_pComponentRegistry->GetTypeID(a_name);
 	}
 
 	const ComponentMeta& World::GetComponentMetaData(const ComponentTypeID& a_typeID)
 	{
-		return m_componentMetaRegistry.GetMetaData(a_typeID);
+		return m_pComponentRegistry->GetMetaData(a_typeID);
 	}
 
 	const std::unordered_map<ComponentTypeID, ComponentMeta>& World::GetAllComponentMetaData() const
 	{
-		return m_componentMetaRegistry.GetAllMetaData();
+		return m_pComponentRegistry->GetAllMetaData();
 	}
 
 	const ComponentFunc& World::GetCompFunc(const ComponentTypeID& a_typeID) const
 	{
-		return m_componentMetaRegistry.GetFunc(a_typeID);
+		return m_pComponentRegistry->GetFunc(a_typeID);
 	}
 
 	//==============================================================================================
@@ -269,7 +272,7 @@ namespace Engine::ECS
 
 	uint8_t* World::NRefData(const Entity& a_entity, const std::type_index& a_index)
 	{
-		return m_storage.RefComponent(a_entity, m_componentMetaRegistry.GetTypeID(a_index));
+		return m_storage.RefComponent(a_entity, m_pComponentRegistry->GetTypeID(a_index));
 	}
 
 	uint8_t* World::NRefData(const Entity& a_entity, const ComponentTypeID& a_typeID)

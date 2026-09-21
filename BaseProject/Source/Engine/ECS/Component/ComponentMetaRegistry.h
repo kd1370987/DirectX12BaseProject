@@ -25,18 +25,50 @@ namespace Engine::ECS
 		std::function<void(void*, const EngineServices&)> release;		// 借りているものを返す処理
 	};
 
+	//==========================================================================================
+	// 型ごとのタイプIDの置き場所
+	//
+	// GetTypeID<T>() はここを1回読むだけなので、typeid やハッシュの検索が要らない。
+	// 値を書くのは ComponentMetaRegistry::RegisterType だけ(番号の出所を1つにする)。
+	// 自分でカウンタを回すと、最初に呼ばれた順とレジストリの登録順の2つの番号ができて
+	// シグネチャのビットとメタ情報(名前)がずれる
+	//==========================================================================================
+	template<typename T>
+	struct ComponentTypeSlot
+	{
+		inline static ComponentTypeID id = Limits::INVALID_COMPONENTTYPEID;
+	};
+
+	//==========================================================================================
+	// コンポーネントの型情報
+	//
+	// プロセスに1つだけ置く(持ち主は MainEngine)。どのワールドも同じものを借りるので、
+	// 同じ型はどのワールドでも同じタイプIDになる。
+	//
+	// タイプIDは登録順で決まる「実行中だけ通じる番号」。ファイルには書かないこと。
+	// 保存と読み込みはコンポーネント名で行い、読み込み時に名前から番号を引き直す。
+	// そのため、登録の順番を変えたりコンポーネントを足したりしても、保存データは壊れない
+	//==========================================================================================
 	class ComponentMetaRegistry
 	{
 	public:
 
+		ComponentMetaRegistry() = default;
+		~ComponentMetaRegistry();
+
+		// 型ごとの置き場所に番号を書くので、複製すると持ち主が2人になる
+		ComponentMetaRegistry(const ComponentMetaRegistry&) = delete;
+		ComponentMetaRegistry& operator=(const ComponentMetaRegistry&) = delete;
+
 		// コンポーネントの登録
-		// メタ情報と関数も同時に登録する
+		// メタ情報と関数も同時に登録する。
+		// 登録済みの型なら何もせず今の番号を返す(ワールドを作るたびに呼ばれるため)
 		template<typename Comp>
 		ComponentTypeID RegisterType(const std::string& a_name);
 
 		// コンポーネントタイプIDの取得
 		template<typename Comp>
-		ComponentTypeID GetTypeID();										// 型情報から直接取得
+		static ComponentTypeID GetTypeID();									// 型情報から直接取得(置き場所を読むだけ)
 		ComponentTypeID GetTypeID(const std::string& a_name);				// コンポーネント名から取得
 		ComponentTypeID GetTypeID(const std::type_index& a_index) const;	// タイプインデックスから取得
 
@@ -59,28 +91,47 @@ namespace Engine::ECS
 		// コンポーネントに付随するデータ
 		std::unordered_map<ComponentTypeID, ComponentMeta> m_compTypeMap;		// 型の情報
 		std::unordered_map<ComponentTypeID, ComponentFunc> m_compFuncMap;		// 関数情報
+
+		// 型ごとの置き場所を未登録へ戻す処理(レジストリが消えるときに呼ぶ)
+		std::vector<void(*)()> m_resetSlotFuncVec;
 	};
 
 	template<typename Comp>
 	inline ComponentTypeID ComponentMetaRegistry::GetTypeID()
 	{
-		auto _it = m_typeIndexMap.find(typeid(Comp));
-		if (_it != m_typeIndexMap.end())
-		{
-			return _it->second;
-		}
-		return ECS::Limits::INVALID_COMPONENTTYPEID;
+		// const 付きで引かれても同じ置き場所を見る
+		return ComponentTypeSlot<std::remove_cv_t<Comp>>::id;
 	}
 
 	template<typename Comp>
 	inline ComponentTypeID ComponentMetaRegistry::RegisterType(const std::string& a_name)
 	{
+		static_assert(!std::is_const_v<Comp> && !std::is_volatile_v<Comp>, "const / volatile を付けずに登録すること");
+
 		// 型情報を取得
 		std::type_index _typeIdx = typeid(Comp);
-		if (Limits::INVALID_COMPONENTTYPEID != GetTypeID(_typeIdx))
+
+		// 登録済み : ワールドを作るたびに同じ登録が流れてくるので、今の番号を返すだけ
+		if (const ComponentTypeID _registeredID = GetTypeID(_typeIdx);
+			_registeredID != Limits::INVALID_COMPONENTTYPEID)
 		{
-			ENGINE_LOG("すでに登録済みです : %s\n", a_name.c_str());
-			return GetTypeID(_typeIdx);
+			assert(ComponentTypeSlot<Comp>::id == _registeredID && "型の置き場所とレジストリの番号が食い違っています");
+			return _registeredID;
+		}
+
+		// 置き場所に番号があるのにこのレジストリは知らない = 別のレジストリが生きている。
+		// 番号の出所が2つになるので止める
+		if (ComponentTypeSlot<Comp>::id != Limits::INVALID_COMPONENTTYPEID)
+		{
+			assert(0 && "別の ComponentMetaRegistry がこの型を登録しています。レジストリはプロセスに1つだけ置くこと");
+			return ComponentTypeSlot<Comp>::id;
+		}
+
+		// 名前は保存データのキーなので、別の型と被ってはいけない
+		if (m_compNameMap.contains(a_name))
+		{
+			assert(0 && "同じ名前のコンポーネントが既に登録されています(名前は保存データのキー)");
+			return Limits::INVALID_COMPONENTTYPEID;
 		}
 
 
@@ -157,6 +208,10 @@ namespace Engine::ECS
 
 		m_compTypeMap.emplace(_typeID, _data);	// メタデータの対応表
 		m_compFuncMap.emplace(_typeID, _func);	// 関数との対応表
+
+		// 型ごとの置き場所へ書く(番号の出所はここだけ)
+		ComponentTypeSlot<Comp>::id = _typeID;
+		m_resetSlotFuncVec.push_back([]() { ComponentTypeSlot<Comp>::id = Limits::INVALID_COMPONENTTYPEID; });
 
 		return _typeID;
 	}

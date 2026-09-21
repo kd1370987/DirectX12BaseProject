@@ -44,6 +44,7 @@ namespace Engine
 	namespace ECS
 	{
 		struct EngineServices;
+		class ComponentMetaRegistry;
 	}
 
 	// エンジンクラス
@@ -103,6 +104,14 @@ namespace Engine
 		const ECS::EngineServices& GetEngineServices() const { return *m_upEngineServices; }
 		ECS::EngineServices* RefEngineServices() { return m_upEngineServices.get(); }
 
+		//----------------------------------------------------------------------------
+		// コンポーネントの型情報(プロセスに1つ)
+		//
+		// どのワールドもこれを借りるので、同じ型はどのワールドでも同じタイプIDになる。
+		// 渡すのはワールドを作る所(CreateSceneWorld)だけ
+		//----------------------------------------------------------------------------
+		ECS::ComponentMetaRegistry* RefComponentRegistry() { return m_upComponentRegistry.get(); }
+
 		// コンフィグ取得
 		EBuildConfiguration GetBuildMode() const { return m_buildMode; }
 
@@ -131,6 +140,10 @@ namespace Engine
 		// リソースマネージャーは先頭に置く : メンバは宣言の逆順に壊れるので、これが最後になる。
 		// 後ろのメンバや他のシングルトンが持つ ResourceRef は、破棄のときに参照を返しに来る
 		std::unique_ptr<Resource::ResourceManager> m_upResourceManager = nullptr;		// リソース(とアセットデータベース)の持ち主
+
+		// コンポーネントの型情報 : ワールドの解放(解放フックの呼び出し)で引くので、
+		// ワールドを持つどのメンバよりも後に壊れるよう、リソースマネージャーの次に置く
+		std::unique_ptr<ECS::ComponentMetaRegistry> m_upComponentRegistry = nullptr;
 		std::unique_ptr<Window::NativeWindow> m_upWindow = nullptr;						// ウィンドウクラス
 		std::unique_ptr<Time::TimeManager> m_upTimeManager = nullptr;					// 時間管理クラス
 		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス
