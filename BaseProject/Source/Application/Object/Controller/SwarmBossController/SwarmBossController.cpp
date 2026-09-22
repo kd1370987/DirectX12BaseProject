@@ -26,6 +26,7 @@
 #include "../../../Components/Character/Boss/BoidLeaderComponent.h"
 #include "../../../Components/Character/Boss/PlatoonLeaderComponent.h"
 #include "../../../Components/Character/Boss/BoidSpownerComponent.h"
+#include "../../../InstanceResource/WormWaveResource.h"
 
 namespace App::Object
 {
@@ -166,6 +167,9 @@ namespace App::Object
 		// リーダーの行動(入力を作る)
 		UpdateLeaderBrain(a_context);
 
+		// 体を走る発光のウェーブ(書き込むのは BoidWaveSystem)
+		UpdateWave(a_context);
+
 		// 残りの生存数(HP代わり)。印を数え直すだけ
 		m_currentBoids = CountAliveBoids(a_context);
 	}
@@ -187,6 +191,91 @@ namespace App::Object
 		m_stateMachine.PreUpdate(_stateContext);
 		m_stateMachine.Update(_stateContext);
 		m_stateMachine.PostUpdate(_stateContext);
+	}
+
+	//======================================================================================
+	// 体を走る発光のウェーブ
+	//--------------------------------------------------------------------------------------
+	// 周期が来たら頭(0m)から新しく出し、毎フレーム尾へ進める。
+	// 尾を抜けた(帯の幅ぶん行き過ぎた)ものは捨てる。
+	//
+	// ここが書くのは「どこを光らせるか」だけで、実際に発光を書き換えるのは
+	// BoidWaveSystem。受け渡しは WormWaveResource 経由
+	//======================================================================================
+	void SwarmBossController::UpdateWave(Engine::GameObject::ObjectContext& a_context)
+	{
+		if (!a_context.pWorld) return;
+
+		const float _dt = a_context.dt;
+
+		// 尾を抜けてから捨てるまでの余裕。
+		// 尾ちょうどで消すと、最後の小隊のボイドが光り終わる前に消えてしまう
+		const float _endPos = GetWormLength() + m_waveWidth;
+
+		//----------------------------------------------------------------------
+		// 走っているものを進める(抜けたものは落とす)
+		//
+		// 速さは1本ずつが持つ。出すときに今の設定値を写しているので、
+		// 走っている最中に速さを変えても、その帯は出たときの速さのまま流れる
+		//----------------------------------------------------------------------
+		size_t _alive = 0;
+		for (SwarmBossWave& _wave : m_waveVec)
+		{
+			_wave.position += _wave.speed * _dt;
+			if (_wave.position > _endPos) continue;
+
+			m_waveVec[_alive] = _wave;
+			++_alive;
+		}
+		m_waveVec.resize(_alive);
+
+		//----------------------------------------------------------------------
+		// 周期が来たら頭から新しく出す
+		//----------------------------------------------------------------------
+		m_waveTimer -= _dt;
+		if (m_waveTimer <= 0.0f)
+		{
+			// 周期が0以下だと毎フレーム出て帯が繋がってしまうので、下限を入れる
+			m_waveTimer = std::max(m_waveInterval, 0.01f);
+
+			// 上限は超えない。一番古いものから捨てるので、詰まっても新しい帯は必ず出る
+			if (m_maxWave > 0)
+			{
+				if (m_waveVec.size() >= m_maxWave)
+				{
+					m_waveVec.erase(m_waveVec.begin());
+				}
+
+				SwarmBossWave _new = {};
+				_new.position = 0.0f;			// 頭から
+				_new.speed    = m_waveSpeed;
+				m_waveVec.push_back(_new);
+			}
+		}
+
+		//----------------------------------------------------------------------
+		// ECS側へ書き写す
+		//----------------------------------------------------------------------
+		auto& _waveRes = a_context.pWorld->GetResource<WormWaveResource>();
+
+		_waveRes.waves         = m_waveVec;
+		_waveRes.width         = m_waveWidth;
+		_waveRes.baseIntensity = m_waveBaseIntensity;
+		_waveRes.peakIntensity = m_wavePeakIntensity;
+		_waveRes.baseColor     = m_waveBaseColor;
+		_waveRes.peakColor     = m_wavePeakColor;
+		_waveRes.isActive      = true;
+	}
+
+	//======================================================================================
+	// 頭から尾までの長さ(1次元)
+	//--------------------------------------------------------------------------------------
+	// 最後尾の小隊長の位置は生成時に決まる(CreatePlatoonLeaders で足し上げた値)。
+	// 小隊長が1体も居なければリーダーだけなので0
+	//======================================================================================
+	float SwarmBossController::GetWormLength() const
+	{
+		return m_tailAlongWorm;
 	}
 
 	//======================================================================================
@@ -286,6 +375,10 @@ namespace App::Object
 		Engine::ECS::Entity _preLeader = m_leaderEntity;
 		Math::Vector3 _prePos = m_spawnPos;
 
+		// ワーム上の1次元位置。頭(リーダー)を0として、間隔を足し上げていく。
+		// 体が曲がっても値は変わらない(伸ばした一本の紐の上での距離)
+		float _alongWorm = 0.0f;
+
 		// 最大数分小隊長を生成
 		for (uint32_t _i = 0; _i < m_maxPlatoonLeader; ++_i)
 		{
@@ -307,6 +400,10 @@ namespace App::Object
 					a_comp.preLeader    = _preLeader;
 					a_comp.platoonIndex = static_cast<int>(_i);
 					_distance = a_comp.distance;
+
+					// ワーム上での位置。一つ前の相手の位置に間隔を足したもの。
+					// ボイドはこの値を基準に自分の位置を出す(BoidWaveSystem)
+					a_comp.distanceAlongWorm = _alongWorm + a_comp.distance;
 				});
 
 			// 一つ前の相手の後ろへ間隔ぶん下げて置く
@@ -340,9 +437,13 @@ namespace App::Object
 			}
 
 			m_platoonLeaderEntities.push_back(_entity);
-			_preLeader = _entity;
-			_prePos    = _pos;
+			_preLeader  = _entity;
+			_prePos     = _pos;
+			_alongWorm += _distance;
 		}
+
+		// 最後尾の位置 = ワームの長さ。ウェーブを捨てる位置に使う
+		m_tailAlongWorm = _alongWorm;
 
 		// ボイド生成 : 小隊長が出揃ってから数を振り分ける
 		bool _isSucceeded = true;
@@ -583,6 +684,17 @@ namespace App::Object
 		// ---- 行動 ----
 		// 調整値は各ステートが持つ(名前は以前と同じなので既存シーンもそのまま読める)
 		m_stateMachine.Archive(a_ar);
+
+		// ---- ウェーブ ----
+		// 走っている位置は生成後に決まるので保存しない
+		a_ar.Field("WaveSpeed", m_waveSpeed);
+		a_ar.Field("WaveInterval", m_waveInterval);
+		a_ar.Field("WaveWidth", m_waveWidth);
+		a_ar.Field("MaxWave", m_maxWave);
+		a_ar.Field("WaveBaseIntensity", m_waveBaseIntensity);
+		a_ar.Field("WavePeakIntensity", m_wavePeakIntensity);
+		a_ar.Field("WaveBaseColor", m_waveBaseColor);
+		a_ar.Field("WavePeakColor", m_wavePeakColor);
 	}
 
 	//======================================================================================
@@ -625,6 +737,25 @@ namespace App::Object
 
 		ImGui::SeparatorText("Leader Action");
 		m_stateMachine.DrawInspector();
+
+		ImGui::SeparatorText("Wave");
+		ImGui::DragFloat("Wave Speed", &m_waveSpeed, 1.0f, 0.0f);
+		ImGui::DragFloat("Wave Interval", &m_waveInterval, 0.05f, 0.0f);
+		ImGui::DragFloat("Wave Width", &m_waveWidth, 0.5f, 0.0f);
+		ImGui::InputScalar("Max Wave", ImGuiDataType_U32, &m_maxWave);
+		ImGui::DragFloat("Base Intensity", &m_waveBaseIntensity, 0.05f, 0.0f);
+		ImGui::DragFloat("Peak Intensity", &m_wavePeakIntensity, 0.05f, 0.0f);
+		ImGui::ColorEdit3("Base Color", &m_waveBaseColor.x);
+		ImGui::ColorEdit3("Peak Color", &m_wavePeakColor.x);
+		ImGui::TextDisabled("Bloom picks up pixels over 1.0 : keep the peak above it");
+
+		// 頭から尾までを流れるので、1本が抜けるまでにかかる時間を出しておく
+		if (m_waveSpeed > 0.0f)
+		{
+			ImGui::TextDisabled("Worm length %.1f m / travel %.1f s (interval %.1f s)",
+				GetWormLength(), (GetWormLength() + m_waveWidth) / m_waveSpeed, m_waveInterval);
+		}
+		ImGui::Text("Running : %u", static_cast<uint32_t>(m_waveVec.size()));
 
 		// ここから下は実行中の状態なので表示のみ
 		ImGui::SeparatorText("Runtime");

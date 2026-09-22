@@ -1,6 +1,7 @@
 ﻿#include "StateMachine.h"
 
 #include "SwarmRandomWalk/RandomWalkState.h"
+#include "SwarmCharge/ChargeState.h"
 
 namespace App::Object
 {
@@ -11,6 +12,7 @@ namespace App::Object
 
 		// 作ったものから足していく
 		m_upStates.emplace(ESwarmBossState::RandomWalk, std::make_unique<SwarmBossRandomWalkState>());
+		m_upStates.emplace(ESwarmBossState::Charge, std::make_unique<SwarmBossChargeState>());
 
 		// 最初の行動。1フレーム目の PreUpdate で入る
 		RequestChangeState(ESwarmBossState::RandomWalk);

@@ -11,6 +11,7 @@ namespace App::Object
 		RandomWalk,			// 徘徊行動 : 攻撃と攻撃の合間に移動。抽選が行われる ,地面の中と空中で分かれる
 		UperAttack,			// 徘徊行動時に地面の中にいたら真下からプレイヤーに攻撃
 		DiveAttack,			// プレイヤーから離れて二次関数的な曲線で現在位置からプレイヤーにだいぶする
+		Charge,				// プレイヤーへ向かって一直線に突進する
 	};
 
 	class SwarmBossStateMachine

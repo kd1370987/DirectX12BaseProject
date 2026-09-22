@@ -8,6 +8,7 @@
 
 // App
 #include "../../../../../ECS/World/APPWorld.h"
+#include "../StateMachine.h"
 
 #include "../../../../../Components/Transform/LocalTransformComponent.h"
 #include "../../../../../Components/Intent/MoveIntentComponent.h"
@@ -18,12 +19,26 @@ namespace App::Object
 	{
 		// 入った瞬間に行き先を決める(前のステートの目標を引きずらない)
 		PickWanderTarget(a_context.spawnPos);
+
+		// 計測開始。攻撃へ移る時間はここで決める
+		m_time = 0.0f;
+		m_attackTime = Math::Random::Float(
+			std::min(m_minDurationTime, m_maxDurationTime),
+			std::max(m_minDurationTime, m_maxDurationTime));
 	}
 
 	void SwarmBossRandomWalkState::Update(SwarmBossStateContext& a_context)
 	{
 		if (!a_context.pObject || !a_context.pObject->pWorld) return;
 		auto& _world = *a_context.pObject->pWorld;
+
+		m_time += a_context.pObject->dt;
+
+		// 時間が来たら攻撃へ(切り替わるのは次のフレーム。それまでは徘徊を続ける)
+		if (m_time >= m_attackTime && a_context.pMachine)
+		{
+			a_context.pMachine->RequestChangeState(ESwarmBossState::Charge);
+		}
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
@@ -93,6 +108,8 @@ namespace App::Object
 		a_ar.Field("WanderInterval", m_wanderInterval);
 		a_ar.Field("ArriveDistance", m_arriveDistance);
 		a_ar.Field("Throttle", m_throttle);
+		a_ar.Field("AttackIntervalMin", m_minDurationTime);
+		a_ar.Field("AttackIntervalMax", m_maxDurationTime);
 	}
 
 	void SwarmBossRandomWalkState::DrawInspector()
@@ -102,9 +119,12 @@ namespace App::Object
 		ImGui::DragFloat("Wander Interval", &m_wanderInterval, 0.1f, 0.0f);
 		ImGui::DragFloat("Arrive Distance", &m_arriveDistance, 0.1f, 0.0f);
 		ImGui::DragFloat("Throttle", &m_throttle, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Attack Interval Min", &m_minDurationTime, 0.1f, 0.0f);
+		ImGui::DragFloat("Attack Interval Max", &m_maxDurationTime, 0.1f, 0.0f);
 
 		// 目標地点は毎フレーム上書きされるので表示のみ
 		ImGui::Text("Target  : %.1f, %.1f, %.1f (next %.1f s)",
 			m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
+		ImGui::Text("Attack  : %.1f / %.1f s", m_time, m_attackTime);
 	}
 }

@@ -206,6 +206,7 @@
 #include "../../Systems/Update/Update/Boid/PlatoonFollowSystem.h"
 #include "../../Systems/Update/Update/Boid/SwarmLookSystem.h"
 #include "../../Systems/Update/Update/Boid/SwarmLeaderMoveSystem.h"
+#include "../../Systems/Update/Update/Boid/BoidWaveSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -213,6 +214,7 @@
 #include "Application/InstanceResource/ResourceWaitResource.h"
 #include "../../InstanceResource/AdditiveBoneEntry.h"
 #include "Application/InstanceResource/HitEventResource.h"
+#include "Application/InstanceResource/WormWaveResource.h"
 
 namespace App::ECS
 {
@@ -496,6 +498,9 @@ namespace App::ECS
 		a_world.RegisterSystem<SwarmLeaderMoveSystem>();
 		// 小隊長を一つ前の相手の後ろへ追従させる(目標速度だけ書く)
 		a_world.RegisterSystem<PlatoonFollowSystem>();
+		// 体を走る発光のウェーブをボイドへ塗る(ウェーブを出すのは SwarmBossController)。
+		// 小隊長の向きを使うので SwarmLookSystem より後に置く
+		a_world.RegisterSystem<BoidWaveSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
@@ -518,6 +523,7 @@ namespace App::ECS
 		a_world.AddResource<DeathEventResource>();
 		a_world.AddResource<WaveAnnounceResource>();
 		a_world.AddResource<FlyingSoundResource>();
+		a_world.AddResource<WormWaveResource>();
 
 		// 初期化
 		a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);
@@ -533,5 +539,8 @@ namespace App::ECS
 		// 1フレーム分のヒット数はたかが知れているので少なめに確保
 		a_world.GetResource<HitEventResource>().Reserve(256);
 		a_world.GetResource<DeathEventResource>().Reserve(64);
+
+		// 同時に走るウェーブは数本(SwarmBossController の Max Wave)
+		a_world.GetResource<WormWaveResource>().Reserve(16);
 	}
 }

@@ -24,6 +24,8 @@ struct PlatoonLeaderComponent
 	float followGain = 8.0f;		// 間隔のずれを詰める強さ(1/秒。ずれ1mにつき出す速さ。保存される)
 	float turnSpeedDeg = 360.0f;	// 進んでいる向きへ向き直る速さ(度/秒。保存される)
 	int platoonIndex = -1;			// リーダーから数えて何番目か(0 始まり。生成時に書き込む)
+
+	float distanceAlongWorm = 0.0f;	// ワーム上での小隊長の位置 : 曲がっているなど関係のない純粋な距離、一次元、生成時に決まる
 };
 
 template<>
@@ -47,6 +49,7 @@ struct Engine::ECS::ComponentTraits<PlatoonLeaderComponent>
 
 		// 生成時に書き込まれる値なので表示のみ
 		ImGui::Text("PlatoonIndex : %d", _comp.platoonIndex);
+		ImGui::Text("AlongWorm    : %.1f m", _comp.distanceAlongWorm);
 		if (_comp.preLeader == Engine::ECS::Limits::INVALID_ENTITY)
 		{
 			ImGui::TextDisabled("PreLeader    : (none)");

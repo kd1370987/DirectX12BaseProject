@@ -301,6 +301,7 @@
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.cpp" />
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge\ChargeState.cpp" />
     <ClCompile Include="Source\Application\Object\Scene\InputBinding\InputBinding.cpp" />
     <ClCompile Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.cpp" />
     <ClCompile Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.cpp" />
@@ -391,6 +392,7 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\PlatoonFollowSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SwarmLeaderMoveSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidWaveSystem.cpp" />
     <ClCompile Include="Source\Application\Utility\PrefabSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Utility\EffectSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.cpp" />
@@ -689,6 +691,7 @@
     <ClInclude Include="Source\Application\Components\Character\BoidComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Boss\BoidSpownerComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Boss\PlatoonLeaderComponent.h" />
+    <ClInclude Include="Source\Application\Components\Character\Boss\SwarmBossWave.h" />
     <ClInclude Include="Source\Application\Components\Character\TargetEntityComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\LockOnTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Character\Weapon\Missile\MissileLockComponent.h" />
@@ -715,6 +718,7 @@
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\IState.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.h" />
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge\ChargeState.h" />
     <ClInclude Include="Source\Application\Object\Scene\InputBinding\InputBinding.h" />
     <ClInclude Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.h" />
     <ClInclude Include="Source\Application\Object\UI\Decoration.h" />
@@ -775,6 +779,7 @@
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h" />
     <ClInclude Include="Source\Application\InstanceResource\SingletonEntityResource.h" />
     <ClInclude Include="Source\Application\InstanceResource\HitEventResource.h" />
+    <ClInclude Include="Source\Application\InstanceResource\WormWaveResource.h" />
     <ClInclude Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.h" />
     <ClInclude Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.h" />
     <ClInclude Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.h" />
@@ -870,6 +875,7 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\PlatoonFollowSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SwarmLeaderMoveSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidWaveSystem.h" />
     <ClInclude Include="Source\Application\Utility\PrefabSpawnHelper.h" />
     <ClInclude Include="Source\Application\Utility\EffectSpawnHelper.h" />
     <ClInclude Include="Source\Application\Components\Character\HealthComponent.h" />

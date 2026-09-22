@@ -1600,6 +1600,9 @@
     <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates">
       <UniqueIdentifier>{5ddd0139-fd32-485d-8bd8-ec095023aa64}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge">
+      <UniqueIdentifier>{3b7e6f2a-9c41-4d8e-a5f0-6e2d1c7b9a43}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk">
       <UniqueIdentifier>{d13a0299-dfa4-4e5f-a68a-c7fbb17f9c98}</UniqueIdentifier>
     </Filter>
@@ -2736,8 +2739,14 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidWaveSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SwarmLeaderMoveSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge\ChargeState.cpp">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.cpp">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk</Filter>
@@ -3084,6 +3093,9 @@
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\WormWaveResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\HitEventResource.h">
@@ -4457,11 +4469,17 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidWaveSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SwarmLeaderMoveSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\IState.h">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge\ChargeState.h">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.h">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk</Filter>

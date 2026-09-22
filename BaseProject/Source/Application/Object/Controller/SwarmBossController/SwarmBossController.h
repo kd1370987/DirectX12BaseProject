@@ -4,6 +4,8 @@
 
 #include "SwarmBossStates/StateMachine.h"
 
+#include "../../../Components/Character/Boss/SwarmBossWave.h"
+
 namespace App::Object
 {
 	/// <summary>
@@ -95,6 +97,16 @@ namespace App::Object
 		// 入力を速度に変えるのは SwarmLeaderMoveSystem、座標を進めるのは MovementIntegrationSystem
 		void UpdateLeaderBrain(Engine::GameObject::ObjectContext& a_context);
 
+		//------------------------------------------------------------------------------------------
+		// 体を走る発光のウェーブ
+		//------------------------------------------------------------------------------------------
+		// ウェーブを進め、周期が来たら頭から新しく出す。結果は WormWaveResource へ書き写す。
+		// 4000体への書き込みは BoidWaveSystem(ECS側)が受け持つ
+		void UpdateWave(Engine::GameObject::ObjectContext& a_context);
+
+		// 頭から尾までの長さ(1次元)。ウェーブを消す位置に使う
+		float GetWormLength() const;
+
 	private:
 		// 生成されたかどうか
 		bool m_isSpown = false;
@@ -151,5 +163,32 @@ namespace App::Object
 		// 動かす側はECSに任せる
 		//------------------------------------------------------------------------------------------
 		SwarmBossStateMachine m_stateMachine;
+
+		//------------------------------------------------------------------------------------------
+		// ウェーブ
+		//
+		// 先頭から順にブルームを炊いて光のウェーブにする
+		// 各小隊長には一次元でワーム上の距離を持たせてボイドは小隊長との距離を求めて自身の場所を把握する
+		//
+		// ここは出す側(周期で新しく出し、尾へ進め、抜けたら捨てる)。
+		// 4000体の発光を実際に書き換えるのは BoidWaveSystem。
+		// 間に WormWaveResource を挟んでいるのは、オブジェクト側で ECS を全走査すると
+		// チャンク単位で回れず、体数ぶんそのまま重くなるため
+		//------------------------------------------------------------------------------------------
+		float m_waveSpeed    = 60.0f;	// ウェーブが尾へ進む速さ(m/秒)
+		float m_waveInterval = 1.2f;	// 新しいウェーブを出す周期(秒)
+		float m_waveWidth    = 12.0f;	// 帯の幅(m)。ウェーブからこの距離でベース値に戻る
+		uint32_t m_maxWave   = 8;		// 同時に走らせる本数の上限(周期が短いと並ぶ)
+
+		float m_waveBaseIntensity = 0.5f;	// ウェーブが来ていないときの発光の強さ
+		float m_wavePeakIntensity = 8.0f;	// ウェーブの中心での発光の強さ
+
+		Math::Vector3 m_waveBaseColor = { 1.0f, 0.3f, 0.1f };	// ベースの色(0〜1)
+		Math::Vector3 m_wavePeakColor = { 1.0f, 1.0f, 0.9f };	// ピークの色(0〜1)
+
+		// ---- 実行中の状態(保存しない) ----
+		std::vector<SwarmBossWave> m_waveVec = {};	// 走っているウェーブ(位置と速さ)
+		float m_waveTimer = 0.0f;					// 次に出すまでの残り時間(秒)
+		float m_tailAlongWorm = 0.0f;				// 最後尾の小隊長の1次元位置(生成時に決まる)
 	};
 }
