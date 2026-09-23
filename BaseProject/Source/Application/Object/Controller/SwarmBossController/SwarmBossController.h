@@ -113,6 +113,9 @@ namespace App::Object
 		// 調整値を WormGroundEffectResource へ書き写す。レイを打って炊くのは BoidGroundEffectSystem
 		void UpdateGroundEffect(Engine::GameObject::ObjectContext& a_context);
 
+		// リーダーが地面に潜った / 地面から出た瞬間に、地表へ大きな砂埃(エフェクトプレハブ)を炊く
+		void UpdateBurrowEffect(Engine::GameObject::ObjectContext& a_context);
+
 	private:
 		// 生成されたかどうか
 		bool m_isSpown = false;
@@ -225,5 +228,24 @@ namespace App::Object
 
 		// ---- 実行中の状態(保存しない) ----
 		bool m_isGroundEffectOneShot = false;	// 読み込み済みで、出し切って消える単発のものか(違えば炊かない)
+
+		//------------------------------------------------------------------------------------------
+		// 潜る / 出るときの大きな砂埃(リーダーだけ)
+		//
+		// リーダーの SerchGroundComponent が「地上 ↔ 地中」で切り替わった瞬間に、
+		// 真上(真下)の地表へエフェクトプレハブを炊く。潜るときも出るときも同じものを使う。
+		// エフェクトプレハブは時間で必ず消えるので、ここは炊くだけで後片付けは要らない。
+		// 地表すれすれを泳ぐと切り替わりが続くので、間隔(cooldown)を空ける
+		//------------------------------------------------------------------------------------------
+		// 炊くエフェクトプレハブ(保存用)。既定は Asset/EffectPrefab/Worm/Worm_BurrowBurst
+		Engine::GUID m_burrowEffectGUID = Engine::GUID("3545c827-95ef-4b39-b3e1-ae2f11dd494d");
+		Engine::ResourceRef<Engine::Resource::EffectPrefab> m_burrowEffectRef = {};	// 読み込んだままにしておく
+
+		float m_burrowEffectCooldown = 1.0f;	// 次に炊けるまでの間隔(秒)
+
+		// ---- 実行中の状態(保存しない) ----
+		float m_burrowEffectTimer = 0.0f;		// 次に炊けるまでの残り時間(秒)
+		bool m_isLeaderGroundKnown = false;		// 地面との関係を1度でも見たか(最初のフレームで炊かないため)
+		bool m_wasLeaderUnderGround = false;	// 前に見たときに地中だったか
 	};
 }

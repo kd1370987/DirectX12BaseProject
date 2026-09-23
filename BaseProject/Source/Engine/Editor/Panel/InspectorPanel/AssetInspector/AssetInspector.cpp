@@ -138,5 +138,9 @@ namespace Engine::Editor::Inspector
 		{
 			EffectAssetDraw(a_editContext);
 		}
+		else if (_type == "EffectPrefab")
+		{
+			EffectPrefabDraw(a_editContext);
+		}
 	}
 }

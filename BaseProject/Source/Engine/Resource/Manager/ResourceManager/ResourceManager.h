@@ -415,6 +415,7 @@ namespace Engine::Resource
 		ResourceData<Prefab> m_prefabData;										// プレハブデータ
 		ResourceData<Sound> m_soundData;										// サウンド
 		ResourceData<AudioBehavior> m_audioBehaviorData;						// サウンドの流れ(始動/継続/終了)
+		ResourceData<EffectPrefab> m_effectPrefabData;							// エフェクトプレハブ(炊いたら時間で消える大きな演出)
 		ResourceData<EffectAsset> m_effectAssetData;							// エフェクト(パーティクル+メッシュ)
 		ResourceData<Font> m_fontData;											// フォント(.ttf/.otf/.ttc)
 		ResourceData<Graphics::Pipeline::RenderingPipelineAsset> m_renderingPipelineData;	// レンダリングパイプライン(レンダーグラフの設計図)
@@ -1078,6 +1079,7 @@ namespace Engine::Resource
 	template<> inline ResourceData<Sound>& ResourceManager::RefData<Sound>() { return m_soundData; }
 	template<> inline ResourceData<AudioBehavior>& ResourceManager::RefData<AudioBehavior>() { return m_audioBehaviorData; }
 	template<> inline ResourceData<EffectAsset>& ResourceManager::RefData<EffectAsset>() { return m_effectAssetData; }
+	template<> inline ResourceData<EffectPrefab>& ResourceManager::RefData<EffectPrefab>() { return m_effectPrefabData; }
 	template<> inline ResourceData<Font>& ResourceManager::RefData<Font>() { return m_fontData; }
 	template<> inline ResourceData<Graphics::Pipeline::RenderingPipelineAsset>& ResourceManager::RefData<Graphics::Pipeline::RenderingPipelineAsset>() { return m_renderingPipelineData; }
 
@@ -1095,6 +1097,7 @@ namespace Engine::Resource
 	template<> inline const ResourceData<Sound>& ResourceManager::GetData<Sound>() const { return m_soundData; }
 	template<> inline const ResourceData<AudioBehavior>& ResourceManager::GetData<AudioBehavior>() const { return m_audioBehaviorData; }
 	template<> inline const ResourceData<EffectAsset>& ResourceManager::GetData<EffectAsset>() const { return m_effectAssetData; }
+	template<> inline const ResourceData<EffectPrefab>& ResourceManager::GetData<EffectPrefab>() const { return m_effectPrefabData; }
 	template<> inline const ResourceData<Font>& ResourceManager::GetData<Font>() const { return m_fontData; }
 	template<> inline const ResourceData<Graphics::Pipeline::RenderingPipelineAsset>& ResourceManager::GetData<Graphics::Pipeline::RenderingPipelineAsset>() const { return m_renderingPipelineData; }
 }

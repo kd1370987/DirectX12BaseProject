@@ -6,6 +6,7 @@ namespace Engine
 	namespace Resource
 	{
 		class EffectAsset;
+		class EffectPrefab;
 		class ParticlesAsset;
 	}
 	namespace Graphics::Pipeline { class RenderingPipelineAsset; }
@@ -46,6 +47,11 @@ namespace Engine::Editor
 	//   ゲームのシーンが止まっている状態でモードを切り替えられると、
 	//   「プレイモードなのに何も動かない」という筋の通らない状態になるため。
 	//
+	// ・エフェクトプレハブ(EffectPrefab)も開ける(OpenEffectPrefab)。
+	//   原点に炊き、全部が寿命で消えたら(Loop なら)炊き直す。
+	//   右側はプレハブと同じコンポーネント編集。変更は次に炊いたときから効く(Restart)。
+	//   プレビューのワールドには地面が無いので、着地する破片は寿命まで落ち続ける。
+	//
 	//======================================================================================
 	class EffectEditor
 	{
@@ -59,6 +65,11 @@ namespace Engine::Editor
 		/// 指定のエフェクトを開く(次のフレームからプレビューが回りだす)
 		/// </summary>
 		void Open(const Engine::GUID& a_effectGUID);
+
+		/// <summary>
+		/// 指定のエフェクトプレハブを開く(原点に炊き、消えたら炊き直す)
+		/// </summary>
+		void OpenEffectPrefab(const Engine::GUID& a_effectPrefabGUID);
 
 		/// <summary>
 		/// 閉じる。ワールドは残し、中に出したエフェクトだけを片付ける
@@ -124,6 +135,16 @@ namespace Engine::Editor
 
 		// 編集対象のアセット。読み込めていなければ nullptr
 		Resource::EffectAsset* RefEffectAsset() const;
+		Resource::EffectPrefab* RefEffectPrefab() const;
+
+		// エフェクトプレハブを開くときの共通の後半(ワールド・カメラ・描画構成の用意と最初の生成)
+		void BeginOpen();
+
+		// エフェクトプレハブで出したもののうち、まだ残っている数(寿命を持つもの)
+		int CountPrefabEntities() const;
+
+		// エフェクトプレハブの編集欄
+		void DrawEffectPrefabEditPane();
 
 		// 今 Particle タブで開いているパーツの粒。選んでいなければ nullptr
 		Resource::ParticlesAsset* RefSelectedParticleAsset() const;
@@ -146,8 +167,19 @@ namespace Engine::Editor
 		bool m_isOpen = false;			// 開いているか
 		bool m_isOpenRequest = false;	// ImGui へポップアップを開かせる要求(開いた最初の1回だけ)
 
+		// 開いているもの。m_effectGUID はどちらのモードでも「開いているアセット」のGUID
+		enum class EMode
+		{
+			Effect,			// EffectAsset
+			EffectPrefab,	// EffectPrefab
+		};
+		EMode m_mode = EMode::Effect;
+
 		Engine::GUID m_effectGUID = Engine::DefaultGUID;
 		Engine::Handle<Resource::EffectAsset> m_effectHandle = {};
+		Engine::Handle<Resource::EffectPrefab> m_effectPrefabHandle = {};
+
+		float m_prefabElapsed = 0.0f;	// エフェクトプレハブを炊いてからの経過時間(秒)
 
 		// プレビュー用のエディターシーン。
 		// 閉じても捨てずに使い回す。World::Release() はリソースのGC掃除まで走るので、

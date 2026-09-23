@@ -80,6 +80,8 @@
 #include "../../Components/Tag/SwarmBossBoidTag.h"
 #include "../../Components/Character/SerchGroundComponent.h"
 #include "../../Components/Character/Boss/WarmGroundEffectComponent.h"
+#include "../../Components/Effect/DebrisEmitterComponent.h"
+#include "../../Components/Effect/BallisticComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -211,6 +213,8 @@
 #include "../../Systems/Update/Update/Boid/BoidWaveSystem.h"
 #include "../../Systems/Update/Update/Boid/SerchGroundSystem.h"
 #include "../../Systems/Update/Update/Boid/BoidGroundEffectSystem.h"
+#include "../../Systems/Update/Update/Effect/DebrisEmitterSystem/DebrisEmitterSystem.h"
+#include "../../Systems/Update/Update/Effect/BallisticSystem/BallisticSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -335,6 +339,9 @@ namespace App::ECS
 		a_world.RegisterComponent<SerchGroundComponent>("SerchGroundComponent");
 		// ワームの体(ボイド)が砂埃を炊く番を待つ時間。付けるのは SwarmBossController
 		a_world.RegisterComponent<WarmGroundEffectComponent>("WarmGroundEffectComponent");
+		// エフェクトプレハブ : 破片を撒く / 撒かれた破片を放物線で飛ばして着地させる
+		a_world.RegisterComponent<DebrisEmitterComponent>("DebrisEmitterComponent");
+		a_world.RegisterComponent<BallisticComponent>("BallisticComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -514,6 +521,10 @@ namespace App::ECS
 		a_world.RegisterSystem<SerchGroundSystem>();
 		// ワームの体(ボイド)から上下にレイを打ち、地表へ砂埃を炊く(設定は SwarmBossController)
 		a_world.RegisterSystem<BoidGroundEffectSystem>();
+		// エフェクトプレハブの破片を撒く(破片のハンドルは PostDeserialize で取る)
+		a_world.RegisterSystem<DebrisEmitterSystem>();
+		// 撒かれた破片を放物線で飛ばし、地面で跳ねて止める
+		a_world.RegisterSystem<BallisticSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();

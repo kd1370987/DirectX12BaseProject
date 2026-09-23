@@ -726,6 +726,12 @@ namespace Engine
 		_prfb.AddExtensions(".ojprfb");
 		_prfb.AddExtensions(".obprfb");
 		_assetDB.AddSupporedExtensions(_prfb);
+		// エフェクトプレハブ(炊いたら時間で消える大きな演出)
+		Resource::TypeExtension _effectPrefab = {};
+		_effectPrefab.type = "EffectPrefab";
+		_effectPrefab.AddExtensions(".ojefprfb");
+		_effectPrefab.AddExtensions(".obefprfb");
+		_assetDB.AddSupporedExtensions(_effectPrefab);
 		// サウンド
 		Resource::TypeExtension _sound = {};
 		_sound.type = "Sound";

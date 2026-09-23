@@ -20,8 +20,13 @@
 #include "../../Resource/Data/Particles/ParticlesAsset.h"
 #include "../../Audio/AudioManager.h"
 
+#include "../Panel/InspectorPanel/AssetInspector/ResourceDraw/ResourceDraw.h"
+#include "../../Resource/Data/EffectPrefab/EffectPrefab.h"
+
 #include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Common/LifeTimeComponent.h"
 #include "Application/Utility/EffectSpawnHelper.h"
+#include "Application/Utility/EffectPrefabSpawnHelper.h"
 
 namespace Engine::Editor
 {
@@ -68,10 +73,32 @@ namespace Engine::Editor
 		// 開き直しでも中身は作り直す(別のエフェクトを選んだ場合があるため)
 		DestroyEffectEntity();
 
+		m_mode = EMode::Effect;
 		m_effectGUID = a_effectGUID;
 		m_effectHandle =
 			m_pServices->pResourceManager->LoadImmediate<Resource::EffectAsset>(a_effectGUID);
+		m_effectPrefabHandle = {};
 
+		BeginOpen();
+	}
+
+	void EffectEditor::OpenEffectPrefab(const Engine::GUID& a_effectPrefabGUID)
+	{
+		if (a_effectPrefabGUID == Engine::DefaultGUID) return;
+
+		DestroyEffectEntity();
+
+		m_mode = EMode::EffectPrefab;
+		m_effectGUID = a_effectPrefabGUID;
+		m_effectHandle = {};
+		m_effectPrefabHandle =
+			m_pServices->pResourceManager->LoadImmediate<Resource::EffectPrefab>(a_effectPrefabGUID);
+
+		BeginOpen();
+	}
+
+	void EffectEditor::BeginOpen()
+	{
 		m_isOpen = true;
 		m_isOpenRequest = true;
 
@@ -110,8 +137,10 @@ namespace Engine::Editor
 		DestroyEffectEntity();
 
 		m_isOpen = false;
+		m_mode = EMode::Effect;
 		m_effectGUID = Engine::DefaultGUID;
 		m_effectHandle = {};
+		m_effectPrefabHandle = {};
 
 		// 押しっぱなし扱いを閉じたあとへ持ち越さない
 		if (m_upCamera) m_upCamera->CancelControl();
@@ -153,6 +182,18 @@ namespace Engine::Editor
 		if (!m_upWorld) return;
 		if (m_effectGUID == Engine::DefaultGUID) return;
 
+		// エフェクトプレハブ : ゲームと同じ経路で炊く(寿命も付くので、放っておけば全部消える)。
+		// 編集中の値は、メモリ上のアセットをそのまま使うので保存しなくても反映される
+		if (m_mode == EMode::EffectPrefab)
+		{
+			m_prefabElapsed = 0.0f;
+			if (const auto* _pEffectPrefab = RefEffectPrefab())
+			{
+				App::Utility::SpawnEffectPrefab(*m_upWorld, *_pEffectPrefab, EFFECT_ORIGIN);
+			}
+			return;
+		}
+
 		// 実体化は次の BeginFrame。
 		// 出し切っても消えないようにしておく(何度も再生し直したいので寿命はこちらが握る)。
 		// 発生位置は常に原点。カメラは自由に動かせるので、見る位置と出す位置は分けておく
@@ -163,7 +204,9 @@ namespace Engine::Editor
 	{
 		if (!m_upWorld) return;
 
-		// プレビュー用ワールドにはエフェクトしか居ないので、見つけたものを全部片付ける
+		// プレビュー用ワールドにはエフェクトしか居ないので、見つけたものを全部片付ける。
+		// エフェクトプレハブで出したもの(破片など、エフェクトを持たないものもある)は
+		// 必ず寿命を持つので、そちらでも拾う
 		std::vector<ECS::Entity> _targets = {};
 		m_upWorld->ForEach<EffectAssetComponent>(
 			[&](ECS::Chunk* a_pChunk, uint32_t a_count, EffectAssetComponent*)
@@ -174,6 +217,19 @@ namespace Engine::Editor
 				}
 			}
 		);
+		m_upWorld->ForEach<LifeTimeComponent>(
+			[&](ECS::Chunk* a_pChunk, uint32_t a_count, LifeTimeComponent*)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					_targets.push_back(a_pChunk->entityData[_i]);
+				}
+			}
+		);
+
+		// 両方を持つものは2回積まれるので、重ねて解放予約しないよう1つにする
+		std::sort(_targets.begin(), _targets.end());
+		_targets.erase(std::unique(_targets.begin(), _targets.end()), _targets.end());
 
 		for (const ECS::Entity& _entity : _targets)
 		{
@@ -212,6 +268,26 @@ namespace Engine::Editor
 		return m_pServices->pResourceManager->Ref(m_effectHandle);
 	}
 
+	Resource::EffectPrefab* EffectEditor::RefEffectPrefab() const
+	{
+		return m_pServices->pResourceManager->Ref(m_effectPrefabHandle);
+	}
+
+	int EffectEditor::CountPrefabEntities() const
+	{
+		if (!m_upWorld) return 0;
+
+		// エフェクトプレハブで出したものは全部寿命を持つ(SpawnEffectPrefab が付ける)
+		int _count = 0;
+		m_upWorld->ForEach<LifeTimeComponent>(
+			[&](ECS::Chunk*, uint32_t a_count, LifeTimeComponent*)
+			{
+				_count += static_cast<int>(a_count);
+			}
+		);
+		return _count;
+	}
+
 	Resource::ParticlesAsset* EffectEditor::RefSelectedParticleAsset() const
 	{
 		const auto* _pEffect = RefEffectAsset();
@@ -236,8 +312,29 @@ namespace Engine::Editor
 		// 0 を流すだけで「その瞬間で固まる」
 		const float _dt = m_isPlaying ? (a_dt * m_playSpeed) : 0.0f;
 
+		//------------------------------------------------------------------
+		// エフェクトプレハブ : 全部消えたら炊き直す / Restart で片付けて炊き直す
+		//
+		// 生成は遅延なので、炊いた直後の数フレームは数が0のまま。
+		// 少し時間が経ってからの0だけを「消えた」とみなす
+		//------------------------------------------------------------------
+		if (m_mode == EMode::EffectPrefab)
+		{
+			if (m_isRestartRequest)
+			{
+				m_isRestartRequest = false;
+				DestroyEffectEntity();
+				RequestSpawn();
+			}
+			else if (m_isLoop && m_prefabElapsed > 0.2f && CountPrefabEntities() == 0)
+			{
+				RequestSpawn();
+			}
+
+			m_prefabElapsed += _dt;
+		}
 		// ---- 再生の指示をコンポーネントへ書いてから回す ----
-		if (EffectRef _ref = FindEffect(); _ref.IsValid())
+		else if (EffectRef _ref = FindEffect(); _ref.IsValid())
 		{
 			auto* _pEffect = m_pServices->pResourceManager->Ref(_ref.pComp->effectHandle);
 
@@ -452,7 +549,7 @@ namespace Engine::Editor
 	void EffectEditor::DrawToolbar()
 	{
 		const auto _fileName = m_pServices->pAssetDatabase->GetFileNameFromGUID(m_effectGUID);
-		ImGui::Text("Effect : %s", _fileName.c_str());
+		ImGui::Text("%s : %s", (m_mode == EMode::EffectPrefab) ? "Effect Prefab" : "Effect", _fileName.c_str());
 		ImGui::SameLine();
 		ImGui::TextDisabled("(%s)", m_effectGUID.String().c_str());
 
@@ -543,6 +640,15 @@ namespace Engine::Editor
 
 	void EffectEditor::DrawInfo()
 	{
+		if (m_mode == EMode::EffectPrefab)
+		{
+			const auto* _pEffectPrefab = RefEffectPrefab();
+			ImGui::Text("Elapsed : %.2f / %.2f s", m_prefabElapsed, _pEffectPrefab ? _pEffectPrefab->GetLifeTime() : 0.0f);
+			ImGui::SameLine();
+			ImGui::TextDisabled("| Alive entities : %d", CountPrefabEntities());
+			return;
+		}
+
 		EffectRef _ref = FindEffect();
 		if (!_ref.IsValid())
 		{
@@ -573,6 +679,12 @@ namespace Engine::Editor
 	//--------------------------------------------------------------------------------------
 	void EffectEditor::DrawEditPane()
 	{
+		if (m_mode == EMode::EffectPrefab)
+		{
+			DrawEffectPrefabEditPane();
+			return;
+		}
+
 		auto* _pEffect = RefEffectAsset();
 		if (!_pEffect)
 		{
@@ -596,6 +708,42 @@ namespace Engine::Editor
 		}
 
 		ImGui::EndTabBar();
+	}
+
+	//--------------------------------------------------------------------------------------
+	// エフェクトプレハブの編集欄
+	//
+	// コンポーネントの編集はアセットインスペクターと同じ関数(PrefabComponentsEdit)。
+	// 編集はメモリ上のアセットを書き換えるので、次に炊いたときから効く
+	//--------------------------------------------------------------------------------------
+	void EffectEditor::DrawEffectPrefabEditPane()
+	{
+		auto* _pEffectPrefab = RefEffectPrefab();
+		if (!_pEffectPrefab || !m_upWorld)
+		{
+			ImGui::TextDisabled("エフェクトプレハブを読み込めませんでした");
+			return;
+		}
+
+		// 保存にはコンポーネント名が要る。プレビューのワールドもゲームと同じ登録なのでそのまま使える
+		if (ImGui::Button("Save"))
+		{
+			auto _path = m_pServices->pAssetDatabase->GetFilePathFromGUID(m_effectGUID);
+			_pEffectPrefab->Save(m_upWorld.get(), _path);
+			ENGINE_LOG("Save EffectPrefab : %s", _path.c_str());
+		}
+		ImGui::SameLine();
+		ImGui::TextDisabled("変更は次に炊いたときから効く(Restart)");
+
+		float _lifeTime = _pEffectPrefab->GetLifeTime();
+		if (ImGui::DragFloat("Life Time", &_lifeTime, 0.05f, Resource::EffectPrefab::MIN_LIFE_TIME, 60.0f))
+		{
+			_pEffectPrefab->SetLifeTime(_lifeTime);
+		}
+
+		ImGui::Separator();
+
+		Inspector::PrefabComponentsEdit(m_upWorld.get(), &_pEffectPrefab->RefPrefab());
 	}
 
 	//--------------------------------------------------------------------------------------

@@ -5,11 +5,13 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/Prefab/Prefab.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
+#include "Engine/Resource/Data/EffectPrefab/EffectPrefab.h"
 #include "Engine/Editor/Helper/EditorHelper.h"	// コンポーネントの Traits が使うので先に置く
 
 // App
 #include "../../../ECS/World/APPWorld.h"
 #include "../../../Utility/PrefabSpawnHelper.h"
+#include "../../../Utility/EffectPrefabSpawnHelper.h"
 
 #include "../../../Components/Transform/LocalTransformComponent.h"
 #include "../../../Components/Force/MovementComponent.h"
@@ -194,6 +196,9 @@ namespace App::Object
 		// 地面の近く・地面の中で炊く砂埃(炊くのは BoidGroundEffectSystem)
 		UpdateGroundEffect(a_context);
 
+		// リーダーが潜った / 出た瞬間の大きな砂埃
+		UpdateBurrowEffect(a_context);
+
 		// 残りの生存数(HP代わり)。印を数え直すだけ
 		m_currentBoids = CountAliveBoids(a_context);
 	}
@@ -300,6 +305,61 @@ namespace App::Object
 	float SwarmBossController::GetWormLength() const
 	{
 		return m_tailAlongWorm;
+	}
+
+	//======================================================================================
+	// 潜る / 出るときの大きな砂埃
+	//--------------------------------------------------------------------------------------
+	// リーダーの地面との関係(SerchGroundSystem が書く)が切り替わった瞬間に、
+	// リーダーの真上(真下)の地表へエフェクトプレハブを炊く。
+	// 地面が見つからないフレームは切り替わりとして扱わない(レイの届かない高さに居るだけ)
+	//======================================================================================
+	void SwarmBossController::UpdateBurrowEffect(Engine::GameObject::ObjectContext& a_context)
+	{
+		if (!a_context.pWorld || !a_context.pServices || !a_context.pServices->pResourceManager) return;
+		auto& _world = *a_context.pWorld;
+		auto& _rm = *a_context.pServices->pResourceManager;
+
+		m_burrowEffectTimer -= a_context.dt;
+
+		if (!_world.IsAliveEntity(m_leaderEntity)) return;
+		if (!_world.HasComponent<SerchGroundComponent>(m_leaderEntity)) return;
+		if (!_world.HasComponent<LocalTransformComponent>(m_leaderEntity)) return;
+
+		const SerchGroundComponent _ground = *_world.RefData<SerchGroundComponent>(m_leaderEntity);
+		if (!_ground.isFoundGround) return;
+
+		const bool _isUnderGround = _ground.isUnderGround != 0;
+
+		// 最初に見たときは覚えるだけ(出た瞬間に炊かない)
+		if (!m_isLeaderGroundKnown)
+		{
+			m_isLeaderGroundKnown  = true;
+			m_wasLeaderUnderGround = _isUnderGround;
+			return;
+		}
+
+		if (_isUnderGround == m_wasLeaderUnderGround) return;
+		m_wasLeaderUnderGround = _isUnderGround;
+
+		// 地表すれすれを泳いでいると切り替わりが続くので、間を空ける
+		if (m_burrowEffectTimer > 0.0f) return;
+		if (m_burrowEffectGUID == Engine::DefaultGUID) return;
+
+		// 初めて炊くときに読み込む(以降は握ったまま)。
+		// 中身を読むのにワールドのコンポーネント情報が要るので、同期で読む
+		if (!m_burrowEffectRef)
+		{
+			m_burrowEffectRef = _rm.LoadImmediate<Engine::Resource::EffectPrefab>(m_burrowEffectGUID);
+		}
+
+		const Math::Vector3 _leaderPos = _world.RefData<LocalTransformComponent>(m_leaderEntity)->pos;
+		const Math::Vector3 _pos(_leaderPos.x, _ground.groundHeight, _leaderPos.z);
+
+		if (App::Utility::SpawnEffectPrefab(_world, _rm, m_burrowEffectRef, _pos))
+		{
+			m_burrowEffectTimer = m_burrowEffectCooldown;
+		}
 	}
 
 	//======================================================================================
@@ -789,6 +849,11 @@ namespace App::Object
 		a_ar.Field("GroundEffectInterval", m_groundEffectInterval);
 		a_ar.Field("GroundEffectMaxSpawnPerFrame", m_groundEffectMaxSpawnPerFrame);
 
+		// ---- 潜る / 出るときの大きな砂埃 ----
+		// 読み込みは初めて炊くとき(UpdateBurrowEffect)。中身を読むのにワールドが要るため
+		a_ar.GUIDField("BurrowEffectGUID", m_burrowEffectGUID);
+		a_ar.Field("BurrowEffectCooldown", m_burrowEffectCooldown);
+
 		// 炊くたびに読み込みが走らないよう、読んだ時点で握っておく
 		if (a_ar.IsLoading() && a_context.pServices && a_context.pServices->pResourceManager)
 		{
@@ -882,6 +947,17 @@ namespace App::Object
 		ImGui::DragFloat("Effect Under Scale", &m_groundEffectUnderScale, 0.01f, 0.0f);
 		ImGui::DragFloat("Effect Interval", &m_groundEffectInterval, 0.05f, 0.01f);
 		ImGui::InputScalar("Effect Max Per Frame", ImGuiDataType_U32, &m_groundEffectMaxSpawnPerFrame);
+
+		ImGui::SeparatorText("Burrow Effect (leader)");
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			_services, "Burrow Effect", "EffectPrefab", m_burrowEffectGUID))
+		{
+			// 差し替えたら次に炊くときに読み直す
+			m_burrowEffectRef = {};
+		}
+		ImGui::DragFloat("Burrow Cooldown", &m_burrowEffectCooldown, 0.05f, 0.0f);
+		ImGui::TextDisabled("Leader : %s", !m_isLeaderGroundKnown ? "(unknown)"
+			: (m_wasLeaderUnderGround ? "under ground" : "above ground"));
 
 		// 間隔が来たボイドだけがレイを打つので、1フレームの本数の目安を出しておく
 		if (m_groundEffectInterval > 0.0f)

@@ -2,6 +2,9 @@
 
 #include "../../../../Internal/EditorContext.h"
 
+namespace Engine::ECS { class World; }
+namespace Engine::Resource { class Prefab; }
+
 namespace Engine::Editor::Inspector
 {
 	// モデル
@@ -33,6 +36,14 @@ namespace Engine::Editor::Inspector
 
 	// プレハブ
 	void PrefabDraw(EditorContext& a_editContext);
+
+	// プレハブのコンポーネントの羅列・編集・追加。
+	// プレハブ / エフェクトプレハブ / エフェクトエディターで同じものを使う
+	// (片方だけ直し忘れないように、UIは1か所にしておく)
+	void PrefabComponentsEdit(ECS::World* a_pWorld, Resource::Prefab* a_pPrefab);
+
+	// エフェクトプレハブ
+	void EffectPrefabDraw(EditorContext& a_editContext);
 
 	// オーディオビヘイビア
 	void AudioBehaviorDraw(EditorContext& a_editContext);

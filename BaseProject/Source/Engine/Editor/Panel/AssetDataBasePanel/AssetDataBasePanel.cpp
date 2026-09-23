@@ -4,6 +4,7 @@
 #include "Engine/Resource/Data/Particles/IO/ParticlesIO.h"
 #include "Engine/Resource/Data/AudioBehavior/IO/AudioBehaviorIO.h"
 #include "Engine/Resource/Data/EffectAsset/IO/EffectAssetIO.h"
+#include "Engine/Resource/Data/EffectPrefab/EffectPrefab.h"
 #include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
 #include "../../Helper/EditorHelper.h"
@@ -33,6 +34,10 @@ namespace Engine::Editor
 
 		m_assetCreateFuncs["Prefab"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
 			Resource::Prefab::Create(*a_services.pAssetDatabase, path, name);
+			};
+
+		m_assetCreateFuncs["EffectPrefab"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
+			Resource::EffectPrefab::Create(*a_services.pAssetDatabase, path, name);
 			};
 
 		m_assetCreateFuncs["AudioBehavior"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {

@@ -294,6 +294,10 @@
       <ObjectFileName>$(IntDir)External\imnodes.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="Source\Application\App.cpp" />
+    <ClCompile Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.cpp" />
+    <ClCompile Include="Source\Application\Utility\EffectPrefabSpawnHelper.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem\DebrisEmitterSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\BallisticSystem\BallisticSystem.cpp" />
     <ClCompile Include="Source\Application\Editor\CompEditHelper\CompEditHelper.cpp" />
     <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp" />
     <ClCompile Include="Source\Application\Game\InputActions\InputManager\InputActionManager.cpp" />
@@ -678,6 +682,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Library\Include\imgui-docking\imconfig.h" />
+    <ClInclude Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.h" />
+    <ClInclude Include="Source\Application\Components\Effect\DebrisEmitterComponent.h" />
+    <ClInclude Include="Source\Application\Components\Effect\BallisticComponent.h" />
+    <ClInclude Include="Source\Application\Utility\EffectPrefabSpawnHelper.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem\DebrisEmitterSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\BallisticSystem\BallisticSystem.h" />
     <ClInclude Include="..\Library\Include\imgui-docking\imgui.h" />
     <ClInclude Include="..\Library\Include\imgui-docking\imgui_impl_dx12.h" />
     <ClInclude Include="..\Library\Include\imgui-docking\imgui_impl_win32.h" />

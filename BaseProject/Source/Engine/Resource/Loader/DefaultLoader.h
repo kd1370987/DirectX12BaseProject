@@ -10,6 +10,7 @@
 #include "../Data/Mesh/IO/MeshIO.h"
 #include "../Data/Animation/IO/AnimationIO.h"
 #include "../Data/Prefab/Prefab.h"
+#include "../Data/EffectPrefab/EffectPrefab.h"
 #include "../Data/Sound/IO/SoundIO.h"
 #include "../Data/AudioBehavior/IO/AudioBehaviorIO.h"
 #include "../Data/EffectAsset/IO/EffectAssetIO.h"
@@ -149,6 +150,15 @@ namespace Engine::Resource
 		static Prefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return Prefab::LoadFromFile(a_path);
+		}
+	};
+	// エフェクトプレハブ
+	template<>
+	struct DefaultLoader<EffectPrefab>
+	{
+		static EffectPrefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		{
+			return EffectPrefab::LoadFromFile(a_path);
 		}
 	};
 	// サウンド

@@ -24,6 +24,7 @@ namespace Engine::Resource
 		ReleaseData<ActionStateMachineAsset>();
 		ReleaseData<ParticlesAsset>();
 		ReleaseData<Prefab>();
+		ReleaseData<EffectPrefab>();
 
 		// サウンド : DirectX::SoundEffect は AudioEngine を参照しているため、
 		// AudioEngine が生きているこのタイミングで必ず解放しきる
@@ -53,6 +54,7 @@ namespace Engine::Resource
 		// 先に中身を消すと、参照が残っているのに実体が無い状態を挟んでしまう
 		SweepUnused<EffectAsset>();
 		SweepUnused<Prefab>();
+		SweepUnused<EffectPrefab>();
 		SweepUnused<ParticlesAsset>();
 		SweepUnused<AudioBehavior>();
 		SweepUnused<ActionStateMachineAsset>();

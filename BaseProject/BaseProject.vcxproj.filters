@@ -1,6 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Source\Application\Systems\Update\Update\Effect\BallisticSystem">
+      <UniqueIdentifier>{235d524e-9d3b-4af9-8022-fe8901e26d7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem">
+      <UniqueIdentifier>{4096aa8b-62a5-42c5-bfb1-64e79f2e56b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Resource\Data\EffectPrefab">
+      <UniqueIdentifier>{b77035d4-594a-44b7-b204-475c915e653d}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode">
       <UniqueIdentifier>{14c12470-0049-44af-a7ee-6139b5296aff}</UniqueIdentifier>
     </Filter>
@@ -1632,6 +1641,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.cpp">
+      <Filter>Source\Engine\Resource\Data\EffectPrefab</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Utility\EffectPrefabSpawnHelper.cpp">
+      <Filter>Source\Application\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem\DebrisEmitterSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\BallisticSystem\BallisticSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Effect\BallisticSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\BuiltinCompositeNodes.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode</Filter>
     </ClCompile>
@@ -2795,6 +2816,24 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.h">
+      <Filter>Source\Engine\Resource\Data\EffectPrefab</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Effect\DebrisEmitterComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Effect\BallisticComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Utility\EffectPrefabSpawnHelper.h">
+      <Filter>Source\Application\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem\DebrisEmitterSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\BallisticSystem\BallisticSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Effect\BallisticSystem</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\CompositeNode.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode</Filter>
     </ClInclude>

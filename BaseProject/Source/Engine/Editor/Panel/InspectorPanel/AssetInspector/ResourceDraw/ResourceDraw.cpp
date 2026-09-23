@@ -14,6 +14,10 @@
 #include "AudioBehaviorEdit/AudioBehaviorEdit.h"
 #include "EffectAssetEdit/EffectAssetEdit.h"
 
+#include "Engine/Resource/Data/EffectPrefab/EffectPrefab.h"
+#include "Engine/Editor/EffectEditor/EffectEditor.h"
+#include "Engine/Editor/Editor.h"
+
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicEngine.h"
 
@@ -223,6 +227,55 @@ namespace Engine::Editor::Inspector
 	}
 
 	//-----------------------------------------------------------------------------------------
+	// エフェクトプレハブ
+	// 中身はプレハブと同じ編集UI。違うのは演出全体の寿命を必ず持つことだけ
+	//-----------------------------------------------------------------------------------------
+	void EffectPrefabDraw(EditorContext& a_editContext)
+	{
+		auto _guid = a_editContext.pAssetProp->guid;
+
+		auto* _pEffectPrefab = ResolveAsset<Resource::EffectPrefab>(*a_editContext.pServices->pResourceManager, _guid);
+		if (!_pEffectPrefab) { return; }
+
+		// コンポーネントのメタ情報・編集関数を引くために World が必要
+		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
+		if (!_pWorld || !_pWorld->IsInit())
+		{
+			ImGui::Text("No active World.");
+			ImGui::Text("Open a scene to edit effect prefab components.");
+			return;
+		}
+
+		if (ImGui::Button("Save"))
+		{
+			auto _path = a_editContext.pServices->pAssetDatabase->GetFilePathFromGUID(_guid);
+			_pEffectPrefab->Save(_pWorld, _path);
+			ENGINE_LOG("Save EffectPrefab : %s", _path.c_str());
+		}
+
+		// ゲームと同じ描画で、炊いたところを繰り返し確認する
+		ImGui::SameLine();
+		if (ImGui::Button("Open Effect Editor"))
+		{
+			if (auto* _pEffectEditor = MainEditor::Instance().RefEffectEditor())
+			{
+				_pEffectEditor->OpenEffectPrefab(_guid);
+			}
+		}
+
+		float _lifeTime = _pEffectPrefab->GetLifeTime();
+		if (ImGui::DragFloat("Life Time", &_lifeTime, 0.05f, Resource::EffectPrefab::MIN_LIFE_TIME, 60.0f))
+		{
+			_pEffectPrefab->SetLifeTime(_lifeTime);
+		}
+		ImGui::TextDisabled("炊いたらこの秒数で全部消える(各ノードの寿命はこれで頭打ち)");
+
+		ImGui::Separator();
+
+		PrefabComponentsEdit(_pWorld, &_pEffectPrefab->RefPrefab());
+	}
+
+	//-----------------------------------------------------------------------------------------
 	// レンダリングパイプライン
 	// ノードエディタはアセット自身が持っているので、ここは呼び出しとセーブだけ
 	//-----------------------------------------------------------------------------------------
@@ -345,6 +398,20 @@ namespace Engine::Editor::Inspector
 		}
 
 		ImGui::Separator();
+
+		PrefabComponentsEdit(_pWorld, _pPrefab);
+	}
+
+	//-----------------------------------------------------------------------------------------
+	// プレハブのコンポーネントの羅列・編集・追加
+	// エンティティインスペクタと同じ edit 関数を使う
+	//-----------------------------------------------------------------------------------------
+	void PrefabComponentsEdit(ECS::World* a_pWorld, Resource::Prefab* a_pPrefab)
+	{
+		if (!a_pWorld || !a_pPrefab) return;
+
+		ECS::World* _pWorld = a_pWorld;
+		Resource::Prefab* _pPrefab = a_pPrefab;
 
 		// ---- 所持コンポーネントの羅列・編集 ----
 		const ECS::Signature& _sig = _pPrefab->GetSignature();
