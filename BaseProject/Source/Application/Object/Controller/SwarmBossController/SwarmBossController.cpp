@@ -328,6 +328,15 @@ namespace App::Object
 		// 炊けるのは、読み込みが済んでいて、出し切って消える単発のものだけ。
 		// 出しっぱなしのパーツがあると destroyOnFinish で消えず、毎秒数百体ずつ溜まっていく
 		m_isGroundEffectOneShot = false;
+
+		// 既定値のまま置いた直後など、まだ読み込みを始めていなければここで始める
+		if (!m_groundEffectRef && m_groundEffectGUID != Engine::DefaultGUID &&
+			a_context.pServices && a_context.pServices->pResourceManager)
+		{
+			m_groundEffectRef =
+				a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_groundEffectGUID);
+		}
+
 		if (m_groundEffectRef && a_context.pServices && a_context.pServices->pResourceManager)
 		{
 			if (const auto* _pEffect = a_context.pServices->pResourceManager->Get(m_groundEffectRef))

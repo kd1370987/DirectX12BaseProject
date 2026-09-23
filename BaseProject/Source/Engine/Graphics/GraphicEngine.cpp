@@ -163,9 +163,9 @@ namespace Engine::Graphics
 		}
 
 		// 各ビューの席数。SRVはテクスチャ1枚につき1つ取るので、ここだけ桁が違う
-		constexpr UINT kCBVCount = 100;
+		constexpr UINT kCBVCount = 1000;
 		constexpr UINT kSRVCount = 4000;
-		constexpr UINT kUAVCount = 100;
+		constexpr UINT kUAVCount = 1000;
 		constexpr UINT kRTVCount = 100;
 		constexpr UINT kDSVCount = 10;
 

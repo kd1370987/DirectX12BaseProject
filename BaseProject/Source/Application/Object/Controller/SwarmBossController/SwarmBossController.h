@@ -211,7 +211,8 @@ namespace App::Object
 		// ここは調整値を持つだけで、4000体ぶんのレイとエフェクトの生成は BoidGroundEffectSystem。
 		// 1回炊くたびにエフェクトのエンティティが1体増えるので、間隔と1フレームの上限で数を抑える
 		//------------------------------------------------------------------------------------------
-		Engine::GUID m_groundEffectGUID = {};											// 炊くエフェクト(保存用。単発で消えるもの)
+		// 炊くエフェクト(保存用。単発で消えるもの)。既定は Asset/Effect/Dast/Worm_GroundDust
+		Engine::GUID m_groundEffectGUID = Engine::GUID("a1a7bdfe-2da7-4767-8d22-55844f0a0115");
 		Engine::ResourceRef<Engine::Resource::EffectAsset> m_groundEffectRef = {};		// 読み込んだままにしておく(炊くたびに読み直さない)
 
 		float m_groundEffectMaxHeight  = 20.0f;		// 地面からこの高さまでのボイドが炊く(m)
