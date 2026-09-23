@@ -184,22 +184,45 @@ namespace Engine::Graphics
 		// コマンドリストを閉じる
 		a_pList->Close();
 
-		ID3D12CommandList* _lists[] = { a_pList };
-		m_cpCmdQueue->ExecuteCommandLists(1, _lists);
+		//------------------------------------------------------------------------------------------
+		// 実行とシグナルはロックの中で行う
+		//
+		// フェンス値の数え上げは ExecutePendingLists / WaitIdle と共有している。
+		// ワーカースレッドからのビルドと同時に走ると、ロックの外で ++ した値が
+		// 他のスレッドの値と重複し、まだ終わっていない作業を「完了」と見なして
+		// 実行中のコマンドリストを使い回すことになる。
+		// 待つ値もロックの中で控えておく(後で m_fenceValue を読むと他人の値になりうる)
+		//------------------------------------------------------------------------------------------
+		UINT64 _waitValue = 0;
+		{
+			std::lock_guard<std::mutex> _lock(m_mutex);
 
-		// 完了まで待つ
-		++m_fenceValue;
-		m_cpCmdQueue->Signal(m_cpFence.Get(), m_fenceValue);
+			ID3D12CommandList* _lists[] = { a_pList };
+			m_cpCmdQueue->ExecuteCommandLists(1, _lists);
 
-		HANDLE _event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-		m_cpFence->SetEventOnCompletion(m_fenceValue, _event);
-		WaitForSingleObject(_event, INFINITE);
-		CloseHandle(_event);
+			++m_fenceValue;
+			_waitValue = m_fenceValue;
+			m_cpCmdQueue->Signal(m_cpFence.Get(), _waitValue);
+		}
+
+		// 完了まで待つ : 待つ間はロックを握らない(他のスレッドの積み込みを止めない)
+		if (m_cpFence->GetCompletedValue() < _waitValue)
+		{
+			HANDLE _event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			m_cpFence->SetEventOnCompletion(_waitValue, _event);
+			WaitForSingleObject(_event, INFINITE);
+			CloseHandle(_event);
+		}
 
 		// プールに返却
 		std::lock_guard<std::mutex> _lock(m_mutex);
 		auto _it = m_trackingMap.find(a_pList);
-		ENGINE_ERRLOG(_it != m_trackingMap.end(), "ExecuteAndRelease : 未知のコマンドリストが渡されました");
+		if (_it == m_trackingMap.end())
+		{
+			// Shipping では ENGINE_ERRLOG が消えるので、end() を触らないよう必ず抜ける
+			ENGINE_ERRLOG(false, "ExecuteImmediate : 未知のコマンドリストが渡されました");
+			return;
+		}
 
 		m_freeLists.push_back(std::move(_it->second));
 		m_trackingMap.erase(_it);

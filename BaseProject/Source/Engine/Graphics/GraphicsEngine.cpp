@@ -1908,12 +1908,28 @@ namespace Engine::Graphics
 		// 処理が終われば命令を解放
 		_initRequestVec.clear();
 	}
+	//------------------------------------------------------------------------------------------
+	// テクスチャのSRV番号を引く。引けなければ -1
+	//
+	// シェーダーは負の番号を「テクスチャ無し」として扱う(MeshGBufferPS など)。
+	// 次のどれでも -1 を返し、落とさずに素の値で描かせる。
+	//   ・テクスチャを持たないマテリアル(法線マップ無しなど)
+	//   ・非同期ロード中 : スロットには空の実体が入っていて、SRVはまだ無い
+	//   ・読み込み失敗
+	// 以前は見つからないと null を参照していた(Shipping では ERRLOG が消えるので素通りする)
+	//------------------------------------------------------------------------------------------
 	int GraphicsEngine::GetSRVIndexFromTextureHandle(const Handle<Resource::Texture>& a_texHandle)
 	{
-		auto* _pTex = (*m_pResourceManager).Get(a_texHandle);
-		ENGINE_ERRLOG(_pTex,"テクスチャが見つかりません");
+		auto& _resManager = (*m_pResourceManager);
+		if (!_resManager.IsReady(a_texHandle)) return -1;
 
-		return static_cast<int>(_pTex->GetSRV().GetIndex());
+		const auto* _pTex = _resManager.Get(a_texHandle);
+		if (!_pTex) return -1;
+
+		const auto& _srv = _pTex->GetSRV();
+		if (!_srv.IsValid()) return -1;
+
+		return static_cast<int>(_srv.GetIndex());
 	}
 
 	// シェーディングモデルはもう引かない。

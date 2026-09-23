@@ -61,8 +61,8 @@ namespace Engine::Raytracing
 		void Release();
 
 		// レイトレワールド構築
-		// マイフレーム構築
-		void Commit(D3D12::GraphicsCommandList* a_pCmdList);
+		// 毎フレーム構築。a_frameIndex は今のCPUフレーム番号(TLASのインスタンス区画の選択に使う)
+		void Commit(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex);
 
 		// インスタンスのクリア
 		void Clear();

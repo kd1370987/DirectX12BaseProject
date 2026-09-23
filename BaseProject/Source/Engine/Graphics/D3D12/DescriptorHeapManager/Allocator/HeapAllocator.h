@@ -29,6 +29,19 @@ namespace Engine::D3D12
 		// ハンドル管理
 		Pool::HandlePool<T> m_HandlePool = {};
 
+		//--------------------------------------------------------------------------------------------
+		// 席の出し入れを守るロック
+		//
+		// 非同期ロード(JobSystem のワーカー)でテクスチャやメッシュを組むと、
+		// そのスレッドからビューを取りに来る。メインスレッドも同時に取ったり
+		// (レンダーグラフやカメラ出力の作り直し)返したり(遅延解放)するので、
+		// 空き番号の待ち行列を同時に触ると同じ席を二重に配ることになる。
+		//
+		// GetCPU/GetGPU は守らない : 世代配列は Create で大きさが決まったきり伸びず、
+		// 引く側が見るのは自分が持っている席だけなので、他の席の出し入れとは触る場所が重ならない
+		//--------------------------------------------------------------------------------------------
+		std::mutex m_mutex;
+
 		UINT m_startIndex = 0;
 		UINT m_maxCount = 0;
 	};
@@ -61,8 +74,13 @@ namespace Engine::D3D12
 	template<IsHeapType T>
 	inline Handle<T> HeapAllocator<T>::Allocate(D3D12::Device* a_pDevice, ID3D12Resource* a_pRes, const typename T::DescType* a_desc)
 	{
-		// ハンドルをアロケート
-		auto _handle = m_HandlePool.Allocate();
+		// ハンドルをアロケート。
+		// ビューの書き込みは取った席にしか触らないので、ロックは席を取る間だけでよい
+		Handle<T> _handle = {};
+		{
+			std::lock_guard<std::mutex> _lock(m_mutex);
+			_handle = m_HandlePool.Allocate();
+		}
 
 		// 席が尽きた : 無効なハンドルのまま返す。
 		// ここで先頭位置を足すと、無効値(0xFFFF)が桁あふれして
@@ -134,6 +152,8 @@ namespace Engine::D3D12
 		auto _handle = a_handle;
 		auto _idx = _handle.GetIndex();
 		_handle.SetIndex(_idx - m_startIndex);
+
+		std::lock_guard<std::mutex> _lock(m_mutex);
 		m_HandlePool.Remove(_handle);
 	}
 	template<IsHeapType T>

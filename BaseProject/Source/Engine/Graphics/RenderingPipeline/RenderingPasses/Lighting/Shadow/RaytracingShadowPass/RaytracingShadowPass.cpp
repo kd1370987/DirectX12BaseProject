@@ -108,7 +108,7 @@ namespace Engine::Graphics::Pipeline
 		auto& _rayEngine = *a_context.pRayEngine;
 
 		// レイワールド更新・シェーダーテーブル更新
-		_rayEngine.Commit(_pCmdList);
+		_rayEngine.Commit(_pCmdList, _pGE->GetCurrentFrameIndex());
 		const auto& _instanceVec = _rayEngine.GetInstanceVec();
 		if (_instanceVec.empty()) return;
 

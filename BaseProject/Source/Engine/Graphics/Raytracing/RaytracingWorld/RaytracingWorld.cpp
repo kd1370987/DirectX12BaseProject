@@ -223,10 +223,10 @@ namespace Engine::Raytracing
 	}
 
 
-	void Engine::Raytracing::RayWorld::Commit(D3D12::GraphicsCommandList* a_pCmdList)
+	void Engine::Raytracing::RayWorld::Commit(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex)
 	{
 		// TLAS更新
-		m_upTLAS->Update(a_pCmdList,m_instanceVec);
+		m_upTLAS->Update(a_pCmdList, m_instanceVec, a_frameIndex);
 
 		UINT _materialOffset = 0;
 		// 構造体バッファ更新

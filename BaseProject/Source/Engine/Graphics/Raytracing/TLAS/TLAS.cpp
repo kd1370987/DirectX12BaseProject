@@ -66,7 +66,12 @@ void Engine::Raytracing::TLAS::Create(
 		_defaultHeapProp
 	);
 
-	// インスタンスバッファ作成
+	// インスタンスバッファ作成 : フレームの数だけ区画を並べる
+	m_maxInstanceCount = a_maxInstanceNum;
+	m_isOverflowReported = false;
+	const size_t _instanceBufferSize =
+		sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_maxInstanceCount * CPU_FRAME_COUNT;
+
 	D3D12_HEAP_PROPERTIES _uploadHeapProp = {
 		D3D12_HEAP_TYPE_UPLOAD,
 		D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
@@ -78,7 +83,7 @@ void Engine::Raytracing::TLAS::Create(
 		a_pDevice,
 		a_pCmdList,
 		m_cpInstanceBuffer,
-		sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_maxInstanceCount,
+		_instanceBufferSize,
 		D3D12_RESOURCE_FLAG_NONE,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		_uploadHeapProp
@@ -91,7 +96,7 @@ void Engine::Raytracing::TLAS::Create(
 	// インスタンスバッファ構造体初期化・マップポイント取得
 	m_pInstanceDesc = nullptr;
 	m_cpInstanceBuffer->Map(0,nullptr,(void**)&m_pInstanceDesc);
-	ZeroMemory(m_pInstanceDesc,sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_maxInstanceCount);
+	ZeroMemory(m_pInstanceDesc, _instanceBufferSize);
 
 	// TLASを作成
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC _asDesc = {};
@@ -146,56 +151,87 @@ void Engine::Raytracing::TLAS::Release()
 	}
 }
 
-void Engine::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList,const std::vector<Instance>& a_instanceVec)
+void Engine::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList, const std::vector<Instance>& a_instanceVec, UINT a_frameIndex)
 {
+	if (!m_pInstanceDesc || m_maxInstanceCount == 0) return;
+	assert(a_frameIndex < CPU_FRAME_COUNT && "TLAS::Update : フレーム番号が範囲外です");
 
+	// 今のフレームの区画 : 前のフレームのビルドが読んでいる区画には触らない
+	const UINT _slot = a_frameIndex % CPU_FRAME_COUNT;
+	D3D12_RAYTRACING_INSTANCE_DESC* _pDescs = m_pInstanceDesc + static_cast<size_t>(_slot) * m_maxInstanceCount;
 
-	// インスタンスバッファ構造体更新
-	for (int _i = 0; _i < a_instanceVec.size(); ++_i)
+	//------------------------------------------------------------------------------------------
+	// インスタンスを詰めて書く
+	//
+	// BLAS がまだ無いインスタンスは飛ばすが、書く位置は別に数えて詰める。
+	// 添字のまま飛ばすと、その位置に前回の中身(解放済みの BLAS を指していることもある)が
+	// 残ったまま NumDescs に数えられ、GPU がそれを辿ってデバイスごと落ちる。
+	//
+	// InstanceID は詰める前の添字のままにする : シェーダーは InstanceID() で
+	// インスタンスデータ(RayWorld が同じ並びで積んでいる)を引くため
+	//------------------------------------------------------------------------------------------
+	uint32_t _count = 0;
+	for (size_t _i = 0; _i < a_instanceVec.size(); ++_i)
 	{
-		if (a_instanceVec[_i].pBLAS == nullptr || a_instanceVec[_i].pBLAS->GetGPUAddress() == 0) continue;
+		const Instance& _instance = a_instanceVec[_i];
+		if (_instance.pBLAS == nullptr || _instance.pBLAS->GetGPUAddress() == 0) continue;
 
-		m_pInstanceDesc[_i].InstanceID = _i;
-		m_pInstanceDesc[_i].InstanceContributionToHitGroupIndex = 0;
-		m_pInstanceDesc[_i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
-		m_pInstanceDesc[_i].AccelerationStructure = a_instanceVec[_i].pBLAS->GetGPUAddress();
-		auto& m = a_instanceVec[_i].worldMat;
+		// 区画に入り切らないぶんは描かない(隣のフレームの区画を踏むため)
+		if (_count >= m_maxInstanceCount)
+		{
+			if (!m_isOverflowReported)
+			{
+				ENGINE_WARNING("[TLAS] インスタンス数が上限(%u)を超えました。超えたぶんはレイトレに載りません", m_maxInstanceCount);
+				m_isOverflowReported = true;
+			}
+			break;
+		}
 
-		m_pInstanceDesc[_i].Transform[0][0] = m._11;
-		m_pInstanceDesc[_i].Transform[0][1] = m._21;
-		m_pInstanceDesc[_i].Transform[0][2] = m._31;
-		m_pInstanceDesc[_i].Transform[0][3] = m._41;
+		D3D12_RAYTRACING_INSTANCE_DESC& _desc = _pDescs[_count];
+		_desc.InstanceID = static_cast<UINT>(_i);
+		_desc.InstanceContributionToHitGroupIndex = 0;
+		_desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
+		_desc.AccelerationStructure = _instance.pBLAS->GetGPUAddress();
+		_desc.InstanceMask = 0xFF;
 
-		m_pInstanceDesc[_i].Transform[1][0] = m._12;
-		m_pInstanceDesc[_i].Transform[1][1] = m._22;
-		m_pInstanceDesc[_i].Transform[1][2] = m._32;
-		m_pInstanceDesc[_i].Transform[1][3] = m._42;
+		const auto& m = _instance.worldMat;
+		_desc.Transform[0][0] = m._11;
+		_desc.Transform[0][1] = m._21;
+		_desc.Transform[0][2] = m._31;
+		_desc.Transform[0][3] = m._41;
 
-		m_pInstanceDesc[_i].Transform[2][0] = m._13;
-		m_pInstanceDesc[_i].Transform[2][1] = m._23;
-		m_pInstanceDesc[_i].Transform[2][2] = m._33;
-		m_pInstanceDesc[_i].Transform[2][3] = m._43;
+		_desc.Transform[1][0] = m._12;
+		_desc.Transform[1][1] = m._22;
+		_desc.Transform[1][2] = m._32;
+		_desc.Transform[1][3] = m._42;
 
-		m_pInstanceDesc[_i].InstanceMask = 0xFF;
+		_desc.Transform[2][0] = m._13;
+		_desc.Transform[2][1] = m._23;
+		_desc.Transform[2][2] = m._33;
+		_desc.Transform[2][3] = m._43;
+
+		++_count;
 	}
 
 	// インプット情報
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS _inputs = {};
 	_inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
 	_inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
-	_inputs.NumDescs = a_instanceVec.size();
+	_inputs.NumDescs = _count;
 	_inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
 
 	// TLASを作成
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC _asDesc = {};
 	_asDesc.Inputs = _inputs;
-	_asDesc.Inputs.InstanceDescs = m_cpInstanceBuffer->GetGPUVirtualAddress();
+	_asDesc.Inputs.InstanceDescs =
+		m_cpInstanceBuffer->GetGPUVirtualAddress() +
+		sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * static_cast<UINT64>(_slot) * m_maxInstanceCount;
 	_asDesc.DestAccelerationStructureData = m_cpResource->GetGPUVirtualAddress();
 	_asDesc.ScratchAccelerationStructureData = m_cpScratch->GetGPUVirtualAddress();
 
 	a_pCmdList->BuildRaytracingAccelerationStructure(&_asDesc, 0, nullptr);
 
-	// レイトレーシングアクセラレーション構造のビルド官僚待ちのバリア
+	// レイトレーシングアクセラレーション構造のビルド完了待ちのバリア
 	D3D12_RESOURCE_BARRIER _uavBarrier = {};
 	_uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
 	_uavBarrier.UAV.pResource = m_cpResource.Get();

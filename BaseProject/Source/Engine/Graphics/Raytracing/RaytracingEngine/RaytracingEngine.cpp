@@ -28,10 +28,10 @@ namespace Engine::Raytracing
 		}
 	}
 
-	void Engine::Raytracing::RayEngine::Commit(D3D12::GraphicsCommandList* a_pCmdList)
+	void Engine::Raytracing::RayEngine::Commit(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex)
 	{
 		if (m_isCommit)  return;
-		m_upRayWorld->Commit(a_pCmdList);
+		m_upRayWorld->Commit(a_pCmdList, a_frameIndex);
 		m_isCommit = true;
 	}
 

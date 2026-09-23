@@ -124,7 +124,7 @@ namespace Engine::Graphics::Pipeline
 		if (!_pMA) return;
 
 		// レイワールド更新・シェーダーテーブル更新
-		_rayEngine.Commit(_pCmdList);
+		_rayEngine.Commit(_pCmdList, _pGE->GetCurrentFrameIndex());
 		const auto& _instanceVec = _rayEngine.GetInstanceVec();
 		if (_instanceVec.empty()) return;
 
