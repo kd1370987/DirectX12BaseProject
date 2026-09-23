@@ -3,6 +3,7 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Collision/SphereCollider.h"
+#include "Application/Components/Collision/Collider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 
 #include "Engine/MainEngine.h"
@@ -27,8 +28,23 @@ void SphereCollisionSystem::Init(App::ECS::APPWorld& a_world)
 			ENGINE_PROFILE_SCOPE("Physics_ResolveSphere");
 			const auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
 
+			// コライダーを持つかはチャンク(同じ組み合わせ)で揃っているので、先頭で1回だけ見る
+			const bool _hasCollider = a_count > 0 &&
+				a_ctx.pWorld->HasComponent<ColliderComponent>(a_pChunk->entityData[0]);
+
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
+				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+
+				// 物理解決しないもの(isPhysical = 0)は押し出さない。
+				// 群れのボスのボイド(Layer::Enemy)は当たりを受けるためだけに球を持っていて、
+				// ここで押し出すと地形をすり抜けられず、地面に潜れなくなる
+				if (_hasCollider)
+				{
+					const auto* _pColl = a_ctx.pWorld->RefData<ColliderComponent>(_self);
+					if (_pColl && !_pColl->isPhysical) continue;
+				}
+
 				const SphereColliderComponent& _sphere = a_sphereArray[_i];
 				LocalTransformComponent& _trans = a_transArray[_i];
 
@@ -40,7 +56,7 @@ void SphereCollisionSystem::Init(App::ECS::APPWorld& a_world)
 				Math::Vector3 _correction = {};
 				bool _isHit = _physicsWorld.ResolveSphere(
 					_center, _sphere.radius,
-					Engine::Physics::kQueryAllLayers, a_pChunk->entityData[_i], _correction, 4);
+					Engine::Physics::kQueryAllLayers, _self, _correction, 4);
 
 				// 補正をトランスフォームへ反映
 				if (_isHit)

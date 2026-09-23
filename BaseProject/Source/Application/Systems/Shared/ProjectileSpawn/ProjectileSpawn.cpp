@@ -76,9 +76,9 @@ namespace App::Systems::ProjectileSpawn
 
 			Layer _result = Layer::StaticObject | Layer::DiynamicObject | _otherSide;
 
-			// 群れのボスのボイドはプレイヤー側の攻撃でだけ落ちる。
+			// Enemy(群れのボスのボイドなど)はプレイヤー側の攻撃でだけ落ちる。
 			// 敵の弾にも当てると、敵同士の流れ弾でボスの体力が減ってしまう
-			if (!_isEnemySide) _result |= Layer::SwarmBoid;
+			if (!_isEnemySide) _result |= Layer::Enemy;
 
 			return _result;
 		}

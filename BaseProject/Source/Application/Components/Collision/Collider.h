@@ -30,10 +30,12 @@ enum class Layer : uint32_t
 	PlayerProjectile	= 1 << 3,	// プレイヤー側が撃った弾・ミサイル
 	EnemyProjectile		= 1 << 4,	// 敵側が撃った弾・ミサイル
 
-	// 群れのボスの体を作っているボイド。
-	// DiynamicObject と分けてあるのは「当たる相手をボイド同士とプレイヤーの攻撃だけ」に
-	// 絞るため。まとめてしまうと、群れがプレイヤーの機体や他の敵にも当たってしまう
-	SwarmBoid			= 1 << 5,
+	// 敵の体(今は群れのボスのボイド)。プレイヤー側の攻撃にだけ当たる。
+	// DiynamicObject と分けてあるのは、地形・機体・他の敵・敵の弾には当たらないようにするため。
+	// 自分からは何も当たりに行かず(collideLayer = None)、地形からの押し出しもしない
+	// (isPhysical = 0)ので、地面の中へもそのまま潜れる。
+	// 以前の SwarmBoid と同じビットなので、保存済みのデータはそのまま読める
+	Enemy				= 1 << 5,
 };
 
 struct ColliderComponent
@@ -87,7 +89,7 @@ inline bool IsDynamicLayer(Layer a_layer)
 {
 	return HasLayer(a_layer,
 		Layer::DiynamicObject | Layer::PlayerProjectile | Layer::EnemyProjectile |
-		Layer::SwarmBoid);
+		Layer::Enemy);
 }
 
 // 形状情報、質量。動く、動かない。衝突時の挙動などは持たせない。

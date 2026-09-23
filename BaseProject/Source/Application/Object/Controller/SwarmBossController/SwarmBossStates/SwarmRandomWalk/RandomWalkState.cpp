@@ -25,6 +25,9 @@ namespace App::Object
 		m_attackTime = Math::Random::Float(
 			std::min(m_minDurationTime, m_maxDurationTime),
 			std::max(m_minDurationTime, m_maxDurationTime));
+
+		// 何を出すかもここで決めておく
+		m_nextAttack = PickAttack();
 	}
 
 	void SwarmBossRandomWalkState::Update(SwarmBossStateContext& a_context)
@@ -37,8 +40,7 @@ namespace App::Object
 		// 時間が来たら攻撃へ(切り替わるのは次のフレーム。それまでは徘徊を続ける)
 		if (m_time >= m_attackTime && a_context.pMachine)
 		{
-			//a_context.pMachine->RequestChangeState(ESwarmBossState::Charge);
-			a_context.pMachine->RequestChangeState(ESwarmBossState::UperAttack);
+			a_context.pMachine->RequestChangeState(m_nextAttack);
 		}
 
 		const auto _leader = a_context.leaderEntity;
@@ -100,6 +102,18 @@ namespace App::Object
 		m_wanderTimer = m_wanderInterval;
 	}
 
+	ESwarmBossState SwarmBossRandomWalkState::PickAttack() const
+	{
+		const float _charge = std::max(m_chargeWeight, 0.0f);
+		const float _uper   = std::max(m_uperAttackWeight, 0.0f);
+		const float _total  = _charge + _uper;
+		if (_total <= 0.0f) return ESwarmBossState::Charge;
+
+		return (Math::Random::Float(0.0f, _total) < _charge)
+			? ESwarmBossState::Charge
+			: ESwarmBossState::UperAttack;
+	}
+
 	void SwarmBossRandomWalkState::Archive(Engine::Persistence::Archive& a_ar)
 	{
 		// コントローラーに直に持っていた頃と同じ名前(既存シーンをそのまま読める)
@@ -111,6 +125,8 @@ namespace App::Object
 		a_ar.Field("Throttle", m_throttle);
 		a_ar.Field("AttackIntervalMin", m_minDurationTime);
 		a_ar.Field("AttackIntervalMax", m_maxDurationTime);
+		a_ar.Field("AttackWeightCharge", m_chargeWeight);
+		a_ar.Field("AttackWeightUperAttack", m_uperAttackWeight);
 	}
 
 	void SwarmBossRandomWalkState::DrawInspector()
@@ -122,10 +138,13 @@ namespace App::Object
 		ImGui::DragFloat("Throttle", &m_throttle, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Attack Interval Min", &m_minDurationTime, 0.1f, 0.0f);
 		ImGui::DragFloat("Attack Interval Max", &m_maxDurationTime, 0.1f, 0.0f);
+		ImGui::DragFloat("Weight Charge", &m_chargeWeight, 0.05f, 0.0f);
+		ImGui::DragFloat("Weight Uper Attack", &m_uperAttackWeight, 0.05f, 0.0f);
 
 		// 目標地点は毎フレーム上書きされるので表示のみ
 		ImGui::Text("Target  : %.1f, %.1f, %.1f (next %.1f s)",
 			m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
-		ImGui::Text("Attack  : %.1f / %.1f s", m_time, m_attackTime);
+		ImGui::Text("Attack  : %.1f / %.1f s -> %s", m_time, m_attackTime,
+			std::string(magic_enum::enum_name(m_nextAttack)).c_str());
 	}
 }

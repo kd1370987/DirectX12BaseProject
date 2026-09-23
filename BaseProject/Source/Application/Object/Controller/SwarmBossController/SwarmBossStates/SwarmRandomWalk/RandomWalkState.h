@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../IState.h"
+#include "../StateMachine.h"
 
 namespace App::Object
 {
@@ -28,6 +28,9 @@ namespace App::Object
 		// 次の目標地点を抽選する(生成位置を中心にした範囲の中)
 		void PickWanderTarget(const Math::Vector3& a_center);
 
+		// 次に出す攻撃を重みで抽選する
+		ESwarmBossState PickAttack() const;
+
 	private:
 		//------------------------------------------------------------------------------------------
 		// 調整値
@@ -42,6 +45,10 @@ namespace App::Object
 		float m_maxDurationTime = 12.0f;	// 次に攻撃に移行するまでの最大時間(秒)
 		float m_minDurationTime = 6.0f;		// 最低時間(秒)
 
+		// 攻撃の抽選の重み(0で出さない。全部0なら突進)
+		float m_chargeWeight    = 1.0f;		// 突進
+		float m_uperAttackWeight = 1.0f;	// アッパー(地中から突き上げ)
+
 		//------------------------------------------------------------------------------------------
 		// 実行中の状態(保存しない)
 		//------------------------------------------------------------------------------------------
@@ -50,5 +57,6 @@ namespace App::Object
 
 		float m_time = 0.0f;				// このステートになってからの経過時間
 		float m_attackTime = 0.0f;			// 攻撃に移行する時間(Enter で抽選)
+		ESwarmBossState m_nextAttack = ESwarmBossState::Charge;	// 次に出す攻撃(Enter で抽選)
 	};
 }

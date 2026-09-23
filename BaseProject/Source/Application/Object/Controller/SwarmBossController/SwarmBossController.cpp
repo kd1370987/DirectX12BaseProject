@@ -26,6 +26,7 @@
 #include "../../../Components/Character/Boss/BoidLeaderComponent.h"
 #include "../../../Components/Character/Boss/PlatoonLeaderComponent.h"
 #include "../../../Components/Character/Boss/BoidSpownerComponent.h"
+#include "../../../Components/Character/SerchGroundComponent.h"
 #include "../../../InstanceResource/WormWaveResource.h"
 
 namespace App::Object
@@ -327,6 +328,9 @@ namespace App::Object
 		EnsureRootComponent<VelocityComponent>(_world, _instanceVec);
 		EnsureRootComponent<BoidLeaderComponent>(_world, _instanceVec);
 
+		// 地面との関係(上下にレイを打つのは SerchGroundSystem)。アッパー攻撃で潜る深さに使う
+		EnsureRootComponent<SerchGroundComponent>(_world, _instanceVec);
+
 		// 移動入力の受け皿。中身を書くのはこのクラス(UpdateLeaderBrain)
 		EnsureRootComponent<MoveIntentComponent>(_world, _instanceVec);
 
@@ -552,7 +556,9 @@ namespace App::Object
 			EditRootComponent<ColliderComponent>(_world, _instanceVec,
 				[&](ColliderComponent& a_comp)
 				{
-					a_comp.layer        = Layer::SwarmBoid;
+					// プレイヤーの攻撃にだけ当たる(当てに来るのは弾の側)。
+					// 自分からは当たりに行かず、押し出しもしないので地形はすり抜ける
+					a_comp.layer        = Layer::Enemy;
 					a_comp.collideLayer = Layer::None;
 					a_comp.isPhysical   = 0;
 

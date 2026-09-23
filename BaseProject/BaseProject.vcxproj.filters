@@ -2745,6 +2745,9 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SerchGroundSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidWaveSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClCompile>
@@ -4481,6 +4484,9 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SerchGroundSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidWaveSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClInclude>
@@ -4553,6 +4559,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.h">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\SerchGroundComponent.h">
+      <Filter>Source\Application\Components\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Boss\WarmGroundEffectComponent.h">
+      <Filter>Source\Application\Components\Character\Boss</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

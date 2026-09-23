@@ -14,6 +14,7 @@
 #include "../../../../../Components/Transform/WorldMatrixComponent.h"
 #include "../../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../../Components/Tag/PlayerControllTag.h"
+#include "../../../../../Components/Character/SerchGroundComponent.h"
 
 namespace App::Object
 {
@@ -34,7 +35,7 @@ namespace App::Object
 					uint32_t a_count,
 					const ActiveTag* a_activeTagArray,
 					const PlayerControllTag* a_playerTagArray
-					)
+				)
 				{
 					if (_player != Engine::ECS::Limits::INVALID_ENTITY || a_count == 0) return;
 					_player = a_pChunk->entityData[0];
@@ -56,12 +57,19 @@ namespace App::Object
 			}
 			return false;
 		}
+
+		// 正規化して長さを掛ける。長さ0なら0を返す
+		Math::Vector3 ScaledDir(Math::Vector3 a_dir, float a_scale)
+		{
+			if (a_dir.LengthSquared() <= 1e-6f) return Math::Vector3(0.0f, 0.0f, 0.0f);
+			a_dir.Normalize();
+			return a_dir * a_scale;
+		}
 	}
 
 	void SwarmBossUperAttackState::Enter(SwarmBossStateContext& a_context)
 	{
-		m_phase = EPhase::Windup;
-		m_phaseTime = 0.0f;
+		ChangePhase(EPhase::Burrow);
 	}
 
 	void SwarmBossUperAttackState::Update(SwarmBossStateContext& a_context)
@@ -76,57 +84,120 @@ namespace App::Object
 		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
 		if (!_world.HasComponent<LocalTransformComponent>(_leader)) return;
 
-		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(_leader)->pos;
-
-		// プレイヤーが居ない(倒された / まだ湧いていない)なら突っ込む先が無い
-		const bool _isFoundPlayer = FindPlayerPos(*a_context.pObject, m_playerPos);
-		if (!_isFoundPlayer && m_phase != EPhase::Recover)
+		// 地面が分からないと潜れない
+		if (!_world.HasComponent<SerchGroundComponent>(_leader))
 		{
 			Finish(a_context);
 			return;
 		}
 
-		// プレイヤーへの向き
-		Math::Vector3 _toPlayerDir = m_playerPos - _pos;
-		const float _distToPlayer = _toPlayerDir.Length();
-		_toPlayerDir.Normalize();
+		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(_leader)->pos;
 
-		// 慣性
+		// 地面との関係(SerchGroundSystem が書いた結果)
+		const SerchGroundComponent _ground = *_world.RefData<SerchGroundComponent>(_leader);
+		m_isUnderGround = _ground.isUnderGround != 0;
+		if (_ground.isFoundGround)
+		{
+			m_groundHeight = _ground.groundHeight;
+			m_depth        = m_groundHeight - _pos.y;
+		}
+
+		// プレイヤーが居ない(倒された / まだ湧いていない)なら狙う先が無い。
+		// 飛び出した後は最後に見た位置のまま続ける
+		const bool _isFoundPlayer = FindPlayerPos(*a_context.pObject, m_playerPos);
+		if (!_isFoundPlayer && (m_phase == EPhase::Burrow || m_phase == EPhase::Approach))
+		{
+			Finish(a_context);
+			return;
+		}
+
+		// プレイヤーへの水平の向きと距離
+		Math::Vector3 _toPlayerXZ = m_playerPos - _pos;
+		_toPlayerXZ.y = 0.0f;
+		const float _distXZ = _toPlayerXZ.Length();
+		const Math::Vector3 _toPlayerDirXZ = (_distXZ > 1e-3f) ? _toPlayerXZ / _distXZ : Math::Vector3(0.0f, 0.0f, 0.0f);
+
+		// 狙う高さ : 地表から決まった深さだけ下(地面が見つからなければ今の高さ)
+		const float _targetY = _ground.isFoundGround ? (_ground.groundHeight - m_burrowDepth) : _pos.y;
+
+		m_phaseTime += _dt;
+
 		Math::Vector3 _intent = Math::Vector3(0.0f, 0.0f, 0.0f);
 
 		switch (m_phase)
 		{
 		//--------------------------------------------------------------
-		// 溜め : プレイヤーの真下の地面まで行く
+		// 潜る : プレイヤーの方へ少し進みながら、地表から決まった深さまで潜る
 		//--------------------------------------------------------------
-		case App::Object::SwarmBossUperAttackState::EPhase::Windup:
-			_intent = _toPlayerDir * std::clamp(m_windupThrottle, 0.0f, 1.0f);
-
-			// 制限時間までに到達できなかったらその場で
-			if (m_phaseTime >= m_windupTime)
+		case EPhase::Burrow:
+		{
+			if (_ground.isFoundGround)
 			{
-				m_phase = EPhase::Uper;
-				m_phaseTime = 0.0f;
+				const Math::Vector3 _target =
+					_pos + _toPlayerDirXZ * std::max(m_burrowForward, 0.0f) + Math::Vector3(0.0f, _targetY - _pos.y, 0.0f);
+				_intent = ScaledDir(_target - _pos, std::clamp(m_burrowThrottle, 0.0f, 1.0f));
 			}
-			break;
-		//--------------------------------------------------------------
-		// 突進 : 真上に向かって飛び出す
-		//--------------------------------------------------------------
-		case App::Object::SwarmBossUperAttackState::EPhase::Uper:
-			_intent = Math::Vector3::Up() * std::max(m_chargeSpeedScale, 0.0f);
-
-			// 通り過ぎて十分離れたか、時間切れで終わり
-			if (m_phaseTime >= m_maxChargeTime)
+			else
 			{
-				m_phase = EPhase::Recover;
-				m_phaseTime = 0.0f;
+				// レイの届く範囲に地面が無い(高く飛びすぎている)。見つかるまで真下へ
+				_intent = Math::Vector3::Down() * std::clamp(m_burrowThrottle, 0.0f, 1.0f);
 			}
 
+			// 地中で狙いの深さに入ったら地中移動へ
+			const bool _isReachedDepth = m_isUnderGround && m_depth >= m_burrowDepth - m_depthTolerance;
+			if (_isReachedDepth)
+			{
+				ChangePhase(EPhase::Approach);
+			}
+			else if (m_phaseTime >= m_burrowMaxTime)
+			{
+				// 地中に入れていれば浅くても続ける。入れなければ諦めて徘徊へ
+				if (!m_isUnderGround)
+				{
+					Finish(a_context);
+					return;
+				}
+				ChangePhase(EPhase::Approach);
+			}
 			break;
+		}
+
 		//--------------------------------------------------------------
-		// 余韻 : 同じ向きへ惰性で進んでから徘徊へ戻る
+		// 地中移動 : 深さを保ったまま、プレイヤーの真下へ高速で向かう
 		//--------------------------------------------------------------
-		case App::Object::SwarmBossUperAttackState::EPhase::Recover:
+		case EPhase::Approach:
+		{
+			const Math::Vector3 _target = Math::Vector3(m_playerPos.x, _targetY, m_playerPos.z);
+			_intent = ScaledDir(_target - _pos, std::max(m_approachSpeedScale, 0.0f));
+
+			// 真下に来たか、時間切れならその場で突き上げる
+			if (_distXZ <= m_underDistance || m_phaseTime >= m_approachMaxTime)
+			{
+				ChangePhase(EPhase::Uper);
+			}
+			break;
+		}
+
+		//--------------------------------------------------------------
+		// 突き上げ : 真上へ飛び出す。プレイヤーの高さを越えたら終わり
+		//--------------------------------------------------------------
+		case EPhase::Uper:
+		{
+			_intent = Math::Vector3::Up() * std::max(m_uperSpeedScale, 0.0f);
+
+			const bool _isPassed = _pos.y >= m_playerPos.y + m_overshootHeight;
+			if (_isPassed || m_phaseTime >= m_uperMaxTime)
+			{
+				ChangePhase(EPhase::Recover);
+			}
+			break;
+		}
+
+		//--------------------------------------------------------------
+		// 余韻 : 同じ向き(真上)へ惰性で進んでから徘徊へ戻る
+		//--------------------------------------------------------------
+		case EPhase::Recover:
+		{
 			_intent = Math::Vector3::Up() * std::clamp(m_recoverThrottle, 0.0f, 1.0f);
 
 			if (m_phaseTime >= m_recoverTime)
@@ -135,14 +206,18 @@ namespace App::Object
 				return;
 			}
 			break;
+		}
+
 		default:
 			break;
 		}
+
+		_world.RefData<MoveIntentComponent>(_leader)->value = _intent;
 	}
 
 	void SwarmBossUperAttackState::Exit(SwarmBossStateContext& a_context)
 	{
-		// 突進の速さの入力を次のステートへ持ち越さない
+		// 突き上げの速さの入力を次のステートへ持ち越さない
 		if (!a_context.pObject || !a_context.pObject->pWorld) return;
 		auto& _world = *a_context.pObject->pWorld;
 
@@ -153,33 +228,10 @@ namespace App::Object
 		_world.RefData<MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
 	}
 
-	void SwarmBossUperAttackState::Archive(Engine::Persistence::Archive& a_ar)
-	{// ステートの調整値は同じ階層に並ぶので、名前の頭に Charge を付けて区別する
-		a_ar.Field("UperAttackWindupTime", m_windupTime);
-		a_ar.Field("UperAttackWindupThrottle", m_windupThrottle);
-		a_ar.Field("UperAttackSpeedScale", m_chargeSpeedScale);
-		a_ar.Field("UperAttackHomingTurnSpeed", m_homingTurnSpeed);
-		a_ar.Field("UperAttackMaxTime", m_maxChargeTime);
-		a_ar.Field("UperAttackOvershootDistance", m_overshootDistance);
-		a_ar.Field("UperAttackRecoverTime", m_recoverTime);
-		a_ar.Field("UperAttackRecoverThrottle", m_recoverThrottle);
-	}
-
-	void SwarmBossUperAttackState::DrawInspector()
+	void SwarmBossUperAttackState::ChangePhase(EPhase a_phase)
 	{
-		ImGui::DragFloat("Windup Time", &m_windupTime, 0.05f, 0.0f);
-		ImGui::DragFloat("Windup Throttle", &m_windupThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Charge Speed Scale", &m_chargeSpeedScale, 0.05f, 0.0f);
-		ImGui::DragFloat("Homing Turn Speed", &m_homingTurnSpeed, 0.01f, 0.0f);
-		ImGui::DragFloat("Max Charge Time", &m_maxChargeTime, 0.1f, 0.0f);
-		ImGui::DragFloat("Overshoot Distance", &m_overshootDistance, 0.5f, 0.0f);
-		ImGui::DragFloat("Recover Time", &m_recoverTime, 0.05f, 0.0f);
-		ImGui::DragFloat("Recover Throttle", &m_recoverThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::TextDisabled("Speed scale above Platoon Scale tears the line apart");
-
-		// 実行中の状態は表示のみ
-		ImGui::Text("Phase   : %s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		ImGui::Text("Player  : %.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
+		m_phase     = a_phase;
+		m_phaseTime = 0.0f;
 	}
 
 	void SwarmBossUperAttackState::Finish(SwarmBossStateContext& a_context)
@@ -193,4 +245,44 @@ namespace App::Object
 		}
 	}
 
+	void SwarmBossUperAttackState::Archive(Engine::Persistence::Archive& a_ar)
+	{
+		// ステートの調整値は同じ階層に並ぶので、名前の頭に UperAttack を付けて区別する
+		a_ar.Field("UperAttackBurrowDepth", m_burrowDepth);
+		a_ar.Field("UperAttackDepthTolerance", m_depthTolerance);
+		a_ar.Field("UperAttackBurrowForward", m_burrowForward);
+		a_ar.Field("UperAttackBurrowThrottle", m_burrowThrottle);
+		a_ar.Field("UperAttackBurrowMaxTime", m_burrowMaxTime);
+		a_ar.Field("UperAttackApproachSpeedScale", m_approachSpeedScale);
+		a_ar.Field("UperAttackUnderDistance", m_underDistance);
+		a_ar.Field("UperAttackApproachMaxTime", m_approachMaxTime);
+		a_ar.Field("UperAttackSpeedScale", m_uperSpeedScale);
+		a_ar.Field("UperAttackOvershootHeight", m_overshootHeight);
+		a_ar.Field("UperAttackMaxTime", m_uperMaxTime);
+		a_ar.Field("UperAttackRecoverTime", m_recoverTime);
+		a_ar.Field("UperAttackRecoverThrottle", m_recoverThrottle);
+	}
+
+	void SwarmBossUperAttackState::DrawInspector()
+	{
+		ImGui::DragFloat("Burrow Depth", &m_burrowDepth, 0.5f, 0.0f);
+		ImGui::DragFloat("Depth Tolerance", &m_depthTolerance, 0.1f, 0.0f);
+		ImGui::DragFloat("Burrow Forward", &m_burrowForward, 0.5f, 0.0f);
+		ImGui::DragFloat("Burrow Throttle", &m_burrowThrottle, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Burrow Max Time", &m_burrowMaxTime, 0.1f, 0.0f);
+		ImGui::DragFloat("Approach Speed Scale", &m_approachSpeedScale, 0.05f, 0.0f);
+		ImGui::DragFloat("Under Distance", &m_underDistance, 0.1f, 0.0f);
+		ImGui::DragFloat("Approach Max Time", &m_approachMaxTime, 0.1f, 0.0f);
+		ImGui::DragFloat("Uper Speed Scale", &m_uperSpeedScale, 0.05f, 0.0f);
+		ImGui::DragFloat("Overshoot Height", &m_overshootHeight, 0.5f, 0.0f);
+		ImGui::DragFloat("Uper Max Time", &m_uperMaxTime, 0.1f, 0.0f);
+		ImGui::DragFloat("Recover Time", &m_recoverTime, 0.05f, 0.0f);
+		ImGui::DragFloat("Recover Throttle", &m_recoverThrottle, 0.01f, 0.0f, 1.0f);
+		ImGui::TextDisabled("Speed scale above Platoon Scale tears the line apart");
+
+		// 実行中の状態は表示のみ
+		ImGui::Text("Phase   : %s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		ImGui::Text("Player  : %.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
+		ImGui::Text("Ground  : %.1f (depth %.1f, %s)", m_groundHeight, m_depth, m_isUnderGround ? "under" : "above");
+	}
 }

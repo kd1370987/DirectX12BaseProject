@@ -78,6 +78,7 @@
 #include "../../Components/Character/Boss/PlatoonLeaderComponent.h"
 #include "../../Components/Character/Boss/BoidSpownerComponent.h"
 #include "../../Components/Tag/SwarmBossBoidTag.h"
+#include "../../Components/Character/SerchGroundComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -207,6 +208,7 @@
 #include "../../Systems/Update/Update/Boid/SwarmLookSystem.h"
 #include "../../Systems/Update/Update/Boid/SwarmLeaderMoveSystem.h"
 #include "../../Systems/Update/Update/Boid/BoidWaveSystem.h"
+#include "../../Systems/Update/Update/Boid/SerchGroundSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -326,6 +328,8 @@ namespace App::ECS
 		a_world.RegisterComponent<BoidSpownerComponent>("BoidSpownerComponent");
 		// 群れのボスの体を作っているボイドの印。数がそのままボスの体力
 		a_world.RegisterComponent<SwarmBossBoidTag>("SwarmBossBoidTag");
+		// 上下にレイを打って地面との関係を持つ(今はワームボスのリーダーが使う)
+		a_world.RegisterComponent<SerchGroundComponent>("SerchGroundComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -501,6 +505,8 @@ namespace App::ECS
 		// 体を走る発光のウェーブをボイドへ塗る(ウェーブを出すのは SwarmBossController)。
 		// 小隊長の向きを使うので SwarmLookSystem より後に置く
 		a_world.RegisterSystem<BoidWaveSystem>();
+		// 上下にレイを打って地表の高さと地中に居るかを書く(ワームボスのアッパー攻撃が読む)
+		a_world.RegisterSystem<SerchGroundSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
