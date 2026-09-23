@@ -1018,7 +1018,7 @@ namespace Engine::Graphics
 		m_upMeshBufferAllocator->UpdateFrame(_pCmdList, _completedFence);
 
 		// パーティクルのバッファ更新
-		m_upParticleManager->UploadEmitData(_pCmdList);
+		m_upParticleManager->UploadEmitData(_pCmdList, m_currentFrameIndex);
 
 		// バックバッファを描き込める状態にしてクリアする
 		m_upBackBuffer->TransitionToRenderTarget(_pCmdList);

@@ -216,7 +216,7 @@ namespace Engine::Particle
 	{
 		return m_pools;
 	}
-	void ParticleBufferManager::UploadEmitData(D3D12::GraphicsCommandList* a_pCmdList)
+	void ParticleBufferManager::UploadEmitData(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex)
 	{
 		for (auto& [_handle, _emitDataVec] : m_emitRequests)
 		{
@@ -233,10 +233,8 @@ namespace Engine::Particle
 				// (パス側も同じ数で requestCount を丸めるので、あふれた命令はこのフレームでは捨てる)
 				const size_t _uploadNum = (std::min)(_emitDataVec.size(), _it->second.GetElementNum());
 
-				// バッファにデータを流し込む
-				_it->second.UpdateData(_emitDataVec.data(), sizeof(EmitterData) * _uploadNum);
-				// GPUへの転送コマンドを積む
-				_it->second.Update(a_pCmdList);
+				// 毎フレーム書き換えるので、フレームごとの区画を経由してGPUへ送る
+				_it->second.UploadFrame(a_pCmdList, _emitDataVec.data(), sizeof(EmitterData) * _uploadNum, a_frameIndex);
 			}
 		}
 	}

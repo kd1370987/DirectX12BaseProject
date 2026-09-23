@@ -12,8 +12,22 @@ namespace Engine::D3D12
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
 	};
 
+	//==========================================================================================
 	// 比較的更新頻度が少ないバッファ向け親クラス
-	// 更新が少しでもある可能性がある使い方の時はマイフレームアップデートを呼ぶ
+	//
+	// 中身はGPU専用(DEFAULT)のバッファに置き、CPUからはアップロードバッファを経由して送る。
+	// 送り方は使い方で分ける。
+	//
+	//   UpdateData + Update … アップロードバッファは1本だけ。
+	//                          作成時の初期化や、たまにしか書き換えないもの、
+	//                          あるいは持ち主自体がフレームごとに別(RenderContext など)のもの向け
+	//   UploadFrame        … 毎フレーム丸ごと書き換えるもの向け。
+	//                          フレームの数だけ区画を持つアップロードバッファを経由する
+	//
+	// 1本のアップロードバッファを毎フレーム書き換えてはいけない。
+	// CPUはGPUより最大 CPU_FRAME_COUNT-1 フレーム先を走っているので、
+	// 前のフレームのコピーがまだ読んでいる中身を上書きしてしまう
+	//==========================================================================================
 	class StaticBuffer : public DynamicBuffer
 	{
 	public:
@@ -37,6 +51,23 @@ namespace Engine::D3D12
 
 		// データ更新
 		void UpdateData(const void* a_data, size_t a_size) override;
+
+		/// <summary>
+		/// 毎フレーム中身を書き換える使い方の転送。
+		/// 今のフレームの区画へ書き込んでから、その区画をGPUバッファへコピーするコマンドを積む。
+		/// 区画用のアップロードバッファは初めて呼ばれたときに作る(使わないバッファは持たない)。
+		/// UpdateData / Update とは別経路なので、同じバッファで混ぜないこと
+		/// </summary>
+		/// <param name="a_pCmdList">コピーを積むコマンドリスト</param>
+		/// <param name="a_pData">書き込むデータ</param>
+		/// <param name="a_sizeBytes">書き込むバイト数(バッファの大きさ以下)</param>
+		/// <param name="a_frameIndex">今のCPUフレーム番号(0 ～ CPU_FRAME_COUNT-1)</param>
+		void UploadFrame(
+			GraphicsCommandList* a_pCmdList,
+			const void* a_pData,
+			size_t a_sizeBytes,
+			UINT a_frameIndex
+		);
 
 		/// <summary>
 		/// バッファの指定した範囲だけを更新・GPUへ転送する（メガバッファ用）
@@ -83,9 +114,16 @@ namespace Engine::D3D12
 		// GPUバッファへデータをコピー
 		void CopyToGPU(GraphicsCommandList* a_pCmdList);
 
+		// UploadFrame 用の区画つきアップロードバッファを作る
+		bool CreateFrameUploadBuffer();
+
 	protected:
 		// 更新する用のバッファ
 		GPUBuffer m_gpuBuffer;
 		bool m_isDrty = false;
+
+		// UploadFrame 用 : GetBufferSize() の区画を CPU_FRAME_COUNT 個並べたアップロードバッファ
+		GPUBuffer m_frameUploadBuffer;
+		std::byte* m_pFrameUploadMap = nullptr;		// 先頭(マップしたまま)
 	};
 }

@@ -254,10 +254,10 @@ namespace Engine::Raytracing
 			}
 			
 		}
-		m_instanceDataBuffer.UpdateData((void*)m_instanceDataVec.data(), m_instanceDataVec.size() * sizeof(InstanceData));
-		m_materialDataBuffer.UpdateData((void*)m_materialVec.data(), m_materialVec.size() * sizeof(Material));
-		m_instanceDataBuffer.Update(a_pCmdList);
-		m_materialDataBuffer.Update(a_pCmdList);
+		// 毎フレーム丸ごと書き換えるので、フレームごとの区画を経由して送る
+		// (1本のアップロードバッファを書き換えると、前フレームのコピーが読んでいる中身を踏む)
+		m_instanceDataBuffer.UploadFrame(a_pCmdList, m_instanceDataVec.data(), m_instanceDataVec.size() * sizeof(InstanceData), a_frameIndex);
+		m_materialDataBuffer.UploadFrame(a_pCmdList, m_materialVec.data(), m_materialVec.size() * sizeof(Material), a_frameIndex);
 	}
 
 	void Engine::Raytracing::RayWorld::Clear()

@@ -92,8 +92,9 @@ namespace Engine::Particle
 		/// <summary>
 		/// ため込んだエミットデータを構造体バッファにマップする
 		/// エミットデータ送信後、パス実行前の間に入れる必要あり
+		/// a_frameIndex : 今のCPUフレーム番号(アップロード区画の選択に使う)
 		/// </summary>
-		void UploadEmitData(D3D12::GraphicsCommandList* a_pCmdList);
+		void UploadEmitData(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex);
 
 		/// <summary>
 		/// 現在たまっている生成命令をパーティクルを指定して取得

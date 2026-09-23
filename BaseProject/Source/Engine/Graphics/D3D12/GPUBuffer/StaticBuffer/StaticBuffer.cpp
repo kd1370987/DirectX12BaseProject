@@ -10,6 +10,14 @@ namespace Engine::D3D12
 		// (m_srvHandle は基底が持っていて、返したあと空にされる)
 		GPUResource::Release();
 		m_gpuBuffer.Release();
+
+		// UploadFrame 用の区画つきバッファ(使っていなければ作られていない)
+		if (m_pFrameUploadMap)
+		{
+			m_frameUploadBuffer.Unmap();
+			m_pFrameUploadMap = nullptr;
+		}
+		m_frameUploadBuffer.Release();
 	}
 	bool StaticBuffer::Create(
 		D3D12::Device* a_pDevice, 
@@ -29,6 +37,21 @@ namespace Engine::D3D12
 			assert(0 && "リソース作成失敗");
 			return false;
 		}
+
+		//------------------------------------------------------------------------------------------
+		// アップロード側のSRVはここで返す
+		//
+		// DynamicBuffer::Create はアップロードバッファにもSRVを取るが、
+		// StaticBuffer がシェーダーへ見せるのはGPU側のバッファだけ。
+		// 派生クラスの Create は m_srvHandle をGPU側のSRVで上書きするので、
+		// ここで返しておかないと、1本作るたびにヒープの席が1つ漏れる。
+		// 返却先(m_pHeapManager)は後でGPU側のSRVを返すのに使うので残しておく
+		//------------------------------------------------------------------------------------------
+		if (m_pHeapManager)
+		{
+			m_pHeapManager->Free(m_srvHandle);
+		}
+		m_srvHandle = {};
 
 		// 内容を初期化
 		if(a_pInitData)
@@ -100,6 +123,68 @@ namespace Engine::D3D12
 		//m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
 
 		m_isDrty = true;
+	}
+
+	void StaticBuffer::UploadFrame(GraphicsCommandList* a_pCmdList, const void* a_pData, size_t a_sizeBytes, UINT a_frameIndex)
+	{
+		if (!a_pCmdList || !a_pData || a_sizeBytes == 0) return;
+
+		// 1区画はGPUバッファと同じ大きさ。超えると隣のフレームの区画を踏む
+		const size_t _slotSize = GetBufferSize();
+		if (a_sizeBytes > _slotSize)
+		{
+			assert(0 && "バッファサイズを超える書き込み : Createの要素数が足りていない");
+			return;
+		}
+		assert(a_frameIndex < CPU_FRAME_COUNT && "UploadFrame : フレーム番号が範囲外です");
+
+		if (!m_pFrameUploadMap && !CreateFrameUploadBuffer()) return;
+
+		// 今のフレームの区画へ書く。
+		// この区画を最後に読んだのは CPU_FRAME_COUNT フレーム前のコピーで、
+		// フレームの頭(FrameManager::BeginFrame)でその完了はもう待ってある
+		const size_t _offset = _slotSize * (a_frameIndex % CPU_FRAME_COUNT);
+		std::memcpy(m_pFrameUploadMap + _offset, a_pData, a_sizeBytes);
+
+		// 書いたぶんだけGPUバッファへ写す
+		m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
+		a_pCmdList->CopyBufferRegion(
+			m_gpuBuffer.GetResource(),
+			0,
+			m_frameUploadBuffer.GetResource(),
+			_offset,
+			a_sizeBytes
+		);
+		m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
+	}
+
+	bool StaticBuffer::CreateFrameUploadBuffer()
+	{
+		// 作成時と同じデバイスをリソースから引く(呼び出し側に持ち回らせないため)
+		if (!m_cpResource) return false;
+
+		ComPtr<D3D12::Device> _cpDevice = nullptr;
+		if (FAILED(m_cpResource->GetDevice(IID_PPV_ARGS(_cpDevice.ReleaseAndGetAddressOf()))))
+		{
+			ENGINE_ERRLOG(false, "UploadFrame : デバイスを取得できませんでした");
+			return false;
+		}
+
+		GPUBufferDesc _desc = {};
+		_desc.strideSize = m_strideSize;
+		_desc.elementNum = m_elementNum * CPU_FRAME_COUNT;
+		_desc.heapType = D3D12_HEAP_TYPE_UPLOAD;
+		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
+		if (!m_frameUploadBuffer.Create(_cpDevice.Get(), _desc))
+		{
+			ENGINE_ERRLOG(false, "UploadFrame : 区画つきアップロードバッファの作成に失敗しました");
+			return false;
+		}
+
+		void* _pMap = nullptr;
+		m_frameUploadBuffer.Map(&_pMap);
+		m_pFrameUploadMap = static_cast<std::byte*>(_pMap);
+		return m_pFrameUploadMap != nullptr;
 	}
 
 	void StaticBuffer::UploadDataRange(D3D12::GraphicsCommandList* a_pCmdList, UINT a_startIndex, UINT a_count, const void* a_pData)
