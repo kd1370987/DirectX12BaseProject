@@ -113,9 +113,9 @@ namespace Engine::Graphics
 	// UIパスは深度を切ってあるので、積んだ順がそのまま前後になる。
 	// 呼び出し元がUIを全部積み終えた後に呼ぶことで最前面になる。
 	//======================================================================================
-	void MouseCursor::SubmitUI(GraphicsEngine* a_pGraphicsEngine) const
+	void MouseCursor::SubmitUI(DrawSubmitter* a_pDrawSubmitter) const
 	{
-		if (!m_isDraw || !a_pGraphicsEngine) return;
+		if (!m_isDraw || !a_pDrawSubmitter) return;
 
 		const auto& _cursorOp = Option::OptionManager::GetInstance().GetCursorOption();
 
@@ -147,7 +147,7 @@ namespace Engine::Graphics
 		// レイヤーは並べ替えのための値なので、大きくしても絵が消えることはない
 		constexpr float _CURSOR_LAYER = 10000.0f;
 
-		a_pGraphicsEngine->SubmitUI(
+		a_pDrawSubmitter->SubmitUI(
 			m_texRef,
 			_renderPos,
 			Math::Vector2(_cursorOp.sizePixel, _cursorOp.sizePixel),

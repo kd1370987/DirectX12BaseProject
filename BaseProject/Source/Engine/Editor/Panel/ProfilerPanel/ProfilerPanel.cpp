@@ -4,7 +4,7 @@
 
 #include "../../../MainEngine.h"
 #include "../../../Graphics/GraphicsEngine.h"
-#include "../../../Graphics/Core/GraphicsDevice/GraphicsDevice.h"
+#include "../../../Graphics/Device/GraphicsDevice/GraphicsDevice.h"
 #include "../../../Window/NativeWindow.h"
 
 namespace Engine::Editor
@@ -155,7 +155,7 @@ namespace Engine::Editor
 	void ProfilerPanel::DrawVRAMUsage()
 	{
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
-		auto* _pDevice = _pGE ? _pGE->RefGraphicsDevice() : nullptr;
+		auto* _pDevice = _pGE ? _pGE->RefRenderDevice()->RefGraphicsDevice() : nullptr;
 		auto* _pAdapter = _pDevice ? _pDevice->RefAdapter() : nullptr;
 		if (!_pAdapter) return;
 

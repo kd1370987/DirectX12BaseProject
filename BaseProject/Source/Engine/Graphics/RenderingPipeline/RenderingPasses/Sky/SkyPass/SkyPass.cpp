@@ -47,11 +47,11 @@ namespace Engine::Graphics::Pipeline
 		auto* _pCtx = a_context.pRenderContext;
 		auto* _pGE = a_context.pGraphicsEngine;
 
-		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(a_context.pCmdList, kRootCameraCB, _pGE->GetCameraData());
-		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<SkyData>(a_context.pCmdList, kRootSkyCB, _pGE->GetSkyData());
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(a_context.pCmdList, kRootCameraCB, _pGE->GetSceneView()->GetCameraData());
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<SkyData>(a_context.pCmdList, kRootSkyCB, _pGE->GetSceneView()->GetSkyData());
 
 		// スカイテクスチャはシーン側が差し替えるので、空のフレームは描かない
-		const auto& _skyTexHandle = _pGE->GetSkyTexture();
+		const auto& _skyTexHandle = _pGE->GetSceneView()->GetSkyTexture();
 		const auto* _pSkyTex = a_context.pResourceManager->Get(_skyTexHandle);
 		if (!_pSkyTex) return;
 

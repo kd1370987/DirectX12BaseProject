@@ -78,7 +78,7 @@ void CameraPipelineSubmitSystem::Init(App::ECS::APPWorld& a_world)
 						_desc.order				= _param.renderOrder;
 						_desc.isMain			= (_entity == _mainCamera);
 
-						_pGE->SubmitCamera(_desc);
+						_pGE->RefCameraPipelines()->SubmitCamera(_desc);
 					}
 				}
 			);

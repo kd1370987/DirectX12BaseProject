@@ -1,6 +1,6 @@
 ﻿#include "MeshBufferAllocator.h"
 
-#include "../../Core/FrameManager/FrameManager.h"
+#include "../../Device/FrameManager/FrameManager.h"
 
 namespace Engine::Graphics
 {

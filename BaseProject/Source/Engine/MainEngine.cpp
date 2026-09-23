@@ -10,7 +10,7 @@
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicsEngine.h"
-#include "Engine/Graphics/Core/BackBuffer/BackBuffer.h"
+#include "Engine/Graphics/Device/BackBuffer/BackBuffer.h"
 
 #include "Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
@@ -127,7 +127,7 @@ namespace Engine
 		}
 
 		// 初期化中のGPU操作を積むコマンドリスト。最後に ExecuteImmediate で流す
-		auto* _pCmdList = m_upGraphicsEngine->AcquireDirectCommandList();
+		auto* _pCmdList = m_upGraphicsEngine->RefRenderDevice()->AcquireDirectCommandList();
 
 		// ジョブシステム起動
 		m_upJobSystem = std::make_unique<Thread::JobSystem>();
@@ -212,7 +212,7 @@ namespace Engine
 		);
 
 		// ダイレクトキューの実行
-		m_upGraphicsEngine->ExecuteImmediate(_pCmdList);
+		m_upGraphicsEngine->RefRenderDevice()->ExecuteImmediate(_pCmdList);
 	}
 
 	void MainEngine::Release()
@@ -271,7 +271,7 @@ namespace Engine
 		// 全GPU作業の完了を待ってから実行し、デバイスより先にリソースを解放しきる。
 		// 待つのは最後の Present まで含めて : この後バックバッファ(スワップチェイン)を捨てるので、
 		// フレームのフェンス(Presentより前に打たれる)を待つだけでは足りない
-		m_upGraphicsEngine->WaitForGPUIdle();
+		m_upGraphicsEngine->RefRenderDevice()->WaitForGPUIdle();
 		for (auto& _releaseQueue : m_releaseQueues)
 		{
 			// 取り出してから実行する : 実行中に積み直されてもロックが二重にならない
@@ -405,7 +405,7 @@ namespace Engine
 		// 今から使うフレームに登録されているファンクションを実行して空にする
 		// BeginFrameの待機を終えた後に実行することで、このインデックスを前回使ったフレームの
 		// GPU作業が完了していることが保証される
-		UINT _currentFrameIdx = m_upGraphicsEngine->GetCurrentFrameIndex();
+		UINT _currentFrameIdx = m_upGraphicsEngine->RefRenderDevice()->GetCurrentFrameIndex();
 		{
 			// 取り出してから実行する : 実行中に積み直されてもロックが二重にならない
 			std::vector<std::function<void()>> _funcs = {};
@@ -433,7 +433,7 @@ namespace Engine
 			// ゲームモード以外の処理
 			if (m_appMode != EAppMode::Game)
 			{
-				auto* _pCmdList = m_upGraphicsEngine->AcquireDirectCommandList();
+				auto* _pCmdList = m_upGraphicsEngine->RefRenderDevice()->AcquireDirectCommandList();
 				auto* _pHeapManager = m_upGraphicsEngine->RefDescriptorHeapManager();
 				const auto* _pBackBuffer = m_upGraphicsEngine->GetBackBuffer();
 
@@ -463,7 +463,7 @@ namespace Engine
 
 				// エディター描画
 				Engine::Editor::MainEditor::Instance().Draw(_pCmdList);
-				m_upGraphicsEngine->SubmitDirectCommandList(_pCmdList);
+				m_upGraphicsEngine->RefRenderDevice()->SubmitDirectCommandList(_pCmdList);
 			}
 
 			m_upGraphicsEngine->EndFrame();
@@ -521,7 +521,7 @@ namespace Engine
 			Math::Matrix _camProj = {};
 			if (_pEffectEditor && _pEffectEditor->TryGetCameraOverride(_camWorld, _camProj))
 			{
-				m_upGraphicsEngine->SetCameraOverride(_camWorld, _camProj);
+				m_upGraphicsEngine->RefSceneView()->SetCameraOverride(_camWorld, _camProj);
 				_isOverride = true;
 			}
 		}
@@ -531,7 +531,7 @@ namespace Engine
 			auto* _pEditorCam = Editor::MainEditor::Instance().RefEditorCamera();
 			if (_pEditorCam && _pEditorCam->IsEnable())
 			{
-				m_upGraphicsEngine->SetCameraOverride(
+				m_upGraphicsEngine->RefSceneView()->SetCameraOverride(
 					_pEditorCam->GetWorldMatrix(),
 					_pEditorCam->GetProjMatrix()
 				);
@@ -542,12 +542,12 @@ namespace Engine
 		// ゲームモード、またはフリーカメラ無効ならECSのカメラをそのまま使う
 		if (!_isOverride)
 		{
-			m_upGraphicsEngine->ClearCameraOverride();
+			m_upGraphicsEngine->RefSceneView()->ClearCameraOverride();
 		}
 
 		// 描画の設定はここ(オプションの持ち主を知っている側)から流し込む。
 		// グラフィックスエンジンはオプションを直接引かない
-		m_upGraphicsEngine->SetJitterEnabled(
+		m_upGraphicsEngine->RefSceneView()->SetJitterEnabled(
 			Option::OptionManager::GetInstance().GetRenderingOption().useJitter);
 
 		m_upGraphicsEngine->Execute();
@@ -605,7 +605,7 @@ namespace Engine
 	void MainEngine::RegisterDeferredResource(std::function<void()> a_releaseFunc)
 	{
 		// グラフィックスエンジンが無い(起動前・終了後)ときは、どの枠でもよいので先頭へ積む
-		const UINT _frameIdx = m_upGraphicsEngine ? m_upGraphicsEngine->GetCurrentFrameIndex() : 0;
+		const UINT _frameIdx = m_upGraphicsEngine ? m_upGraphicsEngine->RefRenderDevice()->GetCurrentFrameIndex() : 0;
 
 		std::lock_guard<std::mutex> _lock(m_releaseQueueMutex);
 		m_releaseQueues[_frameIdx].push_back(std::move(a_releaseFunc));

@@ -53,7 +53,7 @@ void AnimationOptionalDrawSystem::Init(App::ECS::APPWorld& a_world)
 				if (!_model) continue;
 
 				// 描画
-				_pGE->SubmitModel(
+				_pGE->RefDrawSubmitter()->SubmitModel(
 					*a_ctx.pWorld,
 					_model,
 					_matComp.worldMat,

@@ -35,7 +35,7 @@ namespace Engine::Scene
 		{
 			if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
 			{
-				_pGE->WaitForGPUIdle();
+				_pGE->RefRenderDevice()->WaitForGPUIdle();
 			}
 		}
 		while (!m_upBaseSceneVec.empty())
@@ -268,7 +268,7 @@ namespace Engine::Scene
 		// GPU待ち
 		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
 		{
-			_pGE->WaitForFrame();
+			_pGE->RefRenderDevice()->WaitForFrame();
 		}
 
 		// これを外すと1つも残らないか

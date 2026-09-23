@@ -245,7 +245,7 @@ namespace Engine::Editor
 
 		// 画面に出るカメラが描いた絵をそのまま出す。
 		// パイプラインを持つカメラが1台も居なければ何も描かれていない
-		const auto* _pTex = _pGE->GetPresentTexture();
+		const auto* _pTex = _pGE->GetCameraPipelines()->GetPresentTexture();
 		if (!_pTex)
 		{
 			ImGui::TextDisabled("画面に出るカメラに描画構成(RenderingPipelineAsset)が設定されていません");
@@ -458,7 +458,7 @@ namespace Engine::Editor
 		// 現在のカメラ行列を取得
 		auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGE) return;
-		const auto& _camData = _pGE->GetCPUCameraData();
+		const auto& _camData = _pGE->GetSceneView()->GetCPUCameraData();
 
 		// Pos/Quat/Scale から 4x4ワールド行列を合成
 		// (親を持つ場合、これは親基準のローカル行列)
@@ -613,7 +613,7 @@ namespace Engine::Editor
 		// 現在のカメラ行列を取得
 		auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGE) return;
-		const auto& _camData = _pGE->GetCPUCameraData();
+		const auto& _camData = _pGE->GetSceneView()->GetCPUCameraData();
 
 		HudPainter _hud;
 		_hud.viewProj = _camData.viewMat * _camData.projMat;
@@ -845,7 +845,7 @@ namespace Engine::Editor
 		// カメラ行列を取得
 		auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGE) return;
-		const auto& _camData = _pGE->GetCPUCameraData();
+		const auto& _camData = _pGE->GetSceneView()->GetCPUCameraData();
 
 		// オブジェクトへ渡すコンテキストを組む。
 		// 具体的な編集方法(3Dギズモ/スクリーン上のハンドル等)は各オブジェクトのDrawGizmoに委ねる。

@@ -4,7 +4,7 @@
 
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
-#include "Engine/Graphics/Core/BackBuffer/BackBuffer.h"
+#include "Engine/Graphics/Device/BackBuffer/BackBuffer.h"
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 
 // ImGui のバックエンドと ImGuizmo は、ここ(初期化とフレーム開始)だけで使う。
@@ -87,8 +87,8 @@ namespace Engine::Editor
 
 		// DX12オブジェクトをセット
 		ImGui_ImplDX12_InitInfo _initInfo = {};
-		_initInfo.Device = _pGE->RefDevice();
-		_initInfo.CommandQueue = _pGE->RefDirectCommandQueue();
+		_initInfo.Device = _pGE->RefRenderDevice()->RefDevice();
+		_initInfo.CommandQueue = _pGE->RefRenderDevice()->RefDirectCommandQueue();
 		_initInfo.NumFramesInFlight = static_cast<int>(CPU_FRAME_COUNT);
 		_initInfo.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 		_initInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;

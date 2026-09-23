@@ -120,7 +120,7 @@ namespace Engine::Editor
 		//----------------------------------------------------------------------------------
 		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
 		{
-			m_pipelineHandle = _pGE->GetLastMainPipelineHandle();
+			m_pipelineHandle = _pGE->GetCameraPipelines()->GetLastMainPipelineHandle();
 		}
 
 		// カメラは開くたびに定位置へ。
@@ -396,10 +396,10 @@ namespace Engine::Editor
 		// 閉じればシーン側が毎フレーム貸し直すので、そのまま元へ戻る
 		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
 		{
-			_pGE->SetSkyTexture({});
+			_pGE->RefSceneView()->SetSkyTexture({});
 
 			// 確認用ワールドのアニメーションモデルの BLAS と頂点領域(PreDraw より前に)
-			_pGE->ProcessDynamicRaytracingInit(*m_upWorld);
+			_pGE->RefDrawSubmitter()->ProcessDynamicRaytracingInit(*m_upWorld);
 		}
 
 		m_upWorld->RunSystem(ECS::ESystemType::PreDraw, 0.0f);
@@ -443,7 +443,7 @@ namespace Engine::Editor
 		_desc.order				= 0;
 		_desc.isMain			= true;
 
-		_pGE->SubmitCamera(_desc);
+		_pGE->RefCameraPipelines()->SubmitCamera(_desc);
 	}
 
 	void EffectEditor::DrawGrid() const
@@ -612,7 +612,7 @@ namespace Engine::Editor
 
 		// このプレビューのカメラが描いた絵をそのまま出す。
 		// ゲームのシーンと同じ設計図を通っているので、ここで見えているものが本番の見え方
-		const auto* _pTex = _pGE->GetCameraFinalTexture(m_upWorld.get(), PREVIEW_CAMERA_ENTITY);
+		const auto* _pTex = _pGE->GetCameraPipelines()->GetCameraFinalTexture(m_upWorld.get(), PREVIEW_CAMERA_ENTITY);
 		if (!_pTex) { ImGui::TextDisabled("出力テクスチャがまだありません"); return; }
 
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();

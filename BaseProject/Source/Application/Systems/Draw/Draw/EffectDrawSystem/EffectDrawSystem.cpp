@@ -260,7 +260,7 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 							continue;
 						}
 
-						_pGE->SubmitModel(
+						_pGE->RefDrawSubmitter()->SubmitModel(
 							*a_ctx.pWorld,
 							_pModel,
 							_meshWorld,

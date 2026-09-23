@@ -34,8 +34,8 @@ namespace Engine::Graphics::Pipeline
 		//
 		// カメラ側を優先しないと、演出でボケや流れが動かなくなる
 		//----------------------------------------------------------------------------------
-		const RadialBlurOptionCB& _cb = a_context.pGraphicsEngine && a_context.pGraphicsEngine->IsRadialBlurOverride()
-			? a_context.pGraphicsEngine->GetRadialBlurData()
+		const RadialBlurOptionCB& _cb = a_context.pGraphicsEngine && a_context.pGraphicsEngine->GetSceneView()->IsRadialBlurOverride()
+			? a_context.pGraphicsEngine->GetSceneView()->GetRadialBlurData()
 			: m_cb;
 
 		// ヒープ・ルートシグネチャ・PSO・SRV/UAV はグラフが張り終えている

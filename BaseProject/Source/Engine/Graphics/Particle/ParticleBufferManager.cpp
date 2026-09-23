@@ -243,7 +243,7 @@ namespace Engine::Particle
 	{
 		// デバイス取得
 		if (!m_pGraphicsEngine) return;
-		auto* _pDevice = m_pGraphicsEngine->RefDevice();
+		auto* _pDevice = m_pGraphicsEngine->RefRenderDevice()->RefDevice();
 
 		// メインスレッド側でマップ作成
 		{
@@ -262,7 +262,7 @@ namespace Engine::Particle
 		}
 
 		// コンピュート用の計算を非同期マネージャーへ流す
-		m_pGraphicsEngine->ExecuteAsyncCopy(
+		m_pGraphicsEngine->RefRenderDevice()->ExecuteAsyncCopy(
 			// ロード処理
 			[this,_pDevice,a_handle](D3D12::GraphicsCommandList* a_pCmdList)
 			{

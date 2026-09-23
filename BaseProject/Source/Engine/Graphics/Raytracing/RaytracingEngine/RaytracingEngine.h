@@ -38,7 +38,7 @@ namespace Engine::Raytracing
 		// 解放
 		void Release();
 
-		// コミット : a_frameIndex は今のCPUフレーム番号(GraphicsEngine::GetCurrentFrameIndex)
+		// コミット : a_frameIndex は今のCPUフレーム番号(RenderDevice::GetCurrentFrameIndex)
 		void Commit(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex);
 		void BindCamera(Graphics::RenderContext* a_pRCT,const Graphics::CameraData& a_cbCam);
 		void BindTLAS(Graphics::RenderContext* a_pRCT);

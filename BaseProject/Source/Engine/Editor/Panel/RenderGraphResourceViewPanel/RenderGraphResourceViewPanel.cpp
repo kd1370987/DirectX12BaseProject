@@ -108,7 +108,7 @@ namespace Engine::Editor
 		}
 
 		// 今フレーム回っているカメラのグラフ
-		const auto _graphVec = _pGraphicsEngine->CollectPipelineGraphs();
+		const auto _graphVec = _pGraphicsEngine->GetCameraPipelines()->CollectPipelineGraphs();
 		if (_graphVec.empty())
 		{
 			ImGui::TextDisabled("動いているパイプラインがありません");

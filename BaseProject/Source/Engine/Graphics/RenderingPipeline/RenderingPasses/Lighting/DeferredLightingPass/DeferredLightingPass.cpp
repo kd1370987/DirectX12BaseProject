@@ -40,10 +40,10 @@ namespace Engine::Graphics::Pipeline
 		auto* _pCmd = a_context.pCmdList;
 
 		// カメラ
-		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(_pCmd, 0, _pGE->GetCameraData());
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(_pCmd, 0, _pGE->GetSceneView()->GetCameraData());
 
 		// アンビエントカラー
-		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(_pCmd, 1, _pGE->GetAmbientData());
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(_pCmd, 1, _pGE->GetSceneView()->GetAmbientData());
 
 		// ライティング調整値。
 		// もとは OptionManager から引いていたが、パイプラインごとに変えられるよう

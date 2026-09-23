@@ -13,7 +13,7 @@ namespace Engine::Graphics
 	///
 	/// メッシュ1個ごとにExecuteCommandListsとSignalを打つと、
 	/// モデル1体で数十〜数百回のsubmitになってしまう。
-	/// GraphicsEngine::BeginAsyncBuildBatch で確保したコマンドリストへまとめて積み、
+	/// RenderDevice::BeginAsyncBuildBatch で確保したコマンドリストへまとめて積み、
 	/// EndAsyncBuildBatch で1回だけ実行する。
 	/// </summary>
 	struct AsyncBuildBatch

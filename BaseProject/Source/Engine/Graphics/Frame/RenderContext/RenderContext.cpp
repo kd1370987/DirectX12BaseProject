@@ -9,7 +9,7 @@
 
 #include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
 #include "../../GraphicsEngine.h"
-#include "../../Core/BackBuffer/BackBuffer.h"
+#include "../../Device/BackBuffer/BackBuffer.h"
 #include "../DrawList/DrawList.h"
 #include "../MeshBufferAllocator/MeshBufferAllocator.h"
 #include "../../DebugDraw/DebugDraw.h"
@@ -455,7 +455,7 @@ namespace Engine::Graphics
 	void RenderContext::BindCamera()
 	{
 		if (!m_pGraphicsEngine) return;
-		const auto& _cam = m_pGraphicsEngine->GetCameraData();
+		const auto& _cam = m_pGraphicsEngine->GetSceneView()->GetCameraData();
 		GraphicsBindRootCBV(0, _cam);
 	}
 

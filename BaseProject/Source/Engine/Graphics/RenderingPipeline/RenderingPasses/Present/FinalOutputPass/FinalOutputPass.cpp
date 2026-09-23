@@ -16,7 +16,7 @@ namespace Engine::Graphics::Pipeline
 		// 差し込む側にはパスが居ない。ここだけは名前で待ち合わせる
 		DeclareImportedOutput(
 			"Output",
-			GraphicsEngine::kCameraOutputName,
+			CameraPipelineManager::kCameraOutputName,
 			EAccessType::CopyDst);
 	}
 

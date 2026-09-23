@@ -129,7 +129,7 @@ namespace App::Object
 		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
 		if (!_pGE) return;
 
-		_pGE->SetSkyTexture({});
+		_pGE->RefSceneView()->SetSkyTexture({});
 
 		// 平行光の席を返す。
 		// 返さないままシーンを読み直すと席が減り、最後は上限に達して太陽が出なくなる
@@ -154,9 +154,9 @@ namespace App::Object
 		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
 		if (!_pGE) return;
 
-		_pGE->SetAmbientData(m_ambient);
-		_pGE->SetSkyData(m_sky);
-		_pGE->SetSkyTexture(m_skyTexRef);
+		_pGE->RefSceneView()->SetAmbientData(m_ambient);
+		_pGE->RefSceneView()->SetSkyData(m_sky);
+		_pGE->RefSceneView()->SetSkyTexture(m_skyTexRef);
 
 		//----------------------------------------------------------------------------
 		// 平行光

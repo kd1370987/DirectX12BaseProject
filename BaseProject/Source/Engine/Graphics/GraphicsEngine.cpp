@@ -6,12 +6,9 @@
 #include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 // グラフィックスエンジンの持ち物(土台)
-#include "Core/GraphicsDevice/GraphicsDevice.h"
-#include "Core/BackBuffer/BackBuffer.h"
-#include "Core/CommandContext/CommandContext.h"
-#include "Core/CommandPool/CommandPool.h"
-#include "Core/FrameManager/FrameManager.h"
-#include "Core/AsyncGPUManager/AsyncGPUManager.h"
+#include "Device/RenderDevice/RenderDevice.h"
+#include "Device/GraphicsDevice/GraphicsDevice.h"
+#include "Device/BackBuffer/BackBuffer.h"
 #include "PipelineState/PipelineStateManager/PipelineStateManager.h"
 
 // グラフィックス関係
@@ -24,15 +21,8 @@
 #include "MouseCursor/MouseCursor.h"
 #include "DebugDraw/DebugDraw.h"
 
-// レンダリングパイプライン
-#include "RenderingPipeline/Core/Pass/Pass.h"
-#include "RenderingPipeline/RenderingPipelineAsset/RenderingPipelineAsset.h"
-#include "RenderingPipeline/RenderGraph/RenderGraph.h"
+// レンダリングパイプライン(パスの型情報)
 #include "RenderingPipeline/RenderingPipelineMetaRegistry.h"
-#include "RenderingPipeline/GraphicsPipeline/GraphicsPipeline.h"
-
-// ECS
-#include "../ECS/World/World.h"
 
 // カメラに依存しない、フレームに1回のGPU処理
 #include "FrameCompute/SkinningPass/SkinningPass.h"
@@ -42,10 +32,9 @@
 
 namespace Engine::Graphics
 {
-	GraphicsEngine::GraphicsEngine()
-	{}
-	GraphicsEngine::~GraphicsEngine()
-	{}
+	// unique_ptr の中身が完全型として見えるここで生成・破棄を定義する
+	GraphicsEngine::GraphicsEngine() = default;
+	GraphicsEngine::~GraphicsEngine() = default;
 
 	//==========================================================================================
 	//
@@ -54,74 +43,23 @@ namespace Engine::Graphics
 	//==========================================================================================
 	bool GraphicsEngine::InitDevice(bool a_isDebug)
 	{
-		m_upGraphicsDevice = std::make_unique<GraphicsDevice>();
-		m_upGraphicsDevice->Create(a_isDebug);
-
-		auto* _pDevice = m_upGraphicsDevice->RefDevice();
-		if (!_pDevice)
-		{
-			ENGINE_ERRLOG(false, "デバイスの作成に失敗しました");
-			return false;
-		}
-
-		// コマンドキュー(描画・コピー・コンピュート)
-		m_upCommandContext = std::make_unique<CommandContext>();
-		m_upCommandContext->Init(_pDevice);
-
-		// 非同期転送の完了監視
-		m_upAsyncGPUManager = std::make_unique<AsyncGPUManager>();
-		m_upAsyncGPUManager->Init();
-
-		// フレーム同期
-		m_upFrameManager = std::make_unique<FrameManager>();
-		m_upFrameManager->Init(_pDevice);
-
-		ENGINE_LOG("デバイスとコマンドキューを作成");
-		return true;
+		m_upRenderDevice = std::make_unique<RenderDevice>();
+		return m_upRenderDevice->Init(a_isDebug);
 	}
 
 	void GraphicsEngine::ReleaseDevice()
 	{
-		// GPUの完了を待ってからフレーム同期を片付ける
-		if (m_upFrameManager)
-		{
-			m_upFrameManager->Release();
-			m_upFrameManager.reset();
-		}
+		if (!m_upRenderDevice) return;
 
-		// 非同期転送の監視スレッドを止める
-		if (m_upAsyncGPUManager)
-		{
-			m_upAsyncGPUManager->Release();
-			m_upAsyncGPUManager.reset();
-		}
-
-		// コマンドキューとコマンドリスト(各プールがキューを空にしてから手放す)
-		if (m_upCommandContext)
-		{
-			m_upCommandContext->RefDirectPool()->Release();
-			m_upCommandContext->RefCopyPool()->Release();
-			m_upCommandContext->RefComputePool()->Release();
-			m_upCommandContext.reset();
-		}
-
-		if (!m_upGraphicsDevice) return;
-
-		// 最後にデバイス。残っているオブジェクトはここでリークとして報告される
-		m_upGraphicsDevice->Release();
-		m_upGraphicsDevice.reset();
-	}
-
-	D3D12::Device* GraphicsEngine::RefDevice()
-	{
-		return m_upGraphicsDevice ? m_upGraphicsDevice->RefDevice() : nullptr;
+		m_upRenderDevice->Release();
+		m_upRenderDevice.reset();
 	}
 
 	void GraphicsEngine::CreateBackBuffer(HWND a_hWnd, UINT a_width, UINT a_height)
 	{
 		// スワップチェインはファクトリから描画キューに紐づけて作り、RTVはヒープへ預ける。
 		// どれも先に用意できていないと作れない
-		if (!m_upGraphicsDevice || !m_upCommandContext || !m_upDescriptorHeapManager)
+		if (!m_upRenderDevice || !m_upRenderDevice->RefDevice() || !m_upDescriptorHeapManager)
 		{
 			ENGINE_ERRLOG(false, "バックバッファより先にデバイスとディスクリプタヒープを用意してください");
 			return;
@@ -130,8 +68,8 @@ namespace Engine::Graphics
 		m_upBackBuffer = std::make_unique<BackBuffer>();
 		m_upBackBuffer->Create(
 			m_upDescriptorHeapManager.get(),
-			m_upGraphicsDevice->RefFactory(),
-			RefDirectCommandQueue(),
+			m_upRenderDevice->RefGraphicsDevice()->RefFactory(),
+			m_upRenderDevice->RefDirectCommandQueue(),
 			a_hWnd, a_width, a_height
 		);
 	}
@@ -147,7 +85,7 @@ namespace Engine::Graphics
 
 	bool GraphicsEngine::InitDescriptorHeap()
 	{
-		auto* _pDevice = RefDevice();
+		auto* _pDevice = m_upRenderDevice ? m_upRenderDevice->RefDevice() : nullptr;
 		if (!_pDevice)
 		{
 			ENGINE_ERRLOG(false, "ディスクリプタヒープより先にデバイスを作ってください");
@@ -192,7 +130,7 @@ namespace Engine::Graphics
 		assert(m_pResourceManager && "GraphicsEngineDesc.pResourceManager が渡されていません");
 
 
-		auto* _pDevice = RefDevice();
+		auto* _pDevice = m_upRenderDevice ? m_upRenderDevice->RefDevice() : nullptr;
 
 		// パイプラインステート・ルートシグネチャ管理。
 		// スキニングやパーティクルの用意、パスの組み立てが引くので最初に作る
@@ -263,9 +201,9 @@ namespace Engine::Graphics
 		SetupSkinning(m_upPipelineStateManager.get(), *m_pResourceManager);
 		SetupParticleSimulation(m_upPipelineStateManager.get(), *m_pResourceManager);
 
-		// 定数バッファ初期化
-		m_cbAmbient = {};
-		m_cbAmbient.ambientColorScale = { 0,0,0 };
+		// シーンの見え方(カメラ・画面効果・空・環境光)
+		m_upSceneView = std::make_unique<SceneView>();
+		m_upSceneView->Init(m_renderWidth, m_renderHeight);
 
 		// バッファ管理クラス
 		BufferSizeDesc _bufferSizeDesc = {};
@@ -276,7 +214,7 @@ namespace Engine::Graphics
 		m_upMeshBufferAllocator->Init(
 			_pDevice,
 			m_upDescriptorHeapManager.get(),
-			m_upFrameManager.get(),
+			m_upRenderDevice->GetFrameManager(),
 			a_pCmdList,
 			_bufferSizeDesc
 		);
@@ -288,6 +226,14 @@ namespace Engine::Graphics
 		//------------------------------------------------------------------------------------
 		m_upPassMetaRegistry = std::make_unique<Pipeline::PassMetaRegistry>();
 		Pipeline::RegisterBuiltinPasses(*m_upPassMetaRegistry);
+
+		// カメラごとの描画構成
+		m_upCameraPipelines = std::make_unique<CameraPipelineManager>();
+		m_upCameraPipelines->Init(this);
+
+		// 描画要求の受け口 : 上で作ったもの(DrawLists・PSO管理・メッシュバッファ・カメラ管理)を引くので最後
+		m_upDrawSubmitter = std::make_unique<DrawSubmitter>();
+		m_upDrawSubmitter->Init(this);
 
 		// パーティクルバッファの生成
 		m_upParticleManager = std::make_unique<Particle::ParticleBufferManager>();
@@ -310,591 +256,26 @@ namespace Engine::Graphics
 		m_upMouseCursor.reset();
 	}
 
-	// RenderGraph / Texture が完全型として見えるここで生成・破棄を定義する
-	GraphicsEngine::CameraPipelineData::CameraPipelineData() = default;
-	GraphicsEngine::CameraPipelineData::~CameraPipelineData() = default;
-
 	Pipeline::PassMetaRegistry* GraphicsEngine::RefPassMetaRegistry()
 	{
 		return m_upPassMetaRegistry.get();
 	}
 
-	//==========================================================================================
-	//
-	// カメラごとの描画構成
-	//
-	//==========================================================================================
-	//======================================================================================
-	// モデルを受け取るパスへパス番号を配り直す
-	//
-	// 番号は描画アイテムのソートキーに入り、パスはそれで自分のぶんを引く。
-	//
-	// 組み直しのたびに新しい番号を取って返さない作りにすると、番号が減り続けて
-	// やがて別のパスと同じ番号になり、他所のアイテムを別のPSOで描き始める。
-	// シーンを切り替えるたびにカメラが作り直されるので、これは必ず起きる。
-	//
-	// どこか1つでも組み直したら、全カメラぶんをまとめて配り直す。
-	// 組み直しは構成を触ったときだけなので、毎フレームの費用にはならない
-	//======================================================================================
-	void GraphicsEngine::AssignPipelinePassIndices()
-	{
-		// ソートキーのパス番号は8bit。上から順に配る
-		uint8_t _next = 255;
-
-		for (auto& _upCamera : m_cameras)
-		{
-			if (!_upCamera || !_upCamera->upPipeline) continue;
-			if (!_upCamera->upPipeline->IsCompiled()) continue;
-
-			const auto* _pGraph = _upCamera->upPipeline->GetRenderGraph();
-			if (!_pGraph) continue;
-
-			for (const auto& _compiledPass : _pGraph->GetCompiledPasses())
-			{
-				if (!_compiledPass.pPass) continue;
-				if (_compiledPass.pPass->GetGeometryQueue() == EGeometryQueue::None) continue;
-
-				_compiledPass.pPass->SetPassIndex(_next);
-
-				// 0 まで来たら配り切り。ここへ届く構成は組み方がおかしい
-				if (_next == 0)
-				{
-					ENGINE_WARNING("[GraphicsEngine] モデルを受け取るパスが多すぎます。パス番号が足りません");
-					return;
-				}
-				--_next;
-			}
-		}
-	}
-
-	//======================================================================================
-	// モデルを受け取るパスの一覧を作り直す
-	//
-	// 描画アイテムはサブセット1つごとに、これらのパスの数だけ積む。
-	// つまりこの一覧は1フレームに何万回も引かれるので、
-	// そのたびに全カメラを走査して配列を確保していると submit がそれだけで重くなる。
-	//
-	// カメラとパスの顔ぶれが変わるのはフレームの境目だけなので、
-	// フレームの頭で1回作って、あとは引くだけにする
-	//======================================================================================
-	void GraphicsEngine::RefreshPipelineGeometryPassCache()
-	{
-		m_pipelineOpaquePassVec.clear();
-		m_pipelineTransparentPassVec.clear();
-
-		for (const auto& _upCamera : m_cameras)
-		{
-			if (!_upCamera || !_upCamera->upPipeline) continue;
-			if (!_upCamera->upPipeline->IsCompiled()) continue;
-
-			const auto* _pGraph = _upCamera->upPipeline->GetRenderGraph();
-			if (!_pGraph) continue;
-
-			for (const auto& _compiledPass : _pGraph->GetCompiledPasses())
-			{
-				if (!_compiledPass.pPass) continue;
-
-				switch (_compiledPass.pPass->GetGeometryQueue())
-				{
-				case EGeometryQueue::Opaque:		m_pipelineOpaquePassVec.push_back(_compiledPass.pPass);		break;
-				case EGeometryQueue::Transparent:	m_pipelineTransparentPassVec.push_back(_compiledPass.pPass);	break;
-				default: break;
-				}
-			}
-		}
-	}
-
-	const std::vector<Pipeline::Pass*>& GraphicsEngine::GetPipelineGeometryPasses(EGeometryQueue a_queue) const
-	{
-		static const std::vector<Pipeline::Pass*> _empty = {};
-
-		switch (a_queue)
-		{
-		case EGeometryQueue::Opaque:		return m_pipelineOpaquePassVec;
-		case EGeometryQueue::Transparent:	return m_pipelineTransparentPassVec;
-		default:							return _empty;
-		}
-	}
-
-	void GraphicsEngine::SubmitCamera(const CameraSubmitDesc& a_desc)
-	{
-		// 描画構成を持たないカメラは描かない
-		if (!a_desc.pipelineHandle.IsValid()) return;
-
-		// 同じカメラが居れば使い回す(実行インスタンスを作り直さないため)
-		CameraPipelineData* _pCamera = nullptr;
-		for (auto& _upCamera : m_cameras)
-		{
-			if (!_upCamera) continue;
-			if (_upCamera->pWorld != a_desc.pWorld) continue;
-			if (_upCamera->entity != a_desc.entity) continue;
-
-			_pCamera = _upCamera.get();
-			break;
-		}
-
-		if (!_pCamera)
-		{
-			m_cameras.push_back(std::make_unique<CameraPipelineData>());
-			_pCamera = m_cameras.back().get();
-			_pCamera->pWorld = a_desc.pWorld;
-			_pCamera->entity = a_desc.entity;
-		}
-
-		_pCamera->pipelineHandle = a_desc.pipelineHandle;
-		_pCamera->order = a_desc.order;
-		_pCamera->isMain = a_desc.isMain;
-		_pCamera->isSubmitted = true;
-
-		// 行列はこのカメラ専用の定数バッファ用の置き場。
-		// 今はどのパスもここを読まず、共有のカメラ(SetCameraMat / GetCameraData)を読んでいる。
-		// カメラごとの定数バッファへ移すまでは、ビューと射影を控えておくだけ
-		_pCamera->cpuData.viewMat = a_desc.worldMat.Invert();
-		_pCamera->cpuData.projMat = a_desc.projMat;
-
-		// 0 のままなら画面の描画解像度に追従する
-		const UINT _width = (a_desc.viewportWidth != 0) ? a_desc.viewportWidth : m_renderWidth;
-		const UINT _height = (a_desc.viewportHeight != 0) ? a_desc.viewportHeight : m_renderHeight;
-
-		// サイズが変わっていたら次の実行で作り直す
-		if (_pCamera->builtWidth != _width || _pCamera->builtHeight != _height)
-		{
-			_pCamera->builtWidth = _width;
-			_pCamera->builtHeight = _height;
-			_pCamera->builtStructureVersion = 0;		// 0 は「まだ組んでいない」印
-		}
-	}
-
-	//======================================================================================
-	// 設計図が変わったカメラの実行インスタンスを組み直す
-	//
-	// フレームの頭(BeginFrame)から呼ぶこと。
-	//
-	// 組み直すと AssignPipelinePassIndices がパス番号を配り直す。
-	// 描画アイテムは積むときにそのパス番号を焼き込んでいるので、
-	// アイテムを積んだ後に配り直すと、引くときに別のパスのアイテムを拾い、
-	// そのアイテムが持つ他所のPSOを張ってしまう
-	// (ルートシグネチャも出力フォーマットも噛み合わずデバイスが飛ぶ)。
-	//
-	// アイテムを1つも積んでいないフレームの頭でやれば、番号とアイテムは必ず揃う
-	//======================================================================================
-	void GraphicsEngine::RebuildCameraPipelines(bool a_isNewOnly)
-	{
-		auto* _pDevice = RefDevice();
-		auto& _resourceManager = (*m_pResourceManager);
-
-		// 組み直したカメラがあったか。1台でもあればパス番号を配り直す
-		bool _isAnyRebuilt = false;
-
-		// GPUの完了待ちは重いので、実際に捨てにかかる直前に1回だけ
-		bool _isGPUWaited = false;
-
-		// ---- 設計図から実行インスタンスを用意する ----
-		//
-		// フレームの頭から呼ばれたときは、今フレームぶんの積み込み(SubmitCamera)が
-		// まだ来ていない。見るのは「前フレームまでに積まれて生き残ったカメラ」= m_cameras。
-		// 今フレームに初めて現れるカメラはここには居ないので、
-		// そのぶんは ExecuteCameraPipelines が a_isNewOnly で拾う
-		for (auto& _upCamera : m_cameras)
-		{
-			CameraPipelineData* _pCamera = _upCamera.get();
-			if (!_pCamera) continue;
-
-			// 設計図がまだ読めていなければ何もしない
-			auto* _pAsset = _resourceManager.Ref(_pCamera->pipelineHandle);
-			if (!_pAsset) continue;
-
-			// エディターで構成を触ると版が上がる。
-			// 版が違えば、この実行インスタンスは古いので組み直す
-			const uint32_t _version = _pAsset->GetStructureVersion();
-			const bool _isRebuild = (!_pCamera->upPipeline) || (_pCamera->builtStructureVersion != _version);
-
-			//--------------------------------------------------------------
-			// フレームの途中から呼ばれたときは、初めて組むカメラだけを見る
-			//
-			// すでに実行インスタンスを持っているカメラを組み直すと、そのパスの
-			// 番号が変わる。今フレームの描画アイテムはもう古い番号で積まれているので、
-			// 番号だけが動くと引き違いが起きる(別のパスのPSOを張って落ちる)。
-			//
-			// 初めて組むカメラは m_cameras の末尾に足されたばかりで、
-			// パス一覧にも入っていない = そのカメラ宛のアイテムは1つも無い。
-			// 番号を配り直しても先に並ぶカメラの番号は動かないので、ここは通してよい
-			//--------------------------------------------------------------
-			if (a_isNewOnly && _pCamera->upPipeline) continue;
-
-			// 形は同じでパラメータだけ動いたときは、値を写すだけで済ませる。
-			// 色を触るたびにグラフを組み直すと、リソースまで作り直しになってしまう
-			if (!_isRebuild && _pCamera->builtParamVersion != _pAsset->GetParamVersion())
-			{
-				if (const auto* _pSrcGraph = _pAsset->GetRenderGraph())
-				{
-					_pCamera->upPipeline->RefRenderGraph()->SyncParamsFrom(*_pSrcGraph);
-				}
-				_pCamera->builtParamVersion = _pAsset->GetParamVersion();
-			}
-
-			if (_isRebuild)
-			{
-				//--------------------------------------------------------------
-				// ここから先は古いパスとGPUリソースを捨てにかかる。
-				//
-				// 途中で失敗して continue しても、捨てたことは取り消せない。
-				// 印は「組み直すと決めた時点」で立てて、
-				// パス番号の配り直しと一覧の作り直しを必ず通す
-				//--------------------------------------------------------------
-				_isAnyRebuilt = true;
-
-				// 最終出力テクスチャを作り直すか : 待つかどうかの判定にも使う
-				const bool _isFinalTexRebuild =
-					(!_pCamera->upFinalTex ||
-					 _pCamera->upFinalTex->GetDesc().Width != _pCamera->builtWidth ||
-					 _pCamera->upFinalTex->GetDesc().Height != _pCamera->builtHeight);
-
-				//--------------------------------------------------------------
-				// GPUが前のフレームを走らせ終わるのを待つ
-				//
-				// このあとテクスチャとディスクリプタをその場で解放して、
-				// すぐ同じ枠を取り直す。まだ実行中のコマンドリストが
-				// それらを参照していると、解放済みのリソースを読みに行ったり、
-				// 使用中のディスクリプタを上書きすることになる。
-				//
-				// 待つのは「捨てるものがあるとき」だけ。
-				// 初めて組むカメラは解放するものが何も無いので待たない。
-				// ここで無条件に待つと起動時に止まる : FrameManager::Init が
-				// 先頭フレームのフェンス値を 1 へ進めておく一方、実際に 1 が
-				// シグナルされるのは最初の EndFrame なので、それより前に
-				// WaitForAll を通すと永久に返ってこない
-				//--------------------------------------------------------------
-				const bool _isDestructive =
-					(_pCamera->upPipeline != nullptr) ||
-					(_pCamera->upFinalTex != nullptr && _isFinalTexRebuild);
-
-				if (_isDestructive && !_isGPUWaited)
-				{
-					WaitForFrame();
-					_isGPUWaited = true;
-				}
-
-				// ---- 最終出力テクスチャ ----
-				if (_isFinalTexRebuild)
-				{
-					if (_pCamera->upFinalTex) _pCamera->upFinalTex->Release();
-
-					_pCamera->upFinalTex = std::make_unique<Resource::Texture>();
-
-					Resource::TextureCreateDesc _texDesc = {};
-					_texDesc.name = "CameraFinal";
-					_texDesc.width = _pCamera->builtWidth;
-					_texDesc.height = _pCamera->builtHeight;
-					_texDesc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
-					_texDesc.usage = Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;
-					_texDesc.optClearValue = Math::Color(0.f, 0.f, 0.f, 1.f);
-					_pCamera->upFinalTex->Create(m_upDescriptorHeapManager.get(), _texDesc);
-				}
-
-				// ---- 実行インスタンスを設計図から作る ----
-				if (!_pCamera->upPipeline)
-				{
-					_pCamera->upPipeline = std::make_unique<Pipeline::GraphicsPipeline>();
-				}
-
-				//--------------------------------------------------------------
-				// 組めなかったカメラは何も描かない(画面ならクリア色のまま)。
-				//
-				// 黙っていると「何も映らない」ようにしか見えないので、
-				// 版が変わるたびに1回だけ理由を知らせる
-				// (個々の理由は RenderGraph::Compile が並べて出す)
-				//--------------------------------------------------------------
-				auto _reportFail = [&]()
-					{
-						if (_pCamera->reportedFailVersion == _version) return;
-						_pCamera->reportedFailVersion = _version;
-
-						ENGINE_WARNING(
-							"[GraphicsEngine] パイプラインを組めませんでした。このカメラは描画されません : %s",
-							_pAsset->GetName().c_str());
-					};
-
-				if (!_pCamera->upPipeline->BuildFrom(*_pAsset, *m_upPassMetaRegistry)) { _reportFail(); continue; }
-
-				_pCamera->upPipeline->SetViewportSize(_pCamera->builtWidth, _pCamera->builtHeight);
-
-				// このカメラの最終出力を、グラフの外から差し込む。
-				// パスはこの名前で出力スロットを宣言すれば画面ぶんへ描ける
-				_pCamera->upPipeline->ImportResource(
-					kCameraOutputName,
-					_pCamera->upFinalTex.get(),
-					D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-				if (!_pCamera->upPipeline->Compile(this, _pDevice)) { _reportFail(); continue; }
-
-				_pCamera->builtStructureVersion = _version;
-				_pCamera->builtParamVersion = _pAsset->GetParamVersion();
-
-				// パス番号はカメラをまたいで一意でないといけないので、
-				// 全部組み終わってからまとめて配る(印は上で立てている)
-			}
-		}
-
-		// ---- パス番号を配り直してから回す ----
-		if (_isAnyRebuilt)
-		{
-			AssignPipelinePassIndices();
-
-			// 組み直しで古いパスは消えている。
-			// 一覧が消えたパスを指したままにならないよう作り直す
-			RefreshPipelineGeometryPassCache();
-		}
-	}
-
-	// 積まれたカメラの実行インスタンスを回す。
-	// 組み直しは RebuildCameraPipelines がフレームの頭で済ませてある
-	void GraphicsEngine::ExecuteCameraPipelines()
-	{
-		// 今フレームに初めて現れたカメラだけ、ここで組んでおく。
-		// 待つと1フレーム何も映らないので、シーン切り替えのたびに画面が飛ぶ
-		RebuildCameraPipelines(true);
-
-		// 今フレーム積まれたものだけを順番に並べる
-		m_sortedCameras.clear();
-		m_pMainCamera = nullptr;
-
-		for (auto& _upCamera : m_cameras)
-		{
-			if (!_upCamera || !_upCamera->isSubmitted) continue;
-
-			m_sortedCameras.push_back(_upCamera.get());
-			if (_upCamera->isMain)
-			{
-				m_pMainCamera = _upCamera.get();
-
-				// ゲームを止めているあいだも借りられるよう控えておく
-				m_lastMainPipelineHandle = _upCamera->pipelineHandle;
-			}
-		}
-		if (m_sortedCameras.empty()) return;
-
-		std::stable_sort(
-			m_sortedCameras.begin(), m_sortedCameras.end(),
-			[](const CameraPipelineData* a, const CameraPipelineData* b)
-			{
-				return a->order < b->order;
-			}
-		);
-
-		auto* _pRenderContext = m_upRenderContextVec[m_currentFrameIndex].get();
-
-		for (CameraPipelineData* _pCamera : m_sortedCameras)
-		{
-			if (!_pCamera->upPipeline) continue;
-			_pCamera->upPipeline->Render(this, _pRenderContext);
-		}
-
-		//----------------------------------------------------------------------------------
-		// 描き終わった絵を「読める状態」にしておく
-		//
-		// グラフは最終出力を差し込まれたときのステート(RENDER_TARGET)へ戻して終わる。
-		// ところがこの絵を読むのはグラフの外 : シーンビューやエフェクトエディターのImGui、
-		// モニターに映すUIで、どれもシェーダーリソースとして読む。
-		// RENDER_TARGET のまま読ませると不正なアクセスになるので、ここで移しておく。
-		//
-		// 次のフレームでグラフが書きに来るときは、リソースが自分で持っている
-		// 今のステートから遷移し直すので、ここで変えておいても食い違わない
-		//----------------------------------------------------------------------------------
-		auto* _pCmdList = _pRenderContext->GetCurrentCmdList();
-		if (_pCmdList)
-		{
-			for (CameraPipelineData* _pCamera : m_sortedCameras)
-			{
-				if (!_pCamera->upFinalTex) continue;
-				_pCamera->upFinalTex->Barrier(_pCmdList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			}
-		}
-	}
-
-	// 積まれなかったカメラを捨てる。
-	// カメラが消えたのに実行インスタンスとテクスチャが残り続けるのを防ぐ
-	void GraphicsEngine::PruneCameraPipelines()
-	{
-		for (auto& _upCamera : m_cameras)
-		{
-			if (!_upCamera || _upCamera->isSubmitted) continue;
-
-			if (_upCamera->upPipeline) _upCamera->upPipeline->Release();
-			if (_upCamera->upFinalTex) _upCamera->upFinalTex->Release();
-		}
-
-		m_cameras.erase(
-			std::remove_if(m_cameras.begin(), m_cameras.end(),
-				[](const std::unique_ptr<CameraPipelineData>& a_upCamera)
-				{ return !a_upCamera || !a_upCamera->isSubmitted; }),
-			m_cameras.end());
-
-		// 次のフレームぶんの積み直しに備える
-		for (auto& _upCamera : m_cameras)
-		{
-			if (_upCamera) _upCamera->isSubmitted = false;
-		}
-
-		// この並びは毎フレーム作り直すので捨ててよい
-		m_sortedCameras.clear();
-
-		//----------------------------------------------------------------------------------
-		// 画面に出るカメラは、消えていなければ指したままにする
-		//
-		// ここで必ず nullptr にすると、次のフレームの頭で回るエディターの描画から
-		// 「画面に出ている絵」が引けなくなる。
-		// エディターのウィジェットを組むのは BeginDraw、カメラを積み直すのは
-		// そのあとの Execute なので、間はここで残した値が使われる。
-		//
-		// 消えたカメラを指したままにはできないので、生き残っているかだけ確かめる
-		//----------------------------------------------------------------------------------
-		bool _isMainAlive = false;
-		for (const auto& _upCamera : m_cameras)
-		{
-			if (_upCamera.get() != m_pMainCamera) continue;
-
-			_isMainAlive = true;
-			break;
-		}
-		if (!_isMainAlive) m_pMainCamera = nullptr;
-	}
-
-	// 画面へ出せる絵ができているか。
-	//
-	// 画面に出るカメラに描画構成が設定されていて、組み上がっているときだけ true。
-	// 組めていないパイプラインは何も描いていないので、そのまま出すと真っ黒になる
-	bool GraphicsEngine::IsPipelinePresentActive() const
-	{
-		if (!m_pMainCamera) return false;
-		if (!m_pMainCamera->upPipeline || !m_pMainCamera->upPipeline->IsCompiled()) return false;
-
-		return m_pMainCamera->upFinalTex != nullptr;
-	}
-
-	// 画面へ出す絵。パイプライン経路が生きていなければ nullptr
-	const Resource::Texture* GraphicsEngine::GetPresentTexture() const
-	{
-		if (!IsPipelinePresentActive()) return nullptr;
-		return m_pMainCamera->upFinalTex.get();
-	}
-
-	// メインカメラのパイプラインが描いた絵をバックバッファへ写す。
-	// バックバッファと最終出力はどちらも R8G8B8A8_UNORM・同じ大きさなのでそのままコピーできる
-	void GraphicsEngine::PresentFromPipeline(D3D12::GraphicsCommandList* a_pCmdList)
-	{
-		if (!a_pCmdList) return;
-		if (!IsPipelinePresentActive()) return;
-
-		Resource::Texture* _pFinalTex = m_pMainCamera->upFinalTex.get();
-		if (!_pFinalTex) return;
-
-		if (!m_upBackBuffer) return;
-		Resource::Texture& _backBuffer = m_upBackBuffer->RefBackBuffer();
-		if (!_backBuffer.GetResource()) return;
-
-		// バックバッファはこの時点で RENDER_TARGET。コピー先へ落とす。
-		// ステートはテクスチャ自身が覚えているので、生のバリアではなく Barrier() を通す
-		_backBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
-
-		// 最終出力側はグラフが入口のステートへ戻してある
-		_pFinalTex->Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_SOURCE);
-
-		a_pCmdList->CopyResource(_backBuffer.GetResource(), _pFinalTex->GetResource());
-
-		// この後の描画(エディターのImGuiなど)が続くので元へ戻す
-		_backBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-		// 最終出力はこの後 ImGui が読むので、読める状態のまま置いておく
-		_pFinalTex->Barrier(a_pCmdList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	}
-
-	// 設計図のパスと同じGUIDを持つ、実行インスタンス側のパスを返す。
-	//
-	// メインカメラを先に見るのは、同じ設計図を複数のカメラが使っているときに
-	// 「画面に出ている絵」と、ノードに出る中身を揃えるため
-	Pipeline::Pass* GraphicsEngine::FindPipelinePass(const Engine::GUID& a_passGUID) const
-	{
-		if (!a_passGUID.IsValid()) return nullptr;
-
-		auto _findIn = [&a_passGUID](const CameraPipelineData* a_pCamera) -> Pipeline::Pass*
-			{
-				if (!a_pCamera || !a_pCamera->upPipeline) return nullptr;
-				if (!a_pCamera->upPipeline->IsCompiled()) return nullptr;
-
-				Pipeline::RenderGraph* _pGraph = a_pCamera->upPipeline->RefRenderGraph();
-				if (!_pGraph) return nullptr;
-
-				return _pGraph->FindPass(a_passGUID);
-			};
-
-		if (Pipeline::Pass* _pPass = _findIn(m_pMainCamera)) return _pPass;
-
-		for (const auto& _upCamera : m_cameras)
-		{
-			if (_upCamera.get() == m_pMainCamera) continue;
-			if (Pipeline::Pass* _pPass = _findIn(_upCamera.get())) return _pPass;
-		}
-
-		return nullptr;
-	}
-
-	std::vector<GraphicsEngine::PipelineGraphView> GraphicsEngine::CollectPipelineGraphs() const
-	{
-		std::vector<PipelineGraphView> _result = {};
-		_result.reserve(m_cameras.size());
-
-		auto& _resourceManager = (*m_pResourceManager);
-
-		for (const auto& _upCamera : m_cameras)
-		{
-			if (!_upCamera || !_upCamera->upPipeline) continue;
-			if (!_upCamera->upPipeline->IsCompiled()) continue;
-
-			const Pipeline::RenderGraph* _pGraph = _upCamera->upPipeline->GetRenderGraph();
-			if (!_pGraph) continue;
-
-			// 設計図の名前でどのカメラか分かるようにする。
-			// 同じ設計図を複数のカメラが使っていることもあるので、メインには印を付ける
-			std::string _name = "Pipeline";
-			if (const auto* _pAsset = _resourceManager.Ref(_upCamera->pipelineHandle))
-			{
-				_name = _pAsset->GetName();
-			}
-			if (_upCamera->isMain) _name += " (Main)";
-
-			_result.push_back({ std::move(_name), _pGraph });
-		}
-
-		return _result;
-	}
-
-	const Resource::Texture* GraphicsEngine::GetCameraFinalTexture(const ECS::World* a_pWorld, uint32_t a_entity) const
-	{
-		for (const auto& _upCamera : m_cameras)
-		{
-			if (!_upCamera) continue;
-			if (_upCamera->pWorld != a_pWorld) continue;
-			if (_upCamera->entity != a_entity) continue;
-
-			return _upCamera->upFinalTex.get();
-		}
-		return nullptr;
-	}
 
 	void GraphicsEngine::Release()
 	{
+		// 描画要求の受け口は引く先を控えているだけなので、引く先より先に捨てる
+		m_upDrawSubmitter.reset();
+
 		// カメラごとのパイプラインが抱えているGPUリソースを先に手放す。
 		// DescriptorHeapManager の解放より前でないとビューが残る
-		for (auto& _upCamera : m_cameras)
+		if (m_upCameraPipelines)
 		{
-			if (!_upCamera) continue;
-			if (_upCamera->upPipeline) _upCamera->upPipeline->Release();
-			if (_upCamera->upFinalTex) _upCamera->upFinalTex->Release();
+			m_upCameraPipelines->Release();
+			m_upCameraPipelines.reset();
 		}
-		m_cameras.clear();
-		m_sortedCameras.clear();
-		m_pMainCamera = nullptr;
+
+		m_upSceneView.reset();
 
 
 		// レンダーコンテキスト解放
@@ -960,33 +341,29 @@ namespace Engine::Graphics
 		// ここを抜ければ、このフレームのアロケーターとフレームごとのバッファは書き換えてよい
 		{
 			ENGINE_PROFILE_SCOPE("GPUFrameWait");
-			m_upFrameManager->BeginFrame();
+			m_upRenderDevice->BeginFrame();
 		}
 
 		// 今フレームに描くバックバッファの番号を引き直す
 		m_upBackBuffer->BeginFrame();
 
 		// 今から使うレンダーコンテキスをクリア
-		m_currentFrameIndex = m_upFrameManager->GetCPUFrameIndex();
+		m_currentFrameIndex = m_upRenderDevice->GetCurrentFrameIndex();
 		m_upRenderContextVec[m_currentFrameIndex]->Clear();
 
-		// 設計図が変わったカメラの実行インスタンスを組み直す。
+		// 設計図が変わったカメラの実行インスタンスを組み直し、モデルを受け取るパスの一覧を作り直す。
 		// 描画アイテムを1つも積んでいない今のうちに済ませることで、
 		// 配り直したパス番号とアイテムのパス番号が食い違わないようにする
-		RebuildCameraPipelines(false);
-
-		// モデルを受け取るパスの一覧を作り直す。
-		// このフレームの描画アイテムはここで作った一覧に沿って積まれる
-		RefreshPipelineGeometryPassCache();
+		m_upCameraPipelines->BeginFrame();
 	}
 	void GraphicsEngine::Execute()
 	{
 		// ここへ来る時点で、アプリ側の描画要求(カメラ・モデル・UI・ライト)は積み終わっている。
 		// 積むのは呼び出し側(Application::MainLoop の GameManager::Draw)の仕事で、
 		// エンジンはゲームを知らない
-		auto* _pCmdList = AcquireDirectCommandList();
+		auto* _pCmdList = m_upRenderDevice->AcquireDirectCommandList();
 		// GPUが実際に完了させた値 : これ以下でタグ付けされた領域だけをフリーリストに戻す
-		auto _completedFence = GetCompletedFenceValue();
+		auto _completedFence = m_upRenderDevice->GetCompletedFenceValue();
 
 		// 自前のマウスカーソルを最前面へ。
 		// UIパスは深度を切ってあるので積んだ順がそのまま前後になる。
@@ -998,7 +375,7 @@ namespace Engine::Graphics
 		{
 			if (m_upMouseCursor)
 			{
-				m_upMouseCursor->SubmitUI(this);
+				m_upMouseCursor->SubmitUI(m_upDrawSubmitter.get());
 			}
 		}
 
@@ -1019,17 +396,10 @@ namespace Engine::Graphics
 		// レンダーコンテキストにコマンドリストをセット
 		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(_pCmdList);
 
-		// カメラの割り込み(エディターカメラなど)
-		// ECS側のカメラ設定は上の GameManager::Draw() 内(PreDrawフェーズ)で行われるため、
-		// 上書きするなら必ずこの位置(GPUデータ作成の直前)で行うこと。
-		if (m_isCameraOverride)
-		{
-			SetCameraMat(m_cameraOverrideWorldMat);
-			SetProjMat(m_cameraOverrideProjMat);
-		}
-
-		// GPU用カメラデータを作成
-		CreateGPUCameraData();
+		// GPUへ送るカメラを確定する。
+		// ECS側のカメラ設定は GameManager::Draw() の中(PreDraw)で済んでいるので、
+		// エディターカメラなどの割り込みはここ(GPUデータ作成の直前)で当たる
+		m_upSceneView->UpdateGPUCameraData();
 
 		// バッファの更新
 		// ボーン行列は上の GameManager::Draw() で描くワールドぶんだけ積まれている。
@@ -1054,8 +424,8 @@ namespace Engine::Graphics
 
 		// 半透明の並びを決める : カメラ(上書き込み)が確定したここで、カメラからの距離を入れる。
 		// パスが読むのは共有のカメラなので、どのカメラのパスもこの位置を基準に並ぶ
-		m_drawLists.ResolveTransparentSortKeys(
-			Math::Vector3(m_cbCamera.pos.x, m_cbCamera.pos.y, m_cbCamera.pos.z));
+		const auto& _cameraPos = m_upSceneView->GetCPUCameraData().pos;
+		m_drawLists.ResolveTransparentSortKeys(Math::Vector3(_cameraPos.x, _cameraPos.y, _cameraPos.z));
 
 		// 描画アイテムをソート : パスはこの並びからパス番号で自分のぶんを引く
 		m_drawLists.SortItems();
@@ -1084,40 +454,25 @@ namespace Engine::Graphics
 		}
 
 		// カメラごとの描画構成を回す。
-		// 各カメラは自分の最終出力テクスチャへ描くだけで、画面へ出すのは下の PresentFromPipeline
-		ExecuteCameraPipelines();
+		// 各カメラは自分の最終出力テクスチャへ描くだけで、画面へ出すのは下の PresentTo
+		m_upCameraPipelines->Execute(m_upRenderContextVec[m_currentFrameIndex].get());
 
 		// メインカメラが描いた絵をバックバッファへ載せる
-		PresentFromPipeline(_pCmdList);
+		m_upCameraPipelines->PresentTo(_pCmdList);
 
-		SubmitDirectCommandList(_pCmdList);
+		m_upRenderDevice->SubmitDirectCommandList(_pCmdList);
 		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(nullptr);
-
 	}
 	void GraphicsEngine::EndFrame()
 	{
 		// 今フレーム積まれなかったカメラを捨てる
-		PruneCameraPipelines();
-
+		m_upCameraPipelines->EndFrame();
 
 		// 描画要求の配列をクリアしてメモリ領域を確保しておく
 		m_drawLists.Clear();
 
-		//------------------------------------------------------------------
-		// 画面効果は毎フレーム、アクティブカメラが設定し直す。
-		//
-		// ここで落としておけば、カメラが居ない/その設定を持たないフレームは
-		// 前フレームの値で効き続けることがない。
-		// フラグを下ろすと、パスはアセットに保存した自分の値へ戻る
-		//------------------------------------------------------------------
-		m_cbDoF = {};
-		m_isDoFOverride = false;
-
-		m_cbRadialBlur = {};
-		m_isRadialBlurOverride = false;
-
-		m_cbFishEye = {};
-		m_isFishEyeOverride = false;
+		// 今フレームだけの画面効果(カメラから送られた DoF など)を落とす
+		m_upSceneView->EndFrame();
 
 		// デバッグ用配列のクリア。
 		// 積む側(システム・GameObject・エンジン内部)はこのフレームの更新で入れ直す
@@ -1126,201 +481,18 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::Present(bool a_isVsync)
 	{
-		auto* _pDirectPool = m_upCommandContext->RefDirectPool();
-
-		// レンダーターゲットに書き込みが終わるまで待つ
-		auto* _pCmdList = AcquireDirectCommandList();
+		// バックバッファを表示できる状態へ落とす
+		auto* _pCmdList = m_upRenderDevice->AcquireDirectCommandList();
 		m_upBackBuffer->TransitionToPresent(_pCmdList);
-		SubmitDirectCommandList(_pCmdList);
+		m_upRenderDevice->SubmitDirectCommandList(_pCmdList);
 
 		// 積んだリストを流して、フレーム終了のシグナルを打つ
-		_pDirectPool->ExecutePendingLists();
-		m_upFrameManager->EndFrame(_pDirectPool->GetCommandQueue());
+		m_upRenderDevice->EndFrame();
 
 		// スワップチェイン切替
 		m_upBackBuffer->Present(a_isVsync);
 	}
 
-	//==========================================================================================
-	//
-	// コマンドキュー・フレーム同期
-	//
-	//==========================================================================================
-	D3D12::GraphicsCommandList* GraphicsEngine::AcquireDirectCommandList()
-	{
-		// このフレームのアロケーターで記録を始める
-		return m_upCommandContext->RefDirectPool()->AcquireList(
-			RefDevice(),
-			m_upFrameManager->GetCurrentAllocator()
-		);
-	}
-
-	void GraphicsEngine::SubmitDirectCommandList(D3D12::GraphicsCommandList* a_pCmdList)
-	{
-		m_upCommandContext->RefDirectPool()->SubmitList(a_pCmdList);
-	}
-
-	void GraphicsEngine::ExecuteImmediate(D3D12::GraphicsCommandList* a_pCmdList)
-	{
-		m_upCommandContext->RefDirectPool()->ExecuteImmediate(a_pCmdList);
-	}
-
-	D3D12::CommandQueue* GraphicsEngine::RefDirectCommandQueue()
-	{
-		return m_upCommandContext ? m_upCommandContext->RefDirectPool()->GetCommandQueue() : nullptr;
-	}
-
-	UINT GraphicsEngine::GetCurrentFrameIndex() const
-	{
-		return m_upFrameManager ? m_upFrameManager->GetCPUFrameIndex() : 0;
-	}
-
-	void GraphicsEngine::WaitForFrame()
-	{
-		m_upFrameManager->WaitForAll();
-	}
-
-	void GraphicsEngine::WaitForGPUIdle()
-	{
-		// フレームのフェンスは Present より前に打たれているので、それを待っても
-		// Present は終わっていない。キューごとに新しくシグナルを打って待つ
-		m_upCommandContext->RefDirectPool()->WaitIdle();
-		m_upCommandContext->RefCopyPool()->WaitIdle();
-		m_upCommandContext->RefComputePool()->WaitIdle();
-	}
-
-	UINT64 GraphicsEngine::GetCurrentFenceValue() const
-	{
-		return m_upFrameManager->GetCurrentFenceValue();
-	}
-	UINT64 GraphicsEngine::GetCompletedFenceValue() const
-	{
-		return m_upFrameManager->GetCompletedFenceValue();
-	}
-	UINT64 GraphicsEngine::GetNextFenceValue() const
-	{
-		return m_upFrameManager->GetNextFenceValue();
-	}
-
-	//==========================================================================================
-	//
-	// 非同期転送
-	//
-	//==========================================================================================
-	void GraphicsEngine::ExecuteAsyncCopy(std::function<void(D3D12::GraphicsCommandList*)> a_recordCmds, std::function<void()> a_onComplete)
-	{
-		auto* _pDevice = RefDevice();
-		auto* _pCopyPool = m_upCommandContext->RefCopyPool();
-
-		// 非同期マネージャーからアロケーターをもらう
-		auto* _allocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, AsyncCommandType::Copy);
-
-		// コピー用のコマンドプールからリストをもらう (内部で_allocatorを使ってResetされる)
-		D3D12::GraphicsCommandList* _cmdList = _pCopyPool->AcquireList(_pDevice, _allocator);
-
-		// 外部から渡された「コマンドを積む処理」を実行
-		if (a_recordCmds)
-		{
-			a_recordCmds(_cmdList);
-		}
-
-		// プールにリストを返し、即座に実行する(戻り値のフェンス値を受け取る)
-		_pCopyPool->SubmitList(_cmdList);
-		UINT64 _fenceValue = _pCopyPool->ExecutePendingLists();
-
-		// 非同期マネージャーに監視を依頼する（キュー管理と寿命監視の連携）
-		m_upAsyncGPUManager->RegisterTask(
-			AsyncCommandType::Copy,
-			_allocator,
-			_pCopyPool->GetFence(),
-			_fenceValue,
-			a_onComplete
-		);
-	}
-
-	AsyncBuildBatch GraphicsEngine::BeginAsyncBuildBatch(bool a_useCopy, bool a_useCompute)
-	{
-		auto* _pDevice = RefDevice();
-		AsyncBuildBatch _batch = {};
-
-		// コピー用
-		if (a_useCopy)
-		{
-			_batch.pCopyAllocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, AsyncCommandType::Copy);
-			_batch.pCopyCmdList = m_upCommandContext->RefCopyPool()->AcquireList(_pDevice, _batch.pCopyAllocator);
-		}
-
-		// コンピュート用
-		if (a_useCompute)
-		{
-			_batch.pComputeAllocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, AsyncCommandType::Compute);
-			_batch.pComputeCmdList = m_upCommandContext->RefComputePool()->AcquireList(_pDevice, _batch.pComputeAllocator);
-		}
-
-		return _batch;
-	}
-
-	void GraphicsEngine::EndAsyncBuildBatch(AsyncBuildBatch& a_batch, std::function<void()> a_onComplete)
-	{
-		auto* _pCopyPool = m_upCommandContext->RefCopyPool();
-		auto* _pComputePool = m_upCommandContext->RefComputePool();
-
-		const bool _hasCopy = (a_batch.pCopyCmdList != nullptr);
-		const bool _hasCompute = (a_batch.pComputeCmdList != nullptr);
-
-		// ---- コピーの実行 ----
-		UINT64 _copyFenceValue = 0;
-		if (_hasCopy)
-		{
-			_pCopyPool->SubmitList(a_batch.pCopyCmdList);
-			_copyFenceValue = _pCopyPool->ExecutePendingLists();
-		}
-
-		// ---- コンピュートの実行 ----
-		if (_hasCompute)
-		{
-			// BLASはコピーで転送したメガバッファを直接読むため、
-			// コピーの完了をコンピュートキュー側で待たせる
-			if (_hasCopy)
-			{
-				_pComputePool->GetCommandQueue()->Wait(_pCopyPool->GetFence(), _copyFenceValue);
-			}
-
-			_pComputePool->SubmitList(a_batch.pComputeCmdList);
-			UINT64 _computeFenceValue = _pComputePool->ExecutePendingLists();
-
-			// 完了通知はGPU処理の最後になるコンピュート側に載せる
-			m_upAsyncGPUManager->RegisterTask(
-				AsyncCommandType::Compute,
-				a_batch.pComputeAllocator,
-				_pComputePool->GetFence(),
-				_computeFenceValue,
-				a_onComplete
-			);
-
-			// コンピュート側で消化したので、コピー側では呼ばない
-			a_onComplete = nullptr;
-		}
-
-		// ---- コピー側のアロケーター返却と中間バッファの解放 ----
-		if (_hasCopy)
-		{
-			m_upAsyncGPUManager->RegisterTask(
-				AsyncCommandType::Copy,
-				a_batch.pCopyAllocator,
-				_pCopyPool->GetFence(),
-				_copyFenceValue,
-				[_keepAlive = std::move(a_batch.keepAliveResources), _onComplete = std::move(a_onComplete)]()
-				{
-					// _keepAlive のデストラクタで中間のUploadバッファが解放される
-					if (_onComplete) _onComplete();
-				}
-			);
-		}
-
-		// 使い終わったバッチを空にする
-		a_batch = {};
-	}
 
 	const Graphics::RenderContext* GraphicsEngine::GetRenderContext() const
 	{
@@ -1352,362 +524,6 @@ namespace Engine::Graphics
 	{
 		return m_frameLightDataArr[m_currentFrameIndex];
 	}
-	void GraphicsEngine::SetCameraMat(const Math::Matrix& a_worldMat)
-	{
-		// 座標を代入
-		m_cbCamera.pos = { a_worldMat._41,a_worldMat._42,a_worldMat._43 ,1 };
-
-		// ビュー行列・逆ビュー行列をセット
-		m_cbCamera.viewMat = a_worldMat.Invert();
-		m_cbCamera.viewInvMat = a_worldMat;
-	}
-	void GraphicsEngine::SetProjMat(const Math::Matrix& a_projMat)
-	{
-		m_cbCamera.projMat = a_projMat;
-		m_cbCamera.projInvMat = a_projMat.Invert();
-	}
-	void GraphicsEngine::SetDoFData(const DoFOptionCB& a_data)
-	{
-		m_cbDoF = a_data;
-
-		// 今フレームはカメラが決めた値を使う
-		m_isDoFOverride = true;
-	}
-	const DoFOptionCB& GraphicsEngine::GetDoFData() const
-	{
-		return m_cbDoF;
-	}
-	void GraphicsEngine::SetRadialBlurData(const RadialBlurOptionCB& a_data)
-	{
-		m_cbRadialBlur = a_data;
-
-		// 今フレームはカメラが決めた値を使う
-		m_isRadialBlurOverride = true;
-	}
-	const RadialBlurOptionCB& GraphicsEngine::GetRadialBlurData() const
-	{
-		return m_cbRadialBlur;
-	}
-	void GraphicsEngine::SetFishEyeData(const FishEyeOptionCB& a_data)
-	{
-		m_cbFishEye = a_data;
-
-		// 今フレームはカメラが決めた値を使う
-		m_isFishEyeOverride = true;
-	}
-	const FishEyeOptionCB& GraphicsEngine::GetFishEyeData() const
-	{
-		return m_cbFishEye;
-	}
-	void GraphicsEngine::SetCameraOverride(const Math::Matrix& a_worldMat, const Math::Matrix& a_projMat)
-	{
-		m_isCameraOverride = true;
-		m_cameraOverrideWorldMat = a_worldMat;
-		m_cameraOverrideProjMat = a_projMat;
-	}
-	void GraphicsEngine::ClearCameraOverride()
-	{
-		m_isCameraOverride = false;
-	}
-	const CameraData& GraphicsEngine::GetCameraData() const
-	{
-		return m_cbGPUCamera;
-	}
-	const CameraData& GraphicsEngine::GetCPUCameraData() const
-	{
-		return m_cbCamera;
-	}
-	void GraphicsEngine::SetAmbientData(const AmbientData& a_data)
-	{
-		m_cbAmbient = a_data;
-	}
-	const AmbientData& GraphicsEngine::GetAmbientData() const
-	{
-		return m_cbAmbient;
-	}
-	AmbientData& GraphicsEngine::RefAmbientData()
-	{
-		return m_cbAmbient;
-	}
-	void GraphicsEngine::SetSkyData(const SkyData& a_data)
-	{
-		m_cbSky = a_data;
-	}
-	const SkyData& GraphicsEngine::GetSkyData() const
-	{
-		return m_cbSky;
-	}
-	SkyData& GraphicsEngine::RefSkyData()
-	{
-		return m_cbSky;
-	}
-	void GraphicsEngine::SetSkyTexture(const Handle<Resource::Texture>& a_handle)
-	{
-		m_skyTexHandle = a_handle;
-	}
-	const Handle<Resource::Texture>& GraphicsEngine::GetSkyTexture() const
-	{
-		return m_skyTexHandle;
-	}
-	void GraphicsEngine::SubmitSkinning(
-		ECS::World& a_world,
-		const Resource::Model* a_pModel,
-		const Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
-		const RangeHandle<Resource::NodePoseMatrix> nodePoseHandle,
-		const RangeHandle<Resource::BoneMatrix> boneHandle
-	)
-	{
-		// このワールドのボーン行列をパレットへ積み、GPU上の土台を得る
-		const uint32_t _boneBaseIndex = m_drawLists.AcquireBoneBaseIndex(a_world);
-
-		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
-		for (const auto& _cmd : _drawCmdVec)
-		{
-			// マテリアル取得
-			auto* _pMaterial = (*m_pResourceManager).Get(_cmd.materialHandle);
-			if (!_pMaterial) continue;
-
-			// メッシュ取得
-			auto* _pMesh = (*m_pResourceManager).Get(_cmd.meshHandle);
-			if (!_pMesh) continue;
-
-			// レイトレ用データを持たないメッシュはスキニング登録できない
-			if (!_pMesh->HasRtData()) continue;
-
-			SkinningDispatchItem _item = {};
-			_item.pWorld = &a_world;
-			_item.staticVertexHandle = _pMesh->GetRtData().vertexHandle;
-			_item.staticIndexHandle = _pMesh->GetRtData().indexHandle;
-			_item.nodePoseMat = nodePoseHandle;
-			_item.animHandle = dynamicHandle;
-			_item.boneHandle = boneHandle;
-
-			// スキニングのコンピュートが読むのはGPU上の位置なので土台を足す
-			_item.boneBufferStart = _boneBaseIndex + boneHandle.startIndex;
-
-			auto& _pool = a_world.GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
-			auto* _data = _pool.Get(dynamicHandle);
-			if (!_data) continue;
-
-			for (auto& _meshData : _data->meshDataVec)
-			{
-				if (_cmd.meshHandle == _meshData.meshHandle)
-				{
-					_item.animatedHandle = _meshData.animatedVertexHandle;
-				}
-			}
-
-			m_drawLists.AddSkinning(_item);
-		}
-	}
-	void GraphicsEngine::SubmitModel(
-		ECS::World& a_world,
-		const Resource::Model* a_pModel,
-		const Math::Matrix& a_worldMatrix,
-		const Math::Color& a_albedoScale,
-		const Math::Vector3& a_emissiveScale,
-		const Math::Vector3& a_emissiveAdd
-	)
-	{
-		SubmitModel(
-			a_world,
-			a_pModel,
-			a_worldMatrix,
-			a_worldMatrix,
-			a_albedoScale,
-			a_emissiveScale,
-			a_emissiveAdd
-		);
-	}
-
-	void GraphicsEngine::SubmitModel(
-		ECS::World& a_world,
-		const Resource::Model* a_pModel,
-		const Math::Matrix& a_worldMatrix,
-		const Math::Matrix& a_prevMatrix,
-		const Math::Color& a_albedoScale,
-		const Math::Vector3& a_emissiveScale,
-		const Math::Vector3& a_emissiveAdd
-	)
-	{
-		if (!a_pModel) return;
-
-		// モデルが持っている描画コマンド（サブセット）を展開
-		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
-
-		for (const auto& _cmd : _drawCmdVec)
-		{
-			// -----------------------------------------------------
-			// リソースの取得と検証
-			// -----------------------------------------------------
-			const Resource::Mesh* _pMesh = nullptr;
-			const Resource::Material* _pMaterial = nullptr;
-			if (!FetchDrawResources(_cmd, _pMesh, _pMaterial)) continue;
-
-			// -----------------------------------------------------
-			// 行列計算
-			// -----------------------------------------------------
-			Math::Matrix _nodeTransMat(a_pModel->GetOriginalNodeVec()[_cmd.nodeIndex].worldTransform);
-			Math::Matrix _mat = _nodeTransMat * a_worldMatrix;
-			Math::Matrix _prevMat = _nodeTransMat * a_prevMatrix;
-
-			// -----------------------------------------------------
-			// PermutationFlags の構築
-			// -----------------------------------------------------
-			// この経路は静的モデル専用(アニメーションするモデルはボーンを受け取る方の SubmitModel)
-			constexpr bool _isAnimation = false;
-			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
-			_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::Static;
-
-			if (_cmd.alphaMode == Engine::Resource::Alpha::Mask) {
-				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::AlphaMasked;
-			}
-
-			Engine::Graphics::PSOKey _psoKey = {};
-			_psoKey.permutationFlags = _flags;
-
-			// -----------------------------------------------------
-			// 各パスへの描画アイテム登録(共通処理)
-			// -----------------------------------------------------
-			RegisterDrawCommandToPasses(
-				_cmd, _pMesh, _pMaterial,
-				_mat, _prevMat,
-				_isAnimation, 0 /*animatedVertexStart*/,
-				a_albedoScale, a_emissiveScale, a_emissiveAdd, _psoKey);
-		}
-	}
-
-	void GraphicsEngine::SubmitModel(
-		ECS::World& a_world,
-		const Resource::Model* a_pModel,
-		const Math::Matrix& a_worldMatrix,
-		const Math::Matrix& a_prevMatrix,
-		const RangeHandle<Resource::BoneMatrix>& a_boneHandle,
-		const RangeHandle<Resource::NodePoseMatrix>& a_nodePoseHandle,
-		const Handle<Raytracing::DynamicRaytracingData>& a_animData,
-		const Math::Color& a_albedoScale,
-		const Math::Vector3& a_emissiveScale,
-		const Math::Vector3& a_emissiveAdd
-	)
-	{
-		// ノード行列取得
-		auto& _nodePosePool = a_world.GetResource<Pool::RangePool<Resource::NodePoseMatrix>>();
-		const auto& _nodePoseMatVec = _nodePosePool.GetRange(a_nodePoseHandle);
-
-		// アニメーション後データ (※1つのモデルに対して共通ならループ外で取得・チェックすると効率的です)
-		auto& _pool = a_world.GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
-		auto* _data = _pool.Get(a_animData);
-		if (!_data) return;
-
-		// このワールドのボーン行列をパレットへ積む。
-		// 戻り値の土台位置はここでは使わない(頂点をスキニングするのはコンピュートの
-		// スキニングパスで、描画側はその結果の頂点バッファを読むだけ)。
-		// ただし積むこと自体はそのパスに要るので、呼び出しを外してはいけない
-		m_drawLists.AcquireBoneBaseIndex(a_world);
-
-		// モデルが持っている描画コマンド（サブセット）を展開
-		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
-		for (const auto& _cmd : _drawCmdVec)
-		{
-			// メッシュ・マテリアルの取得と検証
-			const Resource::Mesh* _pMesh = nullptr;
-			const Resource::Material* _pMaterial = nullptr;
-			if (!FetchDrawResources(_cmd, _pMesh, _pMaterial)) continue;
-
-			// -----------------------------------------------------
-			// アニメーション用頂点オフセットの検索
-			// -----------------------------------------------------
-			uint32_t _animatedVertexStart = 0;
-			if (_data)
-			{
-				for (const auto& _meshData : _data->meshDataVec)
-				{
-					if (_cmd.meshHandle == _meshData.meshHandle)
-					{
-						_animatedVertexStart = _meshData.animatedVertexHandle.startIndex;
-						break; // 見つかったらループを抜ける
-					}
-				}
-			}
-
-			// ノードのワールド行列を確定
-			// モデル差し替え直後などで描画コマンドとポーズ領域のサイズが食い違った場合は
-			// クラッシュさせずこのコマンドの描画をスキップする
-			if (_cmd.nodeIndex >= _nodePoseMatVec.size()) continue;
-			Math::Matrix _nodeTransMat(_nodePoseMatVec[_cmd.nodeIndex].world);
-			Math::Matrix _mat = _nodeTransMat * a_worldMatrix;
-
-			Math::Matrix _prevMat = _nodeTransMat * a_prevMatrix;
-
-			// =========================================================
-			// PermutationFlags を構築
-			// =========================================================
-			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
-
-			// アニメーション判定
-			bool _isAnimation = (a_boneHandle.count > 0);
-			_flags |= (uint32_t)(_isAnimation ?
-				Engine::Graphics::EShaderPermutationFlags::Skinned :
-				Engine::Graphics::EShaderPermutationFlags::Static);
-
-			// アルファモード判定
-			if (_cmd.alphaMode == Engine::Resource::Alpha::Mask) {
-				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::AlphaMasked;
-			}
-
-			// PSOKey作成
-			Engine::Graphics::PSOKey _psoKey = {};
-			_psoKey.permutationFlags = _flags;
-
-			// =========================================================
-			// 各パスへ描画アイテムを投げる(共通処理)
-			// =========================================================
-			RegisterDrawCommandToPasses(
-				_cmd, _pMesh, _pMaterial,
-				_mat, _prevMat,
-				_isAnimation, _animatedVertexStart,
-				a_albedoScale, a_emissiveScale, a_emissiveAdd, _psoKey);
-		}
-	}
-
-	void GraphicsEngine::SubmitModel(const Math::Matrix& a_worldMat, const Math::Color& a_colorScale, const Math::Vector3& a_emissiveScale, const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle, const Engine::Handle<Resource::NodePoseMatrix> nodePoseHandle, const Math::Vector3& a_emissiveAdd)
-	{
-
-		m_drawLists.AddDynamicRayRequest(
-			{ a_worldMat,a_colorScale,a_emissiveScale,a_emissiveAdd,dynamicHandle,nodePoseHandle }
-		);
-	}
-
-	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, const Math::Vector2& a_screenRect, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, const Math::Vector2& a_uvScale, float a_curveK, float a_curveOffsetX)
-	{
-		auto& _resMgr = (*m_pResourceManager);
-
-		// 読み込みが終わっていないものは、そのフレームは描かない。
-		// 非同期ロード中のスロットには空の実体が入っているため、
-		// ポインタのnullチェックだけでは弾けない
-		if (!_resMgr.IsReady(a_texHandle)) return;
-
-		auto* _pTex = _resMgr.Get(a_texHandle);
-		if (!_pTex) return;
-
-		// サイズは呼び出し側の指定値をそのまま使う
-		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, a_screenRect, a_color, a_rotation, a_layer, a_uvOffset, a_pivot, a_uvScale, a_curveK, a_curveOffsetX);
-	}
-
-	void GraphicsEngine::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, float a_scale, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, float a_curveK, float a_curveOffsetX)
-	{
-		auto& _resMgr = (*m_pResourceManager);
-
-		// 読み込み中のものは描かない : 空の実体のサイズを掛けても意味がない
-		if (!_resMgr.IsReady(a_texHandle)) return;
-
-		auto* _pTex = _resMgr.Get(a_texHandle);
-		if (!_pTex) return;
-
-		// テクスチャの元サイズにスケールを掛けたものを表示サイズにする
-		Math::Vector2 _size = { _pTex->GetDesc().Width * a_scale, _pTex->GetDesc().Height * a_scale };
-		PushUIData(_pTex->GetSRV().GetIndex(), a_screenPos, _size, a_color, a_rotation, a_layer, a_uvOffset, a_pivot, {1.0f,1.0f}, a_curveK, a_curveOffsetX);
-	}
 
 	void GraphicsEngine::BindPSO(Graphics::RenderContext* a_pCtx, const Handle<ID3D12PipelineState>& a_handle)
 	{
@@ -1722,420 +538,4 @@ namespace Engine::Graphics
 		a_pCtx->SetGraphicPSO(_pPSO);
 	}
 
-	void GraphicsEngine::CreateGPUCameraData()
-	{
-		// リセット
-		m_cbGPUCamera = {};
-
-		// ジッターオフセット計算
-		float _jitterX = 0.0f;
-		float _jitterY = 0.0f;
-
-		// ジッターオンオフ(SetJitterEnabled で切り替え。OFFならジッター0でTAAはブレンドのみ)
-		if (m_isJitterEnabled && m_renderWidth > 0 && m_renderHeight > 0)
-		{
-			// ハルトンシーケンスのテーブル（ピクセル中心地からのオフセット値 -0.5f ～ 0.5f）
-			static const float _sHaltonX[16] = {
-				0.000000f, -0.250000f,  0.250000f, -0.375000f,
-				0.125000f, -0.125000f,  0.375000f, -0.437500f,
-				0.062500f, -0.187500f,  0.312500f, -0.312500f,
-				0.187500f, -0.062500f,  0.437500f, -0.468750f
-			};
-			static const float _sHaltonY[16] = {
-				0.000000f,  0.166667f, -0.166667f,  0.500000f,
-			   -0.500000f, -0.277778f,  0.055556f,  0.388889f,
-			   -0.388889f, -0.055556f,  0.277778f,  0.444444f,
-			   -0.222222f,  0.111111f, -0.444444f,  0.222222f
-			};
-			uint32_t _sampleIndex = m_totalFrameCount % 16;
-
-			// プロジェクション空間（NDC）のサイズに変換 : NDCは幅が２(-1～1)だから2倍
-			_jitterX = (_sHaltonX[_sampleIndex] / static_cast<float>(m_renderWidth)) * 2.0f;
-			_jitterY = (_sHaltonY[_sampleIndex] / static_cast<float>(m_renderHeight)) * 2.0f;
-		}
-
-		// カメラの行列を一時的に取得
-		Math::Matrix _viewMat = m_cbCamera.viewMat;
-		Math::Matrix _projMat = m_cbCamera.projMat;
-		Math::Matrix _invViewMat = m_cbCamera.viewInvMat;
-		Math::Matrix _invProjMat = m_cbCamera.projInvMat;
-
-		// モーションベクター用のジッターなしViewProjを計算
-		Math::Matrix _nonJitteredViewProj = _viewMat * _projMat;
-		Math::Matrix _nonJitteredInvViewProj = _nonJitteredViewProj.Invert();
-
-		// 描画用のジッターあり投影行列を作成
-		Math::Matrix _jitteredProjMat = _projMat;
-		_jitteredProjMat._31 += _jitterX;
-		_jitteredProjMat._32 += _jitterY;
-
-		// 描画用のジッターありViewProjとその逆行列を計算
-		Math::Matrix _jitteredViewProj = _viewMat * _jitteredProjMat;
-		Math::Matrix _invJitteredProj = _jitteredProjMat.Invert();
-		Math::Matrix _invJitteredViewProj = _jitteredViewProj.Invert();
-
-		// GPU転送用バッファへの詰め込み
-		m_cbGPUCamera.pos = m_cbCamera.pos;
-
-		// 通常の描画（SV_Positionの計算）にはジッターありを使う
-		m_cbGPUCamera.viewMat = _viewMat.Transpose();
-		m_cbGPUCamera.projMat = _jitteredProjMat.Transpose();
-		m_cbGPUCamera.viewInvMat = _invViewMat.Transpose();
-		m_cbGPUCamera.projInvMat = _invJitteredProj.Transpose();
-		m_cbGPUCamera.viewProjMat = _jitteredViewProj.Transpose();
-		m_cbGPUCamera.invViewProjMat = _invJitteredViewProj.Transpose();
-
-		// モーションベクターの計算にはジッターなしを使う
-		m_cbGPUCamera.nonJitteredProj = _projMat.Transpose();
-		m_cbGPUCamera.nonJitteredViewProj = _nonJitteredViewProj.Transpose();
-		m_cbGPUCamera.nonJitteredInvViewProj = _nonJitteredInvViewProj.Transpose();
-
-		// 過去フレームのジッターなし行列の処理
-		m_cbGPUCamera.prevView = m_prevViewMat.Transpose();
-		m_cbGPUCamera.prevProj = m_prevProjMat.Transpose();
-		m_cbGPUCamera.prevViewProj = m_prevNonJitteredViewProj.Transpose();
-
-		// 次のフレームのためにジッターなしデータを保存
-		m_prevViewMat = _viewMat;
-		m_prevProjMat = _projMat;
-		m_prevNonJitteredViewProj = _nonJitteredViewProj;
-
-		// 完成したデータから、フラスタム平面を求める
-		m_cbGPUCamera.ExtractFrustumPlanes(_nonJitteredViewProj);
-
-		// フレームカウントを進める
-		m_totalFrameCount++;
-	}
-	//------------------------------------------------------------------------------------------
-	// アニメーションするモデルの BLAS と頂点領域を用意する
-	//
-	// 要求はワールドごとに積まれる(AnimationModelStartSystem など)ので、ワールドを受け取る。
-	// 以前は SceneManager の一番上のワールドだけを見ていたため、
-	// 下に重なったシーンやエフェクトエディターのワールドの要求を取りこぼしていた。
-	//
-	// コマンドは専用のリストに積んで先に提出する。
-	// 提出した順に流れるので、同じフレームの Execute(スキニング・BLAS更新)より前に構築される
-	//------------------------------------------------------------------------------------------
-	void GraphicsEngine::ProcessDynamicRaytracingInit(ECS::World& a_world)
-	{
-		// 必須リソースの存在チェック
-		if (!a_world.HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) return;
-		if (!a_world.HasResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>()) return;
-
-		auto& _initRequestVec = a_world.GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
-		if (_initRequestVec.empty()) return;
-
-		auto& _dynamicPool = a_world.GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
-
-		auto* _pDevice = RefDevice();
-		auto* _pCmdList = AcquireDirectCommandList();
-
-		// モデルのリソースからBLASと頂点バッファをコピー
-		for (auto& _initReq : _initRequestVec)
-		{
-			// ターゲットとなるインスタンスデータと、ソースとなるモデルデータの取得
-			auto* _pData = _dynamicPool.Ref(_initReq.dynamicInstanceHandle);
-			auto* _pModel = (*m_pResourceManager).Get(_initReq.modelHandle);
-			if (!_pData || !_pModel) continue;
-
-			// モデル内の各メッシュごとに動的BLASを構築
-			for (auto& _meshHandle : _pModel->GetMeshHandles())
-			{
-				// メッシュの有効性チェック
-				auto* _pMesh = (*m_pResourceManager).Get(_meshHandle);
-				if (!_pMesh || !_pMesh->HasRtData()) continue;
-
-				// メッシュデータの追加と参照の取得
-				_pData->meshDataVec.emplace_back();
-				auto& _targetMeshData = _pData->meshDataVec.back();
-
-				// インスタンス専用のアニメーション用頂点バッファ領域をメガバッファから割り当て
-				UINT _vertexCount = _pMesh->GetRtData().vertexHandle.count;
-				_targetMeshData.animatedVertexHandle = m_upMeshBufferAllocator->AllocateAnimatedVertex(_vertexCount);
-
-				// サブメッシュ（マテリアル単位）ごとのジオメトリ情報を構築
-				std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> _descVec = {};
-				_descVec.reserve(_pMesh->GetMetaData().subsets.size());
-
-				// レイトレーシング用データ作成
-				for (auto& _subset : _pMesh->GetMetaData().subsets)
-				{
-					// ジオメトリ記述作成
-					D3D12_RAYTRACING_GEOMETRY_DESC _desc = {};
-					_desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-					_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
-					// 頂点バッファ
-					_desc.Triangles.VertexBuffer.StartAddress =
-						m_upMeshBufferAllocator->GetAnimatedVertexBuffer().GetGPUVirtualAddress() +
-						(_targetMeshData.animatedVertexHandle.startIndex * sizeof(Resource::MeshVertexFloat));
-					_desc.Triangles.VertexBuffer.StrideInBytes = sizeof(Resource::MeshVertexFloat);
-					_desc.Triangles.VertexCount = _vertexCount;
-					_desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-
-					// インデックスバッファ
-					_desc.Triangles.IndexBuffer =
-						m_upMeshBufferAllocator->GetIndexBuffer().GetGPUVirtualAddress() +
-						sizeof(uint32_t) * (_subset.faceStart * 3 + _pMesh->GetRtData().indexHandle.startIndex);
-					_desc.Triangles.IndexCount = _subset.faceCount * 3;
-					_desc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
-
-					_descVec.push_back(_desc);
-				}
-				_pData->meshDataVec.back().instanceBLAS.CreateDynamic(
-					_pDevice,
-					_pCmdList,
-					_descVec
-				);
-				_pData->meshDataVec.back().meshHandle = _meshHandle;
-			}
-		}
-
-		SubmitDirectCommandList(_pCmdList);
-
-		// 処理が終われば命令を解放
-		_initRequestVec.clear();
-	}
-	//------------------------------------------------------------------------------------------
-	// テクスチャのSRV番号を引く。引けなければ -1
-	//
-	// シェーダーは負の番号を「テクスチャ無し」として扱う(MeshGBufferPS など)。
-	// 次のどれでも -1 を返し、落とさずに素の値で描かせる。
-	//   ・テクスチャを持たないマテリアル(法線マップ無しなど)
-	//   ・非同期ロード中 : スロットには空の実体が入っていて、SRVはまだ無い
-	//   ・読み込み失敗
-	// 以前は見つからないと null を参照していた(Shipping では ERRLOG が消えるので素通りする)
-	//------------------------------------------------------------------------------------------
-	int GraphicsEngine::GetSRVIndexFromTextureHandle(const Handle<Resource::Texture>& a_texHandle)
-	{
-		auto& _resManager = (*m_pResourceManager);
-		if (!_resManager.IsReady(a_texHandle)) return -1;
-
-		const auto* _pTex = _resManager.Get(a_texHandle);
-		if (!_pTex) return -1;
-
-		const auto& _srv = _pTex->GetSRV();
-		if (!_srv.IsValid()) return -1;
-
-		return static_cast<int>(_srv.GetIndex());
-	}
-
-	// シェーディングモデルはもう引かない。
-	// 以前はここで解決できないと描画コマンドごと捨てていたので、
-	// シェーディングモデルを持たないマテリアルは何も描かれなかった
-	bool GraphicsEngine::FetchDrawResources(
-		const Resource::ModelDrawCommand& a_cmd,
-		const Resource::Mesh*& a_pOutMesh,
-		const Resource::Material*& a_pOutMaterial)
-	{
-		auto& _resManager = (*m_pResourceManager);
-
-		// メッシュ
-		a_pOutMesh = _resManager.Get(a_cmd.meshHandle);
-		if (!a_pOutMesh) return false;
-
-		// マテリアル
-		a_pOutMaterial = _resManager.Get(a_cmd.materialHandle);
-		if (!a_pOutMaterial) return false;
-
-		return true;
-	}
-
-	MeshMaterial GraphicsEngine::BuildMeshMaterial(
-		const Resource::Material* a_pMaterial,
-		const Math::Color& a_albedoScale,
-		const Math::Vector3& a_emissiveScale,
-		const Math::Vector3& a_emissiveAdd)
-	{
-		MeshMaterial _meshMaterial = {};
-		_meshMaterial.baseColor = a_pMaterial->baseColor * a_albedoScale;
-		_meshMaterial.emissive = a_pMaterial->emissive * a_emissiveScale;
-		_meshMaterial.emissiveAdd = a_emissiveAdd;
-		_meshMaterial.metallic = a_pMaterial->metallic;
-		_meshMaterial.roughness = a_pMaterial->roughness;
-		_meshMaterial.albedoIndex = GetSRVIndexFromTextureHandle(a_pMaterial->baseColorTex);
-		_meshMaterial.metaRoughnessIndex = GetSRVIndexFromTextureHandle(a_pMaterial->metaRoughTex);
-		_meshMaterial.emissiveIndex = GetSRVIndexFromTextureHandle(a_pMaterial->emissiveTex);
-		_meshMaterial.normalIndex = GetSRVIndexFromTextureHandle(a_pMaterial->normalTex);
-		return _meshMaterial;
-	}
-
-	void GraphicsEngine::RegisterDrawCommandToPasses(
-		const Resource::ModelDrawCommand& a_cmd,
-		const Resource::Mesh* a_pMesh,
-		const Resource::Material* a_pMaterial,
-		const Math::Matrix& a_mat,
-		const Math::Matrix& a_prevMat,
-		bool a_isAnimation,
-		uint32_t a_animatedVertexStart,
-		const Math::Color& a_albedoScale,
-		const Math::Vector3& a_emissiveScale,
-		const Math::Vector3& a_emissiveAdd,
-		PSOKey a_psoKey)
-	{
-		// マテリアルの透明モードで、どちらのキューへ流すかを決める。
-		// Mask はアルファで抜くだけで前後関係は不透明と同じ扱いなので Opaque
-		const EGeometryQueue _queue = (a_pMaterial->alphaMode == Resource::Alpha::Blend)
-			? EGeometryQueue::Transparent
-			: EGeometryQueue::Opaque;
-
-		const auto& _msData = a_pMesh->GetMeshShaderData();
-		const auto& _subsetMeshlet = _msData.subsetMeshlets[a_cmd.subIdx];
-		const bool _isTransparent = (_queue == EGeometryQueue::Transparent);
-
-		//------------------------------------------------------------------------------------------
-		// マテリアルとインスタンスのデータは、パスをまたいで1つを共有する
-		//
-		// どちらもパスに依存する値を持たない(ワールド行列・メッシュレットの位置・マテリアル値だけ)。
-		// パスごとに作ると、同じ中身がパスの数 × カメラの数だけGPUバッファへ積まれ、
-		// テクスチャのSRV番号も同じ回数だけ引き直すことになる。
-		// 作るのは最初にアイテムを積めたパスのときだけ(PSOが無くて1つも積めなければ作らない)
-		//------------------------------------------------------------------------------------------
-		constexpr UINT kNotCreated = UINT_MAX;
-		UINT _meshInstanceIndex = kNotCreated;
-		auto _acquireInstanceIndex = [&]() -> UINT
-			{
-				if (_meshInstanceIndex != kNotCreated) return _meshInstanceIndex;
-
-				const MeshMaterial _meshMaterial = BuildMeshMaterial(a_pMaterial, a_albedoScale, a_emissiveScale, a_emissiveAdd);
-
-				MeshInstanceData _meshInstanceData = {};
-				_meshInstanceData.worldMat = a_mat.Transpose();
-				_meshInstanceData.prevWorldMat = a_prevMat.Transpose();
-				_meshInstanceData.materialOffset = m_drawLists.AddMeshMaterial(_meshMaterial);
-				_meshInstanceData.meshletOffset = _msData.meshletHandle.startIndex + _subsetMeshlet.meshletOffset;
-				_meshInstanceData.vertexOffset = a_pMesh->GetRtData().vertexHandle.startIndex;
-				_meshInstanceData.uviOffset = _msData.uniqueVertexIndicesHandle.startIndex;
-				_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
-				_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex + _subsetMeshlet.cullOffset;
-				_meshInstanceData.meshletCount = _subsetMeshlet.meshletCount;
-				_meshInstanceData.animatedVertexStart = a_animatedVertexStart;
-				_meshInstanceData.isAnimated = a_isAnimation ? 1 : 0;
-
-				_meshInstanceIndex = m_drawLists.AddInstanceData(_meshInstanceData);
-				return _meshInstanceIndex;
-			};
-
-		// モデルを受け取るパスへアイテムを流す。
-		// パスごとにPSOもパス番号も違うので、アイテム自体はパスの数だけ積む
-		for (auto* _pPipelinePass : GetPipelineGeometryPasses(_queue))
-		{
-			if (!_pPipelinePass) continue;
-
-			PSOKey _pipelineKey = a_psoKey;
-			_pipelineKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
-			_pipelineKey.psHandle = _pPipelinePass->GetDefaultPSHandle();
-
-			auto _psoHandle = _pPipelinePass->RefPipelineBuilder().Request(_pipelineKey, m_upPipelineStateManager.get(), *m_pResourceManager);
-
-			// PSOを作れなかったアイテムは積まない : 描くときに引く先が無い。
-			//
-			// 番号そのものはハンドルと同じ16bitをソートキーに持たせてあるので、
-			// もう「収まらない」ことは起きない。弾くのは無効ハンドルだけ。
-			// ここは1フレームに何万回も通るので警告は出さない。
-			// 理由(シェーダーがまだ読めていない等)は PipelineStateManager が
-			// PSOごとに1回だけ知らせている
-			if (!_psoHandle.IsValid()) continue;
-
-			Engine::Graphics::LightWeightDrawItem _item = {};
-			_item.meshHandle = a_cmd.meshHandle;
-			_item.materialHandle = a_cmd.materialHandle;
-			_item.isAnimation = a_isAnimation;
-			_item.subIndex = a_cmd.subIdx;
-			_item.meshInstanceIndex = _acquireInstanceIndex();
-			_item.subsetMeshletCount = _subsetMeshlet.meshletCount;
-			_item.psoID = _psoHandle.GetIndex();
-
-			// ソートキー。
-			// 半透明は奥から手前へ描かないと重なりが崩れるので、深さで並べる。
-			// 深さはカメラが確定してから(SortItems の直前に)決めるので、ここでは位置だけ控える
-			if (_isTransparent)
-			{
-				_item.isTransparent = true;
-				_item.sortPos = { a_mat._41, a_mat._42, a_mat._43 };
-				_item.sortKey.transparentBits.psoID = _psoHandle.GetIndex();
-				_item.sortKey.transparentBits.passIndex = _pPipelinePass->GetPassIndex();
-			}
-			else
-			{
-				_item.sortKey.bits.meshID = a_cmd.meshHandle.GetIndex();
-				_item.sortKey.bits.materialID = a_cmd.materialHandle.GetIndex();
-				_item.sortKey.bits.psoID = _psoHandle.GetIndex();
-				_item.sortKey.bits.passIndex = _pPipelinePass->GetPassIndex();
-			}
-
-			m_drawLists.AddItem(_item);
-		}
-	}
-
-	void GraphicsEngine::PushUIData(
-		uint32_t a_texIndex,
-		const Math::Vector2& a_pixelPos,
-		const Math::Vector2& a_pixelSize,
-		const Math::Color& a_color,
-		float a_rotationDeg,
-		float a_layer,
-		const Math::Vector2& a_uvOffset,
-		const Math::Vector2& a_pivot,
-		const Math::Vector2& a_uvScale,
-		float a_curveK,
-		float a_curveOffsetX
-	)
-	{
-		// スクリーン解像度(px)
-		const float _w = static_cast<float>(m_renderWidth);
-		const float _h = static_cast<float>(m_renderHeight);
-		if (_w <= 0.0f || _h <= 0.0f) return;
-
-		// 回転(度→ラジアン)。回転はピクセル空間(等方)で行い、そのあとNDCへ変換する。
-		// こうしないと、NDC空間(x,yで縮尺が違う)で回転させたときに斜めで画像が歪む。
-		const float _rad = DirectX::XMConvertToRadians(a_rotationDeg);
-		const float _cos = std::cos(_rad);
-		const float _sin = std::sin(_rad);
-
-		// 半サイズ(px)と、ピボット(正規化[0,1])からクアッド中心までのオフセット(px)。
-		// (0.5 - pivot) * size がクアッド中心のピボットからのずれ。
-		const Math::Vector2 _halfPx = { a_pixelSize.x * 0.5f, a_pixelSize.y * 0.5f };
-		const Math::Vector2 _pivotOffPx = {
-			(0.5f - a_pivot.x) * a_pixelSize.x,
-			(0.5f - a_pivot.y) * a_pixelSize.y
-		};
-
-		// クアッド頂点 q∈[-1,1] に対し、ピクセル空間での最終座標は
-		//   finalPx = centerPx + q.x*axisXpx + q.y*axisYpx
-		// 回転はピボットを中心に行うので、centerPx = ピボット位置 + R*ピボットオフセット。
-		//
-		// ベースクアッドのUVは q.x=+1 がテクスチャ右、q.y=+1 がテクスチャ上(v=0)。
-		// よって未回転時、ローカル+Xは画面右(+pixelX)、ローカル+Yは画面上(-pixelY)を向く。
-		// この基底(+X=右, +Y=上)を回転行列 R(θ) で回す。
-		//   axisXpx = R*( halfX,      0) = ( halfX*cos, halfX*sin)
-		//   axisYpx = R*(     0, -halfY) = ( halfY*sin,-halfY*cos)
-		const Math::Vector2 _centerPx = {
-			a_pixelPos.x + (_pivotOffPx.x * _cos - _pivotOffPx.y * _sin),
-			a_pixelPos.y + (_pivotOffPx.x * _sin + _pivotOffPx.y * _cos)
-		};
-		const Math::Vector2 _axisXpx = { _halfPx.x * _cos,  _halfPx.x * _sin };
-		const Math::Vector2 _axisYpx = { _halfPx.y * _sin, -_halfPx.y * _cos };
-
-		// ピクセル(左上原点/Y下向き) → NDC(中心原点/Y上向き)。
-		// 点は原点シフトあり、方向ベクトルはスケールのみ(Yは符号反転)。
-		UIData _data = {};
-		_data.pos   = { _centerPx.x / _w * 2.0f - 1.0f, 1.0f - _centerPx.y / _h * 2.0f };
-		_data.axisX = { _axisXpx.x * 2.0f / _w, -_axisXpx.y * 2.0f / _h };
-		_data.axisY = { _axisYpx.x * 2.0f / _w, -_axisYpx.y * 2.0f / _h };
-		_data.uvOffset = a_uvOffset;
-		_data.uvScale = a_uvScale;
-		_data.color = Math::DX::ToVector4(a_color);
-		_data.layer = a_layer;
-		_data.texIndex = a_texIndex;
-		// 湾曲。
-		// 反りは「弧の中心からの横ずれ(px)」で決まるので、シェーダーが px へ戻せるように
-		// このクアッドの実寸(半分の大きさ)も一緒に送る。
-		// NDCの基底(axisX/axisY)からは画面解像度なしにpxを復元できないため
-		_data.curveK = a_curveK;
-		_data.curveOffsetX = a_curveOffsetX;
-		_data.curveHalfWidth = _halfPx.x;
-		_data.curveInvHalfHeight = (_halfPx.y > 0.0f) ? (1.0f / _halfPx.y) : 0.0f;
-
-		m_drawLists.AddUI(_data);
-	}
 }

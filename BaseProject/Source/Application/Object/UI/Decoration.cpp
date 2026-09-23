@@ -364,7 +364,7 @@ namespace App::Object::Decoration
 			const float _curveOffsetX =
 				a_resolved.localOffset.x + a_localTopLeft.x + a_size.x * 0.5f - a_resolved.curveOriginX;
 
-			a_pGE->SubmitUI(
+			a_pGE->RefDrawSubmitter()->SubmitUI(
 				a_texHandle,
 				_pos,
 				a_size,

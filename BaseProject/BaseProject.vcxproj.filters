@@ -1,23 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Source\Engine\Graphics\Device\RenderDevice">
+      <UniqueIdentifier>{8681bae2-f567-41a5-b5b9-c8e7e124fdd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Frame\SceneView">
+      <UniqueIdentifier>{e2c1a272-fa57-40f8-9e03-b12933dcb36a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Frame\DrawSubmitter">
+      <UniqueIdentifier>{0b6307d0-d8a0-4015-94dd-64536dc69c45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager">
+      <UniqueIdentifier>{e4f7ac3c-3124-465c-890c-03d69a940492}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Device">
+      <UniqueIdentifier>{9b59d7f6-4a35-41f5-8003-b4eda6746a0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Device\AsyncGPUManager">
+      <UniqueIdentifier>{56fbfab3-9f40-41f3-a2c2-601f48504b43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Device\BackBuffer">
+      <UniqueIdentifier>{e21c09a2-f474-4451-bb03-c57c49508019}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Device\CommandContext">
+      <UniqueIdentifier>{e0fb70dc-fc6e-4549-93c9-2f1846e21d58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Device\CommandPool">
+      <UniqueIdentifier>{ae15f14f-aab6-4755-9c1d-25b250b8b05c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Device\FrameManager">
+      <UniqueIdentifier>{fd6d9401-3b4f-4600-9828-e9b42b29ba41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Device\GraphicsDevice">
+      <UniqueIdentifier>{9a137b7a-e9f5-483b-9f4b-854c384d4b73}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\Effect">
       <UniqueIdentifier>{dc313d10-810e-43c2-8c02-9a9ca8c8950a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\Effect\BeamRenderer">
       <UniqueIdentifier>{11f9da1a-ce8e-4846-9c20-74b30a563748}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\Core\AsyncGPUManager">
-      <UniqueIdentifier>{ef3fb284-6e70-4fa9-a5b7-6c84df09d773}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\Core\CommandContext">
-      <UniqueIdentifier>{486696f4-622c-423d-99b9-8b3faf097a7d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\Core\CommandPool">
-      <UniqueIdentifier>{625cc75d-a6d8-4ee1-8fdd-8f088a6e3adf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\Core\FrameManager">
-      <UniqueIdentifier>{0f124f01-5a22-46a4-8194-e5c8ab967997}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\Frame">
       <UniqueIdentifier>{4567c128-72ce-4282-90db-3cab5a74e329}</UniqueIdentifier>
@@ -1090,15 +1111,6 @@
     <Filter Include="Source\Engine\Graphics\MouseCursor">
       <UniqueIdentifier>{c0de0f01-1111-4222-8333-0000c0de0f01}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\Core">
-      <UniqueIdentifier>{8bf6f317-0cf1-4e9c-9a1a-c0781d3d67d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\Core\BackBuffer">
-      <UniqueIdentifier>{322b37b5-8130-4b29-adf8-55c699331229}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\Core\GraphicsDevice">
-      <UniqueIdentifier>{1f9f40b8-0985-4851-b267-33465c0b693b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Input">
       <UniqueIdentifier>{aabcc0c4-0c56-484a-8244-197b1e0f8f99}</UniqueIdentifier>
     </Filter>
@@ -1647,6 +1659,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\Frame\DrawSubmitter\DrawSubmitter.cpp">
+      <Filter>Source\Engine\Graphics\Frame\DrawSubmitter</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\Frame\SceneView\SceneView.cpp">
+      <Filter>Source\Engine\Graphics\Frame\SceneView</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\Device\RenderDevice\RenderDevice.cpp">
+      <Filter>Source\Engine\Graphics\Device\RenderDevice</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Effect\BeamRenderer\BeamRenderer.cpp">
       <Filter>Source\Engine\Graphics\Effect\BeamRenderer</Filter>
     </ClCompile>
@@ -2136,8 +2160,8 @@
     <ClCompile Include="Source\Engine\Audio\AudioManager.cpp">
       <Filter>Source\Engine\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Core\AsyncGPUManager\AsyncGPUManager.cpp">
-      <Filter>Source\Engine\Graphics\Core\AsyncGPUManager</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Device\AsyncGPUManager\AsyncGPUManager.cpp">
+      <Filter>Source\Engine\Graphics\Device\AsyncGPUManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.cpp">
       <Filter>Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder</Filter>
@@ -2148,11 +2172,11 @@
     <ClCompile Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.cpp">
       <Filter>Source\Engine\Graphics\D3D12\CBAllocator</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Core\CommandContext\CommandContext.cpp">
-      <Filter>Source\Engine\Graphics\Core\CommandContext</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Device\CommandContext\CommandContext.cpp">
+      <Filter>Source\Engine\Graphics\Device\CommandContext</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Core\CommandPool\CommandPool.cpp">
-      <Filter>Source\Engine\Graphics\Core\CommandPool</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Device\CommandPool\CommandPool.cpp">
+      <Filter>Source\Engine\Graphics\Device\CommandPool</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp">
       <Filter>Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap</Filter>
@@ -2172,8 +2196,8 @@
     <ClCompile Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.cpp">
       <Filter>Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Core\FrameManager\FrameManager.cpp">
-      <Filter>Source\Engine\Graphics\Core\FrameManager</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Device\FrameManager\FrameManager.cpp">
+      <Filter>Source\Engine\Graphics\Device\FrameManager</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\GPUBuffer.cpp">
       <Filter>Source\Engine\Graphics\D3D12\GPUBuffer</Filter>
@@ -2331,14 +2355,14 @@
     <ClCompile Include="Source\Engine\Graphics\Frame\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\Frame\RenderContext</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Core\BackBuffer\BackBuffer.cpp">
-      <Filter>Source\Engine\Graphics\Core\BackBuffer</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Device\BackBuffer\BackBuffer.cpp">
+      <Filter>Source\Engine\Graphics\Device\BackBuffer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Frame\DrawList\DrawList.cpp">
       <Filter>Source\Engine\Graphics\Frame\DrawList</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Core\GraphicsDevice\GraphicsDevice.cpp">
-      <Filter>Source\Engine\Graphics\Core\GraphicsDevice</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Device\GraphicsDevice\GraphicsDevice.cpp">
+      <Filter>Source\Engine\Graphics\Device\GraphicsDevice</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\PipelineState\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp">
       <Filter>Source\Engine\Graphics\PipelineState\ShadingPipelineBuilder</Filter>
@@ -2825,6 +2849,18 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Frame\DrawSubmitter\DrawSubmitter.h">
+      <Filter>Source\Engine\Graphics\Frame\DrawSubmitter</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\SceneView.h">
+      <Filter>Source\Engine\Graphics\Frame\SceneView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Device\RenderDevice\RenderDevice.h">
+      <Filter>Source\Engine\Graphics\Device\RenderDevice</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Effect\BeamRenderer\BeamRenderer.h">
       <Filter>Source\Engine\Graphics\Effect\BeamRenderer</Filter>
     </ClInclude>
@@ -3626,8 +3662,8 @@
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Types.h">
       <Filter>Source\Engine\Graphics\D3D12</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Core\AsyncGPUManager\AsyncGPUManager.h">
-      <Filter>Source\Engine\Graphics\Core\AsyncGPUManager</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Device\AsyncGPUManager\AsyncGPUManager.h">
+      <Filter>Source\Engine\Graphics\Device\AsyncGPUManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.h">
       <Filter>Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder</Filter>
@@ -3638,11 +3674,11 @@
     <ClInclude Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.h">
       <Filter>Source\Engine\Graphics\D3D12\CBAllocator</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Core\CommandContext\CommandContext.h">
-      <Filter>Source\Engine\Graphics\Core\CommandContext</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Device\CommandContext\CommandContext.h">
+      <Filter>Source\Engine\Graphics\Device\CommandContext</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Core\CommandPool\CommandPool.h">
-      <Filter>Source\Engine\Graphics\Core\CommandPool</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Device\CommandPool\CommandPool.h">
+      <Filter>Source\Engine\Graphics\Device\CommandPool</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h">
       <Filter>Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap</Filter>
@@ -3665,8 +3701,8 @@
     <ClInclude Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.h">
       <Filter>Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Core\FrameManager\FrameManager.h">
-      <Filter>Source\Engine\Graphics\Core\FrameManager</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Device\FrameManager\FrameManager.h">
+      <Filter>Source\Engine\Graphics\Device\FrameManager</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\GPUBuffer.h">
       <Filter>Source\Engine\Graphics\D3D12\GPUBuffer</Filter>
@@ -3899,8 +3935,8 @@
     <ClInclude Include="Source\Engine\Graphics\Frame\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\Frame\RenderContext</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Core\BackBuffer\BackBuffer.h">
-      <Filter>Source\Engine\Graphics\Core\BackBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Device\BackBuffer\BackBuffer.h">
+      <Filter>Source\Engine\Graphics\Device\BackBuffer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Frame\DrawList\DrawCommand.h">
       <Filter>Source\Engine\Graphics\Frame\DrawList</Filter>
@@ -3908,8 +3944,8 @@
     <ClInclude Include="Source\Engine\Graphics\Frame\DrawList\DrawList.h">
       <Filter>Source\Engine\Graphics\Frame\DrawList</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Core\GraphicsDevice\GraphicsDevice.h">
-      <Filter>Source\Engine\Graphics\Core\GraphicsDevice</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Device\GraphicsDevice\GraphicsDevice.h">
+      <Filter>Source\Engine\Graphics\Device\GraphicsDevice</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\PipelineState\ShadingPipelineBuilder\ShadingPipelineBuilder.h">
       <Filter>Source\Engine\Graphics\PipelineState\ShadingPipelineBuilder</Filter>

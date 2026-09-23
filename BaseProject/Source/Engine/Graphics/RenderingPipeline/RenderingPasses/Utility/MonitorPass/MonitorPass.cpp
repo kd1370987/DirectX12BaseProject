@@ -180,7 +180,7 @@ namespace Engine::Graphics::Pipeline
 		if (!a_pGraphicsEngine) return this;
 
 		// GUIDは設計図から複製するときに引き継がれるので、これで同じノードを指せる
-		Pass* _pRuntime = a_pGraphicsEngine->FindPipelinePass(GetGUID());
+		Pass* _pRuntime = a_pGraphicsEngine->GetCameraPipelines()->FindPipelinePass(GetGUID());
 		if (!_pRuntime || _pRuntime == this) return this;
 
 		// GUIDで引いている以上ここは必ず一致するが、

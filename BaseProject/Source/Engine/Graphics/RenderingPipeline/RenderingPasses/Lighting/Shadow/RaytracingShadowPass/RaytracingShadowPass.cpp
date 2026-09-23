@@ -29,7 +29,7 @@ namespace Engine::Graphics::Pipeline
 		auto* _pPSOManager = a_context.pGraphicsEngine->RefPipelineStateManager();
 		if (!_pPSOManager) return;
 
-		auto* _pDevice = a_context.pGraphicsEngine->RefDevice();
+		auto* _pDevice = a_context.pGraphicsEngine->RefRenderDevice()->RefDevice();
 		if (!_pDevice) return;
 
 		// ---- レイ用ルートシグネチャ ----
@@ -108,7 +108,7 @@ namespace Engine::Graphics::Pipeline
 		auto& _rayEngine = *a_context.pRayEngine;
 
 		// レイワールド更新・シェーダーテーブル更新
-		_rayEngine.Commit(_pCmdList, _pGE->GetCurrentFrameIndex());
+		_rayEngine.Commit(_pCmdList, _pGE->RefRenderDevice()->GetCurrentFrameIndex());
 		const auto& _instanceVec = _rayEngine.GetInstanceVec();
 		if (_instanceVec.empty()) return;
 
@@ -126,7 +126,7 @@ namespace Engine::Graphics::Pipeline
 		_pCtx->SetComputeRootSignature(m_rayPSO.GetRootSigHandle());
 
 		// カメラバインド
-		_pCtx->ComputeBindRootCBV(0, _pGE->GetCameraData());
+		_pCtx->ComputeBindRootCBV(0, _pGE->GetSceneView()->GetCameraData());
 
 		// レイワールドバインド
 		_rayEngine.BindTLAS(_pCtx);

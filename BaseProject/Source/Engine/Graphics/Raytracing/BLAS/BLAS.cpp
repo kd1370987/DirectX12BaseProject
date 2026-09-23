@@ -45,7 +45,7 @@ void Engine::Raytracing::BLAS::DeferReleaseResources(const char* a_pUnexpected)
 	// 終了処理でデバイスが片付いた後は GPU が止まっているので、その場で手放してよい。
 	// (キューを掃く人がもう居ないので、積んでも誰も解放しない)
 	auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
-	if (!_pGE || !_pGE->RefDevice())
+	if (!_pGE || !_pGE->RefRenderDevice()->RefDevice())
 	{
 		m_cpResource.Reset();
 		m_cpUpdateScratch.Reset();

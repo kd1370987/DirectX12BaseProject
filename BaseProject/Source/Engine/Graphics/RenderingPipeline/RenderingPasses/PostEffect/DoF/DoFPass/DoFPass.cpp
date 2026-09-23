@@ -34,8 +34,8 @@ namespace Engine::Graphics::Pipeline
 		//
 		// カメラ側を優先しないと、演出でボケや流れが動かなくなる
 		//----------------------------------------------------------------------------------
-		const DoFOptionCB& _cb = a_context.pGraphicsEngine && a_context.pGraphicsEngine->IsDoFOverride()
-			? a_context.pGraphicsEngine->GetDoFData()
+		const DoFOptionCB& _cb = a_context.pGraphicsEngine && a_context.pGraphicsEngine->GetSceneView()->IsDoFOverride()
+			? a_context.pGraphicsEngine->GetSceneView()->GetDoFData()
 			: m_cb;
 
 		a_context.pRenderContext->BindCB()->BindAndAttachDataComputeRootCBV(a_context.pCmdList, 0, _cb);

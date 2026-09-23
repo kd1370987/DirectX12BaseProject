@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ResourceBuildContext.h"
-#include "Engine/Graphics/Core/AsyncGPUManager/AsyncGPUManager.h"
+#include "Engine/Graphics/Device/AsyncGPUManager/AsyncGPUManager.h"
 
 namespace Engine::Resource
 {

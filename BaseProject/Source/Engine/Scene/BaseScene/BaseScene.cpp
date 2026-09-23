@@ -161,7 +161,7 @@ namespace Engine::Scene
 		{
 			if (auto* _pGE = _pMainEngine->RefGraphicsEngine())
 			{
-				_pGE->ProcessDynamicRaytracingInit(*m_upWorld);
+				_pGE->RefDrawSubmitter()->ProcessDynamicRaytracingInit(*m_upWorld);
 			}
 		}
 

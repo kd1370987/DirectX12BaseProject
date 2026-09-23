@@ -204,7 +204,7 @@ namespace Engine::Resource
 		Engine::Resource::UploadBuffer _capturedUploadBuf = _uploadBuffer;
 
 		// グラフィックスエンジンに非同期タスクとして登録
-		_pGraphicsEngine->ExecuteAsyncCopy(
+		_pGraphicsEngine->RefRenderDevice()->ExecuteAsyncCopy(
 			// コマンドを積む
 			[a_cpRes, _capturedUploadBuf](Engine::D3D12::GraphicsCommandList* a_pCmdList)
 			{

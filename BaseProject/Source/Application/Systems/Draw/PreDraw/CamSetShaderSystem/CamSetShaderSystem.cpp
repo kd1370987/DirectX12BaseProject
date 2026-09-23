@@ -54,8 +54,8 @@ void CamSetShaderSystem::Init(App::ECS::APPWorld& a_world)
 
 			auto* _pGE = a_ctx.pServices->pMainEngine->RefGraphicsEngine();
 
-			_pGE->SetCameraMat(_pWorldMat->worldMat);
-			_pGE->SetProjMat(_pProjMat->projMat);
+			_pGE->RefSceneView()->SetCameraMat(_pWorldMat->worldMat);
+			_pGE->RefSceneView()->SetProjMat(_pProjMat->projMat);
 
 			//============================================================
 			// 画面効果の設定
@@ -82,7 +82,7 @@ void CamSetShaderSystem::Init(App::ECS::APPWorld& a_world)
 					_dofCB.farRange			= _pFocus->farRange;
 					_dofCB.maxBlurRadius	= _pFocus->maxBlurRadius;
 					_dofCB.enable			= _pFocus->enable ? 1 : 0;
-					_pGE->SetDoFData(_dofCB);
+					_pGE->RefSceneView()->SetDoFData(_dofCB);
 				}
 			}
 
@@ -100,7 +100,7 @@ void CamSetShaderSystem::Init(App::ECS::APPWorld& a_world)
 					_radialCB.radius		= _pRadial->radius;
 					_radialCB.falloff		= _pRadial->falloff;
 					_radialCB.enable		= _pRadial->enable ? 1 : 0;
-					_pGE->SetRadialBlurData(_radialCB);
+					_pGE->RefSceneView()->SetRadialBlurData(_radialCB);
 				}
 			}
 
@@ -113,7 +113,7 @@ void CamSetShaderSystem::Init(App::ECS::APPWorld& a_world)
 					_fishEyeCB.center	= { _pFishEye->center.x, _pFishEye->center.y };
 					_fishEyeCB.strength	= _pFishEye->strength;
 					_fishEyeCB.enable	= _pFishEye->enable ? 1 : 0;
-					_pGE->SetFishEyeData(_fishEyeCB);
+					_pGE->RefSceneView()->SetFishEyeData(_fishEyeCB);
 				}
 			}
 		}

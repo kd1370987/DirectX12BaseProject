@@ -101,7 +101,7 @@ namespace Engine::Editor::Inspector
 		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
 		{
 			ImGui::SameLine();
-			if (_pGE->IsPipelinePresentActive())	ImGui::TextDisabled("| 画面 : 出力中");
+			if (_pGE->GetCameraPipelines()->IsPipelinePresentActive())	ImGui::TextDisabled("| 画面 : 出力中");
 			else								ImGui::TextDisabled("| 画面 : 出ていません");
 		}
 

@@ -124,7 +124,7 @@ namespace Engine::Graphics::Pipeline
 				_pGE->BindPSO(_pCtx, a_psoHandle);
 
 				// カメラバインド
-				CameraData _cbCam = _pGE->GetCameraData();
+				CameraData _cbCam = _pGE->GetSceneView()->GetCameraData();
 				_pCtx->GraphicsBindRootCBV(0, _cbCam);
 
 				// パーティクルデータバインド

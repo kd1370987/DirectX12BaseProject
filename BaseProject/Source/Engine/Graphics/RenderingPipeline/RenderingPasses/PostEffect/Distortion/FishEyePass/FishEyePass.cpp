@@ -32,8 +32,8 @@ namespace Engine::Graphics::Pipeline
 		//
 		// カメラ側を優先しないと、演出でボケや流れが動かなくなる
 		//----------------------------------------------------------------------------------
-		const FishEyeOptionCB& _cb = a_context.pGraphicsEngine && a_context.pGraphicsEngine->IsFishEyeOverride()
-			? a_context.pGraphicsEngine->GetFishEyeData()
+		const FishEyeOptionCB& _cb = a_context.pGraphicsEngine && a_context.pGraphicsEngine->GetSceneView()->IsFishEyeOverride()
+			? a_context.pGraphicsEngine->GetSceneView()->GetFishEyeData()
 			: m_cb;
 
 		a_context.pRenderContext->BindCB()->BindAndAttachDataComputeRootCBV(a_context.pCmdList, 0, _cb);

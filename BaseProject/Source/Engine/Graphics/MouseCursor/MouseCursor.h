@@ -12,7 +12,7 @@ namespace Engine::D3D12
 
 namespace Engine::Graphics
 {
-	class GraphicsEngine;
+	class DrawSubmitter;
 
 	/// <summary>
 	/// 自前で描くマウスカーソル
@@ -53,7 +53,7 @@ namespace Engine::Graphics
 		void Update();
 
 		// ゲーム画面へ描く : UIを積み終えた最後に呼ぶ(UIパスは積んだ順に重なる)
-		void SubmitUI(GraphicsEngine* a_pGraphicsEngine) const;
+		void SubmitUI(DrawSubmitter* a_pDrawSubmitter) const;
 
 		// エディター画面へ描く : ImGuiのフレームの中で呼ぶ
 		void DrawImGui() const;

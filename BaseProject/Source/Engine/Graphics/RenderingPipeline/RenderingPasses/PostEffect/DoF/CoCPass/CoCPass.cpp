@@ -27,7 +27,7 @@ namespace Engine::Graphics::Pipeline
 		auto* _pCB = a_context.pRenderContext->BindCB();
 
 		// カメラとスカイはエンジンの持ち物。パスの調整値ではないのでそのまま引く
-		_pCB->BindAndAttachDataComputeRootCBV<CameraData>(a_context.pCmdList, 0, a_context.pGraphicsEngine->GetCameraData());
+		_pCB->BindAndAttachDataComputeRootCBV<CameraData>(a_context.pCmdList, 0, a_context.pGraphicsEngine->GetSceneView()->GetCameraData());
 		//----------------------------------------------------------------------------------
 		// 調整値の出どころ
 		//
@@ -37,12 +37,12 @@ namespace Engine::Graphics::Pipeline
 		//
 		// カメラ側を優先しないと、演出でボケや流れが動かなくなる
 		//----------------------------------------------------------------------------------
-		const DoFOptionCB& _cb = a_context.pGraphicsEngine->IsDoFOverride()
-			? a_context.pGraphicsEngine->GetDoFData()
+		const DoFOptionCB& _cb = a_context.pGraphicsEngine->GetSceneView()->IsDoFOverride()
+			? a_context.pGraphicsEngine->GetSceneView()->GetDoFData()
 			: m_cb;
 
 		_pCB->BindAndAttachDataComputeRootCBV(a_context.pCmdList, 1, _cb);
-		_pCB->BindAndAttachDataComputeRootCBV<SkyData>(a_context.pCmdList, 4, a_context.pGraphicsEngine->GetSkyData());
+		_pCB->BindAndAttachDataComputeRootCBV<SkyData>(a_context.pCmdList, 4, a_context.pGraphicsEngine->GetSceneView()->GetSkyData());
 
 		DispatchFullScreen(a_context);
 	}

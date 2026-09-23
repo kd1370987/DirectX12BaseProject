@@ -18,10 +18,10 @@ namespace Engine::Resource
 		}
 
 		// バッチを開く
-		m_batch = _pGE->BeginAsyncBuildBatch(a_useCopy, a_useCompute);
+		m_batch = _pGE->RefRenderDevice()->BeginAsyncBuildBatch(a_useCopy, a_useCompute);
 
 		// コンテキストの組み立て
-		m_context.pDevice = _pGE->RefDevice();
+		m_context.pDevice = _pGE->RefRenderDevice()->RefDevice();
 		m_context.pCopyCmdList = m_batch.pCopyCmdList;
 		m_context.pComputeCmdList = m_batch.pComputeCmdList;
 		m_context.pKeepAliveUploads = &m_batch.keepAliveResources;
@@ -45,6 +45,6 @@ namespace Engine::Resource
 	{
 		// スコープを抜けるところで実行
 		if (!m_context.pGraphicsEngine) return;
-		m_context.pGraphicsEngine->EndAsyncBuildBatch(m_batch);
+		m_context.pGraphicsEngine->RefRenderDevice()->EndAsyncBuildBatch(m_batch);
 	}
 }

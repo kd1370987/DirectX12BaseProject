@@ -54,7 +54,7 @@ void SkinningRegisterSystem::Init(App::ECS::APPWorld& a_world)
 				if (!_model) continue;
 
 				// GPUスキニング登録
-				_pGE->SubmitSkinning(
+				_pGE->RefDrawSubmitter()->SubmitSkinning(
 					*a_ctx.pWorld,
 					_model,
 					_animComp.dynamicInstanceHandle,

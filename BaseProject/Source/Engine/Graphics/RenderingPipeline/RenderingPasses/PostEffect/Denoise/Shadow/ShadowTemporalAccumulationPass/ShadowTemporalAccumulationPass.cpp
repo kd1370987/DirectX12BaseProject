@@ -38,7 +38,7 @@ namespace Engine::Graphics::Pipeline
 		if (!a_context.pGraphicsEngine) return;
 
 		// カメラCB(b0) : シェーダー側でビュー空間を復元して履歴の棄却判定に使う
-		a_context.pRenderContext->ComputeBindRootCBV(0, a_context.pGraphicsEngine->GetCameraData());
+		a_context.pRenderContext->ComputeBindRootCBV(0, a_context.pGraphicsEngine->GetSceneView()->GetCameraData());
 
 		// 調整値CB(b1)。ここを張り忘れると、前のパスが残した中身で再投影の判定が回る
 		a_context.pRenderContext->BindCB()->BindAndAttachDataComputeRootCBV(a_context.pCmdList, 1, m_cb);

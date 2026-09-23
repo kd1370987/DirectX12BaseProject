@@ -31,7 +31,7 @@ namespace Engine::Graphics::Pipeline
 		if (!a_context.pGraphicsEngine) return;
 
 		// カメラCB(b0) : シェーダー側でワールド座標を復元してエッジ判定に使う
-		a_context.pRenderContext->ComputeBindRootCBV(0, a_context.pGraphicsEngine->GetCameraData());
+		a_context.pRenderContext->ComputeBindRootCBV(0, a_context.pGraphicsEngine->GetSceneView()->GetCameraData());
 
 		// 倍率は繋がれた解像度から求める。
 		// GIがハーフ解像度なら2。ノードの繋ぎ替えで解像度が変わっても付いてくる
