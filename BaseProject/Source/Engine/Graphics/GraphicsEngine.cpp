@@ -1052,6 +1052,10 @@ namespace Engine::Graphics
 		// レンダーパスが引くのはこの結果なので、必ずレンダーグラフの実行より前に済ませる
 		m_lightManager.BuildFrameData(m_frameLightDataArr[m_currentFrameIndex]);
 
+		// 半透明の並びを決める : カメラ(上書き込み)が確定したここで、カメラからの距離を入れる。
+		// パスが読むのは共有のカメラなので、どのカメラのパスもこの位置を基準に並ぶ
+		m_drawLists.ResolveTransparentSortKeys(
+			Math::Vector3(m_cbCamera.pos.x, m_cbCamera.pos.y, m_cbCamera.pos.z));
 
 		// 描画アイテムをソート : パスはこの並びからパス番号で自分のぶんを引く
 		m_drawLists.SortItems();
@@ -1974,27 +1978,48 @@ namespace Engine::Graphics
 			? EGeometryQueue::Transparent
 			: EGeometryQueue::Opaque;
 
+		const auto& _msData = a_pMesh->GetMeshShaderData();
+		const auto& _subsetMeshlet = _msData.subsetMeshlets[a_cmd.subIdx];
+		const bool _isTransparent = (_queue == EGeometryQueue::Transparent);
+
+		//------------------------------------------------------------------------------------------
+		// マテリアルとインスタンスのデータは、パスをまたいで1つを共有する
+		//
+		// どちらもパスに依存する値を持たない(ワールド行列・メッシュレットの位置・マテリアル値だけ)。
+		// パスごとに作ると、同じ中身がパスの数 × カメラの数だけGPUバッファへ積まれ、
+		// テクスチャのSRV番号も同じ回数だけ引き直すことになる。
+		// 作るのは最初にアイテムを積めたパスのときだけ(PSOが無くて1つも積めなければ作らない)
+		//------------------------------------------------------------------------------------------
+		constexpr UINT kNotCreated = UINT_MAX;
+		UINT _meshInstanceIndex = kNotCreated;
+		auto _acquireInstanceIndex = [&]() -> UINT
+			{
+				if (_meshInstanceIndex != kNotCreated) return _meshInstanceIndex;
+
+				const MeshMaterial _meshMaterial = BuildMeshMaterial(a_pMaterial, a_albedoScale, a_emissiveScale, a_emissiveAdd);
+
+				MeshInstanceData _meshInstanceData = {};
+				_meshInstanceData.worldMat = a_mat.Transpose();
+				_meshInstanceData.prevWorldMat = a_prevMat.Transpose();
+				_meshInstanceData.materialOffset = m_drawLists.AddMeshMaterial(_meshMaterial);
+				_meshInstanceData.meshletOffset = _msData.meshletHandle.startIndex + _subsetMeshlet.meshletOffset;
+				_meshInstanceData.vertexOffset = a_pMesh->GetRtData().vertexHandle.startIndex;
+				_meshInstanceData.uviOffset = _msData.uniqueVertexIndicesHandle.startIndex;
+				_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
+				_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex + _subsetMeshlet.cullOffset;
+				_meshInstanceData.meshletCount = _subsetMeshlet.meshletCount;
+				_meshInstanceData.animatedVertexStart = a_animatedVertexStart;
+				_meshInstanceData.isAnimated = a_isAnimation ? 1 : 0;
+
+				_meshInstanceIndex = m_drawLists.AddInstanceData(_meshInstanceData);
+				return _meshInstanceIndex;
+			};
+
 		// モデルを受け取るパスへアイテムを流す。
-		// パスごとにPSOもパス番号も違うので、パスの数だけ登録することになる
+		// パスごとにPSOもパス番号も違うので、アイテム自体はパスの数だけ積む
 		for (auto* _pPipelinePass : GetPipelineGeometryPasses(_queue))
 		{
 			if (!_pPipelinePass) continue;
-
-			MeshMaterial _meshMaterial = BuildMeshMaterial(a_pMaterial, a_albedoScale, a_emissiveScale, a_emissiveAdd);
-			const auto& _msData = a_pMesh->GetMeshShaderData();
-
-			MeshInstanceData _meshInstanceData = {};
-			_meshInstanceData.worldMat = a_mat.Transpose();
-			_meshInstanceData.prevWorldMat = a_prevMat.Transpose();
-			_meshInstanceData.materialOffset = m_drawLists.AddMeshMaterial(_meshMaterial);
-			_meshInstanceData.meshletOffset = _msData.meshletHandle.startIndex + _msData.subsetMeshlets[a_cmd.subIdx].meshletOffset;
-			_meshInstanceData.vertexOffset = a_pMesh->GetRtData().vertexHandle.startIndex;
-			_meshInstanceData.uviOffset = _msData.uniqueVertexIndicesHandle.startIndex;
-			_meshInstanceData.primitiveOffset = _msData.primitiveIndicesHandle.startIndex;
-			_meshInstanceData.cullStart = _msData.cullDataHandle.startIndex + _msData.subsetMeshlets[a_cmd.subIdx].cullOffset;
-			_meshInstanceData.meshletCount = _msData.subsetMeshlets[a_cmd.subIdx].meshletCount;
-			_meshInstanceData.animatedVertexStart = a_animatedVertexStart;
-			_meshInstanceData.isAnimated = a_isAnimation ? 1 : 0;
 
 			PSOKey _pipelineKey = a_psoKey;
 			_pipelineKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
@@ -2014,18 +2039,32 @@ namespace Engine::Graphics
 			Engine::Graphics::LightWeightDrawItem _item = {};
 			_item.meshHandle = a_cmd.meshHandle;
 			_item.materialHandle = a_cmd.materialHandle;
-			_item.sortKey.bits.meshID = a_cmd.meshHandle.GetIndex();
-			_item.sortKey.bits.materialID = a_cmd.materialHandle.GetIndex();
 			_item.isAnimation = a_isAnimation;
 			_item.subIndex = a_cmd.subIdx;
-			_item.meshInstanceIndex = m_drawLists.AddInstanceData(_meshInstanceData);
-			_item.subsetMeshletCount = _msData.subsetMeshlets[a_cmd.subIdx].meshletCount;
-			_item.sortKey.bits.psoID = _psoHandle.GetIndex();
-			_item.sortKey.bits.passIndex = _pPipelinePass->GetPassIndex();
+			_item.meshInstanceIndex = _acquireInstanceIndex();
+			_item.subsetMeshletCount = _subsetMeshlet.meshletCount;
+			_item.psoID = _psoHandle.GetIndex();
+
+			// ソートキー。
+			// 半透明は奥から手前へ描かないと重なりが崩れるので、深さで並べる。
+			// 深さはカメラが確定してから(SortItems の直前に)決めるので、ここでは位置だけ控える
+			if (_isTransparent)
+			{
+				_item.isTransparent = true;
+				_item.sortPos = { a_mat._41, a_mat._42, a_mat._43 };
+				_item.sortKey.transparentBits.psoID = _psoHandle.GetIndex();
+				_item.sortKey.transparentBits.passIndex = _pPipelinePass->GetPassIndex();
+			}
+			else
+			{
+				_item.sortKey.bits.meshID = a_cmd.meshHandle.GetIndex();
+				_item.sortKey.bits.materialID = a_cmd.materialHandle.GetIndex();
+				_item.sortKey.bits.psoID = _psoHandle.GetIndex();
+				_item.sortKey.bits.passIndex = _pPipelinePass->GetPassIndex();
+			}
 
 			m_drawLists.AddItem(_item);
 		}
-
 	}
 
 	void GraphicsEngine::PushUIData(

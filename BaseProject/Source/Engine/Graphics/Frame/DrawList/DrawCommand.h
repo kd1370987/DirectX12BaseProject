@@ -25,12 +25,26 @@ namespace Engine::Graphics
 			//   なので psoID にはハンドルのインデックスと同じ16bitを渡し切って、
 			//   切り捨てが起こりえない形にしてある。
 			//   足りないぶんは、まだ誰も書いていない depth から回している
-			uint64_t depth : 12;			// 深度 (未使用)
+			uint64_t reserved : 12;			// 未使用
 			uint64_t meshID : 14;			// メッシュ
 			uint64_t materialID : 14;		// マテリアル
 			uint64_t psoID : 16;			// PSOID : Handle::GetIndex() と同じ幅
 			uint64_t passIndex : 8;			// パスインデックス
 		} bits;
+
+		//------------------------------------------------------------------------------------------
+		// 半透明用の並び
+		//
+		// 半透明は奥から手前へ描かないと重なりが崩れるので、PSOでまとめるより深さを優先する。
+		// パス番号は不透明と同じ最上位8bitに置く(パスごとの範囲検索 GetPassItems がそのまま使える)。
+		// farFirstDepth は「遠いほど小さい」値なので、昇順に並べると奥から描かれる
+		//------------------------------------------------------------------------------------------
+		struct {
+			uint64_t psoID : 16;			// 同じ深さならPSOでまとめる
+			uint64_t reserved : 8;			// 未使用
+			uint64_t farFirstDepth : 32;	// カメラからの距離(遠いほど小さい)。DrawLists::ResolveTransparentSortKeys が入れる
+			uint64_t passIndex : 8;			// パスインデックス
+		} transparentBits;
 	};
 
 	struct LightWeightDrawItem
@@ -55,10 +69,18 @@ namespace Engine::Graphics
 		// このサブセットを描画するためのメッシュレット数
 		UINT subsetMeshletCount = 0;
 
+		// 描くときに張るPSOの番号。
+		// ソートキーの中の位置は不透明と半透明で違うので、キーから取り出さずにここへ持つ
+		uint16_t psoID = 0;
+
+		// 半透明か。半透明はソートの直前に、sortPos とカメラの距離でキーを決め直す
+		bool isTransparent = false;
+		Math::Vector3 sortPos = {};
+
 		// ヘルパー関数 : ビット位置を直に書くと幅を変えたときに追従し損ねるので、
-		// 取り出しはビットフィールド越しにする
+		// 取り出しはビットフィールド越しにする(パス番号はどちらの並びでも同じ位置)
 		uint8_t GetPassIndex()		const { return static_cast<uint8_t>(sortKey.bits.passIndex); }
-		uint16_t GetPSOID()			const { return static_cast<uint16_t>(sortKey.bits.psoID); }
+		uint16_t GetPSOID()			const { return psoID; }
 	};
 
 

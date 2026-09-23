@@ -42,6 +42,30 @@ namespace Engine::Graphics
 		m_lightWeightDrawItemVec.push_back(a_item);
 	}
 
+	void DrawLists::ResolveTransparentSortKeys(const Math::Vector3& a_cameraPos)
+	{
+		for (auto& _item : m_lightWeightDrawItemVec)
+		{
+			if (!_item.isTransparent) continue;
+
+			//--------------------------------------------------------------------------------------
+			// 距離の2乗を、そのまま並べ替えに使える整数へ直す
+			//
+			// 0 以上の float はビット列を符号なし整数として見ても大小が変わらない。
+			// ビットを反転すれば「遠いほど小さい」になり、昇順に並べると奥から描かれる。
+			// 距離そのものではなく2乗で比べる(平方根は大小を変えないので要らない)。
+			// 深さはオブジェクトの原点で測る : メッシュを貫くような大きい半透明は
+			// 並びが甘くなることがあるが、オブジェクト単位で奥から描く目的には足りる
+			//--------------------------------------------------------------------------------------
+			const Math::Vector3 _toItem = _item.sortPos - a_cameraPos;
+			const float _distSq = (std::max)(_toItem.LengthSquared(), 0.0f);
+			const uint32_t _bits = std::bit_cast<uint32_t>(_distSq);
+			const uint32_t _farFirst = static_cast<uint32_t>(~_bits);
+
+			_item.sortKey.transparentBits.farFirstDepth = _farFirst;
+		}
+	}
+
 	void DrawLists::SortItems()
 	{
 		std::sort(

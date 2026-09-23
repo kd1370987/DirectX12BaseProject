@@ -24,6 +24,10 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		void AddItem(const LightWeightDrawItem& a_item);
 
+		// 半透明アイテムのソートキーへ、カメラからの距離を入れる。
+		// カメラが確定してから(エディターカメラの上書きも済んでから)、SortItems の前に呼ぶ
+		void ResolveTransparentSortKeys(const Math::Vector3& a_cameraPos);
+
 		// ソートキー順に並べる。GetPassItems() はこの後でしか引けない
 		void SortItems();
 
