@@ -257,7 +257,7 @@ namespace Engine::Graphics::Pipeline
 		if (!a_context.pRenderContext || !a_context.pGraph) return;
 
 		// このパイプラインの描画解像度で回す(カメラごとに違うことがある)
-		const UINT _width = static_cast<UINT>(a_context.pGraph->GetViewportWidth());
+		const UINT _width = a_context.pGraph->GetViewportWidth();
 		const UINT _height = a_context.pGraph->GetViewportHeight();
 		if (_width == 0 || _height == 0) return;
 

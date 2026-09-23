@@ -21,7 +21,7 @@ namespace Engine::Graphics
 		ClearAndReserve(m_lightWeightDrawItemVec, 10000);
 		ClearAndReserve(m_uiDrawItemVec, 10000);
 		ClearAndReserve(m_dynamicRayRequestVec, 1000);
-		ClearAndReserve(m_skinningDispathItemVec, 1000);
+		ClearAndReserve(m_skinningDispatchItemVec, 1000);
 
 		// ボーンパレットと、ワールドごとの土台の対応表
 		ClearAndReserve(m_boneMatrixVec, 10000);
@@ -130,7 +130,7 @@ namespace Engine::Graphics
 	//==========================================================================================
 	void DrawLists::AddSkinning(const SkinningDispatchItem& a_item)
 	{
-		m_skinningDispathItemVec.push_back(a_item);
+		m_skinningDispatchItemVec.push_back(a_item);
 	}
 
 	void DrawLists::AddDynamicRayRequest(const Raytracing::DynamicRaytracingRequest& a_request)

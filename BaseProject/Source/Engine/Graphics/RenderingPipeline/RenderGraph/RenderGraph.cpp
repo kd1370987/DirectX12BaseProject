@@ -444,7 +444,7 @@ namespace Engine::Graphics::Pipeline
 	// リソース
 	//
 	//======================================================================================
-	void RenderGraph::SetViewportSize(UINT64 a_width, UINT a_height)
+	void RenderGraph::SetViewportSize(UINT a_width, UINT a_height)
 	{
 		m_viewportWidth = a_width;
 		m_viewportHeight = a_height;
@@ -1147,7 +1147,7 @@ namespace Engine::Graphics::Pipeline
 		switch (_pPass->GetHeapMode())
 		{
 		case EPassHeapMode::Default:				a_pRenderContext->BindHeap();						break;
-		case EPassHeapMode::BindlessWithSampler:	a_pRenderContext->BindCopyHeapAndSumplerBindLess();	break;
+		case EPassHeapMode::BindlessWithSampler:	a_pRenderContext->BindCopyHeapAndSamplerBindLess();	break;
 		default: break;
 		}
 

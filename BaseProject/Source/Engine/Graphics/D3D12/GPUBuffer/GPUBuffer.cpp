@@ -32,13 +32,13 @@ namespace Engine::D3D12
 		switch (a_desc.heapType)
 		{
 		case D3D12_HEAP_TYPE_UPLOAD:
-			_desc.farstState = D3D12_RESOURCE_STATE_GENERIC_READ;
+			_desc.initialState = D3D12_RESOURCE_STATE_GENERIC_READ;
 			break;
 		case D3D12_HEAP_TYPE_READBACK:
-			_desc.farstState = D3D12_RESOURCE_STATE_COPY_DEST;
+			_desc.initialState = D3D12_RESOURCE_STATE_COPY_DEST;
 			break;
 		default:
-			_desc.farstState = D3D12_RESOURCE_STATE_COMMON;
+			_desc.initialState = D3D12_RESOURCE_STATE_COMMON;
 			break;
 		}
 

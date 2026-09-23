@@ -54,7 +54,7 @@ namespace Engine::Graphics::Pipeline
 		// カメラ側の情報のうち、グラフの構築に効くものを流し込む。
 		// View / Proj のようにフレームごとに変わるものは Render() の入口で渡す
 		//----------------------------------------------------------------------------------
-		void SetViewportSize(UINT64 a_width, UINT a_height);
+		void SetViewportSize(UINT a_width, UINT a_height);
 
 		// グラフの外で作られたリソースを名前で差し込む(このカメラの最終出力など)
 		void ImportResource(

@@ -34,7 +34,7 @@ namespace Engine::D3D12
 
 		/// <summary>
 		/// バッファの指定した範囲だけを更新・GPUへ転送する（メガバッファ用）
-		/// リソース遷移バリアがあるためメインのグラフィックスコマンドリストでの操作が必要
+		/// バリアは張らない(コピー先は COMMON から COPY_DEST へ暗黙に昇格する)
 		/// </summary>
 		/// <param name="a_pCmdList">GPU実行用のコマンドリスト</param>
 		/// <param name="a_startIndex">開始位置 : 内部でのサイズ計算はしてくれてるため純粋なインデックス</param>

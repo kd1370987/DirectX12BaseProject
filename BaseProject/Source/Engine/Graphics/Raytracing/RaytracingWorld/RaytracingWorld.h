@@ -49,8 +49,7 @@ namespace Engine::Raytracing
 		void Init(
 			D3D12::Device* a_pDevice,
 			D3D12::DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList, 
-			uint32_t a_hitGroupNum,
+			D3D12::GraphicsCommandList* a_pCmdList,
 			Resource::ResourceManager* a_pResourceManager
 		);
 
@@ -82,10 +81,10 @@ namespace Engine::Raytracing
 		D3D12_CPU_DESCRIPTOR_HANDLE GetMaterialSRVCPU();
 
 		// インスタンス取得
-		const std::vector<Instance>& GetInstnace() const { return m_instanceVec; }
+		const std::vector<Instance>& GetInstanceVec() const { return m_instanceVec; }
 	private:
 
-		int GetTexHepaIndex(const Handle<Resource::Texture>& a_handle) const;
+		int GetTexHeapIndex(const Handle<Resource::Texture>& a_handle) const;
 
 	private:
 
@@ -106,6 +105,6 @@ namespace Engine::Raytracing
 
 		// 更新
 		bool m_isCommit = false;		// コミットされたかどうか
-		bool m_isDrity = false;
+		bool m_isDirty = false;
 	};
 }

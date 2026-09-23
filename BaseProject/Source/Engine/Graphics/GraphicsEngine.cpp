@@ -31,23 +31,14 @@
 #include "RenderingPipeline/RenderingPipelineMetaRegistry.h"
 #include "RenderingPipeline/GraphicsPipeline/GraphicsPipeline.h"
 
-// シーン
-#include "../Scene/BaseScene/BaseScene.h"
-#include "../Scene/SceneManager/SceneManager.h"
-
 // ECS
 #include "../ECS/World/World.h"
-
-// オプション
-#include "../Option/OptionManager.h"
 
 // カメラに依存しない、フレームに1回のGPU処理
 #include "FrameCompute/SkinningPass/SkinningPass.h"
 #include "FrameCompute/UpdateBLASPass/UpdateBLASPass.h"
 #include "FrameCompute/ParticleSimulation/ParticleSimulation.h"
 
-// テスト
-#include "../../Application/Game/GameManager/GameManager.h"
 
 namespace Engine::Graphics
 {
@@ -193,6 +184,11 @@ namespace Engine::Graphics
 	{
 		// リソースの持ち主 : 以降の初期化(スキニング・パーティクルのシェーダー)でも使う
 		m_pResourceManager = a_desc.pResourceManager;
+
+		// 描画解像度。バックバッファもこの大きさで作られているので、
+		// 画面の大きさが要る所(カメラの既定サイズ・ジッター・UIの座標変換)はすべてこれを使う
+		m_renderWidth = a_desc.width;
+		m_renderHeight = a_desc.height;
 		assert(m_pResourceManager && "GraphicsEngineDesc.pResourceManager が渡されていません");
 
 
@@ -422,7 +418,7 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::SubmitCamera(const CameraSubmitDesc& a_desc)
 	{
-		// 描画構成を持たないカメラは新経路に乗らない
+		// 描画構成を持たないカメラは描かない
 		if (!a_desc.pipelineHandle.IsValid()) return;
 
 		// 同じカメラが居れば使い回す(実行インスタンスを作り直さないため)
@@ -450,18 +446,15 @@ namespace Engine::Graphics
 		_pCamera->isMain = a_desc.isMain;
 		_pCamera->isSubmitted = true;
 
-		// 行列はこのカメラ専用の定数バッファ用。
-		// 従来経路のカメラ設定(SetCameraMat)とは別物なので混ぜない。
-		//
-		// GPUへ詰める形(viewProj や逆行列)を作るのはパスをつなぎ込む段でよいので、
-		// ここではビューと射影だけ入れておく
+		// 行列はこのカメラ専用の定数バッファ用の置き場。
+		// 今はどのパスもここを読まず、共有のカメラ(SetCameraMat / GetCameraData)を読んでいる。
+		// カメラごとの定数バッファへ移すまでは、ビューと射影を控えておくだけ
 		_pCamera->cpuData.viewMat = a_desc.worldMat.Invert();
 		_pCamera->cpuData.projMat = a_desc.projMat;
 
 		// 0 のままなら画面の描画解像度に追従する
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
-		const UINT _width = (a_desc.viewportWidth != 0) ? a_desc.viewportWidth : static_cast<UINT>(_winOp.windowWidth);
-		const UINT _height = (a_desc.viewportHeight != 0) ? a_desc.viewportHeight : static_cast<UINT>(_winOp.windowHeight);
+		const UINT _width = (a_desc.viewportWidth != 0) ? a_desc.viewportWidth : m_renderWidth;
+		const UINT _height = (a_desc.viewportHeight != 0) ? a_desc.viewportHeight : m_renderHeight;
 
 		// サイズが変わっていたら次の実行で作り直す
 		if (_pCamera->builtWidth != _width || _pCamera->builtHeight != _height)
@@ -595,7 +588,7 @@ namespace Engine::Graphics
 					_texDesc.height = _pCamera->builtHeight;
 					_texDesc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
 					_texDesc.usage = Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;
-					_texDesc.opClerValue = Math::Color(0.f, 0.f, 0.f, 1.f);
+					_texDesc.optClearValue = Math::Color(0.f, 0.f, 0.f, 1.f);
 					_pCamera->upFinalTex->Create(m_upDescriptorHeapManager.get(), _texDesc);
 				}
 
@@ -606,9 +599,9 @@ namespace Engine::Graphics
 				}
 
 				//--------------------------------------------------------------
-				// 組めなかったときは黙って旧経路の絵に戻る。
+				// 組めなかったカメラは何も描かない(画面ならクリア色のまま)。
 				//
-				// 黙って戻ると「繋いでいないパスの絵が出ている」ようにしか見えないので、
+				// 黙っていると「何も映らない」ようにしか見えないので、
 				// 版が変わるたびに1回だけ理由を知らせる
 				// (個々の理由は RenderGraph::Compile が並べて出す)
 				//--------------------------------------------------------------
@@ -618,7 +611,7 @@ namespace Engine::Graphics
 						_pCamera->reportedFailVersion = _version;
 
 						ENGINE_WARNING(
-							"[GraphicsEngine] パイプラインを組めませんでした。旧レンダーグラフの絵に戻ります : %s",
+							"[GraphicsEngine] パイプラインを組めませんでした。このカメラは描画されません : %s",
 							_pAsset->GetName().c_str());
 					};
 
@@ -829,7 +822,6 @@ namespace Engine::Graphics
 				if (!a_pCamera || !a_pCamera->upPipeline) return nullptr;
 				if (!a_pCamera->upPipeline->IsCompiled()) return nullptr;
 
-				// この名前空間では RenderGraph は従来経路のものを指すので、必ず修飾する
 				Pipeline::RenderGraph* _pGraph = a_pCamera->upPipeline->RefRenderGraph();
 				if (!_pGraph) return nullptr;
 
@@ -989,16 +981,12 @@ namespace Engine::Graphics
 	}
 	void GraphicsEngine::Execute()
 	{
-		auto* _pDevice = RefDevice();
+		// ここへ来る時点で、アプリ側の描画要求(カメラ・モデル・UI・ライト)は積み終わっている。
+		// 積むのは呼び出し側(Application::MainLoop の GameManager::Draw)の仕事で、
+		// エンジンはゲームを知らない
 		auto* _pCmdList = AcquireDirectCommandList();
 		// GPUが実際に完了させた値 : これ以下でタグ付けされた領域だけをフリーリストに戻す
 		auto _completedFence = GetCompletedFenceValue();
-
-		// レイトレ用BLAS初期化 : 初期化命令があれば走る
-		ProcessInitQueue(_pDevice, _pCmdList);
-
-		// テスト
-		App::Game::GameManager::Instance().Draw();
 
 		// 自前のマウスカーソルを最前面へ。
 		// UIパスは深度を切ってあるので積んだ順がそのまま前後になる。
@@ -1091,9 +1079,8 @@ namespace Engine::Graphics
 			ExecuteParticleSimulation(this, m_upRenderContextVec[m_currentFrameIndex].get());
 		}
 
-		// カメラごとの描画構成(新レンダーグラフ)。
-		// 従来経路とは並走していて、こちらは各カメラの最終出力テクスチャへ描くだけ。
-		// バックバッファへ出すのは下の従来経路のまま
+		// カメラごとの描画構成を回す。
+		// 各カメラは自分の最終出力テクスチャへ描くだけで、画面へ出すのは下の PresentFromPipeline
 		ExecuteCameraPipelines();
 
 		// メインカメラが描いた絵をバックバッファへ載せる
@@ -1422,10 +1409,6 @@ namespace Engine::Graphics
 	{
 		return m_cbGPUCamera;
 	}
-	const CameraData& GraphicsEngine::GetGPUCameraData() const
-	{
-		return m_cbGPUCamera;
-	}
 	const CameraData& GraphicsEngine::GetCPUCameraData() const
 	{
 		return m_cbCamera;
@@ -1466,7 +1449,7 @@ namespace Engine::Graphics
 		ECS::World& a_world,
 		const Resource::Model* a_pModel,
 		const Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
-		const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle,
+		const RangeHandle<Resource::NodePoseMatrix> nodePoseHandle,
 		const RangeHandle<Resource::BoneMatrix> boneHandle
 	)
 	{
@@ -1491,7 +1474,7 @@ namespace Engine::Graphics
 			_item.pWorld = &a_world;
 			_item.staticVertexHandle = _pMesh->GetRtData().vertexHandle;
 			_item.staticIndexHandle = _pMesh->GetRtData().indexHandle;
-			_item.nodePoseMat = nodePoseHnandle;
+			_item.nodePoseMat = nodePoseHandle;
 			_item.animHandle = dynamicHandle;
 			_item.boneHandle = boneHandle;
 
@@ -1567,12 +1550,10 @@ namespace Engine::Graphics
 			// -----------------------------------------------------
 			// PermutationFlags の構築
 			// -----------------------------------------------------
+			// この経路は静的モデル専用(アニメーションするモデルはボーンを受け取る方の SubmitModel)
+			constexpr bool _isAnimation = false;
 			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
-
-			bool _isAnimation = false; // ボーンがあるか等で判定
-			_flags |= (uint32_t)(_isAnimation ?
-				Engine::Graphics::EShaderPermutationFlags::Skinned :
-				Engine::Graphics::EShaderPermutationFlags::Static);
+			_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::Static;
 
 			if (_cmd.alphaMode == Engine::Resource::Alpha::Mask) {
 				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::AlphaMasked;
@@ -1685,11 +1666,11 @@ namespace Engine::Graphics
 		}
 	}
 
-	void GraphicsEngine::SubmitModel(const Math::Matrix& a_worldMat, const Math::Color& a_colorScale, const Math::Vector3& a_emissiveScale, const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle, const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle, const Math::Vector3& a_emissiveAdd)
+	void GraphicsEngine::SubmitModel(const Math::Matrix& a_worldMat, const Math::Color& a_colorScale, const Math::Vector3& a_emissiveScale, const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle, const Engine::Handle<Resource::NodePoseMatrix> nodePoseHandle, const Math::Vector3& a_emissiveAdd)
 	{
 
 		m_drawLists.AddDynamicRayRequest(
-			{ a_worldMat,a_colorScale,a_emissiveScale,a_emissiveAdd,dynamicHandle,nodePoseHnandle }
+			{ a_worldMat,a_colorScale,a_emissiveScale,a_emissiveAdd,dynamicHandle,nodePoseHandle }
 		);
 	}
 
@@ -1742,16 +1723,12 @@ namespace Engine::Graphics
 		// リセット
 		m_cbGPUCamera = {};
 
-		// スクリーン座標を取得
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
-		const auto& _renderingOp = Option::OptionManager::GetInstance().GetRenderingOption();
-
 		// ジッターオフセット計算
 		float _jitterX = 0.0f;
 		float _jitterY = 0.0f;
 
-		// ジッターオンオフ(グラフィックオプションで切り替え可能。OFFならジッター0でTAAはブレンドのみ)
-		if (_renderingOp.useJitter)
+		// ジッターオンオフ(SetJitterEnabled で切り替え。OFFならジッター0でTAAはブレンドのみ)
+		if (m_isJitterEnabled && m_renderWidth > 0 && m_renderHeight > 0)
 		{
 			// ハルトンシーケンスのテーブル（ピクセル中心地からのオフセット値 -0.5f ～ 0.5f）
 			static const float _sHaltonX[16] = {
@@ -1766,11 +1743,11 @@ namespace Engine::Graphics
 			   -0.388889f, -0.055556f,  0.277778f,  0.444444f,
 			   -0.222222f,  0.111111f, -0.444444f,  0.222222f
 			};
-			uint32_t _sampleIndex = m_totlaFrameCount % 16;
+			uint32_t _sampleIndex = m_totalFrameCount % 16;
 
 			// プロジェクション空間（NDC）のサイズに変換 : NDCは幅が２(-1～1)だから2倍
-			_jitterX = (_sHaltonX[_sampleIndex] / (float)_winOp.windowWidth) * 2.0f;
-			_jitterY = (_sHaltonY[_sampleIndex] / (float)_winOp.windowHeight) * 2.0f;
+			_jitterX = (_sHaltonX[_sampleIndex] / static_cast<float>(m_renderWidth)) * 2.0f;
+			_jitterY = (_sHaltonY[_sampleIndex] / static_cast<float>(m_renderHeight)) * 2.0f;
 		}
 
 		// カメラの行列を一時的に取得
@@ -1823,21 +1800,31 @@ namespace Engine::Graphics
 		m_cbGPUCamera.ExtractFrustumPlanes(_nonJitteredViewProj);
 
 		// フレームカウントを進める
-		m_totlaFrameCount++;
+		m_totalFrameCount++;
 	}
-	void GraphicsEngine::ProcessInitQueue(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList)
+	//------------------------------------------------------------------------------------------
+	// アニメーションするモデルの BLAS と頂点領域を用意する
+	//
+	// 要求はワールドごとに積まれる(AnimationModelStartSystem など)ので、ワールドを受け取る。
+	// 以前は SceneManager の一番上のワールドだけを見ていたため、
+	// 下に重なったシーンやエフェクトエディターのワールドの要求を取りこぼしていた。
+	//
+	// コマンドは専用のリストに積んで先に提出する。
+	// 提出した順に流れるので、同じフレームの Execute(スキニング・BLAS更新)より前に構築される
+	//------------------------------------------------------------------------------------------
+	void GraphicsEngine::ProcessDynamicRaytracingInit(ECS::World& a_world)
 	{
-		// ワールドと必須リソースの存在チェック
-		auto* _pCurrentWorld = Engine::Scene::SceneManager::Instance().RefWorld();
-		if (!_pCurrentWorld) return;
+		// 必須リソースの存在チェック
+		if (!a_world.HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) return;
+		if (!a_world.HasResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>()) return;
 
-		if (!_pCurrentWorld->HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) return;
-		if (!_pCurrentWorld->HasResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>()) return;
-
-		auto& _initRequestVec = _pCurrentWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+		auto& _initRequestVec = a_world.GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 		if (_initRequestVec.empty()) return;
 
-		auto& _dynamicPool = _pCurrentWorld->GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
+		auto& _dynamicPool = a_world.GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
+
+		auto* _pDevice = RefDevice();
+		auto* _pCmdList = AcquireDirectCommandList();
 
 		// モデルのリソースからBLASと頂点バッファをコピー
 		for (auto& _initReq : _initRequestVec)
@@ -1860,7 +1847,6 @@ namespace Engine::Graphics
 
 				// インスタンス専用のアニメーション用頂点バッファ領域をメガバッファから割り当て
 				UINT _vertexCount = _pMesh->GetRtData().vertexHandle.count;
-				//_targetMeshData.animatedVertexHandle = m_animatedVertexBuffer.Allocate(_vertexCount);
 				_targetMeshData.animatedVertexHandle = m_upMeshBufferAllocator->AllocateAnimatedVertex(_vertexCount);
 
 				// サブメッシュ（マテリアル単位）ごとのジオメトリ情報を構築
@@ -1876,7 +1862,6 @@ namespace Engine::Graphics
 					_desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
 					// 頂点バッファ
 					_desc.Triangles.VertexBuffer.StartAddress =
-						//m_animatedVertexBuffer.GetGPUVirtualAddress() +
 						m_upMeshBufferAllocator->GetAnimatedVertexBuffer().GetGPUVirtualAddress() +
 						(_targetMeshData.animatedVertexHandle.startIndex * sizeof(Resource::MeshVertexFloat));
 					_desc.Triangles.VertexBuffer.StrideInBytes = sizeof(Resource::MeshVertexFloat);
@@ -1885,7 +1870,6 @@ namespace Engine::Graphics
 
 					// インデックスバッファ
 					_desc.Triangles.IndexBuffer =
-						//m_meshIndexBuffer.GetGPUVirtualAddress() +
 						m_upMeshBufferAllocator->GetIndexBuffer().GetGPUVirtualAddress() +
 						sizeof(uint32_t) * (_subset.faceStart * 3 + _pMesh->GetRtData().indexHandle.startIndex);
 					_desc.Triangles.IndexCount = _subset.faceCount * 3;
@@ -1894,16 +1878,15 @@ namespace Engine::Graphics
 					_descVec.push_back(_desc);
 				}
 				_pData->meshDataVec.back().instanceBLAS.CreateDynamic(
-					a_pDevice,
-					a_pCmdList,
+					_pDevice,
+					_pCmdList,
 					_descVec
 				);
 				_pData->meshDataVec.back().meshHandle = _meshHandle;
 			}
-
-
-
 		}
+
+		SubmitDirectCommandList(_pCmdList);
 
 		// 処理が終われば命令を解放
 		_initRequestVec.clear();
@@ -1991,7 +1974,7 @@ namespace Engine::Graphics
 			? EGeometryQueue::Transparent
 			: EGeometryQueue::Opaque;
 
-		// 新パイプライン側のパスへも同じアイテムを流す。
+		// モデルを受け取るパスへアイテムを流す。
 		// パスごとにPSOもパス番号も違うので、パスの数だけ登録することになる
 		for (auto* _pPipelinePass : GetPipelineGeometryPasses(_queue))
 		{
@@ -2060,9 +2043,8 @@ namespace Engine::Graphics
 	)
 	{
 		// スクリーン解像度(px)
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
-		const float _w = static_cast<float>(_winOp.windowWidth);
-		const float _h = static_cast<float>(_winOp.windowHeight);
+		const float _w = static_cast<float>(m_renderWidth);
+		const float _h = static_cast<float>(m_renderHeight);
 		if (_w <= 0.0f || _h <= 0.0f) return;
 
 		// 回転(度→ラジアン)。回転はピクセル空間(等方)で行い、そのあとNDCへ変換する。

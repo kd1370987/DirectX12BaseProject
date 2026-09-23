@@ -28,7 +28,7 @@ namespace Engine::Graphics::Pipeline
 		return m_upRenderGraph->BuildFrom(*_pSource, a_registry);
 	}
 
-	void GraphicsPipeline::SetViewportSize(UINT64 a_width, UINT a_height)
+	void GraphicsPipeline::SetViewportSize(UINT a_width, UINT a_height)
 	{
 		m_upRenderGraph->SetViewportSize(a_width, a_height);
 	}

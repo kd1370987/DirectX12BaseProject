@@ -130,6 +130,6 @@ namespace Engine::Raytracing
 		Math::Vector3 emissiveAdd;			// 自己発光(加算・1.0超え可)
 
 		Engine::Handle<DynamicRaytracingData> dynamicHandle = {};
-		Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle = {};
+		Engine::Handle<Resource::NodePoseMatrix> nodePoseHandle = {};
 	};
 }

@@ -10,7 +10,6 @@ namespace Engine::Graphics::Pipeline
 		DeclareInput("Color", EAccessType::RTV, EPassSlotType::Texture, false);
 
 		// すでに描かれている絵へ重ねるので Load
-		//Slot& _color = DeclareOutput("Color", "AfterTAAColor", DXGI_FORMAT_R16G16B16A16_FLOAT,EAccessType::RTV);
 		Slot& _color = DeclareOutput("Color", "AfterUI", DXGI_FORMAT_R16G16B16A16_FLOAT,EAccessType::RTV);
 		_color.loadOp = ELoadOp::Load;
 	}

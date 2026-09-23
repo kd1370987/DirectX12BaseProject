@@ -103,7 +103,7 @@ void Engine::Graphics::ExecuteSkinning(GraphicsEngine* a_pGE, RenderContext* a_p
 			// バッファバリア (main を UAV へ : COPY_SOURCE から遷移)
 			_pMA->RefAnimatedVertexBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			// メッシュ情報バインド
-			a_pCtx->ComputeBindBonePalletBuffer(1);
+			a_pCtx->ComputeBindBonePaletteBuffer(1);
 			a_pCtx->ComputeBindSRV(2, _pMA->GetStaticVertexBuffer().GetSRV());
 			a_pCtx->ComputeBindSRV(3, _pMA->GetIndexBuffer().GetSRV());
 			a_pCtx->BindUAV(4, _pMA->GetAnimatedVertexBuffer().GetUAV());
@@ -121,7 +121,6 @@ void Engine::Graphics::ExecuteSkinning(GraphicsEngine* a_pGE, RenderContext* a_p
 				_info.vertexStart = _item.staticVertexHandle.startIndex;
 				_info.animatedVertStart = _item.animatedHandle.startIndex;
 				_info.vertexCount = _item.staticVertexHandle.count;
-				//_info.boneOffset = _item.nodePoseMat.startIndex;
 				// プールの添字ではなくボーンパレット(GPU)上の位置。
 				// ワールドごとの土台が足してあるので、シーンを重ねても他人のボーンを踏まない
 				_info.boneOffset = _item.boneBufferStart;

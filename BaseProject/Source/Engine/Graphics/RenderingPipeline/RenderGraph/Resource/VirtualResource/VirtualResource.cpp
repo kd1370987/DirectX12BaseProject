@@ -208,7 +208,7 @@ namespace Engine::Graphics::Pipeline
 		if (HasUsage(Resource::TextureUsage::RTV) ||
 			HasUsage(Resource::TextureUsage::DSV))
 		{
-			_desc.opClerValue = m_clearColor;
+			_desc.optClearValue = m_clearColor;
 		}
 
 		return _desc;

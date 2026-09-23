@@ -397,6 +397,9 @@ namespace Engine::Editor
 		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
 		{
 			_pGE->SetSkyTexture({});
+
+			// 確認用ワールドのアニメーションモデルの BLAS と頂点領域(PreDraw より前に)
+			_pGE->ProcessDynamicRaytracingInit(*m_upWorld);
 		}
 
 		m_upWorld->RunSystem(ECS::ESystemType::PreDraw, 0.0f);

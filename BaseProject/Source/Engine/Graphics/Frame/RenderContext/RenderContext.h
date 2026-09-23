@@ -156,7 +156,7 @@ namespace Engine::Graphics
 			D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle,
 			ID3D12Resource* a_pResource,
 			const float a_color[4]);
-		void BindCopyHeapAndSumplerBindLess();
+		void BindCopyHeapAndSamplerBindLess();
 
 		void Dispatch(UINT a_x,UINT a_y,UINT a_z);
 		void DispatchMesh(UINT a_x,UINT a_y,UINT a_z);
@@ -177,7 +177,7 @@ namespace Engine::Graphics
 		void UpdateUIBuffer(const std::vector<UIData>& a_uiInstanceVec);
 
 		// バッファバインド
-		void ComputeBindBonePalletBuffer(UINT a_rootIndex);
+		void ComputeBindBonePaletteBuffer(UINT a_rootIndex);
 		void BindGraphicsDebugLineBuffer(UINT a_rootIndex);
 
 		// カメラ・メッシュシェーダー関連
@@ -193,7 +193,7 @@ namespace Engine::Graphics
 		void BindUIBuffer(UINT a_rootIndex, UINT a_startInstance = 0);
 		void DrawUI(UINT a_rootIndex);
 
-		void DrawQueueDispathMesh(uint8_t a_passIndex);
+		void DrawQueueDispatchMesh(uint8_t a_passIndex);
 
 		//--------------------------------------------------------------------------------------------
 		// 描画パス構築

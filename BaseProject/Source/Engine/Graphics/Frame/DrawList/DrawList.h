@@ -54,7 +54,7 @@ namespace Engine::Graphics
 		// GPUスキニング
 		//--------------------------------------------------------------------------------------------
 		void AddSkinning(const SkinningDispatchItem& a_item);
-		const std::vector<SkinningDispatchItem>& GetSkinningItems() const { return m_skinningDispathItemVec; }
+		const std::vector<SkinningDispatchItem>& GetSkinningItems() const { return m_skinningDispatchItemVec; }
 
 		//--------------------------------------------------------------------------------------------
 		// アニメーション用レイトレインスタンス作成命令
@@ -86,7 +86,7 @@ namespace Engine::Graphics
 		std::vector<UIData> m_uiDrawItemVec = {};
 
 		// GPUスキニング配列
-		std::vector<SkinningDispatchItem> m_skinningDispathItemVec = {};
+		std::vector<SkinningDispatchItem> m_skinningDispatchItemVec = {};
 
 		// アニメーション用レイトレインスタンス作成命令
 		std::vector<Raytracing::DynamicRaytracingRequest> m_dynamicRayRequestVec = {};

@@ -10,7 +10,7 @@ namespace Engine::Graphics::Pipeline
 		//
 		// 任意にしてあるのは、このパスだけを置いた構成を作れるようにするため。
 		// 必須にすると深度を作るパスが無い構成が検証で落ち、
-		// パイプラインごとコンパイルされずに旧経路の絵が出る(繋いでいないUIが映る等)
+		// パイプラインごとコンパイルされず、そのカメラは何も描かなくなる
 		DeclareInput("Depth", EAccessType::Depth_Read, EPassSlotType::Texture, false);
 
 		// 描き足す先 : 「前段が描いた絵の上に重ねる」という順序をこの線で表す

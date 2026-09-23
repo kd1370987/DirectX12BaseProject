@@ -94,7 +94,7 @@ namespace Engine::D3D12
 		_linerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		_linerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		_linerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		m_linerWrap = CreateSampler(_device, _linerDesc);
+		m_linearWrap = CreateSampler(_device, _linerDesc);
 		D3D12_SAMPLER_DESC _pointDesc = {};
 		_pointDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
 		_pointDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
@@ -223,7 +223,7 @@ namespace Engine::D3D12
 
 	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetLinearWrap()
 	{
-		return m_upSamplerAllocator->GetGPU(m_linerWrap);;
+		return m_upSamplerAllocator->GetGPU(m_linearWrap);;
 	}
 
 	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetPointClamp()

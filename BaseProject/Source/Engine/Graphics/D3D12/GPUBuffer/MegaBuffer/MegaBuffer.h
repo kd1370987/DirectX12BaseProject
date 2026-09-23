@@ -51,7 +51,7 @@ namespace Engine::D3D12
 		ComPtr<ID3D12Resource> CreateUploadBuffer(const void* a_pData, UINT a_sizeBytes);
 
 	protected:
-		bool m_isDrty = false;
+		bool m_isDirty = false;
 
 		// 中間バッファを作るデバイス(借り物)。Create で受け取ったものを持ち続ける
 		D3D12::Device* m_pDevice = nullptr;

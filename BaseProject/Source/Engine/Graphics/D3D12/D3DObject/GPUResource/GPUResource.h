@@ -13,7 +13,7 @@ namespace Engine::D3D12
 		size_t				elementNum = 0;		// 要素数
 
 		D3D12_HEAP_FLAGS		heapFlags	= D3D12_HEAP_FLAG_NONE;
-		D3D12_RESOURCE_STATES	farstState	= D3D12_RESOURCE_STATE_COMMON;
+		D3D12_RESOURCE_STATES	initialState	= D3D12_RESOURCE_STATE_COMMON;
 		DXGI_FORMAT				format		= DXGI_FORMAT_UNKNOWN;
 		D3D12_CLEAR_VALUE*		pClearValue	= nullptr;						// バッファだとnullptrなので
 

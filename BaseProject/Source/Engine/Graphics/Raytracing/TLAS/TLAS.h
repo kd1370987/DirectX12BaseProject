@@ -35,11 +35,6 @@ namespace Engine::Raytracing
 
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle();
 
-		void SetHitGroupNum(uint32_t a_num)
-		{
-			m_hitGroupNum = a_num;
-		}
-
 	private:
 
 		void CreateBuffer(
@@ -79,8 +74,5 @@ namespace Engine::Raytracing
 		// 実体は GraphicsEngine が持っているので、Create で受け取ったものを控えて Release で返す
 		Engine::Handle<D3D12::SRV> m_srvHandle = {};
 		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
-
-		// ヒットグループ数
-		uint32_t m_hitGroupNum = 0;
 	};
 }

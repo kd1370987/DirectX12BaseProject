@@ -247,7 +247,7 @@ namespace Engine::Graphics
 	};
 
 	// ボーンデータ
-	struct BonePallete
+	struct BonePalette
 	{
 		Math::Matrix mat;
 	};

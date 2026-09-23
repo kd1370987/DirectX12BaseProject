@@ -45,7 +45,7 @@ namespace Engine::Raytracing
 		void Dispatch(Graphics::RenderContext* a_pRCT, ShaderTable& a_shadertable);
 
 		// レイトレワールドに登録
-		void RegistModel(
+		void RegisterModel(
 			const Math::Matrix& a_worldMat,
 			const Engine::Handle<Resource::Model>& a_modelHandle,
 			const Math::Color& a_colorScale,

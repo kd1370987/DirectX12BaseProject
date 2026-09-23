@@ -54,11 +54,8 @@ namespace Engine::Particle
 		_spCounterUpload->UpdateData(&_initCounter, sizeof(uint32_t));
 		_spParticleUpload->UpdateData(_initParticles.data(), m_maxCapacity * sizeof(ParticleData));
 
-		// コピー前のリソースバリア (DEFAULTヒープを COPY_DEST にする)
-		//m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
-		//m_counterBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
-
-		// コピーコマンドの発行 : コピーコマンドでの発行なのでバリアは自動でやってもらう
+		// コピーコマンドの発行。
+		// コピー先のバッファは COMMON から COPY_DEST へ暗黙に昇格するので、コピー前のバリアは張らない
 		a_pCmdList->CopyBufferRegion(
 			m_deadList.GetResource(), 0,
 			_spDeadListUpload->GetResource(), 0,
@@ -75,16 +72,7 @@ namespace Engine::Particle
 			m_maxCapacity * sizeof(ParticleData)
 		);
 
-		// コピー後のリソースバリア (DEFAULTヒープを UAV 状態にする)
-		//m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		//m_counterBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
 		// 解放処理を登録
 		MainEngine::Instance().RegisterDeferredResource([_spDeadListUpload,_spCounterUpload,_spParticleUpload](){});
-	}
-	void GPUParticlePool::UploadEmitRequests(D3D12::GraphicsCommandList* a_pCmdList, std::span<const EmitterData> a_requests)
-	{
-		m_emitterBuffer.UpdateData(a_requests.data(),a_requests.size() * sizeof(EmitterData));
-		m_emitterBuffer.Update(a_pCmdList);
 	}
 }

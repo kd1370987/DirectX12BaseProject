@@ -106,7 +106,7 @@ namespace Engine::Graphics
 
 			// フリーリストの再利用時は、渡されたアロケーターでリセットする
 			auto _hr = _pRaw->Reset(a_pAllocator, nullptr);
-			ENGINE_ERRLOG(SUCCEEDED(_hr),"ComandListのリセットに失敗");
+			ENGINE_ERRLOG(SUCCEEDED(_hr),"CommandListのリセットに失敗");
 
 			// 生ポインタと ComPtrを紐づける
 			m_trackingMap[_pRaw] = std::move(_cpList);

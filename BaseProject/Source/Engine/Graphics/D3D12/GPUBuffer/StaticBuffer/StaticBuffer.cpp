@@ -80,7 +80,7 @@ namespace Engine::D3D12
 	void StaticBuffer::Update(GraphicsCommandList* a_pCmdList)
 	{
 		// 更新がなければリターン
-		if (!m_isDrty) return;
+		if (!m_isDirty) return;
 
 		// GPUにコピー
 		CopyToGPU(a_pCmdList);
@@ -88,7 +88,7 @@ namespace Engine::D3D12
 	void StaticBuffer::UpdateData(const void* a_data, size_t a_size)
 	{
 		DynamicBuffer::UpdateData(a_data,a_size);
-		m_isDrty = true;
+		m_isDirty = true;
 	}
 
 	void StaticBuffer::UploadDataRange(D3D12::GraphicsCommandList* a_pCmdList, size_t a_destOffsetBytes, const void* a_pData, size_t a_sizeBytes)
@@ -107,10 +107,8 @@ namespace Engine::D3D12
 		// CPU側のアップロードバッファの特定領域のみを更新する
 		this->UpdateDataOffset(a_pData, a_sizeBytes, a_destOffsetBytes);
 
-		//// GPUバッファをコピー先に遷移
-		//m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
-
-		// 部分コピーコマンドを積む
+		// 部分コピーコマンドを積む。
+		// バリアは張らない : コピー先は COMMON から COPY_DEST へ暗黙に昇格する
 		a_pCmdList->CopyBufferRegion(
 			m_gpuBuffer.GetResource(),
 			a_destOffsetBytes,       // コピー先のオフセット
@@ -119,10 +117,7 @@ namespace Engine::D3D12
 			a_sizeBytes              // コピーするサイズ
 		);
 
-		//// SRVとして読める状態に戻す
-		//m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
-
-		m_isDrty = true;
+		m_isDirty = true;
 	}
 
 	void StaticBuffer::UploadFrame(GraphicsCommandList* a_pCmdList, const void* a_pData, size_t a_sizeBytes, UINT a_frameIndex)
@@ -249,12 +244,8 @@ namespace Engine::D3D12
 			GetBufferSize()
 		);
 
-		// SRVに戻す
-		m_gpuBuffer.Barrier(
-			a_pCmdList,
-			//D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-			D3D12_RESOURCE_STATE_COMMON
-		);
-		m_isDrty = false;
+		// COMMON へ戻す : 読む側(SRV)へは暗黙に昇格する
+		m_gpuBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
+		m_isDirty = false;
 	}
 }

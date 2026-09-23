@@ -155,6 +155,16 @@ namespace Engine::Scene
 		m_upWorld->GetResource<Engine::Physics::PhysicsWorld>()
 			.DrawDebug(m_upWorld->RefEngineServices()->pDebugDraw);
 
+		// このワールドで出てきたアニメーションモデルの BLAS と頂点領域を用意する。
+		// 描画のシステムは用意された領域の位置を読むので、必ず PreDraw より前
+		if (auto* _pMainEngine = m_upWorld->RefEngineServices()->pMainEngine)
+		{
+			if (auto* _pGE = _pMainEngine->RefGraphicsEngine())
+			{
+				_pGE->ProcessDynamicRaytracingInit(*m_upWorld);
+			}
+		}
+
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::PreDraw, 0.0f);
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Draw, 0.0f);

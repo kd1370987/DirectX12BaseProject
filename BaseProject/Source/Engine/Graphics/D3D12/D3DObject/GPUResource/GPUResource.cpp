@@ -18,7 +18,7 @@ namespace Engine::D3D12
 		m_bufferSize = m_strideSize * m_elementNum;
 
 		// ステート設定
-		m_currentState = a_desc.farstState;
+		m_currentState = a_desc.initialState;
 		
 		// ヒーププロパティ生成
 		auto _prop = CD3DX12_HEAP_PROPERTIES(a_desc.heapType);

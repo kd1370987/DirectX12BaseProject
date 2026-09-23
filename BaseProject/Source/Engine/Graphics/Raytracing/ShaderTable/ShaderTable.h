@@ -21,7 +21,7 @@ namespace Engine::Raytracing
 		const RayPSO*				pRayPSO = nullptr;
 		std::vector<RayShaderData>	shaderData = {};
 		std::vector<HitGroup>		hitGroup = {};
-		UINT						maxInstance = 1000;
+		UINT						maxInstance = kMaxInstanceNum;
 
 		uint32_t maxLocalRootSize = 0;		// ローカルルートシグネチャの最大サイズ
 	};

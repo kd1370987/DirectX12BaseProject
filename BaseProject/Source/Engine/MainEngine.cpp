@@ -545,6 +545,11 @@ namespace Engine
 			m_upGraphicsEngine->ClearCameraOverride();
 		}
 
+		// 描画の設定はここ(オプションの持ち主を知っている側)から流し込む。
+		// グラフィックスエンジンはオプションを直接引かない
+		m_upGraphicsEngine->SetJitterEnabled(
+			Option::OptionManager::GetInstance().GetRenderingOption().useJitter);
+
 		m_upGraphicsEngine->Execute();
 	}
 	const Window::NativeWindow* MainEngine::GetNativeWindow() const

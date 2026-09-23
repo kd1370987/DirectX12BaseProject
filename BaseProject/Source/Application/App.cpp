@@ -97,8 +97,12 @@ void Application::MainLoop()
 				}
 
 				{
-					// ゲームの描画
-					//App::Game::GameManager::Instance().Draw();
+					// ゲームの描画 : 描画命令(カメラ・モデル・UI・ライト)を積むだけで実行はしない。
+					// BeginDraw でフレームが切り替わった後、ExecuteDrawCmd より前に呼ぶこと
+					App::Game::GameManager::Instance().Draw();
+				}
+
+				{
 					// 命令の実行
 					ENGINE_PROFILE_SCOPE("RGDraw");
 					Engine::MainEngine::Instance().ExecuteDrawCmd();

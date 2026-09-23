@@ -119,7 +119,6 @@ namespace Engine::Graphics
 	{
 		m_pCmdList = nullptr;
 		m_upCBAllocator->ResetUse();
-		//m_pShapeDraw->Reset();
 
 		// リングのリセット。カレントヒープも既定へ戻す
 		m_copyHeapOffset = 0;
@@ -357,7 +356,7 @@ namespace Engine::Graphics
 		m_pCurrentHeap = &m_copyHeap;
 	}
 
-	void RenderContext::BindCopyHeapAndSumplerBindLess()
+	void RenderContext::BindCopyHeapAndSamplerBindLess()
 	{
 		ID3D12DescriptorHeap* _srcHeap = m_pHeapManager->GetCBVSRVUAVHeap();
 
@@ -443,7 +442,7 @@ namespace Engine::Graphics
 		m_uiInstanceBuffer.AllocateAndWrite(a_uiInstanceVec);
 	}
 
-	void RenderContext::ComputeBindBonePalletBuffer(UINT a_rootIndex)
+	void RenderContext::ComputeBindBonePaletteBuffer(UINT a_rootIndex)
 	{
 		ComputeBindSRV(a_rootIndex, m_boneBuffer.GetSRV());
 	}
@@ -555,7 +554,7 @@ namespace Engine::Graphics
 		}
 	}
 
-	void RenderContext::DrawQueueDispathMesh(uint8_t a_passIndex)
+	void RenderContext::DrawQueueDispatchMesh(uint8_t a_passIndex)
 	{
 		// 直前に張ったPSOの番号。
 		// 番号は16bitのどの値も実在しうるので、それより広い型の値で始める。

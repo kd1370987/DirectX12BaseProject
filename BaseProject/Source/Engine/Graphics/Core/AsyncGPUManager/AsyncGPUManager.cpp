@@ -45,12 +45,11 @@ namespace Engine::Graphics
 		// フリーリストがなければ新規作成
 		ComPtr<ID3D12CommandAllocator> _newAllocator;
 		D3D12_COMMAND_LIST_TYPE _d3dType = (a_type == AsyncCommandType::Copy) ? D3D12_COMMAND_LIST_TYPE_COPY : D3D12_COMMAND_LIST_TYPE_COMPUTE;
-		//D3D12_COMMAND_LIST_TYPE _d3dType = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
 		a_pDevice->CreateCommandAllocator(_d3dType, IID_PPV_ARGS(_newAllocator.ReleaseAndGetAddressOf()));
 
 		// 作成したばかりのものも、所有権を剥奪（Detach）して一時的に外に預ける
-		return _newAllocator.Detach(); // ★修正
+		return _newAllocator.Detach();
 	}
 
 	void AsyncGPUManager::RegisterTask(AsyncCommandType a_type, ID3D12CommandAllocator* a_pAllocator, D3D12::Fence* a_pFence, UINT64 a_targetFenceValue, std::function<void()> a_onComplete)
@@ -72,7 +71,7 @@ namespace Engine::Graphics
 				std::lock_guard<std::mutex> _lock(m_mutex);
 				for (auto _it = m_inFlightTasks.begin(); _it != m_inFlightTasks.end(); )
 				{
-					// CommandPoolが持っているフェンスを直接監視！
+					// 完了の判定は、実行したキュー(CommandPool)のフェンスで行う
 					if (_it->pTargetFence->GetCompletedValue() >= _it->targetFenceValue)
 					{
 						// ① 完了したのでコールバックを実行（Uploadヒープ解放など）
@@ -100,7 +99,7 @@ namespace Engine::Graphics
 				}
 			}
 
-			// タスクがある時は2ms間隔、無い時は16ms間隔で監視（CPU負荷を極限まで下げる）
+			// タスクがある時は2ms間隔、無い時は16ms間隔で監視する(空回りでCPUを使わないため)
 			if (_hasInFlight) {
 				std::this_thread::sleep_for(std::chrono::milliseconds(2));
 			}

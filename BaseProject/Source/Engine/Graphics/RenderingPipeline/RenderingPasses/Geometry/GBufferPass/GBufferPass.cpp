@@ -114,7 +114,7 @@ namespace Engine::Graphics::Pipeline
 		if (!_pCtx) return;
 
 		// レンダーターゲットの切り替えとクリアはグラフが済ませてある
-		_pCtx->BindCopyHeapAndSumplerBindLess();
+		_pCtx->BindCopyHeapAndSamplerBindLess();
 		_pCtx->SetGraphicsRootSignature(m_rootSigHandle);
 
 		_pCtx->BindCamera();
@@ -122,7 +122,7 @@ namespace Engine::Graphics::Pipeline
 		_pCtx->BindMeshlet();
 
 		// 自分のパス番号で積まれた描画アイテムだけを引く
-		_pCtx->DrawQueueDispathMesh(GetPassIndex());
+		_pCtx->DrawQueueDispatchMesh(GetPassIndex());
 	}
 
 

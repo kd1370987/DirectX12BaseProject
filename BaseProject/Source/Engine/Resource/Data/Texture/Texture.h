@@ -39,7 +39,7 @@ namespace Engine::Resource
 		/// </remarks>
 		UINT srvComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		std::optional<Math::Color> opClerValue;
+		std::optional<Math::Color> optClearValue;
 	};
 
 	class Texture : public D3D12::GPUResource

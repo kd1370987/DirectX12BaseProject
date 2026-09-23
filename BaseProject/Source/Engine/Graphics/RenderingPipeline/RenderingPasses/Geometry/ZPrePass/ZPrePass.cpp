@@ -54,14 +54,14 @@ namespace Engine::Graphics::Pipeline
 		RenderContext* _pCtx = a_context.pRenderContext;
 		if (!_pCtx) return;
 
-		_pCtx->BindCopyHeapAndSumplerBindLess();
+		_pCtx->BindCopyHeapAndSamplerBindLess();
 		_pCtx->SetGraphicsRootSignature(m_rootSigHandle);
 
 		_pCtx->BindCamera();
 		_pCtx->BindMeshInstance();
 		_pCtx->BindMeshlet();
 
-		_pCtx->DrawQueueDispathMesh(GetPassIndex());
+		_pCtx->DrawQueueDispatchMesh(GetPassIndex());
 	}
 
 

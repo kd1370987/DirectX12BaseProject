@@ -87,7 +87,7 @@ namespace Engine::Graphics::Pipeline
 			.pRayPSO = &m_rayPSO,
 			.shaderData = _psoInit.shaderDataVec,
 			.hitGroup = _psoInit.hitGroupVec,
-			.maxInstance = 1000,
+			.maxInstance = Raytracing::kMaxInstanceNum,
 			.maxLocalRootSize = 0
 		};
 		m_shaderTable.Init(_pDevice, _shaderTableInit);
@@ -113,13 +113,13 @@ namespace Engine::Graphics::Pipeline
 		if (_instanceVec.empty()) return;
 
 		// 解像度はこのパイプラインのもの(カメラごとに違うことがある)
-		const UINT _width = static_cast<UINT>(a_context.pGraph->GetViewportWidth());
+		const UINT _width = a_context.pGraph->GetViewportWidth();
 		const UINT _height = a_context.pGraph->GetViewportHeight();
 
 		m_shaderTable.CommitInstanceBindLess(_instanceVec, _pCtx, _width, _height);
 
 		// ディスクリプタヒープセット
-		_pCtx->BindCopyHeapAndSumplerBindLess();
+		_pCtx->BindCopyHeapAndSamplerBindLess();
 
 		// パイプラインとルートシグネチャセット
 		_pCmdList->SetPipelineState1(m_rayPSO.Get());

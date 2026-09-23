@@ -73,7 +73,7 @@ namespace Engine::Resource
 		D3D12::GPUResourceDesc _resourceDesc = {};
 		_resourceDesc.heapType		= D3D12_HEAP_TYPE_DEFAULT;
 		_resourceDesc.resourceDesc	= m_desc;
-		_resourceDesc.farstState	= D3D12_RESOURCE_STATE_COMMON;
+		_resourceDesc.initialState	= D3D12_RESOURCE_STATE_COMMON;
 		_resourceDesc.format		= a_desc.format;
 		_resourceDesc.pClearValue	= _opClearValue.has_value() ? &_opClearValue.value() : nullptr;
 
@@ -141,9 +141,9 @@ namespace Engine::Resource
 		m_name = a_desc.name;
 		m_useFlg = a_desc.usage;
 		m_srvComponentMapping = a_desc.srvComponentMapping;
-		if (a_desc.opClerValue.has_value())
+		if (a_desc.optClearValue.has_value())
 		{
-			m_clearValue = a_desc.opClerValue.value();
+			m_clearValue = a_desc.optClearValue.value();
 		}
 
 		// 基底が付けた通し番号の名前を、こちらの名前で上書きする

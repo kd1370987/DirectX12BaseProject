@@ -160,7 +160,7 @@ namespace Engine::Graphics::Pipeline
 		//
 		// 8bitの添字へ落として持つと、PSOの通し番号が256を超えたところで
 		// 別のPSOへすり替わる(コンピュートのつもりでグラフィックスのPSOを張る等)。
-		// パイプラインはパスの数だけPSOを作るので、旧経路と合わせるとすぐ届く
+		// パイプラインはパスの数だけPSOを作るので、カメラが増えるとすぐ届く
 		const Handle<ID3D12PipelineState>& GetPSOHandle() const { return m_psoHandle; }
 
 		// 描画アイテムのソートキーに入るパス番号。

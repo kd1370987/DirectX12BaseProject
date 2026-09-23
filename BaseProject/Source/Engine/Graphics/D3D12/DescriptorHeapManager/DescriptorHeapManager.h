@@ -116,6 +116,10 @@ namespace Engine::D3D12
 
 	private:
 
+		// ビューの種類に合ったアロケーターを引く(定義はこのヘッダーの末尾)
+		template<IsHeapType T>
+		HeapAllocator<T>& RefAllocator();
+
 		// 借り物。Init で受け取ったものを持ち続ける
 		D3D12::Device* m_pDevice = nullptr;
 
@@ -142,131 +146,58 @@ namespace Engine::D3D12
 		std::vector<UINT>					m_imguiBackendFreeIndices;
 
 		// サンプラー
-		Engine::Handle<SAMPLER> m_linerWrap;
+		Engine::Handle<SAMPLER> m_linearWrap;
 		Engine::Handle<SAMPLER> m_pointClamp;
 		Engine::Handle<SAMPLER> m_shadow;
 	};
+	//==========================================================================================
+	// ビューの種類 → アロケーター
+	//
+	// Allocate / Free / GetCPU / GetGPU はどれも「種類に合ったアロケーターへ回す」だけなので、
+	// 振り分けはここ1か所に置く。対応していない種類はコンパイル時に弾く
+	//==========================================================================================
+	namespace Internal
+	{
+		template<typename>
+		inline constexpr bool kAlwaysFalse = false;
+	}
+
+	template<IsHeapType T>
+	inline HeapAllocator<T>& DescriptorHeapManager::RefAllocator()
+	{
+		if constexpr (std::is_same_v<T, CBV>)			return m_CBVAllocator;
+		else if constexpr (std::is_same_v<T, SRV>)		return m_SRVAllocator;
+		else if constexpr (std::is_same_v<T, UAV>)		return m_UAVAllocator;
+		else if constexpr (std::is_same_v<T, RTV>)		return m_RTVAllocator;
+		else if constexpr (std::is_same_v<T, DSV>)		return m_DSVAllocator;
+		else if constexpr (std::is_same_v<T, ImGuiSRV>)	return m_ImGuiSRVAllocator;
+		else static_assert(Internal::kAlwaysFalse<T>, "DescriptorHeapManager : 対応していないビューの種類です");
+	}
+
 	template<IsHeapType T>
 	inline Handle<T> DescriptorHeapManager::Allocate(D3D12::Device* a_pDevice, ID3D12Resource* a_pResource, const typename T::DescType* a_desc)
 	{
-		if constexpr (std::is_same_v<T, CBV>)
-		{
-			return m_CBVAllocator.Allocate(a_pDevice, a_pResource, a_desc);
-		}
-		else if constexpr (std::is_same_v<T, SRV>)
-		{
-			return m_SRVAllocator.Allocate(a_pDevice, a_pResource, a_desc);
-		}
-		else if constexpr (std::is_same_v<T, UAV>)
-		{
-			return m_UAVAllocator.Allocate(a_pDevice, a_pResource, a_desc);
-		}
-		else if constexpr (std::is_same_v<T, RTV>)
-		{
-			return m_RTVAllocator.Allocate(a_pDevice, a_pResource, a_desc);
-		}
-		else if constexpr (std::is_same_v<T, DSV>)
-		{
-			return m_DSVAllocator.Allocate(a_pDevice, a_pResource, a_desc);
-		}
-		//else
-		//{
-		//	static_assert(slways_false_v<T>,"Unsupported Heap Type");
-		//	return {};
-		//}
+		return RefAllocator<T>().Allocate(a_pDevice, a_pResource, a_desc);
 	}
+
 	template<IsHeapType T>
 	inline void DescriptorHeapManager::Free(const Handle<T>& a_handle)
 	{
-		if constexpr (std::is_same_v<T, CBV>)
-		{
-			ENGINE_LOG("CBVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
-			return m_CBVAllocator.Remove(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, SRV>)
-		{
-			ENGINE_LOG("SRVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
-			return m_SRVAllocator.Remove(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, UAV>)
-		{
-			ENGINE_LOG("UAVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
-			return m_UAVAllocator.Remove(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, RTV>)
-		{
-			ENGINE_LOG("RTVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
-			return m_RTVAllocator.Remove(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, DSV>)
-		{
-			ENGINE_LOG("DSVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
-			return m_DSVAllocator.Remove(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, ImGuiSRV>)
-		{
-			// ImGui用SRVは専用アロケーターへ返す
-			// (SRVと同じ型で持たせると m_SRVAllocator に飛んで本体のプールを壊す)
-			ENGINE_LOG("ImGuiSRVの解放 : Index %d,Generation %d", static_cast<int>(a_handle.GetIndex()), static_cast<int>(a_handle.GetGeneration()));
-			return m_ImGuiSRVAllocator.Remove(a_handle);
-		}
+		RefAllocator<T>().Remove(a_handle);
 	}
+
 	template<IsHeapType T>
 	inline D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetCPU(Handle<T> a_handle)
 	{
-		if constexpr (std::is_same_v<T, CBV>)
-		{
-			return m_CBVAllocator.GetCPU(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, SRV>)
-		{
-			return m_SRVAllocator.GetCPU(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, UAV>)
-		{
-			return m_UAVAllocator.GetCPU(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, RTV>)
-		{
-			return m_RTVAllocator.GetCPU(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, DSV>)
-		{
-			return m_DSVAllocator.GetCPU(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, ImGuiSRV>)
-		{
-			return m_ImGuiSRVAllocator.GetCPU(a_handle);
-		}
-		//else
-		//{
-		//	static_assert(slways_false_v<T>, "Unsupported Heap Type");
-		//	return {};
-		//}
+		return RefAllocator<T>().GetCPU(a_handle);
 	}
+
 	template<IsHeapType T>
 	inline D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetGPU(Handle<T> a_handle)
 	{
-		if constexpr (std::is_same_v<T, CBV>)
-		{
-			return m_CBVAllocator.GetGPU(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, SRV>)
-		{
-			return m_SRVAllocator.GetGPU(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, UAV>)
-		{
-			return m_UAVAllocator.GetGPU(a_handle);
-		}
-		else if constexpr (std::is_same_v<T, ImGuiSRV>)
-		{
-			return m_ImGuiSRVAllocator.GetGPU(a_handle);
-		}
-		//else
-		//{
-		//	static_assert(slways_false_v<T>, "Unsupported Heap Type");
-		//	return {};
-		//}
+		// RTV / DSV のヒープはシェーダーから見えないので、GPUハンドルは存在しない
+		static_assert(!std::is_same_v<T, RTV> && !std::is_same_v<T, DSV>,
+			"DescriptorHeapManager::GetGPU : RTV / DSV はシェーダーから見えないヒープにあります");
+		return RefAllocator<T>().GetGPU(a_handle);
 	}
 }

@@ -27,7 +27,7 @@ namespace Engine::Raytracing
 		const Math::Vector3& a_emissiveAdd
 	)
 	{
-		m_isDrity = true;
+		m_isDirty = true;
 
 		// モデルのノードとメッシュを参照してインスタンスに変換
 		auto* _model = (*m_pResourceManager).Get(a_modelHandle);
@@ -70,10 +70,10 @@ namespace Engine::Raytracing
 					_mat.emissive = _emiColor * a_emissiveScale;
 					_mat.emissiveAdd = a_emissiveAdd;
 					_mat.startIndexLocation = _subset.faceStart * 3;
-					_mat.baseIndex = GetTexHepaIndex(_pMate->baseColorTex);
-					_mat.metaRoughnessIndex = GetTexHepaIndex(_pMate->metaRoughTex);
-					_mat.emissiveIndex = GetTexHepaIndex(_pMate->emissiveTex);
-					_mat.normalIndex = GetTexHepaIndex(_pMate->normalTex);
+					_mat.baseIndex = GetTexHeapIndex(_pMate->baseColorTex);
+					_mat.metaRoughnessIndex = GetTexHeapIndex(_pMate->metaRoughTex);
+					_mat.emissiveIndex = GetTexHeapIndex(_pMate->emissiveTex);
+					_mat.normalIndex = GetTexHeapIndex(_pMate->normalTex);
 
 					_rayInst.submeshMaterials.push_back(_mat);
 				}
@@ -125,7 +125,6 @@ namespace Engine::Raytracing
 				auto* _item = _pool.Ref(a_dynamicDataHandle);
 				if (!_item) continue;
 
-				//_rayInst.pBLAS = &_pMesh->GetRtData().blas;
 				if (_meshDataIdx >= _item->meshDataVec.size()) continue;
 				_rayInst.pBLAS = &_item->meshDataVec[_meshDataIdx].instanceBLAS;
 
@@ -156,10 +155,10 @@ namespace Engine::Raytracing
 					_mat.emissive			= _emiColor * a_emissiveScale;
 					_mat.emissiveAdd		= a_emissiveAdd;
 					_mat.startIndexLocation = _subset.faceStart * 3;
-					_mat.baseIndex			= GetTexHepaIndex(_pMate->baseColorTex);
-					_mat.metaRoughnessIndex = GetTexHepaIndex(_pMate->metaRoughTex);
-					_mat.emissiveIndex		= GetTexHepaIndex(_pMate->emissiveTex);
-					_mat.normalIndex		= GetTexHepaIndex(_pMate->normalTex);
+					_mat.baseIndex			= GetTexHeapIndex(_pMate->baseColorTex);
+					_mat.metaRoughnessIndex = GetTexHeapIndex(_pMate->metaRoughTex);
+					_mat.emissiveIndex		= GetTexHeapIndex(_pMate->emissiveTex);
+					_mat.normalIndex		= GetTexHeapIndex(_pMate->normalTex);
 
 					_rayInst.submeshMaterials.push_back(_mat);
 				}
@@ -173,8 +172,7 @@ namespace Engine::Raytracing
 	void Engine::Raytracing::RayWorld::Init(
 		D3D12::Device* a_pDevice,
 		D3D12::DescriptorHeapManager* a_pHeapManager,
-		D3D12::GraphicsCommandList* a_pCmdList, 
-		uint32_t a_hitGroupNum,
+		D3D12::GraphicsCommandList* a_pCmdList,
 		Resource::ResourceManager* a_pResourceManager
 	)
 	{
@@ -182,16 +180,14 @@ namespace Engine::Raytracing
 		m_pHeapManager = a_pHeapManager;
 		m_pResourceManager = a_pResourceManager;
 
-		// GPU実行のためキューリセット
-		// 仮置き
-		UINT _maxInstanceNum = 1000;
+		// TLAS・インスタンス・マテリアルのバッファはどれも同じ上限で作る
+		constexpr UINT _maxInstanceNum = kMaxInstanceNum;
 
 		// レイワールド構築
 		if (!m_upTLAS)
 		{
 			m_upTLAS = std::make_unique<TLAS>();
 		}
-		m_upTLAS->SetHitGroupNum(a_hitGroupNum);
 		m_upTLAS->Create(a_pDevice, a_pHeapManager, a_pCmdList, _maxInstanceNum);
 
 		// インスタンスデータ作成
@@ -304,7 +300,7 @@ namespace Engine::Raytracing
 	{
 		return m_pHeapManager->GetCPU(m_materialDataBuffer.GetSRVHandle());
 	}
-	int RayWorld::GetTexHepaIndex(const Handle<Resource::Texture>& a_handle) const
+	int RayWorld::GetTexHeapIndex(const Handle<Resource::Texture>& a_handle) const
 	{
 		const auto* _Ntex = (*m_pResourceManager).Get(a_handle);
 		return static_cast<int>(_Ntex->GetSRV().GetIndex());

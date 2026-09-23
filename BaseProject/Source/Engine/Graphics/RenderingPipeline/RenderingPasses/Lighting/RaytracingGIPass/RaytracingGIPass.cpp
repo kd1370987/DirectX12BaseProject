@@ -100,7 +100,7 @@ namespace Engine::Graphics::Pipeline
 			.pRayPSO = &m_rayPSO,
 			.shaderData = _psoInit.shaderDataVec,
 			.hitGroup = _psoInit.hitGroupVec,
-			.maxInstance = 1000,
+			.maxInstance = Raytracing::kMaxInstanceNum,
 			.maxLocalRootSize = 0
 		};
 		m_shaderTable.Init(_pDevice, _shaderTableInit);
@@ -140,7 +140,7 @@ namespace Engine::Graphics::Pipeline
 			static_cast<UINT>(_pOutVirtual->GetWidth()), _pOutVirtual->GetHeight());
 
 		// ディスクリプタヒープセット
-		_pCtx->BindCopyHeapAndSumplerBindLess();
+		_pCtx->BindCopyHeapAndSamplerBindLess();
 
 		// パイプラインとルートシグネチャセット
 		_pCmdList->SetPipelineState1(m_rayPSO.Get());

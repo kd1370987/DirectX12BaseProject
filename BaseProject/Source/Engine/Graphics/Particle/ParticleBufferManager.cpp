@@ -14,23 +14,6 @@ namespace Engine::Particle
 		// ビューの置き場と転送の依頼先を控える : プールは非同期に作られるので、そこまで持ち回る
 		m_pHeapManager = a_pHeapManager;
 		m_pGraphicsEngine = a_pGraphicsEngine;
-
-		// パーティクルのデータとバッファ自体は軽いのでいったん初期化時に全生成
-		//auto _propVec = a_assetDB.GetTypeMetaVec("ParticlesAsset");
-		//for (const auto& _prop : _propVec)
-		//{
-		//	auto _handle = Resource::ParticlesAssetLoader::Load(_prop.guid);
-
-		//	// GPUプールの作成
-		//	m_pools[_handle] = std::make_unique<GPUParticlePool>();
-		//	m_pools[_handle]->Init(a_pDevice, a_pCmdList, _handle);
-
-		//	// エミットデータの空生成
-		//	m_emitRequests[_handle] = std::vector<EmitterData>();
-
-		//	// 構造体バッファの作成
-		//	m_emitBuffer[_handle].Create(a_pDevice, a_pCmdList, 100, nullptr);
-		//}
 	}
 	void ParticleBufferManager::Release()
 	{

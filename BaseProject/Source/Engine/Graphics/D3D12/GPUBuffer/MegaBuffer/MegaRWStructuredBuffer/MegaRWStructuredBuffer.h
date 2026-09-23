@@ -46,7 +46,7 @@ namespace Engine::D3D12
 		void Update(uint64_t a_currentFrameFence);
 
 	private:
-		bool m_isDrty = false;
+		bool m_isDirty = false;
 		RangeAllocator<T> m_rangeAllocator;
 	};
 

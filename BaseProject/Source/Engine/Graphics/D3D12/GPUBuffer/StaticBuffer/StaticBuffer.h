@@ -71,7 +71,7 @@ namespace Engine::D3D12
 
 		/// <summary>
 		/// バッファの指定した範囲だけを更新・GPUへ転送する（メガバッファ用）
-		/// リソース遷移バリアがあるためメインのグラフィックスコマンドリストでの操作が必要
+		/// バリアは張らない(コピー先は COMMON から COPY_DEST へ暗黙に昇格する)
 		/// </summary>
 		/// <param name="a_pCmdList">GPU実行用のコマンドリスト</param>
 		/// <param name="a_destOffsetBytes">書き込み先のバイトオフセット</param>
@@ -85,7 +85,7 @@ namespace Engine::D3D12
 		);
 		/// <summary>
 		/// バッファの指定した範囲だけを更新・GPUへ転送する（メガバッファ用）
-		/// リソース遷移バリアがあるためメインのグラフィックスコマンドリストでの操作が必要
+		/// バリアは張らない(コピー先は COMMON から COPY_DEST へ暗黙に昇格する)
 		/// </summary>
 		/// <param name="a_pCmdList">GPU実行用のコマンドリスト</param>
 		/// <param name="a_startIndex">開始位置 : 内部でのサイズ計算はしてくれてるため純粋なインデックス</param>
@@ -120,7 +120,7 @@ namespace Engine::D3D12
 	protected:
 		// 更新する用のバッファ
 		GPUBuffer m_gpuBuffer;
-		bool m_isDrty = false;
+		bool m_isDirty = false;
 
 		// UploadFrame 用 : GetBufferSize() の区画を CPU_FRAME_COUNT 個並べたアップロードバッファ
 		GPUBuffer m_frameUploadBuffer;

@@ -31,7 +31,7 @@ void RegisterRayWorldSystem::Init(App::ECS::APPWorld& a_world)
 				const ModelComponent& _modelComp = a_pModelArray[_i];
 
 				// レイトレワールドに記録
-				a_ctx.pServices->pRayEngine->RegistModel(
+				a_ctx.pServices->pRayEngine->RegisterModel(
 					_wMatComp.worldMat,
 					_modelComp.handle,
 					_modelComp.colorScale,

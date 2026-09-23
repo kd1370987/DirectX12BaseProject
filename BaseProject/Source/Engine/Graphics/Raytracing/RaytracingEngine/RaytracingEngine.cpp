@@ -60,7 +60,7 @@ namespace Engine::Raytracing
 		_pCmdList->DispatchRays(&_desc);
 	}
 
-	void Engine::Raytracing::RayEngine::RegistModel(
+	void Engine::Raytracing::RayEngine::RegisterModel(
 		const Math::Matrix& a_worldMat,
 		const Engine::Handle<Resource::Model>& a_modelHandle,
 		const Math::Color& a_colorScale,
@@ -99,8 +99,7 @@ namespace Engine::Raytracing
 
 		// レイワールドの作成
 		RefOrCreateWorld();
-		// ヒットグループ数がいるが仮置き
-		m_upRayWorld->Init(a_pDevice,a_pHeapManager,a_pCmdList,2,a_pResourceManager);
+		m_upRayWorld->Init(a_pDevice, a_pHeapManager, a_pCmdList, a_pResourceManager);
 	}
 
 	Engine::Raytracing::RayWorld& Engine::Raytracing::RayEngine::RefOrCreateWorld()
@@ -126,7 +125,7 @@ namespace Engine::Raytracing
 
 	const std::vector<Instance>& Engine::Raytracing::RayEngine::GetInstanceVec()
 	{
-		return m_upRayWorld->GetInstnace();
+		return m_upRayWorld->GetInstanceVec();
 	}
 
 	Engine::Raytracing::RayEngine::RayEngine()

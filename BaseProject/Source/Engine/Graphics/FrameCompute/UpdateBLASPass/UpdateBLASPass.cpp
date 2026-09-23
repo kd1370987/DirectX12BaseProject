@@ -8,10 +8,6 @@
 
 #include "Engine/Graphics/D3D12/CBAllocator/CBAllocator.h"
 
-#include "Engine/Option/OptionManager.h"
-
-#include "Engine/Scene/SceneManager/SceneManager.h"
-
 #include "Engine/ECS/World/World.h"
 #include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 

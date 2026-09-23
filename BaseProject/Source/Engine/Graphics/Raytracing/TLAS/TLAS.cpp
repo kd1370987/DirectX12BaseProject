@@ -117,7 +117,7 @@ void Engine::Raytracing::TLAS::Create(
 	a_pCmdList->BuildRaytracingAccelerationStructure(&_asDesc, 0, nullptr);
 
 
-	// レイトレーシングアクセラレーション構造のビルド官僚待ちのバリア
+	// レイトレーシングアクセラレーション構造のビルド完了待ちのバリア
 	D3D12_RESOURCE_BARRIER _uavBarrier = {};
 	_uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
 	_uavBarrier.UAV.pResource = m_cpResource.Get();

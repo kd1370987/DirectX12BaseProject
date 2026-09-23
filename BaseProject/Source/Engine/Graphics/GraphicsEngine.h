@@ -274,12 +274,11 @@ namespace Engine::Graphics
 		Resource::ResourceManager* RefResourceManager() const { return m_pResourceManager; }
 
 		//--------------------------------------------------------------------------------------------
-		// カメラごとの描画構成(新レンダーグラフ)
+		// カメラごとの描画構成
 		//
-		// 従来のレンダーグラフとは並走する。
-		// パイプラインを持つカメラだけが新しい経路を通り、自分の最終出力テクスチャへ描く。
-		// バックバッファへ出すのは従来経路のままなので、
-		// 全パスの移植が済むまで画面の見た目は変わらない
+		// 描画構成(パイプライン)を持つカメラは、それぞれ自分の最終出力テクスチャへ描く。
+		// 画面へ出すのはメインカメラの絵だけで、それ以外はモニターなどから引いて使う。
+		// 描画構成を持たないカメラは何も描かない
 		//--------------------------------------------------------------------------------------------
 		// 毎フレーム積む。積まなかったカメラはフレームの終わりに捨てられる
 		void SubmitCamera(const CameraSubmitDesc& a_desc);
@@ -334,7 +333,7 @@ namespace Engine::Graphics
 		// 画面へ出す絵。組み上がっていなければ nullptr
 		const Resource::Texture* GetPresentTexture() const;
 
-		// 新経路でパスが出力先として使うリソース名。
+		// パスが出力先として使うリソース名。
 		// この名前で出力スロットを宣言したパスが、カメラの最終出力へ描くことになる
 		static constexpr const char* kCameraOutputName = "CameraOutput";
 
@@ -345,8 +344,9 @@ namespace Engine::Graphics
 		void SetCameraMat(const Math::Matrix& a_worldMat);
 		void SetProjMat(const Math::Matrix& a_projMat);
 
+		// GetCameraData    : GPUへ送る形(転置・ジッター込み)。パスはこちらを読む
+		// GetCPUCameraData : SetCameraMat / SetProjMat で入れたままの行列
 		const CameraData& GetCameraData() const;
-		const CameraData& GetGPUCameraData() const;
 		const CameraData& GetCPUCameraData() const;
 
 		// カメラの割り込み(エディターカメラなど)
@@ -355,6 +355,14 @@ namespace Engine::Graphics
 		// ここに積んでおくと、ECS側の設定が終わった後・GPUデータ作成の直前に適用される。
 		void SetCameraOverride(const Math::Matrix& a_worldMat, const Math::Matrix& a_projMat);
 		void ClearCameraOverride();
+
+		// 描画解像度(バックバッファと同じ大きさ)。
+		// エンジンはオプションを直接引かず、Init で受け取ったこの値を使う
+		UINT GetRenderWidth() const { return m_renderWidth; }
+		UINT GetRenderHeight() const { return m_renderHeight; }
+
+		// TAA用のジッターを掛けるか。設定の持ち主(オプション)から毎フレーム流し込んでもらう
+		void SetJitterEnabled(bool a_isEnabled) { m_isJitterEnabled = a_isEnabled; }
 
 		//--------------------------------------------------------------------------------------------
 		// カメラ発の画面効果(被写界深度 / ラジアルブラー / 魚眼レンズ)
@@ -406,19 +414,26 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// 計算コマンド : スキニング
 		//--------------------------------------------------------------------------------------------
-		
+
+		/// <summary>
+		/// ワールドに積まれたアニメーションモデルの初期化要求(BLAS・アニメ用頂点領域)を処理する。
+		/// そのワールドの描画(PreDraw)より前に呼ぶこと : 描画側は用意された頂点領域の位置を読む
+		/// </summary>
+		/// <param name="a_world">要求を積んだワールド</param>
+		void ProcessDynamicRaytracingInit(ECS::World& a_world);
+
 		/// <summary>
 		/// GPUスキニングさせる命令
 		/// </summary>
 		/// <param name="a_world">ECSワールドポインタ</param>
 		/// <param name="a_pModel">モデルポインタ</param>
 		/// <param name="dynamicHandle">変形後のデータを入れるインスタンス</param>
-		/// <param name="nodePoseHnandle">ノード行列</param>
+		/// <param name="nodePoseHandle">ノード行列</param>
 		void SubmitSkinning(
 			ECS::World& a_world,
 			const Resource::Model* a_pModel,
 			const Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
-			const RangeHandle<Resource::NodePoseMatrix> nodePoseHnandle,
+			const RangeHandle<Resource::NodePoseMatrix> nodePoseHandle,
 			const RangeHandle<Resource::BoneMatrix> boneHandle
 		);
 
@@ -495,13 +510,13 @@ namespace Engine::Graphics
 		/// <param name="a_colorScale">色スケール</param>
 		/// <param name="a_emissiveScale">エミッシブスケール</param>
 		/// <param name="dynamicHandle">ダイナミックリソースハンドル</param>
-		/// <param name="nodePoseHnandle">ノードポーズハンドル</param>
+		/// <param name="nodePoseHandle">ノードポーズハンドル</param>
 		void SubmitModel(
 			const Math::Matrix& a_worldMat,				// ワールド行列
 			const Math::Color& a_colorScale,			// 色スケール
 			const Math::Vector3& a_emissiveScale,		// エミッシブスケール
 			const Engine::Handle<Raytracing::DynamicRaytracingData> dynamicHandle,
-			const Engine::Handle<Resource::NodePoseMatrix> nodePoseHnandle,
+			const Engine::Handle<Resource::NodePoseMatrix> nodePoseHandle,
 			const Math::Vector3& a_emissiveAdd = { 0,0,0 }	// 自己発光(加算)
 		);
 
@@ -631,9 +646,6 @@ namespace Engine::Graphics
 		// カメラをGPU用データに変換
 		void CreateGPUCameraData();
 
-		// レイトレ用BLAS初期化
-		void ProcessInitQueue(D3D12::Device* a_pDevice, D3D12::GraphicsCommandList* a_pCmdList);
-
 		// テクスチャハンドルからSRVのインデックスを取得する
 		int GetSRVIndexFromTextureHandle(const Handle<Resource::Texture>& a_texHandle);
 
@@ -671,7 +683,7 @@ namespace Engine::Graphics
 			PSOKey a_psoKey);
 
 		//--------------------------------------------------------------------------------------------
-		// カメラごとのパイプライン(新レンダーグラフ)
+		// カメラごとのパイプライン
 		//--------------------------------------------------------------------------------------------
 		//--------------------------------------------------------------------------------------------
 		// 設計図が変わったカメラの実行インスタンスを組み直す(フレームの頭)
@@ -695,13 +707,13 @@ namespace Engine::Graphics
 		// メインカメラのパイプラインが描いた絵をバックバッファへ写す
 		void PresentFromPipeline(D3D12::GraphicsCommandList* a_pCmdList);
 
-		// 新パイプラインのモデル描画パスへパス番号を配り直す。
+		// モデルを受け取るパスへパス番号を配り直す。
 		// 取りっぱなしにすると組み直しのたびに番号が枯れるので、
 		// どこか1つでも組み直したら全カメラぶんをまとめて配る
 		void AssignPipelinePassIndices();
 
 		//--------------------------------------------------------------------------------------------
-		// 新パイプラインの、モデルを受け取るパスの一覧
+		// モデルを受け取るパスの一覧(全カメラぶん)
 		//
 		// 描画アイテムはサブセット1つごとにパスの数だけ積むので、この一覧は
 		// 1フレームに何万回も引かれる。毎回集め直すと submit がそれだけで重くなるため、
@@ -792,12 +804,19 @@ namespace Engine::Graphics
 
 		// カメラの割り込み用
 		bool m_isCameraOverride = false;
+
+		// 描画解像度(Init で受け取る。バックバッファと同じ大きさ)
+		UINT m_renderWidth = 0;
+		UINT m_renderHeight = 0;
+
+		// TAA用のジッターを掛けるか(SetJitterEnabled で切り替える)
+		bool m_isJitterEnabled = true;
 		Math::Matrix m_cameraOverrideWorldMat = Math::Matrix::Identity();
 		Math::Matrix m_cameraOverrideProjMat = Math::Matrix::Identity();
 		Math::Matrix m_prevViewMat = {};
 		Math::Matrix m_prevProjMat = {};
 		Math::Matrix m_prevNonJitteredViewProj = {};
-		int m_totlaFrameCount = 0;
+		int m_totalFrameCount = 0;
 
 		// 環境データ
 		AmbientData m_cbAmbient = {};
@@ -917,12 +936,5 @@ namespace Engine::Graphics
 		// カメラが1台も積まれないフレーム(ゲームを止めているとき)でも、
 		// 最後に画面を作っていた構成を借りられるように残しておく
 		Handle<Pipeline::RenderingPipelineAsset> m_lastMainPipelineHandle = {};
-
-		// 画面へ出す絵を新パイプラインから取るか(移植中の見比べ用)
-
-		// 従来のレンダーグラフを回さないといけないか(エフェクトエディターが見ている間)
-
-		// 新パイプラインのパスへ配るパス番号。
-		// 255 から下って使う(従来経路は 0 から上っていく)
 	};
 }

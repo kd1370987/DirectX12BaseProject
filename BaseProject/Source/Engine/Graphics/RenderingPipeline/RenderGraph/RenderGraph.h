@@ -135,8 +135,8 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		// 描画解像度 : スロットの width / height が 0 のときの土台になる。
 		// 実サイズは 「ここの値 × Slot::scale」 で決まる
-		void SetViewportSize(UINT64 a_width, UINT a_height);
-		UINT64 GetViewportWidth() const { return m_viewportWidth; }
+		void SetViewportSize(UINT a_width, UINT a_height);
+		UINT GetViewportWidth() const { return m_viewportWidth; }
 		UINT GetViewportHeight() const { return m_viewportHeight; }
 
 		// グラフの外で作られたリソースを名前で差し込む(バックバッファ・フレームリソースなど)。
@@ -315,7 +315,7 @@ namespace Engine::Graphics::Pipeline
 		std::vector<ResourceBarrier> m_endBarriers = {};
 
 		// 描画解像度 : スロットのサイズが 0 のときの土台
-		UINT64 m_viewportWidth = 0;
+		UINT m_viewportWidth = 0;
 		UINT m_viewportHeight = 0;
 
 		// 検証
