@@ -116,6 +116,13 @@ namespace App::Object
 		// リーダーが地面に潜った / 地面から出た瞬間に、地表へ大きな砂埃(エフェクトプレハブ)を炊く
 		void UpdateBurrowEffect(Engine::GameObject::ObjectContext& a_context);
 
+		//------------------------------------------------------------------------------------------
+		// 体当たりのダメージ
+		//------------------------------------------------------------------------------------------
+		// 調整値とプレイヤーのカプセルを SwarmContactDamageResource へ書く。
+		// 触れたかを見てダメージを積むのは BoidContactDamageSystem
+		void UpdateContactDamage(Engine::GameObject::ObjectContext& a_context);
+
 	private:
 		// 生成されたかどうか
 		bool m_isSpown = false;
@@ -152,6 +159,12 @@ namespace App::Object
 		float m_boidColliderRadius = 1.0f;	// ボイドの判定半径(m)
 		float m_boidHealth         = 10.0f;	// ボイド1体の体力(弾1発で落としたいなら弾のダメージ以下にする)
 		float m_boidReleaseDelay   = 0.5f;	// 落ちてから消えるまでの猶予(秒。死亡演出の尺)
+
+		// 体当たり : ボイド1体ずつがプレイヤーに触れたらダメージを与える(BoidContactDamageSystem)。
+		// 触れる距離はボイドの判定半径(m_boidColliderRadius) + プレイヤーのカプセルの半径。
+		// 体が丸ごと通り抜けると200体ほどが触れるので、1体ぶんは小さめにしてある
+		float m_contactDamage         = 5.0f;	// ボイド1体が1回触れたときのダメージ
+		float m_contactDamageCooldown = 1.0f;	// ダメージを与えたボイドが、次に判定を始めるまでの時間(秒)
 
 		//------------------------------------------------------------------------------------------
 		// 群れの速さ

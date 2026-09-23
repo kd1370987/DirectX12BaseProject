@@ -22,6 +22,7 @@ enum class EHitEventType : uint8_t
 	Bullet,			// 弾が当たった
 	Melee,			// 近接攻撃が当たった
 	Explosion,		// 爆風が当たった
+	Contact,		// 体がぶつかった(群れのボスのボイドなど)
 };
 
 // ヒット1件分の情報

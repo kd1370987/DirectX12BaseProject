@@ -82,6 +82,7 @@
 #include "../../Components/Character/Boss/WarmGroundEffectComponent.h"
 #include "../../Components/Effect/DebrisEmitterComponent.h"
 #include "../../Components/Effect/BallisticComponent.h"
+#include "../../Components/Character/Boss/BoidContactDamageComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -215,6 +216,7 @@
 #include "../../Systems/Update/Update/Boid/BoidGroundEffectSystem.h"
 #include "../../Systems/Update/Update/Effect/DebrisEmitterSystem/DebrisEmitterSystem.h"
 #include "../../Systems/Update/Update/Effect/BallisticSystem/BallisticSystem.h"
+#include "../../Systems/Update/Update/Boid/BoidContactDamageSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -224,6 +226,7 @@
 #include "Application/InstanceResource/HitEventResource.h"
 #include "Application/InstanceResource/WormWaveResource.h"
 #include "Application/InstanceResource/WormGroundEffectResource.h"
+#include "Application/InstanceResource/SwarmContactDamageResource.h"
 
 namespace App::ECS
 {
@@ -342,6 +345,8 @@ namespace App::ECS
 		// エフェクトプレハブ : 破片を撒く / 撒かれた破片を放物線で飛ばして着地させる
 		a_world.RegisterComponent<DebrisEmitterComponent>("DebrisEmitterComponent");
 		a_world.RegisterComponent<BallisticComponent>("BallisticComponent");
+		// ワームの体(ボイド)の体当たり。持つのは次に判定するまでの待ち時間だけ
+		a_world.RegisterComponent<BoidContactDamageComponent>("BoidContactDamageComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -525,6 +530,8 @@ namespace App::ECS
 		a_world.RegisterSystem<DebrisEmitterSystem>();
 		// 撒かれた破片を放物線で飛ばし、地面で跳ねて止める
 		a_world.RegisterSystem<BallisticSystem>();
+		// ワームの体(ボイド)がプレイヤーに触れたらダメージを積む(減らすのは HealthSystem)
+		a_world.RegisterSystem<BoidContactDamageSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
@@ -550,6 +557,8 @@ namespace App::ECS
 		a_world.AddResource<WormWaveResource>();
 		// ワームの体が炊く砂埃の設定(SwarmBossController が書き、BoidGroundEffectSystem が読む)
 		a_world.AddResource<WormGroundEffectResource>();
+		// ワームの体当たりの設定とプレイヤーの形(SwarmBossController が書き、BoidContactDamageSystem が読む)
+		a_world.AddResource<SwarmContactDamageResource>();
 
 		// 初期化
 		a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);

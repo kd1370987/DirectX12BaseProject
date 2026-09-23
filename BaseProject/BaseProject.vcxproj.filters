@@ -2766,6 +2766,9 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidContactDamageSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidGroundEffectSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClCompile>
@@ -4525,6 +4528,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidContactDamageSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\SwarmContactDamageResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Boss\BoidContactDamageComponent.h">
+      <Filter>Source\Application\Components\Character\Boss</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidGroundEffectSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>

@@ -22,6 +22,10 @@
 #include "../../../Components/Collision/Collider.h"
 #include "../../../Components/Collision/SphereCollider.h"
 #include "../../../Components/Character/HealthComponent.h"
+#include "../../../Components/Character/Boss/BoidContactDamageComponent.h"
+#include "../../../Components/Collision/CapsuleCollider.h"
+#include "../../../Components/Tag/PlayerControllTag.h"
+#include "../../../InstanceResource/SwarmContactDamageResource.h"
 #include "Engine/ECS/Component/CollisionEvent.h"
 #include "../../../Components/Character/BoidComponent.h"
 #include "../../../Components/Character/LookAngleComponent.h"
@@ -199,6 +203,9 @@ namespace App::Object
 		// リーダーが潜った / 出た瞬間の大きな砂埃
 		UpdateBurrowEffect(a_context);
 
+		// 体当たりのダメージ(触れたかを見るのは BoidContactDamageSystem)
+		UpdateContactDamage(a_context);
+
 		// 残りの生存数(HP代わり)。印を数え直すだけ
 		m_currentBoids = CountAliveBoids(a_context);
 	}
@@ -305,6 +312,56 @@ namespace App::Object
 	float SwarmBossController::GetWormLength() const
 	{
 		return m_tailAlongWorm;
+	}
+
+	//======================================================================================
+	// 体当たりのダメージ : 調整値とプレイヤーのカプセルを ECS 側へ書く
+	//--------------------------------------------------------------------------------------
+	// プレイヤーは1体(操作している機体)。カプセルを持っていなければ、
+	// 位置だけの点(半径0)として扱う。見つからなければ何もさせない
+	//======================================================================================
+	void SwarmBossController::UpdateContactDamage(Engine::GameObject::ObjectContext& a_context)
+	{
+		if (!a_context.pWorld) return;
+		auto& _world = *a_context.pWorld;
+		if (!_world.HasResource<SwarmContactDamageResource>()) return;
+
+		auto& _res = _world.GetResource<SwarmContactDamageResource>();
+		_res.damage     = m_contactDamage;
+		_res.cooldown   = m_contactDamageCooldown;
+		_res.boidRadius = m_boidColliderRadius;
+		_res.Clear();
+
+		// 操作しているプレイヤー
+		Engine::ECS::Entity _player = Engine::ECS::Limits::INVALID_ENTITY;
+		_world.ForEach<const ActiveTag, const PlayerControllTag>(
+			[&](Engine::ECS::Chunk* a_pChunk, uint32_t a_count, const ActiveTag*, const PlayerControllTag*)
+			{
+				if (_player != Engine::ECS::Limits::INVALID_ENTITY || a_count == 0) return;
+				_player = a_pChunk->entityData[0];
+			}
+		);
+		if (_player == Engine::ECS::Limits::INVALID_ENTITY) return;
+		if (!_world.HasComponent<LocalTransformComponent>(_player)) return;
+
+		// カプセルは縦の線分 + 半径(CapsuleCollisionSystem と同じ組み方)。
+		// プレイヤーは親を持たないので、ローカル座標がそのままワールド座標
+		Math::Vector3 _center = _world.RefData<LocalTransformComponent>(_player)->pos;
+		Math::Vector3 _half   = {};
+		float _radius = 0.0f;
+		if (_world.HasComponent<CapsuleColliderComponent>(_player))
+		{
+			const auto* _pCapsule = _world.RefData<CapsuleColliderComponent>(_player);
+			_center += Math::Vector3(_pCapsule->offset);
+			_half    = Math::Vector3(0.0f, _pCapsule->height * 0.5f, 0.0f);
+			_radius  = _pCapsule->radius;
+		}
+
+		_res.player         = _player;
+		_res.playerSegmentA = _center - _half;
+		_res.playerSegmentB = _center + _half;
+		_res.playerRadius   = _radius;
+		_res.isActive       = true;
 	}
 
 	//======================================================================================
@@ -680,6 +737,9 @@ namespace App::Object
 			// ボスの体である印。Controller はこれを数えて体力にする
 			EnsureRootComponent<SwarmBossBoidTag>(_world, _instanceVec);
 
+			// 体当たりのダメージ(BoidContactDamageSystem)。持つのは待ち時間だけ
+			EnsureRootComponent<BoidContactDamageComponent>(_world, _instanceVec);
+
 			// 地面の近く・地面の中で砂埃を炊く番を待つ時間(BoidGroundEffectSystem)。
 			// 最初の番をばらしておき、全員が同じフレームにレイを打たないようにする
 			EditRootComponent<WarmGroundEffectComponent>(_world, _instanceVec,
@@ -818,6 +878,8 @@ namespace App::Object
 		a_ar.Field("BoidColliderRadius", m_boidColliderRadius);
 		a_ar.Field("BoidHealth", m_boidHealth);
 		a_ar.Field("BoidReleaseDelay", m_boidReleaseDelay);
+		a_ar.Field("ContactDamage", m_contactDamage);
+		a_ar.Field("ContactDamageCooldown", m_contactDamageCooldown);
 
 		// ---- 速さの配分 ----
 		a_ar.Field("LeaderSpeed", m_leaderSpeed);
@@ -893,6 +955,10 @@ namespace App::Object
 		ImGui::DragFloat("Boid Health", &m_boidHealth, 1.0f, 0.0f);
 		ImGui::DragFloat("Boid Release Delay", &m_boidReleaseDelay, 0.05f, 0.0f);
 		ImGui::TextDisabled("Hit : player attacks only (passes through terrain)");
+
+		ImGui::DragFloat("Contact Damage", &m_contactDamage, 0.5f, 0.0f);
+		ImGui::DragFloat("Contact Cooldown", &m_contactDamageCooldown, 0.05f, 0.0f);
+		ImGui::TextDisabled("Per boid : touch player -> damage, then no check for cooldown sec");
 
 		ImGui::SeparatorText("Speed");
 		ImGui::DragFloat("Leader Speed", &m_leaderSpeed, 0.5f, 0.0f);
