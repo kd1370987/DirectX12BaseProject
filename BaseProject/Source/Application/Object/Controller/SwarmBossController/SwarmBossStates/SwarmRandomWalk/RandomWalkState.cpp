@@ -104,14 +104,32 @@ namespace App::Object
 
 	ESwarmBossState SwarmBossRandomWalkState::PickAttack() const
 	{
-		const float _charge = std::max(m_chargeWeight, 0.0f);
-		const float _uper   = std::max(m_uperAttackWeight, 0.0f);
-		const float _total  = _charge + _uper;
+		// 攻撃と重みの組。足すときはここに並べる
+		const std::pair<ESwarmBossState, float> _table[] =
+		{
+			{ ESwarmBossState::Charge,     std::max(m_chargeWeight, 0.0f) },
+			{ ESwarmBossState::UperAttack, std::max(m_uperAttackWeight, 0.0f) },
+			{ ESwarmBossState::DiveAttack, std::max(m_diveAttackWeight, 0.0f) },
+		};
+
+		float _total = 0.0f;
+		for (const auto& [_state, _weight] : _table) _total += _weight;
 		if (_total <= 0.0f) return ESwarmBossState::Charge;
 
-		return (Math::Random::Float(0.0f, _total) < _charge)
-			? ESwarmBossState::Charge
-			: ESwarmBossState::UperAttack;
+		// 0〜合計の中で引いた値が、どの重みの区間に入ったか
+		float _pick = Math::Random::Float(0.0f, _total);
+		for (const auto& [_state, _weight] : _table)
+		{
+			if (_pick < _weight) return _state;
+			_pick -= _weight;
+		}
+
+		// 浮動小数の誤差で最後を越えたときは、重みを持つ最後のもの
+		for (auto _it = std::rbegin(_table); _it != std::rend(_table); ++_it)
+		{
+			if (_it->second > 0.0f) return _it->first;
+		}
+		return ESwarmBossState::Charge;
 	}
 
 	void SwarmBossRandomWalkState::Archive(Engine::Persistence::Archive& a_ar)
@@ -127,6 +145,7 @@ namespace App::Object
 		a_ar.Field("AttackIntervalMax", m_maxDurationTime);
 		a_ar.Field("AttackWeightCharge", m_chargeWeight);
 		a_ar.Field("AttackWeightUperAttack", m_uperAttackWeight);
+		a_ar.Field("AttackWeightDiveAttack", m_diveAttackWeight);
 	}
 
 	void SwarmBossRandomWalkState::DrawInspector()
@@ -140,6 +159,7 @@ namespace App::Object
 		ImGui::DragFloat("Attack Interval Max", &m_maxDurationTime, 0.1f, 0.0f);
 		ImGui::DragFloat("Weight Charge", &m_chargeWeight, 0.05f, 0.0f);
 		ImGui::DragFloat("Weight Uper Attack", &m_uperAttackWeight, 0.05f, 0.0f);
+		ImGui::DragFloat("Weight Dive Attack", &m_diveAttackWeight, 0.05f, 0.0f);
 
 		// 目標地点は毎フレーム上書きされるので表示のみ
 		ImGui::Text("Target  : %.1f, %.1f, %.1f (next %.1f s)",

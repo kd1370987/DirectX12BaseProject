@@ -47,13 +47,13 @@ namespace App::Object
 		//------------------------------------------------------------------------------------------
 		// 調整値
 		//------------------------------------------------------------------------------------------
-		float m_windupTime        = 1.0f;	// 溜めの長さ(秒)
+		float m_windupTime        = 1.2f;	// 溜めの長さ(秒)
 		float m_windupThrottle    = 0.3f;	// 溜め中の移動入力の強さ(0〜1。向きを合わせるのに少しは動かす)
-		float m_chargeSpeedScale  = 1.5f;	// 突進の速さ(リーダーの移動速度に対する倍率)
-		float m_homingTurnSpeed   = 0.5f;	// 突進中に曲がれる速さ(ラジアン/秒。0で直進)
-		float m_maxChargeTime     = 4.0f;	// 突進の最長時間(秒。外れても止まるように)
-		float m_overshootDistance = 30.0f;	// プレイヤーをこの距離だけ通り過ぎたら突進をやめる
-		float m_recoverTime       = 1.5f;	// 余韻の長さ(秒)
+		float m_chargeSpeedScale  = 1.8f;	// 突進の速さ(リーダーの移動速度に対する倍率)
+		float m_homingTurnSpeed   = 0.4f;	// 突進中に曲がれる速さ(ラジアン/秒。0で直進)
+		float m_maxChargeTime     = 5.0f;	// 突進の最長時間(秒。外れても止まるように)
+		float m_overshootDistance = 80.0f;	// プレイヤーをこの距離だけ通り過ぎたら突進をやめる
+		float m_recoverTime       = 2.0f;	// 余韻の長さ(秒)
 		float m_recoverThrottle   = 0.6f;	// 余韻中の移動入力の強さ(0〜1)
 
 		//------------------------------------------------------------------------------------------

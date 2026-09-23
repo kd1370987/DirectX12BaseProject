@@ -125,12 +125,12 @@ namespace App::Object
 		Engine::GUID m_platoonPrefabGUID = {};							// 小隊長のプレハブ(保存用)
 		Engine::ResourceRef<Engine::Resource::Prefab> m_platoonPrefab;	// 小隊長のプレハブ(ランタイム用)
 		std::vector<Engine::ECS::Entity> m_platoonLeaderEntities = {};	// 生存している小隊長
-		uint32_t m_maxPlatoonLeader = 0;								// 最大小隊長数
+		uint32_t m_maxPlatoonLeader = 100;								// 最大小隊長数
 
 		// 自身の体を構成しているボイド数 : タグをつけて収集 操作などはしない
 		// 出すボイドのプレハブと広さは小隊長プレハブの BoidSpownerComponent が持つ
 		uint32_t m_currentBoids = 0;									// 残りの生存数 : HP代わり
-		uint32_t m_maxBoid = 0;											// 最大生成数 : 小隊長の数で割って振り分ける
+		uint32_t m_maxBoid = 4000;											// 最大生成数 : 小隊長の数で割って振り分ける
 
 		//------------------------------------------------------------------------------------------
 		// ボイドの当たり判定と体力
@@ -152,10 +152,16 @@ namespace App::Object
 		//   リーダー  … MovementComponent.moveSpeed
 		//   小隊長    … MovementComponent.moveSpeed(リーダー × platoonSpeedScale)
 		//   ボイド    … BoidComponent.maxSpeed(リーダー × boidSpeedScale)
+		//
+		// 既定値はプレイヤー(歩き 25 / ブースト 50 / チャージダッシュ 90 m/秒)に合わせてある。
+		//   徘徊   … 35 m/秒。歩きよりは速く、ブーストなら振り切れる
+		//   攻撃   … 突進・地中移動 ×1.8 = 63、突き上げ・急降下 ×2.0 = 70 m/秒。
+		//            ブーストでは逃げ切れず、チャージダッシュなら避けられる
+		//   小隊長 … 攻撃の最大倍率(2.0)より上の ×2.2 にしてある。下回ると攻撃中に列が千切れる
 		//------------------------------------------------------------------------------------------
-		float m_leaderSpeed       = 20.0f;	// リーダーの移動速度(units/秒)
-		float m_platoonSpeedScale = 1.6f;	// 小隊長の速さ(リーダーに対する倍率。1未満だと離される)
-		float m_boidSpeedScale    = 2.2f;	// ボイドの速さ(リーダーに対する倍率)
+		float m_leaderSpeed       = 35.0f;	// リーダーの移動速度(units/秒)
+		float m_platoonSpeedScale = 2.2f;	// 小隊長の速さ(リーダーに対する倍率。1未満だと離される)
+		float m_boidSpeedScale    = 3.0f;	// ボイドの速さ(リーダーに対する倍率)
 
 		//------------------------------------------------------------------------------------------
 		// ボスの行動
@@ -176,9 +182,9 @@ namespace App::Object
 		// 間に WormWaveResource を挟んでいるのは、オブジェクト側で ECS を全走査すると
 		// チャンク単位で回れず、体数ぶんそのまま重くなるため
 		//------------------------------------------------------------------------------------------
-		float m_waveSpeed    = 60.0f;	// ウェーブが尾へ進む速さ(m/秒)
-		float m_waveInterval = 1.2f;	// 新しいウェーブを出す周期(秒)
-		float m_waveWidth    = 12.0f;	// 帯の幅(m)。ウェーブからこの距離でベース値に戻る
+		float m_waveSpeed    = 150.0f;	// ウェーブが尾へ進む速さ(m/秒)
+		float m_waveInterval = 0.8f;	// 新しいウェーブを出す周期(秒)
+		float m_waveWidth    = 15.0f;	// 帯の幅(m)。ウェーブからこの距離でベース値に戻る
 		uint32_t m_maxWave   = 8;		// 同時に走らせる本数の上限(周期が短いと並ぶ)
 
 		float m_waveBaseIntensity = 0.5f;	// ウェーブが来ていないときの発光の強さ

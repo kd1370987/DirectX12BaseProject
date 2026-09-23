@@ -53,18 +53,18 @@ namespace App::Object
 		// 潜る
 		float m_burrowDepth         = 30.0f;	// 地表からこの深さまで潜る(体が地表から出ないように)
 		float m_depthTolerance      = 5.0f;		// 狙いの深さからこの範囲に入ったら地中移動へ
-		float m_burrowForward       = 10.0f;	// 潜りながらプレイヤーの方へ進む量(水平。0で真下へ潜る)
+		float m_burrowForward       = 20.0f;	// 潜りながらプレイヤーの方へ進む量(水平。0で真下へ潜る)
 		float m_burrowThrottle      = 1.0f;		// 潜るときの移動入力の強さ(0〜1)
-		float m_burrowMaxTime       = 4.0f;		// 潜る最長時間(秒。地面に入れなければ徘徊へ戻る)
+		float m_burrowMaxTime       = 5.0f;		// 潜る最長時間(秒。地面に入れなければ徘徊へ戻る)
 
 		// 地中移動
-		float m_approachSpeedScale  = 1.5f;		// 地中移動の速さ(リーダーの移動速度に対する倍率)
-		float m_underDistance       = 3.0f;		// プレイヤーとの水平距離がこれ以下で真下に来たとみなす
+		float m_approachSpeedScale  = 1.8f;		// 地中移動の速さ(リーダーの移動速度に対する倍率)
+		float m_underDistance       = 5.0f;		// プレイヤーとの水平距離がこれ以下で真下に来たとみなす
 		float m_approachMaxTime     = 6.0f;		// 地中移動の最長時間(秒。間に合わなければその場で突き上げる)
 
 		// 突き上げ
-		float m_uperSpeedScale      = 1.5f;		// 突き上げの速さ(リーダーの移動速度に対する倍率)
-		float m_overshootHeight     = 30.0f;	// プレイヤーの高さをこれだけ越えたら突き上げをやめる
+		float m_uperSpeedScale      = 2.0f;		// 突き上げの速さ(リーダーの移動速度に対する倍率)
+		float m_overshootHeight     = 60.0f;	// プレイヤーの高さをこれだけ越えたら突き上げをやめる
 		float m_uperMaxTime         = 3.0f;		// 突き上げの最長時間(秒)
 
 		// 余韻

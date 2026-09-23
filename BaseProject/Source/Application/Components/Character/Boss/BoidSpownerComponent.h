@@ -18,7 +18,7 @@ struct BoidSpownerComponent
 {
 	Engine::GUID boidPrefabGUID = {};					// 出すボイド(保存される)
 	Engine::Handle<Engine::Resource::Prefab> prefab;	// ランタイム用(初回生成時に解決)
-	float spawnRadius = 5.0f;							// 自分を中心にこの半径の球内へばらまく(保存される)
+	float spawnRadius = 10.0f;							// 自分を中心にこの半径の球内へばらまく(保存される)
 };
 
 template<>

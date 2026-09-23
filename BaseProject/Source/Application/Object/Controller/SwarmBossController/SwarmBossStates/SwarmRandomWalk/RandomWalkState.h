@@ -35,19 +35,20 @@ namespace App::Object
 		//------------------------------------------------------------------------------------------
 		// 調整値
 		//------------------------------------------------------------------------------------------
-		float m_wanderRadius   = 60.0f;		// 生成位置からこの半径内で目標地点を選ぶ(水平)
-		float m_wanderHeight   = 20.0f;		// 高さの振れ幅(生成位置から ±m)
-		float m_wanderInterval = 6.0f;		// 目標地点を選び直す間隔(秒)
-		float m_arriveDistance = 8.0f;		// この距離まで近づいたら次の目標地点へ
+		float m_wanderRadius   = 200.0f;	// 生成位置からこの半径内で目標地点を選ぶ(水平)
+		float m_wanderHeight   = 60.0f;		// 高さの振れ幅(生成位置から ±m)
+		float m_wanderInterval = 10.0f;		// 目標地点を選び直す間隔(秒)
+		float m_arriveDistance = 20.0f;		// この距離まで近づいたら次の目標地点へ
 		float m_throttle       = 1.0f;		// 移動入力の強さ(0〜1)
 
 		// 攻撃には一定時間で遷移する(入るたびに最低〜最大の間で抽選)
-		float m_maxDurationTime = 12.0f;	// 次に攻撃に移行するまでの最大時間(秒)
-		float m_minDurationTime = 6.0f;		// 最低時間(秒)
+		float m_maxDurationTime = 14.0f;	// 次に攻撃に移行するまでの最大時間(秒)
+		float m_minDurationTime = 8.0f;		// 最低時間(秒)
 
 		// 攻撃の抽選の重み(0で出さない。全部0なら突進)
 		float m_chargeWeight    = 1.0f;		// 突進
 		float m_uperAttackWeight = 1.0f;	// アッパー(地中から突き上げ)
+		float m_diveAttackWeight = 1.0f;	// ダイブ(放物線で急降下)
 
 		//------------------------------------------------------------------------------------------
 		// 実行中の状態(保存しない)
