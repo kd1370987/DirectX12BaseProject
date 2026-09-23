@@ -1624,6 +1624,12 @@
     <Filter Include="Source\Engine\Physics\Core\PysicsObjectLayerPairFilter">
       <UniqueIdentifier>{a288b10f-d350-4929-af84-199ba965e86f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack">
+      <UniqueIdentifier>{9cb6d12e-1367-4f68-b5ef-6b82cbbea5f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack">
+      <UniqueIdentifier>{c84ab895-c4e1-476c-ac0b-026cf4016047}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\BuiltinCompositeNodes.cpp">
@@ -2774,6 +2780,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Archetype\ArchetypeManager.cpp">
       <Filter>Source\Engine\ECS\Archetype</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack\UperAttack.cpp">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.cpp">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -4534,6 +4546,13 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Archetype\ArchetypeManager.h">
       <Filter>Source\Engine\ECS\Archetype</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Boss\SwarmBossWave.h" />
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack\UperAttack.h">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.h">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

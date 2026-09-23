@@ -37,7 +37,8 @@ namespace App::Object
 		// 時間が来たら攻撃へ(切り替わるのは次のフレーム。それまでは徘徊を続ける)
 		if (m_time >= m_attackTime && a_context.pMachine)
 		{
-			a_context.pMachine->RequestChangeState(ESwarmBossState::Charge);
+			//a_context.pMachine->RequestChangeState(ESwarmBossState::Charge);
+			a_context.pMachine->RequestChangeState(ESwarmBossState::UperAttack);
 		}
 
 		const auto _leader = a_context.leaderEntity;
