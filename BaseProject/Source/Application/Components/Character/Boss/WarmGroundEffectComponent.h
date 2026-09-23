@@ -2,13 +2,17 @@
 
 //==========================================================================================
 // WarmGroundEffectComponent
-// 
-// 砂漠で潜った際に地表にエフェクトを炊く際のコンポーネント
+//
+// 砂漠でワームの体(ボイド)が地面の近く・地面の中に居るときに、地表へ砂埃を炊くための状態
+//
+// ・付けるのは SwarmBossController(ボイドの生成時)。プレハブには入れない。
+// ・持つのは次に炊くまでの残り時間だけ。どのエフェクトをどう出すかは
+//   WormGroundEffectResource(SwarmBossController が書く)にまとめてあり、4000体で共有する。
+// ・レイを打ってエフェクトを出すのは BoidGroundEffectSystem。
+//   残り時間が切れたボイドだけがレイを打つ。生成時にばらしておくので、全員が同じフレームに揃わない。
+// ・実行中の値だけなので保存しない。
 //==========================================================================================
-struct BoidLeaderComponent
+struct WarmGroundEffectComponent
 {
-	Math::Ray upRay;			// 上方向にレイを打って地面があるかチェック
-	float maxDistance = 100;	// 最大射程
-
-	Engine::Handle<Engine::Resource::EffectAsset> effectHandle;
+	float timer = 0.0f;		// 次に炊くまでの残り時間(秒)
 };

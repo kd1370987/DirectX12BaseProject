@@ -4,6 +4,7 @@
 #include "Engine/ECS/System/SystemContext.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/Prefab/Prefab.h"
+#include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
 #include "Engine/Editor/Helper/EditorHelper.h"	// コンポーネントの Traits が使うので先に置く
 
 // App
@@ -28,6 +29,8 @@
 #include "../../../Components/Character/Boss/BoidSpownerComponent.h"
 #include "../../../Components/Character/SerchGroundComponent.h"
 #include "../../../InstanceResource/WormWaveResource.h"
+#include "../../../InstanceResource/WormGroundEffectResource.h"
+#include "../../../Components/Character/Boss/WarmGroundEffectComponent.h"
 
 namespace App::Object
 {
@@ -58,6 +61,23 @@ namespace App::Object
 			std::memcpy(&_comp, _pBuf, sizeof(T));
 			a_func(_comp);
 			std::memcpy(_pBuf, &_comp, sizeof(T));
+			return true;
+		}
+
+		//----------------------------------------------------------------------
+		// 出し切ったら終わるエフェクトか(パーツが全部、長さを持っているか)。
+		// 長さ0のパーツは出しっぱなしで終わらない
+		//----------------------------------------------------------------------
+		bool IsOneShotEffect(const Engine::Resource::EffectAsset& a_effect)
+		{
+			for (const auto& _part : a_effect.GetParticleParts())
+			{
+				if (_part.IsValid() && _part.timing.duration <= 0.0f) return false;
+			}
+			for (const auto& _part : a_effect.GetMeshParts())
+			{
+				if (_part.IsValid() && _part.timing.duration <= 0.0f) return false;
+			}
 			return true;
 		}
 
@@ -171,6 +191,9 @@ namespace App::Object
 		// 体を走る発光のウェーブ(書き込むのは BoidWaveSystem)
 		UpdateWave(a_context);
 
+		// 地面の近く・地面の中で炊く砂埃(炊くのは BoidGroundEffectSystem)
+		UpdateGroundEffect(a_context);
+
 		// 残りの生存数(HP代わり)。印を数え直すだけ
 		m_currentBoids = CountAliveBoids(a_context);
 	}
@@ -277,6 +300,42 @@ namespace App::Object
 	float SwarmBossController::GetWormLength() const
 	{
 		return m_tailAlongWorm;
+	}
+
+	//======================================================================================
+	// 砂埃 : 調整値を ECS 側へ書き写す
+	//--------------------------------------------------------------------------------------
+	// 4000体ぶんのレイとエフェクトの生成は BoidGroundEffectSystem。
+	// 1フレームに出した数はここで毎フレーム0に戻す(上限を数え直す)
+	//======================================================================================
+	void SwarmBossController::UpdateGroundEffect(Engine::GameObject::ObjectContext& a_context)
+	{
+		if (!a_context.pWorld) return;
+		if (!a_context.pWorld->HasResource<WormGroundEffectResource>()) return;
+
+		auto& _res = a_context.pWorld->GetResource<WormGroundEffectResource>();
+
+		_res.effectGUID       = m_groundEffectGUID;
+		_res.maxHeight        = m_groundEffectMaxHeight;
+		_res.maxDepth         = m_groundEffectMaxDepth;
+		_res.nearScale        = m_groundEffectNearScale;
+		_res.farScale         = m_groundEffectFarScale;
+		_res.underScale       = m_groundEffectUnderScale;
+		_res.interval         = m_groundEffectInterval;
+		_res.maxSpawnPerFrame = m_groundEffectMaxSpawnPerFrame;
+		_res.spawnedThisFrame = 0;
+
+		// 炊けるのは、読み込みが済んでいて、出し切って消える単発のものだけ。
+		// 出しっぱなしのパーツがあると destroyOnFinish で消えず、毎秒数百体ずつ溜まっていく
+		m_isGroundEffectOneShot = false;
+		if (m_groundEffectRef && a_context.pServices && a_context.pServices->pResourceManager)
+		{
+			if (const auto* _pEffect = a_context.pServices->pResourceManager->Get(m_groundEffectRef))
+			{
+				m_isGroundEffectOneShot = IsOneShotEffect(*_pEffect);
+			}
+		}
+		_res.isActive = m_isGroundEffectOneShot;
 	}
 
 	//======================================================================================
@@ -552,6 +611,15 @@ namespace App::Object
 			// ボスの体である印。Controller はこれを数えて体力にする
 			EnsureRootComponent<SwarmBossBoidTag>(_world, _instanceVec);
 
+			// 地面の近く・地面の中で砂埃を炊く番を待つ時間(BoidGroundEffectSystem)。
+			// 最初の番をばらしておき、全員が同じフレームにレイを打たないようにする
+			EditRootComponent<WarmGroundEffectComponent>(_world, _instanceVec,
+				[this](WarmGroundEffectComponent& a_comp)
+				{
+					a_comp.timer = Math::Random::Float(0.0f, std::max(m_groundEffectInterval, 0.01f));
+				}
+			);
+
 			// 当たり判定
 			EditRootComponent<ColliderComponent>(_world, _instanceVec,
 				[&](ColliderComponent& a_comp)
@@ -701,6 +769,24 @@ namespace App::Object
 		a_ar.Field("WavePeakIntensity", m_wavePeakIntensity);
 		a_ar.Field("WaveBaseColor", m_waveBaseColor);
 		a_ar.Field("WavePeakColor", m_wavePeakColor);
+
+		// ---- 砂埃 ----
+		a_ar.GUIDField("GroundEffectGUID", m_groundEffectGUID);
+		a_ar.Field("GroundEffectMaxHeight", m_groundEffectMaxHeight);
+		a_ar.Field("GroundEffectMaxDepth", m_groundEffectMaxDepth);
+		a_ar.Field("GroundEffectNearScale", m_groundEffectNearScale);
+		a_ar.Field("GroundEffectFarScale", m_groundEffectFarScale);
+		a_ar.Field("GroundEffectUnderScale", m_groundEffectUnderScale);
+		a_ar.Field("GroundEffectInterval", m_groundEffectInterval);
+		a_ar.Field("GroundEffectMaxSpawnPerFrame", m_groundEffectMaxSpawnPerFrame);
+
+		// 炊くたびに読み込みが走らないよう、読んだ時点で握っておく
+		if (a_ar.IsLoading() && a_context.pServices && a_context.pServices->pResourceManager)
+		{
+			m_groundEffectRef = (m_groundEffectGUID != Engine::DefaultGUID)
+				? a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_groundEffectGUID)
+				: Engine::ResourceRef<Engine::Resource::EffectAsset>{};
+		}
 	}
 
 	//======================================================================================
@@ -732,7 +818,7 @@ namespace App::Object
 		ImGui::DragFloat("Boid Collider Radius", &m_boidColliderRadius, 0.05f, 0.0f);
 		ImGui::DragFloat("Boid Health", &m_boidHealth, 1.0f, 0.0f);
 		ImGui::DragFloat("Boid Release Delay", &m_boidReleaseDelay, 0.05f, 0.0f);
-		ImGui::TextDisabled("Hit : boid vs boid / player attacks only");
+		ImGui::TextDisabled("Hit : player attacks only (passes through terrain)");
 
 		ImGui::SeparatorText("Speed");
 		ImGui::DragFloat("Leader Speed", &m_leaderSpeed, 0.5f, 0.0f);
@@ -762,6 +848,38 @@ namespace App::Object
 				GetWormLength(), (GetWormLength() + m_waveWidth) / m_waveSpeed, m_waveInterval);
 		}
 		ImGui::Text("Running : %u", static_cast<uint32_t>(m_waveVec.size()));
+
+		ImGui::SeparatorText("Ground Effect");
+		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			_services, "Ground Effect", "EffectAsset", m_groundEffectGUID))
+		{
+			m_groundEffectRef = (m_groundEffectGUID != Engine::DefaultGUID)
+				? _services.pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_groundEffectGUID)
+				: Engine::ResourceRef<Engine::Resource::EffectAsset>{};
+		}
+		if (m_groundEffectGUID == Engine::DefaultGUID)
+		{
+			ImGui::TextDisabled("(not set : no dust)");
+		}
+		else if (!m_isGroundEffectOneShot)
+		{
+			ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.2f, 1.0f),
+				"Loading, or has a part with Duration 0 (never ends) : not spawned");
+		}
+		ImGui::DragFloat("Effect Max Height", &m_groundEffectMaxHeight, 0.5f, 0.0f);
+		ImGui::DragFloat("Effect Max Depth", &m_groundEffectMaxDepth, 1.0f, 0.0f);
+		ImGui::DragFloat("Effect Near Scale", &m_groundEffectNearScale, 0.01f, 0.0f);
+		ImGui::DragFloat("Effect Far Scale", &m_groundEffectFarScale, 0.01f, 0.0f);
+		ImGui::DragFloat("Effect Under Scale", &m_groundEffectUnderScale, 0.01f, 0.0f);
+		ImGui::DragFloat("Effect Interval", &m_groundEffectInterval, 0.05f, 0.01f);
+		ImGui::InputScalar("Effect Max Per Frame", ImGuiDataType_U32, &m_groundEffectMaxSpawnPerFrame);
+
+		// 間隔が来たボイドだけがレイを打つので、1フレームの本数の目安を出しておく
+		if (m_groundEffectInterval > 0.0f)
+		{
+			ImGui::TextDisabled("Rays : about %.0f boids / s (up to 2 rays each)",
+				static_cast<float>(m_maxBoid) / m_groundEffectInterval);
+		}
 
 		// ここから下は実行中の状態なので表示のみ
 		ImGui::SeparatorText("Runtime");

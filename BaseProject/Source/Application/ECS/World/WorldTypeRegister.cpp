@@ -79,6 +79,7 @@
 #include "../../Components/Character/Boss/BoidSpownerComponent.h"
 #include "../../Components/Tag/SwarmBossBoidTag.h"
 #include "../../Components/Character/SerchGroundComponent.h"
+#include "../../Components/Character/Boss/WarmGroundEffectComponent.h"
 
 // システム関連
 #include "Application/Systems/Init/PostDeserialize/ModelFixupSystem/ModelFixupSystem.h"
@@ -209,6 +210,7 @@
 #include "../../Systems/Update/Update/Boid/SwarmLeaderMoveSystem.h"
 #include "../../Systems/Update/Update/Boid/BoidWaveSystem.h"
 #include "../../Systems/Update/Update/Boid/SerchGroundSystem.h"
+#include "../../Systems/Update/Update/Boid/BoidGroundEffectSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -217,6 +219,7 @@
 #include "../../InstanceResource/AdditiveBoneEntry.h"
 #include "Application/InstanceResource/HitEventResource.h"
 #include "Application/InstanceResource/WormWaveResource.h"
+#include "Application/InstanceResource/WormGroundEffectResource.h"
 
 namespace App::ECS
 {
@@ -330,6 +333,8 @@ namespace App::ECS
 		a_world.RegisterComponent<SwarmBossBoidTag>("SwarmBossBoidTag");
 		// 上下にレイを打って地面との関係を持つ(今はワームボスのリーダーが使う)
 		a_world.RegisterComponent<SerchGroundComponent>("SerchGroundComponent");
+		// ワームの体(ボイド)が砂埃を炊く番を待つ時間。付けるのは SwarmBossController
+		a_world.RegisterComponent<WarmGroundEffectComponent>("WarmGroundEffectComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -507,6 +512,8 @@ namespace App::ECS
 		a_world.RegisterSystem<BoidWaveSystem>();
 		// 上下にレイを打って地表の高さと地中に居るかを書く(ワームボスのアッパー攻撃が読む)
 		a_world.RegisterSystem<SerchGroundSystem>();
+		// ワームの体(ボイド)から上下にレイを打ち、地表へ砂埃を炊く(設定は SwarmBossController)
+		a_world.RegisterSystem<BoidGroundEffectSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
@@ -530,6 +537,8 @@ namespace App::ECS
 		a_world.AddResource<WaveAnnounceResource>();
 		a_world.AddResource<FlyingSoundResource>();
 		a_world.AddResource<WormWaveResource>();
+		// ワームの体が炊く砂埃の設定(SwarmBossController が書き、BoidGroundEffectSystem が読む)
+		a_world.AddResource<WormGroundEffectResource>();
 
 		// 初期化
 		a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);

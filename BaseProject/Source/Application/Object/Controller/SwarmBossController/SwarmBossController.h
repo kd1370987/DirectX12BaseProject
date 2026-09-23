@@ -107,6 +107,12 @@ namespace App::Object
 		// 頭から尾までの長さ(1次元)。ウェーブを消す位置に使う
 		float GetWormLength() const;
 
+		//------------------------------------------------------------------------------------------
+		// 地面の近く・地面の中で炊く砂埃
+		//------------------------------------------------------------------------------------------
+		// 調整値を WormGroundEffectResource へ書き写す。レイを打って炊くのは BoidGroundEffectSystem
+		void UpdateGroundEffect(Engine::GameObject::ObjectContext& a_context);
+
 	private:
 		// 生成されたかどうか
 		bool m_isSpown = false;
@@ -197,5 +203,26 @@ namespace App::Object
 		std::vector<SwarmBossWave> m_waveVec = {};	// 走っているウェーブ(位置と速さ)
 		float m_waveTimer = 0.0f;					// 次に出すまでの残り時間(秒)
 		float m_tailAlongWorm = 0.0f;				// 最後尾の小隊長の1次元位置(生成時に決まる)
+
+		//------------------------------------------------------------------------------------------
+		// 砂埃
+		//
+		// ボイドの真下に地面が近ければ、近いほど大きく炊く。地面の中なら真上の地表へ常に炊く。
+		// ここは調整値を持つだけで、4000体ぶんのレイとエフェクトの生成は BoidGroundEffectSystem。
+		// 1回炊くたびにエフェクトのエンティティが1体増えるので、間隔と1フレームの上限で数を抑える
+		//------------------------------------------------------------------------------------------
+		Engine::GUID m_groundEffectGUID = {};											// 炊くエフェクト(保存用。単発で消えるもの)
+		Engine::ResourceRef<Engine::Resource::EffectAsset> m_groundEffectRef = {};		// 読み込んだままにしておく(炊くたびに読み直さない)
+
+		float m_groundEffectMaxHeight  = 20.0f;		// 地面からこの高さまでのボイドが炊く(m)
+		float m_groundEffectMaxDepth   = 150.0f;	// 地表からこの深さまでのボイドが炊く(m)
+		float m_groundEffectNearScale  = 1.0f;		// 地表すれすれでの大きさ
+		float m_groundEffectFarScale   = 0.3f;		// 炊く高さぎりぎりでの大きさ
+		float m_groundEffectUnderScale = 1.0f;		// 地面の中に居るときの大きさ
+		float m_groundEffectInterval   = 1.0f;		// 1体が炊く間隔(秒)
+		uint32_t m_groundEffectMaxSpawnPerFrame = 8;	// 1フレームに出す上限
+
+		// ---- 実行中の状態(保存しない) ----
+		bool m_isGroundEffectOneShot = false;	// 読み込み済みで、出し切って消える単発のものか(違えば炊かない)
 	};
 }

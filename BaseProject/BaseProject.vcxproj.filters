@@ -2745,6 +2745,9 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidGroundEffectSystem.cpp">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SerchGroundSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
     </ClCompile>
@@ -4483,6 +4486,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidGroundEffectSystem.h">
+      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\WormGroundEffectResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SerchGroundSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
