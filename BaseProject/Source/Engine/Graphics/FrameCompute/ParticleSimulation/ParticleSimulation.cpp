@@ -2,8 +2,8 @@
 
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/MainEngine.h"
-#include "Engine/Particle/ParticleBufferManager.h"
-#include "Engine/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
+#include "Engine/Graphics/Particle/ParticleBufferManager.h"
+#include "Engine/Graphics/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
@@ -98,7 +98,7 @@ namespace Engine::Graphics
 		auto* _pCmd = a_pCtx->GetCurrentCmdList();
 		if (!_pCmd) return;
 
-		auto* _pParticleManager = MainEngine::Instance().GetParticleManager();
+		auto* _pParticleManager = a_pGE->RefParticleManager();
 		if (!_pParticleManager) return;
 
 		//----------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ namespace Engine::Graphics
 		{
 			if (!_pool) continue;
 			// プールが読み込み済みかチェック
-			if (!MainEngine::Instance().RefParticleManager()->IsLoaded(_handle)) continue;
+			if (!_pParticleManager->IsLoaded(_handle)) continue;
 
 			// このフレームに発生命令が無いなら何もしない
 			auto _requests = _pParticleManager->GetRequests(_handle);
@@ -179,7 +179,7 @@ namespace Engine::Graphics
 		for (auto& [_handle, _pool] : _pParticleManager->GetPoolMap())
 		{
 			if (!_pool) continue;
-			if (!MainEngine::Instance().RefParticleManager()->IsLoaded(_handle)) continue;
+			if (!_pParticleManager->IsLoaded(_handle)) continue;
 
 			// ヒープとルートシグネチャ、PSOをセット
 			a_pCtx->BindHeap();

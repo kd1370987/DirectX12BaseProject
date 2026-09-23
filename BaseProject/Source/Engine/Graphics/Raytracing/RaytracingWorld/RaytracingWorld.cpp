@@ -7,7 +7,7 @@
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "../../ECS/World/World.h"
+#include "../../../ECS/World/World.h"
 
 namespace Engine::Raytracing
 {

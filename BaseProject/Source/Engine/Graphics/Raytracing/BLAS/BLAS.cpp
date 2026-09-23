@@ -1,8 +1,8 @@
 ﻿#include "BLAS.h"
 
-#include "../../Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../../MainEngine.h"
-#include "../../Graphics/GraphicEngine.h"
+#include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../MainEngine.h"
+#include "../../GraphicEngine.h"
 
 // CD3DX12_* のヘルパーはここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため

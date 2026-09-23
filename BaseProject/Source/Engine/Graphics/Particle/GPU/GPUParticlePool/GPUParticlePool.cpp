@@ -2,9 +2,9 @@
 
 #include <numeric>	// std::iota
 
-#include "../../../MainEngine.h"
+#include "../../../../MainEngine.h"
 
-#include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Particle
 {

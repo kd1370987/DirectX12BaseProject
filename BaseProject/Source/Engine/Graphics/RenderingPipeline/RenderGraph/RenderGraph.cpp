@@ -19,9 +19,9 @@
 // 実行時に触るもの
 #include "../../GraphicEngine.h"
 #include "../../RenderContext/RenderContext.h"
-#include "../../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../../MainEngine.h"
-#include "../../../Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "../../Raytracing/RaytracingEngine/RaytracingEngine.h"
 
 
 namespace Engine::Graphics::Pipeline
@@ -1408,8 +1408,8 @@ namespace Engine::Graphics::Pipeline
 		_context.pMainEngine		= &_mainEngine;
 		_context.pResourceManager	= a_pGraphicsEngine ? a_pGraphicsEngine->RefResourceManager() : nullptr;
 		_context.pAssetDatabase		= _context.pResourceManager ? &_context.pResourceManager->RefAssetDatabase() : nullptr;
-		_context.pRayEngine			= &Raytracing::RayEngine::Instance();
-		_context.pParticleManager	= _mainEngine.RefParticleManager();
+		_context.pRayEngine			= a_pGraphicsEngine ? a_pGraphicsEngine->RefRayEngine() : nullptr;
+		_context.pParticleManager	= a_pGraphicsEngine ? a_pGraphicsEngine->RefParticleManager() : nullptr;
 		_context.pHeapManager		= m_pHeapManager;
 
 		// ---- 描画系 ----

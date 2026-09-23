@@ -6,7 +6,7 @@
 #include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
 
 
-#include "Engine/D3D12/CBAllocator/CBAllocator.h"
+#include "Engine/Graphics/D3D12/CBAllocator/CBAllocator.h"
 
 #include "Engine/Option/OptionManager.h"
 #include "Engine/Graphics/MeshBufferAllocator/MeshBufferAllocator.h"

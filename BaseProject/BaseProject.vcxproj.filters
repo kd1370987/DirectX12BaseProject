@@ -799,13 +799,13 @@
     <Filter Include="Source\Engine">
       <UniqueIdentifier>{b3bdf23e-a214-415a-bcfe-5e96e6dba00a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Animation">
+    <Filter Include="Source\Engine\Graphics\Animation">
       <UniqueIdentifier>{970309e0-5b86-474c-b88d-2359ee56a5eb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Animation\AnimationEvaluator">
+    <Filter Include="Source\Engine\Graphics\Animation\AnimationEvaluator">
       <UniqueIdentifier>{92203f8b-16d4-4ea8-a1cc-eda91ae7c482}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Animation\Common">
+    <Filter Include="Source\Engine\Graphics\Animation\Common">
       <UniqueIdentifier>{3cd79525-6ce3-4c2d-b896-acb8017a076e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Audio">
@@ -817,25 +817,25 @@
     <Filter Include="Source\Engine\Common\Macros">
       <UniqueIdentifier>{451c00c6-5fba-4b28-884e-d69d6b7cfb21}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12">
+    <Filter Include="Source\Engine\Graphics\D3D12">
       <UniqueIdentifier>{1d727b94-84b5-4847-a0f9-b3e57b2c5b80}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\AsyncGPUManager">
       <UniqueIdentifier>{09aabb1d-951a-4fde-a6a1-3397408e265a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\Builder">
+    <Filter Include="Source\Engine\Graphics\D3D12\Builder">
       <UniqueIdentifier>{98903f5d-4c57-4610-ab4f-7f66c59a19ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\Builder\PipelineBuilder">
+    <Filter Include="Source\Engine\Graphics\D3D12\Builder\PipelineBuilder">
       <UniqueIdentifier>{21970f9f-fd61-43a9-bcfb-31491b71e03c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder">
+    <Filter Include="Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder">
       <UniqueIdentifier>{5bd4e1be-14d1-4770-8038-0749d35e7b9d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\Builder\RootSignatureBuilder">
+    <Filter Include="Source\Engine\Graphics\D3D12\Builder\RootSignatureBuilder">
       <UniqueIdentifier>{189bc6f8-8ed9-4bab-b9a7-4862b3cef861}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\CBAllocator">
+    <Filter Include="Source\Engine\Graphics\D3D12\CBAllocator">
       <UniqueIdentifier>{626c0882-83cc-471e-b136-dfd9201161a1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\Command">
@@ -847,64 +847,64 @@
     <Filter Include="Source\Engine\Graphics\Command\CommandPool">
       <UniqueIdentifier>{8d597e44-51a5-4c99-a46d-16c3c141c721}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject">
+    <Filter Include="Source\Engine\Graphics\D3D12\D3DObject">
       <UniqueIdentifier>{fa7a398f-5a7b-4b2d-ae43-74742227591e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\DescriptorHeap">
+    <Filter Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap">
       <UniqueIdentifier>{bfec92b1-ad29-4086-8a85-1d26e0f68ac4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\GPUResource">
+    <Filter Include="Source\Engine\Graphics\D3D12\D3DObject\GPUResource">
       <UniqueIdentifier>{909d26b9-85a5-42c2-8264-b90c9be162a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\PipeLineState">
+    <Filter Include="Source\Engine\Graphics\D3D12\D3DObject\PipeLineState">
       <UniqueIdentifier>{c0de0006-1111-4222-8333-0000c0de0006}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\D3DObject\RootSignature">
+    <Filter Include="Source\Engine\Graphics\D3D12\D3DObject\RootSignature">
       <UniqueIdentifier>{9a56534d-2180-4194-9056-0be0ac6d694b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager">
+    <Filter Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager">
       <UniqueIdentifier>{669008e8-9307-48ec-90bd-30cfce7a8471}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator">
+    <Filter Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator">
       <UniqueIdentifier>{ade7b42e-8596-43f4-8159-e6f73163c1d9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator">
+    <Filter Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator">
       <UniqueIdentifier>{c0de0007-1111-4222-8333-0000c0de0007}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\FrameManager">
       <UniqueIdentifier>{14fec62a-18d7-4f45-a317-96674e69a789}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer">
+    <Filter Include="Source\Engine\Graphics\D3D12\GPUBuffer">
       <UniqueIdentifier>{e4b2626a-2e42-4204-8de7-faa00db40a23}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer">
+    <Filter Include="Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer">
       <UniqueIdentifier>{2605fc2c-b224-47ad-8e73-ba20a9718a62}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer">
+    <Filter Include="Source\Engine\Graphics\D3D12\GPUBuffer\DynamicBuffer">
       <UniqueIdentifier>{1b8c016d-2357-4e6a-b3b2-3e71846683e4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer">
+    <Filter Include="Source\Engine\Graphics\D3D12\GPUBuffer\IndexBuffer">
       <UniqueIdentifier>{50f09dc1-71f8-4a6b-8c01-3d9cae95dc77}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer">
+    <Filter Include="Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer">
       <UniqueIdentifier>{4a29b314-e5f3-433f-8443-be3b583d1cd1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer">
+    <Filter Include="Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer">
       <UniqueIdentifier>{66fb64bc-5b02-459b-8bda-2dcecb664d44}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer">
+    <Filter Include="Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer">
       <UniqueIdentifier>{dba565ec-8ba6-4bbc-aac7-4b9efc655b1e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer">
+    <Filter Include="Source\Engine\Graphics\D3D12\GPUBuffer\RWStructuredBuffer">
       <UniqueIdentifier>{bdf4f8d9-ca30-4f93-85cb-c11a1540048c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer">
+    <Filter Include="Source\Engine\Graphics\D3D12\GPUBuffer\StaticBuffer">
       <UniqueIdentifier>{0831f7f0-9114-4e25-9a18-123655a00ecb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer">
+    <Filter Include="Source\Engine\Graphics\D3D12\GPUBuffer\StructuredBuffer">
       <UniqueIdentifier>{9ec7ad9f-bf3d-496a-82b5-60a90722f9e0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer">
+    <Filter Include="Source\Engine\Graphics\D3D12\GPUBuffer\VertexBuffer">
       <UniqueIdentifier>{63da3fe7-5e49-47b4-abd8-55de9e6c16e6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\PipelineStateManager">
@@ -1168,16 +1168,16 @@
     <Filter Include="Source\Engine\Option\ProjectOptions">
       <UniqueIdentifier>{85c28754-0169-46eb-a78c-4b7f7853703d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Particle">
+    <Filter Include="Source\Engine\Graphics\Particle">
       <UniqueIdentifier>{a713eca4-b2af-417a-8ff3-856d78d05d2b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Particle\Core">
+    <Filter Include="Source\Engine\Graphics\Particle\Core">
       <UniqueIdentifier>{305b2594-4ff5-475e-9bd6-13918a2fc275}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Particle\GPU">
+    <Filter Include="Source\Engine\Graphics\Particle\GPU">
       <UniqueIdentifier>{27047641-4735-42ca-9c95-d82d476b2e60}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Particle\GPU\GPUParticlePool">
+    <Filter Include="Source\Engine\Graphics\Particle\GPU\GPUParticlePool">
       <UniqueIdentifier>{229201f6-2891-4b39-9ee9-fcd39d23ca33}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Persistence">
@@ -1186,28 +1186,28 @@
     <Filter Include="Source\Engine\Persistence\Archive">
       <UniqueIdentifier>{3f6d0fca-dfce-423f-83bb-e30947f4c196}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Raytracing">
+    <Filter Include="Source\Engine\Graphics\Raytracing">
       <UniqueIdentifier>{5cf1431f-421d-402b-994e-1a5fb6bf445a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Raytracing\BLAS">
+    <Filter Include="Source\Engine\Graphics\Raytracing\BLAS">
       <UniqueIdentifier>{0037a7c8-2860-4c64-bec1-637b239cf301}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Raytracing\Common">
+    <Filter Include="Source\Engine\Graphics\Raytracing\Common">
       <UniqueIdentifier>{dfec8c58-9d0f-420a-9923-ef53b2e1ca43}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Raytracing\RayPSO">
+    <Filter Include="Source\Engine\Graphics\Raytracing\RayPSO">
       <UniqueIdentifier>{c2db2572-03c4-4c82-9685-5281acec1199}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Raytracing\RaytracingEngine">
+    <Filter Include="Source\Engine\Graphics\Raytracing\RaytracingEngine">
       <UniqueIdentifier>{4ddfeefd-4d45-4b6b-a8d1-cf676b0dc4ea}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Raytracing\RaytracingWorld">
+    <Filter Include="Source\Engine\Graphics\Raytracing\RaytracingWorld">
       <UniqueIdentifier>{301f758a-5748-4a63-ba4b-7c2c54492dce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Raytracing\ShaderTable">
+    <Filter Include="Source\Engine\Graphics\Raytracing\ShaderTable">
       <UniqueIdentifier>{0b927251-41ee-42ac-94d4-17d54c8d88cc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Raytracing\TLAS">
+    <Filter Include="Source\Engine\Graphics\Raytracing\TLAS">
       <UniqueIdentifier>{14257255-6ffb-4ff3-bb90-d7a95fe078d0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource">
@@ -2121,8 +2121,8 @@
     <ClCompile Include="Source\Engine\MainEngine.cpp">
       <Filter>Source\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.cpp">
-      <Filter>Source\Engine\Animation\AnimationEvaluator</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Animation\AnimationEvaluator\AnimationEvaluator.cpp">
+      <Filter>Source\Engine\Graphics\Animation\AnimationEvaluator</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Audio\AudioManager.cpp">
       <Filter>Source\Engine\Audio</Filter>
@@ -2130,14 +2130,14 @@
     <ClCompile Include="Source\Engine\Graphics\AsyncGPUManager\AsyncGPUManager.cpp">
       <Filter>Source\Engine\Graphics\AsyncGPUManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.cpp">
-      <Filter>Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.cpp">
-      <Filter>Source\Engine\D3D12\Builder\RootSignatureBuilder</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\Builder\RootSignatureBuilder</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\CBAllocator\CBAllocator.cpp">
-      <Filter>Source\Engine\D3D12\CBAllocator</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\CBAllocator</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Command\CommandContext\CommandContext.cpp">
       <Filter>Source\Engine\Graphics\Command\CommandContext</Filter>
@@ -2145,47 +2145,47 @@
     <ClCompile Include="Source\Engine\Graphics\Command\CommandPool\CommandPool.cpp">
       <Filter>Source\Engine\Graphics\Command\CommandPool</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\GPUResource\GPUResource.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\GPUResource</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\GPUResource\GPUResource.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\D3DObject\GPUResource</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\PipeLineState\PipelineState.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\PipeLineState</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\PipeLineState\PipelineState.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\D3DObject\PipeLineState</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\D3DObject\RootSignature\RootSignature.cpp">
-      <Filter>Source\Engine\D3D12\D3DObject\RootSignature</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\RootSignature\RootSignature.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\D3DObject\RootSignature</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\DescriptorHeapManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.cpp">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\FrameManager\FrameManager.cpp">
       <Filter>Source\Engine\Graphics\FrameManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.cpp">
-      <Filter>Source\Engine\D3D12\GPUBuffer</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\GPUBuffer.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.cpp">
-      <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.cpp">
-      <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.cpp">
-      <Filter>Source\Engine\D3D12\GPUBuffer\DynamicBuffer</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\DynamicBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.cpp">
-      <Filter>Source\Engine\D3D12\GPUBuffer\IndexBuffer</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\IndexBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.cpp">
-      <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp">
-      <Filter>Source\Engine\D3D12\GPUBuffer\StaticBuffer</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\StaticBuffer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\PipelineStateManager\PipelineStateManager.cpp">
       <Filter>Source\Engine\Graphics\PipelineStateManager</Filter>
@@ -2397,32 +2397,32 @@
     <ClCompile Include="Source\Engine\Option\ProjectOptions\InputOption.cpp">
       <Filter>Source\Engine\Option\ProjectOptions</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Particle\ParticleBufferManager.cpp">
-      <Filter>Source\Engine\Particle</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Particle\ParticleBufferManager.cpp">
+      <Filter>Source\Engine\Graphics\Particle</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp">
-      <Filter>Source\Engine\Particle\GPU\GPUParticlePool</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp">
+      <Filter>Source\Engine\Graphics\Particle\GPU\GPUParticlePool</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Persistence\Archive\Archive.cpp">
       <Filter>Source\Engine\Persistence\Archive</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Raytracing\BLAS\BLAS.cpp">
-      <Filter>Source\Engine\Raytracing\BLAS</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\BLAS\BLAS.cpp">
+      <Filter>Source\Engine\Graphics\Raytracing\BLAS</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Raytracing\RayPSO\RayPSO.cpp">
-      <Filter>Source\Engine\Raytracing\RayPSO</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\RayPSO\RayPSO.cpp">
+      <Filter>Source\Engine\Graphics\Raytracing\RayPSO</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.cpp">
-      <Filter>Source\Engine\Raytracing\RaytracingEngine</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\RaytracingEngine\RaytracingEngine.cpp">
+      <Filter>Source\Engine\Graphics\Raytracing\RaytracingEngine</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Raytracing\RaytracingWorld\RaytracingWorld.cpp">
-      <Filter>Source\Engine\Raytracing\RaytracingWorld</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\RaytracingWorld\RaytracingWorld.cpp">
+      <Filter>Source\Engine\Graphics\Raytracing\RaytracingWorld</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.cpp">
-      <Filter>Source\Engine\Raytracing\ShaderTable</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\ShaderTable\ShaderTable.cpp">
+      <Filter>Source\Engine\Graphics\Raytracing\ShaderTable</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Raytracing\TLAS\TLAS.cpp">
-      <Filter>Source\Engine\Raytracing\TLAS</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\TLAS\TLAS.cpp">
+      <Filter>Source\Engine\Graphics\Raytracing\TLAS</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Common\ScopedResourceBuild.cpp">
       <Filter>Source\Engine\Resource\Common</Filter>
@@ -3584,11 +3584,11 @@
     <ClInclude Include="Source\Engine\MainEngine.h">
       <Filter>Source\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Animation\AnimationEvaluator\AnimationEvaluator.h">
-      <Filter>Source\Engine\Animation\AnimationEvaluator</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Animation\AnimationEvaluator\AnimationEvaluator.h">
+      <Filter>Source\Engine\Graphics\Animation\AnimationEvaluator</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Animation\Common\AnimatedMeshVertex.h">
-      <Filter>Source\Engine\Animation\Common</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Animation\Common\AnimatedMeshVertex.h">
+      <Filter>Source\Engine\Graphics\Animation\Common</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Audio\AudioManager.h">
       <Filter>Source\Engine\Audio</Filter>
@@ -3608,26 +3608,26 @@
     <ClInclude Include="Source\Engine\Common\Macros\ClassMacros.h">
       <Filter>Source\Engine\Common\Macros</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3D12Common.h">
-      <Filter>Source\Engine\D3D12</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Common.h">
+      <Filter>Source\Engine\Graphics\D3D12</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3D12Helper.h">
-      <Filter>Source\Engine\D3D12</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Helper.h">
+      <Filter>Source\Engine\Graphics\D3D12</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3D12Types.h">
-      <Filter>Source\Engine\D3D12</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Types.h">
+      <Filter>Source\Engine\Graphics\D3D12</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\AsyncGPUManager\AsyncGPUManager.h">
       <Filter>Source\Engine\Graphics\AsyncGPUManager</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.h">
-      <Filter>Source\Engine\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.h">
+      <Filter>Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.h">
-      <Filter>Source\Engine\D3D12\Builder\RootSignatureBuilder</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.h">
+      <Filter>Source\Engine\Graphics\D3D12\Builder\RootSignatureBuilder</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\CBAllocator\CBAllocator.h">
-      <Filter>Source\Engine\D3D12\CBAllocator</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.h">
+      <Filter>Source\Engine\Graphics\D3D12\CBAllocator</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Command\CommandContext\CommandContext.h">
       <Filter>Source\Engine\Graphics\Command\CommandContext</Filter>
@@ -3635,68 +3635,68 @@
     <ClInclude Include="Source\Engine\Graphics\Command\CommandPool\CommandPool.h">
       <Filter>Source\Engine\Graphics\Command\CommandPool</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h">
-      <Filter>Source\Engine\D3D12\D3DObject\DescriptorHeap</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h">
+      <Filter>Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\GPUResource\GPUResource.h">
-      <Filter>Source\Engine\D3D12\D3DObject\GPUResource</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\GPUResource\GPUResource.h">
+      <Filter>Source\Engine\Graphics\D3D12\D3DObject\GPUResource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\PipeLineState\PipelineState.h">
-      <Filter>Source\Engine\D3D12\D3DObject\PipeLineState</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\PipeLineState\PipelineState.h">
+      <Filter>Source\Engine\Graphics\D3D12\D3DObject\PipeLineState</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\D3DObject\RootSignature\RootSignature.h">
-      <Filter>Source\Engine\D3D12\D3DObject\RootSignature</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\RootSignature\RootSignature.h">
+      <Filter>Source\Engine\Graphics\D3D12\D3DObject\RootSignature</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\DescriptorHeapManager.h">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\DescriptorHeapManager.h">
+      <Filter>Source\Engine\Graphics\D3D12\DescriptorHeapManager</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\HeapAllocator.h">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocator</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\HeapAllocator.h">
+      <Filter>Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.h">
-      <Filter>Source\Engine\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.h">
+      <Filter>Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\FrameManager\FrameManager.h">
       <Filter>Source\Engine\Graphics\FrameManager</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\GPUBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\GPUBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\DynamicBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\DynamicBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\IndexBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\IndexBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer\MegaRWStructuredBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer\MegaRWStructuredBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer\MegaRWStructuredBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer\MegaStructuredBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer\MegaStructuredBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer\RWStructuredBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\RWStructuredBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\RWStructuredBuffer\RWStructuredBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\RWStructuredBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\StaticBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\StaticBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\DynamicStructuredBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\StructuredBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\StructuredBuffer\DynamicStructuredBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\StructuredBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\StructuredBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\StructuredBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\D3D12\GPUBuffer\VertexBuffer\DynamicVertexBuffer.h">
-      <Filter>Source\Engine\D3D12\GPUBuffer\VertexBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\VertexBuffer\DynamicVertexBuffer.h">
+      <Filter>Source\Engine\Graphics\D3D12\GPUBuffer\VertexBuffer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\PipelineStateManager\PipelineStateManager.h">
       <Filter>Source\Engine\Graphics\PipelineStateManager</Filter>
@@ -4001,47 +4001,47 @@
     <ClInclude Include="Source\Engine\Option\ProjectOptions\InputOption.h">
       <Filter>Source\Engine\Option\ProjectOptions</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Particle\ParticleBufferManager.h">
-      <Filter>Source\Engine\Particle</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Particle\ParticleBufferManager.h">
+      <Filter>Source\Engine\Graphics\Particle</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Particle\Core\EmitterData.h">
-      <Filter>Source\Engine\Particle\Core</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Particle\Core\EmitterData.h">
+      <Filter>Source\Engine\Graphics\Particle\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Particle\Core\ParticleData.h">
-      <Filter>Source\Engine\Particle\Core</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Particle\Core\ParticleData.h">
+      <Filter>Source\Engine\Graphics\Particle\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Particle\GPU\GPUParticlePool\GPUParticlePool.h">
-      <Filter>Source\Engine\Particle\GPU\GPUParticlePool</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Particle\GPU\GPUParticlePool\GPUParticlePool.h">
+      <Filter>Source\Engine\Graphics\Particle\GPU\GPUParticlePool</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h">
       <Filter>Source\Engine\Persistence\Archive</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Raytracing\BLAS\BLAS.h">
-      <Filter>Source\Engine\Raytracing\BLAS</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\BLAS\BLAS.h">
+      <Filter>Source\Engine\Graphics\Raytracing\BLAS</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Raytracing\Common\Common.h">
-      <Filter>Source\Engine\Raytracing\Common</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\Common\Common.h">
+      <Filter>Source\Engine\Graphics\Raytracing\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Raytracing\Common\RaytracingInstance.h">
-      <Filter>Source\Engine\Raytracing\Common</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\Common\RaytracingInstance.h">
+      <Filter>Source\Engine\Graphics\Raytracing\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Raytracing\RayPSO\BuildSubObjectHelper.h">
-      <Filter>Source\Engine\Raytracing\RayPSO</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayPSO\BuildSubObjectHelper.h">
+      <Filter>Source\Engine\Graphics\Raytracing\RayPSO</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Raytracing\RayPSO\RayPSO.h">
-      <Filter>Source\Engine\Raytracing\RayPSO</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayPSO\RayPSO.h">
+      <Filter>Source\Engine\Graphics\Raytracing\RayPSO</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Raytracing\RaytracingEngine\RaytracingEngine.h">
-      <Filter>Source\Engine\Raytracing\RaytracingEngine</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RaytracingEngine\RaytracingEngine.h">
+      <Filter>Source\Engine\Graphics\Raytracing\RaytracingEngine</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Raytracing\RaytracingWorld\RaytracingWorld.h">
-      <Filter>Source\Engine\Raytracing\RaytracingWorld</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RaytracingWorld\RaytracingWorld.h">
+      <Filter>Source\Engine\Graphics\Raytracing\RaytracingWorld</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Raytracing\ShaderTable\ShaderTable.h">
-      <Filter>Source\Engine\Raytracing\ShaderTable</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\ShaderTable\ShaderTable.h">
+      <Filter>Source\Engine\Graphics\Raytracing\ShaderTable</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Raytracing\TLAS\TLAS.h">
-      <Filter>Source\Engine\Raytracing\TLAS</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\TLAS\TLAS.h">
+      <Filter>Source\Engine\Graphics\Raytracing\TLAS</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Common\Common.h">
       <Filter>Source\Engine\Resource\Common</Filter>

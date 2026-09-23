@@ -2,8 +2,8 @@
 
 #include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
 
-#include "Engine/Raytracing/RayPSO/RayPSO.h"
-#include "Engine/Raytracing/ShaderTable/ShaderTable.h"
+#include "Engine/Graphics/Raytracing/RayPSO/RayPSO.h"
+#include "Engine/Graphics/Raytracing/ShaderTable/ShaderTable.h"
 
 namespace Engine::Graphics::Pipeline
 {

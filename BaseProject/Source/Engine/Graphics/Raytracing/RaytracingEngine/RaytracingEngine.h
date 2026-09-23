@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../../Graphics/CBData.h"
+#include "../../CBData.h"
 
 namespace Engine
 {
@@ -26,9 +26,14 @@ namespace Engine::Raytracing
 	class RayPSO;
 	class ShaderTable;
 
+	// 持ち主はグラフィックスエンジン
 	class RayEngine
 	{
 	public:
+
+		RayEngine();
+		~RayEngine();
+		NON_COPYABLE_NON_MOVABLE(RayEngine);
 
 		// 解放
 		void Release();
@@ -83,19 +88,5 @@ namespace Engine::Raytracing
 
 		// レイトレワールドが無ければ作る : 作ったらリソースの持ち主を渡しておく
 		RayWorld& RefOrCreateWorld();
-
-	private:
-
-		RayEngine();
-		~RayEngine();
-		
-	public:
-
-		static RayEngine& Instance()
-		{
-			static RayEngine _instance;
-			return _instance;
-		}
-
 	};
 }

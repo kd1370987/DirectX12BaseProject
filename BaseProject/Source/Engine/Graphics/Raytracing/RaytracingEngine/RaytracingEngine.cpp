@@ -1,14 +1,14 @@
 ﻿#include "RaytracingEngine.h"
 
-#include "Engine/Raytracing/RaytracingWorld/RaytracingWorld.h"
+#include "Engine/Graphics/Raytracing/RaytracingWorld/RaytracingWorld.h"
 
 //#include "Engine/Resource/Manager/TextureManager/TextureManager.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "../../Graphics/RenderContext/RenderContext.h"
-#include "../../Graphics/GraphicEngine.h"
+#include "../../RenderContext/RenderContext.h"
+#include "../../GraphicEngine.h"
 #include "../../D3D12/CBAllocator/CBAllocator.h"
 
 #include "../RayPSO/RayPSO.h"

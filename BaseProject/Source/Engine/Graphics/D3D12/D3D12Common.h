@@ -8,7 +8,7 @@ struct SAMPLER {};
 #include "d3dx12_pipeline_state_stream.h"
 #pragma warning(pop)
 
-#include "Engine/D3D12/D3DObject/DescriptorHeap/DescriptorHeap.h"
+#include "Engine/Graphics/D3D12/D3DObject/DescriptorHeap/DescriptorHeap.h"
 
 // インプットレイアウト
 namespace Engine::D3D12::Input

@@ -3,8 +3,8 @@
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 
-#include "Engine/Particle/ParticleBufferManager.h"
-#include "Engine/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
+#include "Engine/Graphics/Particle/ParticleBufferManager.h"
+#include "Engine/Graphics/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Graphics::Pipeline

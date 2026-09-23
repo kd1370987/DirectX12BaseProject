@@ -16,7 +16,7 @@
 #include "../../Editor/Editor.h"
 #include "../../Graphics/GraphicEngine.h"
 #include "../../Graphics/DebugDraw/DebugDraw.h"
-#include "../../Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "../../Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "../../Audio/AudioManager.h"
 #include "../../GameObject/GameObjectManager/GameObjectManager.h"
 

@@ -7,7 +7,7 @@
 #include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
 
 #include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
-#include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
 namespace Engine::Graphics::Pipeline
 {

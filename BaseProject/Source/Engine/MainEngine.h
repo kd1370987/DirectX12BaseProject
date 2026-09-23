@@ -7,14 +7,6 @@ namespace Engine
 	{
 		class NativeWindow;
 	}
-	namespace Raytracing
-	{
-		class RayEngine;
-	}
-	namespace Particle
-	{
-		class ParticleBufferManager;
-	}
 	namespace Time
 	{
 		class TimeManager;
@@ -23,7 +15,6 @@ namespace Engine
 	{
 		class GraphicsEngine;
 		class RenderContext;
-		class MouseCursor;
 	}
 
 	namespace Thread
@@ -86,9 +77,6 @@ namespace Engine
 		const Graphics::RenderContext* GetRenderContext() const;
 		Graphics::RenderContext* RefRenderContext();
 
-		// 自前で描くマウスカーソル
-		Graphics::MouseCursor* RefMouseCursor();
-
 		// ジョブシステム
 		Thread::JobSystem* RefJobSystem();
 
@@ -114,10 +102,6 @@ namespace Engine
 
 		// コンフィグ取得
 		EBuildConfiguration GetBuildMode() const { return m_buildMode; }
-
-		// パーティクル
-		const Particle::ParticleBufferManager* GetParticleManager() const ;
-		Particle::ParticleBufferManager* RefParticleManager();
 
 		// ============================================================================
 		// 遅延開放処理
@@ -146,11 +130,9 @@ namespace Engine
 		std::unique_ptr<ECS::ComponentMetaRegistry> m_upComponentRegistry = nullptr;
 		std::unique_ptr<Window::NativeWindow> m_upWindow = nullptr;						// ウィンドウクラス
 		std::unique_ptr<Time::TimeManager> m_upTimeManager = nullptr;					// 時間管理クラス
-		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス
-		std::unique_ptr<Particle::ParticleBufferManager> m_upParticleManager = nullptr;	// パーティクルマネージャー
+		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス(パーティクル・レイトレ・自前カーソルもこの中)
 		std::unique_ptr<Thread::JobSystem> m_upJobSystem = nullptr;						// ジョブシステム
 		std::unique_ptr<Physics::PhysicsEngine> m_upPhysicsEngine = nullptr;			// Jolt 全体(シーンごとの空間は PhysicsWorld)
-		std::unique_ptr<Graphics::MouseCursor> m_upMouseCursor = nullptr;				// 自前で描くマウスカーソル
 		std::unique_ptr<ECS::EngineServices> m_upEngineServices = nullptr;				// アプリ寿命のサービス一式(正本)
 
 		// エンジン設定
@@ -162,10 +144,6 @@ namespace Engine
 		// 触るときは必ずロックを取る
 		std::vector<std::function<void()>> m_releaseQueues[CPU_FRAME_COUNT];
 		std::mutex m_releaseQueueMutex;
-
-		// 描画用コンテキスト
-		std::vector<std::unique_ptr<Graphics::RenderContext>> m_upRenderContextVec = {};
-		UINT m_currentFrameIndex = 0;
 
 	// シングルトン
 	private:

@@ -3,7 +3,7 @@
 #include "Application/ECS/World/APPWorld.h"
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicEngine.h"
-#include "Engine/Particle/ParticleBufferManager.h"
+#include "Engine/Graphics/Particle/ParticleBufferManager.h"
 
 #include "../../../../Components/Effect/EffectAssetComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
@@ -41,7 +41,7 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 			if (!_pResourceManager || !_pMainEngine) return;
 
 			auto* _pGE = _pMainEngine->RefGraphicsEngine();
-			auto* _pParticleManager = _pMainEngine->RefParticleManager();
+			auto* _pParticleManager = _pGE->RefParticleManager();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

@@ -48,8 +48,8 @@
 // ---- 外部ライブラリ連携 ----
 // JSONHelper.h は AssetDatabase.cpp でしか使わないので、そちらで読む
 // (json.hpp を要求するヘッダーをここへ置くと全翻訳単位に乗る)
-#include "Engine/D3D12/D3D12Types.h"					// D3D12の共通設定
-#include "D3D12/D3D12Helper.h"							// D3D12関連のヘルパー関数
+#include "Engine/Graphics/D3D12/D3D12Types.h"					// D3D12の共通設定
+#include "Graphics/D3D12/D3D12Helper.h"							// D3D12関連のヘルパー関数
 
 // ---- プール ----
 #include "Utility/Pool/HandlePool/HandlePool.h"			// ハンドル管理ストレージ
@@ -109,27 +109,27 @@ namespace Engine::Resource
 // DirectX12ラッパー
 // 
 //==========================================================================================
-#include "D3D12/D3D12Common.h"
+#include "Graphics/D3D12/D3D12Common.h"
 
 //------------------------------------------------------------------------------------------
 // オブジェクト
 //------------------------------------------------------------------------------------------
-#include "D3D12/D3DObject/PipeLineState/PipelineState.h"
+#include "Graphics/D3D12/D3DObject/PipeLineState/PipelineState.h"
 
 //------------------------------------------------------------------------------------------
 // バッファー
 //------------------------------------------------------------------------------------------
-#include "D3D12/D3DObject/GPUResource/GPUResource.h"
-#include "Engine/D3D12/GPUBuffer/VertexBuffer/DynamicVertexBuffer.h"			// 頂点バッファ
-#include "Engine/D3D12/GPUBuffer/IndexBuffer/DynamicIndexBuffer.h"				// ダイナミックインデックスバッファ
-#include "Engine/D3D12/GPUBuffer/StructuredBuffer/StaticStructuredBuffer.h"		// スタティックストラクチャバッファ
-#include "Engine/D3D12/GPUBuffer/StructuredBuffer/DynamicStructuredBuffer.h"	// ダイナミックストラクチャバッファ
-#include "D3D12/GPUBuffer/MegaBuffer/MegaRWStructuredBuffer/MegaRWStructuredBuffer.h"	// RWストラクチャバッファ
-#include "D3D12/GPUBuffer/ByteAddressBuffer/ByteAddressBuffer.h"				// バイトアドレスバッファ
-#include "D3D12/GPUBuffer/ByteAddressBuffer/StaticByteAddressBuffer.h"			// スタティックバイトアドレスバッファ
-#include "Engine/D3D12/GPUBuffer/RWStructuredBuffer/RWStructuredBuffer.h"		// GPU用UAV構造体バッファ
+#include "Graphics/D3D12/D3DObject/GPUResource/GPUResource.h"
+#include "Engine/Graphics/D3D12/GPUBuffer/VertexBuffer/DynamicVertexBuffer.h"			// 頂点バッファ
+#include "Engine/Graphics/D3D12/GPUBuffer/IndexBuffer/DynamicIndexBuffer.h"				// ダイナミックインデックスバッファ
+#include "Engine/Graphics/D3D12/GPUBuffer/StructuredBuffer/StaticStructuredBuffer.h"		// スタティックストラクチャバッファ
+#include "Engine/Graphics/D3D12/GPUBuffer/StructuredBuffer/DynamicStructuredBuffer.h"	// ダイナミックストラクチャバッファ
+#include "Graphics/D3D12/GPUBuffer/MegaBuffer/MegaRWStructuredBuffer/MegaRWStructuredBuffer.h"	// RWストラクチャバッファ
+#include "Graphics/D3D12/GPUBuffer/ByteAddressBuffer/ByteAddressBuffer.h"				// バイトアドレスバッファ
+#include "Graphics/D3D12/GPUBuffer/ByteAddressBuffer/StaticByteAddressBuffer.h"			// スタティックバイトアドレスバッファ
+#include "Engine/Graphics/D3D12/GPUBuffer/RWStructuredBuffer/RWStructuredBuffer.h"		// GPU用UAV構造体バッファ
 #include "Engine/Resource/Data/Vertex/Vertex.h"									// 頂点データ
-#include "D3D12/GPUBuffer/MegaBuffer/MegaStructuredBuffer/MegaStructuredBuffer.h"
+#include "Graphics/D3D12/GPUBuffer/MegaBuffer/MegaStructuredBuffer/MegaStructuredBuffer.h"
 //==========================================================================================
 // 
 // 入力
@@ -145,7 +145,7 @@ namespace Engine::Resource
 // レイトレ用構造体
 // 
 //==========================================================================================
-#include "Engine/Raytracing/BLAS/BLAS.h"
+#include "Engine/Graphics/Raytracing/BLAS/BLAS.h"
 
 //==========================================================================================
 // 
@@ -194,9 +194,9 @@ namespace Engine::Resource
 // 
 //==========================================================================================
 
-#include "Animation/Common/AnimatedMeshVertex.h"
-#include "Engine/Raytracing/Common/RaytracingInstance.h"
-#include "Engine/Raytracing/Common/Common.h"
+#include "Graphics/Animation/Common/AnimatedMeshVertex.h"
+#include "Engine/Graphics/Raytracing/Common/RaytracingInstance.h"
+#include "Engine/Graphics/Raytracing/Common/Common.h"
 
 //#include "Graphics/MeshBufferAllocator/MeshAllocationHandle.h"
 
@@ -221,7 +221,7 @@ namespace Engine::Resource
 // アニメーション
 // 
 //==========================================================================================
-#include "Animation/AnimationEvaluator/AnimationEvaluator.h"
+#include "Graphics/Animation/AnimationEvaluator/AnimationEvaluator.h"
 
 
 

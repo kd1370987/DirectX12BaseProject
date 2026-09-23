@@ -6,15 +6,15 @@
 #include "Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "Resource/Manager/ResourceManager/ResourceManager.h"
 
-#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "Engine/Graphics/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicEngine.h"
 #include "Engine/Graphics/Core/BackBuffer/BackBuffer.h"
 
-#include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
-#include "Engine/Particle/ParticleBufferManager.h"
+#include "Engine/Graphics/Particle/ParticleBufferManager.h"
 
 #include "Application/App.h"
 
@@ -125,7 +125,6 @@ namespace Engine
 			assert(0 && "デバイスの作成に失敗");
 			return;
 		}
-		auto* _pDev = m_upGraphicsEngine->RefDevice();
 
 		// 初期化中のGPU操作を積むコマンドリスト。最後に ExecuteImmediate で流す
 		auto* _pCmdList = m_upGraphicsEngine->AcquireDirectCommandList();
@@ -186,19 +185,12 @@ namespace Engine
 			static_cast<UINT>(_winOp.windowHeight)
 		);
 
-		// 描画周り初期化(パイプラインステート管理もここで作られる)
+		// 描画周り初期化(パイプラインステート管理・パーティクル・レイトレワールド・自前カーソルもここで作られる)
 		Graphics::GraphicsEngineDesc _geDesc = {};
 		_geDesc.width = static_cast<UINT>(_winOp.windowWidth);
 		_geDesc.height = static_cast<UINT>(_winOp.windowHeight);
 		_geDesc.pResourceManager = m_upResourceManager.get();
 		m_upGraphicsEngine->Init(_pCmdList,_geDesc);
-
-		// パーティクルブッファの生成
-		m_upParticleManager = std::make_unique<Particle::ParticleBufferManager>();
-		m_upParticleManager->Init(m_upGraphicsEngine.get(),_pHeapManager,_pCmdList);
-
-		// レイトレワールド構築
-		Engine::Raytracing::RayEngine::Instance().CommitWorld(_pDev,_pHeapManager,_pCmdList,m_upResourceManager.get());
 
 		// アプリ寿命のサービス一式 : エディターもワールドもここを見る
 		BuildEngineServices();
@@ -210,14 +202,12 @@ namespace Engine
 			return;
 		}
 
-		// マウスカーソル
-		m_upMouseCursor = std::make_unique<Graphics::MouseCursor>();
-		m_upMouseCursor->Init(_pHeapManager, m_upResourceManager.get());
-
+		// マウスカーソル(持ち主はグラフィックスエンジン)
 		Engine::Editor::MainEditor::Instance().RegisterEditFunc(
 			[this]()
 			{
-				if (m_upMouseCursor) m_upMouseCursor->DrawImGui();
+				auto* _pCursor = m_upGraphicsEngine ? m_upGraphicsEngine->RefMouseCursor() : nullptr;
+				if (_pCursor) _pCursor->DrawImGui();
 			}
 		);
 
@@ -240,11 +230,7 @@ namespace Engine
 
 		// 自前カーソルが握っているテクスチャの参照を返す。
 		// リソースの解放より前に手放しておくこと
-		if (m_upMouseCursor)
-		{
-			m_upMouseCursor->Release();
-			m_upMouseCursor.reset();
-		}
+		m_upGraphicsEngine->ReleaseMouseCursor();
 
 		// 再生中のサウンドインスタンスを破棄。
 		// SoundEffectInstance は生成元の SoundEffect(= Resource::Sound) を
@@ -276,23 +262,10 @@ namespace Engine
 			m_upPhysicsEngine.reset();
 		}
 
-		// グラフィックスエンジンの解放（RenderContextやPSO管理などが持つリソースを解放）。
+		// グラフィックスエンジンの解放（RenderContextやPSO管理・パーティクル・レイトレワールドなどが持つリソースを解放）。
 		// デバイス・ディスクリプタヒープ・バックバッファはまだ捨てない :
 		// この後に解放されるものがビューを返してくる
 		m_upGraphicsEngine->Release();
-
-		// パーティクルのGPUバッファ解放。
-		// これらはディスクリプタヒープにハンドルを持つため、
-		// 必ず DescriptorHeapManager の解放より前に破棄する。
-		if (m_upParticleManager)
-		{
-			m_upParticleManager->Release();
-			m_upParticleManager.reset();
-		}
-
-		// レイトレワールド(TLAS/BLAS・各種バッファ)の解放。
-		// シングルトンが握っていて自動破棄されないため明示的に解放する。
-		Raytracing::RayEngine::Instance().Release();
 
 		// 遅延解放キューを空にする
 		// 全GPU作業の完了を待ってから実行し、デバイスより先にリソースを解放しきる。
@@ -391,18 +364,18 @@ namespace Engine
 		// 音を鳴らしていなくても毎フレーム呼ぶ必要がある
 		Audio::AudioManager::Instance().Update();
 
-		m_upParticleManager->BeginFrame();					// パーティクルデータの更新
+		m_upGraphicsEngine->RefParticleManager()->BeginFrame();	// パーティクルデータの更新
 
 		// 自前カーソルの位置決め。
 		// 描くのは後(ゲームはUIパス / エディターはImGui)だが、どちらから描かれても
 		// 同じ位置になるようここで一度だけ決める。
 		// OSのカーソルを消してよいかもここで決まるのでウィンドウへ伝える
-		if (m_upMouseCursor)
+		if (auto* _pCursor = m_upGraphicsEngine->RefMouseCursor())
 		{
-			m_upMouseCursor->Update();
+			_pCursor->Update();
 			if (m_upWindow)
 			{
-				m_upWindow->SetCursorHidden(m_upMouseCursor->IsHideOSCursor());
+				m_upWindow->SetCursorHidden(_pCursor->IsHideOSCursor());
 			}
 		}
 
@@ -447,7 +420,7 @@ namespace Engine
 		}
 
 		// レイワールドインスタンスのクリア
-		Raytracing::RayEngine::Instance().EndFrame();
+		m_upGraphicsEngine->RefRayEngine()->EndFrame();
 	}
 
 	void MainEngine::EndDraw()
@@ -594,17 +567,9 @@ namespace Engine
 	{
 		return m_upGraphicsEngine->RefRenderContext();
 	}
-	Graphics::MouseCursor* MainEngine::RefMouseCursor()
-	{
-		return m_upMouseCursor.get();
-	}
 	Thread::JobSystem* MainEngine::RefJobSystem()
 	{
 		return m_upJobSystem.get();
-	}
-	const Particle::ParticleBufferManager* MainEngine::GetParticleManager() const
-	{
-		return m_upParticleManager.get();
 	}
 	//======================================================================================
 	// アプリ寿命のサービス一式を組む
@@ -624,7 +589,7 @@ namespace Engine
 		_services.pResourceManager	= &_resourceManager;
 		_services.pAssetDatabase	= &_resourceManager.RefAssetDatabase();
 		_services.pInputManager		= &Input::InputManager::Instance();
-		_services.pRayEngine		= &Raytracing::RayEngine::Instance();
+		_services.pRayEngine		= m_upGraphicsEngine ? m_upGraphicsEngine->RefRayEngine() : nullptr;
 		_services.pAudioManager		= &Audio::AudioManager::Instance();
 		_services.pJobSystem		= m_upJobSystem.get();
 		_services.pPhysicsEngine	= m_upPhysicsEngine.get();
@@ -632,10 +597,6 @@ namespace Engine
 		_services.pDebugDraw		= m_upGraphicsEngine ? m_upGraphicsEngine->RefDebugDraw() : nullptr;
 	}
 
-	Particle::ParticleBufferManager* MainEngine::RefParticleManager()
-	{
-		return m_upParticleManager.get();
-	}
 	void MainEngine::RegisterDeferredResource(std::function<void()> a_releaseFunc)
 	{
 		// グラフィックスエンジンが無い(起動前・終了後)ときは、どの枠でもよいので先頭へ積む

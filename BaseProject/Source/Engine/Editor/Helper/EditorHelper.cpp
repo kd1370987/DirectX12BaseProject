@@ -2,7 +2,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
-#include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../../Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../MainEngine.h"
 #include "../../Graphics/GraphicEngine.h"
 #include "../../Resource/Data/Model/Model.h"

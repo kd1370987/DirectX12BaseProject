@@ -5,7 +5,7 @@
 #include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
 
 #include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
-#include "Engine/Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
 namespace Engine::Graphics::Pipeline
 {

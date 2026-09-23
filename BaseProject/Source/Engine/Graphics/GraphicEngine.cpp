@@ -3,7 +3,7 @@
 #include "../MainEngine.h"
 
 // D3D関係
-#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 // グラフィックスエンジンの持ち物(土台)
 #include "Core/GraphicsDevice/GraphicsDevice.h"
@@ -17,7 +17,8 @@
 // グラフィックス関係
 #include "RenderContext/RenderContext.h"
 #include "../Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../Particle/ParticleBufferManager.h"
+#include "Particle/ParticleBufferManager.h"
+#include "Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "MeshBufferAllocator/MeshBufferAllocator.h"
 #include "../Resource/Data/QuadPolygon/QuadPolygon.h"
 #include "MouseCursor/MouseCursor.h"
@@ -291,6 +292,26 @@ namespace Engine::Graphics
 		//------------------------------------------------------------------------------------
 		m_upPassMetaRegistry = std::make_unique<Pipeline::PassMetaRegistry>();
 		Pipeline::RegisterBuiltinPasses(*m_upPassMetaRegistry);
+
+		// パーティクルバッファの生成
+		m_upParticleManager = std::make_unique<Particle::ParticleBufferManager>();
+		m_upParticleManager->Init(this, m_upDescriptorHeapManager.get(), a_pCmdList);
+
+		// レイトレワールド構築
+		m_upRayEngine = std::make_unique<Raytracing::RayEngine>();
+		m_upRayEngine->CommitWorld(_pDevice, m_upDescriptorHeapManager.get(), a_pCmdList, m_pResourceManager);
+
+		// マウスカーソル
+		m_upMouseCursor = std::make_unique<MouseCursor>();
+		m_upMouseCursor->Init(m_upDescriptorHeapManager.get(), m_pResourceManager);
+	}
+
+	void GraphicsEngine::ReleaseMouseCursor()
+	{
+		if (!m_upMouseCursor) return;
+
+		m_upMouseCursor->Release();
+		m_upMouseCursor.reset();
 	}
 
 	// RenderGraph / Texture が完全型として見えるここで生成・破棄を定義する
@@ -923,6 +944,22 @@ namespace Engine::Graphics
 			m_upPipelineStateManager->Release();
 			m_upPipelineStateManager.reset();
 		}
+
+		// パーティクルのGPUバッファ解放。
+		// これらはディスクリプタヒープにハンドルを持つため、
+		// 必ず ReleaseDescriptorHeap より前に破棄する。
+		if (m_upParticleManager)
+		{
+			m_upParticleManager->Release();
+			m_upParticleManager.reset();
+		}
+
+		// レイトレワールド(TLAS/BLAS・各種バッファ)の解放
+		if (m_upRayEngine)
+		{
+			m_upRayEngine->Release();
+			m_upRayEngine.reset();
+		}
 	}
 
 	void GraphicsEngine::BeginFrame()
@@ -971,9 +1008,9 @@ namespace Engine::Graphics
 		// 最前面レイヤーへ描く(MouseCursor::DrawImGui)。ここでは積まない
 		if (MainEngine::Instance().GetMode() == EAppMode::Game)
 		{
-			if (auto* _pCursor = MainEngine::Instance().RefMouseCursor())
+			if (m_upMouseCursor)
 			{
-				_pCursor->SubmitUI(this);
+				m_upMouseCursor->SubmitUI(this);
 			}
 		}
 
@@ -981,7 +1018,7 @@ namespace Engine::Graphics
 		m_upMeshBufferAllocator->UpdateFrame(_pCmdList, _completedFence);
 
 		// パーティクルのバッファ更新
-		MainEngine::Instance().RefParticleManager()->UploadEmitData(_pCmdList);
+		m_upParticleManager->UploadEmitData(_pCmdList);
 
 		// バックバッファを描き込める状態にしてクリアする
 		m_upBackBuffer->TransitionToRenderTarget(_pCmdList);

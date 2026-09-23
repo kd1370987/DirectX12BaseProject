@@ -5,9 +5,9 @@
 #include "d3dx12_pipeline_state_stream.h"
 #pragma warning(pop)
 
-#include "Engine/D3D12/Builder/RootSignatureBuilder/RootSignatureBuilder.h"
+#include "Engine/Graphics/D3D12/Builder/RootSignatureBuilder/RootSignatureBuilder.h"
 
-#include "Engine/D3D12/Builder/PipelineBuilder/RenderPipelineBuilder/RenderPipelineBuilder.h"
+#include "Engine/Graphics/D3D12/Builder/PipelineBuilder/RenderPipelineBuilder/RenderPipelineBuilder.h"
 
 namespace Engine::Graphics
 {

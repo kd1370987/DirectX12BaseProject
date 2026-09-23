@@ -3,10 +3,10 @@
 #include "../RaytracingWorld/RaytracingWorld.h"
 #include "../RayPSO/RayPSO.h"
 
-#include "../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "../../Graphics/RenderContext/RenderContext.h"
+#include "../../RenderContext/RenderContext.h"
 
 // CD3DX12_* のヘルパーはここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため

@@ -5,7 +5,7 @@
 #include "../../../../../Engine/Graphics/GraphicEngine.h"
 
 #include "../../../../../Engine/Resource/Data/Particles/ParticlesAsset.h"
-#include "../../../../../Engine/Particle/ParticleBufferManager.h"
+#include "../../../../../Engine/Graphics/Particle/ParticleBufferManager.h"
 
 #include "../../../../Components/Resource/ParticlesComponent.h"
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
@@ -46,7 +46,7 @@ void EmitParticleSystem::Init(App::ECS::APPWorld& a_world)
 				if (_p.pendingEmitCount <= 0 && _p.pendingSparkEmitCount <= 0) continue;
 
 				// パーティクルマネージャー取得
-				auto* _pParticleManager = a_ctx.pServices->pMainEngine->RefParticleManager();
+				auto* _pParticleManager = a_ctx.pServices->pMainEngine->RefGraphicsEngine()->RefParticleManager();
 				if (!_pParticleManager) continue;
 
 				// ---------------------------------------------------------

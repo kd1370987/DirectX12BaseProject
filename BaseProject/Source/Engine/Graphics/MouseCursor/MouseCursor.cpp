@@ -7,7 +7,7 @@
 #include "../../Option/OptionManager.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../Resource/Data/Texture/Texture.h"
-#include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 namespace Engine::Graphics
 {

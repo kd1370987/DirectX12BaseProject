@@ -5,7 +5,7 @@
 
 #include "GPU/GPUParticlePool/GPUParticlePool.h"
 
-#include "../Resource/Data/Particles/ParticlesAsset.h"
+#include "../../Resource/Data/Particles/ParticlesAsset.h"
 
 namespace Engine::Graphics
 {

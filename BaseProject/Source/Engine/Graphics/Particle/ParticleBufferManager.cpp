@@ -1,7 +1,7 @@
 ﻿#include "ParticleBufferManager.h"
 
-#include "../Resource/Manager/AssetDatabase/AssetDatabase.h"
-#include "../Graphics/GraphicEngine.h"
+#include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
+#include "../GraphicEngine.h"
 
 namespace Engine::Particle
 {

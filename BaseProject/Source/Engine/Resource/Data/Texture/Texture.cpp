@@ -3,7 +3,7 @@
 #include "../../Data/Texture/IO/Importer/TextureImporter.h"
 #include "../../Data/Texture/IO/Creater/TextureCreater.h"
 
-#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 // DirectXTex はテクスチャの読み書きでしか使わない。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため

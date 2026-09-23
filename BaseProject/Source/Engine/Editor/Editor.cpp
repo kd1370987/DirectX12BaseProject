@@ -5,7 +5,7 @@
 
 #include "Profiler/Profiler.h"
 
-#include "Engine/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "../MainEngine.h"
 #include "../Option/OptionManager.h"

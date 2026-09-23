@@ -18,6 +18,16 @@ namespace Engine
 		class World;
 	}
 
+	namespace Raytracing
+	{
+		class RayEngine;
+	}
+
+	namespace Particle
+	{
+		class ParticleBufferManager;
+	}
+
 	namespace Resource
 	{
 		class ResourceManager;
@@ -40,6 +50,7 @@ namespace Engine::Graphics
 	class CommandContext;
 	class FrameManager;
 	class AsyncGPUManager;
+	class MouseCursor;
 	struct AsyncBuildBatch;
 	struct PSOKey;
 
@@ -103,7 +114,7 @@ namespace Engine::Graphics
 	//
 	// デバイス(とコマンドキュー・フレーム同期)は何よりも先に作って最後に捨てる。
 	// ディスクリプタヒープはその内側で、ビューを預けているもの
-	// (バックバッファ・パーティクル・レイトレ・遅延解放キュー)が片付くまで生かしておく
+	// (パーティクル・レイトレ・バックバッファ・遅延解放キュー)が片付くまで生かしておく
 	//==========================================================================================
 	class GraphicsEngine
 	{
@@ -128,7 +139,7 @@ namespace Engine::Graphics
 		//
 		// 他の初期化とは別段にしてある。
 		// ・作るのが一番早い : バックバッファのRTVを取るのに要るので Init より前に通す
-		// ・捨てるのが一番遅い : パーティクル/レイトレ/バックバッファ/遅延解放キューが
+		// ・捨てるのが一番遅い : バックバッファ/遅延解放キューが
 		//   Release() の後にディスクリプタを返してくるため、そこまで生かしておく
 		//--------------------------------------------------------------------------------------------
 		bool InitDescriptorHeap();
@@ -144,8 +155,14 @@ namespace Engine::Graphics
 		void ReleaseBackBuffer();
 
 		// 初期化・解放
+		// パーティクル・レイトレワールド・自前カーソルもここで作り、ここで捨てる
+		// (自前カーソルだけは先に ReleaseMouseCursor で手放しておくこと)
 		void Init(D3D12::GraphicsCommandList* a_pCmdList, const GraphicsEngineDesc& a_desc);
 		void Release();
+
+		// 自前カーソルの解放。
+		// テクスチャの参照を握っているので、リソースの解放より前に呼ぶ
+		void ReleaseMouseCursor();
 
 
 		// フレームの開始・終了処理。
@@ -599,6 +616,16 @@ namespace Engine::Graphics
 		DebugDraw* RefDebugDraw() { return m_upDebugDraw.get(); }
 		const DebugDraw* GetDebugDraw() const { return m_upDebugDraw.get(); }
 
+		// パーティクル
+		Particle::ParticleBufferManager* RefParticleManager() { return m_upParticleManager.get(); }
+		const Particle::ParticleBufferManager* GetParticleManager() const { return m_upParticleManager.get(); }
+
+		// レイトレワールド
+		Raytracing::RayEngine* RefRayEngine() { return m_upRayEngine.get(); }
+
+		// 自前で描くマウスカーソル
+		MouseCursor* RefMouseCursor() { return m_upMouseCursor.get(); }
+
 	private:
 
 		// カメラをGPU用データに変換
@@ -746,7 +773,16 @@ namespace Engine::Graphics
 		// 積む側(システム・GameObject・エンジン内部)はここへ入れ、
 		// DebugLinePass が RenderContext 経由で読む
 		std::unique_ptr<DebugDraw> m_upDebugDraw = nullptr;
-	
+
+		// パーティクルのGPUバッファ。ディスクリプタヒープにハンドルを持つ
+		std::unique_ptr<Particle::ParticleBufferManager> m_upParticleManager = nullptr;
+
+		// レイトレワールド(TLAS/BLAS・各種バッファ)
+		std::unique_ptr<Raytracing::RayEngine> m_upRayEngine = nullptr;
+
+		// 自前で描くマウスカーソル
+		std::unique_ptr<MouseCursor> m_upMouseCursor = nullptr;
+
 		//--------------------------------------------------------------------------------------------
 		// GPU送信用データ
 		//--------------------------------------------------------------------------------------------

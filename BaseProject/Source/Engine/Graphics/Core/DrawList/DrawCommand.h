@@ -61,6 +61,8 @@ namespace Engine::Graphics
 		uint16_t GetPSOID()			const { return static_cast<uint16_t>(sortKey.bits.psoID); }
 	};
 
+
+
 	/// <summary>
 	/// GPUスキニングするエンティティの命令
 	/// </summary>
