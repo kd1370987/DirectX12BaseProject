@@ -1,6 +1,6 @@
 ﻿#include "Decoration.h"
 
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/Texture/IO/TextureIO.h"
 #include "Engine/Editor/Helper/EditorHelper.h"

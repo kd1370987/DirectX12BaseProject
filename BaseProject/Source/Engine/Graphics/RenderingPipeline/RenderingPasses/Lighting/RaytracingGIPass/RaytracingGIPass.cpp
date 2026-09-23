@@ -1,12 +1,12 @@
 ﻿#include "RaytracingGIPass.h"
 
-#include "Engine/Graphics/GraphicEngine.h"
-#include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
+#include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 #include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
 #include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
 
-#include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
 #include "Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
 namespace Engine::Graphics::Pipeline

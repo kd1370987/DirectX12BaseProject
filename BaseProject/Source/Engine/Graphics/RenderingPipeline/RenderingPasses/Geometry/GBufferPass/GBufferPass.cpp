@@ -1,8 +1,8 @@
 ﻿#include "GBufferPass.h"
 
-#include "Engine/Graphics/GraphicEngine.h"
-#include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
 #include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 

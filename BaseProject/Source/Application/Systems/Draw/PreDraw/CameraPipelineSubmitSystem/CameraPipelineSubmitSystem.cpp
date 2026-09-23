@@ -10,7 +10,7 @@
 
 #include "Application/InstanceResource/SingletonEntityResource.h"
 
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 
 //==========================================================================================
 // CameraPipelineSubmitSystem

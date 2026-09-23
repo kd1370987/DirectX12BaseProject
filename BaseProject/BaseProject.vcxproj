@@ -294,7 +294,7 @@
       <ObjectFileName>$(IntDir)External\imnodes.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="Source\Application\App.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\BeamRenderer\BeamRenderer.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Effect\BeamRenderer\BeamRenderer.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.cpp" />
     <ClCompile Include="Source\Application\Utility\EffectPrefabSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem\DebrisEmitterSystem.cpp" />
@@ -438,19 +438,19 @@
     <ClCompile Include="Source\Engine\Audio\AudioManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\Archetype\ArchetypeManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\Entity\EntityStorage.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\AsyncGPUManager\AsyncGPUManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Core\AsyncGPUManager\AsyncGPUManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\Command\CommandContext\CommandContext.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\Command\CommandPool\CommandPool.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Core\CommandContext\CommandContext.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Core\CommandPool\CommandPool.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\GPUResource\GPUResource.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\PipeLineState\PipelineState.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\RootSignature\RootSignature.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\FrameManager\FrameManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Core\FrameManager\FrameManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.cpp" />
@@ -458,7 +458,7 @@
     <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\IndexBuffer\DynamicIndexBuffer.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\MegaBuffer\MegaBuffer.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\PipelineStateManager\PipelineStateManager.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\PipelineState\PipelineStateManager\PipelineStateManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\Component\ComponentMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\ECS\Entity\EntityManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\System\SystemManager.cpp" />
@@ -503,10 +503,9 @@
     <ClCompile Include="Source\Application\ECS\World\APPWorld.cpp" />
     <ClCompile Include="Source\Application\ECS\World\WorldTypeRegister.cpp" />
     <ClCompile Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\GraphicEngine.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\GraphicsEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\LightManager\LightManager.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Frame\MeshBufferAllocator\MeshBufferAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap\GraphHeap.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler\RenderGraphCompiler.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceAllocator.cpp" />
@@ -554,7 +553,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass\TestGBufferPass.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\PipelineState\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp" />
     <ClCompile Include="Source\Engine\Input\InputCollector\InputCollector.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.cpp" />
     <ClCompile Include="Source\Engine\Input\InputDevice\Axis\InputAxisForWindowsMouse\InputAxisForWindowsMouse.cpp" />
@@ -570,9 +569,9 @@
     <ClCompile Include="Source\Engine\JobSystem\Internal\JobWorker\JobWorker.cpp" />
     <ClCompile Include="Source\Engine\JobSystem\JobSystem.cpp" />
     <ClCompile Include="Source\Engine\MainEngine.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderContext\RenderContext.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Frame\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Core\BackBuffer\BackBuffer.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\Core\DrawList\DrawList.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Frame\DrawList\DrawList.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Core\GraphicsDevice\GraphicsDevice.cpp" />
     <ClCompile Include="Source\Engine\Option\GraphicsOptions\RenderingOption.cpp" />
     <ClCompile Include="Source\Engine\Option\GraphicsOptions\WindowOption.cpp" />
@@ -684,7 +683,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Library\Include\imgui-docking\imconfig.h" />
-    <ClInclude Include="Source\Engine\Graphics\BeamRenderer\BeamRenderer.h" />
+    <ClInclude Include="Source\Engine\Graphics\Effect\BeamRenderer\BeamRenderer.h" />
     <ClInclude Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.h" />
     <ClInclude Include="Source\Application\Components\Effect\DebrisEmitterComponent.h" />
     <ClInclude Include="Source\Application\Components\Effect\BallisticComponent.h" />
@@ -1014,12 +1013,12 @@
     <ClInclude Include="Source\Engine\Common\EngineConfigTypes.h" />
     <ClInclude Include="Source\Engine\Common\Handle.h" />
     <ClInclude Include="Source\Engine\Common\Macros\ClassMacros.h" />
-    <ClInclude Include="Source\Engine\Graphics\AsyncGPUManager\AsyncGPUManager.h" />
+    <ClInclude Include="Source\Engine\Graphics\Core\AsyncGPUManager\AsyncGPUManager.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.h" />
-    <ClInclude Include="Source\Engine\Graphics\Command\CommandContext\CommandContext.h" />
-    <ClInclude Include="Source\Engine\Graphics\Command\CommandPool\CommandPool.h" />
+    <ClInclude Include="Source\Engine\Graphics\Core\CommandContext\CommandContext.h" />
+    <ClInclude Include="Source\Engine\Graphics\Core\CommandPool\CommandPool.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Common.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Helper.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h" />
@@ -1030,7 +1029,7 @@
     <ClInclude Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\HeapAllocator.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\DescriptorHeapManager.h" />
-    <ClInclude Include="Source\Engine\Graphics\FrameManager\FrameManager.h" />
+    <ClInclude Include="Source\Engine\Graphics\Core\FrameManager\FrameManager.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer\ByteAddressBuffer.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\ByteAddressBuffer\StaticByteAddressBuffer.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\DynamicBuffer\DynamicBuffer.h" />
@@ -1043,7 +1042,7 @@
     <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\StaticBuffer\StaticBuffer.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\StructuredBuffer\StaticStructuredBuffer.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\GPUBuffer\VertexBuffer\DynamicVertexBuffer.h" />
-    <ClInclude Include="Source\Engine\Graphics\PipelineStateManager\PipelineStateManager.h" />
+    <ClInclude Include="Source\Engine\Graphics\PipelineState\PipelineStateManager\PipelineStateManager.h" />
     <ClInclude Include="Source\Engine\ECS\Archetype\Chunk.h" />
     <ClInclude Include="Source\Engine\ECS\Query\QueryCache.h" />
     <ClInclude Include="Source\Engine\ECS\Entity\CommandBuffer.h" />
@@ -1113,15 +1112,14 @@
     <ClInclude Include="Source\Application\ECS\World\WorldTypeRegister.h" />
     <ClInclude Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\CBData.h" />
-    <ClInclude Include="Source\Engine\Graphics\FrameResource\FrameResourceManager.h" />
-    <ClInclude Include="Source\Engine\Graphics\GraphicEngine.h" />
+    <ClInclude Include="Source\Engine\Graphics\GraphicsEngine.h" />
     <ClInclude Include="Source\Engine\Graphics\LightManager\Core\Light.h" />
     <ClInclude Include="Source\Engine\Graphics\LightManager\Core\Shadow.h" />
     <ClInclude Include="Source\Engine\Graphics\LightManager\LightManager.h" />
-    <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshAllocationHandle.h" />
-    <ClInclude Include="Source\Engine\Graphics\MeshBufferAllocator\MeshBufferAllocator.h" />
-    <ClInclude Include="Source\Engine\Graphics\PSOKey.h" />
-    <ClInclude Include="Source\Engine\Graphics\ShadingPipelineBuilder\ShadingPipelineBuilder.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\MeshBufferAllocator\MeshAllocationHandle.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\MeshBufferAllocator\MeshBufferAllocator.h" />
+    <ClInclude Include="Source\Engine\Graphics\PipelineState\PSOKey.h" />
+    <ClInclude Include="Source\Engine\Graphics\PipelineState\ShadingPipelineBuilder\ShadingPipelineBuilder.h" />
     <ClInclude Include="Source\Engine\Input\Core\InputAction.h" />
     <ClInclude Include="Source\Engine\Input\InputCollector\InputCollector.h" />
     <ClInclude Include="Source\Engine\Input\InputDevice\Axis\InputAxisBase.h" />
@@ -1143,10 +1141,10 @@
     <ClInclude Include="Source\Engine\MainEngine.h" />
     <ClInclude Include="Source\Engine\EngineCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderContext\RenderContext.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\RenderContext\RenderContext.h" />
     <ClInclude Include="Source\Engine\Graphics\Core\BackBuffer\BackBuffer.h" />
-    <ClInclude Include="Source\Engine\Graphics\Core\DrawList\DrawCommand.h" />
-    <ClInclude Include="Source\Engine\Graphics\Core\DrawList\DrawList.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\DrawList\DrawCommand.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\DrawList\DrawList.h" />
     <ClInclude Include="Source\Engine\Graphics\Core\GraphicsDevice\GraphicsDevice.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\GIOptions.h" />
     <ClInclude Include="Source\Engine\Option\GraphicsOptions\RenderingOption.h" />

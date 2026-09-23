@@ -3,7 +3,7 @@
 #include "../../../MainEngine.h"
 
 // グラフィックス系
-#include "../../../Graphics/GraphicEngine.h"
+#include "../../../Graphics/GraphicsEngine.h"
 #include "../../../Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
 #include "../../../Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
 #include "../../../Graphics/RenderingPipeline/Core/Pass/Pass.h"

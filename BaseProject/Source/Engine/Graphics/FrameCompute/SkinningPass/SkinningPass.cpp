@@ -1,15 +1,15 @@
 ﻿#include "SkinningPass.h"
 
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 
-#include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
 
 
 #include "Engine/Graphics/D3D12/CBAllocator/CBAllocator.h"
 
 #include "Engine/Option/OptionManager.h"
-#include "Engine/Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
+#include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 #include "Engine/Resource/Data/Shader/IO/ShaderIO.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 

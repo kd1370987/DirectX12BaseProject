@@ -1,8 +1,8 @@
 ﻿#include "SkyPass.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
-#include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 
 namespace Engine::Graphics::Pipeline
 {

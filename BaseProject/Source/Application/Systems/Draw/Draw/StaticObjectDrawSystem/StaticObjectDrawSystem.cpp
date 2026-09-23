@@ -2,13 +2,13 @@
 
 #include "Application/ECS/World/APPWorld.h"
 #include "Engine/MainEngine.h"
-#include "../../../../../Engine/Graphics/GraphicEngine.h"
+#include "../../../../../Engine/Graphics/GraphicsEngine.h"
 
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Transform/PreviousWorldMatrixComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
 
-#include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Application/Components/Resource/AnimatorComponent.h"

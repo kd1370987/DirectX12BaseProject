@@ -11,7 +11,7 @@
 #include "../../ECS/World/World.h"
 #include "../../Scene/BaseScene/BaseScene.h"
 #include "../../Physics/PhysicsWorld.h"
-#include "../../Graphics/GraphicEngine.h"
+#include "../../Graphics/GraphicsEngine.h"
 #include "../../Graphics/DebugDraw/DebugDraw.h"
 #include "../../Option/OptionManager.h"
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"

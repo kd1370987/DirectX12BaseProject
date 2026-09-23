@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../CBData.h"
+#include "../../CBData.h"
 #include "Engine/Graphics/D3D12/CBAllocator/CBAllocator.h"
 
 namespace Engine::Resource

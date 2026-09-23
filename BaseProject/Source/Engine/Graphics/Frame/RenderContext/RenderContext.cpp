@@ -7,14 +7,14 @@
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
-#include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
-#include "../GraphicEngine.h"
-#include "../Core/BackBuffer/BackBuffer.h"
-#include "../Core/DrawList/DrawList.h"
+#include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
+#include "../../GraphicsEngine.h"
+#include "../../Core/BackBuffer/BackBuffer.h"
+#include "../DrawList/DrawList.h"
 #include "../MeshBufferAllocator/MeshBufferAllocator.h"
-#include "../DebugDraw/DebugDraw.h"
+#include "../../DebugDraw/DebugDraw.h"
 
-#include "../../ECS/World/World.h"
+#include "../../../ECS/World/World.h"
 
 //============================================================================================
 //

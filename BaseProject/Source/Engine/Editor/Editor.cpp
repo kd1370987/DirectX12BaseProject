@@ -10,8 +10,8 @@
 #include "../MainEngine.h"
 #include "../Option/OptionManager.h"
 
-#include "../Graphics/GraphicEngine.h"
-#include "../Graphics/RenderContext/RenderContext.h"
+#include "../Graphics/GraphicsEngine.h"
+#include "../Graphics/Frame/RenderContext/RenderContext.h"
 
 #include "../Scene/SceneManager/SceneManager.h"
 #include "../ECS/World/World.h"

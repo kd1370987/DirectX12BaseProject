@@ -1,4 +1,4 @@
-﻿#include "GraphicEngine.h"
+﻿#include "GraphicsEngine.h"
 
 #include "../MainEngine.h"
 
@@ -8,18 +8,18 @@
 // グラフィックスエンジンの持ち物(土台)
 #include "Core/GraphicsDevice/GraphicsDevice.h"
 #include "Core/BackBuffer/BackBuffer.h"
-#include "Command/CommandContext/CommandContext.h"
-#include "Command/CommandPool/CommandPool.h"
-#include "FrameManager/FrameManager.h"
-#include "AsyncGPUManager/AsyncGPUManager.h"
-#include "PipelineStateManager/PipelineStateManager.h"
+#include "Core/CommandContext/CommandContext.h"
+#include "Core/CommandPool/CommandPool.h"
+#include "Core/FrameManager/FrameManager.h"
+#include "Core/AsyncGPUManager/AsyncGPUManager.h"
+#include "PipelineState/PipelineStateManager/PipelineStateManager.h"
 
 // グラフィックス関係
-#include "RenderContext/RenderContext.h"
+#include "Frame/RenderContext/RenderContext.h"
 #include "../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Particle/ParticleBufferManager.h"
 #include "Raytracing/RaytracingEngine/RaytracingEngine.h"
-#include "MeshBufferAllocator/MeshBufferAllocator.h"
+#include "Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 #include "../Resource/Data/QuadPolygon/QuadPolygon.h"
 #include "MouseCursor/MouseCursor.h"
 #include "DebugDraw/DebugDraw.h"

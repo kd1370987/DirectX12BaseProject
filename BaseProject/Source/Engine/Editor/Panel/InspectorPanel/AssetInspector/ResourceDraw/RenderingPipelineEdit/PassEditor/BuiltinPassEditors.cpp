@@ -63,7 +63,7 @@
 
 // 実行インスタンス側のパスを探すのに要る(モニターの中身の借り先)
 #include "Engine/MainEngine.h"
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 
 namespace Engine::Editor::Inspector
 {

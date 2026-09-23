@@ -198,7 +198,7 @@ namespace Engine::Resource
 #include "Engine/Graphics/Raytracing/Common/RaytracingInstance.h"
 #include "Engine/Graphics/Raytracing/Common/Common.h"
 
-//#include "Graphics/MeshBufferAllocator/MeshAllocationHandle.h"
+//#include "Graphics/Frame/MeshBufferAllocator/MeshAllocationHandle.h"
 
 //==========================================================================================
 // 

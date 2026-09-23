@@ -4,7 +4,7 @@
 #include "../../ECS/World/World.h"	// unique_ptr<World> を扱うので完全型が要る
 
 #include "Engine/MainEngine.h"
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"

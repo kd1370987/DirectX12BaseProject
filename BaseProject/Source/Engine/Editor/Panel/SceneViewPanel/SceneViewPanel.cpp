@@ -1,7 +1,7 @@
 ﻿#include "SceneViewPanel.h"
 #include "../../../MainEngine.h"
 #include "../../../../Application/ECS/PhaseTag/PhaseTag.h"	// ライフサイクルのフェーズタグ
-#include "../../../Graphics/GraphicEngine.h"
+#include "../../../Graphics/GraphicsEngine.h"
 
 #include "../../../Scene/BaseScene/BaseScene.h"
 #include "../../../Scene/SceneManager/SceneManager.h"

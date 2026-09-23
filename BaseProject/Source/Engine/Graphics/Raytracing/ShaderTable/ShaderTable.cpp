@@ -6,7 +6,7 @@
 #include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "../../RenderContext/RenderContext.h"
+#include "../../Frame/RenderContext/RenderContext.h"
 
 // CD3DX12_* のヘルパーはここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため

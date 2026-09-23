@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Engine/MainEngine.h"
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 
 //==========================================================================================
 // PointLightComponent

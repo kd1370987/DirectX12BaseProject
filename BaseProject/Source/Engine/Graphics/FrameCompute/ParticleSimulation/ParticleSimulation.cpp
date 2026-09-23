@@ -1,12 +1,12 @@
 #include "ParticleSimulation.h"
 
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/Particle/ParticleBufferManager.h"
 #include "Engine/Graphics/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
 
-#include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/Graphics/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
 
 #include "Engine/Resource/Data/Shader/IO/ShaderIO.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"

@@ -14,7 +14,7 @@
 #include "../../Physics/PhysicsWorld.h"
 #include "../../Input/InputManager/InputManager.h"
 #include "../../Editor/Editor.h"
-#include "../../Graphics/GraphicEngine.h"
+#include "../../Graphics/GraphicsEngine.h"
 #include "../../Graphics/DebugDraw/DebugDraw.h"
 #include "../../Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "../../Audio/AudioManager.h"

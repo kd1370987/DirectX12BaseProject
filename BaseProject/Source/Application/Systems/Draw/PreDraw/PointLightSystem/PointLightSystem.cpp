@@ -6,7 +6,7 @@
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Light/PointLightComponent.h"
 
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 
 //==========================================================================================
 // PointLightSystem

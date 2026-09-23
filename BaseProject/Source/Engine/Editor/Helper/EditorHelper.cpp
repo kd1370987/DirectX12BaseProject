@@ -4,7 +4,7 @@
 
 #include "../../Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../MainEngine.h"
-#include "../../Graphics/GraphicEngine.h"
+#include "../../Graphics/GraphicsEngine.h"
 #include "../../Resource/Data/Model/Model.h"
 #include "../../Resource/Data/Texture/Texture.h"
 #include "../../Resource/Data/Animation/Animation.h"

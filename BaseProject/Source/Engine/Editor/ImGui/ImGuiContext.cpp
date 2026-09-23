@@ -3,9 +3,9 @@
 #include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 #include "Engine/MainEngine.h"
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Core/BackBuffer/BackBuffer.h"
-#include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 
 // ImGui のバックエンドと ImGuizmo は、ここ(初期化とフレーム開始)だけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため

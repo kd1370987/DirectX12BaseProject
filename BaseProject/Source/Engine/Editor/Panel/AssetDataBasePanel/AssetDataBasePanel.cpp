@@ -13,7 +13,7 @@
 
 // パイプラインの作成には、パス一覧(GraphicsEngine が持つ)が要る
 #include "../../../MainEngine.h"
-#include "../../../Graphics/GraphicEngine.h"
+#include "../../../Graphics/GraphicsEngine.h"
 #include "../../../Graphics/RenderingPipeline/IO/RenderingPipelineAssetIO.h"
 
 namespace Engine::Editor

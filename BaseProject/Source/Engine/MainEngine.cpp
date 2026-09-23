@@ -8,8 +8,8 @@
 
 #include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "Engine/Graphics/RenderContext/RenderContext.h"
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Core/BackBuffer/BackBuffer.h"
 
 #include "Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"

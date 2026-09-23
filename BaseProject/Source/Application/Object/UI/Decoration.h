@@ -16,7 +16,7 @@
 // 配列1本で持てるので、描画順が配列順そのままになり、
 // インスペクターの追加・削除・並べ替えも Archive も1つのリストで済む。
 //==========================================================================================
-// 描画命令の積み先。ヘッダーでは前方宣言だけにして、実装側で GraphicEngine.h を読む
+// 描画命令の積み先。ヘッダーでは前方宣言だけにして、実装側で GraphicsEngine.h を読む
 namespace Engine::Graphics { class GraphicsEngine; }
 namespace Engine::Resource { class ResourceManager; }
 namespace Engine::ECS { struct EngineServices; }

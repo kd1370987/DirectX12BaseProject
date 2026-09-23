@@ -1,5 +1,5 @@
 ﻿#include "BlendPass.h"
-#include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 
 namespace Engine::Graphics::Pipeline
 {

@@ -3,7 +3,7 @@
 #include "../../Profiler/Profiler.h"
 
 #include "../../../MainEngine.h"
-#include "../../../Graphics/GraphicEngine.h"
+#include "../../../Graphics/GraphicsEngine.h"
 #include "../../../Graphics/Core/GraphicsDevice/GraphicsDevice.h"
 #include "../../../Window/NativeWindow.h"
 

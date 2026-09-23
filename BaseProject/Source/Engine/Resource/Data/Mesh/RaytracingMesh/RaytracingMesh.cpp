@@ -1,8 +1,8 @@
 ﻿#include "RaytracingMesh.h"
 
 #include "../../../../MainEngine.h"
-#include "../../../../Graphics/GraphicEngine.h"
-#include "../../../../Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
+#include "../../../../Graphics/GraphicsEngine.h"
+#include "../../../../Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 
 namespace Engine::Resource
 {

@@ -19,7 +19,7 @@
 #include "Engine/Editor/Editor.h"
 
 #include "Engine/MainEngine.h"
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 
 #include "../../../../../Resource/Data/Model/IO/ModelConverter/ModelConverter.h"
 

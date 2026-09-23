@@ -1,6 +1,6 @@
 ﻿#include "TextureImporter.h"
 
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 #include "../../../../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "../../../../Data/Texture/Texture.h"

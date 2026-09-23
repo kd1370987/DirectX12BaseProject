@@ -1,8 +1,8 @@
 #include "ScopedResourceBuild.h"
 
 #include "Engine/MainEngine.h"
-#include "Engine/Graphics/GraphicEngine.h"
-#include "Engine/Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
+#include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Resource

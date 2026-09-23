@@ -13,7 +13,7 @@
 // このヘッダーは ResourceManager 経由で EngineCommon の途中から取り込まれるため、
 // GraphicCommon より先に読まれることがある。必要なものは明示的に含める
 #include "../../../GraphicCommon.h"
-#include "../../../ShadingPipelineBuilder/ShadingPipelineBuilder.h"
+#include "../../../PipelineState/ShadingPipelineBuilder/ShadingPipelineBuilder.h"
 
 #include "../PipelineEnums.h"
 #include "../ResourceID.h"

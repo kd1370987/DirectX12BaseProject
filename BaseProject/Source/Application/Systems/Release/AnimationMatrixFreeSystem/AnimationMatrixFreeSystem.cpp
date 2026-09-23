@@ -9,8 +9,8 @@
 #include "../../../Components/Resource/SkeletonPoseComponent.h"
 
 #include "../../../../Engine/MainEngine.h"
-#include "../../../../Engine/Graphics/GraphicEngine.h"
-#include "../../../../Engine/Graphics/MeshBufferAllocator/MeshBufferAllocator.h"
+#include "../../../../Engine/Graphics/GraphicsEngine.h"
+#include "../../../../Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 
 void AnimationMatrixFreeSystem::Init(App::ECS::APPWorld& a_world)
 {

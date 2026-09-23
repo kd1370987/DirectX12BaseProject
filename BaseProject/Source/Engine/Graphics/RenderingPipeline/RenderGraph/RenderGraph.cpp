@@ -17,8 +17,8 @@
 #include "GraphHeap/GraphHeap.h"
 
 // 実行時に触るもの
-#include "../../GraphicEngine.h"
-#include "../../RenderContext/RenderContext.h"
+#include "../../GraphicsEngine.h"
+#include "../../Frame/RenderContext/RenderContext.h"
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 #include "../../../MainEngine.h"
 #include "../../Raytracing/RaytracingEngine/RaytracingEngine.h"

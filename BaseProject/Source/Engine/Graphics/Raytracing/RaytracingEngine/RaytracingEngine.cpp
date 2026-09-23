@@ -7,8 +7,8 @@
 
 #include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "../../RenderContext/RenderContext.h"
-#include "../../GraphicEngine.h"
+#include "../../Frame/RenderContext/RenderContext.h"
+#include "../../GraphicsEngine.h"
 #include "../../D3D12/CBAllocator/CBAllocator.h"
 
 #include "../RayPSO/RayPSO.h"

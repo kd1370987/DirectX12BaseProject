@@ -2,7 +2,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "Engine/MainEngine.h"
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Editor/Helper/EditorHelper.h"
 #include "Engine/Editor/Internal/EditorContext.h"
 

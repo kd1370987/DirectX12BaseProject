@@ -2,7 +2,7 @@
 
 #include "Application/ECS/World/APPWorld.h"
 #include "Engine/MainEngine.h"
-#include "Engine/Graphics/GraphicEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Particle/ParticleBufferManager.h"
 
 #include "../../../../Components/Effect/EffectAssetComponent.h"

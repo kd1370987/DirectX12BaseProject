@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "CBData.h"
 #include "LightManager/LightManager.h"
-#include "Core/DrawList/DrawList.h"
+#include "Frame/DrawList/DrawList.h"
 
 namespace Engine
 {
@@ -854,7 +854,7 @@ namespace Engine::Graphics
 		struct CameraPipelineData
 		{
 			// unique_ptr の中身(GraphicsPipeline)がこのヘッダーでは不完全型なので、
-			// 生成と破棄は GraphicEngine.cpp 側(完全型が見える場所)に置く
+			// 生成と破棄は GraphicsEngine.cpp 側(完全型が見える場所)に置く
 			CameraPipelineData();
 			~CameraPipelineData();
 

@@ -2,7 +2,7 @@
 
 #include "Application/ECS/World/APPWorld.h"
 #include "Engine/MainEngine.h"
-#include "../../../../../Engine/Graphics/GraphicEngine.h"
+#include "../../../../../Engine/Graphics/GraphicsEngine.h"
 
 #include "Application/Components/Resource/SkeletonPoseComponent.h"
 #include "Application/Components/Resource/ModelComponent.h"
@@ -10,7 +10,7 @@
 #include "Application/Components/Resource/NodePoseComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Graphics/RenderContext/RenderContext.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 
 void AnimationOptionalDrawSystem::Init(App::ECS::APPWorld& a_world)
 {

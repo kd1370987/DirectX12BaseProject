@@ -1,6 +1,6 @@
 ﻿#include "MouseCursor.h"
 
-#include "../GraphicEngine.h"
+#include "../GraphicsEngine.h"
 #include "../../MainEngine.h"
 #include "../../Window/NativeWindow.h"
 #include "../../Input/InputManager/InputManager.h"

@@ -12,7 +12,7 @@
 #include "Application/Components/Resource/NodePoseComponent.h"
 
 #include "../../../../../Engine/MainEngine.h"
-#include "../../../../../Engine/Graphics/GraphicEngine.h"
+#include "../../../../../Engine/Graphics/GraphicsEngine.h"
 
 void SkinningRegisterSystem::Init(App::ECS::APPWorld& a_world)
 {

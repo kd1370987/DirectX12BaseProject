@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-#include "MeshBufferAllocator/MeshAllocationHandle.h"
+#include "Frame/MeshBufferAllocator/MeshAllocationHandle.h"
 
 // ==========================================================
 // モデルをどのパスへ流すか
