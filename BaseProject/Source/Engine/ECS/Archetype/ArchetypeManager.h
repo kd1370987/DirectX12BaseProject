@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../Entity/EntityLocation.h"
+#include "ChunkAllocator.h"
 
 namespace Engine::ECS
 {
@@ -18,7 +19,8 @@ namespace Engine::ECS
 	//   Archetype : シグネチャ・レイアウト・容量・チャンク一覧
 	//   Chunk     : エンティティ配列とデータ本体(所属アーキタイプへの逆参照を持つ)
 	//
-	// チャンクの確保・解放はここが持つ(後でアロケーターへ差し替える予定)。
+	// チャンクは ChunkAllocator(World ごとに1つ)から借りて、空になったら返す。
+	// 空いたチャンクは各アーキタイプで1つだけ手元に残し、2つ目が空いたら古い方を返す。
 	//==========================================================================================
 	class ArchetypeManager
 	{
@@ -38,7 +40,7 @@ namespace Engine::ECS
 		void Init(ComponentMetaRegistry* a_pMetaRegister);
 
 		/// <summary>
-		/// 世代取得 : チャンクが増えるたびに進む(クエリのキャッシュの作り直し判定に使う)
+		/// 世代取得 : チャンクが増減するたびに進む(クエリのキャッシュの作り直し判定に使う)
 		/// </summary>
 		uint64_t GetGeneration() const { return m_generation; }
 
@@ -86,6 +88,9 @@ namespace Engine::ECS
 		// アーキタイプにチャンクを1つ足す
 		Chunk* CreateChunk(Archetype* a_pArchetype);
 
+		// アーキタイプからチャンクを外してアロケーターへ返す
+		void ReleaseChunk(Archetype* a_pArchetype, Chunk* a_pChunk);
+
 		/// <summary>
 		/// チャンク内のオフセットや容量の計算
 		/// </summary>
@@ -93,15 +98,22 @@ namespace Engine::ECS
 		/// <param name="a_memorySize">チャンクの使用メモリ上限</param>
 		void CalcChunkLayout(Archetype* a_pArchetype, size_t a_memorySize);
 
-		// すべてのチャンクのメモリを解放する
+		// すべてのチャンクをアロケーターへ返す
 		void ReleaseAllChunks();
 
 	private:
 
 		// 1チャンクのデータ領域のサイズ
-		static constexpr size_t CHUNK_MEMORY_SIZE = 64 * 1024;
+		static constexpr size_t CHUNK_MEMORY_SIZE = ChunkAllocator::CHUNK_MEMORY_SIZE;
+
+		// 1ブロックで一括確保するチャンク数(64KB x 64 = 4MB)
+		static constexpr size_t BLOCK_CHUNK_NUM = 64;
 
 		ComponentMetaRegistry* m_pMetaRegister = nullptr;
+
+		// チャンクの貸し出し元
+		// ※ アーキタイプより先に宣言する(破棄はアーキタイプの後になる)
+		ChunkAllocator m_chunkAllocator;
 
 		// アーキタイプ配列(実体の持ち主)
 		std::vector<std::unique_ptr<Archetype>> m_upArchetypeVec = {};
@@ -109,7 +121,7 @@ namespace Engine::ECS
 		// シグネチャからの引き当て(実体は m_upArchetypeVec)
 		std::unordered_map<Signature, Archetype*> m_pArchetypeMap = {};
 
-		// 構造変更(チャンクの追加)が行われた回数
+		// 構造変更(チャンクの追加・返却)が行われた回数
 		uint64_t m_generation = 0;
 	};
 }

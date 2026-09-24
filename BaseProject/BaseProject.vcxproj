@@ -441,6 +441,7 @@
     <ClCompile Include="Source\Engine\Graphics\Animation\AnimationEvaluator\AnimationEvaluator.cpp" />
     <ClCompile Include="Source\Engine\Audio\AudioManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\Archetype\ArchetypeManager.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Archetype\ChunkAllocator.cpp" />
     <ClCompile Include="Source\Engine\ECS\Entity\EntityStorage.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Device\AsyncGPUManager\AsyncGPUManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.cpp" />
@@ -943,6 +944,7 @@
     <ClInclude Include="Source\Engine\Common\ID.h" />
     <ClInclude Include="Source\Engine\Common\Index.h" />
     <ClInclude Include="Source\Engine\ECS\Archetype\ArchetypeManager.h" />
+    <ClInclude Include="Source\Engine\ECS\Archetype\ChunkAllocator.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\GraphHeap\GraphHeap.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\AliasingBarrier.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\CompiledPass.h" />

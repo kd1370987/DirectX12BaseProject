@@ -18,6 +18,8 @@ namespace Engine::ECS
 	{
 		m_pMetaRegister = a_pMetaRegister;
 		m_generation = 0;
+
+		m_chunkAllocator.Init(BLOCK_CHUNK_NUM);
 	}
 
 	const Archetype* ArchetypeManager::GetArchetype(const Signature& a_sig) const
@@ -64,15 +66,24 @@ namespace Engine::ECS
 	{
 		Archetype* _pArchetype = GetOrCreateArchetype(a_sig);
 
-		// 空いているチャンクを探す。無ければ足す
+		// 空いているチャンクを探す。
+		// 途中まで埋まっているチャンクを優先し、無ければ空きチャンク、それも無ければ足す
 		Chunk* _pChunk = nullptr;
 		for (Chunk* _pCandidate : _pArchetype->chunks)
 		{
+			if (_pCandidate == _pArchetype->pFreeChunk) continue;
+
 			if (_pCandidate->count < _pArchetype->chunkCapacity)
 			{
 				_pChunk = _pCandidate;
 				break;
 			}
+		}
+		if (!_pChunk && _pArchetype->pFreeChunk)
+		{
+			// エンティティが入るので空きチャンクではなくなる
+			_pChunk = _pArchetype->pFreeChunk;
+			_pArchetype->pFreeChunk = nullptr;
 		}
 		if (!_pChunk)
 		{
@@ -148,6 +159,21 @@ namespace Engine::ECS
 		// チャンクのサイズをデクリメント
 		--_pChunk->count;
 
+		// チャンクサイズが 0 になれば削除予定チャンクとしてアーキタイプに記憶させる
+		if (_pChunk->count == 0)
+		{
+			auto* _pArch = _pChunk->pArchetype;
+			
+			// フリーチャンクがすでに存在するのなら解放する(世代は ReleaseChunk で進む)
+			if (_pArch->pFreeChunk)
+			{
+				ReleaseChunk(_pArch, _pArch->pFreeChunk);
+			}
+
+			// 新たな空きチャンクとして記憶しておく
+			_pArch->pFreeChunk = _pChunk;
+		}
+
 		return _swapEntity;
 	}
 
@@ -176,18 +202,8 @@ namespace Engine::ECS
 
 	Chunk* ArchetypeManager::CreateChunk(Archetype* a_pArchetype)
 	{
-		Chunk* _pChunk = new Chunk;
-		_pChunk->pArchetype = a_pArchetype;
-		_pChunk->count = 0;
-
-		// メモリ確保
-		_pChunk->entityData = new Entity[a_pArchetype->chunkCapacity];
-		_pChunk->data = reinterpret_cast<uint8_t*>(
-			operator new[](CHUNK_MEMORY_SIZE, std::align_val_t(a_pArchetype->maxAlign))
-			);
-
-		// ０初期化
-		std::memset(_pChunk->data, 0, CHUNK_MEMORY_SIZE);
+		// アロケーターから借りる(データ領域は0クリア済み、先頭がエンティティ配列)
+		Chunk* _pChunk = m_chunkAllocator.Allocate(a_pArchetype);
 
 		a_pArchetype->chunks.push_back(_pChunk);
 
@@ -195,6 +211,28 @@ namespace Engine::ECS
 		m_generation++;
 
 		return _pChunk;
+	}
+
+	void ArchetypeManager::ReleaseChunk(Archetype* a_pArchetype, Chunk* a_pChunk)
+	{
+		// アーキタイプの一覧から外す(並び順に意味は無いので末尾と入れ替えて抜く)
+		auto& _chunks = a_pArchetype->chunks;
+		auto _it = std::find(_chunks.begin(), _chunks.end(), a_pChunk);
+		if (_it == _chunks.end()) return;
+
+		*_it = _chunks.back();
+		_chunks.pop_back();
+
+		if (a_pArchetype->pFreeChunk == a_pChunk)
+		{
+			a_pArchetype->pFreeChunk = nullptr;
+		}
+
+		m_chunkAllocator.Free(a_pChunk);
+
+		// 返したチャンクは別のアーキタイプへ貸し直されるので、
+		// クエリのキャッシュに残らないよう必ず世代を進める
+		m_generation++;
 	}
 
 	void ArchetypeManager::CalcChunkLayout(Archetype* a_pArchetype, size_t a_memorySize)
@@ -212,7 +250,8 @@ namespace Engine::ECS
 		};
 		std::vector<CompInfo> _compVec = {};
 
-		size_t _entityStride = 0;		// 1エンティティが消費するバイト数(パディング抜き)
+		// 1エンティティが消費するバイト数(パディング抜き)。先頭のエンティティ配列の分から数える
+		size_t _entityStride = sizeof(Entity);
 		size_t _maxAligne = 1;			// コンポーネントの最大アライメント
 		for (ComponentTypeID _comTypeID = 0; _comTypeID < _sig.size(); ++_comTypeID)
 		{
@@ -229,6 +268,11 @@ namespace Engine::ECS
 		// 最大アライメント決定
 		a_pArchetype->maxAlign = _maxAligne;
 
+		// チャンクの先頭はアロケーターのアライメントまでしか揃っていない
+		ENGINE_ERRLOG(_maxAligne <= ChunkAllocator::CHUNK_MAX_ALIGNMENT,
+			"コンポーネントのアライメント(%zu)がチャンクのアライメント(%zu)を超えています",
+			_maxAligne, ChunkAllocator::CHUNK_MAX_ALIGNMENT);
+
 		// コンポーネントを1つも持たないアーキタイプは、エンティティ配列だけで容量が決まる
 		if (_compVec.empty())
 		{
@@ -239,12 +283,13 @@ namespace Engine::ECS
 		//------------------------------------------------------------------
 		// 容量の決定
 		//------------------------------------------------------------------
-		// 配列は SoA でコンポーネントごとに並べ、各配列の先頭をアライメントへ切り上げる
+		// 先頭にエンティティ配列を置き、その後ろに SoA でコンポーネントごとに並べる。
+		// 各配列の先頭はアライメントへ切り上げる
 		// パディング抜きで割った値を上限にし、パディング込みで収まるまで減らす
 		//------------------------------------------------------------------
 		auto _calcRequiredSize = [&_compVec](size_t a_capacity)
 			{
-				size_t _size = 0;
+				size_t _size = sizeof(Entity) * a_capacity;
 				for (const CompInfo& _comp : _compVec)
 				{
 					_size = Math::Alignment::Up(_size, _comp.align);
@@ -267,9 +312,9 @@ namespace Engine::ECS
 		a_pArchetype->chunkCapacity = static_cast<uint32_t>(_capacity);
 
 		//------------------------------------------------------------------
-		// オフセット位置計算 : 容量の決定と同じ並べ方
+		// オフセット位置計算 : 容量の決定と同じ並べ方(エンティティ配列の後ろから)
 		//------------------------------------------------------------------
-		size_t _offset = 0;
+		size_t _offset = sizeof(Entity) * _capacity;
 		for (const CompInfo& _comp : _compVec)
 		{
 			_offset = Math::Alignment::Up(_offset, _comp.align);
@@ -288,18 +333,13 @@ namespace Engine::ECS
 	{
 		for (auto& _upArchetype : m_upArchetypeVec)
 		{
+			// メモリの持ち主はアロケーターなので、返すだけ
 			for (Chunk* _pChunk : _upArchetype->chunks)
 			{
-				delete[] _pChunk->entityData;
-
-				operator delete[](
-					_pChunk->data,
-					std::align_val_t(_upArchetype->maxAlign)
-					);
-
-				delete _pChunk;
+				m_chunkAllocator.Free(_pChunk);
 			}
 			_upArchetype->chunks.clear();
+			_upArchetype->pFreeChunk = nullptr;
 		}
 	}
 }

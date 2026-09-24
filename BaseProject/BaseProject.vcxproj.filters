@@ -2841,6 +2841,9 @@
     <ClCompile Include="Source\Engine\ECS\Archetype\ArchetypeManager.cpp">
       <Filter>Source\Engine\ECS\Archetype</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Archetype\ChunkAllocator.cpp">
+      <Filter>Source\Engine\ECS\Archetype</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack\UperAttack.cpp">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack</Filter>
     </ClCompile>
@@ -4653,6 +4656,9 @@
       <Filter>Source\Engine\ECS\Archetype</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\ECS\Archetype\ArchetypeManager.h">
+      <Filter>Source\Engine\ECS\Archetype</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\Archetype\ChunkAllocator.h">
       <Filter>Source\Engine\ECS\Archetype</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Boss\SwarmBossWave.h" />
