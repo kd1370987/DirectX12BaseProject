@@ -976,6 +976,9 @@
     <Filter Include="Source\Engine\ECS\World">
       <UniqueIdentifier>{a8bfb0ea-9994-4cff-ab08-9997f32b94bd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\ECS\World\Profile">
+      <UniqueIdentifier>{4dea8932-379a-4595-aa83-94f2c9fc8403}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Editor">
       <UniqueIdentifier>{2548f352-a17e-4a6f-b5f3-56019292c9f4}</UniqueIdentifier>
     </Filter>
@@ -2235,6 +2238,9 @@
     <ClCompile Include="Source\Engine\ECS\World\World.cpp">
       <Filter>Source\Engine\ECS\World</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\World\Profile\ECSWorldProfiler.cpp">
+      <Filter>Source\Engine\ECS\World\Profile</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Editor.cpp">
       <Filter>Source\Engine\Editor</Filter>
     </ClCompile>
@@ -2317,6 +2323,9 @@
       <Filter>Source\Engine\Editor\Panel\OptionPanel</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.cpp">
+      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ECSProfilerView.cpp">
       <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.cpp">
@@ -3788,6 +3797,9 @@
     <ClInclude Include="Source\Engine\ECS\World\World.h">
       <Filter>Source\Engine\ECS\World</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\World\Profile\ECSWorldProfiler.h">
+      <Filter>Source\Engine\ECS\World\Profile</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Editor.h">
       <Filter>Source\Engine\Editor</Filter>
     </ClInclude>
@@ -3879,6 +3891,9 @@
       <Filter>Source\Engine\Editor\Panel\OptionPanel</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.h">
+      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ECSProfilerView.h">
       <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.h">

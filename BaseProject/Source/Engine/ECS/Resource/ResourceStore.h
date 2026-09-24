@@ -27,6 +27,9 @@ namespace Engine::ECS
 		template<typename ResourceType>
 		bool Has() const;
 
+		// 登録されている全リソース : 参照のみ(プロファイラ用)
+		const std::unordered_map<ResourceTypeID, std::unique_ptr<IResourceWrapper>>& GetResourceMap() const { return m_resourceMap; }
+
 	private:
 
 		// インターフェースポインタでリソースを保存

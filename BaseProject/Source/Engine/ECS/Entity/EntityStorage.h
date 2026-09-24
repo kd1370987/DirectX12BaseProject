@@ -73,8 +73,12 @@ namespace Engine::ECS
 		// AND,NOT 検索でマッチするチャンクをすべて取得
 		std::vector<Chunk*> MatchingChunkVec(const Signature& a_sig, const Signature& a_excludeSig = {}) { return m_archetypeManager.MatchingChunkVec(a_sig, a_excludeSig); }
 
-		// アーキタイプの世代 : チャンクが増えるたびに進む
+		// アーキタイプの世代 : チャンクが増減するたびに進む
 		uint64_t GetArchetypeGeneration() const { return m_archetypeManager.GetGeneration(); }
+
+		// 中身の参照のみ(プロファイラ用)
+		const EntityManager& GetEntityManager() const { return m_entityManager; }
+		const ArchetypeManager& GetArchetypeManager() const { return m_archetypeManager; }
 
 	private:
 

@@ -57,6 +57,11 @@ namespace Engine::ECS
 		const std::vector<EntityLocation>& GetAllEntityLocation();	// エンティティの場所配列を返す
 		UINT GetAliveEntityCount();									// 生存しているエンティティの数
 
+		// 参照のみ(プロファイラ用)
+		size_t GetSlotCount() const { return m_entityLocationVec.size(); }			// 確保済みの枠数(未使用含む)
+		size_t GetRecycleCount() const { return m_availbleEntitiyQueue.size(); }	// 再利用待ちの枠数
+		UINT GetAliveCount() const { return m_aliveCount; }						// 生存しているエンティティの数
+
 		// エンティティとシグネチャ
 		const Signature& GetSignature(const Entity& a_entity);					// シグネチャの取得
 		void SetSignature(const Entity& a_entity, const Signature& a_sig);		// シグネチャのセット

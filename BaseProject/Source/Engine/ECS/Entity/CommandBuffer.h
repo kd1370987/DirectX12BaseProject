@@ -55,6 +55,14 @@ namespace Engine::ECS
 
 		bool HasChange() const { return !m_changeVec.empty(); }
 
+		//------------------------------------------------------------------------------------------
+		// 積まれている数(プロファイラ用)
+		//------------------------------------------------------------------------------------------
+		size_t GetCreateCount() const { return m_createVec.size() + m_createWithDataVec.size(); }
+		size_t GetRemoveCount() const { return m_removeVec.size(); }
+		size_t GetChangeCount() const { return m_changeVec.size(); }
+		size_t GetRefreshCount() const { return m_refreshVec.size(); }
+
 	private:
 
 		template<typename T>

@@ -10,6 +10,8 @@
 
 namespace Engine::ECS
 {
+	class ECSWorldProfiler;
+
 	// クエリから除外するコンポーネント
 	template<typename... Excludes> struct Exclude {};
 
@@ -249,7 +251,27 @@ namespace Engine::ECS
 		template<typename ResourceType>
 		bool HasResource() const;
 
+		//==========================================================================================
+		// プロファイラ(任意)
+		//
+		// 計測だけを行う。持っていなければ計測のフックは呼ばれず負荷もかからない。
+		// 見る側(エディター)が必要になったときに付ける
+		//==========================================================================================
+
+		// 付ける : すでにあれば何もしない
+		void EnableProfiler();
+
+		// 外す : 溜めた計測値も捨てる
+		void DisableProfiler();
+
+		// 無ければ nullptr
+		ECSWorldProfiler* RefProfiler() { return m_upProfiler.get(); }
+		const ECSWorldProfiler* GetProfiler() const { return m_upProfiler.get(); }
+
 	protected:
+
+		// プロファイラはワールドの中身を const で読む
+		friend class ECSWorldProfiler;
 
 		//==========================================================================================
 		// 派生へのフック
@@ -328,6 +350,8 @@ namespace Engine::ECS
 		bool					m_isInit = false;			// 初期化済みか
 		CommandBuffer			m_commandBuffer;			// 構造変更の予約
 		ResourceStore			m_resourceStore;			// ワールド寿命のリソース
+
+		std::unique_ptr<ECSWorldProfiler> m_upProfiler = nullptr;	// 計測(任意。付けたときだけ持つ)
 	};
 
 	//==============================================================================================

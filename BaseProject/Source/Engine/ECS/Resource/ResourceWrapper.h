@@ -8,6 +8,10 @@ namespace Engine::ECS
 	{
 		// デストラクタは仮想関数にして派生クラスのデストラクタを呼ばせるようにする
 		virtual ~IResourceWrapper() = default;
+
+		// 型の情報(プロファイラ用)
+		virtual std::string_view GetTypeName() const = 0;	// 型名
+		virtual size_t GetTypeSize() const = 0;				// sizeof
 	};
 
 	template<typename T>
@@ -21,5 +25,8 @@ namespace Engine::ECS
 		/// </summary>
 		template<typename... Args>
 		ResourceWrapper(Args... a_args) : data(std::forward<Args>(a_args)...) {}
+
+		std::string_view GetTypeName() const override { return TypeInfo::GetTypeName<T>(); }
+		size_t GetTypeSize() const override { return sizeof(T); }
 	};
 }

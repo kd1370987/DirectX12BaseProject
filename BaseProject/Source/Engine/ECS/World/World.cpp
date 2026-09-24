@@ -1,5 +1,7 @@
 ﻿#include "World.h"
 
+#include "Profile/ECSWorldProfiler.h"
+
 namespace Engine::ECS
 {
 	World::World()
@@ -224,10 +226,12 @@ namespace Engine::ECS
 	{
 		if (!m_commandBuffer.HasChange()) return;
 
-		for (const auto& _cmd : m_commandBuffer.TakeChange())
+		const auto _cmdVec = m_commandBuffer.TakeChange();
+		for (const auto& _cmd : _cmdVec)
 		{
 			ChangeSignature(_cmd);
 		}
+		if (m_upProfiler) m_upProfiler->RecordChanged(_cmdVec.size());
 
 		OnEntityStructureChanged();
 	}
@@ -293,7 +297,22 @@ namespace Engine::ECS
 		_context.pServices = &m_engineServices;
 		_context.dt = a_dt;
 
-		m_systemManager.RunSystem(a_type, _context);
+		m_systemManager.RunSystem(a_type, _context, m_upProfiler.get());
+	}
+
+	//==============================================================================================
+	// プロファイラ
+	//==============================================================================================
+
+	void World::EnableProfiler()
+	{
+		if (m_upProfiler) return;
+		m_upProfiler = std::make_unique<ECSWorldProfiler>(this);
+	}
+
+	void World::DisableProfiler()
+	{
+		m_upProfiler.reset();
 	}
 
 	const std::unordered_map<ESystemType, std::vector<SystemTask*>>& World::GetCompileTaskMap() const
@@ -318,13 +337,17 @@ namespace Engine::ECS
 
 	void World::ApplyReservedCreate()
 	{
-		for (const auto& _sig : m_commandBuffer.TakeCreate())
+		const auto _sigVec = m_commandBuffer.TakeCreate();
+		for (const auto& _sig : _sigVec)
 		{
 			CreateEntity(_sig);
 			OnEntityStructureChanged();
 		}
 
-		for (const auto& _cmd : m_commandBuffer.TakeCreateWithData())
+		const auto _cmdVec = m_commandBuffer.TakeCreateWithData();
+		if (m_upProfiler) m_upProfiler->RecordCreated(_sigVec.size() + _cmdVec.size());
+
+		for (const auto& _cmd : _cmdVec)
 		{
 			const Entity _entity = CreateEntity(_cmd.sig);
 			if (_entity == Limits::INVALID_ENTITY) continue;
@@ -336,7 +359,10 @@ namespace Engine::ECS
 
 	void World::ApplyReservedRemove()
 	{
-		for (const auto& _entity : m_commandBuffer.TakeRemove())
+		const auto _entityVec = m_commandBuffer.TakeRemove();
+		if (m_upProfiler) m_upProfiler->RecordRemoved(_entityVec.size());
+
+		for (const auto& _entity : _entityVec)
 		{
 			RemoveEntity(_entity);
 			OnEntityStructureChanged();

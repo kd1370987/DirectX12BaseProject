@@ -11,6 +11,7 @@
 namespace Engine::ECS
 {
 	class World;
+	class ECSWorldProfiler;
 
 	// システムの実行情報（ジョブ）を保持する
 	struct SystemTask
@@ -49,9 +50,10 @@ namespace Engine::ECS
 		void Hold(std::shared_ptr<ISystem> a_spSystem);
 
 		// システムの更新
-		// システムのフェーズを指定、コンテキストを入れる
+		// システムのフェーズを指定、コンテキストを入れる。
+		// プロファイラを渡したときだけタスクごとの時間を計って渡す(計測のみで実行には影響しない)
 		void RunSystem(
-			const ESystemType& a_type, const SystemContext& a_context
+			const ESystemType& a_type, const SystemContext& a_context, ECSWorldProfiler* a_pProfiler = nullptr
 		);
 
 		// 登録されたタスクをフェーズごとにソートする

@@ -44,6 +44,12 @@ namespace Engine::ECS
 		/// </summary>
 		uint64_t GetGeneration() const { return m_generation; }
 
+		// 全アーキタイプ(生成順) : 参照のみ(プロファイラ用)
+		const std::vector<std::unique_ptr<Archetype>>& GetArchetypeVec() const { return m_upArchetypeVec; }
+
+		// チャンクの貸し出し元 : 参照のみ(プロファイラ用)
+		const ChunkAllocator& GetChunkAllocator() const { return m_chunkAllocator; }
+
 		// アーキタイプの取得 : 無ければ nullptr
 		const Archetype* GetArchetype(const Signature& a_sig) const;
 

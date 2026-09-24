@@ -34,6 +34,8 @@ namespace Engine::ECS
 		// メモリはブロックが持っているので、ブロックを捨てれば返る
 		m_pFreeHead = nullptr;
 		m_upChunkBlocks.clear();
+		m_totalChunkCount = 0;
+		m_freeChunkCount = 0;
 	}
 
 	void ChunkAllocator::Init(size_t a_blockChunkNum)
@@ -62,6 +64,7 @@ namespace Engine::ECS
 		// フリーリストの更新
 		Chunk* _pChunk = m_pFreeHead;
 		m_pFreeHead = _pChunk->pNextFree;
+		--m_freeChunkCount;
 
 		_pChunk->pNextFree = nullptr;
 		_pChunk->count = 0;
@@ -86,6 +89,7 @@ namespace Engine::ECS
 
 		a_pChunk->pNextFree = m_pFreeHead;
 		m_pFreeHead = a_pChunk;
+		++m_freeChunkCount;
 	}
 
 	void ChunkAllocator::Expand(size_t a_chunkNum)
@@ -107,5 +111,8 @@ namespace Engine::ECS
 			_chunk.pNextFree = m_pFreeHead;
 			m_pFreeHead = &_chunk;
 		}
+
+		m_totalChunkCount += a_chunkNum;
+		m_freeChunkCount += a_chunkNum;
 	}
 }

@@ -1,6 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include "../IPanel.h"
+#include "ECSProfilerView.h"
 
 namespace Engine::Editor
 {
@@ -11,6 +12,10 @@ namespace Engine::Editor
 	/// FPS/メモリなどの全体統計と、Profilerが積んだ関数ごとの計測結果を出す
 	///
 	/// 計測はProfilerの担当なので、ここは受け取った結果を並べるだけにする
+	///
+	/// メニューバーの View で表示を切り替える
+	///   Engine : エンジン全体の統計とスコープごとの計測
+	///   ECS    : 今のシーンのワールドの中身(ECSWorldProfiler の結果)
 	/// </summary>
 	class ProfilerPanel : public IPanel
 	{
@@ -19,8 +24,22 @@ namespace Engine::Editor
 
 		const char* GetName() const override { return "ProfilerPanel"; };
 		void OnDrawImGui(EditorContext& a_editContext) override;
+		ImGuiWindowFlags GetFlags() const override { return ImGuiWindowFlags_MenuBar; }
 
 	private:
+
+		// 表示の切り替え
+		enum class EView
+		{
+			Engine,		// エンジン全体
+			ECS,		// ECSワールド
+		};
+
+		// メニューバー
+		void DrawMenuBar();
+
+		// エンジン全体の表示
+		void DrawEngineView(EditorContext& a_editContext);
 
 		// メモリ使用率(Ram)
 		void DrawMemoryUsage();
@@ -42,5 +61,10 @@ namespace Engine::Editor
 
 		// スコープごとの計測結果(ENGINE_PROFILE_SCOPE / Profilerが並べ替え済み)
 		void DrawTimerTable(Profiler* a_pProfiler);
+
+	private:
+
+		EView			m_eView = EView::Engine;	// 今の表示
+		ECSProfilerView	m_ecsView = {};				// ECSワールドの表示
 	};
 }

@@ -1,5 +1,7 @@
 ﻿#include "SystemManager.h"
 
+#include "../World/Profile/ECSWorldProfiler.h"
+
 namespace Engine::ECS
 {
 
@@ -14,7 +16,7 @@ namespace Engine::ECS
 		m_systemVec.clear();
 	}
 
-	void SystemManager::RunSystem(const ESystemType& a_type, const SystemContext& a_context)
+	void SystemManager::RunSystem(const ESystemType& a_type, const SystemContext& a_context, ECSWorldProfiler* a_pProfiler)
 	{
 
 		// フェーズ検索
@@ -24,7 +26,18 @@ namespace Engine::ECS
 			// フェーズ内のソートされたシステムを順に回す
 			for (auto& _task : _cit->second)
 			{
+				// 計測しないときは時計も読まない
+				if (!a_pProfiler)
+				{
+					_task->executeFunc(*_task, a_context);
+					continue;
+				}
+
+				const auto _begin = std::chrono::steady_clock::now();
 				_task->executeFunc(*_task, a_context);
+				const auto _end = std::chrono::steady_clock::now();
+
+				a_pProfiler->RecordTaskTime(_task, std::chrono::duration<double, std::milli>(_end - _begin).count());
 			}
 		}
 	}

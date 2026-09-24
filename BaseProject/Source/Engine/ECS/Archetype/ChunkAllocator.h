@@ -44,6 +44,14 @@ namespace Engine::ECS
 		// チャンクの返却
 		void Free(Chunk* a_pChunk);
 
+		//------------------------------------------------------------------------------------------
+		// 参照(プロファイラ用)
+		//------------------------------------------------------------------------------------------
+		size_t GetBlockCount() const { return m_upChunkBlocks.size(); }		// 確保済みブロック数
+		size_t GetBlockChunkNum() const { return m_blockChunkNum; }			// 1ブロックあたりのチャンク数
+		size_t GetTotalChunkCount() const { return m_totalChunkCount; }		// 確保済みチャンク数
+		size_t GetFreeChunkCount() const { return m_freeChunkCount; }		// 貸し出していないチャンク数
+
 	private:
 
 		/// <summary>
@@ -75,5 +83,9 @@ namespace Engine::ECS
 
 		// 空きチャンクの先頭
 		Chunk* m_pFreeHead = nullptr;
+
+		// 確保済み / 貸し出していないチャンク数
+		size_t m_totalChunkCount = 0;
+		size_t m_freeChunkCount = 0;
 	};
 }

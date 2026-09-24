@@ -1,4 +1,4 @@
-#include "ProfilerPanel.h"
+﻿#include "ProfilerPanel.h"
 
 #include "../../Profiler/Profiler.h"
 
@@ -14,6 +14,36 @@ namespace Engine::Editor
 	// ウィンドウのBegin/EndはPanelManagerが行うのでここでは触らない
 	//======================================================================================
 	void ProfilerPanel::OnDrawImGui(EditorContext& a_editContext)
+	{
+		DrawMenuBar();
+
+		switch (m_eView)
+		{
+		case EView::Engine:	DrawEngineView(a_editContext);	break;
+		case EView::ECS:	m_ecsView.Draw();				break;
+		}
+	}
+
+	//======================================================================================
+	// メニューバー : 表示の切り替え
+	//======================================================================================
+	void ProfilerPanel::DrawMenuBar()
+	{
+		if (!ImGui::BeginMenuBar()) return;
+
+		if (ImGui::BeginMenu("View"))
+		{
+			if (ImGui::MenuItem("Engine", nullptr, m_eView == EView::Engine)) m_eView = EView::Engine;
+			if (ImGui::MenuItem("ECS", nullptr, m_eView == EView::ECS)) m_eView = EView::ECS;
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+
+	//======================================================================================
+	// エンジン全体の表示
+	//======================================================================================
+	void ProfilerPanel::DrawEngineView(EditorContext& a_editContext)
 	{
 		// システム全体の統計情報
 		if (ImGui::CollapsingHeader("System Statistics", ImGuiTreeNodeFlags_DefaultOpen))
