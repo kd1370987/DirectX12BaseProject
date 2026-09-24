@@ -6,14 +6,14 @@
 // ルートパラメーター
 //
 //   0 : CBV(b0)            発生ディスパッチの設定
-//   1 : SRVテーブル(t0)    発生命令の一覧
-//   2 : UAVテーブル(u0-u2) 粒 + デッドリスト + カウンター
+//   1 : SRVの番号(t0)    発生命令の一覧
+//   2 : UAVの番号(u0-u2) 粒 + デッドリスト + カウンター
 //==========================================================================================
 #define EMITPARTICLE_ROOT_SIG \
-	"RootFlags(0),"\
+	"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED),"\
 	"CBV(b0),"\
-	"DescriptorTable(SRV(t0,numDescriptors=1)),"\
-	"DescriptorTable(UAV(u0,numDescriptors=3))"
+	"RootConstants(num32BitConstants=1, b100),"\
+	"RootConstants(num32BitConstants=3, b101)"
 
 cbuffer CBParticleEmit : register(b0)
 {
@@ -21,12 +21,30 @@ cbuffer CBParticleEmit : register(b0)
 }
 
 // 入力（UPLOADヒープから）
-StructuredBuffer<EmitData> g_emitData : register(t0);
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_emitDataIndex;
+}
+
+StructuredBuffer<EmitData> Get_emitData() { StructuredBuffer<EmitData> _r = ResourceDescriptorHeap[g_emitDataIndex]; return _r; }
+#define g_emitData Get_emitData()
 
 // 入出力（DEFAULTヒープ UAV）
-RWStructuredBuffer<ParticleData> g_particleBuffer : register(u0);
-RWStructuredBuffer<uint> g_deadList : register(u1);
-RWStructuredBuffer<uint> g_counterBuffer : register(u2);
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_particleBufferIndex;
+	uint g_deadListIndex;
+	uint g_counterBufferIndex;
+}
+
+RWStructuredBuffer<ParticleData> Get_particleBuffer() { RWStructuredBuffer<ParticleData> _r = ResourceDescriptorHeap[g_particleBufferIndex]; return _r; }
+#define g_particleBuffer Get_particleBuffer()
+RWStructuredBuffer<uint> Get_deadList() { RWStructuredBuffer<uint> _r = ResourceDescriptorHeap[g_deadListIndex]; return _r; }
+#define g_deadList Get_deadList()
+RWStructuredBuffer<uint> Get_counterBuffer() { RWStructuredBuffer<uint> _r = ResourceDescriptorHeap[g_counterBufferIndex]; return _r; }
+#define g_counterBuffer Get_counterBuffer()
 
 // ルートシグネチャセット
 [RootSignature(EMITPARTICLE_ROOT_SIG)]

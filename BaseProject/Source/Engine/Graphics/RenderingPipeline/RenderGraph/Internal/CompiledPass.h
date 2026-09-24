@@ -49,10 +49,12 @@ namespace Engine::Graphics::Pipeline
 		// 焼き込み済みのバインド
 		//
 		// スロットが指定したルートパラメータ番号ごとに、
-		// ディスクリプタを連続領域へ並べておく。
-		// 実行時は範囲を渡すだけで張れる
+		// ビューのグローバルな番号を連続領域へ並べておく。
+		// 実行時は範囲をルート定数で渡すだけ(シェーダーは ResourceDescriptorHeap[番号] で引く)。
+		// つながっていないスロットは kInvalidDescriptorIndex
 		//----------------------------------------------------------------------------------
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> descriptorTable[2] = {};
 		std::vector<PassBind> binds = {};
+		static constexpr UINT kInvalidDescriptorIndex = 0xFFFFFFFFu;
+		std::vector<UINT> descriptorIndex[2] = {};
 	};
 }

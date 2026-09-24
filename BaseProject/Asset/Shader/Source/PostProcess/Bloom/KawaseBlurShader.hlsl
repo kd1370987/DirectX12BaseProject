@@ -22,23 +22,43 @@
 //==========================================================================================
 // ルートパラメーター
 //
-//   0 : SRVテーブル(t0-t3) 1/2・1/4・1/8・1/16 のボケ画像
-//   1 : UAVテーブル(u0)    まとめた結果
+//   0 : SRVの番号(t0-t3) 1/2・1/4・1/8・1/16 のボケ画像
+//   1 : UAVの番号(u0)    まとめた結果
 //==========================================================================================
 #define KAWASE_BLUR_RS \
-"RootFlags(0)," \
-"DescriptorTable(SRV(t0, numDescriptors=4)), " \
-"DescriptorTable(UAV(u0, numDescriptors=1)), " \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
+"RootConstants(num32BitConstants=4, b100), " \
+"RootConstants(num32BitConstants=1, b101), " \
 RS_STATIC_SAMPLER_CLAMP
 
 // ボケ画像（それぞれ解像度が違う）
-Texture2D<float4> g_bokenTex_0 : register(t0);	// 1/2
-Texture2D<float4> g_bokenTex_1 : register(t1);	// 1/4
-Texture2D<float4> g_bokenTex_2 : register(t2);	// 1/8
-Texture2D<float4> g_bokenTex_3 : register(t3);	// 1/16
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_bokenTex_0Index;
+	uint g_bokenTex_1Index;
+	uint g_bokenTex_2Index;
+	uint g_bokenTex_3Index;
+}
+
+Texture2D<float4> Get_bokenTex_0() { Texture2D<float4> _r = ResourceDescriptorHeap[g_bokenTex_0Index]; return _r; }	// 1/2
+#define g_bokenTex_0 Get_bokenTex_0()
+Texture2D<float4> Get_bokenTex_1() { Texture2D<float4> _r = ResourceDescriptorHeap[g_bokenTex_1Index]; return _r; }	// 1/4
+#define g_bokenTex_1 Get_bokenTex_1()
+Texture2D<float4> Get_bokenTex_2() { Texture2D<float4> _r = ResourceDescriptorHeap[g_bokenTex_2Index]; return _r; }	// 1/8
+#define g_bokenTex_2 Get_bokenTex_2()
+Texture2D<float4> Get_bokenTex_3() { Texture2D<float4> _r = ResourceDescriptorHeap[g_bokenTex_3Index]; return _r; }	// 1/16
+#define g_bokenTex_3 Get_bokenTex_3()
 
 // 出力
-RWTexture2D<float4> g_outTex : register(u0);
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outTexIndex;
+}
+
+RWTexture2D<float4> Get_outTex() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outTexIndex]; return _r; }
+#define g_outTex Get_outTex()
 
 // サンプラー : 端をクランプする（WRAPだと画面端で反対側の光が回り込む）
 SamplerState g_samp : register(s0);

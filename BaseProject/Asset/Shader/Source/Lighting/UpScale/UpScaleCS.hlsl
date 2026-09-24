@@ -7,26 +7,55 @@
 //
 //   0 : CBV(b0)         カメラ
 //   1 : CBV(b1)         引き伸ばしの許容差
-//   2 : SRVテーブル(t0) 低解像度カラー
-//   3 : SRVテーブル(t1) 深度(フル)
-//   4 : SRVテーブル(t2) 法線(フル)
-//   5 : UAVテーブル(u0) 出力カラー(フル)
+//   2 : SRVの番号(t0) 低解像度カラー
+//   3 : SRVの番号(t1) 深度(フル)
+//   4 : SRVの番号(t2) 法線(フル)
+//   5 : UAVの番号(u0) 出力カラー(フル)
 //==========================================================================================
 #define UPSCALE_RS \
+    "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED), " \
     "CBV(b0), " \
     "CBV(b1), " \
-    "DescriptorTable(SRV(t0)), " \
-    "DescriptorTable(SRV(t1)), " \
-    "DescriptorTable(SRV(t2)), " \
-    "DescriptorTable(UAV(u0))"
+    "RootConstants(num32BitConstants=1, b100), " \
+    "RootConstants(num32BitConstants=1, b101), " \
+    "RootConstants(num32BitConstants=1, b102), " \
+    "RootConstants(num32BitConstants=1, b103)"
 
 // 入力テクスチャ
-Texture2D<float4> g_lowResColorTex : register(t0);	// レイトレ結果
-Texture2D<float> g_fullResDepthTex : register(t1);	// 深度
-Texture2D<float2> g_fullResNormalTex : register(t2);	// 法線
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_lowResColorTexIndex;
+}
+
+Texture2D<float4> Get_lowResColorTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_lowResColorTexIndex]; return _r; }	// レイトレ結果
+#define g_lowResColorTex Get_lowResColorTex()
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_fullResDepthTexIndex;
+}
+
+Texture2D<float> Get_fullResDepthTex() { Texture2D<float> _r = ResourceDescriptorHeap[g_fullResDepthTexIndex]; return _r; }	// 深度
+#define g_fullResDepthTex Get_fullResDepthTex()
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex2 : register(b102)
+{
+	uint g_fullResNormalTexIndex;
+}
+
+Texture2D<float2> Get_fullResNormalTex() { Texture2D<float2> _r = ResourceDescriptorHeap[g_fullResNormalTexIndex]; return _r; }	// 法線
+#define g_fullResNormalTex Get_fullResNormalTex()
 
 // 出力テクスチャ
-RWTexture2D<float4> g_outputTex : register(u0);		// アップスケール結果
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex3 : register(b103)
+{
+	uint g_outputTexIndex;
+}
+
+RWTexture2D<float4> Get_outputTex() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outputTexIndex]; return _r; }		// アップスケール結果
+#define g_outputTex Get_outputTex()
 
 cbuffer CBCamera : register(b0)
 {

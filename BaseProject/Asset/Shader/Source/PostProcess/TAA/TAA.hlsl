@@ -5,24 +5,46 @@
 //==========================================================================================
 // ルートパラメーター
 //
-//   0 : SRVテーブル(t0-t4) 現在の色 + 履歴 + 速度 + 深度 + 法線
-//   1 : UAVテーブル(u0)    出力カラー
+//   0 : SRVの番号(t0-t4) 現在の色 + 履歴 + 速度 + 深度 + 法線
+//   1 : UAVの番号(u0)    出力カラー
 //==========================================================================================
 #define TEMPORALACCUMULATION_ROOT_SIG \
-"RootFlags(0), " \
-"DescriptorTable(SRV(t0, numDescriptors=5)),"\
-"DescriptorTable(UAV(u0, numDescriptors=1)),"\
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED), " \
+"RootConstants(num32BitConstants=5, b100),"\
+"RootConstants(num32BitConstants=1, b101),"\
 RS_STATIC_SAMPLER
 
 // 入力
-Texture2D<float4> g_currentColorTex : register(t0); // 現在の色
-Texture2D<float4> g_historyColorTex : register(t1); // 過去の色
-Texture2D<float2> g_motionVectorTex : register(t2); // モーションベクター
-Texture2D<float1> g_depthTex		: register(t3); // 現在深度
-Texture2D<float2> g_normalTex		: register(t4); // 現在法線
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_currentColorTexIndex;
+	uint g_historyColorTexIndex;
+	uint g_motionVectorTexIndex;
+	uint g_depthTexIndex;
+	uint g_normalTexIndex;
+}
+
+Texture2D<float4> Get_currentColorTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_currentColorTexIndex]; return _r; } // 現在の色
+#define g_currentColorTex Get_currentColorTex()
+Texture2D<float4> Get_historyColorTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_historyColorTexIndex]; return _r; } // 過去の色
+#define g_historyColorTex Get_historyColorTex()
+Texture2D<float2> Get_motionVectorTex() { Texture2D<float2> _r = ResourceDescriptorHeap[g_motionVectorTexIndex]; return _r; } // モーションベクター
+#define g_motionVectorTex Get_motionVectorTex()
+Texture2D<float1> Get_depthTex() { Texture2D<float1> _r = ResourceDescriptorHeap[g_depthTexIndex]; return _r; } // 現在深度
+#define g_depthTex Get_depthTex()
+Texture2D<float2> Get_normalTex() { Texture2D<float2> _r = ResourceDescriptorHeap[g_normalTexIndex]; return _r; } // 現在法線
+#define g_normalTex Get_normalTex()
 
 // 出力
-RWTexture2D<float4> g_outputTAA : register(u0); // 結果書き込み用
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outputTAAIndex;
+}
+
+RWTexture2D<float4> Get_outputTAA() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outputTAAIndex]; return _r; } // 結果書き込み用
+#define g_outputTAA Get_outputTAA()
 // サンプラー
 SamplerState g_smp : register(s0);
 

@@ -140,7 +140,7 @@ namespace Engine::Graphics::Pipeline
 			static_cast<UINT>(_pOutVirtual->GetWidth()), _pOutVirtual->GetHeight());
 
 		// ディスクリプタヒープセット
-		_pCtx->BindCopyHeapAndSamplerBindLess();
+		_pCtx->BindBindlessHeaps();
 
 		// パイプラインとルートシグネチャセット
 		_pCmdList->SetPipelineState1(m_rayPSO.Get());

@@ -9,14 +9,11 @@
 //==========================================================================================
 namespace Engine::Graphics::Pipeline
 {
-	// 焼き込み済みのバインド1件
+	// 焼き込み済みのバインド1件 : ルート定数1本ぶんのビュー番号の範囲
 	struct PassBind
 	{
-		enum class EType : uint8_t { SrvTable, Uav };
-
-		EType type = EType::SrvTable;
 		UINT rootIndex = 0;
-		uint16_t firstHandle = 0;	// descriptorTable への開始添字
+		uint16_t firstIndex = 0;	// descriptorIndex への開始添字
 		uint16_t count = 1;
 	};
 }

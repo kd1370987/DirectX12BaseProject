@@ -20,14 +20,14 @@
 // ルートパラメーター
 //
 //   0 : CBV(b13)        ブルーム設定
-//   1 : SRVテーブル(t0) メインカラー(HDR)
-//   2 : UAVテーブル(u0) 高輝度成分
+//   1 : SRVの番号(t0) メインカラー(HDR)
+//   2 : UAVの番号(u0) 高輝度成分
 //==========================================================================================
 #define BLOOM_EXTRACT_RS \
-"RootFlags(0)," \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 "CBV(b13, visibility = SHADER_VISIBILITY_ALL)," \
-"DescriptorTable(SRV(t0, numDescriptors=1)), " \
-"DescriptorTable(UAV(u0, numDescriptors=1))"
+"RootConstants(num32BitConstants=1, b100), " \
+"RootConstants(num32BitConstants=1, b101)"
 
 cbuffer CBBloomOption : register(b13)
 {
@@ -35,10 +35,24 @@ cbuffer CBBloomOption : register(b13)
 }
 
 // 入力 : メインカラー（ディファードライティングの結果）
-Texture2D<float4> g_colorTex : register(t0);
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_colorTexIndex;
+}
+
+Texture2D<float4> Get_colorTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_colorTexIndex]; return _r; }
+#define g_colorTex Get_colorTex()
 
 // 出力 : 高輝度成分
-RWTexture2D<float4> g_outTex : register(u0);
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outTexIndex;
+}
+
+RWTexture2D<float4> Get_outTex() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outTexIndex]; return _r; }
+#define g_outTex Get_outTex()
 
 [RootSignature(BLOOM_EXTRACT_RS)]
 [numthreads(8, 8, 1)]

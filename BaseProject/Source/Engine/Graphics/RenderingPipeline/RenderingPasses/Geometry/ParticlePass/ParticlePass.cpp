@@ -76,7 +76,7 @@ namespace Engine::Graphics::Pipeline
 
 				_setupCommon(a_pso);
 			},
-			EPassHeapMode::Default,
+			EPassHeapMode::Bindless,
 			&m_additivePSO);
 
 		// ---- 半透明合成 : 煙や破片。背景を明るくせず、前のものが後ろを隠す ----
@@ -96,7 +96,7 @@ namespace Engine::Graphics::Pipeline
 
 				_setupCommon(a_pso);
 			},
-			EPassHeapMode::Default,
+			EPassHeapMode::Bindless,
 			&m_alphaBlendPSO);
 	}
 
@@ -127,14 +127,15 @@ namespace Engine::Graphics::Pipeline
 				CameraData _cbCam = _pGE->GetSceneView()->GetCameraData();
 				_pCtx->GraphicsBindRootCBV(0, _cbCam);
 
-				// パーティクルデータバインド
-				auto _particleSRV = a_upPool->GetParticlePoolSRV();
-				_pCtx->BindSRV(1, _particleSRV);
+				// パーティクルデータ(バインドレス : 番号をルート定数で渡す)
+				const UINT _particleIndex = a_upPool->GetParticlePoolSRV().GetIndex();
+				_pCtx->GraphicsBindDescriptorIndices(1, std::span<const UINT>(&_particleIndex, 1));
 
-				// パーティクル画像バインド
+				// パーティクル画像
 				auto* _pTex = _resManager.Get(a_particle.GetTexHandle());
 				if (!_pTex) return;
-				_pCtx->BindSRV(2, _pTex->GetSRV());
+				const UINT _texIndex = _pTex->GetSRV().GetIndex();
+				_pCtx->GraphicsBindDescriptorIndices(2, std::span<const UINT>(&_texIndex, 1));
 
 				// 描画設定バインド : 板ポリの向きと、寿命に沿った見た目の変化はアセット単位
 				Particle::ParticleDrawData _cbDraw = {};

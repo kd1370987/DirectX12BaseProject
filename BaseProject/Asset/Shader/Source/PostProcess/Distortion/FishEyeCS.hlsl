@@ -25,17 +25,17 @@
 // ルートパラメーター
 //
 //   0 : CBV(b16)           魚眼レンズの設定
-//   1 : SRVテーブル(t0)    メインカラー
-//   2 : UAVテーブル(u0)    出力カラー
+//   1 : SRVの番号(t0)    メインカラー
+//   2 : UAVの番号(u0)    出力カラー
 //
 // サンプラーは CLAMP。歪ませたUVは画面外を指すことがあるので、
 // WRAP のままだと反対側の色が回り込んで端に別の絵が滲む
 //==========================================================================================
 #define FISH_EYE_RS \
-"RootFlags(0)," \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 "CBV(b16, visibility = SHADER_VISIBILITY_ALL)," \
-"DescriptorTable(SRV(t0, numDescriptors=1)), " \
-"DescriptorTable(UAV(u0, numDescriptors=1)), " \
+"RootConstants(num32BitConstants=1, b100), " \
+"RootConstants(num32BitConstants=1, b101), " \
 RS_STATIC_SAMPLER_CLAMP
 
 cbuffer CBFishEyeOption : register(b16)
@@ -44,10 +44,24 @@ cbuffer CBFishEyeOption : register(b16)
 }
 
 // 入力
-Texture2D<float4> g_colorTex : register(t0);	// メインカラー
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_colorTexIndex;
+}
+
+Texture2D<float4> Get_colorTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_colorTexIndex]; return _r; }	// メインカラー
+#define g_colorTex Get_colorTex()
 
 // 出力
-RWTexture2D<float4> g_outTex : register(u0);
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outTexIndex;
+}
+
+RWTexture2D<float4> Get_outTex() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outTexIndex]; return _r; }
+#define g_outTex Get_outTex()
 
 // サンプラー
 SamplerState g_samp : register(s0);

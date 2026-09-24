@@ -10,6 +10,8 @@
 
 namespace Engine::ECS
 {
+	struct Job;
+
 	class World;
 	class ECSWorldProfiler;
 
@@ -22,6 +24,9 @@ namespace Engine::ECS
 
 		std::function<void(SystemTask&, const SystemContext&)> executeFunc;	// チャンク処理(自身のタスクを受け取る)
 		QueryCache query;											// クエリ結果(RegisterTask のみ使う。カスタムタスクは空のまま)
+
+		// フレーム実行状態
+		Job* completionJob = nullptr;			// 実行待ちジョブ
 	};
 
 	//==========================================================================================

@@ -20,22 +20,36 @@
 // ルートパラメーター
 //
 //   0 : CBV(b14)        トーンマップ設定
-//   1 : SRVテーブル(t0) 入力カラー(AfterTAAColor / HDR)
-//   2 : UAVテーブル(u0) 出力カラー(FinalColor / LDR)
+//   1 : SRVの番号(t0) 入力カラー(AfterTAAColor / HDR)
+//   2 : UAVの番号(u0) 出力カラー(FinalColor / LDR)
 //==========================================================================================
 #define TONEMAP_ROOT_SIG \
-"RootFlags(0)," \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 "CBV(b14, visibility = SHADER_VISIBILITY_ALL)," \
-"DescriptorTable(SRV(t0, numDescriptors=1))," \
-"DescriptorTable(UAV(u0, numDescriptors=1))"
+"RootConstants(num32BitConstants=1, b100)," \
+"RootConstants(num32BitConstants=1, b101)"
 
 cbuffer CBToneMapOption : register(b14)
 {
 	ToneMapOptionData g_toneMap;
 }
 
-Texture2D<float4>   g_input  : register(t0);	// トーンマップ前のHDRカラー
-RWTexture2D<float4> g_output : register(u0);	// 最終カラー
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_inputIndex;
+}
+
+Texture2D<float4> Get_input() { Texture2D<float4> _r = ResourceDescriptorHeap[g_inputIndex]; return _r; }	// トーンマップ前のHDRカラー
+#define g_input Get_input()
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outputIndex;
+}
+
+RWTexture2D<float4> Get_output() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outputIndex]; return _r; }	// 最終カラー
+#define g_output Get_output()
 
 //------------------------------------------------------------------------------------------
 // ACESフィルミック

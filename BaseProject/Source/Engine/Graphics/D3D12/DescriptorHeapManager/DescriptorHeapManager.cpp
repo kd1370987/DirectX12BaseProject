@@ -15,12 +15,27 @@ namespace Engine::D3D12
 		m_pDevice = a_pDevice;
 		D3D12::Device* _device = m_pDevice;
 
-		// ヒープ作成
+		//------------------------------------------------------------------------------------------
+		// CBV / SRV / UAV は同じ大きさのヒープを2枚持つ
+		//
+		//   CPU専用      … ビューを作る先。コピー元や ClearUnorderedAccessView のCPUハンドルに使う
+		//                   (シェーダー可視のヒープはCPUから読むと遅く、UAVのクリアには使えない)
+		//   シェーダー可視 … 作ったビューを同じ番号へ写しておく。
+		//                   SetDescriptorHeaps で張り、シェーダーが ResourceDescriptorHeap[番号] で引く
+		//------------------------------------------------------------------------------------------
+		const UINT _cbvSrvUavCount = a_cbvCount + a_srvCount + a_uavCount;
 		m_cbv_srv_uavHeap.Create(
 			_device,
 			L"CBV_SRV_UAV",
-			a_cbvCount + a_srvCount + a_uavCount,
+			_cbvSrvUavCount,
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+			0
+		);
+		m_cbv_srv_uavShaderVisibleHeap.Create(
+			_device,
+			L"CBV_SRV_UAV_ShaderVisible",
+			_cbvSrvUavCount,
+			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 			0
 		);
 		m_dsvHeap.Create(
@@ -54,11 +69,11 @@ namespace Engine::D3D12
 
 		// アロケーター生成
 		UINT _startIdx = 0;
-		m_CBVAllocator.Create(&m_cbv_srv_uavHeap, _startIdx, a_cbvCount);	// CBV
+		m_CBVAllocator.Create(&m_cbv_srv_uavHeap, _startIdx, a_cbvCount, &m_cbv_srv_uavShaderVisibleHeap);	// CBV
 		_startIdx += a_cbvCount;
-		m_SRVAllocator.Create(&m_cbv_srv_uavHeap, _startIdx, a_srvCount);	// SRV
+		m_SRVAllocator.Create(&m_cbv_srv_uavHeap, _startIdx, a_srvCount, &m_cbv_srv_uavShaderVisibleHeap);	// SRV
 		_startIdx += a_srvCount;
-		m_UAVAllocator.Create(&m_cbv_srv_uavHeap, _startIdx, a_uavCount);	// UAV
+		m_UAVAllocator.Create(&m_cbv_srv_uavHeap, _startIdx, a_uavCount, &m_cbv_srv_uavShaderVisibleHeap);	// UAV
 
 		m_RTVAllocator.Create(&m_rtvHeap);	// RTV
 		m_DSVAllocator.Create(&m_dsvHeap);	// DSV
@@ -116,6 +131,11 @@ namespace Engine::D3D12
 
 	void DescriptorHeapManager::Release()
 	{
+		// 預かっている席は全部返す。
+		// ここへ来るのは全キューの完了を待った後(ReleaseDescriptorHeap)なので、もう誰も読んでいない
+		ProcessDeferredFrees((std::numeric_limits<UINT64>::max)());
+		m_nextFenceValueProvider = nullptr;
+
 		// アロケーターのリンク解除
 		m_CBVAllocator.Release();
 		m_SRVAllocator.Release();
@@ -130,6 +150,7 @@ namespace Engine::D3D12
 
 		// ヒープの解放
 		m_cbv_srv_uavHeap.Release();
+		m_cbv_srv_uavShaderVisibleHeap.Release();
 		m_dsvHeap.Release();
 		m_rtvHeap.Release();
 		m_samplerHeap.Release();
@@ -147,6 +168,39 @@ namespace Engine::D3D12
 	ID3D12DescriptorHeap* DescriptorHeapManager::GetCBVSRVUAVHeap()
 	{
 		return m_cbv_srv_uavHeap.GetHeap();
+	}
+
+	ID3D12DescriptorHeap* DescriptorHeapManager::RefShaderVisibleCBVSRVUAVHeap()
+	{
+		return m_cbv_srv_uavShaderVisibleHeap.GetHeap();
+	}
+
+	void DescriptorHeapManager::SetNextFenceValueProvider(std::function<UINT64()> a_provider)
+	{
+		m_nextFenceValueProvider = std::move(a_provider);
+	}
+
+	void DescriptorHeapManager::ProcessDeferredFrees(UINT64 a_completedFenceValue)
+	{
+		// 戻すものを取り出してから戻す : 戻す処理(アロケーターのロック)を預かりのロックの外で行う
+		std::vector<PendingFree> _ready = {};
+		{
+			std::lock_guard<std::mutex> _lock(m_pendingMutex);
+
+			auto _it = std::partition(m_pendingFrees.begin(), m_pendingFrees.end(),
+				[a_completedFenceValue](const PendingFree& a_pending)
+				{
+					return a_pending.fenceValue > a_completedFenceValue;	// まだGPUが使っているかもしれない
+				});
+
+			_ready.assign(std::make_move_iterator(_it), std::make_move_iterator(m_pendingFrees.end()));
+			m_pendingFrees.erase(_it, m_pendingFrees.end());
+		}
+
+		for (auto& _pending : _ready)
+		{
+			if (_pending.release) _pending.release();
+		}
 	}
 
 	ID3D12DescriptorHeap* DescriptorHeapManager::GetImGuiHeap() const

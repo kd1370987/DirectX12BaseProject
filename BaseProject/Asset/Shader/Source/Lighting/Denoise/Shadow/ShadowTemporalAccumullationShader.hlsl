@@ -9,15 +9,15 @@
 //
 //   0 : CBV(b0)            カメラ
 //   1 : CBV(b1)            時間累積の設定
-//   2 : SRVテーブル(t0-t6) 現在の影 + 速度 + 履歴 + 現在/過去の深度・法線
-//   3 : UAVテーブル(u0)    出力影マスク
+//   2 : SRVの番号(t0-t6) 現在の影 + 速度 + 履歴 + 現在/過去の深度・法線
+//   3 : UAVの番号(u0)    出力影マスク
 //==========================================================================================
 #define SHADOW_TEMPORALACCUMULATION_ROOT_SIG \
-"RootFlags(0), " \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED), " \
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b1),"\
-"DescriptorTable(SRV(t0, numDescriptors=7)),"\
-"DescriptorTable(UAV(u0, numDescriptors=1)),"\
+"RootConstants(num32BitConstants=7, b100),"\
+"RootConstants(num32BitConstants=1, b101),"\
 RS_STATIC_SAMPLER
 
 cbuffer CBCamera : register(b0)
@@ -39,16 +39,42 @@ float3 ReconstructViewPos(float2 a_uv, float a_depth)
 }
 
 // 入力
-Texture2D<float4> g_currentShadowTex : register(t0); // 現在のGI
-Texture2D<float4> g_velocityTex : register(t1); // モーションベクター
-Texture2D<float4> g_historyShadowTex : register(t2); // 前フレームのGI
-Texture2D<float4> g_depthTex : register(t3); // 現在深度
-Texture2D<float4> g_normalTex : register(t4); // 現在法線
-Texture2D<float4> g_prevDepthTex : register(t5); // 過去深度
-Texture2D<float4> g_prevNormalTex : register(t6); // 過去法線
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_currentShadowTexIndex;
+	uint g_velocityTexIndex;
+	uint g_historyShadowTexIndex;
+	uint g_depthTexIndex;
+	uint g_normalTexIndex;
+	uint g_prevDepthTexIndex;
+	uint g_prevNormalTexIndex;
+}
+
+Texture2D<float4> Get_currentShadowTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_currentShadowTexIndex]; return _r; } // 現在のGI
+#define g_currentShadowTex Get_currentShadowTex()
+Texture2D<float4> Get_velocityTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_velocityTexIndex]; return _r; } // モーションベクター
+#define g_velocityTex Get_velocityTex()
+Texture2D<float4> Get_historyShadowTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_historyShadowTexIndex]; return _r; } // 前フレームのGI
+#define g_historyShadowTex Get_historyShadowTex()
+Texture2D<float4> Get_depthTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_depthTexIndex]; return _r; } // 現在深度
+#define g_depthTex Get_depthTex()
+Texture2D<float4> Get_normalTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_normalTexIndex]; return _r; } // 現在法線
+#define g_normalTex Get_normalTex()
+Texture2D<float4> Get_prevDepthTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_prevDepthTexIndex]; return _r; } // 過去深度
+#define g_prevDepthTex Get_prevDepthTex()
+Texture2D<float4> Get_prevNormalTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_prevNormalTexIndex]; return _r; } // 過去法線
+#define g_prevNormalTex Get_prevNormalTex()
 
 // 出力
-RWTexture2D<float4> g_outputShadow : register(u0); // 結果書き込み用
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outputShadowIndex;
+}
+
+RWTexture2D<float4> Get_outputShadow() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outputShadowIndex]; return _r; } // 結果書き込み用
+#define g_outputShadow Get_outputShadow()
 
 // サンプラー
 SamplerState g_smp : register(s0);

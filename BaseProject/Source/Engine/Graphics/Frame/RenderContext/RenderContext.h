@@ -97,29 +97,13 @@ namespace Engine::Graphics
 			const D3D12_CPU_DESCRIPTOR_HANDLE* a_pDsvHandle
 		);
 
-		// SRVのバインド(現在キャッシュしているヒープへコピーしてディスクリプタテーブルを張る)
-		// テクスチャハンドル配列から
-		void BindSRV(UINT a_rootIdx, std::vector<Handle<Resource::Texture>>& a_texHandles);
-		// レンダーグラフがコンパイル時に焼き込んだ連続領域をそのまま渡せるようspanで受ける
-		void BindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
-		void BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
-		void BindSRV(UINT a_rootIdx,Handle<D3D12::SRV> a_srvHandle);
-
-		void ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
-		void ComputeBindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
-		void ComputeBindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle);
-
+		//--------------------------------------------------------------------------------------------
+		// ディスクリプタテーブルを、シェーダー可視ヒープ上のそのビュー自身の席へ向ける。
+		// コピーはしない(ビューは作った時点でシェーダー可視ヒープへ写してある)。
+		// レイトレーシングのように、ルートシグネチャがテーブルで受けるシェーダー用
+		//--------------------------------------------------------------------------------------------
 		void ComputeBindSRVBindLess(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle);
-
-
-		// UAV
-		void BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle);
-		void BindUAV(UINT a_rootIdx, Handle<D3D12::UAV> a_uavHandle);
-		void BindUAV(UINT a_rootIdx, std::vector<Handle<D3D12::UAV>> a_uavHandles);
 		void BindUAVBindLess(UINT a_rootIdx, Handle<D3D12::UAV> a_handle);
-
-		// 直接GPUアドレスを取得
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
 
 		//--------------------------------------------------------------------------------------
 		// ビューの置き場(借り物)
@@ -144,19 +128,27 @@ namespace Engine::Graphics
 		void ClearDSV( const Handle<D3D12::DSV>& a_DSVHandle);
 		void ClearDSV( const D3D12_CPU_DESCRIPTOR_HANDLE& a_DSVHandle);
 
-		// ヒープのセット(セットしたヒープを m_pCurrentHeap にキャッシュする)
-		void BindHeap();
-
 		// UAVのテクスチャを塗りつぶす。
 		//
 		// ClearUnorderedAccessViewFloat は「シェーダー可視ヒープ上のGPUハンドル」と
 		// 「非シェーダー可視のCPUハンドル」の両方を要求する。
-		// 前者はその場でコピーして作る
+		// どちらも同じ番号で両方のヒープに席があるので、ハンドルから引くだけでよい
 		void ClearUAV(
-			D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle,
+			Handle<D3D12::UAV> a_uavHandle,
 			ID3D12Resource* a_pResource,
 			const float a_color[4]);
-		void BindCopyHeapAndSamplerBindLess();
+
+		//--------------------------------------------------------------------------------------------
+		// バインドレス
+		//
+		// シェーダー可視の CBV/SRV/UAV ヒープ(DescriptorHeapManager が1本持つ)とサンプラーヒープを張る。
+		// コピーはしない : シェーダーはグローバルな番号で ResourceDescriptorHeap[i] を引く
+		//--------------------------------------------------------------------------------------------
+		void BindBindlessHeaps();
+
+		// ビューの番号を 32bit ルート定数として渡す(シェーダー側は cbuffer の uint で受ける)
+		void GraphicsBindDescriptorIndices(UINT a_rootIdx, std::span<const UINT> a_indices);
+		void ComputeBindDescriptorIndices(UINT a_rootIdx, std::span<const UINT> a_indices);
 
 		void Dispatch(UINT a_x,UINT a_y,UINT a_z);
 		void DispatchMesh(UINT a_x,UINT a_y,UINT a_z);
@@ -243,17 +235,6 @@ namespace Engine::Graphics
 
 	private:
 		//--------------------------------------------------------------------------------------------
-		// ディスクリプタコピーの共通処理
-		//--------------------------------------------------------------------------------------------
-		// 現在キャッシュしているヒープ(m_pCurrentHeap)へCPUハンドル群をコピーし、
-		// 先頭のGPUハンドルを返す。容量オーバー時は ptr==0 のハンドルを返す。
-		D3D12_GPU_DESCRIPTOR_HANDLE CopyToCurrentHeap(std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
-		// コピー後にグラフィック/コンピュートのディスクリプタテーブルを張る
-		void GraphicsBindTable(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
-		void ComputeBindTable(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles);
-
-	private:
-		//--------------------------------------------------------------------------------------------
 		// 参照
 		//--------------------------------------------------------------------------------------------
 		D3D12::Device* m_pDevice = nullptr;							// デバイス
@@ -269,29 +250,6 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		std::unique_ptr<CBAllocator> m_upCBAllocator = nullptr;	// 定数バッファアロケーター
 		D3D12::GraphicsCommandList* m_pCmdList = nullptr;				// 現在フレームのグラフィックスコマンドリスト
-
-		// コピー用ヒープ
-		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_copyHeap;		// ラスタライザ用
-		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_bindLessHeap;	// バインドレス用
-		//----------------------------------------------------------------------------------
-		// テーブル用に切り出す領域(リング)の先頭
-		//
-		// ヒープごとに数える。1本の数え上げを2つのヒープで使い回すと、
-		// ビンドレス用ヒープ側で「グローバルヒープの丸写し」の上に書いてしまい、
-		// そのインデックスを引いていた絵が別のものに化ける
-		//----------------------------------------------------------------------------------
-		UINT m_copyHeapOffset = 0;			// ラスタ用 : 先頭から使う
-		UINT m_bindLessHeapOffset = 0;		// ビンドレス用 : 丸写しの後ろから使う
-
-		// ビンドレス用ヒープの、丸写しが終わる位置(= リングの開始位置)
-		UINT m_bindLessRingStart = 0;
-
-		// テーブル用に足すぶん。ビンドレス用ヒープはこのぶんだけ大きく作る
-		static constexpr UINT kBindLessRingSize = 4096;
-
-		// 現在セットしているCBV_SRV_UAVヒープのキャッシュ(&m_copyHeap か &m_bindLessHeap)。
-		// ヒープセット関数で更新し、SRV/UAVのバインドはこのヒープに対して行う。
-		D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>*	m_pCurrentHeap = nullptr;
 
 		// ボーン用データ
 		D3D12::DynamicStructuredBuffer<Resource::BoneMatrix> m_boneBuffer;

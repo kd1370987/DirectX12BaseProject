@@ -66,8 +66,7 @@ namespace Engine::Graphics::Pipeline
 	// 実行前にグラフが張るディスクリプタヒープ
 	enum class EPassHeapMode : uint8_t
 	{
-		None,					// パス側で張る
-		Default,				// 通常のヒープ
-		BindlessWithSampler		// バインドレス + サンプラー
+		None,		// パス側で張る
+		Bindless	// シェーダー可視の CBV/SRV/UAV ヒープ + サンプラーヒープ
 	};
 }

@@ -6,14 +6,14 @@
 // ルートパラメーター
 //
 //   0 : CBV(b0)            デノイズ設定(A-Trous のステップごとに書き換える)
-//   1 : SRVテーブル(t0-t2) 影 + 深度 + 法線(すべてフル解像度)
-//   2 : UAVテーブル(u0)    出力影マスク
+//   1 : SRVの番号(t0-t2) 影 + 深度 + 法線(すべてフル解像度)
+//   2 : UAVの番号(u0)    出力影マスク
 //==========================================================================================
 #define SHADOWSPATIALDENOISE_ROOT_SIG \
-"RootFlags(0), " \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED), " \
 "CBV(b0)," \
-"DescriptorTable(SRV(t0, numDescriptors=3)),"\
-"DescriptorTable(UAV(u0, numDescriptors=1)),"\
+"RootConstants(num32BitConstants=3, b100),"\
+"RootConstants(num32BitConstants=1, b101),"\
 RS_STATIC_SAMPLER
 
 cbuffer CBDenoiseSettings : register(b0)
@@ -22,12 +22,30 @@ cbuffer CBDenoiseSettings : register(b0)
 }
 
 // 入力
-Texture2D<float4> g_shadowTex : register(t0);	// 時間デノイズ済みの影(フル解像度)
-Texture2D<float4> g_depthTex  : register(t1);	// 現在深度(フル解像度)
-Texture2D<float4> g_normalTex : register(t2);	// 現在法線(フル解像度)
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_shadowTexIndex;
+	uint g_depthTexIndex;
+	uint g_normalTexIndex;
+}
+
+Texture2D<float4> Get_shadowTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_shadowTexIndex]; return _r; }	// 時間デノイズ済みの影(フル解像度)
+#define g_shadowTex Get_shadowTex()
+Texture2D<float4> Get_depthTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_depthTexIndex]; return _r; }	// 現在深度(フル解像度)
+#define g_depthTex Get_depthTex()
+Texture2D<float4> Get_normalTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_normalTexIndex]; return _r; }	// 現在法線(フル解像度)
+#define g_normalTex Get_normalTex()
 
 // 出力
-RWTexture2D<float4> g_outputShadow : register(u0); // 結果書き込み用
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outputShadowIndex;
+}
+
+RWTexture2D<float4> Get_outputShadow() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outputShadowIndex]; return _r; } // 結果書き込み用
+#define g_outputShadow Get_outputShadow()
 
 // サンプラー
 SamplerState g_smp : register(s0);

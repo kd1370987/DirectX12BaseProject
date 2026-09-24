@@ -114,7 +114,7 @@ namespace Engine::Graphics::Pipeline
 		if (!_pCtx) return;
 
 		// レンダーターゲットの切り替えとクリアはグラフが済ませてある
-		_pCtx->BindCopyHeapAndSamplerBindLess();
+		_pCtx->BindBindlessHeaps();
 		_pCtx->SetGraphicsRootSignature(m_rootSigHandle);
 
 		_pCtx->BindCamera();

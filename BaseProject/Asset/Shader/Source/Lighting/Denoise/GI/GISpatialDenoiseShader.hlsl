@@ -8,15 +8,15 @@
 //
 //   0 : CBV(b0)            カメラ
 //   1 : CBV(b1)            デノイズ設定(A-Trous のステップごとに書き換える)
-//   2 : SRVテーブル(t0-t2) GI(ハーフ) + 深度・法線(フル)
-//   3 : UAVテーブル(u0)    出力GI(ハーフ)
+//   2 : SRVの番号(t0-t2) GI(ハーフ) + 深度・法線(フル)
+//   3 : UAVの番号(u0)    出力GI(ハーフ)
 //==========================================================================================
 #define GISPATIALDENOISE_ROOT_SIG \
-"RootFlags(0), " \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED), " \
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b1)," \
-"DescriptorTable(SRV(t0, numDescriptors=3)),"\
-"DescriptorTable(UAV(u0, numDescriptors=1)),"\
+"RootConstants(num32BitConstants=3, b100),"\
+"RootConstants(num32BitConstants=1, b101),"\
 RS_STATIC_SAMPLER
 
 cbuffer CBCamera : register(b0)
@@ -30,12 +30,30 @@ cbuffer CBDenoiseSettings : register(b1)
 }
 
 // 入力
-Texture2D<float4> g_GITex : register(t0);		// 時間デノイズされたGI	(ハーフ解像度)
-Texture2D<float4> g_depthTex : register(t1);	// 現在深度				(フル解像度)
-Texture2D<float4> g_normalTex : register(t2);	// 現在法線				(フル解像度)
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_GITexIndex;
+	uint g_depthTexIndex;
+	uint g_normalTexIndex;
+}
+
+Texture2D<float4> Get_GITex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_GITexIndex]; return _r; }		// 時間デノイズされたGI	(ハーフ解像度)
+#define g_GITex Get_GITex()
+Texture2D<float4> Get_depthTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_depthTexIndex]; return _r; }	// 現在深度				(フル解像度)
+#define g_depthTex Get_depthTex()
+Texture2D<float4> Get_normalTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_normalTexIndex]; return _r; }	// 現在法線				(フル解像度)
+#define g_normalTex Get_normalTex()
 
 // 出力
-RWTexture2D<float4> g_outputGI : register(u0); // 結果書き込み用			(ハーフ解像度)
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outputGIIndex;
+}
+
+RWTexture2D<float4> Get_outputGI() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outputGIIndex]; return _r; } // 結果書き込み用			(ハーフ解像度)
+#define g_outputGI Get_outputGI()
 
 // サンプラー
 SamplerState g_smp : register(s0);

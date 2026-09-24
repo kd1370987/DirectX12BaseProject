@@ -8,15 +8,15 @@
 // ルートパラメーター
 //
 //   0 : CBV(b0)         カメラ
-//   1 : SRVテーブル(t0) 粒バッファ(更新パスの出力をそのまま読む)
-//   2 : SRVテーブル(t1) 絵
+//   1 : SRVの番号(t0) 粒バッファ(更新パスの出力をそのまま読む)
+//   2 : SRVの番号(t1) 絵
 //   3 : CBV(b1)         アセット単位の描画設定
 //==========================================================================================
 #define PARTICLE_ROOT_SIG \
 RS_FLAGS","\
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL),"\
-"DescriptorTable(SRV(t0, numDescriptors=1), visibility = SHADER_VISIBILITY_VERTEX),"\
-"DescriptorTable(SRV(t1, numDescriptors=1), visibility = SHADER_VISIBILITY_PIXEL),"\
+"RootConstants(num32BitConstants=1, b100, visibility = SHADER_VISIBILITY_VERTEX),"\
+"RootConstants(num32BitConstants=1, b101, visibility = SHADER_VISIBILITY_PIXEL),"\
 "CBV(b1, visibility = SHADER_VISIBILITY_VERTEX),"\
 RS_STATIC_SAMPLER
 
@@ -30,8 +30,22 @@ cbuffer CBParticleDraw : register(b1)
 	ParticleDrawData g_draw;
 }
 
-StructuredBuffer<ParticleData> g_particleBuffer : register(t0);
-Texture2D g_mainTex : register(t1);
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_particleBufferIndex;
+}
+
+StructuredBuffer<ParticleData> Get_particleBuffer() { StructuredBuffer<ParticleData> _r = ResourceDescriptorHeap[g_particleBufferIndex]; return _r; }
+#define g_particleBuffer Get_particleBuffer()
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_mainTexIndex;
+}
+
+Texture2D Get_mainTex() { Texture2D _r = ResourceDescriptorHeap[g_mainTexIndex]; return _r; }
+#define g_mainTex Get_mainTex()
 
 SamplerState g_samp : register(s0);
 

@@ -9,18 +9,34 @@
 // ルートパラメーター
 //==========================================================================================
 #define BLEND_ROOT_SIG \
-"RootFlags(0)," \
-"DescriptorTable(SRV(t0, numDescriptors=2)), " \
-"DescriptorTable(UAV(u0, numDescriptors=1)), " \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
+"RootConstants(num32BitConstants=2, b100), " \
+"RootConstants(num32BitConstants=1, b101), " \
 RS_STATIC_SAMPLER
 
 
 // 入力
-Texture2D<float4> g_colorTex : register(t0); // メインカラー
-Texture2D<float4> g_blendTex : register(t1); // 重ねる画像
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_colorTexIndex;
+	uint g_blendTexIndex;
+}
+
+Texture2D<float4> Get_colorTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_colorTexIndex]; return _r; } // メインカラー
+#define g_colorTex Get_colorTex()
+Texture2D<float4> Get_blendTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_blendTexIndex]; return _r; } // 重ねる画像
+#define g_blendTex Get_blendTex()
 
 // 出力
-RWTexture2D<float4> g_output : register(u0);
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outputIndex;
+}
+
+RWTexture2D<float4> Get_output() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outputIndex]; return _r; }
+#define g_output Get_output()
 
 // サンプラー
 SamplerState g_samp : register(s0);

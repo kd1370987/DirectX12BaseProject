@@ -62,29 +62,6 @@ namespace Engine::Graphics
 		// UIインスタンス
 		m_uiInstanceBuffer.Create(a_desc.pDevice, m_pHeapManager, 10000);
 
-		// コピー戦略用SRVヒープの作成
-		UINT _heapSize = m_pHeapManager->GetCBVSRVUAVHeapSize();
-		m_copyHeap.Create(
-			m_pDevice,
-			L"CopyHeap",
-			_heapSize,
-			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-			0
-		);
-		// ビンドレス用は先頭がグローバルヒープの丸写しで埋まる。
-		// テーブルを張るぶんはその後ろへ確保しておく
-		m_bindLessRingStart = _heapSize;
-		m_bindLessHeap.Create(
-			m_pDevice,
-			L"BindLess",
-			_heapSize + kBindLessRingSize,
-			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-			0
-		);
-
-		// 既定はコピー用ヒープをカレントにしておく
-		m_pCurrentHeap = &m_copyHeap;
-
 		// 描画用の板ポリはフレームごとに変わらないので、
 		// コンテキストの数だけ作らずグラフィックスエンジンが1つずつ持っている
 		// (GraphicsEngine::RefQuadPolygon / RefCurvedQuadPolygon)
@@ -103,10 +80,6 @@ namespace Engine::Graphics
 		// ルート定数バッファ用アロケーター解放
 		m_upCBAllocator->Release();
 		
-		// ヒープ解放
-		m_copyHeap.Release();
-		m_bindLessHeap.Release();
-
 		// 各構造体バッファ解放
 		m_boneBuffer.Release();
 		m_debugLineBuffer.Release();
@@ -119,11 +92,6 @@ namespace Engine::Graphics
 	{
 		m_pCmdList = nullptr;
 		m_upCBAllocator->ResetUse();
-
-		// リングのリセット。カレントヒープも既定へ戻す
-		m_copyHeapOffset = 0;
-		m_bindLessHeapOffset = m_bindLessRingStart;
-		m_pCurrentHeap = &m_copyHeap;
 	}
 
 	D3D12::GraphicsCommandList* RenderContext::GetCurrentCmdList()
@@ -162,151 +130,21 @@ namespace Engine::Graphics
 		m_pCmdList->RSSetScissorRects(1, &m_pBackBuffer->GetScissorRect());
 	}
 
-	void RenderContext::BindSRV(
-		UINT a_rootIdx,
-		std::vector<Handle<Resource::Texture>>& a_texHandles
-	)
-	{
-		// テクスチャからCPUハンドルを獲得する
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuHandles = {};
-		for (auto& _texHandle : a_texHandles)
-		{
-			if (_texHandle == Handle<Resource::Texture>()) continue;
-			const auto* _tex = (*m_pResourceManager).Get(_texHandle);
-			if (!_tex) continue;
-			_cpuHandles.push_back(m_pHeapManager->GetCPU(_tex->GetSRV()));
-		}
-
-		// バインド
-		BindSRV(a_rootIdx,_cpuHandles);
-	}
-
-	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::CopyToCurrentHeap(std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
-	{
-		// 今の空きインデックスから連続領域を確保。
-		// 数え上げはヒープごとに持つ(共用すると丸写しの上へ書いてしまう)
-		const bool _isBindLess = (m_pCurrentHeap == &m_bindLessHeap);
-		UINT& _offset = _isBindLess ? m_bindLessHeapOffset : m_copyHeapOffset;
-
-		UINT _count = static_cast<UINT>(a_cpuHandles.size());
-		UINT _startIdx = _offset;
-		_offset += _count;
-
-		// ヒープサイズが足りなければ無効ハンドルを返す
-		if (_offset >= m_pCurrentHeap->GetMaxSize()) return D3D12_GPU_DESCRIPTOR_HANDLE{};
-
-		// カレントヒープの確保領域へ1個ずつコピー(空ハンドルはスキップ)
-		for (UINT _i = 0; _i < _count; ++_i)
-		{
-			if (a_cpuHandles[_i].ptr == 0) continue;
-
-			m_pDevice->CopyDescriptorsSimple(
-				1,
-				m_pCurrentHeap->GetCPU(_startIdx + _i),
-				a_cpuHandles[_i],
-				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-			);
-		}
-
-		// 確保領域の先頭GPUハンドルを返す
-		return m_pCurrentHeap->GetGPU(_startIdx);
-	}
-
-	void RenderContext::GraphicsBindTable(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
-	{
-		D3D12_GPU_DESCRIPTOR_HANDLE _gpu = CopyToCurrentHeap(a_cpuHandles);
-		if (_gpu.ptr == 0) return;	// 容量オーバー時はバインドしない
-		m_pCmdList->SetGraphicsRootDescriptorTable(a_rootIdx, _gpu);
-	}
-
-	void RenderContext::ComputeBindTable(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
-	{
-		D3D12_GPU_DESCRIPTOR_HANDLE _gpu = CopyToCurrentHeap(a_cpuHandles);
-		if (_gpu.ptr == 0) return;	// 容量オーバー時はバインドしない
-		m_pCmdList->SetComputeRootDescriptorTable(a_rootIdx, _gpu);
-	}
-
-	void RenderContext::BindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
-	{
-		GraphicsBindTable(a_rootIdx, a_cpuHandles);
-	}
-
-	void RenderContext::BindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
-	{
-		GraphicsBindTable(a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE>(&a_cpuHandle, 1));
-	}
-
-	void RenderContext::BindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle)
-	{
-		auto _cpu = m_pHeapManager->GetCPU(a_srvHandle);
-		BindSRV(a_rootIdx, _cpu);
-	}
-
-	void RenderContext::ComputeBindSRV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
-	{
-		ComputeBindTable(a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE>(&a_cpuHandle, 1));
-	}
-
-	void RenderContext::ComputeBindSRV(UINT a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
-	{
-		ComputeBindTable(a_rootIdx, a_cpuHandles);
-	}
-
-	void RenderContext::ComputeBindSRV(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle)
-	{
-		auto _cpu = m_pHeapManager->GetCPU(a_srvHandle);
-		ComputeBindSRV(a_rootIdx, _cpu);
-	}
-
 	void RenderContext::ComputeBindSRVBindLess(UINT a_rootIdx, Handle<D3D12::SRV> a_srvHandle)
 	{
-		// バインドレスヒープはカレントヒープ(=m_bindLessHeap)を直接インデックスで引く
-		m_pCmdList->SetComputeRootDescriptorTable(
-			a_rootIdx,
-			m_pCurrentHeap->GetGPU(a_srvHandle.GetIndex())
-		);
-	}
-
-	void RenderContext::BindUAV(UINT a_rootIdx, D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle)
-	{
-		ComputeBindTable(a_rootIdx, std::span<const D3D12_CPU_DESCRIPTOR_HANDLE>(&a_cpuHandle, 1));
-	}
-
-	void RenderContext::BindUAV(UINT a_rootIdx, Handle<D3D12::UAV> a_uavHandle)
-	{
-		auto _cpuHandle = m_pHeapManager->GetCPU(a_uavHandle);
-		BindUAV(a_rootIdx,_cpuHandle);
-	}
-
-	void RenderContext::BindUAV(UINT a_rootIdx, std::vector<Handle<D3D12::UAV>> a_uavHandles)
-	{
-		// ハンドル配列をCPUハンドル配列へ変換してまとめてバインド
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _cpuHandles = {};
-		_cpuHandles.reserve(a_uavHandles.size());
-		for (const auto& _handle : a_uavHandles)
-		{
-			_cpuHandles.push_back(m_pHeapManager->GetCPU(_handle));
-		}
-		ComputeBindTable(a_rootIdx, _cpuHandles);
+		// シェーダー可視ヒープ上の、そのビュー自身の席を指す
+		m_pCmdList->SetComputeRootDescriptorTable(a_rootIdx, m_pHeapManager->GetGPU(a_srvHandle));
 	}
 
 	void RenderContext::BindUAVBindLess(UINT a_rootIdx, Handle<D3D12::UAV> a_handle)
 	{
-		// バインドレスヒープはカレントヒープ(=m_bindLessHeap)を直接インデックスで引く
-		m_pCmdList->SetComputeRootDescriptorTable(
-			a_rootIdx,
-			m_pCurrentHeap->GetGPU(a_handle.GetIndex())
-		);
-	}
-
-	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandle(std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> a_cpuHandles)
-	{
-		return CopyToCurrentHeap(a_cpuHandles);
+		// シェーダー可視ヒープ上の、そのビュー自身の席を指す
+		m_pCmdList->SetComputeRootDescriptorTable(a_rootIdx, m_pHeapManager->GetGPU(a_handle));
 	}
 
 	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandleBindLess(Handle<D3D12::SRV> a_handle)
 	{
-		return m_pCurrentHeap->GetGPU(a_handle.GetIndex());
+		return m_pHeapManager->GetGPU(a_handle);
 	}
 
 	void RenderContext::ClearRenderTarget(const Handle<Resource::Texture>& a_texHandle)
@@ -344,40 +182,26 @@ namespace Engine::Graphics
 		D3D12::ClearDepthStencilView(m_pCmdList,a_DSVHandle);
 	}
 
-	void RenderContext::BindHeap()
+	void RenderContext::BindBindlessHeaps()
 	{
-		// ディスクリプタヒープをセット
+		// ビューはシェーダー可視ヒープへ作った時点で写してあるので、張るだけでよい
 		ID3D12DescriptorHeap* _heaps[] = {
-			m_copyHeap.GetHeap()
-		};
-		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
-
-		// セットしたヒープをカレントとしてキャッシュ
-		m_pCurrentHeap = &m_copyHeap;
-	}
-
-	void RenderContext::BindCopyHeapAndSamplerBindLess()
-	{
-		ID3D12DescriptorHeap* _srcHeap = m_pHeapManager->GetCBVSRVUAVHeap();
-
-		// ヒープ丸ごとコピー
-		UINT _heapNum = m_pHeapManager->GetCBVSRVUAVHeapSize();
-		m_pDevice->CopyDescriptorsSimple(
-			_heapNum,
-			m_bindLessHeap.GetCPU(0),
-			_srcHeap->GetCPUDescriptorHandleForHeapStart(),
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-		);
-
-		// ディスクリプタヒープをセット
-		ID3D12DescriptorHeap* _heaps[] = {
-			m_bindLessHeap.GetHeap(),
+			m_pHeapManager->RefShaderVisibleCBVSRVUAVHeap(),
 			m_pHeapManager->RefSamplerHeap()
 		};
-		m_pCmdList->SetDescriptorHeaps(std::size(_heaps), _heaps);
+		m_pCmdList->SetDescriptorHeaps(static_cast<UINT>(std::size(_heaps)), _heaps);
+	}
 
-		// セットしたヒープをカレントとしてキャッシュ
-		m_pCurrentHeap = &m_bindLessHeap;
+	void RenderContext::GraphicsBindDescriptorIndices(UINT a_rootIdx, std::span<const UINT> a_indices)
+	{
+		if (a_indices.empty()) return;
+		m_pCmdList->SetGraphicsRoot32BitConstants(a_rootIdx, static_cast<UINT>(a_indices.size()), a_indices.data(), 0);
+	}
+
+	void RenderContext::ComputeBindDescriptorIndices(UINT a_rootIdx, std::span<const UINT> a_indices)
+	{
+		if (a_indices.empty()) return;
+		m_pCmdList->SetComputeRoot32BitConstants(a_rootIdx, static_cast<UINT>(a_indices.size()), a_indices.data(), 0);
 	}
 
 	void RenderContext::Dispatch(UINT a_x, UINT a_y, UINT a_z)
@@ -442,14 +266,17 @@ namespace Engine::Graphics
 		m_uiInstanceBuffer.AllocateAndWrite(a_uiInstanceVec);
 	}
 
+	// どちらもバインドレス : バッファの番号をルート定数で渡す
 	void RenderContext::ComputeBindBonePaletteBuffer(UINT a_rootIndex)
 	{
-		ComputeBindSRV(a_rootIndex, m_boneBuffer.GetSRV());
+		const UINT _index = m_boneBuffer.GetSRV().GetIndex();
+		ComputeBindDescriptorIndices(a_rootIndex, std::span<const UINT>(&_index, 1));
 	}
 
 	void RenderContext::BindGraphicsDebugLineBuffer(UINT a_rootIndex)
 	{
-		BindSRV(a_rootIndex,m_debugLineBuffer.GetSRVHandle());
+		const UINT _index = m_debugLineBuffer.GetSRVHandle().GetIndex();
+		GraphicsBindDescriptorIndices(a_rootIndex, std::span<const UINT>(&_index, 1));
 	}
 
 	void RenderContext::BindCamera()
@@ -492,21 +319,21 @@ namespace Engine::Graphics
 
 	// UAVのテクスチャを塗りつぶす
 	void RenderContext::ClearUAV(
-		D3D12_CPU_DESCRIPTOR_HANDLE a_cpuHandle,
+		Handle<D3D12::UAV> a_uavHandle,
 		ID3D12Resource* a_pResource,
 		const float a_color[4])
 	{
 		if (!m_pCmdList || !a_pResource) return;
-		if (a_cpuHandle.ptr == 0) return;
+		if (!a_uavHandle.IsValid()) return;
 
-		// GPUハンドルはシェーダー可視ヒープの上にしか作れない
-		BindHeap();
+		// GPUハンドルはシェーダー可視ヒープ上の席なので、そのヒープを張っておく
+		BindBindlessHeaps();
 
-		const D3D12_GPU_DESCRIPTOR_HANDLE _gpu =
-			CopyToCurrentHeap(std::span<const D3D12_CPU_DESCRIPTOR_HANDLE>(&a_cpuHandle, 1));
-		if (_gpu.ptr == 0) return;
+		const D3D12_GPU_DESCRIPTOR_HANDLE _gpu = m_pHeapManager->GetGPU(a_uavHandle);
+		const D3D12_CPU_DESCRIPTOR_HANDLE _cpu = m_pHeapManager->GetCPU(a_uavHandle);
+		if (_gpu.ptr == 0 || _cpu.ptr == 0) return;
 
-		m_pCmdList->ClearUnorderedAccessViewFloat(_gpu, a_cpuHandle, a_pResource, a_color, 0, nullptr);
+		m_pCmdList->ClearUnorderedAccessViewFloat(_gpu, _cpu, a_pResource, a_color, 0, nullptr);
 	}
 
 	void RenderContext::DrawUI(UINT a_rootIndex)

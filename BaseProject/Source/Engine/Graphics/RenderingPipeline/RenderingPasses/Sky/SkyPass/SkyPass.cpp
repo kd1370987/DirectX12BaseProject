@@ -55,7 +55,9 @@ namespace Engine::Graphics::Pipeline
 		const auto* _pSkyTex = a_context.pResourceManager->Get(_skyTexHandle);
 		if (!_pSkyTex) return;
 
-		_pCtx->ComputeBindSRV(kRootSkyTexSRV, _pSkyTex->GetSRV());
+		// バインドレス : スカイテクスチャの番号をルート定数で渡す
+		const UINT _skyTexIndex = _pSkyTex->GetSRV().GetIndex();
+		_pCtx->ComputeBindDescriptorIndices(kRootSkyTexSRV, std::span<const UINT>(&_skyTexIndex, 1));
 
 		DispatchFullScreen(a_context);
 	}

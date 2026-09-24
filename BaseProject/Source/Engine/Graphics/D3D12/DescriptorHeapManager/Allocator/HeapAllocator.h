@@ -7,7 +7,13 @@ namespace Engine::D3D12
 	{
 	public:
 		// アロケーター作成
-		bool Create(DescriptorHeap<T::type>* a_pHeap, UINT a_startIdx = 0, UINT a_maxCount = 0);
+		//
+		// a_pShaderVisibleHeap を渡すと、ビューは a_pHeap(CPU専用)に作ったあと
+		// 同じ番号の席へ写す。GPUハンドルはこちらから返す。
+		// CPU専用の側はコピー元や ClearUnorderedAccessView のCPUハンドルに使う
+		// (シェーダー可視のヒープはCPUから読むと遅く、UAVのクリアには使えないため)
+		bool Create(DescriptorHeap<T::type>* a_pHeap, UINT a_startIdx = 0, UINT a_maxCount = 0,
+			DescriptorHeap<T::type>* a_pShaderVisibleHeap = nullptr);
 
 		// 解放
 		void Release();
@@ -23,8 +29,11 @@ namespace Engine::D3D12
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(const Handle<T>& a_handle) const;
 
 	private:
-		// 参照元ヒープ
+		// 参照元ヒープ(ビューを作る先)
 		DescriptorHeap<T::type>* m_pHeap = nullptr;
+
+		// シェーダー可視の写し先(無ければ m_pHeap だけを使う)
+		DescriptorHeap<T::type>* m_pShaderVisibleHeap = nullptr;
 		
 		// ハンドル管理
 		Pool::HandlePool<T> m_HandlePool = {};
@@ -47,10 +56,12 @@ namespace Engine::D3D12
 	};
 
 	template<IsHeapType T>
-	inline bool HeapAllocator<T>::Create(DescriptorHeap<T::type>* a_pHeap, UINT a_startIdx, UINT a_maxCount)
+	inline bool HeapAllocator<T>::Create(DescriptorHeap<T::type>* a_pHeap, UINT a_startIdx, UINT a_maxCount,
+		DescriptorHeap<T::type>* a_pShaderVisibleHeap)
 	{
 		// ヒープの参照
 		m_pHeap = a_pHeap;
+		m_pShaderVisibleHeap = a_pShaderVisibleHeap;
 
 		m_startIndex = a_startIdx;
 		if (a_maxCount == 0)
@@ -70,6 +81,7 @@ namespace Engine::D3D12
 	inline void HeapAllocator<T>::Release()
 	{
 		m_pHeap = nullptr;
+		m_pShaderVisibleHeap = nullptr;
 	}
 	template<IsHeapType T>
 	inline Handle<T> HeapAllocator<T>::Allocate(D3D12::Device* a_pDevice, ID3D12Resource* a_pRes, const typename T::DescType* a_desc)
@@ -139,6 +151,18 @@ namespace Engine::D3D12
 			a_pDevice->CreateDepthStencilView(a_pRes, a_desc, _cpuHandle);
 		}
 
+		// シェーダー可視の写し先へ同じ番号で写す。
+		// 取った席にしか触らないので、ロックの外でよい
+		if (m_pShaderVisibleHeap)
+		{
+			a_pDevice->CopyDescriptorsSimple(
+				1,
+				m_pShaderVisibleHeap->GetCPU(static_cast<UINT>(_handle.GetIndex())),
+				_cpuHandle,
+				T::type
+			);
+		}
+
 		// ハンドルを返す
 		return _handle;
 	}
@@ -178,7 +202,8 @@ namespace Engine::D3D12
 		if (m_HandlePool.IsValid(_stHandle))
 		{
 			UINT _idx = a_handle.GetIndex();
-			return m_pHeap->GetGPU(_idx);
+			// GPUハンドルはシェーダー可視の側にしか意味が無い
+			return m_pShaderVisibleHeap ? m_pShaderVisibleHeap->GetGPU(_idx) : m_pHeap->GetGPU(_idx);
 		}
 		return { 0 };
 	}

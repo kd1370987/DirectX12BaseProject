@@ -101,10 +101,19 @@ namespace Engine::Graphics
 
 		m_upDescriptorHeapManager = std::make_unique<D3D12::DescriptorHeapManager>();
 
-		return m_upDescriptorHeapManager->Init(
+		if (!m_upDescriptorHeapManager->Init(
 			_pDevice,
-			kCBVCount, kSRVCount, kUAVCount, kRTVCount, kDSVCount
-		);
+			kCBVCount, kSRVCount, kUAVCount, kRTVCount, kDSVCount))
+		{
+			return false;
+		}
+
+		// ビューの席は、GPUが使い終わるまで空きへ戻さない。
+		// 「今記録しているフレームが終わるときの値」を付けて預け、BeginFrame で戻す
+		RenderDevice* _pRenderDevice = m_upRenderDevice.get();
+		m_upDescriptorHeapManager->SetNextFenceValueProvider(
+			[_pRenderDevice]() { return _pRenderDevice->GetNextFenceValue(); });
+		return true;
 	}
 
 	void GraphicsEngine::ReleaseDescriptorHeap()
@@ -343,6 +352,9 @@ namespace Engine::Graphics
 			ENGINE_PROFILE_SCOPE("GPUFrameWait");
 			m_upRenderDevice->BeginFrame();
 		}
+
+		// GPUが使い終わったビューの席を空きへ戻す(ここまでで前のフレームの完了は待ってある)
+		m_upDescriptorHeapManager->ProcessDeferredFrees(m_upRenderDevice->GetCompletedFenceValue());
 
 		// 今フレームに描くバックバッファの番号を引き直す
 		m_upBackBuffer->BeginFrame();

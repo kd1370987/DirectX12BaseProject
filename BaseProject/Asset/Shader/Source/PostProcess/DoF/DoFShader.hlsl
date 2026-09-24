@@ -21,14 +21,14 @@
 // ルートパラメーター
 //
 //   0 : CBV(b12)           被写界深度の設定
-//   1 : SRVテーブル(t0-t1) メインカラー + CoC
-//   2 : UAVテーブル(u0)    出力カラー
+//   1 : SRVの番号(t0-t1) メインカラー + CoC
+//   2 : UAVの番号(u0)    出力カラー
 //==========================================================================================
 #define DOF_ROOT_SIG \
-"RootFlags(0)," \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 "CBV(b12, visibility = SHADER_VISIBILITY_ALL)," \
-"DescriptorTable(SRV(t0, numDescriptors=2)), " \
-"DescriptorTable(UAV(u0, numDescriptors=1)), " \
+"RootConstants(num32BitConstants=2, b100), " \
+"RootConstants(num32BitConstants=1, b101), " \
 RS_STATIC_SAMPLER
 
 cbuffer CBDoFOption : register(b12)
@@ -37,11 +37,27 @@ cbuffer CBDoFOption : register(b12)
 }
 
 // 入力
-Texture2D<float4> g_colorTex : register(t0);	// メインカラー
-Texture2D<float>  g_cocTex   : register(t1);	// CoC
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_colorTexIndex;
+	uint g_cocTexIndex;
+}
+
+Texture2D<float4> Get_colorTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_colorTexIndex]; return _r; }	// メインカラー
+#define g_colorTex Get_colorTex()
+Texture2D<float> Get_cocTex() { Texture2D<float> _r = ResourceDescriptorHeap[g_cocTexIndex]; return _r; }	// CoC
+#define g_cocTex Get_cocTex()
 
 // 出力
-RWTexture2D<float4> g_output : register(u0);
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outputIndex;
+}
+
+RWTexture2D<float4> Get_output() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outputIndex]; return _r; }
+#define g_output Get_output()
 
 // サンプラー
 SamplerState g_samp : register(s0);

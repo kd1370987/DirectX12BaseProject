@@ -8,17 +8,17 @@
 //
 //   0 : CBV(b0)            カメラ
 //   1 : CBV(b1)            時間累積の設定
-//   2 : SRVテーブル(t0-t6) 現在のGI + 速度 + 履歴 + 現在/過去の深度・法線
-//   3 : UAVテーブル(u0)    出力GI(ハーフ)
+//   2 : SRVの番号(t0-t6) 現在のGI + 速度 + 履歴 + 現在/過去の深度・法線
+//   3 : UAVの番号(u0)    出力GI(ハーフ)
 //
 // 履歴のサンプラーは CLAMP。WRAP のままだと画面端で反対側の色が回り込む
 //==========================================================================================
 #define TEMPORALACCUMULATION_ROOT_SIG \
-"RootFlags(0), " \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED), " \
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b1),"\
-"DescriptorTable(SRV(t0, numDescriptors=7)),"\
-"DescriptorTable(UAV(u0, numDescriptors=1)),"\
+"RootConstants(num32BitConstants=7, b100),"\
+"RootConstants(num32BitConstants=1, b101),"\
 RS_STATIC_SAMPLER_CLAMP
 
 cbuffer CBCamera : register(b0)
@@ -40,16 +40,42 @@ float3 ReconstructViewPos(float2 a_uv, float a_depth)
 }
 
 // 入力
-Texture2D<float4> g_currentGITex : register(t0);	// 現在のGI			(ハーフ解像度)
-Texture2D<float4> g_velocityTex : register(t1);		// モーションベクター	(フル解像度)
-Texture2D<float4> g_historyGITex : register(t2);	// 前フレームのGI		(ハーフ解像度)
-Texture2D<float4> g_depthTex : register(t3);		// 現在深度			(フル解像度)
-Texture2D<float4> g_normalTex : register(t4);		// 現在法線			(フル解像度)
-Texture2D<float4> g_prevDepthTex : register(t5);	// 過去深度			(フル解像度)
-Texture2D<float4> g_prevNormalTex : register(t6);	// 過去法線			(フル解像度)
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_currentGITexIndex;
+	uint g_velocityTexIndex;
+	uint g_historyGITexIndex;
+	uint g_depthTexIndex;
+	uint g_normalTexIndex;
+	uint g_prevDepthTexIndex;
+	uint g_prevNormalTexIndex;
+}
+
+Texture2D<float4> Get_currentGITex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_currentGITexIndex]; return _r; }	// 現在のGI			(ハーフ解像度)
+#define g_currentGITex Get_currentGITex()
+Texture2D<float4> Get_velocityTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_velocityTexIndex]; return _r; }		// モーションベクター	(フル解像度)
+#define g_velocityTex Get_velocityTex()
+Texture2D<float4> Get_historyGITex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_historyGITexIndex]; return _r; }	// 前フレームのGI		(ハーフ解像度)
+#define g_historyGITex Get_historyGITex()
+Texture2D<float4> Get_depthTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_depthTexIndex]; return _r; }		// 現在深度			(フル解像度)
+#define g_depthTex Get_depthTex()
+Texture2D<float4> Get_normalTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_normalTexIndex]; return _r; }		// 現在法線			(フル解像度)
+#define g_normalTex Get_normalTex()
+Texture2D<float4> Get_prevDepthTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_prevDepthTexIndex]; return _r; }	// 過去深度			(フル解像度)
+#define g_prevDepthTex Get_prevDepthTex()
+Texture2D<float4> Get_prevNormalTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_prevNormalTexIndex]; return _r; }	// 過去法線			(フル解像度)
+#define g_prevNormalTex Get_prevNormalTex()
 
 // 出力
-RWTexture2D<float4> g_outputGI : register(u0);		// 結果書き込み用		(ハーフ解像度)
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outputGIIndex;
+}
+
+RWTexture2D<float4> Get_outputGI() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outputGIIndex]; return _r; }		// 結果書き込み用		(ハーフ解像度)
+#define g_outputGI Get_outputGI()
 
 // サンプラー
 SamplerState g_smp : register(s0);

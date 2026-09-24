@@ -48,7 +48,7 @@ namespace Engine::Graphics::Pipeline
 				a_pso.DestBlendAlpha(D3D12_BLEND_INV_SRC_ALPHA);
 				a_pso.BlendOpAlpha(D3D12_BLEND_OP_ADD);
 			},
-			EPassHeapMode::BindlessWithSampler);
+			EPassHeapMode::Bindless);
 	}
 
 	void UIPass::Update(const PassContext& a_context)

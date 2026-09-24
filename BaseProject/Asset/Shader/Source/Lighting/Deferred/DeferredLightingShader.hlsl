@@ -13,21 +13,21 @@
 //
 //   0 : CBV(b0)            カメラ
 //   1 : CBV(b10)           環境光・フォグ
-//   2 : SRVテーブル(t0-t6) GBuffer + 影マスク + GI
-//   3 : UAVテーブル(u0)    出力カラー
+//   2 : SRVの番号(t0-t6) GBuffer + 影マスク + GI
+//   3 : UAVの番号(u0)    出力カラー
 //   4 : CBV(b11)           ライティング調整値
-//   5 : SRVテーブル(t7-t8) ポイントライト配列 + 平行光配列
+//   5 : SRVの番号(t7-t8) ポイントライト配列 + 平行光配列
 //   6 : CBV(b12)           ライト数
 //
 // 追加は必ず末尾へ足すこと。間に挟むと既存の番号が全部ずれる
 #define DEFERRED_ROOT_SIG \
-"RootFlags(0)," \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b10, visibility = SHADER_VISIBILITY_ALL)," \
-"DescriptorTable(SRV(t0, numDescriptors=7)), " \
-"DescriptorTable(UAV(u0, numDescriptors=1)), " \
+"RootConstants(num32BitConstants=7, b100), " \
+"RootConstants(num32BitConstants=1, b101), " \
 "CBV(b11, visibility = SHADER_VISIBILITY_ALL)," \
-"DescriptorTable(SRV(t7, numDescriptors=2)), " \
+"RootConstants(num32BitConstants=2, b102), " \
 "CBV(b12, visibility = SHADER_VISIBILITY_ALL)," \
 RS_STATIC_SAMPLER
 
@@ -54,20 +54,55 @@ cbuffer CBLightCount : register(b12)
 }
 
 // ライト配列 : LightManager が毎フレーム詰め直したもの
-StructuredBuffer<PointLight> g_pointLights : register(t7);
-StructuredBuffer<DirectionalLight> g_directionalLights : register(t8);
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex2 : register(b102)
+{
+	uint g_pointLightsIndex;
+	uint g_directionalLightsIndex;
+}
+
+StructuredBuffer<PointLight> Get_pointLights() { StructuredBuffer<PointLight> _r = ResourceDescriptorHeap[g_pointLightsIndex]; return _r; }
+#define g_pointLights Get_pointLights()
+StructuredBuffer<DirectionalLight> Get_directionalLights() { StructuredBuffer<DirectionalLight> _r = ResourceDescriptorHeap[g_directionalLightsIndex]; return _r; }
+#define g_directionalLights Get_directionalLights()
 
 // ディファードレンダリングでは共通
-Texture2D g_albedoTex : register(t0);
-Texture2D g_normalTex : register(t1);
-Texture2D g_materialTex : register(t2);
-Texture2D g_emiTex : register(t3);
-Texture2D g_depthTex : register(t4);
-Texture2D g_shadowMask : register(t5);
-Texture2D g_rayGI : register(t6);
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_albedoTexIndex;
+	uint g_normalTexIndex;
+	uint g_materialTexIndex;
+	uint g_emiTexIndex;
+	uint g_depthTexIndex;
+	uint g_shadowMaskIndex;
+	uint g_rayGIIndex;
+}
+
+Texture2D Get_albedoTex() { Texture2D _r = ResourceDescriptorHeap[g_albedoTexIndex]; return _r; }
+#define g_albedoTex Get_albedoTex()
+Texture2D Get_normalTex() { Texture2D _r = ResourceDescriptorHeap[g_normalTexIndex]; return _r; }
+#define g_normalTex Get_normalTex()
+Texture2D Get_materialTex() { Texture2D _r = ResourceDescriptorHeap[g_materialTexIndex]; return _r; }
+#define g_materialTex Get_materialTex()
+Texture2D Get_emiTex() { Texture2D _r = ResourceDescriptorHeap[g_emiTexIndex]; return _r; }
+#define g_emiTex Get_emiTex()
+Texture2D Get_depthTex() { Texture2D _r = ResourceDescriptorHeap[g_depthTexIndex]; return _r; }
+#define g_depthTex Get_depthTex()
+Texture2D Get_shadowMask() { Texture2D _r = ResourceDescriptorHeap[g_shadowMaskIndex]; return _r; }
+#define g_shadowMask Get_shadowMask()
+Texture2D Get_rayGI() { Texture2D _r = ResourceDescriptorHeap[g_rayGIIndex]; return _r; }
+#define g_rayGI Get_rayGI()
 
 // 出力
-RWTexture2D<float4> g_output : register(u0); // 結果書き込み用
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outputIndex;
+}
+
+RWTexture2D<float4> Get_output() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outputIndex]; return _r; } // 結果書き込み用
+#define g_output Get_output()
 
 // サンプラー
 SamplerState g_samp : register(s0);

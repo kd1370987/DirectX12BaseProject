@@ -119,7 +119,7 @@ namespace Engine::Graphics::Pipeline
 		m_shaderTable.CommitInstanceBindLess(_instanceVec, _pCtx, _width, _height);
 
 		// ディスクリプタヒープセット
-		_pCtx->BindCopyHeapAndSamplerBindLess();
+		_pCtx->BindBindlessHeaps();
 
 		// パイプラインとルートシグネチャセット
 		_pCmdList->SetPipelineState1(m_rayPSO.Get());

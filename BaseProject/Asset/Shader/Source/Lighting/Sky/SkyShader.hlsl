@@ -28,19 +28,19 @@
 //
 //   0 : CBV(b0)         カメラ
 //   1 : CBV(b15)        スカイ設定
-//   2 : SRVテーブル(t0) 深度(レンダーグラフが張る)
-//   3 : SRVテーブル(t1) スカイテクスチャ(パスが張る)
-//   4 : UAVテーブル(u0) 出力カラー(AfterLighting / HDR)
-//   5 : UAVテーブル(u1) 出力モーションベクター(GBufferVelocity)
+//   2 : SRVの番号(t0) 深度(レンダーグラフが張る)
+//   3 : SRVの番号(t1) スカイテクスチャ(パスが張る)
+//   4 : UAVの番号(u0) 出力カラー(AfterLighting / HDR)
+//   5 : UAVの番号(u1) 出力モーションベクター(GBufferVelocity)
 //==========================================================================================
 #define SKY_ROOT_SIG \
-"RootFlags(0)," \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b15, visibility = SHADER_VISIBILITY_ALL)," \
-"DescriptorTable(SRV(t0, numDescriptors=1))," \
-"DescriptorTable(SRV(t1, numDescriptors=1))," \
-"DescriptorTable(UAV(u0, numDescriptors=1))," \
-"DescriptorTable(UAV(u1, numDescriptors=1))," \
+"RootConstants(num32BitConstants=1, b100)," \
+"RootConstants(num32BitConstants=1, b101)," \
+"RootConstants(num32BitConstants=1, b102)," \
+"RootConstants(num32BitConstants=1, b103)," \
 RS_STATIC_SAMPLER_SKY
 
 cbuffer CBCamera : register(b0)
@@ -53,11 +53,39 @@ cbuffer CBSky : register(b15)
 	SkyData g_sky;
 }
 
-Texture2D<float4>   g_depthTex    : register(t0);	// 深度
-Texture2D<float4>   g_skyTex      : register(t1);	// スカイ(正距円筒)
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_depthTexIndex;
+}
 
-RWTexture2D<float4> g_outColor    : register(u0);	// AfterLighting
-RWTexture2D<float2> g_outVelocity : register(u1);	// GBufferVelocity
+Texture2D<float4> Get_depthTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_depthTexIndex]; return _r; }	// 深度
+#define g_depthTex Get_depthTex()
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_skyTexIndex;
+}
+
+Texture2D<float4> Get_skyTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_skyTexIndex]; return _r; }	// スカイ(正距円筒)
+#define g_skyTex Get_skyTex()
+
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex2 : register(b102)
+{
+	uint g_outColorIndex;
+}
+
+RWTexture2D<float4> Get_outColor() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outColorIndex]; return _r; }	// AfterLighting
+#define g_outColor Get_outColor()
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex3 : register(b103)
+{
+	uint g_outVelocityIndex;
+}
+
+RWTexture2D<float2> Get_outVelocity() { RWTexture2D<float2> _r = ResourceDescriptorHeap[g_outVelocityIndex]; return _r; }	// GBufferVelocity
+#define g_outVelocity Get_outVelocity()
 
 SamplerState g_samp : register(s0);
 

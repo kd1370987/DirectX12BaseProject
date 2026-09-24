@@ -53,15 +53,14 @@ namespace Engine::Graphics::Pipeline
 		// ライト
 		//
 		// ライト配列はグラフの資源ではないので、スロットの宣言には乗らない。
-		// GraphicsEngine が Execute() で今フレームぶんを詰め直したものを、ここで直接張る。
-		// テーブルは並べた順にディスクリプタが入るので、t7 = ポイント / t8 = 平行光 の順を崩さないこと
+		// GraphicsEngine が Execute() で今フレームぶんを詰め直したものの番号を、ここで直接渡す。
+		// シェーダーは受け取った順に読むので、ポイント → 平行光 の順を崩さないこと
 		const auto& _frameLight = _pGE->GetFrameLightData();
-		auto* _pHeapManager = a_context.pHeapManager;
-		const D3D12_CPU_DESCRIPTOR_HANDLE _lightSrvArr[] = {
-			_pHeapManager->GetCPU(_frameLight.plBuffer.GetSRV()),
-			_pHeapManager->GetCPU(_frameLight.dlBuffer.GetSRV()),
+		const UINT _lightIndices[] = {
+			_frameLight.plBuffer.GetSRV().GetIndex(),
+			_frameLight.dlBuffer.GetSRV().GetIndex(),
 		};
-		_pCtx->ComputeBindSRV(5, _lightSrvArr);
+		_pCtx->ComputeBindDescriptorIndices(5, _lightIndices);
 
 		// ライト数
 		// StructuredBuffer は要素数を持たないので、ループの上限をCBで渡す。

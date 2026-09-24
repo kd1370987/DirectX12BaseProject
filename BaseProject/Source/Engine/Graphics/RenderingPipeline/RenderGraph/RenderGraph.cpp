@@ -1123,7 +1123,7 @@ namespace Engine::Graphics::Pipeline
 
 					const float _clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 					a_pRenderContext->ClearUAV(
-						_heapManager.GetCPU(_pResource->GetUAV()),
+						_pResource->GetUAV(),
 						_pResource->GetResource(),
 						_clearColor);
 				}
@@ -1143,12 +1143,10 @@ namespace Engine::Graphics::Pipeline
 
 		const bool _isCompute = (_pPass->GetPipelineType() == EPassPipelineType::Compute);
 
-		// ヒープ
-		switch (_pPass->GetHeapMode())
+		// ヒープ : シェーダー可視のヒープとサンプラーヒープを張るだけ(コピーはしない)
+		if (_pPass->GetHeapMode() == EPassHeapMode::Bindless)
 		{
-		case EPassHeapMode::Default:				a_pRenderContext->BindHeap();						break;
-		case EPassHeapMode::BindlessWithSampler:	a_pRenderContext->BindCopyHeapAndSamplerBindLess();	break;
-		default: break;
+			a_pRenderContext->BindBindlessHeaps();
 		}
 
 		// ルートシグネチャ : ハンドルから実体を引くのは使う直前
@@ -1165,31 +1163,24 @@ namespace Engine::Graphics::Pipeline
 			else			a_pRenderContext->SetGraphicPSO(_pPass->GetPSOHandle());
 		}
 
-		// ルートシグネチャが無いとディスクリプタテーブルは張れない
+		// ルートシグネチャが無いとルート定数は張れない
 		if (a_compiledPass.binds.empty()) return;
 		if (!_pPass->GetRootSignature().IsValid()) return;
 
-		const auto& _table = a_compiledPass.descriptorTable[a_parity];
+		//------------------------------------------------------------------------------
+		// ビューの番号をルート定数で渡す。
+		// ルートパラメータの位置はスロットが宣言した番号のまま
+		// (シェーダー側は同じ位置に RootConstants を置き、cbuffer の uint で受けて
+		//  ResourceDescriptorHeap[番号] で引く)
+		//------------------------------------------------------------------------------
+		const auto& _indices = a_compiledPass.descriptorIndex[a_parity];
 		for (const PassBind& _bind : a_compiledPass.binds)
 		{
-			if (static_cast<size_t>(_bind.firstHandle) + _bind.count > _table.size()) continue;
+			if (static_cast<size_t>(_bind.firstIndex) + _bind.count > _indices.size()) continue;
 
-			std::span<const D3D12_CPU_DESCRIPTOR_HANDLE> _handles(
-				_table.data() + _bind.firstHandle, _bind.count);
-
-			switch (_bind.type)
-			{
-			case PassBind::EType::SrvTable:
-				if (_isCompute)	a_pRenderContext->ComputeBindSRV(_bind.rootIndex, _handles);
-				else			a_pRenderContext->BindSRV(_bind.rootIndex, _handles);
-				break;
-
-			case PassBind::EType::Uav:
-				a_pRenderContext->BindUAV(_bind.rootIndex, _handles[0]);
-				break;
-
-			default: break;
-			}
+			std::span<const UINT> _span(_indices.data() + _bind.firstIndex, _bind.count);
+			if (_isCompute)	a_pRenderContext->ComputeBindDescriptorIndices(_bind.rootIndex, _span);
+			else			a_pRenderContext->GraphicsBindDescriptorIndices(_bind.rootIndex, _span);
 		}
 	}
 
@@ -1313,13 +1304,13 @@ namespace Engine::Graphics::Pipeline
 				_rtvFormatVec, _dsvFormat, static_cast<UINT>(Engine::String::ToHash(_psoKeyName)));
 
 			//------------------------------------------------------------------------------
-			// SRV / UAV のディスクリプタテーブル
+			// SRV / UAV の番号
 			//
 			// ルートパラメータ番号を指定したスロットだけを、番号ごとにまとめて並べる。
-			// 入力を先に見るのは、宣言順がそのままテーブルの並びになるため
+			// 入力を先に見るのは、宣言順がそのままルート定数の並びになるため
 			//------------------------------------------------------------------------------
-			_compiledPass.descriptorTable[0].clear();
-			_compiledPass.descriptorTable[1].clear();
+			_compiledPass.descriptorIndex[0].clear();
+			_compiledPass.descriptorIndex[1].clear();
 			_compiledPass.binds.clear();
 
 			// 同じ番号のスロットを集める(番号の小さい順に張る)
@@ -1335,17 +1326,12 @@ namespace Engine::Graphics::Pipeline
 				_rootSlotMap[_out.rootParamIndex].push_back(&_out);
 			}
 
-			auto& _heap = *m_pHeapManager;
 			for (const auto& [_rootIndex, _slotVec] : _rootSlotMap)
 			{
 				PassBind _bind = {};
 				_bind.rootIndex = static_cast<UINT>(_rootIndex);
-				_bind.firstHandle = static_cast<uint16_t>(_compiledPass.descriptorTable[0].size());
+				_bind.firstIndex = static_cast<uint16_t>(_compiledPass.descriptorIndex[0].size());
 				_bind.count = static_cast<uint16_t>(_slotVec.size());
-
-				// UAV は1つのルートパラメータに1本だけ。それ以外はSRVテーブルとして扱う
-				const bool _isUAV = (!_slotVec.empty() && _slotVec[0]->accessType == EAccessType::UAV);
-				_bind.type = _isUAV ? PassBind::EType::Uav : PassBind::EType::SrvTable;
 
 				for (uint32_t _parity = 0; _parity < 2; ++_parity)
 				{
@@ -1354,21 +1340,21 @@ namespace Engine::Graphics::Pipeline
 						D3D12::GPUResource* _pResource = _refResource(*_pSlot, _parity);
 						if (!_pResource)
 						{
-							_compiledPass.descriptorTable[_parity].push_back({ 0 });
+							_compiledPass.descriptorIndex[_parity].push_back(CompiledPass::kInvalidDescriptorIndex);
 							continue;
 						}
 
 						switch (_pSlot->accessType)
 						{
 						case EAccessType::UAV:
-							_compiledPass.descriptorTable[_parity].push_back(_heap.GetCPU(_pResource->GetUAV()));
+							_compiledPass.descriptorIndex[_parity].push_back(_pResource->GetUAV().GetIndex());
 							break;
 
 						// 深度を読むときも、シェーダーからは SRV として引く
 						case EAccessType::SRV:
 						case EAccessType::Depth_Read:
 						default:
-							_compiledPass.descriptorTable[_parity].push_back(_heap.GetCPU(_pResource->GetSRV()));
+							_compiledPass.descriptorIndex[_parity].push_back(_pResource->GetSRV().GetIndex());
 							break;
 						}
 					}

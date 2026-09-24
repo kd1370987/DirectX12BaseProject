@@ -285,7 +285,7 @@ namespace Engine::Graphics::Pipeline
 			const D3D12_INPUT_LAYOUT_DESC& a_inputLayout,
 			const std::string& a_psoName,
 			const std::function<void(D3D12::GraphicsPipelineDesc&)>& a_configure = nullptr,
-			EPassHeapMode a_heapMode = EPassHeapMode::Default,
+			EPassHeapMode a_heapMode = EPassHeapMode::Bindless,
 			// PSOの受け取り先。
 			// 渡すと m_psoHandle には入れないので、グラフは自動でPSOを張らない。
 			// ブレンド違いを複数持って描くときに選び分けるパス(パーティクル)で使う
@@ -295,7 +295,7 @@ namespace Engine::Graphics::Pipeline
 			const PassContext& a_context,
 			const std::string& a_csPath,
 			const std::string& a_psoName,
-			EPassHeapMode a_heapMode = EPassHeapMode::Default);
+			EPassHeapMode a_heapMode = EPassHeapMode::Bindless);
 
 		//----------------------------------------------------------------------------------
 		// 画面全体を回すディスパッチ

@@ -45,8 +45,25 @@ namespace Engine::D3D12
 		Handle<T> Allocate(D3D12::Device* a_pDevice,ID3D12Resource* a_pResource,const typename T::DescType* a_desc);
 
 		// ビューの解放
+		//
+		// CBV / SRV / UAV の席は、すぐには空きへ戻さない。
+		// シェーダーは可視ヒープの席を番号で直接引くので、まだ走っているフレームが
+		// 読んでいる席を使い回すと、そのフレームの描画が別のビューを読んでしまう。
+		// 「今記録しているフレームが終わる値」を付けて預かり、GPUがそこまで進んだら戻す
+		// (ProcessDeferredFrees)。RTV / DSV は記録の時点で読まれるのですぐ戻す
 		template<IsHeapType T>
 		void Free(const Handle<T>& a_handle);
+
+		//--------------------------------------------------------------------------------------------
+		// 解放の遅延
+		//--------------------------------------------------------------------------------------------
+		// 「今記録しているフレームが終わるときのフェンス値」を返す関数を受け取る。
+		// 渡されていない間(フレームを回す前・ツールなど)は、解放はその場で行う
+		void SetNextFenceValueProvider(std::function<UINT64()> a_provider);
+
+		// GPUが a_completedFenceValue まで進んだので、それ以前に預かった席を空きへ戻す。
+		// フレームの頭(前のフレームの完了を待った後)に呼ぶ
+		void ProcessDeferredFrees(UINT64 a_completedFenceValue);
 
 		// ハンドルの取得
 		template<IsHeapType T>
@@ -55,8 +72,16 @@ namespace Engine::D3D12
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(Handle<T> a_handle);
 
 		// ヒープ取得
+		//
+		// CBV / SRV / UAV は同じ番号の席を2枚のヒープに持つ。
+		//   GetCBVSRVUAVHeap              … CPU専用。ビューを作る先で、コピー元と
+		//                                   ClearUnorderedAccessView のCPUハンドルに使う
+		//   RefShaderVisibleCBVSRVUAVHeap … シェーダー可視。SetDescriptorHeaps で張って、
+		//                                   シェーダーから番号(ResourceDescriptorHeap[i])で引く
+		// GetCPU は前者、GetGPU は後者のハンドルを返す
 		UINT GetCBVSRVUAVHeapSize();
 		ID3D12DescriptorHeap* GetCBVSRVUAVHeap();
+		ID3D12DescriptorHeap* RefShaderVisibleCBVSRVUAVHeap();
 
 		//==========================================================================================
 		//
@@ -124,7 +149,8 @@ namespace Engine::D3D12
 		D3D12::Device* m_pDevice = nullptr;
 
 		// ヒープ本体
-		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_cbv_srv_uavHeap;
+		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_cbv_srv_uavHeap;					// CPU専用(ビューを作る先)
+		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_cbv_srv_uavShaderVisibleHeap;	// シェーダー可視(同じ番号の写し)
 		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_DSV>			m_dsvHeap;
 		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_RTV>			m_rtvHeap;
 
@@ -149,6 +175,22 @@ namespace Engine::D3D12
 		Engine::Handle<SAMPLER> m_linearWrap;
 		Engine::Handle<SAMPLER> m_pointClamp;
 		Engine::Handle<SAMPLER> m_shadow;
+
+		//--------------------------------------------------------------------------------------------
+		// 解放の遅延
+		//--------------------------------------------------------------------------------------------
+		struct PendingFree
+		{
+			UINT64 fenceValue = 0;				// GPUがこの値まで進んだら戻してよい
+			std::function<void()> release;		// 空きへ戻す処理(種類ごとのアロケーターへ)
+		};
+
+		// 預かり中の席 : 解放はワーカースレッドから来ることもあるのでロックで守る
+		std::vector<PendingFree> m_pendingFrees;
+		std::mutex m_pendingMutex;
+
+		// 今記録しているフレームが終わるときのフェンス値を返す(GraphicsEngine が渡す)
+		std::function<UINT64()> m_nextFenceValueProvider = nullptr;
 	};
 	//==========================================================================================
 	// ビューの種類 → アロケーター
@@ -183,6 +225,23 @@ namespace Engine::D3D12
 	template<IsHeapType T>
 	inline void DescriptorHeapManager::Free(const Handle<T>& a_handle)
 	{
+		if (!a_handle.IsValid()) return;
+
+		// シェーダーが番号で引く種類だけ、GPUが使い終わるまで預かる
+		constexpr bool _isShaderIndexed =
+			std::is_same_v<T, CBV> || std::is_same_v<T, SRV> || std::is_same_v<T, UAV>;
+
+		if constexpr (_isShaderIndexed)
+		{
+			if (m_nextFenceValueProvider)
+			{
+				const UINT64 _fenceValue = m_nextFenceValueProvider();
+				std::lock_guard<std::mutex> _lock(m_pendingMutex);
+				m_pendingFrees.push_back({ _fenceValue, [this, a_handle]() { RefAllocator<T>().Remove(a_handle); } });
+				return;
+			}
+		}
+
 		RefAllocator<T>().Remove(a_handle);
 	}
 

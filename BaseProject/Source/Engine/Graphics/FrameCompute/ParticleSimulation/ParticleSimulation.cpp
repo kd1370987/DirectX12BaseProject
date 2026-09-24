@@ -118,14 +118,15 @@ namespace Engine::Graphics
 			if (_requests.empty()) continue;
 
 			// ヒープとルートシグネチャ、PSOをセット
-			a_pCtx->BindHeap();
+			a_pCtx->BindBindlessHeaps();
 			a_pCtx->SetComputeRootSignature(g_particle.emitRootSig);
 			a_pCtx->SetComputePSO(g_particle.pPSOManager->GetPSO(g_particle.emitPSO));
 
-			// 命令バインド
+			// 命令バインド(バインドレス : 番号をルート定数で渡す)
 			const auto* _pEmitBuff = _pParticleManager->GetEmitBuffer(_handle);
 			if (!_pEmitBuff) continue;
-			a_pCtx->ComputeBindSRV(1, _pEmitBuff->GetSRVHandle());
+			const UINT _emitIndex = _pEmitBuff->GetSRVHandle().GetIndex();
+			a_pCtx->ComputeBindDescriptorIndices(1, std::span<const UINT>(&_emitIndex, 1));
 
 			struct EmitCB
 			{
@@ -146,8 +147,13 @@ namespace Engine::Graphics
 			_cbEmit.frameSeed = g_particle.frameCounter * 2654435761u + _handle.id;
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<EmitCB>(_pCmd, 0, _cbEmit);
 
-			// GPUパーティクルプールバインド
-			a_pCtx->BindUAV(2, { _pool->GetParticlePoolUAV(), _pool->GetDeadListUAV(), _pool->GetCounterUAV() });
+			// GPUパーティクルプールバインド : 本体 / デッドリスト / カウンターの順(シェーダーの u0-u2 と同じ)
+			const UINT _poolIndices[] = {
+				_pool->GetParticlePoolUAV().GetIndex(),
+				_pool->GetDeadListUAV().GetIndex(),
+				_pool->GetCounterUAV().GetIndex(),
+			};
+			a_pCtx->ComputeBindDescriptorIndices(2, _poolIndices);
 
 			// 実行
 			// 1スレッド = エミット命令1つ なので、必要なのは命令数分だけ
@@ -182,7 +188,7 @@ namespace Engine::Graphics
 			if (!_pParticleManager->IsLoaded(_handle)) continue;
 
 			// ヒープとルートシグネチャ、PSOをセット
-			a_pCtx->BindHeap();
+			a_pCtx->BindBindlessHeaps();
 			a_pCtx->SetComputeRootSignature(g_particle.updateRootSig);
 			a_pCtx->SetComputePSO(g_particle.pPSOManager->GetPSO(g_particle.updatePSO));
 
@@ -214,14 +220,21 @@ namespace Engine::Graphics
 
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<UpdateCB>(_pCmd, 0, _cbData);
 
-			// 命令バインド
-			if (const auto* _pEmitBuff = _pParticleManager->GetEmitBuffer(_handle))
+			// 命令バインド。
+			// 更新シェーダーは発生命令を読まないが、ルートシグネチャの席は埋めておく
 			{
-				a_pCtx->ComputeBindSRV(1, _pEmitBuff->GetSRVHandle());
+				const auto* _pEmitBuff = _pParticleManager->GetEmitBuffer(_handle);
+				const UINT _emitIndex = _pEmitBuff ? static_cast<UINT>(_pEmitBuff->GetSRVHandle().GetIndex()) : 0xFFFFFFFFu;
+				a_pCtx->ComputeBindDescriptorIndices(1, std::span<const UINT>(&_emitIndex, 1));
 			}
 
-			// GPUパーティクルプールバインド
-			a_pCtx->BindUAV(2, { _pool->GetParticlePoolUAV(), _pool->GetDeadListUAV(), _pool->GetCounterUAV() });
+			// GPUパーティクルプールバインド : 本体 / デッドリスト / カウンターの順(シェーダーの u0-u2 と同じ)
+			const UINT _poolIndices[] = {
+				_pool->GetParticlePoolUAV().GetIndex(),
+				_pool->GetDeadListUAV().GetIndex(),
+				_pool->GetCounterUAV().GetIndex(),
+			};
+			a_pCtx->ComputeBindDescriptorIndices(2, _poolIndices);
 
 			// 実行
 			// 切り上げること。切り捨てると容量が32の倍数でない場合に

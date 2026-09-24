@@ -30,10 +30,12 @@
 "    addressW = TEXTURE_ADDRESS_CLAMP)"
 
 
-// デフォルト用
+// ラスタライズ用(頂点入力あり)。
+// ビューはバインドレスで引く(ResourceDescriptorHeap[番号])ので、ヒープを直接引けるようにしておく
 #define RS_FLAGS \
 "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | " \
     "DENY_HULL_SHADER_ROOT_ACCESS | " \
     "DENY_DOMAIN_SHADER_ROOT_ACCESS | " \
-    "DENY_GEOMETRY_SHADER_ROOT_ACCESS)"
+    "DENY_GEOMETRY_SHADER_ROOT_ACCESS | " \
+    "CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)"
 

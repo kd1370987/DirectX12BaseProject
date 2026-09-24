@@ -59,7 +59,7 @@ namespace Engine::Graphics::Pipeline
 
 				a_pso.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 			},
-			EPassHeapMode::Default);
+			EPassHeapMode::Bindless);
 	}
 
 	void DebugLinePass::Update(const PassContext& a_context)

@@ -54,7 +54,7 @@ namespace Engine::Graphics::Pipeline
 		RenderContext* _pCtx = a_context.pRenderContext;
 		if (!_pCtx) return;
 
-		_pCtx->BindCopyHeapAndSamplerBindLess();
+		_pCtx->BindBindlessHeaps();
 		_pCtx->SetGraphicsRootSignature(m_rootSigHandle);
 
 		_pCtx->BindCamera();

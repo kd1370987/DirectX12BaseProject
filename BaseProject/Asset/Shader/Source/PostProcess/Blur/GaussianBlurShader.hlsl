@@ -24,21 +24,35 @@
 // ルートパラメーター
 //
 //   0 : CBV(b0)         ブラー設定
-//   1 : SRVテーブル(t0) 入力
-//   2 : UAVテーブル(u0) 出力
+//   1 : SRVの番号(t0) 入力
+//   2 : UAVの番号(u0) 出力
 //==========================================================================================
 #define GAUSSIAN_BLUR_RS \
-"RootFlags(0)," \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 "CBV(b0)," \
-"DescriptorTable(SRV(t0, numDescriptors=1)), " \
-"DescriptorTable(UAV(u0, numDescriptors=1)), " \
+"RootConstants(num32BitConstants=1, b100), " \
+"RootConstants(num32BitConstants=1, b101), " \
 RS_STATIC_SAMPLER_CLAMP
 
 // 入力
-Texture2D<float4> g_srcTex : register(t0);
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_srcTexIndex;
+}
+
+Texture2D<float4> Get_srcTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_srcTexIndex]; return _r; }
+#define g_srcTex Get_srcTex()
 
 // 出力
-RWTexture2D<float4> g_outTex : register(u0);
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outTexIndex;
+}
+
+RWTexture2D<float4> Get_outTex() { RWTexture2D<float4> _r = ResourceDescriptorHeap[g_outTexIndex]; return _r; }
+#define g_outTex Get_outTex()
 
 // サンプラー : 端をクランプする（WRAPだと画面外で反対側の色が回り込む）
 SamplerState g_samp : register(s0);

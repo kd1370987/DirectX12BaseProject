@@ -70,10 +70,6 @@ namespace Engine::Raytracing
 			const std::vector<HitGroup>& a_hitGroup
 		);
 
-		// テクスチャのハンドルを獲得
-		D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGPUHandle(const Resource::ResourceManager& a_resourceManager, const Resource::Material* a_pMaterial, Graphics::RenderContext* a_pRCT);
-
-		
 	private:
 
 		// シェーダーテーブル

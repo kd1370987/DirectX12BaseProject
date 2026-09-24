@@ -24,18 +24,18 @@
 //
 //   0 : CBV(b0)         カメラ
 //   1 : CBV(b12)        被写界深度の設定
-//   2 : SRVテーブル(t0) 深度
-//   3 : UAVテーブル(u0) CoC
+//   2 : SRVの番号(t0) 深度
+//   3 : UAVの番号(u0) CoC
 //   4 : CBV(b15)        スカイ設定(空にボケを掛けるかの判定に使う)
 //
 // スカイ設定は末尾へ足してある。間に挟むと既存の番号が全部ずれる
 //==========================================================================================
 #define COC_ROOT_SIG \
-"RootFlags(0)," \
+"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b12, visibility = SHADER_VISIBILITY_ALL)," \
-"DescriptorTable(SRV(t0, numDescriptors=1)), " \
-"DescriptorTable(UAV(u0, numDescriptors=1)), " \
+"RootConstants(num32BitConstants=1, b100), " \
+"RootConstants(num32BitConstants=1, b101), " \
 "CBV(b15, visibility = SHADER_VISIBILITY_ALL)," \
 RS_STATIC_SAMPLER
 
@@ -55,10 +55,24 @@ cbuffer CBSky : register(b15)
 }
 
 // 入力
-Texture2D<float> g_depthTex : register(t0);		// 深度
+// SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex0 : register(b100)
+{
+	uint g_depthTexIndex;
+}
+
+Texture2D<float> Get_depthTex() { Texture2D<float> _r = ResourceDescriptorHeap[g_depthTexIndex]; return _r; }		// 深度
+#define g_depthTex Get_depthTex()
 
 // 出力 : CoC(1チャンネル)
-RWTexture2D<float> g_outputCoC : register(u0);
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex1 : register(b101)
+{
+	uint g_outputCoCIndex;
+}
+
+RWTexture2D<float> Get_outputCoC() { RWTexture2D<float> _r = ResourceDescriptorHeap[g_outputCoCIndex]; return _r; }
+#define g_outputCoC Get_outputCoC()
 
 // サンプラー
 SamplerState g_samp : register(s0);
