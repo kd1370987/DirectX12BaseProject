@@ -14,9 +14,17 @@ namespace Engine::ECS
 	//==========================================================================================
 	struct Chunk
 	{
+		Entity GetEntity(uint32_t a_index) const
+		{
+			if (a_index > count) return Limits::INVALID_ENTITY;
+			return reinterpret_cast<Entity>(data + sizeof(Entity) * a_index);
+		}
+
 		Archetype*		pArchetype = nullptr;	// 所属しているアーキタイプ(レイアウトはここから引く)
 		ECS::Entity*	entityData = nullptr;	// エンティティ配列
 		uint8_t*		data = nullptr;			// バイトデータ
 		uint32_t		count = 0;				// 現在のエンティティ数
+
+		Chunk* pNextFree = nullptr;			// 次の空きチャンク
 	};
 }
