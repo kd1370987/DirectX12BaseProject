@@ -202,23 +202,29 @@ namespace Engine::ECS
 		// タスクの登録 : Components を持つチャンクごとに a_func を呼ぶ。
 		// const の型は読み込み、それ以外は書き込みとして実行順の依存に数える。
 		// a_func は無捕獲のラムダに限る(必要なものは SystemContext から取る)
+		//
+		// a_exec に Job を渡すとワーカースレッドで走り、ぶつかるタスクの直前まで待ち合わせない。
+		// その場合、宣言したコンポーネント以外(構造変更の予約・リソース・サービス)には触らないこと
 		template<typename... Components, typename... Excludes, typename Func>
 		void RegisterTask(
 			ESystemType a_phase,
 			const std::string& a_taskName,
 			Func a_func,
-			Exclude<Excludes...> a_ex = {}
+			Exclude<Excludes...> a_ex = {},
+			ETaskExec a_exec = ETaskExec::MainThread
 		);
 
 		// カスタムタスクの登録 : 自動ループせず a_func(const SystemContext&) を1回呼ぶ。
 		// 中で ForEach を何度も回すときに使う。依存は ReadList / WriteList で宣言する
+		// a_exec の扱いは RegisterTask と同じ
 		template<typename... Read, typename... Write, typename Func>
 		void RegisterCustomTask(
 			ESystemType a_phase,
 			const std::string& a_taskName,
 			ReadList<Read...>,
 			WriteList<Write...>,
-			Func a_func
+			Func a_func,
+			ETaskExec a_exec = ETaskExec::MainThread
 		);
 
 		// システム実体の寿命を預ける(生成と Init は上位層が済ませてから渡す)
@@ -517,7 +523,8 @@ namespace Engine::ECS
 		ESystemType a_phase,
 		const std::string& a_taskName,
 		Func a_func,
-		Exclude<Excludes...>
+		Exclude<Excludes...>,
+		ETaskExec a_exec
 	)
 	{
 		// システムは状態を持てない。捕獲を許すと登録時の値がシーンをまたいで残る
@@ -528,6 +535,7 @@ namespace Engine::ECS
 
 		SystemTask _task;
 		_task.name = a_taskName;
+		_task.exec = a_exec;
 
 		// const の有無で読み込み / 書き込みに振り分ける
 		(
@@ -584,11 +592,13 @@ namespace Engine::ECS
 		const std::string& a_taskName,
 		ReadList<Read...>,
 		WriteList<Write...>,
-		Func a_func
+		Func a_func,
+		ETaskExec a_exec
 	)
 	{
 		SystemTask _task;
 		_task.name = a_taskName;
+		_task.exec = a_exec;
 
 		// 型の登録より先に呼ばれて未登録のまま来たものは、依存に数えられない
 		if (!BuildSignature<Read...>(_task.readSig) || !BuildSignature<Write...>(_task.writeSig))

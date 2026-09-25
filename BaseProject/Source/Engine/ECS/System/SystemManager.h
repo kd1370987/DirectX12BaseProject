@@ -10,10 +10,12 @@
 
 namespace Engine::ECS
 {
-	struct Job;
 
 	class World;
 	class ECSWorldProfiler;
+
+	// システムの実行方法
+	enum class ETaskExec : uint8_t { MainThread, Job };
 
 	// システムの実行情報（ジョブ）を保持する
 	struct SystemTask
@@ -25,9 +27,15 @@ namespace Engine::ECS
 		std::function<void(SystemTask&, const SystemContext&)> executeFunc;	// チャンク処理(自身のタスクを受け取る)
 		QueryCache query;											// クエリ結果(RegisterTask のみ使う。カスタムタスクは空のまま)
 
-		// フレーム実行状態
-		Job* completionJob = nullptr;			// 実行待ちジョブ
+		ETaskExec exec = ETaskExec::MainThread;						// システムの実行方法
 	};
+
+	struct CompileTask
+	{
+		SystemTask* pTask = nullptr;
+		std::vector<uint32_t> waitIndices;		// 同じフェーズで自分より前にあり、衝突するJobタスクの並び位置
+	};
+
 
 	//==========================================================================================
 	// システムの管理
@@ -100,8 +108,16 @@ namespace Engine::ECS
 		// ソート後のタスク
 		std::unordered_map<ESystemType, std::vector<SystemTask*>> m_compileTaskMap = {};
 
+		// コンパイル済みタスク
+		std::unordered_map<ESystemType, std::vector<CompileTask>> m_compiledTaskMap = {};
+
 		// 変更があるかどうか
 		bool m_isChange = false;
+
+		// ランタイム中メンバ : RunSystem 1回の間だけ有効
+		std::vector<Thread::Job*> m_jobScratch;				// 並び位置 → いまフレームのジョブ
+		std::vector<Thread::Job*> m_depScratch;				// 1タスク分の待つ相手
+		std::vector<double> m_taskMsScratch;				// 並び位置 → 計測時間
 	};
 
 }

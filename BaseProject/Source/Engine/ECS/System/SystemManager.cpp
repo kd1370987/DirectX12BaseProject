@@ -2,8 +2,38 @@
 
 #include "../World/Profile/ECSWorldProfiler.h"
 
+#include "../../JobSystem/JobSystem.h"
+
 namespace Engine::ECS
 {
+
+	namespace
+	{
+		// 同時に走らせると壊れる組み合わせ : 向きは問わない
+		bool IsConflict(const SystemTask& a_lhs,const SystemTask& a_rhs)
+		{
+			return (a_lhs.writeSig & (a_rhs.readSig | a_rhs.writeSig)).any()	// 書く * 読む / 書く * 書く
+				|| (a_lhs.readSig & a_rhs.writeSig).any();						// 読む * 書く
+		}
+
+		// システムの実行 : 同期・ジョブ関係なく
+		void ExecuteTask(SystemTask& a_task, const SystemContext& a_context, double* a_pOutMs)
+		{
+			// 計測しないときは時計も読まない
+			if (!a_pOutMs)
+			{
+				a_task.executeFunc(a_task, a_context);
+				return;
+			}
+
+			const auto _begin = std::chrono::steady_clock::now();
+			a_task.executeFunc(a_task, a_context);
+			const auto _end = std::chrono::steady_clock::now();
+
+			// 計測結果
+			*a_pOutMs = std::chrono::duration<double, std::milli>(_end - _begin).count();
+		}
+	}
 
 	void SystemManager::Hold(std::shared_ptr<ISystem> a_spSystem)
 	{
@@ -18,28 +48,83 @@ namespace Engine::ECS
 
 	void SystemManager::RunSystem(const ESystemType& a_type, const SystemContext& a_context, ECSWorldProfiler* a_pProfiler)
 	{
-
 		// フェーズ検索
-		auto _cit = m_compileTaskMap.find(a_type);
-		if (_cit != m_compileTaskMap.end())
+		auto _cit = m_compiledTaskMap.find(a_type);
+		if (_cit == m_compiledTaskMap.end()) return;
+
+		// フェーズ内システムのチェック
+		auto& _compiledVec = _cit->second;
+		const uint32_t _taskCount = static_cast<uint32_t>(_compiledVec.size());
+		if (_taskCount == 0) return;
+
+		// ジョブシステムがない ・ 止まっているときは全部同期で回す
+		Thread::JobSystem* _pJobSystem = a_context.pServices ? a_context.pServices->pJobSystem : nullptr;
+		if (_pJobSystem && !_pJobSystem->IsRunning()) _pJobSystem = nullptr;
+
+		const bool _isMeasure = (a_pProfiler != nullptr);
+
+		// このフェーズように作り直す : ジョブが要素のアドレスを持つため、以下で resize しない
+		m_jobScratch.assign(_taskCount,nullptr);
+		m_taskMsScratch.assign(_taskCount, 0.0f);
+
+		for (uint32_t _j = 0; _j < _taskCount; ++_j)
 		{
-			// フェーズ内のソートされたシステムを順に回す
-			for (auto& _task : _cit->second)
+			SystemTask* _pTask = _compiledVec[_j].pTask;
+			double* _pOutMs = _isMeasure ? &m_taskMsScratch[_j] : nullptr;
+
+			// 待つ相手を、今フレームのJob*に引き直す
+			// nullptr == 同期で走った・積めなかった → もう終わっているので待たない
+			m_depScratch.clear();
+			for (uint32_t _i : _compiledVec[_j].waitIndices)
 			{
-				// 計測しないときは時計も読まない
-				if (!a_pProfiler)
-				{
-					_task->executeFunc(*_task, a_context);
-					continue;
-				}
+				if (m_jobScratch[_i]) m_depScratch.push_back(m_jobScratch[_i]);
+			}
 
-				const auto _begin = std::chrono::steady_clock::now();
-				_task->executeFunc(*_task, a_context);
-				const auto _end = std::chrono::steady_clock::now();
+			// Jobタスク : 待つ相手の後続に積む メインスレッドは止まらない
+			if (_pTask->exec == ETaskExec::Job && _pJobSystem)
+			{
+				m_jobScratch[_j] = _pJobSystem->PushJob(
+					[_pTask,_context = a_context,_pOutMs]()
+					{
+						ExecuteTask(*_pTask,_context,_pOutMs);
+					},
+					m_depScratch
+				);
 
-				a_pProfiler->RecordTaskTime(_task, std::chrono::duration<double, std::milli>(_end - _begin).count());
+				// 積めなかった → 下の同期実行へ落とす。待つ相手は m_depScracthにいる
+				if (m_jobScratch[_j]) continue;
+			}
+
+			// 同期タスク : ぶつかるジョブが終わるのを直前で待つ
+			for (Thread::Job* _pDep : m_depScratch)
+			{
+				_pJobSystem->WaitFor(_pDep);
+			}
+
+			ExecuteTask(*_pTask, a_context, _pOutMs);
+		}
+
+		// フェーズの終わりの待ち合わせ
+		// フェーズの間には物理の更新やBeginFrameの構造変更が入るので持ち越さない
+		if (_pJobSystem)
+		{
+			for (Thread::Job* _pJob : m_jobScratch)
+			{
+				if (_pJob) _pJobSystem->WaitFor(_pJob);
 			}
 		}
+
+		// 計測の反応はメインスレッドで全部終わってから行う
+		if (_isMeasure)
+		{
+			for (uint32_t _i = 0; _i < _taskCount; ++_i)
+			{
+				a_pProfiler->RecordTaskTime(_compiledVec[_i].pTask,m_taskMsScratch[_i]);
+			}
+		}
+
+		// Job* をフェーズの外へ持ち出さない
+		m_jobScratch.clear();
 	}
 
 	void SystemManager::Sort()
@@ -79,6 +164,32 @@ namespace Engine::ECS
 			if (!_isSuccess)
 			{
 				ReportSortFailure(_systemPhase, _taskVec, _sortedVec);
+			}
+
+			// 待つ相手の組み立て
+			auto& _compiledVec = m_compiledTaskMap[_systemPhase];
+			_compiledVec.clear();					// Sortはタスクが増えるたびに走りなおす必要があるので空にする
+			_compiledVec.resize(_sortedVec.size());
+
+			for (uint32_t _j = 0; _j < _sortedVec.size(); ++_j)
+			{
+				CompileTask& _compiled = _compiledVec[_j];
+				_compiled.pTask = _sortedVec[_j];
+
+				// 自身より前のシステムを基準として判断
+				for (uint32_t _i = 0; _i < _j; ++_i)
+				{
+					const SystemTask* _pPrev = _sortedVec[_i];
+
+					// 前にある同期タスクは、自分の番が来た時点ですでに終わっている想定
+					if (_pPrev->exec != ETaskExec::Job) continue;
+
+					// Jobのみ待つのかどうか判断
+					if (IsConflict(*_pPrev, *_compiled.pTask))
+					{
+						_compiled.waitIndices.push_back(_i);
+					}
+				}
 			}
 		}
 
@@ -126,6 +237,8 @@ namespace Engine::ECS
 			a_sortedTaskVec.push_back(_pTask);
 		}
 	}
+
+
 
 	void SystemManager::AddSystemTask(ESystemType a_systemType, const SystemTask & a_systemTask, const std::string& a_taskName)
 	{
