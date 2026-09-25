@@ -36,7 +36,7 @@
 //==============================================================================
 void EnemyShootIntentSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const EnemyTag, const TargetEntityComponent, ActionIntentComponent>(
+	a_world.ActiveJobTask<const EnemyTag, const TargetEntityComponent, ActionIntentComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"EnemyShootIntentSystem",
 		[](

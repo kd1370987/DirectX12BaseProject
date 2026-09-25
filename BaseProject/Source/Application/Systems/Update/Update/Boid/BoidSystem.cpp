@@ -9,7 +9,7 @@
 
 void BoidSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveCustomTask(
+	a_world.ActiveCustomJobTask(
 		Engine::ECS::ESystemType::Update,
 		"BoidSystem",
 		Engine::ECS::ReadList<BoidComponent,VelocityComponent>{},

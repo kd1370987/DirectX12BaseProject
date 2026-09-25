@@ -78,7 +78,7 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 	//--------------------------------------------------------------------------
 	// リーダー : 進んでいる向きへ
 	//--------------------------------------------------------------------------
-	a_world.ActiveTask<const BoidLeaderComponent, const MovementComponent, LookAngleComponent>(
+	a_world.ActiveJobTask<const BoidLeaderComponent, const MovementComponent, LookAngleComponent>(
 		Engine::ECS::ESystemType::Update,
 		"SwarmLookSystem_Leader",
 		[](
