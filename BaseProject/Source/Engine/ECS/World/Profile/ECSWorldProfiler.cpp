@@ -27,6 +27,7 @@ namespace Engine::ECS
 		CaptureArchetypes();			// メモリの使用量もここで数える
 		CaptureComponentUsage();		// アーキタイプの結果を使う
 		CaptureSystemTasks();
+		CaptureSchedules();
 		CaptureResources();
 		CaptureStructuralChange();
 	}
@@ -176,7 +177,10 @@ namespace Engine::ECS
 
 	void ECSWorldProfiler::CaptureSystemTasks()
 	{
-		const auto& _taskMap = m_pOwner->m_systemManager.GetCompileTaskMap();
+		const SystemManager& _systemManager = m_pOwner->m_systemManager;
+		const auto& _taskMap = _systemManager.GetCompileTaskMap();
+		const auto& _compiledMap = _systemManager.GetCompiledTaskMap();
+		const auto& _reportMap = _systemManager.GetScheduleReportMap();
 		const uint64_t _generation = m_snapshot.archetypeGeneration;
 
 		auto& _outVec = m_snapshot.systemTasks;
@@ -190,9 +194,19 @@ namespace Engine::ECS
 			auto _it = _taskMap.find(_type);
 			if (_it == _taskMap.end()) continue;
 
+			// 待ち合わせと診断(並びはソート結果と同じ)
+			auto _compiledIt = _compiledMap.find(_type);
+			const std::vector<CompileTask>* _pCompiledVec =
+				(_compiledIt != _compiledMap.end()) ? &_compiledIt->second : nullptr;
+
+			auto _reportIt = _reportMap.find(_type);
+			const PhaseScheduleReport* _pReport =
+				(_reportIt != _reportMap.end()) ? &_reportIt->second : nullptr;
+
 			uint32_t _order = 0;
-			for (const SystemTask* _pTask : _it->second)
+			for (size_t _index = 0; _index < _it->second.size(); ++_index)
 			{
+				const SystemTask* _pTask = _it->second[_index];
 				if (!_pTask) continue;
 
 				ECSSystemTaskProfile& _out = _outVec.emplace_back();
@@ -201,6 +215,28 @@ namespace Engine::ECS
 				_out.name = _pTask->name;
 				_out.readNames = ToComponentNames(_pTask->readSig);
 				_out.writeNames = ToComponentNames(_pTask->writeSig);
+
+				// 実行のされ方
+				_out.isJob = (_pTask->exec == ETaskExec::Job);
+				if (_pCompiledVec && _index < _pCompiledVec->size())
+				{
+					for (uint32_t _waitIndex : (*_pCompiledVec)[_index].waitIndices)
+					{
+						if (_waitIndex >= _pCompiledVec->size()) continue;
+						const SystemTask* _pWait = (*_pCompiledVec)[_waitIndex].pTask;
+						if (_pWait) _out.waitNames.push_back(_pWait->name);
+					}
+				}
+				if (_pReport)
+				{
+					const auto& _cyclicVec = _pReport->cyclicTaskVec;
+					_out.isCyclic = std::find(_cyclicVec.begin(), _cyclicVec.end(), _pTask) != _cyclicVec.end();
+
+					for (const ScheduleAmbiguity& _amb : _pReport->ambiguityVec)
+					{
+						if (_amb.pEarlier == _pTask || _amb.pLater == _pTask) _out.ambiguityCount++;
+					}
+				}
 
 				// クエリ : 一度も回っていないもの(カスタムタスクを含む)は持っていない
 				const QueryCache& _query = _pTask->query;
@@ -230,6 +266,44 @@ namespace Engine::ECS
 					_out.maxMs = _timing.maxMs;
 					_out.callCount = _timing.callCount;
 				}
+			}
+		}
+	}
+
+	void ECSWorldProfiler::CaptureSchedules()
+	{
+		const auto& _reportMap = m_pOwner->m_systemManager.GetScheduleReportMap();
+
+		auto& _outVec = m_snapshot.schedules;
+		_outVec.clear();
+
+		// フェーズの定義順に並べる
+		for (int _phase = 0; _phase < static_cast<int>(ESystemType::Num); ++_phase)
+		{
+			const ESystemType _type = static_cast<ESystemType>(_phase);
+
+			auto _it = _reportMap.find(_type);
+			if (_it == _reportMap.end()) continue;
+
+			const PhaseScheduleReport& _report = _it->second;
+
+			ECSPhaseScheduleProfile& _out = _outVec.emplace_back();
+			_out.phase = _type;
+			_out.isSorted = _report.isSorted;
+
+			for (const SystemTask* _pTask : _report.cyclicTaskVec)
+			{
+				if (_pTask) _out.cyclicTaskNames.push_back(_pTask->name);
+			}
+
+			for (const ScheduleAmbiguity& _amb : _report.ambiguityVec)
+			{
+				if (!_amb.pEarlier || !_amb.pLater) continue;
+
+				ECSScheduleAmbiguityProfile& _outAmb = _out.ambiguities.emplace_back();
+				_outAmb.earlierName = _amb.pEarlier->name;
+				_outAmb.laterName = _amb.pLater->name;
+				_outAmb.conflictNames = ToComponentNames(_amb.conflictSig);
 			}
 		}
 	}

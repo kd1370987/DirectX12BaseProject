@@ -43,6 +43,30 @@ namespace Engine::ECS
 		std::vector<uint32_t> waitIndices;		// 同じフェーズで自分より前にあり、衝突するJobタスクの並び位置
 	};
 
+	//------------------------------------------------------------------------------------------
+	// 並びの診断(Sort のたびに作り直す。実行には使わない)
+	//
+	// ソートが辺にするのは RAW(読む側 → 書いた側の後)だけなので、
+	// 書き手同士や「読んだ後に書く」組み合わせは、段と登録順で並んでいるにすぎない。
+	// それを見えるようにするための記録
+	//------------------------------------------------------------------------------------------
+
+	// 衝突しているのに、依存(RAW)の経路で前後が保証されていない組
+	struct ScheduleAmbiguity
+	{
+		const SystemTask* pEarlier = nullptr;	// 今の並びで先に走る方
+		const SystemTask* pLater = nullptr;		// 今の並びで後に走る方
+		Signature conflictSig;					// ぶつかっているコンポーネント
+	};
+
+	// フェーズ1つぶんの診断
+	struct PhaseScheduleReport
+	{
+		bool isSorted = true;								// トポロジカルソートが成功したか
+		std::vector<const SystemTask*> cyclicTaskVec;		// 循環に巻き込まれ、登録順で末尾に足されたもの
+		std::vector<ScheduleAmbiguity> ambiguityVec;		// 前後が依存で決まっていない衝突
+	};
+
 
 	//==========================================================================================
 	// システムの管理
@@ -89,6 +113,14 @@ namespace Engine::ECS
 			ESystemType a_systemType,const SystemTask& a_systemTask,const std::string& a_taskName
 		);
 
+		// システムの型ごとのIDを取得 : 保存されることはないからランタイムのみ
+		template<typename T>
+		static uint32_t GetID()
+		{
+			static uint32_t _id = s_systemCounter++;
+			return _id;
+		}
+
 	private:
 
 		// ソート失敗(依存の循環)時に、巻き込まれたタスクをログへ出して
@@ -99,12 +131,28 @@ namespace Engine::ECS
 			std::vector<SystemTask*>& a_sortedTaskVec
 		);
 
+		// 並びの診断を作る : 循環に巻き込まれたものと、前後が依存で決まっていない衝突を集める
+		void BuildScheduleReport(
+			ESystemType a_phase,
+			const std::vector<SystemTask*>& a_allTaskVec,
+			const std::vector<SystemTask*>& a_sortedTaskVec,
+			size_t a_sortedCount
+		);
+
 	public:
 
 		// ---- アクセサ ----
 		const std::unordered_map<ESystemType, std::vector<SystemTask*>>& GetCompileTaskMap() const;
 
+		// 実行時の待ち合わせまで組んだもの(待つ相手の並び位置を持つ)
+		const std::unordered_map<ESystemType, std::vector<CompileTask>>& GetCompiledTaskMap() const { return m_compiledTaskMap; }
+
+		// 並びの診断
+		const std::unordered_map<ESystemType, PhaseScheduleReport>& GetScheduleReportMap() const { return m_scheduleReportMap; }
+
 	private:
+
+		inline static uint32_t s_systemCounter = 0;
 
 		// 登録されているシステム実体(寿命の保持のみ)
 		std::vector<std::shared_ptr<ISystem>> m_systemVec;
@@ -122,6 +170,9 @@ namespace Engine::ECS
 
 		// コンパイル済みタスク
 		std::unordered_map<ESystemType, std::vector<CompileTask>> m_compiledTaskMap = {};
+
+		// 並びの診断(Sort のたびに作り直す)
+		std::unordered_map<ESystemType, PhaseScheduleReport> m_scheduleReportMap = {};
 
 		// 変更があるかどうか
 		bool m_isChange = false;

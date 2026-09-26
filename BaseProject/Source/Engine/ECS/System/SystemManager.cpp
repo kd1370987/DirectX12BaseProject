@@ -255,6 +255,9 @@ namespace Engine::ECS
 				}
 			);
 
+			// ここまでに並べられた数(失敗したときは、ここから後ろが循環に巻き込まれたもの)
+			const size_t _sortedCount = _sortedVec.size();
+
 			// 失敗＝依存が循環している。
 			// ソート結果には循環に巻き込まれたタスクが入らないので、
 			// そのまま使うとシステムが黙って実行されなくなる。
@@ -263,6 +266,9 @@ namespace Engine::ECS
 			{
 				ReportSortFailure(_systemPhase, _taskVec, _sortedVec);
 			}
+
+			// 並びの診断(実行には影響しない)
+			BuildScheduleReport(_systemPhase, _taskVec, _sortedVec, _sortedCount);
 
 			// 待つ相手の組み立て
 			auto& _compiledVec = m_compiledTaskMap[_systemPhase];
@@ -337,6 +343,108 @@ namespace Engine::ECS
 	}
 
 
+
+	//----------------------------------------------------------------------------------------------
+	// 並びの診断
+	//
+	// ソートの辺は RAW(自分が読むものを相手が書く → 相手の後)だけなので、
+	// 「衝突はしているが RAW の経路で前後がつながっていない」組は、
+	// Kahn法の段と登録順でたまたまその並びになっているだけになる。
+	// 登録の位置やシステムの追加で黙って入れ替わりうるので、ここで拾って見えるようにする。
+	//
+	// 拾えるのは宣言(read / write)に出ているものだけ。
+	// RefData やリソース越しの読み書きは宣言に出ないので、ここには現れない
+	//----------------------------------------------------------------------------------------------
+	void SystemManager::BuildScheduleReport(
+		ESystemType a_phase,
+		const std::vector<SystemTask*>& a_allTaskVec,
+		const std::vector<SystemTask*>& a_sortedTaskVec,
+		size_t a_sortedCount)
+	{
+		PhaseScheduleReport& _report = m_scheduleReportMap[a_phase];
+		_report = {};
+
+		const size_t _num = a_allTaskVec.size();
+		_report.isSorted = (a_sortedCount >= _num);
+
+		// 循環に巻き込まれ、末尾に足されたもの
+		for (size_t _i = a_sortedCount; _i < a_sortedTaskVec.size(); ++_i)
+		{
+			_report.cyclicTaskVec.push_back(a_sortedTaskVec[_i]);
+		}
+
+		//------------------------------------------------------------------
+		// RAW の経路で届くか(推移閉包)
+		//   _reach[a][b] : a が終わってから b が走ることが依存で保証されている
+		// フェーズあたりのタスクは数十なので、素直に辿ってよい
+		//------------------------------------------------------------------
+		std::vector<std::vector<uint8_t>> _reach(_num, std::vector<uint8_t>(_num, 0));
+		for (size_t _from = 0; _from < _num; ++_from)
+		{
+			std::vector<size_t> _stack = { _from };
+			while (!_stack.empty())
+			{
+				const size_t _cur = _stack.back();
+				_stack.pop_back();
+
+				for (size_t _to = 0; _to < _num; ++_to)
+				{
+					if (_to == _cur || _reach[_from][_to]) continue;
+
+					// _to が読むものを _cur が書く → _cur の後に _to
+					if ((a_allTaskVec[_to]->readSig & a_allTaskVec[_cur]->writeSig).none()) continue;
+
+					_reach[_from][_to] = 1;
+					_stack.push_back(_to);
+				}
+			}
+		}
+
+		//------------------------------------------------------------------
+		// 今の並びで前後にある衝突の組のうち、経路でつながっていないもの
+		//------------------------------------------------------------------
+		// 登録順の添え字(_reach の添え字)を引けるようにしておく
+		std::unordered_map<const SystemTask*, size_t> _indexMap = {};
+		for (size_t _i = 0; _i < _num; ++_i)
+		{
+			_indexMap[a_allTaskVec[_i]] = _i;
+		}
+
+		for (size_t _e = 0; _e < a_sortedTaskVec.size(); ++_e)
+		{
+			const SystemTask* _pEarlier = a_sortedTaskVec[_e];
+			const size_t _ei = _indexMap[_pEarlier];
+
+			for (size_t _l = _e + 1; _l < a_sortedTaskVec.size(); ++_l)
+			{
+				const SystemTask* _pLater = a_sortedTaskVec[_l];
+				if (!IsConflict(*_pEarlier, *_pLater)) continue;
+
+				const size_t _li = _indexMap[_pLater];
+
+				// どちらかの向きに経路があれば前後は依存で決まっている。
+				// 両向きにある(循環の中)ものは循環側で報告しているので数えない
+				if (_reach[_ei][_li] || _reach[_li][_ei]) continue;
+
+				ScheduleAmbiguity& _amb = _report.ambiguityVec.emplace_back();
+				_amb.pEarlier = _pEarlier;
+				_amb.pLater = _pLater;
+				_amb.conflictSig =
+					(_pEarlier->writeSig & (_pLater->readSig | _pLater->writeSig)) |
+					(_pEarlier->readSig & _pLater->writeSig);
+			}
+		}
+
+		// 件数だけログへ出す(中身は ECS プロファイラの Systems で見る)
+		if (!_report.isSorted || !_report.ambiguityVec.empty())
+		{
+			ENGINE_LOG("[ECS] %s : ソート%s / 循環 %zu 件 / 前後が依存で決まっていない衝突 %zu 組",
+				magic_enum::enum_name(a_phase).data(),
+				_report.isSorted ? "成功" : "失敗",
+				_report.cyclicTaskVec.size(),
+				_report.ambiguityVec.size());
+		}
+	}
 
 	void SystemManager::AddSystemTask(ESystemType a_systemType, const SystemTask & a_systemTask, const std::string& a_taskName)
 	{

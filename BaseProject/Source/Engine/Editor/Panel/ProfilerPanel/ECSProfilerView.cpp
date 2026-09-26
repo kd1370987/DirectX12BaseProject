@@ -208,9 +208,40 @@ namespace Engine::Editor
 			_totalMs += _task.lastMs;
 		}
 
+		size_t _jobTaskCount = 0;
+		for (const auto& _task : a_snapshot.systemTasks)
+		{
+			if (_task.isJob) _jobTaskCount++;
+		}
+
 		Engine::Editor::Header("System / Resource");
-		Engine::Editor::Value("Tasks", "%zu (last total %.3f ms)", a_snapshot.systemTasks.size(), _totalMs);
+		Engine::Editor::Value("Tasks", "%zu (job %zu / last total %.3f ms)", a_snapshot.systemTasks.size(), _jobTaskCount, _totalMs);
 		Engine::Editor::Value("Resources", "%zu", a_snapshot.resources.size());
+
+		//------------------------------------------------------------------
+		// 並びの診断
+		//------------------------------------------------------------------
+		size_t _failedPhaseCount = 0;
+		size_t _ambiguityCount = 0;
+		for (const auto& _schedule : a_snapshot.schedules)
+		{
+			if (!_schedule.isSorted) _failedPhaseCount++;
+			_ambiguityCount += _schedule.ambiguities.size();
+		}
+
+		Engine::Editor::Header("Schedule");
+		if (_failedPhaseCount > 0)
+		{
+			Engine::Editor::ErrorText("Sort failed in %zu phase(s) (dependency cycle). See Systems tab.", _failedPhaseCount);
+		}
+		else
+		{
+			Engine::Editor::HelpText("All phases sorted.");
+		}
+		if (_ambiguityCount > 0)
+		{
+			Engine::Editor::WarningText("%zu conflicting pair(s) are ordered only by registration order.", _ambiguityCount);
+		}
 	}
 
 	//======================================================================================
@@ -400,16 +431,41 @@ namespace Engine::Editor
 				++_end;
 			}
 
+			// このフェーズの並びの診断
+			const ECS::ECSPhaseScheduleProfile* _pSchedule = nullptr;
+			for (const auto& _schedule : a_snapshot.schedules)
+			{
+				if (_schedule.phase == _phase) { _pSchedule = &_schedule; break; }
+			}
+
+			// 見出しに状態を出す(閉じたままでも気付けるように)
+			char _status[64] = {};
+			if (_pSchedule && !_pSchedule->isSorted)
+			{
+				snprintf(_status, sizeof(_status), "  SORT FAILED");
+			}
+			else if (_pSchedule && !_pSchedule->ambiguities.empty())
+			{
+				snprintf(_status, sizeof(_status), "  ambiguous %zu", _pSchedule->ambiguities.size());
+			}
+
 			ImGui::PushID(static_cast<int>(_phase));
 			const bool _isOpen = ImGui::TreeNodeEx("##Phase", ImGuiTreeNodeFlags_SpanAvailWidth,
-				"%s  [%zu tasks / %.3f ms]", magic_enum::enum_name(_phase).data(), _end - _begin, _phaseMs);
+				"%s  [%zu tasks / %.3f ms]%s", magic_enum::enum_name(_phase).data(), _end - _begin, _phaseMs, _status);
 
 			if (_isOpen)
 			{
-				if (ImGui::BeginTable("TaskTable", 8, TABLE_FLAGS))
+				if (_pSchedule && !_pSchedule->isSorted)
+				{
+					Engine::Editor::ErrorText("Sort failed: dependency cycle. Tasks below marked (cycle) run in registration order.");
+				}
+
+				if (ImGui::BeginTable("TaskTable", 10, TABLE_FLAGS))
 				{
 					ImGui::TableSetupColumn("#");
 					ImGui::TableSetupColumn("Task");
+					ImGui::TableSetupColumn("Exec");
+					ImGui::TableSetupColumn("Waits");
 					ImGui::TableSetupColumn("Last(ms)");
 					ImGui::TableSetupColumn("Avg(ms)");
 					ImGui::TableSetupColumn("Max(ms)");
@@ -424,26 +480,59 @@ namespace Engine::Editor
 
 						ImGui::TableNextRow();
 						ImGui::TableSetColumnIndex(0); ImGui::Text("%u", _task.order);
-						ImGui::TableSetColumnIndex(1); ImGui::Text("%s", _task.name.c_str());
+
+						// 循環に巻き込まれたもの / 前後が依存で決まっていないものは目立たせる
+						ImGui::TableSetColumnIndex(1);
+						if (_task.isCyclic)
+						{
+							Engine::Editor::ErrorText("%s (cycle)", _task.name.c_str());
+						}
+						else if (_task.ambiguityCount > 0)
+						{
+							Engine::Editor::WarningText("%s (ambiguous %u)", _task.name.c_str(), _task.ambiguityCount);
+						}
+						else
+						{
+							ImGui::Text("%s", _task.name.c_str());
+						}
+
+						// 実行のされ方 : 待つ相手は数だけ出して中身はツールチップ
+						ImGui::TableSetColumnIndex(2);
+						if (_task.isJob) ImGui::Text("Job"); else ImGui::TextDisabled("Main");
+						ImGui::TableSetColumnIndex(3);
+						if (_task.waitNames.empty())
+						{
+							ImGui::TextDisabled("-");
+						}
+						else
+						{
+							ImGui::Text("%zu", _task.waitNames.size());
+							if (ImGui::IsItemHovered())
+							{
+								ImGui::BeginTooltip();
+								Engine::Editor::Value("Wait for", "%s", JoinNames(_task.waitNames).c_str());
+								ImGui::EndTooltip();
+							}
+						}
 
 						// 1度も回っていないものは時間を出しても意味が無い
-						ImGui::TableSetColumnIndex(2);
-						if (_task.callCount > 0) ImGui::Text("%.3f", _task.lastMs); else ImGui::TextDisabled("-");
-						ImGui::TableSetColumnIndex(3);
-						if (_task.callCount > 0) ImGui::Text("%.3f", _task.averageMs); else ImGui::TextDisabled("-");
 						ImGui::TableSetColumnIndex(4);
+						if (_task.callCount > 0) ImGui::Text("%.3f", _task.lastMs); else ImGui::TextDisabled("-");
+						ImGui::TableSetColumnIndex(5);
+						if (_task.callCount > 0) ImGui::Text("%.3f", _task.averageMs); else ImGui::TextDisabled("-");
+						ImGui::TableSetColumnIndex(6);
 						if (_task.callCount > 0) ImGui::Text("%.3f", _task.maxMs); else ImGui::TextDisabled("-");
 
 						// クエリを持たないもの(カスタムタスク・未実行)は伏せる
-						ImGui::TableSetColumnIndex(5);
+						ImGui::TableSetColumnIndex(7);
 						if (_task.hasQuery) ImGui::Text("%zu", _task.matchedChunkCount); else ImGui::TextDisabled("-");
-						ImGui::TableSetColumnIndex(6);
+						ImGui::TableSetColumnIndex(8);
 						if (!_task.hasQuery)			ImGui::TextDisabled("-");
 						else if (_task.isQueryStale)	ImGui::TextDisabled("(stale)");
 						else							ImGui::Text("%u", _task.matchedEntityCount);
 
 						// 依存 : 数だけ出して中身はツールチップ
-						ImGui::TableSetColumnIndex(7);
+						ImGui::TableSetColumnIndex(9);
 						ImGui::Text("%zu / %zu", _task.readNames.size(), _task.writeNames.size());
 						if (ImGui::IsItemHovered())
 						{
@@ -455,6 +544,41 @@ namespace Engine::Editor
 					}
 					ImGui::EndTable();
 				}
+
+				//----------------------------------------------------------
+				// 前後が依存で決まっていない衝突
+				//
+				// 衝突しているのに RAW の経路でつながっていない組。
+				// 今の並びは Kahn法の段と登録順で決まっているだけなので、
+				// 登録位置やシステムの追加で黙って入れ替わりうる
+				//----------------------------------------------------------
+				if (_pSchedule && !_pSchedule->ambiguities.empty())
+				{
+					if (ImGui::TreeNodeEx("##Ambiguity", ImGuiTreeNodeFlags_SpanAvailWidth,
+						"Ambiguous order (%zu)", _pSchedule->ambiguities.size()))
+					{
+						Engine::Editor::HelpText("Conflicting pairs ordered only by level / registration order (not by a read-after-write path).");
+
+						if (ImGui::BeginTable("AmbiguityTable", 3, TABLE_FLAGS))
+						{
+							ImGui::TableSetupColumn("Runs first");
+							ImGui::TableSetupColumn("Runs later");
+							ImGui::TableSetupColumn("Conflict");
+							ImGui::TableHeadersRow();
+
+							for (const auto& _amb : _pSchedule->ambiguities)
+							{
+								ImGui::TableNextRow();
+								ImGui::TableSetColumnIndex(0); ImGui::Text("%s", _amb.earlierName.c_str());
+								ImGui::TableSetColumnIndex(1); ImGui::Text("%s", _amb.laterName.c_str());
+								ImGui::TableSetColumnIndex(2); ImGui::TextWrapped("%s", JoinNames(_amb.conflictNames).c_str());
+							}
+							ImGui::EndTable();
+						}
+						ImGui::TreePop();
+					}
+				}
+
 				ImGui::TreePop();
 			}
 			ImGui::PopID();

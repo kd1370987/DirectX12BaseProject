@@ -91,6 +91,12 @@ namespace Engine::ECS
 		std::vector<std::string>	readNames = {};			// 読み込みのコンポーネント
 		std::vector<std::string>	writeNames = {};		// 書き込みのコンポーネント
 
+		// 実行のされ方
+		bool						isJob = false;			// ワーカーで走るか
+		bool						isCyclic = false;		// 循環に巻き込まれ、登録順で末尾に足されたか
+		std::vector<std::string>	waitNames = {};			// 実行前に完了を待つ Job タスク
+		uint32_t					ambiguityCount = 0;		// 前後が依存で決まっていない衝突の数
+
 		// クエリ(RegisterTask のみ。カスタムタスクは持たない)
 		bool						hasQuery = false;
 		bool						isQueryStale = false;	// キャッシュが古い(次の実行で作り直される)
@@ -102,6 +108,23 @@ namespace Engine::ECS
 		double						averageMs = 0.0;
 		double						maxMs = 0.0;
 		uint64_t					callCount = 0;
+	};
+
+	// 衝突しているのに、依存(RAW)の経路で前後が保証されていない組
+	struct ECSScheduleAmbiguityProfile
+	{
+		std::string					earlierName = {};		// 今の並びで先に走る方
+		std::string					laterName = {};			// 今の並びで後に走る方
+		std::vector<std::string>	conflictNames = {};		// ぶつかっているコンポーネント
+	};
+
+	// フェーズ1つぶんの並びの診断
+	struct ECSPhaseScheduleProfile
+	{
+		ESystemType									phase = ESystemType::Num;
+		bool										isSorted = true;		// トポロジカルソートが成功したか
+		std::vector<std::string>					cyclicTaskNames = {};	// 循環に巻き込まれたもの
+		std::vector<ECSScheduleAmbiguityProfile>	ambiguities = {};
 	};
 
 	// リソース1つ
@@ -138,6 +161,7 @@ namespace Engine::ECS
 		std::vector<ECSArchetypeProfile>		archetypes = {};
 		std::vector<ECSComponentUsageProfile>	components = {};		// 添え字がタイプID
 		std::vector<ECSSystemTaskProfile>		systemTasks = {};		// フェーズ順 → 実行順
+		std::vector<ECSPhaseScheduleProfile>	schedules = {};			// フェーズ順(タスクのあるフェーズだけ)
 		std::vector<ECSResourceProfile>			resources = {};
 	};
 
@@ -198,6 +222,7 @@ namespace Engine::ECS
 		void CaptureArchetypes();
 		void CaptureComponentUsage();
 		void CaptureSystemTasks();
+		void CaptureSchedules();
 		void CaptureResources();
 		void CaptureStructuralChange();
 
