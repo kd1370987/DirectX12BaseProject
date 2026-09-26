@@ -16,22 +16,38 @@ namespace Engine::ECS
 				|| (a_lhs.readSig & a_rhs.writeSig).any();						// 読む * 書く
 		}
 
-		// システムの実行 : 同期・ジョブ関係なく
-		void ExecuteTask(SystemTask& a_task, const SystemContext& a_context, double* a_pOutMs)
+		// 処理を回して、所要時間を a_pOutNs へ足し込む : 同期・ジョブ関係なく
+		// 分割したタスクは複数のワーカーから同じ置き場へ足すので、代入ではなく加算にする。
+		// 読むのは全ジョブを待ち終えたメインスレッドなので、順序は WaitFor 側で揃っている
+		template<typename Func>
+		void Measure(std::atomic<int64_t>* a_pOutNs, Func&& a_func)
 		{
 			// 計測しないときは時計も読まない
-			if (!a_pOutMs)
+			if (!a_pOutNs)
 			{
-				a_task.executeFunc(a_task, a_context);
+				a_func();
 				return;
 			}
 
 			const auto _begin = std::chrono::steady_clock::now();
-			a_task.executeFunc(a_task, a_context);
+			a_func();
 			const auto _end = std::chrono::steady_clock::now();
 
-			// 計測結果
-			*a_pOutMs = std::chrono::duration<double, std::milli>(_end - _begin).count();
+			a_pOutNs->fetch_add(
+				std::chrono::duration_cast<std::chrono::nanoseconds>(_end - _begin).count(),
+				std::memory_order_relaxed);
+		}
+
+		// タスクを丸ごと1回実行する
+		void ExecuteTask(SystemTask& a_task, const SystemContext& a_context, std::atomic<int64_t>* a_pOutNs)
+		{
+			Measure(a_pOutNs, [&]() { a_task.executeFunc(a_task, a_context); });
+		}
+
+		// タスクのチャンク [begin, end) を実行する
+		void ExecuteTaskRange(SystemTask& a_task, const SystemContext& a_context, uint32_t a_begin, uint32_t a_end, std::atomic<int64_t>* a_pOutNs)
+		{
+			Measure(a_pOutNs, [&]() { a_task.executeRangeFunc(a_task, a_context, a_begin, a_end); });
 		}
 	}
 
@@ -63,14 +79,27 @@ namespace Engine::ECS
 
 		const bool _isMeasure = (a_pProfiler != nullptr);
 
-		// このフェーズように作り直す : ジョブが要素のアドレスを持つため、以下で resize しない
+		// このフェーズ用に作り直す : ジョブが要素のアドレスを持つため、以下で resize しない
 		m_jobScratch.assign(_taskCount,nullptr);
-		m_taskMsScratch.assign(_taskCount, 0.0f);
+
+		// 計測の置き場 : ここより下ではジョブが要素のアドレスを持つので作り直さない
+		if (_isMeasure)
+		{
+			if (m_taskNsCapacity < _taskCount)
+			{
+				m_upTaskNsScratch = std::make_unique<std::atomic<int64_t>[]>(_taskCount);
+				m_taskNsCapacity = _taskCount;
+			}
+			for (uint32_t _i = 0; _i < _taskCount; ++_i)
+			{
+				m_upTaskNsScratch[_i].store(0, std::memory_order_relaxed);
+			}
+		}
 
 		for (uint32_t _j = 0; _j < _taskCount; ++_j)
 		{
 			SystemTask* _pTask = _compiledVec[_j].pTask;
-			double* _pOutMs = _isMeasure ? &m_taskMsScratch[_j] : nullptr;
+			std::atomic<int64_t>* _pOutNs = _isMeasure ? &m_upTaskNsScratch[_j] : nullptr;
 
 			// 待つ相手を、今フレームのJob*に引き直す
 			// nullptr == 同期で走った・積めなかった → もう終わっているので待たない
@@ -80,28 +109,95 @@ namespace Engine::ECS
 				if (m_jobScratch[_i]) m_depScratch.push_back(m_jobScratch[_i]);
 			}
 
+			// 待つ相手が終わるまでメインスレッドで待つ : 同期で回すときに使う
+			auto _waitDependencies = [&]()
+				{
+					// 待つ相手があるなら _pJobSystem は必ず非 null
+					for (Thread::Job* _pDep : m_depScratch)
+					{
+						_pJobSystem->WaitFor(_pDep);
+					}
+					m_depScratch.clear();
+				};
+
 			// Jobタスク : 待つ相手の後続に積む メインスレッドは止まらない
 			if (_pTask->exec == ETaskExec::Job && _pJobSystem)
 			{
-				m_jobScratch[_j] = _pJobSystem->PushJob(
-					[_pTask,_context = a_context,_pOutMs]()
-					{
-						ExecuteTask(*_pTask,_context,_pOutMs);
-					},
-					m_depScratch
-				);
+				// 通常のタスク : チャンクを分けて複数のジョブで回す
+				if (_pTask->executeRangeFunc)
+				{
+					// チャンク一覧はメインスレッドで確定させる
+					const uint32_t _chunkNum = _pTask->prepareFunc(*_pTask, a_context);
+					if (_chunkNum == 0) continue;
 
-				// 積めなかった → 下の同期実行へ落とす。待つ相手は m_depScracthにいる
+					const uint32_t _batchNum = std::min(_chunkNum, _pJobSystem->GetWorkerCount());
+					const uint32_t _per = (_chunkNum + _batchNum - 1) / _batchNum;
+
+					m_batchScratch.clear();
+					for (uint32_t _b = 0; _b < _chunkNum; _b += _per)
+					{
+						const uint32_t _e = std::min(_b + _per, _chunkNum);
+
+						Thread::Job* _pBatch = _pJobSystem->PushJob(
+							[_pTask, _context = a_context, _b, _e, _pOutNs]()
+							{
+								ExecuteTaskRange(*_pTask, _context, _b, _e, _pOutNs);
+							},
+							m_depScratch			// 各バッチが待つ相手の後続になる
+						);
+
+						if (_pBatch)
+						{
+							m_batchScratch.push_back(_pBatch);
+							continue;
+						}
+
+						// 積めなかった(ジョブシステムが止まった) :
+						// フェンスは nullptr を無視して完了扱いにするので、黙って飛ばされないよう
+						// 待つ相手を待ってからこの範囲をその場で回す
+						_waitDependencies();
+						ExecuteTaskRange(*_pTask, a_context, _b, _e, _pOutNs);
+					}
+
+					// 後ろのタスクはバッチごとではなくこのフェンスを待つようにする
+					if (m_batchScratch.empty())
+					{
+						// 全部その場で回した
+						m_jobScratch[_j] = nullptr;
+					}
+					else if (m_batchScratch.size() == 1)
+					{
+						m_jobScratch[_j] = m_batchScratch[0];
+					}
+					else
+					{
+						m_jobScratch[_j] = _pJobSystem->PushJob([] {}, m_batchScratch);
+
+						// フェンスを積めなかった : 後ろから待てないので、ここで全バッチを待ち切る
+						if (!m_jobScratch[_j])
+						{
+							for (Thread::Job* _pBatch : m_batchScratch)
+							{
+								_pJobSystem->WaitFor(_pBatch);
+							}
+						}
+					}
+					continue;
+				}
+
+				// カスタムタスク : 分けられないので1ジョブで積む
+				m_jobScratch[_j] = _pJobSystem->PushJob(
+					[_pTask, _context = a_context, _pOutNs]() { ExecuteTask(*_pTask, _context, _pOutNs); },
+					m_depScratch);
+
+				// 積めなかった → 下の同期実行へ
 				if (m_jobScratch[_j]) continue;
 			}
 
 			// 同期タスク : ぶつかるジョブが終わるのを直前で待つ
-			for (Thread::Job* _pDep : m_depScratch)
-			{
-				_pJobSystem->WaitFor(_pDep);
-			}
+			_waitDependencies();
 
-			ExecuteTask(*_pTask, a_context, _pOutMs);
+			ExecuteTask(*_pTask, a_context, _pOutNs);
 		}
 
 		// フェーズの終わりの待ち合わせ
@@ -114,12 +210,14 @@ namespace Engine::ECS
 			}
 		}
 
-		// 計測の反応はメインスレッドで全部終わってから行う
+		// 計測の反映はメインスレッドで全部終わってから行う。
+		// 分割したタスクは各バッチの時間の合計(CPU時間)になるので、実際の経過時間より長く出る
 		if (_isMeasure)
 		{
 			for (uint32_t _i = 0; _i < _taskCount; ++_i)
 			{
-				a_pProfiler->RecordTaskTime(_compiledVec[_i].pTask,m_taskMsScratch[_i]);
+				const int64_t _ns = m_upTaskNsScratch[_i].load(std::memory_order_relaxed);
+				a_pProfiler->RecordTaskTime(_compiledVec[_i].pTask, static_cast<double>(_ns) / 1'000'000.0);
 			}
 		}
 

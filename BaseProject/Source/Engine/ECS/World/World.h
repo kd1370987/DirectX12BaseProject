@@ -583,6 +583,28 @@ namespace Engine::ECS
 				);
 			};
 
+		// クエリをしてチャンク数を返す処理
+		// ワールドが無ければ 0 を返す(何もしない = 誰も待たなくてよい)
+		_task.prepareFunc = [](SystemTask& a_task,const SystemContext& a_context) -> uint32_t
+			{
+				if (!a_context.pWorld) return 0u;
+				World& _world = *a_context.pWorld;
+				return static_cast<uint32_t>(_world.ResolveQuery<Components...>(a_task.query, Exclude<Excludes...>{}).size());
+			};
+
+		// クエリ結果のチャンク [begin, end) を処理する関数
+		_task.executeRangeFunc = [a_func](SystemTask& a_task, const SystemContext& a_context, uint32_t a_begin, uint32_t a_end)
+			{
+				if (!a_context.pWorld) return;
+				World& _world = *a_context.pWorld;
+				for (uint32_t _i = a_begin; _i < a_end; ++_i)
+				{
+					Chunk* _pChunk = a_task.query.chunkVec[_i];
+					if (!_pChunk || _pChunk->count == 0) continue;
+					a_func(_pChunk, _pChunk->count, a_context, _world.GetComponentArray<Components>(_pChunk)...);
+				}
+			};
+
 		m_systemManager.AddSystemTask(a_phase, _task, a_taskName);
 	}
 

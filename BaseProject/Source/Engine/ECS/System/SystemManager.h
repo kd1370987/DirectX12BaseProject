@@ -28,6 +28,13 @@ namespace Engine::ECS
 		QueryCache query;											// クエリ結果(RegisterTask のみ使う。カスタムタスクは空のまま)
 
 		ETaskExec exec = ETaskExec::MainThread;						// システムの実行方法
+
+		// チャンク分割で回すための口 : RegisterTaskのみ CustomTaskはnullptr
+		// メインスレッドでクエリを解決後チャンク数を返す
+		std::function<uint32_t(SystemTask&, const SystemContext&)> prepareFunc;
+
+		// [begin,end)のチャンクを処理(end は含まない)
+		std::function<void(SystemTask&, const SystemContext&, uint32_t, uint32_t)>executeRangeFunc;
 	};
 
 	struct CompileTask
@@ -40,12 +47,17 @@ namespace Engine::ECS
 	//==========================================================================================
 	// システムの管理
 	//
-	// システムはメインスレッドで、ソートされた順に1つずつ実行される。
-	// 並列化したいシステムは、そのシステムの中でジョブを発行して
-	// 自分の終わりで待ち合わせること。
-	// システム同士を並列に回すのは、読み書きシグネチャに出てこない依存
-	// (コリジョンワールドへの submit、エディタのデバッグ描画、オーディオ等)を
-	// 拾えないため行わない
+	// タスクはフェーズごとにソートされた順に回す。
+	//   MainThread : メインスレッドでその場で実行する
+	//   Job        : ワーカーへ積む。RegisterTask のものはチャンクを分けて複数のジョブで回し、
+	//                カスタムタスクは1ジョブで回す
+	//
+	// 読み書きシグネチャが衝突するタスク同士は、後ろのタスクの直前(同期)か
+	// 後続として積む(Job)ことで待ち合わせる。フェーズの終わりでは全ジョブを待つ。
+	//
+	// シグネチャに出てこない依存(コリジョンワールドへの submit、デバッグ描画、
+	// オーディオ、構造変更の予約、リソース等)は拾えないので、Job にするタスクは
+	// 宣言したコンポーネント以外に触らないこと(オプトイン)
 	//==========================================================================================
 	class SystemManager
 	{
@@ -117,7 +129,15 @@ namespace Engine::ECS
 		// ランタイム中メンバ : RunSystem 1回の間だけ有効
 		std::vector<Thread::Job*> m_jobScratch;				// 並び位置 → いまフレームのジョブ
 		std::vector<Thread::Job*> m_depScratch;				// 1タスク分の待つ相手
-		std::vector<double> m_taskMsScratch;				// 並び位置 → 計測時間
+
+		std::vector<Thread::Job*> m_batchScratch;			// １タスクを分割した際のジョブたち
+
+		// 並び位置 → 計測時間(ns)
+		// 分割したタスクは複数のワーカーが同時に足し込むのでアトミックで持つ。
+		// アトミックはムーブできず vector の assign / resize が使えないため配列で持ち、
+		// 足りないときだけ RunSystem の先頭(ジョブが1つも走っていない時点)で作り直す
+		std::unique_ptr<std::atomic<int64_t>[]> m_upTaskNsScratch = nullptr;
+		uint32_t m_taskNsCapacity = 0;
 	};
 
 }
