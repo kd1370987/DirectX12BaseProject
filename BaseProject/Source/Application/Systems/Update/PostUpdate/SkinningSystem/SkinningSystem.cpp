@@ -9,7 +9,10 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 void SkinningSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const ModelComponent, NodePoseComponent, SkeletonPoseComponent>(
+	// ノードポーズは読むだけなので const。
+	// 書き込み扱いにすると、ワールド行列を組む CalcNodeSystem / AdditivePoseSystem との間に
+	// 依存の辺が張られず、それより先に走って前フレームの行列でボーンを作ってしまう
+	a_world.ActiveTask<const ModelComponent, const NodePoseComponent, SkeletonPoseComponent>(
 		Engine::ECS::ESystemType::Animation,
 		"SkinningSystem",
 		[](
@@ -18,19 +21,19 @@ void SkinningSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const ModelComponent* a_modelArray,
-			NodePoseComponent* a_nodePoseArray,
+			const NodePoseComponent* a_nodePoseArray,
 			SkeletonPoseComponent* a_skePoseArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const ModelComponent& _modelComp = a_modelArray[_i];
-				NodePoseComponent& _nodeComp = a_nodePoseArray[_i];
+				const NodePoseComponent& _nodeComp = a_nodePoseArray[_i];
 				SkeletonPoseComponent& _skeComp = a_skePoseArray[_i];
 
-				// モデル取得
+				// モデル取得 : 引けないものだけ飛ばす(同じチャンクの残りは続ける)
 				auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
-				if (!_pModel) return;
+				if (!_pModel) continue;
 
 				// 全ノード
 				const auto& _dataNodes = _pModel->GetOriginalNodeVec();

@@ -28,6 +28,8 @@
 #include "../../../InstanceResource/SwarmContactDamageResource.h"
 #include "Engine/ECS/Component/CollisionEvent.h"
 #include "../../../Components/Character/BoidComponent.h"
+#include "../../../Components/Character/Boss/BoidWaveStateComponent.h"
+#include "../../../Components/Resource/EmissiveOverrideComponent.h"
 #include "../../../Components/Character/LookAngleComponent.h"
 #include "../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../Components/Character/Boss/BoidLeaderComponent.h"
@@ -739,6 +741,12 @@ namespace App::Object
 
 			// 体当たりのダメージ(BoidContactDamageSystem)。持つのは待ち時間だけ
 			EnsureRootComponent<BoidContactDamageComponent>(_world, _instanceVec);
+
+			// 体を走る発光のウェーブ(BoidWaveSystem)。
+			// 計算途中の値と発光の差し替えの置き場。発光を ModelComponent へ写すのは
+			// ApplyEmissiveOverrideSystem で、差し替えが立つまではプレハブの発光のまま
+			EnsureRootComponent<BoidWaveStateComponent>(_world, _instanceVec);
+			EnsureRootComponent<EmissiveOverrideComponent>(_world, _instanceVec);
 
 			// 地面の近く・地面の中で砂埃を炊く番を待つ時間(BoidGroundEffectSystem)。
 			// 最初の番をばらしておき、全員が同じフレームにレイを打たないようにする

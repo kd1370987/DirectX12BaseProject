@@ -493,6 +493,9 @@
     <Filter Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem">
       <UniqueIdentifier>{7f2c1a90-4d63-4a1e-9c05-2b8e6f31d47a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\Draw\PreDraw\ApplyEmissiveOverrideSystem">
+      <UniqueIdentifier>{08df75bc-ca2f-49fc-a920-beaf3c56fc51}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Components\Light">
       <UniqueIdentifier>{c41b8e57-9a20-4f6d-b3e8-5d07a2c9186f}</UniqueIdentifier>
     </Filter>
@@ -1830,6 +1833,9 @@
     <ClCompile Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.cpp">
       <Filter>Source\Application\Systems\Draw\PreDraw\PointLightSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Draw\PreDraw\ApplyEmissiveOverrideSystem\ApplyEmissiveOverrideSystem.cpp">
+      <Filter>Source\Application\Systems\Draw\PreDraw\ApplyEmissiveOverrideSystem</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.cpp">
       <Filter>Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem</Filter>
     </ClCompile>
@@ -3017,6 +3023,9 @@
     <ClInclude Include="Source\Application\Components\Collision\RayCollider.h">
       <Filter>Source\Application\Components\Collision</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Components\Collision\GroundStateComponent.h">
+      <Filter>Source\Application\Components\Collision</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Components\Collision\SphereCollider.h">
       <Filter>Source\Application\Components\Collision</Filter>
     </ClInclude>
@@ -3075,6 +3084,9 @@
       <Filter>Source\Application\Components\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h">
+      <Filter>Source\Application\Components\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Resource\EmissiveOverrideComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Resource\NodePoseComponent.h">
@@ -3289,6 +3301,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.h">
       <Filter>Source\Application\Systems\Draw\PreDraw\PointLightSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Draw\PreDraw\ApplyEmissiveOverrideSystem\ApplyEmissiveOverrideSystem.h">
+      <Filter>Source\Application\Systems\Draw\PreDraw\ApplyEmissiveOverrideSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Light\PointLightComponent.h">
       <Filter>Source\Application\Components\Light</Filter>
@@ -4630,6 +4645,9 @@
       <Filter>Source\Application\Components\Character</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Character\Boss\WarmGroundEffectComponent.h">
+      <Filter>Source\Application\Components\Character\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Character\Boss\BoidWaveStateComponent.h">
       <Filter>Source\Application\Components\Character\Boss</Filter>
     </ClInclude>
   </ItemGroup>

@@ -81,7 +81,10 @@ namespace
 
 void TPSSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<FollowTargetComponent, TPSOffsetComponent, TPSLookAngleComponent, const TPSFollowComponent, LocalTransformComponent, TPSCameraStateComponent, CameraParamComponent>(
+	// 書くのはカメラ自身の姿勢(LocalTransform)・追従状態(TPSCameraState)・画角(CameraParam)だけ。
+	// FollowTarget / TPSOffset は読むだけなので const。
+	// TPSLookAngle は中身を使っておらず、対象の絞り込みにだけ効いている(外すと対象が変わるので残す)
+	a_world.ActiveTask<const FollowTargetComponent, const TPSOffsetComponent, const TPSLookAngleComponent, const TPSFollowComponent, LocalTransformComponent, TPSCameraStateComponent, CameraParamComponent>(
 		Engine::ECS::ESystemType::Camera,
 		"TPSSystem",
 		[](
@@ -89,9 +92,9 @@ void TPSSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
-			FollowTargetComponent* a_targetArray,
-			TPSOffsetComponent* a_offsetArray,
-			TPSLookAngleComponent* a_lookAngArray,
+			const FollowTargetComponent* a_targetArray,
+			const TPSOffsetComponent* a_offsetArray,
+			const TPSLookAngleComponent*,		// 絞り込みにだけ使う
 			const TPSFollowComponent* a_followParamArray,
 			LocalTransformComponent* a_trsArray,
 			TPSCameraStateComponent* a_tpsStatArray,
@@ -101,11 +104,10 @@ void TPSSystem::Init(App::ECS::APPWorld& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				// カメラのコンポーネントを取得
-				FollowTargetComponent&		_followComp		= a_targetArray[_i];
-				TPSOffsetComponent&			_offsetComp		= a_offsetArray[_i];
+				const FollowTargetComponent&	_followComp		= a_targetArray[_i];
+				const TPSOffsetComponent&		_offsetComp		= a_offsetArray[_i];
 				const TPSFollowComponent&	_followParam	= a_followParamArray[_i];
 				LocalTransformComponent&	_trsComp		= a_trsArray[_i];
-				TPSLookAngleComponent&		_lookComp		= a_lookAngArray[_i];
 				TPSCameraStateComponent&	_statComp		= a_tpsStatArray[_i];
 				CameraParamComponent&		_camParamComp	= a_camParamArray[_i];
 

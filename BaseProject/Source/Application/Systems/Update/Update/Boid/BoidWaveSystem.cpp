@@ -6,7 +6,8 @@
 #include "../../../../Components/Character/LookAngleComponent.h"
 #include "../../../../Components/Character/Boss/PlatoonLeaderComponent.h"
 #include "../../../../Components/Transform/LocalTransformComponent.h"
-#include "../../../../Components/Resource/ModelComponent.h"
+#include "../../../../Components/Character/Boss/BoidWaveStateComponent.h"
+#include "../../../../Components/Resource/EmissiveOverrideComponent.h"
 #include "../../../../InstanceResource/WormWaveResource.h"
 
 //==============================================================================
@@ -27,6 +28,15 @@
 // ・前方は LookAngleComponent から作る(SwarmLookSystem が進行方向へ寄せている値)。
 //   速度から直に作らないのは、止まった瞬間に向きが決まらなくなるのを避けるため。
 // ・発光の強さと色は、一番近いウェーブとの距離だけで決まる(重ねて明るくはしない)。
+//
+// ・書き込むのは自分専用の2つだけ。
+//     BoidWaveStateComponent    … 小隊長からの1次元距離(計算途中の値)
+//     EmissiveOverrideComponent … 発光の差し替え。ModelComponent へ写すのは
+//                                 ApplyEmissiveOverrideSystem(PreDraw)
+//   以前は BoidComponent と ModelComponent を直接書いていて、それらを読むだけの
+//   BoidSystem / SwarmLookSystem などと依存が循環していた(Update のソートが失敗していた)。
+//   BoidComponent は所属(platoonID)を読むだけなので const。
+// ・どちらも SwarmBossController がボイドの生成時に付ける。持っていないボイドは光らない。
 //==============================================================================
 namespace
 {
@@ -55,7 +65,7 @@ namespace
 
 void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<BoidComponent, const LocalTransformComponent, ModelComponent>(
+	a_world.ActiveTask<const BoidComponent, const LocalTransformComponent, BoidWaveStateComponent, EmissiveOverrideComponent>(
 		Engine::ECS::ESystemType::Update,
 		"BoidWaveSystem",
 		[](
@@ -63,9 +73,10 @@ void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t                          a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
-			BoidComponent*                    a_boidArray,
+			const BoidComponent*              a_boidArray,
 			const LocalTransformComponent*    a_localTRSArray,
-			ModelComponent*                   a_modelArray
+			BoidWaveStateComponent*           a_waveStateArray,
+			EmissiveOverrideComponent*        a_emissiveArray
 		)
 		{
 			if (!a_ctx.pWorld) return;
@@ -119,7 +130,8 @@ void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 			//------------------------------------------------------------------
 			for (uint32_t _i = 0; _i < a_count; ++_i)
 			{
-				BoidComponent& _boid = a_boidArray[_i];
+				const BoidComponent& _boid = a_boidArray[_i];
+				BoidWaveStateComponent& _waveState = a_waveStateArray[_i];
 
 				// 自分の小隊長を引く
 				const PlatoonAxis* _pAxis = nullptr;
@@ -136,9 +148,9 @@ void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 				// 進行方向へ投影して符号を反転させる(頭側が負、尾側が正)
 				//--------------------------------------------------------------
 				const Math::Vector3 _toBoid = a_localTRSArray[_i].pos - _pAxis->pos;
-				_boid.distanceFromPlatoonLeader = -_toBoid.Dot(_pAxis->forward);
+				_waveState.distanceFromPlatoonLeader = -_toBoid.Dot(_pAxis->forward);
 
-				const float _posAlongWorm = _pAxis->distanceAlongWorm + _boid.distanceFromPlatoonLeader;
+				const float _posAlongWorm = _pAxis->distanceAlongWorm + _waveState.distanceFromPlatoonLeader;
 
 				//--------------------------------------------------------------
 				// 一番近いウェーブとの距離で強さを決める
@@ -152,9 +164,11 @@ void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 					if (_weight >= 1.0f) break;
 				}
 
-				ModelComponent& _model = a_modelArray[_i];
-				_model.emissiveIntensity = std::lerp(_wave.baseIntensity, _wave.peakIntensity, _weight);
-				_model.emissiveColor     = Math::Vector3::Lerp(_wave.baseColor, _wave.peakColor, _weight);
+				// ModelComponent へは直接書かない(写すのは ApplyEmissiveOverrideSystem)
+				EmissiveOverrideComponent& _emissive = a_emissiveArray[_i];
+				_emissive.emissiveIntensity = std::lerp(_wave.baseIntensity, _wave.peakIntensity, _weight);
+				_emissive.emissiveColor     = Math::Vector3::Lerp(_wave.baseColor, _wave.peakColor, _weight);
+				_emissive.isOverride        = true;
 			}
 		}
 	);

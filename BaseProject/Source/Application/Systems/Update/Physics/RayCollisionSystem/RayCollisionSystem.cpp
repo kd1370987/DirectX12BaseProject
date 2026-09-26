@@ -6,7 +6,7 @@
 #include "Application/Components/Collision/RayCollider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
-#include "../../../../Components/Resource/StateMachineComponent.h"
+#include "Application/Components/Collision/GroundStateComponent.h"
 
 #include "Engine/MainEngine.h"
 #include "Engine/Physics/PhysicsWorld.h"
@@ -14,9 +14,49 @@
 #include "Engine/Common/Color.h"
 
 
+//==========================================================================================
+// RayCollisionSystem
+//
+// 足元へレイを1本撃って地面へスナップさせ、接地判定を GroundStateComponent へ書く。
+//
+// ・GroundStateComponent はプレハブに入れなくてよい。RayColliderComponent を持つものへ
+//   Start フェーズで自動で足す(下の GroundStateAttachSystem)。
+//   Start の時点ではまだ ActiveTag が付いていないので、足しても初期化のやり直しにはならない。
+// ・以前は接地判定を StateMachineComponent::isGround に書いていた。
+//   ステートマシンの書き手が増えると読みたいだけの側の宣言がぶつかるので、分けてある。
+//==========================================================================================
 void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const ColliderComponent, const RayColliderComponent, LocalTransformComponent, VelocityComponent, StateMachineComponent>(
+	//--------------------------------------------------------------------------
+	// 接地判定の置き場を付ける(持っていないものだけ)
+	//--------------------------------------------------------------------------
+	a_world.StartTask<const RayColliderComponent>(
+		Engine::ECS::ESystemType::Start,
+		"GroundStateAttachSystem",
+		[](
+			Engine::ECS::Chunk* a_pChunk,
+			uint32_t a_count,
+			const Engine::ECS::SystemContext& a_ctx,
+			StartTag*,
+			const RayColliderComponent*
+			)
+		{
+			const auto _typeID = a_ctx.pWorld->GetCompTypeID<GroundStateComponent>();
+			if (!Engine::ECS::IsValidTypeID(_typeID)) return;
+
+			// 反復中なので予約する。反映は Start フェーズの直後(ActiveTag への遷移の前)
+			for (uint32_t _i = 0; _i < a_count; ++_i)
+			{
+				a_ctx.pWorld->ReserveAddComponent(_typeID, a_pChunk->entityData[_i]);
+			}
+		},
+		Engine::ECS::Exclude<GroundStateComponent>{}
+	);
+
+	//--------------------------------------------------------------------------
+	// 足元のレイ
+	//--------------------------------------------------------------------------
+	a_world.ActiveTask<const ColliderComponent, const RayColliderComponent, LocalTransformComponent, VelocityComponent, GroundStateComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"RayCollisionSystem",
 		[](
@@ -28,7 +68,7 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 			const RayColliderComponent* a_rayArray,
 			LocalTransformComponent* a_transArray,
 			VelocityComponent* a_velArray,
-			StateMachineComponent* a_stateArray
+			GroundStateComponent* a_groundArray
 			)
 		{
 			ENGINE_PROFILE_SCOPE("Physics_GroundRay");
@@ -38,7 +78,7 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				LocalTransformComponent& _trans = a_transArray[_i];
 				VelocityComponent& _vel = a_velArray[_i];
-				StateMachineComponent& _state = a_stateArray[_i];
+				GroundStateComponent& _ground = a_groundArray[_i];
 				const RayColliderComponent& _ray = a_rayArray[_i];
 
 				// 足元原点。「段差許容分だけ上」を発射点にして真下へ1本撃つ。
@@ -62,14 +102,14 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 				// 範囲内に地面が無い → 空中
 				if (!_isHit)
 				{
-					_state.isGround = false;
+					_ground.isGround = false;
 					continue;
 				}
 
 				// ジャンプ上昇中はスナップしない（頭上の段差に吸い付かないように）
 				if (_vel.value.y > 0.0f)
 				{
-					_state.isGround = false;
+					_ground.isGround = false;
 					continue;
 				}
 
@@ -77,7 +117,7 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 				_trans.pos.y = _hit.position.y;
 				_trans.isDirty = true;
 				_vel.value.y = 0.0f;
-				_state.isGround = true;
+				_ground.isGround = true;
 			}
 		}
 	);

@@ -15,7 +15,7 @@
 #include "../../../../Components/Transform/WorldMatrixComponent.h"
 #include "../../../../Components/Force/MovementComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
-#include "../../../../Components/Resource/StateMachineComponent.h"
+#include "../../../../Components/Collision/GroundStateComponent.h"
 
 
 //==========================================================================================
@@ -500,19 +500,20 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				// 地面より下を目標にするので、そのままだと地面に押し付けたまま
 				// 横へ動けなくなってしまう。
 				//
-				// 接地は StateMachineComponent(RayCollisionSystem が書く)で見るが、
-				// クエリには足さない。PlayerIntentSystem がこれを書き、こちらが書く
-				// MoveIntent / Boost を読む側でもあるので、依存が一周してしまう。
+				// 接地は GroundStateComponent(RayCollisionSystem が Physics 帯で書く)で見る。
+				// 足元のレイを持たないボスもあり得るので、クエリには足さずに持っているときだけ引く
+				// (クエリに足すとアーキタイプが狭まり、持たないボスが丸ごと動かなくなる)。
+				// 以前は StateMachineComponent に同居していて、PlayerIntentSystem がそれを
+				// 書き込み扱いにしていたため、読みを宣言すると依存が一周していた。
 				//----------------------------------------------------------
 				if (_up < 0.0f)
 				{
 					const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
-					if (a_ctx.pWorld->HasComponent<StateMachineComponent>(_self))
+					if (a_ctx.pWorld->HasComponent<GroundStateComponent>(_self))
 					{
-						if (const auto* _pStateMachine =
-							a_ctx.pWorld->RefData<StateMachineComponent>(_self))
+						if (const auto* _pGround = a_ctx.pWorld->RefData<GroundStateComponent>(_self))
 						{
-							if (_pStateMachine->isGround) _up = 0.0f;
+							if (_pGround->isGround) _up = 0.0f;
 						}
 					}
 				}

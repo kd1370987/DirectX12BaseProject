@@ -32,6 +32,9 @@
 #include "Application/Components/Collision/Collider.h"
 #include "Application/Components/Collision/RayCollider.h"
 #include "Application/Components/Resource/ModelComponent.h"
+#include "Application/Components/Resource/EmissiveOverrideComponent.h"
+#include "Application/Components/Collision/GroundStateComponent.h"
+#include "Application/Components/Character/Boss/BoidWaveStateComponent.h"
 #include "Application/Components/Resource/AnimatorComponent.h"
 #include "Application/Components/Resource/SkeletonPoseComponent.h"
 #include "Application/Components/Resource/NodePoseComponent.h"
@@ -120,6 +123,7 @@
 #include "Application/Systems/Draw/PreDraw/CameraPipelineSubmitSystem/CameraPipelineSubmitSystem.h"
 #include "Application/Systems/Init/PostDeserialize/CameraPipelineFixupSystem/CameraPipelineFixupSystem.h"
 #include "Application/Systems/Draw/PreDraw/PointLightSystem/PointLightSystem.h"
+#include "Application/Systems/Draw/PreDraw/ApplyEmissiveOverrideSystem/ApplyEmissiveOverrideSystem.h"
 #include "Application/Systems/Draw/Draw/StaticObjectDrawSystem/StaticObjectDrawSystem.h"
 #include "Application/Systems/Draw/Draw/DynamicObjectDrawSystem/DynamicObjectDrawSystem.h"
 #include "Application/Systems/Draw/Draw/AnimationOptionalDraw/AnimationOptionalDraw.h"
@@ -339,6 +343,12 @@ namespace App::ECS
 		a_world.RegisterComponent<BallisticComponent>("BallisticComponent");
 		// ワームの体(ボイド)の体当たり。持つのは次に判定するまでの待ち時間だけ
 		a_world.RegisterComponent<BoidContactDamageComponent>("BoidContactDamageComponent");
+		// 足元の接地判定。書くのは RayCollisionSystem(StateMachineComponent から分けた)
+		a_world.RegisterComponent<GroundStateComponent>("GroundStateComponent");
+		// ボイドの発光ウェーブの計算途中の値(BoidComponent から分けた)
+		a_world.RegisterComponent<BoidWaveStateComponent>("BoidWaveStateComponent");
+		// 実行中の発光の差し替え。ModelComponent へ写すのは ApplyEmissiveOverrideSystem
+		a_world.RegisterComponent<EmissiveOverrideComponent>("EmissiveOverrideComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -396,6 +406,8 @@ namespace App::ECS
 		// 点光源の位置と設定値を LightManager へ送る。
 		// GPUバッファへ詰め直されるのは描画フェーズの後なので、この帯で間に合う
 		a_world.RegisterSystem<PointLightSystem>();
+		// 演出側が置いた発光の差し替えを ModelComponent へ写す(描画の直前)
+		a_world.RegisterSystem<ApplyEmissiveOverrideSystem>();
 		a_world.RegisterSystem<InputMoveSystem>();
 		a_world.RegisterSystem<GravitySystem>();
 		a_world.RegisterSystem<RotationSystem>();

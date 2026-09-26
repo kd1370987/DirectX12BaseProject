@@ -17,11 +17,14 @@
 //
 // ・移動速度は MovementComponent.moveSpeed。加速度/減速度で実速度へ均すのは
 //   MovementIntegrationSystem(Physics 帯)の担当なので、ここは目標値を作るだけ。
+// ・StateMachineComponent は中身を使わず、対象の絞り込みにだけ使っている
+//   (群れのリーダーのように、視点角と移動入力を持つがステートマシンを持たないものを外すため)。
+//   書かないので const。書き込み扱いにすると、使ってもいないのに依存の辺が張られて循環の元になる
 //==============================================================================
 void CharacterMovementSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<const LookAngleComponent, const MoveIntentComponent, const MovementComponent,
-		VelocityComponent, StateMachineComponent>(
+		VelocityComponent, const StateMachineComponent>(
 		Engine::ECS::ESystemType::Update,
 		"CharacterMovementSystem",
 		[]
@@ -34,7 +37,7 @@ void CharacterMovementSystem::Init(App::ECS::APPWorld& a_world)
 			const MoveIntentComponent* a_intentArray,
 			const MovementComponent* a_movementArray,
 			VelocityComponent* a_velArray,
-			StateMachineComponent* a_stateMachineArray
+			const StateMachineComponent*		// 絞り込みにだけ使う
 			)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
@@ -43,7 +46,6 @@ void CharacterMovementSystem::Init(App::ECS::APPWorld& a_world)
 				const MoveIntentComponent& _moveIntent = a_intentArray[_i];
 				const MovementComponent& _moveComp = a_movementArray[_i];
 				VelocityComponent& _velComp = a_velArray[_i];
-				StateMachineComponent& _stateMachineComp = a_stateMachineArray[_i];
 
 				float _rad = DirectX::XMConvertToRadians(_lookComp.Yaw);
 				float _sinY = sinf(_rad);

@@ -24,12 +24,8 @@ struct BoidComponent
 	// 寄せるのは SwarmLookSystem。体の向きにするのは RotationSystem(Yaw のみ)
 	float turnSpeedDeg = 540.0f;
 
-	// 小隊長からの距離 : 一次元距離
-	//
-	// 小隊長から見た実際の位置を、その進行方向へ投影したもの(頭側が負、尾側が正)。
-	// 毎フレーム BoidWaveSystem が計算し、小隊長の distanceAlongWorm に足して
-	// 「ワームの頭から何m地点に居るか」を出す。発光のウェーブはその位置で決まる
-	float distanceFromPlatoonLeader = 0.0f;
+	// ※ 発光ウェーブ用の「小隊長からの距離」は BoidWaveStateComponent へ移した。
+	//   ここは操舵の設定と所属だけを持ち、BoidWaveSystem からは書かれない
 };
 
 template<>
@@ -77,8 +73,6 @@ struct Engine::ECS::ComponentTraits<BoidComponent>
 		Engine::Editor::Field("maxSteeringForce", _comp.maxSteeringForce);
 		Engine::Editor::Line();
 		Engine::Editor::Field("turnSpeedDeg", _comp.turnSpeedDeg);
-		// 毎フレーム計算される値なので表示のみ
-		Engine::Editor::Value("FromPlatoonLeader", "%.1f m", _comp.distanceFromPlatoonLeader);
 		if (_comp.platoonID == Engine::ECS::Limits::INVALID_ENTITY)
 		{
 			Engine::Editor::HelpText("PlatoonID : (none)");

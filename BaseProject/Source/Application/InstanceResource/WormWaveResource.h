@@ -14,7 +14,7 @@
 // 位置はすべて「ワームの頭からの1次元距離(m)」。実際に体が曲がっていても、
 // 伸ばした一本の紐の上での距離として扱う。
 //   小隊長 … PlatoonLeaderComponent.distanceAlongWorm(生成時に決まる)
-//   ボイド … 上に BoidComponent.distanceFromPlatoonLeader を足したもの(毎フレーム計算)
+//   ボイド … 上に BoidWaveStateComponent.distanceFromPlatoonLeader を足したもの(毎フレーム計算)
 //
 //==========================================================================================
 

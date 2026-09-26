@@ -7,13 +7,30 @@
 #include "../../../../Components/Intent/MoveIntentComponent.h"
 #include "../../../../Components/Force/VelocityComponent.h"
 
+//==============================================================================
+// BoidSystem
+//
+// 群れの操舵(分離・整列・結合・目標への追従)から目標速度を作る。
+//
+// ・読むのは BoidComponent / LocalTransform / Velocity、書くのは Velocity だけ。
+//   位置を進めるのは MovementIntegrationSystem(Physics)なので LocalTransform は書かない。
+//   以前は LocalTransform を書き込みに挙げていて、使ってもいない辺が
+//   BoidWaveSystem などとの間で依存の循環を作っていた。
+// ・PreUpdate 帯で回す(HomingSystem と同じ理由)。
+//   Update 帯には LockOnRotationSystem など「Velocity を読んで LocalTransform を書く」ものがいて、
+//   こちらは「LocalTransform を読んで Velocity を書く」ので、同じ帯に置くと依存が循環する。
+//   相手はプレイヤーでボイドとは別のエンティティだが、依存のグラフは型単位でしか見ないため。
+//   目標速度を決めるだけの処理なので、敵の行動決定と同じ帯が素直でもある。
+//   ボイドの位置と速度は Update 帯では誰も書かない(位置は Physics の積分)ので、
+//   Update に置いていたときと同じ値を読む。目標地点を書く FollowLeaderSystem も PreUpdate。
+//==============================================================================
 void BoidSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomJobTask(
-		Engine::ECS::ESystemType::Update,
+		Engine::ECS::ESystemType::PreUpdate,
 		"BoidSystem",
-		Engine::ECS::ReadList<BoidComponent,VelocityComponent>{},
-		Engine::ECS::WriteList<LocalTransformComponent,VelocityComponent>{},
+		Engine::ECS::ReadList<BoidComponent, LocalTransformComponent, VelocityComponent>{},
+		Engine::ECS::WriteList<VelocityComponent>{},
 		[](const Engine::ECS::SystemContext& a_ctx)
 		{
 			ENGINE_PROFILE_SCOPE("BoidSystem");

@@ -4,6 +4,7 @@
 #include "../../../../Components/Intent/ActionIntentComponent.h"
 #include "../../../../Components/Resource/StateMachineComponent.h"
 #include "../../../../Components/Character/Robot/BoostComponent.h"
+#include "../../../../Components/Collision/GroundStateComponent.h"
 
 #include "Engine/Resource/Data/AnimatorAsset/AnimatorAsset.h"
 
@@ -16,10 +17,13 @@
 // これは「設計図の定義に無ければ定義を追加してから値を入れる」ので、
 // プログラム側から足したパラメータもそのままエディターの一覧に出る。
 // (定義済みならエディターで設定した型/デフォルト値をそのまま使う)
+//
+// StateMachineComponent はハンドルを読むだけなので const。
+// 値を書き込むのはハンドルの先のインスタンス(プール)で、コンポーネント自体は触らない
 //==========================================================================================
 void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const MoveIntentComponent, const BoostComponent,StateMachineComponent>(
+	a_world.ActiveTask<const MoveIntentComponent, const BoostComponent, const StateMachineComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"PlayerIntentSystem",
 		[]
@@ -30,7 +34,7 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 			ActiveTag* a_tags,
 			const MoveIntentComponent* a_moveIntentArray,
 			const BoostComponent* a_boostComp,
-			StateMachineComponent* a_smArray
+			const StateMachineComponent* a_smArray
 			)
 		{
 			// 毎フレーム計算するのは無駄なので、パラメータ名のハッシュ値はstaticで保持しておく
@@ -43,7 +47,8 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				const MoveIntentComponent& _intentComp = a_moveIntentArray[_i];
 				const BoostComponent& _boostComp = a_boostComp[_i];
-				StateMachineComponent& _smComp = a_smArray[_i];
+				const StateMachineComponent& _smComp = a_smArray[_i];
+				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
 				// インスタンスの実体を取得
 				auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
@@ -64,8 +69,22 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 				// Y軸にジャンプ入力が入っている場合は true
 				_pAnimator->SetBoolParam(*_pInstance, s_jumpHash, "Jump", _intentComp.value.y > 0.0f);
 
+				//--------------------------------------------------------------------------
 				// 地面に接しているかの判定
-				_pAnimator->SetBoolParam(*_pInstance, s_isGroundHash, "IsGround", _smComp.isGround);
+				//
+				// 接地判定(GroundStateComponent)は足元のレイを持つものにしか付かないので、
+				// アーキタイプを狭めないようにエンティティ単位で参照する。
+				// 持っていなければ接地していない扱い(以前の StateMachineComponent::isGround の既定値と同じ)
+				//--------------------------------------------------------------------------
+				bool _isGround = false;
+				if (a_ctx.pWorld->HasComponent<GroundStateComponent>(_self))
+				{
+					if (const auto* _pGround = a_ctx.pWorld->RefData<GroundStateComponent>(_self))
+					{
+						_isGround = _pGround->isGround;
+					}
+				}
+				_pAnimator->SetBoolParam(*_pInstance, s_isGroundHash, "IsGround", _isGround);
 
 				//--------------------------------------------------------------------------
 				// 銃関係(発射中)
@@ -74,7 +93,6 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 				// アーキタイプを狭めないようにエンティティ単位で参照する。
 				// 左右どちらかを撃っていれば「撃っている」とする。
 				//--------------------------------------------------------------------------
-				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 				if (a_ctx.pWorld->HasComponent<ActionIntentComponent>(_self))
 				{
 					if (const auto* _pActionIntent = a_ctx.pWorld->RefData<ActionIntentComponent>(_self))

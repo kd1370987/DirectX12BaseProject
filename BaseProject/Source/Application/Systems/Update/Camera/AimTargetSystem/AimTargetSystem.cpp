@@ -39,14 +39,19 @@
 //   ReadList に LocalTransformComponent を挙げているのは
 //   「カメラの姿勢を書く TPSSystem より後ろに並ぶ」ための依存で、
 //   これが無いと1フレーム前の向きで狙うことになる。
+//   TPSCameraState(フォーカス点)と LockOnTarget(ロック相手)も実際に読むので挙げてある。
+// ・書き込むのはフォーカス対象の AimTargetPosComponent。
+//   RefData 越しでも書き込みには違いないので WriteList に挙げる
+//   (挙げないと、同じフェーズに読み手や書き手が来たときに実行順も待ち合わせも付かない)。
 //==========================================================================================
 void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::Camera,
 		"AimTargetSystem",
-		Engine::ECS::ReadList<CameraTag, FollowTargetComponent, LocalTransformComponent>{},
-		Engine::ECS::WriteList<>{},
+		Engine::ECS::ReadList<CameraTag, FollowTargetComponent, LocalTransformComponent,
+			TPSCameraStateComponent, LockOnTargetComponent>{},
+		Engine::ECS::WriteList<AimTargetPosComponent>{},
 		[](const Engine::ECS::SystemContext& a_ctx)
 		{
 			if (!a_ctx.pWorld) return;
