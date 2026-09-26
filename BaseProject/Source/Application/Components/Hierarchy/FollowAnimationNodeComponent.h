@@ -7,7 +7,6 @@
 #include "../Resource/ModelComponent.h"
 #include "HierarchyComponent.h"
 
-
 #include "../../Editor/CompEditHelper/CompEditHelper.h"
 
 //==============================================================================
@@ -28,7 +27,6 @@ struct FollowAnimationNodeComponent
 	Math::Vector3 offsetScale = { 0, 0, 0 };
 };
 
-
 template<>
 struct Engine::ECS::ComponentTraits<FollowAnimationNodeComponent>
 {
@@ -45,21 +43,20 @@ struct Engine::ECS::ComponentTraits<FollowAnimationNodeComponent>
 	{
 		FollowAnimationNodeComponent& _comp = Engine::Editor::GetValue<FollowAnimationNodeComponent>(a_context.pData);
 
-		Engine::Editor::Text("TargetNodeIdx  : %d", _comp.targetNodeIdx);
-		Engine::Editor::Text("TargetNodeHash : %d", _comp.targetNodeHash);
-		Engine::Editor::Separator();
+		Engine::Editor::Value("TargetNodeIdx", "%d", _comp.targetNodeIdx);
+		Engine::Editor::Value("TargetNodeHash", "%d", _comp.targetNodeHash);
+		Engine::Editor::Line();
 
 		// ノード基準のオフセット(位置・回転)
 		Engine::Editor::Field("OffsetPos", _comp.offsetPosition, 0.1f);
 		Engine::Editor::Field("Rotation", _comp.offsetRotation);
 		Engine::Editor::Field("OffsetScalse", _comp.offsetScale, 0.1f);
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		App::Editor::CompEditHelper::SelectParentModelNode(
 			a_context,
 			_comp.targetNodeHash,
 			_comp.targetNodeIdx
 		);
-		
 	}
 };

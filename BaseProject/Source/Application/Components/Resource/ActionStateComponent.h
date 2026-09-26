@@ -56,7 +56,7 @@ struct Engine::ECS::ComponentTraits<ActionStateComponent>
 		// ステートマシンの選択
 		Engine::Editor::AssetField<Resource::ActionStateMachineAsset>(
 			*a_context.pWorld->RefEngineServices(),
-			"Change ActionSM",
+			"ActionSM",
 			"ActionStateMachineAsset",
 			_comp.actionGUID,
 			_comp.actionHandle
@@ -67,7 +67,7 @@ struct Engine::ECS::ComponentTraits<ActionStateComponent>
 		if (_sm)
 		{
 			std::string _nodeNameStr(_sm->GetNodeName(_comp.currentStateHash));
-			Engine::Editor::Text("Current Node : %s", _nodeNameStr.c_str());
+			Engine::Editor::Value("Current Node", "%s", _nodeNameStr.c_str());
 		}
 	}
 };

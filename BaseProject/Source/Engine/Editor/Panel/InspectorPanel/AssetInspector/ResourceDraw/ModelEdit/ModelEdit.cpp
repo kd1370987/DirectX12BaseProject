@@ -16,10 +16,7 @@ namespace Engine::Editor::Inspector
 
 			for (int _row = 0; _row < 4; ++_row)
 			{
-				ImGui::Text(
-					"%8.3f, %8.3f, %8.3f, %8.3f",
-					a_mat.m[_row][0], a_mat.m[_row][1], a_mat.m[_row][2], a_mat.m[_row][3]
-				);
+				Engine::Editor::Text("%8.3f, %8.3f, %8.3f, %8.3f", a_mat.m[_row][0], a_mat.m[_row][1], a_mat.m[_row][2], a_mat.m[_row][3]);
 			}
 			ImGui::TreePop();
 		}
@@ -29,17 +26,17 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		void DrawNodeDetail(const Resource::Node& a_node, int a_nodeIdx)
 		{
-			ImGui::Text("Index      : %d", a_nodeIdx);
-			ImGui::Text("NameHash   : %u", a_node.nodeNameHash);
-			ImGui::Text("Parent     : %d", a_node.parent);
-			ImGui::Text("Children   : %zu", a_node.children.size());
-			ImGui::Text("BoneIndex  : %d", a_node.boneIndex);
-			ImGui::Text("IsSkinMesh : %s", a_node.isSkinMesh ? "true" : "false");
+			Engine::Editor::Value("Index", "%d", a_nodeIdx);
+			Engine::Editor::Value("NameHash", "%u", a_node.nodeNameHash);
+			Engine::Editor::Value("Parent", "%d", a_node.parent);
+			Engine::Editor::Value("Children", "%zu", a_node.children.size());
+			Engine::Editor::Value("BoneIndex", "%d", a_node.boneIndex);
+			Engine::Editor::Value("IsSkinMesh", "%s", a_node.isSkinMesh ? "true" : "false");
 
 			// このノードが持つメッシュ
 			if (a_node.meshIndices.empty())
 			{
-				ImGui::Text("MeshIndices: none");
+				Engine::Editor::Value("MeshIndices", "none");
 			}
 			else
 			{
@@ -49,7 +46,7 @@ namespace Engine::Editor::Inspector
 					if (!_meshIdxStr.empty()) { _meshIdxStr += ", "; }
 					_meshIdxStr += std::to_string(_meshIdx);
 				}
-				ImGui::Text("MeshIndices: %s", _meshIdxStr.c_str());
+				Engine::Editor::Value("MeshIndices", "%s", _meshIdxStr.c_str());
 			}
 
 			// 各種行列
@@ -109,19 +106,19 @@ namespace Engine::Editor::Inspector
 		const auto& _nodeVec = a_pModel->GetOriginalNodeVec();
 
 		// ---- 概要 ----
-		ImGui::Text("Name      : %s", a_pModel->GetName().c_str());
-		ImGui::Text("Nodes     : %zu", _nodeVec.size());
-		ImGui::Text("Meshes    : %zu", _assetData.meshGUIDs.size());
-		ImGui::Text("Materials : %zu", _assetData.materialGUIDs.size());
-		ImGui::Text("Animations: %zu", _assetData.animationGUIDs.size());
-		ImGui::Text("Bones     : %zu", a_pModel->GetBoneNodeVec().size());
+		Engine::Editor::Value("Name", "%s", a_pModel->GetName().c_str());
+		Engine::Editor::Value("Nodes", "%zu", _nodeVec.size());
+		Engine::Editor::Value("Meshes", "%zu", _assetData.meshGUIDs.size());
+		Engine::Editor::Value("Materials", "%zu", _assetData.materialGUIDs.size());
+		Engine::Editor::Value("Animations", "%zu", _assetData.animationGUIDs.size());
+		Engine::Editor::Value("Bones", "%zu", a_pModel->GetBoneNodeVec().size());
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// ---- ノード階層 ----
 		if (ImGui::CollapsingHeader("Node Hierarchy", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			ImGui::TextDisabled("(open a node to see its detail)");
+			Engine::Editor::HelpText("(open a node to see its detail)");
 
 			// ルートノードから再帰的に表示
 			for (auto _rootIdx : a_pModel->GetRootNodeVec())
@@ -136,7 +133,7 @@ namespace Engine::Editor::Inspector
 			const auto& _animHandleVec = a_pModel->GetAnimationHandles();
 			if (_animHandleVec.empty())
 			{
-				ImGui::TextDisabled("No animation");
+				Engine::Editor::HelpText("No animation");
 			}
 
 			for (size_t _i = 0; _i < _animHandleVec.size(); ++_i)
@@ -154,8 +151,8 @@ namespace Engine::Editor::Inspector
 
 					const std::string _index = "[" + std::to_string(_i) + "]";
 					DrawAssetLink(&a_editContext, _index.c_str(), _animGUID);
-					ImGui::SameLine();
-					ImGui::TextDisabled("(not loaded)");
+					Engine::Editor::SameLine();
+					Engine::Editor::HelpText("(not loaded)");
 
 					ImGui::PopID();
 					continue;
@@ -167,8 +164,8 @@ namespace Engine::Editor::Inspector
 					{
 						DrawAssetLink(&a_editContext, "Asset     :", _assetData.animationGUIDs[_i]);
 					}
-					ImGui::Text("MaxLength : %.3f frame", _pAnim->maxLength);
-					ImGui::Text("AnimNodes : %zu", _pAnim->nodes.size());
+					Engine::Editor::Value("MaxLength", "%.3f frame", _pAnim->maxLength);
+					Engine::Editor::Value("AnimNodes", "%zu", _pAnim->nodes.size());
 
 					// アニメーションが動かすノードとキー数
 					if (ImGui::TreeNode("Channels"))
@@ -183,14 +180,7 @@ namespace Engine::Editor::Inspector
 								_targetName = _nodeVec[_animNode.nodeOffset].name;
 							}
 
-							ImGui::Text(
-								"%s (node %d) : T=%zu R=%zu S=%zu",
-								_targetName.c_str(),
-								_animNode.nodeOffset,
-								_animNode.translations.size(),
-								_animNode.rotations.size(),
-								_animNode.scales.size()
-							);
+							Engine::Editor::Text("%s (node %d) : T=%zu R=%zu S=%zu", _targetName.c_str(), _animNode.nodeOffset, _animNode.translations.size(), _animNode.rotations.size(), _animNode.scales.size());
 						}
 						ImGui::TreePop();
 					}
@@ -219,19 +209,16 @@ namespace Engine::Editor::Inspector
 				const auto* _pMesh = a_editContext.pServices->pResourceManager->Ref(_meshHandleVec[_i]);
 				if (!_pMesh)
 				{
-					ImGui::SameLine();
-					ImGui::TextDisabled("(not loaded)");
+					Engine::Editor::SameLine();
+					Engine::Editor::HelpText("(not loaded)");
 					ImGui::PopID();
 					continue;
 				}
 
 				// ここで出すのは概要だけ。詳しくはリンク先のメッシュインスペクタで見る
 				const auto& _metaData = _pMesh->GetMetaData();
-				ImGui::SameLine();
-				ImGui::TextDisabled("verts=%zu subsets=%zu%s",
-					_pMesh->GetVertexVec().size(),
-					_metaData.subsets.size(),
-					_metaData.isSkinMesh ? " [Skin]" : "");
+				Engine::Editor::SameLine();
+				Engine::Editor::HelpText("verts=%zu subsets=%zu%s", _pMesh->GetVertexVec().size(), _metaData.subsets.size(), _metaData.isSkinMesh ? " [Skin]" : "");
 
 				ImGui::PopID();
 			}
@@ -259,8 +246,8 @@ namespace Engine::Editor::Inspector
 
 				if (!_pMaterial)
 				{
-					ImGui::SameLine();
-					ImGui::TextDisabled("(not loaded)");
+					Engine::Editor::SameLine();
+					Engine::Editor::HelpText("(not loaded)");
 				}
 
 				ImGui::PopID();
@@ -271,7 +258,7 @@ namespace Engine::Editor::Inspector
 		if (ImGui::CollapsingHeader("Draw Commands"))
 		{
 			const auto& _drawCommandVec = a_pModel->GetDrawCommandVec();
-			ImGui::Text("Count : %zu", _drawCommandVec.size());
+			Engine::Editor::Value("Count", "%zu", _drawCommandVec.size());
 
 			for (size_t _i = 0; _i < _drawCommandVec.size(); ++_i)
 			{
@@ -284,17 +271,7 @@ namespace Engine::Editor::Inspector
 					_nodeName = _nodeVec[_cmd.nodeIndex].name;
 				}
 
-				ImGui::Text(
-					"[%zu] node=%s sub=%u mesh=%u(gen%u) material=%u(gen%u) alpha=%s",
-					_i,
-					_nodeName.c_str(),
-					static_cast<UINT>(_cmd.subIdx),
-					static_cast<UINT>(_cmd.meshHandle.GetIndex()),
-					static_cast<UINT>(_cmd.meshHandle.GetGeneration()),
-					static_cast<UINT>(_cmd.materialHandle.GetIndex()),
-					static_cast<UINT>(_cmd.materialHandle.GetGeneration()),
-					std::string(magic_enum::enum_name(_cmd.alphaMode)).c_str()
-				);
+				Engine::Editor::Text("[%zu] node=%s sub=%u mesh=%u(gen%u) material=%u(gen%u) alpha=%s", _i, _nodeName.c_str(), static_cast<UINT>(_cmd.subIdx), static_cast<UINT>(_cmd.meshHandle.GetIndex()), static_cast<UINT>(_cmd.meshHandle.GetGeneration()), static_cast<UINT>(_cmd.materialHandle.GetIndex()), static_cast<UINT>(_cmd.materialHandle.GetGeneration()), std::string(magic_enum::enum_name(_cmd.alphaMode)).c_str());
 			}
 		}
 	}

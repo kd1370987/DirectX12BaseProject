@@ -12,10 +12,9 @@ namespace
 void Engine::Option::ProjectOptions::CursorOption::DrawEdit(const ECS::EngineServices& a_services)
 {
 	Engine::Editor::Field("Enable", isEnable);
-	Engine::Editor::SameLine();
-	Engine::Editor::HelpText("(切るとOSのカーソルがそのまま出る)");
+	Engine::Editor::Tooltip("切るとOSのカーソルがそのまま出る");
 
-	Engine::Editor::Section("Texture");
+	Engine::Editor::Header("Texture");
 
 	Engine::Editor::AssetField(a_services, "Cursor", "Texture", textureGUID);
 	if (!textureGUID.IsValid())
@@ -23,7 +22,7 @@ void Engine::Option::ProjectOptions::CursorOption::DrawEdit(const ECS::EngineSer
 		Engine::Editor::HelpText("(未設定 : OSのカーソルを消さずにそのまま出す)");
 	}
 
-	Engine::Editor::Section("Shape");
+	Engine::Editor::Header("Shape");
 
 	Engine::Editor::Field("Size", sizePixel, 1.0f, MIN_SIZE, MAX_SIZE, "%.0f px");
 	sizePixel = std::clamp(sizePixel, MIN_SIZE, MAX_SIZE);

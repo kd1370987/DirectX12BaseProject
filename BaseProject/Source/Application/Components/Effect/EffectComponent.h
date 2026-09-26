@@ -10,7 +10,6 @@
 /// </summary>
 struct EffectComponent
 {
-
 };
 
 template<>

@@ -88,6 +88,6 @@ struct Engine::ECS::ComponentTraits<DebrisEmitterComponent>
 		Engine::Editor::Field("Start Height", _comp.startHeight, 0.05f);
 		Engine::Editor::RangeField("Spin", _comp.spinMinDeg, _comp.spinMaxDeg, 1.0f, 0.0f, 3600.0f);
 		Engine::Editor::RangeField("Scale", _comp.scaleMin, _comp.scaleMax, 0.01f, 0.0f, 10.0f);
-		Engine::Editor::HelpText("仰角は水平から(90で真上)。回転の軸は1個ずつ乱数");
+		Engine::Editor::Tooltip("仰角は水平から(90で真上)。回転の軸は1個ずつ乱数");
 	}
 };

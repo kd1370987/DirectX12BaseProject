@@ -128,7 +128,7 @@ struct Engine::ECS::ComponentTraits<CameraParamComponent>
 			_comp.viewportHeight = static_cast<UINT>(std::max(0, _viewport[1]));
 		}
 		Engine::Editor::Field("RenderOrder", _comp.renderOrder);
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		_isEdit |= Engine::Editor::Field("Fov", _comp.fovY);
 		_isEdit |= Engine::Editor::Field("Aspect", _comp.aspectRatio);

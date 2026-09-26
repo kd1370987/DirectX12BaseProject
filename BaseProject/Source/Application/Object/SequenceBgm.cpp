@@ -183,7 +183,7 @@ namespace App::Object
 	//======================================================================================
 	void SequenceBgm::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Section("BGM");
+		Engine::Editor::Header("BGM");
 
 		// 曲を差し替えたら、借りている分を返して鳴らし直させる
 		if (Engine::Editor::AssetField(*a_context.pServices, "Bgm", "Sound", m_guid))
@@ -198,10 +198,9 @@ namespace App::Object
 		}
 
 		Engine::Editor::Field("BgmFadeInTime", m_fadeInTime, 0.05f, 0.0f, 20.0f);
-		Engine::Editor::HelpText("鳴り始めに音量を上げきるまでの時間(秒)。0で即時");
+		Engine::Editor::Tooltip("鳴り始めに音量を上げきるまでの時間(秒)。0で即時");
 
 		Engine::Editor::Field("BgmLoop", m_isLoop);
-		Engine::Editor::SameLine();
 
 		bool _isDuckTarget = m_isDuckTarget;
 		if (Engine::Editor::Field("BgmDuckTarget", _isDuckTarget)) SetDuckTarget(_isDuckTarget);
@@ -214,6 +213,6 @@ namespace App::Object
 		}
 
 		Engine::Editor::SameLine();
-		Engine::Editor::Text("Playing : %s", m_isStarted ? "yes" : (m_isFailed ? "failed" : "no"));
+		Engine::Editor::Value("Playing", "%s", m_isStarted ? "yes" : (m_isFailed ? "failed" : "no"));
 	}
 }

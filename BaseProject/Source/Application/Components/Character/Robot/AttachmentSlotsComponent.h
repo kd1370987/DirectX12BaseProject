@@ -60,7 +60,7 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 		auto* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld)
 		{
-			Engine::Editor::TextColored(Math::Color(1, 1, 0, 1), "World is null");
+			Engine::Editor::WarningText("World is null");
 			return;
 		}
 
@@ -155,15 +155,13 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 			Engine::Editor::HelpText("id:%llu", static_cast<unsigned long long>(a_slot.id));
 		};
 
-		Engine::Editor::Text("Boosters");
+		Engine::Editor::Header("Boosters");
 		_drawSlot("R Shoulder", _comp.rightShoulderBoost);
 		_drawSlot("L Shoulder", _comp.leftShoulderBoost);
 		_drawSlot("R Leg",      _comp.rightLegBoost);
 		_drawSlot("L Leg",      _comp.leftLegBoost);
 
-		Engine::Editor::Separator();
-
-		Engine::Editor::Text("Weapons");
+		Engine::Editor::Header("Weapons");
 		_drawSlot("Left Weapon",  _comp.leftWeapon);
 		_drawSlot("Right Weapon", _comp.rightWeapon);
 		_drawSlot("Missile",      _comp.missile);

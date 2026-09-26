@@ -31,19 +31,18 @@ void Engine::Option::ProjectOptions::InputOption::DrawEdit(const ECS::EngineServ
 	//======================================================================
 	// カーソル
 	//======================================================================
-	Engine::Editor::Section("Cursor");
+	Engine::Editor::Header("Cursor");
 
 	if (Engine::Editor::Field("CursorLockToCenter", isCursorLockedToCenter))
 	{
 		Input::InputManager::Instance().SetCursorCentered(isCursorLockedToCenter);
 	}
-	Engine::Editor::SameLine();
-	Engine::Editor::HelpText("(プレイ中だけ画面中央へ固定)");
+	Engine::Editor::Tooltip("プレイ中だけ画面中央へ固定");
 
 	//======================================================================
 	// 視点感度
 	//======================================================================
-	Engine::Editor::Section("Mouse Look");
+	Engine::Editor::Header("Mouse Look");
 
 	Engine::Editor::Field("SensitivityX", lookSensitivityX, 0.005f, MIN_SENSITIVITY, MAX_SENSITIVITY, "%.3f deg/count");
 	Engine::Editor::Field("SensitivityY", lookSensitivityY, 0.005f, MIN_SENSITIVITY, MAX_SENSITIVITY, "%.3f deg/count");
@@ -66,8 +65,7 @@ void Engine::Option::ProjectOptions::InputOption::DrawEdit(const ECS::EngineServ
 	}
 
 	Engine::Editor::Field("InvertY", isInvertLookY);
-	Engine::Editor::SameLine();
-	Engine::Editor::HelpText("(上下の反転)");
+	Engine::Editor::Tooltip("上下の反転");
 
 	//======================================================================
 	// 目安の表示
@@ -75,16 +73,15 @@ void Engine::Option::ProjectOptions::InputOption::DrawEdit(const ECS::EngineServ
 	// 感度の数値だけでは速さが想像できないので、
 	// 「360度振り向くのにマウスを何cm動かすか」に直して見せる。
 	// この欄は表示専用で、入力には影響しない。
-	Engine::Editor::Section("Reference");
+	Engine::Editor::Header("Reference");
 
 	if (Engine::Editor::Field("MouseDPI", mouseDpi, 50.0f, 100, 32000))
 	{
 		mouseDpi = std::clamp(mouseDpi, 100, 32000);
 	}
-	Engine::Editor::SameLine();
-	Engine::Editor::HelpText("(表示の計算にだけ使う)");
+	Engine::Editor::Tooltip("表示の計算にだけ使う");
 
-	Engine::Editor::Text("360 turn : %.1f cm (X) / %.1f cm (Y)", CalcCentiMeterPer360(lookSensitivityX, mouseDpi), CalcCentiMeterPer360(lookSensitivityY, mouseDpi));
+	Engine::Editor::Value("360 turn", "%.1f cm (X) / %.1f cm (Y)", CalcCentiMeterPer360(lookSensitivityX, mouseDpi), CalcCentiMeterPer360(lookSensitivityY, mouseDpi));
 
 	Engine::Editor::HelpText("Windows側のポインター速度・加速は影響しない(生の入力を使用)");
 }

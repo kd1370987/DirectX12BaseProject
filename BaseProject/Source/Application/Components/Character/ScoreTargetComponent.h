@@ -49,13 +49,13 @@ struct Engine::ECS::ComponentTraits<ScoreTargetComponent>
 
 		Engine::Editor::HelpText("プレイヤーが倒す相手であることの印");
 		Engine::Editor::Field("Score", _comp.score, 1, 0, 1000000);
-		Engine::Editor::HelpText("倒されたときに入る点数");
+		Engine::Editor::Tooltip("倒されたときに入る点数");
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::HelpText("これが付いている相手に当てたときだけ");
 		Engine::Editor::HelpText("ヒットマーカーが出ます");
 
-		Engine::Editor::Separator();
-		Engine::Editor::Text("Scored : %s", _comp.isScored ? "true" : "false");
+		Engine::Editor::Line();
+		Engine::Editor::Value("Scored", "%s", _comp.isScored ? "true" : "false");
 	}
 };

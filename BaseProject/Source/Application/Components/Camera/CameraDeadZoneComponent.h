@@ -72,26 +72,24 @@ struct Engine::ECS::ComponentTraits<CameraDeadZoneComponent>
 	{
 		CameraDeadZoneComponent& _comp = Engine::Editor::GetValue<CameraDeadZoneComponent>(a_context.pData);
 
-		Engine::Editor::Text("Dead Zone");
+		Engine::Editor::Header("Dead Zone");
 		Engine::Editor::Field("HalfExtents (NDC)", _comp.halfExtents, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::HelpText("0 = 常に追従 / 1 = 画面端まで自由");
+		Engine::Editor::Tooltip("0 = 常に追従 / 1 = 画面端まで自由");
 		Engine::Editor::Field("FollowRate", _comp.followRate, 0.1f, 0.0f, 60.0f);
 
-		Engine::Editor::Separator();
-
-		Engine::Editor::Text("Depth");
+		Engine::Editor::Header("Depth");
 		Engine::Editor::Field("DepthTolerance (m)", _comp.depthTolerance, 0.1f, 0.0f);
 		Engine::Editor::Field("DepthFollowRate", _comp.depthFollowRate, 0.1f, 0.0f, 60.0f);
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		Engine::Editor::Field("SnapDistance (m)", _comp.snapDistance, 0.5f, 0.0f);
-		Engine::Editor::HelpText("これ以上離れたら枠を無視して一気に寄せます");
+		Engine::Editor::Tooltip("これ以上離れたら枠を無視して一気に寄せます");
 
 		// 結果は毎フレーム上書きされるので表示のみ
-		Engine::Editor::Separator();
-		Engine::Editor::Text("ScreenNDC : %.2f, %.2f", _comp.currentNdc.x, _comp.currentNdc.y);
-		Engine::Editor::Text("Outside   : %s", _comp.isOutside ? "yes" : "no");
-		Engine::Editor::HelpText("既定の構図は CameraFocusTargetComponent の OffsetPos");
+		Engine::Editor::Line();
+		Engine::Editor::Value("ScreenNDC", "%.2f, %.2f", _comp.currentNdc.x, _comp.currentNdc.y);
+		Engine::Editor::Value("Outside", "%s", _comp.isOutside ? "yes" : "no");
+		Engine::Editor::Tooltip("既定の構図は CameraFocusTargetComponent の OffsetPos");
 	}
 };

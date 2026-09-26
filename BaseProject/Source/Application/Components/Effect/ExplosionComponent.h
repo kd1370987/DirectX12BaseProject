@@ -96,7 +96,7 @@ struct Engine::ECS::ComponentTraits<ExplosionComponent>
 			PartsEffect& _parts = _comp.parts[_i];
 
 			Engine::Editor::IDScope _id(_i);
-			Engine::Editor::Section(("Parts " + std::to_string(_i)).c_str());
+			Engine::Editor::Header(("Parts " + std::to_string(_i)).c_str());
 
 			if (Engine::Editor::AssetField(*a_context.pWorld->RefEngineServices(), "Effect Prefab", "Prefab", _parts.prefabGUID))
 			{
@@ -105,8 +105,8 @@ struct Engine::ECS::ComponentTraits<ExplosionComponent>
 			Engine::Editor::Field("EmitTime", _parts.emitTime, 0.05f, 0.0f);
 		}
 
-		Engine::Editor::Separator();
-		Engine::Editor::Text("ElapsedTime : %.2f", _comp.elapsedTime);
-		Engine::Editor::HelpText("全パーツを出し終えたら自分は消える");
+		Engine::Editor::Line();
+		Engine::Editor::Value("ElapsedTime", "%.2f", _comp.elapsedTime);
+		Engine::Editor::Tooltip("全パーツを出し終えたら自分は消える");
 	}
 };

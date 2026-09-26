@@ -20,12 +20,12 @@ struct Engine::ECS::ComponentTraits<MoveIntentComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		MoveIntentComponent& _comp = Engine::Editor::GetValue<MoveIntentComponent>(a_context.pData);
-		Engine::Editor::Text("MoveIntent");
-		Engine::Editor::Text("x : %f", _comp.value.x);
-		Engine::Editor::Text("y : %f", _comp.value.y);
-		Engine::Editor::Text("z : %f", _comp.value.z);
+		Engine::Editor::Header("MoveIntent");
+		Engine::Editor::Value("x", "%f", _comp.value.x);
+		Engine::Editor::Value("y", "%f", _comp.value.y);
+		Engine::Editor::Value("z", "%f", _comp.value.z);
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		Engine::Editor::Field("JumpPow", _comp.jumpPow, 0.01f, 0);
 	}

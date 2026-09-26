@@ -39,9 +39,9 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		AnimatorComponent& _comp = Engine::Editor::GetValue<AnimatorComponent>(a_context.pData);
-		Engine::Editor::Text("Handle : idx = %d,  gen = %d", (int)_comp.animHandle.GetIndex(), (int)_comp.animHandle.GetGeneration());
+		Engine::Editor::Value("Handle", "idx = %d,  gen = %d", (int)_comp.animHandle.GetIndex(), (int)_comp.animHandle.GetGeneration());
 		Engine::Editor::Field("clipID", _comp.clipID);
-		Engine::Editor::Text("Time : %f", &_comp.time);
+		Engine::Editor::Value("Time", "%f", &_comp.time);
 
 		Engine::Editor::Field("Speed", _comp.speed);
 

@@ -135,7 +135,7 @@ namespace App::Object
 	//======================================================================================
 	void ResultSequence::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Section("Home Button");
+		Engine::Editor::Header("Home Button");
 
 		// 同じシーンに置いた UIButton から選ぶ
 		std::string _current = "None";
@@ -173,21 +173,21 @@ namespace App::Object
 			}
 		}
 
-		Engine::Editor::Section("Title Scene");
+		Engine::Editor::Header("Title Scene");
 
 		Engine::Editor::AssetField(*a_context.pServices, "Scene", "Scene", m_titleSceneGUID);
 
 		m_bgm.DrawInspector(a_context);
 
-		Engine::Editor::Section("Cursor");
+		Engine::Editor::Header("Cursor");
 
 		Engine::Editor::Field("ReleaseCursorLock", m_isReleaseCursorLock);
-		Engine::Editor::HelpText("リザルトの間はカーソルの中央固定を切る");
+		Engine::Editor::Tooltip("リザルトの間はカーソルの中央固定を切る");
 
 		//----------------------------------------------------------------------
 		// 持ち越されてきた記録(表示のみ)
 		//----------------------------------------------------------------------
-		Engine::Editor::Section("Carried Data");
+		Engine::Editor::Header("Carried Data");
 
 		const auto& _gameData = App::Game::GameManager::Instance().GetGameData();
 
@@ -199,16 +199,16 @@ namespace App::Object
 		default: break;
 		}
 
-		Engine::Editor::Text("Result : %s", _resultName);
-		Engine::Editor::Text("Score  : %d", _gameData.score);
-		Engine::Editor::Text("Kill   : %d", _gameData.killCount);
-		Engine::Editor::Text("Time   : %.2f", _gameData.time);
-		Engine::Editor::Text("Wave   : %d / %d", _gameData.clearedWaveCount, _gameData.totalWaveCount);
-		Engine::Editor::HelpText("数字を画面に出すのは ScoreHUD の仕事");
+		Engine::Editor::Value("Result", "%s", _resultName);
+		Engine::Editor::Value("Score", "%d", _gameData.score);
+		Engine::Editor::Value("Kill", "%d", _gameData.killCount);
+		Engine::Editor::Value("Time", "%.2f", _gameData.time);
+		Engine::Editor::Value("Wave", "%d / %d", _gameData.clearedWaveCount, _gameData.totalWaveCount);
+		Engine::Editor::Tooltip("数字を画面に出すのは ScoreHUD の仕事");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Section("Runtime");
-		Engine::Editor::Text("Bound     : %s", m_isBound ? "yes" : "no");
-		Engine::Editor::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
+		Engine::Editor::Header("Runtime");
+		Engine::Editor::Value("Bound", "%s", m_isBound ? "yes" : "no");
+		Engine::Editor::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
 	}
 }

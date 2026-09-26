@@ -10,9 +10,9 @@ namespace Engine::Editor::Inspector
 		if (!a_pAnimation) { return; }
 
 		// ---- 概要 ----
-		ImGui::Text("Name      : %s", a_pAnimation->name.c_str());
-		ImGui::Text("MaxLength : %.3f frame", a_pAnimation->maxLength);
-		ImGui::Text("AnimNodes : %zu", a_pAnimation->nodes.size());
+		Engine::Editor::Value("Name", "%s", a_pAnimation->name.c_str());
+		Engine::Editor::Value("MaxLength", "%.3f frame", a_pAnimation->maxLength);
+		Engine::Editor::Value("AnimNodes", "%zu", a_pAnimation->nodes.size());
 
 		// 全チャンネルのキー総数
 		size_t _totalKeyCount = 0;
@@ -22,9 +22,9 @@ namespace Engine::Editor::Inspector
 			_totalKeyCount += _animNode.rotations.size();
 			_totalKeyCount += _animNode.scales.size();
 		}
-		ImGui::Text("TotalKeys : %zu", _totalKeyCount);
+		Engine::Editor::Value("TotalKeys", "%zu", _totalKeyCount);
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// ---- アニメーションノード ----
 		if (!ImGui::CollapsingHeader("Animation Nodes", ImGuiTreeNodeFlags_DefaultOpen)) { return; }
@@ -36,19 +36,16 @@ namespace Engine::Editor::Inspector
 			ImGui::PushID(static_cast<int>(_i));
 			if (ImGui::TreeNode("AnimNode", "[%zu] node offset : %d", _i, _animNode.nodeOffset))
 			{
-				ImGui::Text("Translation Keys : %zu", _animNode.translations.size());
-				ImGui::Text("Rotation Keys    : %zu", _animNode.rotations.size());
-				ImGui::Text("Scale Keys       : %zu", _animNode.scales.size());
+				Engine::Editor::Value("Translation Keys", "%zu", _animNode.translations.size());
+				Engine::Editor::Value("Rotation Keys", "%zu", _animNode.rotations.size());
+				Engine::Editor::Value("Scale Keys", "%zu", _animNode.scales.size());
 
 				// 座標キー
 				if (!_animNode.translations.empty() && ImGui::TreeNode("Translations"))
 				{
 					for (const auto& _key : _animNode.translations)
 					{
-						ImGui::Text(
-							"%8.3f : %.3f, %.3f, %.3f",
-							_key.time, _key.vec.x, _key.vec.y, _key.vec.z
-						);
+						Engine::Editor::Text("%8.3f : %.3f, %.3f, %.3f", _key.time, _key.vec.x, _key.vec.y, _key.vec.z);
 					}
 					ImGui::TreePop();
 				}
@@ -58,10 +55,7 @@ namespace Engine::Editor::Inspector
 				{
 					for (const auto& _key : _animNode.rotations)
 					{
-						ImGui::Text(
-							"%8.3f : %.3f, %.3f, %.3f, %.3f",
-							_key.time, _key.quat.x, _key.quat.y, _key.quat.z, _key.quat.w
-						);
+						Engine::Editor::Text("%8.3f : %.3f, %.3f, %.3f, %.3f", _key.time, _key.quat.x, _key.quat.y, _key.quat.z, _key.quat.w);
 					}
 					ImGui::TreePop();
 				}
@@ -71,10 +65,7 @@ namespace Engine::Editor::Inspector
 				{
 					for (const auto& _key : _animNode.scales)
 					{
-						ImGui::Text(
-							"%8.3f : %.3f, %.3f, %.3f",
-							_key.time, _key.vec.x, _key.vec.y, _key.vec.z
-						);
+						Engine::Editor::Text("%8.3f : %.3f, %.3f, %.3f", _key.time, _key.vec.x, _key.vec.y, _key.vec.z);
 					}
 					ImGui::TreePop();
 				}

@@ -44,7 +44,7 @@ struct Engine::ECS::ComponentTraits<FlyingSoundComponent>
 		// ここでの変更は「次に生成されたエンティティ」から効く
 		Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
-			"Change Sound",
+			"Sound",
 			"Sound",
 			_comp.soundGUID);
 

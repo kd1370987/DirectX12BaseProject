@@ -87,7 +87,7 @@ namespace Engine::Resource
 			Save(_path);
 			ENGINE_LOG("%s : Save ActionStateMachineAsset", _path.c_str());
 		}
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		// ノード本体(行動制約UI)だけを注入して汎用ノードエディタを描画
 		m_editor.Draw(m_graph,

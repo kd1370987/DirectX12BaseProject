@@ -22,12 +22,10 @@
 
 namespace Engine::Editor
 {
-
 	MainEditor::MainEditor()
 	{}
 	MainEditor::~MainEditor()
 	{}
-
 
 	bool MainEditor::Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager, ECS::EngineServices* a_pServices)
 	{

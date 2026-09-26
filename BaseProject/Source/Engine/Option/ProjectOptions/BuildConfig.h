@@ -4,7 +4,6 @@
 
 namespace Engine::Option::ProjectOptions
 {
-
 	/// <summary>
 	/// ランタイム時に変更は掛けない
 	/// 次の起動時に変更がかかる設定

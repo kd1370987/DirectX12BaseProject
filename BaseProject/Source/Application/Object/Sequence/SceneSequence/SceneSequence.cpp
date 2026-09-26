@@ -837,17 +837,16 @@ namespace App::Object
 	//======================================================================================
 	void SceneSequence::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Text("Time : %.2f", m_time);
-		Engine::Editor::SameLine();
+		Engine::Editor::Value("Time", "%.2f", m_time);
 		if (Engine::Editor::Button("Reset Progress")) ResetProgress();
 
 		Engine::Editor::HelpText("Gizmo : select a position below (Ctrl to snap)");
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		m_bgm.DrawInspector(a_context);
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		//----------------------------------------------------------------------
 		// 決着(リザルトへの遷移)
@@ -867,13 +866,13 @@ namespace App::Object
 
 			Engine::Editor::Field("Clear Delay (s)", m_clearDelay, 0.1f, 0.0f, 60.0f);
 			Engine::Editor::Field("Dead Delay (s)", m_deadDelay, 0.1f, 0.0f, 60.0f);
-			Engine::Editor::HelpText("決着してから移るまでの間(演出を見せる時間)");
+			Engine::Editor::Tooltip("決着してから移るまでの間(演出を見せる時間)");
 
 			Engine::Editor::Field("Reset On Start", m_isResetOnStart);
-			Engine::Editor::HelpText("シーンの入り口でスコアとタイムを消す");
+			Engine::Editor::Tooltip("シーンの入り口でスコアとタイムを消す");
 
 			// 実行中の状態は表示のみ
-			Engine::Editor::Separator();
+			Engine::Editor::Line();
 			const char* _resultName = "None";
 			switch (m_result)
 			{
@@ -881,11 +880,11 @@ namespace App::Object
 			case App::Game::EGameResult::GameOver: _resultName = "GameOver"; break;
 			default: break;
 			}
-			Engine::Editor::Text("Result    : %s", _resultName);
-			Engine::Editor::Text("Timer     : %.2f", m_resultTimer);
-			Engine::Editor::Text("Cleared   : %d / %d", GetClearedWaveCount(), static_cast<int>(m_waves.size()));
-			Engine::Editor::Text("PlayerHit : %s", m_isPlayerFound ? "found" : "not yet");
-			Engine::Editor::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
+			Engine::Editor::Value("Result", "%s", _resultName);
+			Engine::Editor::Value("Timer", "%.2f", m_resultTimer);
+			Engine::Editor::Value("Cleared", "%d / %d", GetClearedWaveCount(), static_cast<int>(m_waves.size()));
+			Engine::Editor::Value("PlayerHit", "%s", m_isPlayerFound ? "found" : "not yet");
+			Engine::Editor::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
 		}
 
 		//----------------------------------------------------------------------
@@ -904,12 +903,12 @@ namespace App::Object
 			}
 
 			Engine::Editor::Field("Pause Action", m_pauseAction);
-			Engine::Editor::HelpText("InputManager へ登録したアクション名(既定 : Esc)");
+			Engine::Editor::Tooltip("InputManager へ登録したアクション名(既定 : Esc)");
 
-			Engine::Editor::Text("Paused    : %s", m_isPauseRequested ? "yes" : "no");
+			Engine::Editor::Value("Paused", "%s", m_isPauseRequested ? "yes" : "no");
 		}
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		if (Engine::Editor::CreateButton("Add Wave")) m_waves.emplace_back();
 
@@ -928,7 +927,6 @@ namespace App::Object
 				// ここを動かすと配下の出現位置(相対座標)がまとめて動く
 				Engine::Editor::Field("Wave Pos", _wave.pos, 0.1f);
 
-				Engine::Editor::SameLine();
 				const bool _isGizmoWave =
 					(m_gizmoWaveIndex == static_cast<int>(_i)) && (m_gizmoSpawnIndex < 0);
 				if (Engine::Editor::RadioButton("Gizmo##wave", _isGizmoWave))
@@ -939,8 +937,7 @@ namespace App::Object
 
 				// ---- 出現条件 ----
 				Engine::Editor::Field("IsAnnihilation", _wave.isAnnihilation);
-				Engine::Editor::SameLine();
-				Engine::Editor::HelpText(_wave.isAnnihilation ? "(after prev cleared)" : "(from scene start)");
+				Engine::Editor::Tooltip(_wave.isAnnihilation ? "(after prev cleared)" : "(from scene start)");
 
 				Engine::Editor::Field("Timing", _wave.timing, 0.1f, 0.0f, 3600.0f);
 
@@ -957,7 +954,7 @@ namespace App::Object
 					SpawnSettings& _settings = _wave.spawnEntities[_s];
 
 					Engine::Editor::IDScope _spawnID(static_cast<int>(_s));
-					Engine::Editor::Separator();
+					Engine::Editor::Line();
 
 					// プレハブを選び直したらハンドルを捨てて解決し直させる
 					if (Engine::Editor::AssetField(
@@ -970,7 +967,6 @@ namespace App::Object
 					// 位置はウェーブからの相対
 					Engine::Editor::Field("Pos (relative)", _settings.pos, 0.1f);
 
-					Engine::Editor::SameLine();
 					const bool _isGizmoSpawn =
 						(m_gizmoWaveIndex == static_cast<int>(_i)) &&
 						(m_gizmoSpawnIndex == static_cast<int>(_s));
@@ -981,7 +977,7 @@ namespace App::Object
 					}
 
 					Engine::Editor::Field("Dir", _settings.dir, 0.01f);
-					Engine::Editor::HelpText("World : %.2f, %.2f, %.2f", _wave.pos.x + _settings.pos.x, _wave.pos.y + _settings.pos.y, _wave.pos.z + _settings.pos.z);
+					Engine::Editor::Tooltip("World : %.2f, %.2f, %.2f", _wave.pos.x + _settings.pos.x, _wave.pos.y + _settings.pos.y, _wave.pos.z + _settings.pos.z);
 
 					if (Engine::Editor::DeleteButton("Remove Spawn")) _removeSpawnIndex = static_cast<int>(_s);
 				}
@@ -995,7 +991,7 @@ namespace App::Object
 					ClearGizmoTarget();
 				}
 
-				Engine::Editor::Separator();
+				Engine::Editor::Line();
 				if (Engine::Editor::DeleteButton("Remove Wave")) _removeWaveIndex = static_cast<int>(_i);
 			}
 		}
@@ -1012,8 +1008,7 @@ namespace App::Object
 		//==================================================================================
 		// ボスへの戦闘開始命令
 		//==================================================================================
-		Engine::Editor::Separator();
-		Engine::Editor::Section("Boss Orders");
+		Engine::Editor::Header("Boss Orders");
 		Engine::Editor::HelpText("Bosses stand by until an order reaches them");
 
 		if (Engine::Editor::CreateButton("Add Boss Order")) m_bossOrders.emplace_back();
@@ -1032,19 +1027,17 @@ namespace App::Object
 			{
 				// ---- 送る条件 ----
 				Engine::Editor::Field("AfterWaveIndex", _order.afterWaveIndex, 0.1f, -1, static_cast<int>(m_waves.size()) - 1);
-				Engine::Editor::SameLine();
-				Engine::Editor::HelpText(_order.afterWaveIndex < 0
-					? "(from scene start)"
-					: "(after that wave cleared)");
+				Engine::Editor::Tooltip(_order.afterWaveIndex < 0
+					? "from scene start"
+					: "after that wave cleared");
 
 				Engine::Editor::Field("Timing", _order.timing, 0.1f, 0.0f, 3600.0f);
 
 				// ---- 送る相手 ----
 				Engine::Editor::Field("TargetWaveIndex", _order.targetWaveIndex, 0.1f, -1, static_cast<int>(m_waves.size()) - 1);
-				Engine::Editor::SameLine();
-				Engine::Editor::HelpText(_order.targetWaveIndex < 0
-					? "(all bosses)"
-					: "(bosses spawned by that wave)");
+				Engine::Editor::Tooltip(_order.targetWaveIndex < 0
+					? "all bosses"
+					: "bosses spawned by that wave");
 
 				// ---- 進行状況 ----
 				Engine::Editor::HelpText("Sent : %s / Count : %d", _order.isSent ? "yes" : "no", _order.sentCount);

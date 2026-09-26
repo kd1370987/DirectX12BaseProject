@@ -65,28 +65,27 @@ struct Engine::ECS::ComponentTraits<BoidComponent>
 		Engine::Editor::Field("slowRadius", _comp.slowRadius);
 		Engine::Editor::Field("maxSpeed", _comp.maxSpeed);
 		Engine::Editor::Field("seekWeight", _comp.seekWeight);
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::Field("DistanceLenge", _comp.distanceLenge);
 		Engine::Editor::Field("separationDistance", _comp.separationDistance);
 		Engine::Editor::Field("separationWeight", _comp.separationWeight);
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::Field("neighborDistance", _comp.neighborDistance);
 		Engine::Editor::Field("alignmentWeight", _comp.alignmentWeight);
 		Engine::Editor::Field("cohesionWeight", _comp.cohesionWeight);
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::Field("maxSteeringForce", _comp.maxSteeringForce);
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::Field("turnSpeedDeg", _comp.turnSpeedDeg);
 		// 毎フレーム計算される値なので表示のみ
-		Engine::Editor::Text("FromPlatoonLeader : %.1f m", _comp.distanceFromPlatoonLeader);
+		Engine::Editor::Value("FromPlatoonLeader", "%.1f m", _comp.distanceFromPlatoonLeader);
 		if (_comp.platoonID == Engine::ECS::Limits::INVALID_ENTITY)
 		{
 			Engine::Editor::HelpText("PlatoonID : (none)");
 		}
 		else
 		{
-			Engine::Editor::Text("PlatoonID : %llu", static_cast<unsigned long long>(_comp.platoonID));
+			Engine::Editor::Value("PlatoonID", "%llu", static_cast<unsigned long long>(_comp.platoonID));
 		}
-
 	}
 };

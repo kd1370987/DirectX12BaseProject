@@ -78,8 +78,7 @@ namespace Engine::Editor
 		// ポップアップの中身
 		if (ImGui::BeginPopup("CreateResourcePopup"))
 		{
-			ImGui::Text("Select Asset Type:");
-			ImGui::Separator();
+			Engine::Editor::Header("Select Asset Type");
 
 			// データベースから現在登録されている全てのアセットタイプを取得
 			auto _typeMap = a_editContext.pServices->pAssetDatabase->GetAssetTypeExtensionsMap();
@@ -93,8 +92,8 @@ namespace Engine::Editor
 				// ツリーノードの生成
 				if (ImGui::TreeNodeEx(_typeName.c_str()))
 				{
-					ImGui::InputText("Name", m_nameCach, sizeof(m_nameCach));
-					ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
+					Engine::Editor::Field("Name", m_nameCach, sizeof(m_nameCach));
+					Engine::Editor::Field("FilePath", m_pathCach, sizeof(m_pathCach));
 
 					if (Engine::Editor::CreateButton("Create"))
 					{
@@ -119,7 +118,7 @@ namespace Engine::Editor
 	{
 		// ファイル名でアセットを探す。出しっぱなしの欄なので入力は消さない
 		const std::string& _search = EditorHelper::DrawSearchBox("##AssetSearch", "Search asset...", false);
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// 表示対象のアセットか : タブの種別と検索文字列の両方を満たすもの
 		auto _isShowAsset = [&_search](const Resource::AssetProperty* a_pAsset, const std::string& a_filter)

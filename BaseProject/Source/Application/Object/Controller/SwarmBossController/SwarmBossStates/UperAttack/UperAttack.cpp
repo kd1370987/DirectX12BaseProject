@@ -278,11 +278,11 @@ namespace App::Object
 		Engine::Editor::Field("Uper Max Time", m_uperMaxTime, 0.1f, 0.0f);
 		Engine::Editor::Field("Recover Time", m_recoverTime, 0.05f, 0.0f);
 		Engine::Editor::Field("Recover Throttle", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::HelpText("Speed scale above Platoon Scale tears the line apart");
+		Engine::Editor::Tooltip("Speed scale above Platoon Scale tears the line apart");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Text("Phase   : %s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		Engine::Editor::Text("Player  : %.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
-		Engine::Editor::Text("Ground  : %.1f (depth %.1f, %s)", m_groundHeight, m_depth, m_isUnderGround ? "under" : "above");
+		Engine::Editor::Value("Phase", "%s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::Editor::Value("Player", "%.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
+		Engine::Editor::Value("Ground", "%.1f (depth %.1f, %s)", m_groundHeight, m_depth, m_isUnderGround ? "under" : "above");
 	}
 }

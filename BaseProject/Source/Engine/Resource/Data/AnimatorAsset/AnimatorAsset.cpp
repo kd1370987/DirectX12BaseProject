@@ -171,15 +171,15 @@ namespace Engine::Resource
 			Save(_path, *a_services.pResourceManager);
 			ENGINE_LOG("%s : Save AnimatorAsset", _path.c_str());
 		}
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		// アニメを付随させるための参照モデル選択(Animator固有)
 		BindModelComb(a_services);
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		// 加算ポーズの対象ボーン定義
 		AdditiveBoneEdit(*a_services.pResourceManager);
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		// ノード本体だけ(アニメ選択UI)を注入して汎用ノードエディタを描画
 		m_editor.Draw(m_graph,
@@ -193,20 +193,16 @@ namespace Engine::Resource
 				Engine::Editor::ItemWidthScope _itemWidth(130.0f);
 
 				// アニメ選択
-				Engine::Editor::Text("Animation");
-				Engine::Editor::ModelAnimationField(a_services, "##ChangeAnimation", _pModel, a_node.playAnimData);
+				Engine::Editor::ModelAnimationField(a_services, "Animation##ChangeAnimation", _pModel, a_node.playAnimData);
 
 				// 再生スピード
-				Engine::Editor::Text("Speed");
-				Engine::Editor::Field("##AnimationSpeed", a_node.speed, 0.01f, 0.0f);
+				Engine::Editor::Field("Speed##AnimationSpeed", a_node.speed, 0.01f, 0.0f);
 
 				// ループフラグ
 				Engine::Editor::Field("Loop", a_node.isLoop);
 
 				// 加算ポーズの効き(ステートごと)
-				Engine::Editor::Text("Additive");
-				Engine::Editor::Field("##AdditiveWeight", a_node.additiveWeight, 0.01f, 0.0f, 1.0f);
-
+				Engine::Editor::Field("Additive##AdditiveWeight", a_node.additiveWeight, 0.01f, 0.0f, 1.0f);
 			});
 	}
 
@@ -217,7 +213,7 @@ namespace Engine::Resource
 	{
 		Engine::Editor::AssetField<Model>(
 			a_services,
-			"Change model",
+			"model",
 			"Model",
 			m_modelGUID,
 			m_modelHandle
@@ -245,7 +241,7 @@ namespace Engine::Resource
 			size_t _chIdx = static_cast<size_t>(_def.channel);
 			if (_chIdx < 3) _shareSum[_chIdx] += _def.share;
 		}
-		Engine::Editor::Text("Share sum : Aim %.2f / LagArm %.2f / LagLeg %.2f", _shareSum[0], _shareSum[1], _shareSum[2]);
+		Engine::Editor::Value("Share sum", "Aim %.2f / LagArm %.2f / LagLeg %.2f", _shareSum[0], _shareSum[1], _shareSum[2]);
 
 		int _removeIdx = -1;
 		for (size_t _i = 0; _i < m_additiveBones.size(); ++_i)
@@ -286,7 +282,7 @@ namespace Engine::Resource
 
 			if (Engine::Editor::DeleteButton("Remove")) _removeIdx = static_cast<int>(_i);
 
-			Engine::Editor::Separator();
+			Engine::Editor::Line();
 		}
 
 		if (_removeIdx >= 0)

@@ -126,14 +126,10 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Spacing();
-		Engine::Editor::Separator();
-		Engine::Editor::Spacing();
-
-		Engine::Editor::Text("MissileLockBox");
+		Engine::Editor::Header("MissileLockBox");
 		Engine::Editor::HelpText("ミサイルキーを押している間、溜めた敵を囲みます");
 		Engine::Editor::HelpText("収集範囲は CombatReticleHUD / 弾数はプレイヤーの MissileLockComponent");
 		Engine::Editor::HelpText("PixelPos is unused (follows enemies)");
-		Engine::Editor::Text("Boxes : %d", static_cast<int>(m_lockScreenPosVec.size()));
+		Engine::Editor::Value("Boxes", "%d", static_cast<int>(m_lockScreenPosVec.size()));
 	}
 }

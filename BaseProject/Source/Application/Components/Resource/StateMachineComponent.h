@@ -46,7 +46,6 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 	{
 		StateMachineComponent& _comp = Engine::Editor::GetValue<StateMachineComponent>(a_pData);
 		a_ar.Field("stateMachineGUID",_comp.stateMachineGUID);
-
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -57,7 +56,7 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 		// ステートマシンの選択
 		Engine::Editor::AssetField<Resource::AnimatorAsset>(
 			*a_context.pWorld->RefEngineServices(),
-			"Change StateMachine",
+			"StateMachine",
 			"AnimatorAsset",
 			_comp.stateMachineGUID,
 			_comp.stateMachineHandle
@@ -68,7 +67,7 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 		if (_sm)
 		{
 			std::string _nodeNameStr(_sm->GetNodeName(_comp.currentStateHash));
-			Engine::Editor::Text("Current Node : %s", _nodeNameStr.c_str());
+			Engine::Editor::Value("Current Node", "%s", _nodeNameStr.c_str());
 		}
 	}
 };

@@ -60,7 +60,7 @@ struct Engine::ECS::ComponentTraits<AudioBehaviorComponent>
 
 		if (Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
-			"Change AudioBehavior",
+			"AudioBehavior",
 			"AudioBehavior",
 			_comp.behaviorGUID))
 		{
@@ -87,7 +87,7 @@ struct Engine::ECS::ComponentTraits<AudioBehaviorComponent>
 			return;
 		}
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		for (size_t _i = 0; _i < Engine::Resource::AUDIO_PHASE_COUNT; ++_i)
 		{
 			const auto _phase = static_cast<Engine::Resource::EAudioPhase>(_i);

@@ -59,18 +59,16 @@ struct Engine::ECS::ComponentTraits<BoostComponent>
 		using namespace Engine;
 		BoostComponent& _comp = Engine::Editor::GetValue<BoostComponent>(a_context.pData);
 
-		Engine::Editor::Text("Boost Parameters");
+		Engine::Editor::Header("Boost Parameters");
 		Engine::Editor::Field("Max Fuel", _comp.maxFuel, 1.0f, 0.0f);
 		Engine::Editor::Field("Boost Power (m/s)", _comp.boostPower, 0.1f, 0.0f);
 		Engine::Editor::Field("Tap Boost Scale", _comp.tapBoostScale, 0.05f, 0.0f);
 		Engine::Editor::Field("Tap Boost Time", _comp.tapBoostTime, 0.01f, 0.0f);
-		Engine::Editor::HelpText("(踏み込みが続く秒数。0で1フレームだけ = ほぼ効かない)");
+		Engine::Editor::Tooltip("(踏み込みが続く秒数。0で1フレームだけ = ほぼ効かない)");
 		Engine::Editor::Field("Boost Fuel (Tap)", _comp.boostFuel, 0.1f, 0.0f);
 		Engine::Editor::Field("Boost Fuel / Sec", _comp.boostFuelPerSec, 0.1f, 0.0f);
 
-		Engine::Editor::Separator();
-
-		Engine::Editor::Text("Runtime State");
+		Engine::Editor::Header("Runtime State");
 		Engine::Editor::Field("Boost Triger (Input)", _comp.isJustBoosted);
 		Engine::Editor::Field("Boost Intent (Input)", _comp.isBoostIntent);
 		Engine::Editor::Field("Is Boosting (Active)", _comp.isBoosting);
@@ -79,7 +77,7 @@ struct Engine::ECS::ComponentTraits<BoostComponent>
 		float fraction = (_comp.maxFuel > 0.0f) ? (_comp.currentFuel / _comp.maxFuel) : 0.0f;
 		char overlay[32];
 		snprintf(overlay, sizeof(overlay), "%.1f / %.1f", _comp.currentFuel, _comp.maxFuel);
-		Engine::Editor::ProgressBar(fraction, overlay);
+		Engine::Editor::ProgressBar("Fuel", fraction, overlay);
 		Engine::Editor::Field("FuelRegeneration", _comp.fuelRegeneration, 0.1f, 0.0f);
 	}
 };

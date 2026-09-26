@@ -80,11 +80,11 @@ struct Engine::ECS::ComponentTraits<PointLightComponent>
 	{
 		PointLightComponent& _comp = Engine::Editor::GetValue<PointLightComponent>(a_context.pData);
 
-		Engine::Editor::Section("Mount");
+		Engine::Editor::Header("Mount");
 		Engine::Editor::HelpText("このエンティティの行列基準。原点以外を光らせたいときに使う");
 		Engine::Editor::Field("PosOffset", _comp.posOffset, 0.01f);
 
-		Engine::Editor::Section("Light");
+		Engine::Editor::Header("Light");
 		// 色は 0〜1 のピッカーで選び、1.0 超えの明るさは Brightness 側で作る
 		// (ピッカー自体が 0〜1 しか扱えないため)
 		Engine::Editor::ColorField("Color", _comp.color, false);
@@ -100,7 +100,7 @@ struct Engine::ECS::ComponentTraits<PointLightComponent>
 		}
 
 		// ランタイムは表示のみ
-		Engine::Editor::Section("Runtime");
-		Engine::Editor::Text("Handle : %s", _comp.handle.IsValid() ? "取得済み" : "未取得(上限かも)");
+		Engine::Editor::Header("Runtime");
+		Engine::Editor::Value("Handle", "%s", _comp.handle.IsValid() ? "取得済み" : "未取得(上限かも)");
 	}
 };

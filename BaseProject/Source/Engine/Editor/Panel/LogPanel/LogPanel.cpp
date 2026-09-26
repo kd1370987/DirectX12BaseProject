@@ -81,7 +81,7 @@ namespace Engine::Editor
 		if (ImGui::BeginPopup("Options"))
 		{
 			// オートスクロール
-			if (ImGui::Checkbox("Auto-scroll", &m_isAutoScroll))
+			if (Engine::Editor::Field("Auto-scroll", m_isAutoScroll))
 			{
 				if (m_isAutoScroll)
 				{
@@ -96,16 +96,16 @@ namespace Engine::Editor
 		{
 			ImGui::OpenPopup("Options");
 		}
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		// ログのクリア
 		bool _isClear = ImGui::Button("ClearLog");
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		// コピー
 		bool _isCopy = ImGui::Button("Copy");
 
 		// フィルター
 		m_textFilter.Draw("Filter", -100.0f);
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// スクロールバー
 		ImGui::BeginChild("Scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);

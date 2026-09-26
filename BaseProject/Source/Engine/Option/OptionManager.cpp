@@ -1,6 +1,5 @@
 ﻿#include "OptionManager.h"
 
-
 namespace Engine::Option
 {
 	OptionManager::OptionManager(){}
@@ -48,7 +47,7 @@ namespace Engine::Option
 	{
 		for (auto* _pOption : m_pOptionList)
 		{
-			Engine::Editor::Separator();
+			Engine::Editor::Line();
 			if (Engine::Editor::TreeScope _tree{ _pOption->GetName().c_str(), false, true })
 			{
 				_pOption->DrawEdit(a_services);

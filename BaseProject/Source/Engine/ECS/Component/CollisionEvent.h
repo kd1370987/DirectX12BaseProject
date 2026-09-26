@@ -22,12 +22,12 @@ struct Engine::ECS::ComponentTraits<Engine::ECS::CollisionEvent>
 
 		if (_comp.other == Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			Engine::Editor::Text("No hit");
+			Engine::Editor::HelpText("No hit");
 		}
 		else
 		{
-			Engine::Editor::Text("Hit Entity : %d", (int)_comp.other);
-			Engine::Editor::Text("Hit Pos    : %.2f, %.2f, %.2f", _comp.hitPos.x, _comp.hitPos.y, _comp.hitPos.z);
+			Engine::Editor::Value("Hit Entity", "%d", (int)_comp.other);
+			Engine::Editor::Value("Hit Pos", "%.2f, %.2f, %.2f", _comp.hitPos.x, _comp.hitPos.y, _comp.hitPos.z);
 		}
 	}
 };

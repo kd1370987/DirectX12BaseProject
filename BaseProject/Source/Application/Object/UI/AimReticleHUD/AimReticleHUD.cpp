@@ -111,11 +111,7 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Spacing();
-		Engine::Editor::Separator();
-		Engine::Editor::Spacing();
-
-		Engine::Editor::Text("AutoAim");
+		Engine::Editor::Header("AutoAim");
 
 		// 判定半径の作り方
 		Engine::Editor::Field("UseTextureSize", m_isUseTextureSize);
@@ -129,8 +125,7 @@ namespace App::Object
 			Engine::Editor::Field("LockRadius", m_lockRadius, 1.0f, 0.0f, 4096.0f);
 		}
 
-		Engine::Editor::Text("Radius : %.0f px", CalcLockRadius());
-		Engine::Editor::HelpText("この円の内側に入った敵だけがロック対象になります");
-		Engine::Editor::HelpText("(中心は PixelPos。プレイヤーの LockOnTargetComponent へ毎フレーム渡します)");
+		Engine::Editor::Value("Radius", "%.0f px", CalcLockRadius());
+		Engine::Editor::Tooltip("この円の内側に入った敵だけがロック対象になります\n(中心は PixelPos。プレイヤーの LockOnTargetComponent へ毎フレーム渡します)");
 	}
 }

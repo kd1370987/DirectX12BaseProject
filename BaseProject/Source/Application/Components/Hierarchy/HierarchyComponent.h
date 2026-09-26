@@ -28,8 +28,8 @@ struct Engine::ECS::ComponentTraits<HierarchyComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		HierarchyComponent& _comp = Engine::Editor::GetValue<HierarchyComponent>(a_context.pData);
-		Engine::Editor::Text("ParentGUID : %s", _comp.parentGUID.String().c_str());
-		Engine::Editor::Text("ParentID : %d", _comp.parentID);
-		Engine::Editor::Text("Depth : %d", _comp.depth);
+		Engine::Editor::Value("ParentGUID", "%s", _comp.parentGUID.String().c_str());
+		Engine::Editor::Value("ParentID", "%d", _comp.parentID);
+		Engine::Editor::Value("Depth", "%d", _comp.depth);
 	}
 };

@@ -33,7 +33,7 @@ struct Engine::ECS::ComponentTraits<SoundComponent>
 		SoundComponent& _comp = Engine::Editor::GetValue<SoundComponent>(a_context.pData);
 		if (Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
-			"Change Sound",
+			"Sound",
 			"Sound",
 			_comp.soundGUID))
 		{
@@ -54,7 +54,7 @@ struct Engine::ECS::ComponentTraits<SoundComponent>
 		// 湧いた瞬間に鳴らすか。爆発などのエフェクトプレハブに付けておくと、
 		// 出した側が鳴らしに行かなくてもエフェクト単体で音まで完結する
 		Engine::Editor::Field("Play On Spawn", _comp.isPlayOnSpawn);
-		Engine::Editor::HelpText("湧いたフレームに一度だけ鳴る");
+		Engine::Editor::Tooltip("湧いたフレームに一度だけ鳴る");
 
 		// 音量は発行済みインスタンスへ即時反映して、鳴らしながら調整できるようにする
 		if (Engine::Editor::Field("Volume", _comp.vol, 0.01f, 0.0f, 1.0f))

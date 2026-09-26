@@ -142,7 +142,7 @@ namespace App::Input
 				if (_it == a_map.end()) continue;
 
 				Engine::Editor::IDScope _id(static_cast<int>(_action));
-				Engine::Editor::Section(std::string(magic_enum::enum_name(_action)).c_str());
+				Engine::Editor::Header(std::string(magic_enum::enum_name(_action)).c_str());
 
 				if (auto* _pAxis = std::get_if<Game::AxisInputData>(&_it->second))
 				{
@@ -301,10 +301,9 @@ namespace App::Input
 		{
 			ResetToDefault();
 		}
-		Engine::Editor::SameLine();
-		Engine::Editor::HelpText("(作った時の割り当てへ戻す)");
+		Engine::Editor::Tooltip("作った時の割り当てへ戻す");
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		// ---- マウス感度 ----
 		// ここは持っているだけで、実際の振り向きの速さは

@@ -47,6 +47,6 @@ struct Engine::ECS::ComponentTraits<SerchGroundComponent>
 			Engine::Editor::HelpText("Ground : (not found)");
 			return;
 		}
-		Engine::Editor::Text("Ground : %.1f (%s)", _comp.groundHeight, _comp.isUnderGround ? "under" : "above");
+		Engine::Editor::Value("Ground", "%.1f (%s)", _comp.groundHeight, _comp.isUnderGround ? "under" : "above");
 	}
 };

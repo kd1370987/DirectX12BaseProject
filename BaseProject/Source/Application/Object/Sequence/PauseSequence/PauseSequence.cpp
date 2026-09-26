@@ -181,7 +181,7 @@ namespace App::Object
 	//======================================================================================
 	void PauseSequence::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Section("Buttons");
+		Engine::Editor::Header("Buttons");
 
 		// 同じシーンに置いた UIButton から選ぶ
 		auto _drawButtonCombo = [&](const char* a_label, Engine::GUID& a_inoutGUID)
@@ -224,33 +224,33 @@ namespace App::Object
 		_drawButtonCombo("Resume", m_resumeButtonGUID);
 		_drawButtonCombo("Exit", m_exitButtonGUID);
 
-		Engine::Editor::Section("Exit Scene");
+		Engine::Editor::Header("Exit Scene");
 
 		Engine::Editor::AssetField(*a_context.pServices, "Scene", "Scene", m_exitSceneGUID);
-		Engine::Editor::HelpText("やめたときの行き先(ホームなど)");
+		Engine::Editor::Tooltip("やめたときの行き先(ホームなど)");
 		if (!m_exitSceneGUID.IsValid())
 		{
 			Engine::Editor::HelpText("(未設定 : Exit を押しても移りません)");
 		}
 
-		Engine::Editor::Section("Input");
+		Engine::Editor::Header("Input");
 
 		Engine::Editor::Field("Pause Action", m_pauseAction);
-		Engine::Editor::HelpText("これを押しても閉じる。開くのと同じ名前にしておく");
+		Engine::Editor::Tooltip("これを押しても閉じる。開くのと同じ名前にしておく");
 
 		m_bgm.DrawInspector(a_context);
 
 		Engine::Editor::Field("GameBgmDuck", m_gameBgmDuck, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::HelpText("ポーズ中、下のゲームBGMへ掛ける倍率(1で絞らない)");
+		Engine::Editor::Tooltip("ポーズ中、下のゲームBGMへ掛ける倍率(1で絞らない)");
 
-		Engine::Editor::Section("Cursor");
+		Engine::Editor::Header("Cursor");
 
 		Engine::Editor::Field("ReleaseCursorLock", m_isReleaseCursorLock);
-		Engine::Editor::HelpText("ポーズの間はカーソルの中央固定を切る");
+		Engine::Editor::Tooltip("ポーズの間はカーソルの中央固定を切る");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Section("Runtime");
-		Engine::Editor::Text("Bound   : %s", m_isBound ? "yes" : "no");
-		Engine::Editor::Text("Closing : %s", m_isClosing ? "yes" : "no");
+		Engine::Editor::Header("Runtime");
+		Engine::Editor::Value("Bound", "%s", m_isBound ? "yes" : "no");
+		Engine::Editor::Value("Closing", "%s", m_isClosing ? "yes" : "no");
 	}
 }

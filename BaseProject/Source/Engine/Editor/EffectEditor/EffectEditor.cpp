@@ -513,7 +513,7 @@ namespace Engine::Editor
 		if (ImGui::BeginPopupModal(POPUP_ID, &_isWindowOpen, ImGuiWindowFlags_NoCollapse))
 		{
 			DrawToolbar();
-			ImGui::Separator();
+			Engine::Editor::Line();
 
 			// 左 : 見る / 右 : 組む
 			const float _paneWidth = (std::min)(m_editPaneWidth, ImGui::GetContentRegionAvail().x * 0.6f);
@@ -527,7 +527,7 @@ namespace Engine::Editor
 			}
 			ImGui::EndChild();
 
-			ImGui::SameLine();
+			Engine::Editor::SameLine();
 
 			if (ImGui::BeginChild("EffectEditorEditPane", ImVec2(_paneWidth, 0.0f), true))
 			{
@@ -552,43 +552,40 @@ namespace Engine::Editor
 	void EffectEditor::DrawToolbar()
 	{
 		const auto _fileName = m_pServices->pAssetDatabase->GetFileNameFromGUID(m_effectGUID);
-		ImGui::Text("%s : %s", (m_mode == EMode::EffectPrefab) ? "Effect Prefab" : "Effect", _fileName.c_str());
-		ImGui::SameLine();
-		ImGui::TextDisabled("(%s)", m_effectGUID.String().c_str());
+		Engine::Editor::Text("%s : %s", (m_mode == EMode::EffectPrefab) ? "Effect Prefab" : "Effect", _fileName.c_str());
+		Engine::Editor::SameLine();
+		Engine::Editor::HelpText("(%s)", m_effectGUID.String().c_str());
 
 		// ---- 再生 ----
 		if (ImGui::Button(m_isPlaying ? "Pause" : "Play", ImVec2(80.0f, 0.0f)))
 		{
 			m_isPlaying = !m_isPlaying;
 		}
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		if (ImGui::Button("Restart", ImVec2(80.0f, 0.0f)))
 		{
 			m_isRestartRequest = true;
 			m_isPlaying = true;
 		}
-		ImGui::SameLine();
-		ImGui::Checkbox("Loop", &m_isLoop);
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(140.0f);
-		ImGui::SliderFloat("Speed", &m_playSpeed, 0.05f, 3.0f, "x%.2f");
+		Engine::Editor::SameLine();
+		Engine::Editor::Field("Loop", m_isLoop);
+		Engine::Editor::Slider("Speed", m_playSpeed, 0.05f, 3.0f, "x%.2f");
 
 		// ---- 表示 ----
-		ImGui::Checkbox("Grid", &m_isDrawGrid);
+		Engine::Editor::Field("Grid", m_isDrawGrid);
 		if (m_isDrawGrid && !Option::OptionManager::GetInstance().GetDebugDrawOption().drawWire)
 		{
-			ImGui::SameLine();
-			ImGui::TextDisabled("(Option の Draw Debug Wire が off のため出ません)");
+			Engine::Editor::SameLine();
+			Engine::Editor::HelpText("(Option の Draw Debug Wire が off のため出ません)");
 		}
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		if (ImGui::Button("Reset Camera"))
 		{
 			if (m_upCamera) m_upCamera->SetPose(CAMERA_HOME_POS, CAMERA_HOME_YAW, CAMERA_HOME_PITCH);
 		}
-		ImGui::SameLine();
-		ImGui::TextDisabled("右ドラッグ中のみ視点操作 / WASD・EQ移動 / Shift加速");
+		Engine::Editor::Tooltip("右ドラッグ中のみ視点操作 / WASD・EQ移動 / Shift加速");
 
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		if (DeleteButton("Close"))
 		{
 			ImGui::CloseCurrentPopup();
@@ -602,18 +599,18 @@ namespace Engine::Editor
 	void EffectEditor::DrawViewport()
 	{
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
-		if (!_pGE) { ImGui::TextDisabled("GraphicsEngine がありません"); return; }
+		if (!_pGE) { Engine::Editor::HelpText("GraphicsEngine がありません"); return; }
 
 		if (!m_pipelineHandle.IsValid())
 		{
-			ImGui::TextDisabled("描画構成が決まっていません(シーンを一度開いてから開き直してください)");
+			Engine::Editor::HelpText("描画構成が決まっていません(シーンを一度開いてから開き直してください)");
 			return;
 		}
 
 		// このプレビューのカメラが描いた絵をそのまま出す。
 		// ゲームのシーンと同じ設計図を通っているので、ここで見えているものが本番の見え方
 		const auto* _pTex = _pGE->GetCameraPipelines()->GetCameraFinalTexture(m_upWorld.get(), PREVIEW_CAMERA_ENTITY);
-		if (!_pTex) { ImGui::TextDisabled("出力テクスチャがまだありません"); return; }
+		if (!_pTex) { Engine::Editor::HelpText("出力テクスチャがまだありません"); return; }
 
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 		const float _aspect = (_winOp.windowHeight > 0)
@@ -646,9 +643,8 @@ namespace Engine::Editor
 		if (m_mode == EMode::EffectPrefab)
 		{
 			const auto* _pEffectPrefab = RefEffectPrefab();
-			ImGui::Text("Elapsed : %.2f / %.2f s", m_prefabElapsed, _pEffectPrefab ? _pEffectPrefab->GetLifeTime() : 0.0f);
-			ImGui::SameLine();
-			ImGui::TextDisabled("| Alive entities : %d", CountPrefabEntities());
+			Engine::Editor::Value("Elapsed", "%.2f / %.2f s", m_prefabElapsed, _pEffectPrefab ? _pEffectPrefab->GetLifeTime() : 0.0f);
+			Engine::Editor::Tooltip("| Alive entities : %d", CountPrefabEntities());
 			return;
 		}
 
@@ -656,22 +652,19 @@ namespace Engine::Editor
 		if (!_ref.IsValid())
 		{
 			// 生成は遅延なので、開いた直後の1〜2フレームはここを通る
-			ImGui::TextDisabled("エフェクトを生成中...");
+			Engine::Editor::HelpText("エフェクトを生成中...");
 			return;
 		}
 
 		const auto* _pEffect = m_pServices->pResourceManager->Get(_ref.pComp->effectHandle);
 		if (!_pEffect)
 		{
-			ImGui::TextDisabled("アセットを読み込めませんでした");
+			Engine::Editor::HelpText("アセットを読み込めませんでした");
 			return;
 		}
 
-		ImGui::Text("Elapsed : %.2f s", _ref.pComp->instance.elapsed);
-		ImGui::SameLine();
-		ImGui::TextDisabled("| Particle Parts : %d / Mesh Parts : %d",
-			static_cast<int>(_pEffect->GetParticleParts().size()),
-			static_cast<int>(_pEffect->GetMeshParts().size()));
+		Engine::Editor::Value("Elapsed", "%.2f s", _ref.pComp->instance.elapsed);
+		Engine::Editor::Tooltip("| Particle Parts : %d / Mesh Parts : %d", static_cast<int>(_pEffect->GetParticleParts().size()), static_cast<int>(_pEffect->GetMeshParts().size()));
 	}
 
 	//--------------------------------------------------------------------------------------
@@ -691,7 +684,7 @@ namespace Engine::Editor
 		auto* _pEffect = RefEffectAsset();
 		if (!_pEffect)
 		{
-			ImGui::TextDisabled("エフェクトアセットを読み込めませんでした");
+			Engine::Editor::HelpText("エフェクトアセットを読み込めませんでした");
 			return;
 		}
 
@@ -724,7 +717,7 @@ namespace Engine::Editor
 		auto* _pEffectPrefab = RefEffectPrefab();
 		if (!_pEffectPrefab || !m_upWorld)
 		{
-			ImGui::TextDisabled("エフェクトプレハブを読み込めませんでした");
+			Engine::Editor::HelpText("エフェクトプレハブを読み込めませんでした");
 			return;
 		}
 
@@ -735,16 +728,15 @@ namespace Engine::Editor
 			_pEffectPrefab->Save(m_upWorld.get(), _path);
 			ENGINE_LOG("Save EffectPrefab : %s", _path.c_str());
 		}
-		ImGui::SameLine();
-		ImGui::TextDisabled("変更は次に炊いたときから効く(Restart)");
+		Engine::Editor::Tooltip("変更は次に炊いたときから効く(Restart)");
 
 		float _lifeTime = _pEffectPrefab->GetLifeTime();
-		if (ImGui::DragFloat("Life Time", &_lifeTime, 0.05f, Resource::EffectPrefab::MIN_LIFE_TIME, 60.0f))
+		if (Engine::Editor::Field("Life Time", _lifeTime, 0.05f, Resource::EffectPrefab::MIN_LIFE_TIME, 60.0f))
 		{
 			_pEffectPrefab->SetLifeTime(_lifeTime);
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		Inspector::PrefabComponentsEdit(m_upWorld.get(), &_pEffectPrefab->RefPrefab());
 	}
@@ -764,8 +756,8 @@ namespace Engine::Editor
 		const auto& _parts = _pEffect->GetParticleParts();
 		if (_parts.empty())
 		{
-			ImGui::TextDisabled("パーティクルパーツがありません");
-			ImGui::TextDisabled("Effect タブの Add Particle Part から足してください");
+			Engine::Editor::HelpText("パーティクルパーツがありません");
+			Engine::Editor::HelpText("Effect タブの Add Particle Part から足してください");
 			return;
 		}
 
@@ -773,7 +765,7 @@ namespace Engine::Editor
 		m_selectedParticlePart = std::clamp(m_selectedParticlePart, 0, static_cast<int>(_parts.size()) - 1);
 
 		const std::string _preview = "Particle " + std::to_string(m_selectedParticlePart);
-		if (ImGui::BeginCombo("Part", _preview.c_str()))
+		if (Engine::Editor::ComboScope _combo{ "Part", _preview.c_str() })
 		{
 			for (size_t _i = 0; _i < _parts.size(); ++_i)
 			{
@@ -787,20 +779,19 @@ namespace Engine::Editor
 					m_selectedParticlePart = static_cast<int>(_i);
 				}
 			}
-			ImGui::EndCombo();
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		auto* _pParticles = RefSelectedParticleAsset();
 		if (!_pParticles)
 		{
-			ImGui::TextDisabled("このパーツにはパーティクルが割り当てられていません");
-			ImGui::TextDisabled("Effect タブでアセットを選ぶと、ここで中身を触れます");
+			Engine::Editor::HelpText("このパーツにはパーティクルが割り当てられていません");
+			Engine::Editor::HelpText("Effect タブでアセットを選ぶと、ここで中身を触れます");
 			return;
 		}
 
-		ImGui::TextDisabled("この粒を使っている他のエフェクトにも変更が効きます");
+		Engine::Editor::HelpText("この粒を使っている他のエフェクトにも変更が効きます");
 		Inspector::ParticleEdit(
 			*m_pServices, _parts[m_selectedParticlePart].particleGUID, _pParticles);
 	}

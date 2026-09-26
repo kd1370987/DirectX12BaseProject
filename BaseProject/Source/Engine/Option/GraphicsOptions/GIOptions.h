@@ -35,7 +35,7 @@ namespace Engine::Option::GraphicsOptions
 		void DrawEdit(const ECS::EngineServices&) override
 		{
 			// テンポラルデノイズ
-			//if (Engine::Editor::TreeScope _tree{ "GITemporalAccumulationOption", false, true })
+			Engine::Editor::Header("Temporal Denoise");
 			{
 				// TANormal は dot積(最大1.0)と比較するしきい値。
 				// ここに 32 のような「pow()の指数」用の値を入れると dot < 32 が常に成立して
@@ -47,13 +47,11 @@ namespace Engine::Option::GraphicsOptions
 			}
 
 			// スペースデノイズセッティング
-			Engine::Editor::Separator();
-			Engine::Editor::Text("");
+			Engine::Editor::Header("Spatial Denoise");
 			// こちらの Normal は pow() の指数なので 1 を超える値でよい
 			Engine::Editor::Field("Depth", phiDepth, 0.005f, 0.0f, 1.0f);
 			Engine::Editor::Field("Normal", phiNormal, 0.5f, 0.0f, 256.0f);
 			Engine::Editor::Field("Color", phiColor, 0.1f, 0.0f, 100.0f);
-
 		}
 
 		// アーカイブ

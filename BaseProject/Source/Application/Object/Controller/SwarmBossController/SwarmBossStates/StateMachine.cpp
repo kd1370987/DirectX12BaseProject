@@ -80,7 +80,7 @@ namespace App::Object
 
 	void SwarmBossStateMachine::DrawInspector()
 	{
-		Engine::Editor::Text("State : %s", m_pCurrentState
+		Engine::Editor::Value("State", "%s", m_pCurrentState
 			? std::string(magic_enum::enum_name(m_currentState)).c_str()
 			: "(not started)");
 
@@ -88,7 +88,7 @@ namespace App::Object
 		{
 			if (!_upState) continue;
 
-			Engine::Editor::Section(std::string(magic_enum::enum_name(_state)).c_str());
+			Engine::Editor::Header(std::string(magic_enum::enum_name(_state)).c_str());
 			Engine::Editor::IDScope _id(static_cast<int>(_state));
 			_upState->DrawInspector();
 		}

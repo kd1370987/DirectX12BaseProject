@@ -20,7 +20,7 @@ void Engine::Editor::InspectorPanel::OnDrawImGui(EditorContext& a_editContext)
 	switch (a_editContext.eInspectorType)
 	{
 	case EInspectorType::None :
-		ImGui::Text("No selected");
+		Engine::Editor::HelpText("No selected");
 		break;
 	case EInspectorType::Entity:
 		Inspector::EntityInspector(a_editContext);
@@ -44,11 +44,11 @@ void Engine::Editor::InspectorPanel::OnDrawImGui(EditorContext& a_editContext)
 			if (!_pManager->IsManaged(a_editContext.pGameObject))
 			{
 				a_editContext.pGameObject = nullptr;
-				ImGui::Text("No selected object");
+				Engine::Editor::HelpText("No selected object");
 				break;
 			}
 
-			ImGui::Text("%s", a_editContext.pGameObject->GetEditorName());
+			Engine::Editor::Text("%s", a_editContext.pGameObject->GetEditorName());
 
 			//--------------------------------------------------------------
 			// 自身のGUID
@@ -59,8 +59,8 @@ void Engine::Editor::InspectorPanel::OnDrawImGui(EditorContext& a_editContext)
 			{
 				const std::string _guid = a_editContext.pGameObject->GetGUID().String();
 
-				ImGui::TextDisabled("GUID : %s", _guid.c_str());
-				ImGui::SameLine();
+				Engine::Editor::HelpText("GUID : %s", _guid.c_str());
+				Engine::Editor::SameLine();
 				if (ImGui::SmallButton("Copy")) ImGui::SetClipboardText(_guid.c_str());
 
 				// ヒエラルキー上の親(並びのまとまりだけ。座標も表示も伝わらない)
@@ -69,9 +69,8 @@ void Engine::Editor::InspectorPanel::OnDrawImGui(EditorContext& a_editContext)
 				{
 					const auto* _pParent = _pManager->FindByGUID(_parentGUID);
 
-					ImGui::TextDisabled("Parent : %s",
-						_pParent ? _pParent->GetEditorName() : "(missing)");
-					ImGui::SameLine();
+					Engine::Editor::HelpText("Parent : %s", _pParent ? _pParent->GetEditorName() : "(missing)");
+					Engine::Editor::SameLine();
 					if (ImGui::SmallButton("Unparent"))
 					{
 						a_editContext.pGameObject->SetParentGUID({});
@@ -79,12 +78,12 @@ void Engine::Editor::InspectorPanel::OnDrawImGui(EditorContext& a_editContext)
 				}
 			}
 
-			ImGui::Separator();
+			Engine::Editor::Line();
 			a_editContext.pGameObject->DrawInspector(_pManager->RefObjectContext());
 		}
 		else
 		{
-			ImGui::Text("No selected object");
+			Engine::Editor::HelpText("No selected object");
 		}
 		break;
 	default:

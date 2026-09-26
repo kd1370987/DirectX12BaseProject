@@ -81,7 +81,6 @@ namespace Engine::Editor
 		_style.ScaleAllSizes(_mainScale);		// 余白やウィジェットの大きさをモニターの表示スケールに合わせる
 		_style.FontScaleDpi = _mainScale;		// フォントも同じ倍率で拡大する
 
-
 		// 描画するバックエンド・プラットフォームを設定
 		ImGui_ImplWin32_Init(a_hwnd);
 
@@ -123,7 +122,6 @@ namespace Engine::Editor
 
 	void ImGuiContext::Begin()
 	{
-
 		// ImGuiフレームの描画開始
 		ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();		// ここで io.DisplaySize にクライアント領域のピクセル数が入る

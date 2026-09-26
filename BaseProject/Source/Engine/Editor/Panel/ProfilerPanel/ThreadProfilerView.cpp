@@ -12,7 +12,6 @@ namespace Engine::Editor
 		const ImVec4 BUSY_COLOR		= ImVec4(0.30f, 0.75f, 0.35f, 1.0f);
 		const ImVec4 JOB_WAIT_COLOR	= ImVec4(0.95f, 0.60f, 0.20f, 1.0f);
 		const ImVec4 IDLE_COLOR		= ImVec4(0.35f, 0.35f, 0.38f, 1.0f);
-		const ImVec4 WARNING_COLOR	= ImVec4(1.00f, 0.80f, 0.30f, 1.0f);
 
 		// 気になる点として出す閾値
 		constexpr double BALANCE_WARNING		= 1.5;	// ワーカーの Busy が 最大 / 平均 でこれを超えたら偏っている
@@ -36,7 +35,7 @@ namespace Engine::Editor
 		void DrawLegendItem(const ImVec4& a_color, const char* a_label)
 		{
 			ImGui::ColorButton(a_label, a_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop, ImVec2(10.0f, 10.0f));
-			ImGui::SameLine();
+			Engine::Editor::SameLine();
 			ImGui::TextUnformatted(a_label);
 		}
 
@@ -97,17 +96,16 @@ namespace Engine::Editor
 		Thread::ThreadProfiler* _pProfiler = _pJobSystem ? _pJobSystem->RefThreadProfiler() : nullptr;
 		if (!_pProfiler)
 		{
-			ImGui::TextDisabled("JobSystem is not running.");
+			Engine::Editor::HelpText("JobSystem is not running.");
 			return;
 		}
 
 		// 平均を取り直す間隔
 		int _averageRate = _pProfiler->GetAverageRate();
-		if (ImGui::DragInt("Average Rate (frame)", &_averageRate, 1.0f, 1, 600))
+		if (Engine::Editor::Field("Average Rate (frame)", _averageRate, 1.0f, 1, 600))
 		{
 			_pProfiler->SetAverageRate(_averageRate);
 		}
-		ImGui::SameLine();
 		if (ImGui::Button("Reset"))
 		{
 			_pProfiler->Reset();
@@ -116,16 +114,14 @@ namespace Engine::Editor
 		const Thread::ThreadProfileSnapshot& _snapshot = _pProfiler->GetSnapshot();
 		if (_snapshot.publishCount == 0 || _snapshot.threads.empty())
 		{
-			ImGui::TextDisabled("Collecting... (%d frames per sample)", _pProfiler->GetAverageRate());
+			Engine::Editor::HelpText("Collecting... (%d frames per sample)", _pProfiler->GetAverageRate());
 			return;
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 		DrawSummary(_snapshot);
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Line();
 
 		DrawThreadTable(_snapshot);
 	}
@@ -170,7 +166,7 @@ namespace Engine::Editor
 			? (_main.busyMs + _workerBusySum) / a_snapshot.frameMs
 			: 0.0;
 
-		ImGui::Text("Averaged over %u frames  /  Frame : %.3f ms", a_snapshot.sampleFrameCount, a_snapshot.frameMs);
+		Engine::Editor::Text("Averaged over %u frames  /  Frame : %.3f ms", a_snapshot.sampleFrameCount, a_snapshot.frameMs);
 
 		if (ImGui::BeginTable("ThreadSummary", 2, TABLE_FLAGS))
 		{
@@ -211,7 +207,7 @@ namespace Engine::Editor
 		auto _warn = [&_isHealthy](const char* a_format, auto... a_args)
 			{
 				_isHealthy = false;
-				ImGui::TextColored(WARNING_COLOR, a_format, a_args...);
+				Engine::Editor::WarningText(a_format, a_args...);
 			};
 
 		if (_workerJobSum < 0.5)
@@ -233,7 +229,7 @@ namespace Engine::Editor
 		}
 		if (_isHealthy)
 		{
-			ImGui::TextDisabled("No issues detected.");
+			Engine::Editor::HelpText("No issues detected.");
 		}
 	}
 

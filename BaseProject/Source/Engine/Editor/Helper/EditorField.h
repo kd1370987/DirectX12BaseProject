@@ -12,6 +12,22 @@
 // EditorHelper.h と同じく AnimatorAsset 経由で ResourceManager より先に読まれるため、
 // 重いヘッダーは持ち込まない。ロードまで行うアセット欄は EditorField.inl にある。
 //------------------------------------------------------------------------------------------
+//
+// 見た目の規則 (パネル・コンポーネントを問わずエディター全体で揃える)
+//
+//   行       値の欄は1行1項目。左の列にラベル、右の列に値を置く(Field / Value)。
+//            ラベルは表示するときに "maxSpeed" / "MaxSpeed" -> "Max Speed" の形へ整える。
+//            "##" で始まるラベルは列を作らず、値だけを出す。
+//   見出し   項目のまとまりには Header だけを使う。文字列を見出し代わりに置かない。
+//            見出しは上に余白を持つので、前後に Line を置かない。
+//   区切り   見出しを立てるほどではない区切りは Line だけを使う。
+//            余白や区切り線を単体で置く関数は用意していない。
+//   説明     欄の説明は、その欄の直後に Tooltip で付ける(カーソルを乗せると出る)。
+//            どの欄にも付かない注意書きだけを HelpText で出す。
+//   読み取り 編集できない値は Value で、欄と同じ並びに出す。
+//   警告     WarningText / ErrorText だけを使う。色は呼ぶ側で決めない。
+//
+//------------------------------------------------------------------------------------------
 namespace Engine::Resource
 {
 	class Model;
@@ -58,39 +74,37 @@ namespace Engine::Editor
 	// 文字
 	//======================================================================================
 
-	// 文字列(printf 形式)
+	// 文字列(printf 形式) : 行の形に収まらない自由な文章
 	void Text(const char* a_fmt, ...);
 
-	// 説明文 : 薄い色で出す
+	// 読み取り専用の値 : 左にラベル、右に値(printf 形式)。Field と同じ並びになる
+	void Value(const char* a_label, const char* a_fmt, ...);
+
+	// どの欄にも付かない注意書き : 薄い色で出す
+	// 欄の説明は Tooltip を使うこと
 	void HelpText(const char* a_fmt, ...);
 
-	// 色付きの文字 : 警告やエラーを目立たせる
-	void TextColored(const Math::Color& a_color, const char* a_fmt, ...);
-
-	// 右にラベルを添えた文字 : 編集できない値を Field と同じ並びで見せる
-	void LabelText(const char* a_label, const char* a_fmt, ...);
-
-	// 行頭に点を付けた文字
-	void BulletText(const char* a_fmt, ...);
-
-	// 直前の項目にカーソルが乗っている間だけ出す説明
+	// 直前の欄の説明 : 欄(とそのラベル)にカーソルが乗っている間だけ出す
 	void Tooltip(const char* a_fmt, ...);
 
+	// 警告(黄) : 動くが意図と違うかもしれない状態
+	void WarningText(const char* a_fmt, ...);
+
+	// エラー(赤) : このままでは動かない状態
+	void ErrorText(const char* a_fmt, ...);
+
+	// 行頭に点を付けた文字 : 一覧の表示用
+	void BulletText(const char* a_fmt, ...);
+
 	//======================================================================================
-	// 区切り・配置
+	// 見出し・区切り・配置
 	//======================================================================================
 
-	// 前後に余白を取った区切り線
+	// 見出し : 項目のまとまりの頭に置く。上に余白を持つので前後に Line は要らない
+	void Header(const char* a_label);
+
+	// 区切り : 見出しを立てるほどではないまとまりの境目。前後に余白を持つ
 	void Line();
-
-	// 区切り線だけ
-	void Separator();
-
-	// 見出し付きの区切り線
-	void Section(const char* a_label);
-
-	// 余白
-	void Spacing();
 
 	// 次の項目を同じ行へ置く
 	void SameLine();
@@ -149,8 +163,11 @@ namespace Engine::Editor
 	// 複数行の文字列
 	bool MultilineField(const char* a_label, std::string& a_value);
 
+	// Enter で確定する文字列 : 確定した瞬間だけ true(名前を付けて保存など)
+	bool ConfirmField(const char* a_label, std::string& a_value);
+
 	// スライダー : 範囲が決まっている値(音量・割合など)
-	bool Slider(const char* a_label, float& a_value, float a_min, float a_max);
+	bool Slider(const char* a_label, float& a_value, float a_min, float a_max, const char* a_format = nullptr);
 
 	// 範囲(最小と最大の2つ) : a_lowerLimit / a_upperLimit は両方の動かせる幅
 	bool RangeField(const char* a_label, float& a_min, float& a_max, float a_speed, float a_lowerLimit, float a_upperLimit);
@@ -267,8 +284,8 @@ namespace Engine::Editor
 	// 表示
 	//======================================================================================
 
-	// 進捗バー : 横幅いっぱいに出す。a_overlay は中に出す文字(nullptr なら割合)
-	void ProgressBar(float a_fraction, const char* a_overlay = nullptr);
+	// 進捗バー : 値の列いっぱいに出す。a_overlay は中に出す文字(nullptr なら割合)
+	void ProgressBar(const char* a_label, float a_fraction, const char* a_overlay = nullptr);
 
 	/// <summary>
 	/// テクスチャを表示する : 横幅いっぱいに、a_width : a_height の比率で出す
@@ -286,17 +303,17 @@ namespace Engine::Editor
 	template<typename T>
 	void HandleInfo(const Handle<T>& a_handle)
 	{
-		Text("Handle : id = %d", static_cast<int>(a_handle.id));
-		Text("index = %d", static_cast<int>(a_handle.GetIndex()));
-		Text("generation = %d", static_cast<int>(a_handle.GetGeneration()));
+		Value("Handle ID", "%d", static_cast<int>(a_handle.id));
+		Value("Index", "%d", static_cast<int>(a_handle.GetIndex()));
+		Value("Generation", "%d", static_cast<int>(a_handle.GetGeneration()));
 	}
 
 	template<typename T>
 	void HandleInfo(const RangeHandle<T>& a_handle)
 	{
-		Text("Handle : generation = %d", static_cast<int>(a_handle.generation));
-		Text("startIndex = %d", static_cast<int>(a_handle.startIndex));
-		Text("count = %d", static_cast<int>(a_handle.count));
+		Value("Generation", "%d", static_cast<int>(a_handle.generation));
+		Value("Start Index", "%d", static_cast<int>(a_handle.startIndex));
+		Value("Count", "%d", static_cast<int>(a_handle.count));
 	}
 
 	//======================================================================================
@@ -311,6 +328,7 @@ namespace Engine::Editor
 
 	/// <summary>
 	/// アセットデータベースから1件選ばせるだけの土台
+	/// 選択中のアセット名をコンボに出し、置き場所とGUIDはツールチップに出す
 	/// GUIDもハンドルもこちらでは書き換えないので、
 	/// 反映方法が特殊なもの(独自のロード関数を通す等)はこれを直接使う
 	/// </summary>

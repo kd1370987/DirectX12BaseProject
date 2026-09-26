@@ -371,7 +371,7 @@ namespace App::Object
 	void SceneAmbientObject::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
 		Engine::Editor::HelpText("シーン全体の環境設定。シーンに1つだけ置く");
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		DrawLightingInspector();
 		DrawFogInspector();
@@ -384,7 +384,7 @@ namespace App::Object
 
 	void SceneAmbientObject::DrawLightingInspector()
 	{
-		Engine::Editor::Section("Lighting");
+		Engine::Editor::Header("Lighting");
 
 		Engine::Editor::Field("AmbientColor", m_ambient.ambientColorScale, 0.01f);
 		Engine::Editor::Field("DLColor", m_dlColor, 0.01f);
@@ -398,7 +398,7 @@ namespace App::Object
 	void SceneAmbientObject::DrawFogInspector()
 	{
 		// enable が false の間はシェーダー側で計算ごとスキップされる
-		Engine::Editor::Section("HeightFog");
+		Engine::Editor::Header("HeightFog");
 		{
 			bool _enable = (m_ambient.heightFogEnable != 0);
 			if (Engine::Editor::Field("HeightFogEnable", _enable))
@@ -420,7 +420,7 @@ namespace App::Object
 			}
 		}
 
-		Engine::Editor::Section("DistanceFog");
+		Engine::Editor::Header("DistanceFog");
 		{
 			bool _enable = (m_ambient.distanceFogEnable != 0);
 			if (Engine::Editor::Field("DistanceFogEnable", _enable))
@@ -437,11 +437,11 @@ namespace App::Object
 
 	void SceneAmbientObject::DrawSkyInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Section("Sky");
+		Engine::Editor::Header("Sky");
 
 		if (!a_context.pServices || !a_context.pServices->pResourceManager)
 		{
-			Engine::Editor::TextColored(Math::Color(1, 1, 0, 1), "ResourceManager is null");
+			Engine::Editor::WarningText("ResourceManager is null");
 			return;
 		}
 
@@ -457,10 +457,8 @@ namespace App::Object
 
 		if (!m_skyTexGUID.IsValid())
 		{
-			Engine::Editor::TextColored(Math::Color(0.8f, 0.8f, 0.3f, 1.0f), "(Sky Texture 未設定 : 空は描かれません)");
+			Engine::Editor::WarningText("(Sky Texture 未設定 : 空は描かれません)");
 		}
-
-		Engine::Editor::Spacing();
 
 		// 露出 : 出力先がHDRなので 1.0 を超えて構わない。
 		// 超えた分はブルームの抽出しきい値に乗り、最後にトーンマップで落ちる
@@ -478,8 +476,6 @@ namespace App::Object
 		Engine::Editor::Field("RotationDeg", m_sky.rotationDeg, 0.5f, -360.0f, 360.0f);
 		if (m_sky.rotationDeg >= 360.0f) m_sky.rotationDeg -= 360.0f;
 		if (m_sky.rotationDeg <= -360.0f) m_sky.rotationDeg += 360.0f;
-
-		Engine::Editor::Spacing();
 
 		//----------------------------------------------------------------------
 		// 空に被写界深度を掛けるか
@@ -509,11 +505,11 @@ namespace App::Object
 	//======================================================================================
 	void SceneAmbientObject::DrawDastInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Section("Dast");
+		Engine::Editor::Header("Dast");
 
 		if (!a_context.pServices || !a_context.pServices->pResourceManager)
 		{
-			Engine::Editor::TextColored(Math::Color(1, 1, 0, 1), "ResourceManager is null");
+			Engine::Editor::WarningText("ResourceManager is null");
 			return;
 		}
 
@@ -541,15 +537,13 @@ namespace App::Object
 		// 読み込みを先に始めさせるため(出すのはエンティティ側のハンドル)
 		if (const auto* _pEffect = a_context.pServices->pResourceManager->Ref(m_dast.m_effectAsset))
 		{
-			Engine::Editor::Text("Particle Parts : %d", static_cast<int>(_pEffect->GetParticleParts().size()));
-			Engine::Editor::Text("Mesh Parts     : %d", static_cast<int>(_pEffect->GetMeshParts().size()));
+			Engine::Editor::Value("Particle Parts", "%d", static_cast<int>(_pEffect->GetParticleParts().size()));
+			Engine::Editor::Value("Mesh Parts", "%d", static_cast<int>(_pEffect->GetMeshParts().size()));
 		}
 		else
 		{
 			Engine::Editor::HelpText("(読み込み中)");
 		}
-
-		Engine::Editor::Spacing();
 
 		// 出現空間の広さ。エフェクト全体の倍率として渡すので、
 		// ばらつき半径だけでなく粒の大きさにも掛かる
@@ -560,9 +554,7 @@ namespace App::Object
 		// 粒の色はパーティクルアセットの定数バッファ(全員で共有)が持っているので、
 		// 個体ごとに掛けるには描画側に受け口を足す必要がある
 		Engine::Editor::ColorField("Color Scale", m_dast.m_colorScale);
-		Engine::Editor::HelpText("(色はパーティクルアセット側。ここはまだ絵に反映されません)");
-
-		Engine::Editor::Spacing();
+		Engine::Editor::Tooltip("(色はパーティクルアセット側。ここはまだ絵に反映されません)");
 
 		// カメラがこの距離だけ離れたら追従を始める。
 		// 0 にすると常にカメラへ張り付くので、進んでいる感じが出なくなる
@@ -573,10 +565,8 @@ namespace App::Object
 		Engine::Editor::Field("Follow Speed", m_dast.speed, 0.1f, 0.0f, 10000.0f);
 		if (m_dast.speed < 0.0f) m_dast.speed = 0.0f;
 
-		Engine::Editor::Spacing();
-
 		// 今どこに居るか。追従の具合を見るための表示なので触らせない
-		Engine::Editor::Text("Center : %.1f, %.1f, %.1f", m_dast.center.x, m_dast.center.y, m_dast.center.z);
+		Engine::Editor::Value("Center", "%.1f, %.1f, %.1f", m_dast.center.x, m_dast.center.y, m_dast.center.z);
 
 		if (!a_context.pWorld || !a_context.pWorld->IsAliveEntity(m_dastEntity))
 		{

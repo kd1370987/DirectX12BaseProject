@@ -22,7 +22,7 @@ namespace Engine::Editor::Inspector
 			if (a_guid == Engine::DefaultGUID)
 			{
 				// 空欄はエラーではないことを明示しておく
-				ImGui::TextDisabled("(empty : このパーツは出ない)");
+				Engine::Editor::HelpText("(empty : このパーツは出ない)");
 				return;
 			}
 
@@ -36,12 +36,12 @@ namespace Engine::Editor::Inspector
 		{
 			bool _isChanged = false;
 
-			if (ImGui::DragFloat("StartDelay (s)", &a_timing.startDelay, 0.01f, 0.0f)) _isChanged = true;
-			if (ImGui::DragFloat("Duration (s, 0=infinite)", &a_timing.duration, 0.01f, 0.0f)) _isChanged = true;
+			if (Engine::Editor::Field("StartDelay (s)", a_timing.startDelay, 0.01f, 0.0f)) _isChanged = true;
+			if (Engine::Editor::Field("Duration (s, 0=infinite)", a_timing.duration, 0.01f, 0.0f)) _isChanged = true;
 
 			if (a_timing.duration <= 0.0f)
 			{
-				ImGui::TextDisabled("止めるまで出し続ける");
+				Engine::Editor::HelpText("止めるまで出し続ける");
 			}
 
 			return _isChanged;
@@ -63,7 +63,7 @@ namespace Engine::Editor::Inspector
 
 			if (a_part.IsValid())
 			{
-				ImGui::SameLine();
+				Engine::Editor::SameLine();
 				if (DeleteButton("Clear"))
 				{
 					a_part.particleGUID = Engine::DefaultGUID;
@@ -71,75 +71,75 @@ namespace Engine::Editor::Inspector
 				}
 			}
 
-			ImGui::SeparatorText("Emit Source");
+			Engine::Editor::Header("Emit Source");
 
 			// ---- どこから出すか ----
 			Field("Space", a_part.space);
 			if (a_part.space == Resource::EEffectSpace::LocalOffset)
 			{
-				ImGui::DragFloat3("PosOffset", &a_part.posOffset.x, 0.05f);
-				ImGui::DragFloat3("EmitDir (local)", &a_part.emitDir.x, 0.05f);
+				Engine::Editor::Field("PosOffset", a_part.posOffset, 0.05f);
+				Engine::Editor::Field("EmitDir (local)", a_part.emitDir, 0.05f);
 			}
 			else if (a_part.space == Resource::EEffectSpace::ReverseVelocity)
 			{
-				ImGui::DragFloat3("PosOffset", &a_part.posOffset.x, 0.05f);
-				ImGui::TextDisabled("Dir : -Velocity (fallback : -Forward)");
+				Engine::Editor::Field("PosOffset", a_part.posOffset, 0.05f);
+				Engine::Editor::Tooltip("Dir : -Velocity (fallback : -Forward)");
 			}
 			else
 			{
-				ImGui::TextDisabled("Pos/Dir : 付いている相手の行列そのまま");
+				Engine::Editor::HelpText("Pos/Dir : 付いている相手の行列そのまま");
 			}
 
-			ImGui::SeparatorText("Emit Shape");
+			Engine::Editor::Header("Emit Shape");
 
 			// ---- どっちへ出すか ----
 			Field("Shape", a_part.emitShape);
 			switch (a_part.emitShape)
 			{
 			case Particle::EParticleEmitShape::Sphere:
-				ImGui::TextDisabled("中心から全方向へ均等に飛び散る(爆発向き)");
+				Engine::Editor::HelpText("中心から全方向へ均等に飛び散る(爆発向き)");
 				break;
 			case Particle::EParticleEmitShape::Hemisphere:
-				ImGui::TextDisabled("EmitDir 側の半球だけへ飛び散る(地面での爆発向き)");
+				Engine::Editor::HelpText("EmitDir 側の半球だけへ飛び散る(地面での爆発向き)");
 				break;
 			case Particle::EParticleEmitShape::Cone:
 			default:
-				ImGui::TextDisabled("EmitDir を軸にした円錐。広がりは DirectionAngle");
+				Engine::Editor::HelpText("EmitDir を軸にした円錐。広がりは DirectionAngle");
 				break;
 			}
 
-			ImGui::SeparatorText("Emission");
+			Engine::Editor::Header("Emission");
 
 			// ---- どれだけ出すか ----
-			ImGui::DragInt("EmitCount", &a_part.emitCount, 1, 0);
-			ImGui::DragFloat("EmitRate (/s, 0=Burst)", &a_part.emitRate, 0.5f, 0.0f);
+			Engine::Editor::Field("EmitCount", a_part.emitCount, 1, 0);
+			Engine::Editor::Field("EmitRate (/s, 0=Burst)", a_part.emitRate, 0.5f, 0.0f);
 			if (a_part.emitRate <= 0.0f)
 			{
-				ImGui::TextDisabled("出し始めに一度だけ EmitCount 個");
+				Engine::Editor::HelpText("出し始めに一度だけ EmitCount 個");
 			}
 
-			ImGui::SeparatorText("Timing");
+			Engine::Editor::Header("Timing");
 			TimingEdit(a_part.timing);
 
-			ImGui::SeparatorText("Shape");
+			Engine::Editor::Header("Shape");
 
 			// ---- 散らばり方 ----
 			// 1粒の速度・寿命はパーティクルアセット側なので、ここには出さない
-			ImGui::DragFloat("BaseScale", &a_part.baseScale, 0.05f, 0.0f);
-			ImGui::DragFloat("MinScale", &a_part.minScale, 0.01f, 0.0f);
-			ImGui::DragFloat("MaxScale", &a_part.maxScale, 0.01f, 0.0f);
-			ImGui::DragFloat("PositionRadius", &a_part.positionRadius, 0.05f, 0.0f);
+			Engine::Editor::Field("BaseScale", a_part.baseScale, 0.05f, 0.0f);
+			Engine::Editor::Field("MinScale", a_part.minScale, 0.01f, 0.0f);
+			Engine::Editor::Field("MaxScale", a_part.maxScale, 0.01f, 0.0f);
+			Engine::Editor::Field("PositionRadius", a_part.positionRadius, 0.05f, 0.0f);
 
 			// 円錐のときしか効かない値なので、それ以外では触らせない
 			ImGui::BeginDisabled(a_part.emitShape != Particle::EParticleEmitShape::Cone);
-			ImGui::DragFloat("DirectionAngle (deg)", &a_part.directionAngle, 0.5f, 0.0f, 180.0f);
+			Engine::Editor::Field("DirectionAngle (deg)", a_part.directionAngle, 0.5f, 0.0f, 180.0f);
 			ImGui::EndDisabled();
 			if (a_part.emitShape != Particle::EParticleEmitShape::Cone)
 			{
-				ImGui::TextDisabled("(DirectionAngle は Cone のときだけ効きます)");
+				Engine::Editor::HelpText("(DirectionAngle は Cone のときだけ効きます)");
 			}
 
-			ImGui::TextDisabled("初速・寿命・絵・減衰・色はパーティクルアセット側");
+			Engine::Editor::HelpText("初速・寿命・絵・減衰・色はパーティクルアセット側");
 
 			return _isChanged;
 		}
@@ -160,7 +160,7 @@ namespace Engine::Editor::Inspector
 
 			if (a_part.IsValid())
 			{
-				ImGui::SameLine();
+				Engine::Editor::SameLine();
 				if (DeleteButton("Clear"))
 				{
 					a_part.modelGUID = Engine::DefaultGUID;
@@ -168,30 +168,30 @@ namespace Engine::Editor::Inspector
 				}
 			}
 
-			ImGui::SeparatorText("Transform");
-			ImGui::TextDisabled("付いている相手の行列基準のローカル配置");
-			ImGui::DragFloat3("PosOffset", &a_part.posOffset.x, 0.05f);
-			ImGui::DragFloat3("Rotation (deg)", &a_part.rotation.x, 1.0f);
-			ImGui::DragFloat3("Scale", &a_part.scale.x, 0.05f);
+			Engine::Editor::Header("Transform");
+			Engine::Editor::HelpText("付いている相手の行列基準のローカル配置");
+			Engine::Editor::Field("PosOffset", a_part.posOffset, 0.05f);
+			Engine::Editor::Field("Rotation (deg)", a_part.rotation, 1.0f);
+			Engine::Editor::Field("Scale", a_part.scale, 0.05f);
 
-			ImGui::SeparatorText("Timing");
+			Engine::Editor::Header("Timing");
 			TimingEdit(a_part.timing);
 
-			ImGui::SeparatorText("Look");
-			ImGui::ColorEdit4("ColorScale", a_part.colorScale.Data());
-			ImGui::ColorEdit3("EmissiveColor", &a_part.emissiveColor.x);
-			ImGui::DragFloat("EmissiveIntensity", &a_part.emissiveIntensity, 0.05f, 0.0f);
-			ImGui::TextDisabled("ブルームのしきい値(既定1.0)を超えると光る");
+			Engine::Editor::Header("Look");
+			Engine::Editor::ColorField("ColorScale", a_part.colorScale);
+			Engine::Editor::ColorField("EmissiveColor", a_part.emissiveColor);
+			Engine::Editor::Field("EmissiveIntensity", a_part.emissiveIntensity, 0.05f, 0.0f);
+			Engine::Editor::Tooltip("ブルームのしきい値(既定1.0)を超えると光る");
 
-			ImGui::SeparatorText("End (Duration の終わりでの値)");
+			Engine::Editor::Header("End (Duration の終わりでの値)");
 			if (a_part.timing.duration <= 0.0f)
 			{
 				// duration が無いと補間する区間が無い
-				ImGui::TextDisabled("Duration が 0 の間は変化しない");
+				Engine::Editor::HelpText("Duration が 0 の間は変化しない");
 			}
-			ImGui::DragFloat3("EndScale (倍率)", &a_part.endScale.x, 0.05f, 0.0f);
-			ImGui::DragFloat("EndAlpha", &a_part.endAlpha, 0.01f, 0.0f, 1.0f);
-			ImGui::DragFloat("EndEmissiveIntensity", &a_part.endEmissiveIntensity, 0.05f, 0.0f);
+			Engine::Editor::Field("EndScale (倍率)", a_part.endScale, 0.05f, 0.0f);
+			Engine::Editor::Field("EndAlpha", a_part.endAlpha, 0.01f, 0.0f, 1.0f);
+			Engine::Editor::Field("EndEmissiveIntensity", a_part.endEmissiveIntensity, 0.05f, 0.0f);
 
 			return _isChanged;
 		}
@@ -212,7 +212,7 @@ namespace Engine::Editor::Inspector
 
 			if (a_part.IsValid())
 			{
-				ImGui::SameLine();
+				Engine::Editor::SameLine();
 				if (DeleteButton("Clear"))
 				{
 					a_part.soundGUID = Engine::DefaultGUID;
@@ -220,49 +220,49 @@ namespace Engine::Editor::Inspector
 				}
 			}
 
-			ImGui::SeparatorText("Timing");
-			ImGui::TextDisabled("StartDelay : 再生から何秒後に鳴らすか");
-			ImGui::DragFloat("StartDelay (s)", &a_part.timing.startDelay, 0.01f, 0.0f);
+			Engine::Editor::Header("Timing");
+			Engine::Editor::HelpText("StartDelay : 再生から何秒後に鳴らすか");
+			Engine::Editor::Field("StartDelay (s)", a_part.timing.startDelay, 0.01f, 0.0f);
 
 			// Duration はループ音を止めるための長さ。単発音では使わない
 			ImGui::BeginDisabled(!a_part.isLoop);
-			ImGui::DragFloat("Duration (s, 0=infinite)", &a_part.timing.duration, 0.01f, 0.0f);
+			Engine::Editor::Field("Duration (s, 0=infinite)", a_part.timing.duration, 0.01f, 0.0f);
 			ImGui::EndDisabled();
 			if (!a_part.isLoop)
 			{
-				ImGui::TextDisabled("(Duration は Loop のときだけ効きます)");
+				Engine::Editor::HelpText("(Duration は Loop のときだけ効きます)");
 			}
 			else if (a_part.timing.duration <= 0.0f)
 			{
-				ImGui::TextDisabled("エフェクトを止めるまで鳴らし続ける");
+				Engine::Editor::HelpText("エフェクトを止めるまで鳴らし続ける");
 			}
 
-			ImGui::SeparatorText("Play");
-			ImGui::DragFloat("Volume", &a_part.vol, 0.01f, 0.0f, 1.0f);
-			ImGui::Checkbox("Loop", &a_part.isLoop);
-			ImGui::TextDisabled(a_part.isLoop
+			Engine::Editor::Header("Play");
+			Engine::Editor::Field("Volume", a_part.vol, 0.01f, 0.0f, 1.0f);
+			Engine::Editor::Field("Loop", a_part.isLoop);
+			Engine::Editor::Tooltip(a_part.isLoop
 				? "鳴りっぱなし。エフェクトを止めると一緒に止まる"
 				: "一度だけ鳴らす。エフェクトを止めても鳴りきる");
 
-			ImGui::Checkbox("3D Sound", &a_part.is3DSound);
-			ImGui::TextDisabled(a_part.is3DSound
+			Engine::Editor::Field("3D Sound", a_part.is3DSound);
+			Engine::Editor::Tooltip(a_part.is3DSound
 				? "エフェクトの居場所で鳴る(定位・距離減衰あり)"
 				: "常に同じ音量で鳴る(UI・全体演出向き)");
 
 			ImGui::BeginDisabled(!a_part.is3DSound);
-			ImGui::DragFloat("DistanceScaler", &a_part.distanceScaler, 0.05f, 0.0f);
+			Engine::Editor::Field("DistanceScaler", a_part.distanceScaler, 0.05f, 0.0f);
 			ImGui::EndDisabled();
 			if (a_part.is3DSound)
 			{
-				ImGui::TextDisabled("大きいほど遠くまで届く(1 = 通常)");
+				Engine::Editor::HelpText("大きいほど遠くまで届く(1 = 通常)");
 			}
 
-			ImGui::SeparatorText("Finish");
-			ImGui::Checkbox("WaitFinish", &a_part.isWaitFinish);
-			ImGui::TextDisabled(a_part.isWaitFinish
+			Engine::Editor::Header("Finish");
+			Engine::Editor::Field("WaitFinish", a_part.isWaitFinish);
+			Engine::Editor::Tooltip(a_part.isWaitFinish
 				? "この音が鳴り終わるまでエフェクトを終わらせない"
 				: "音の長さを見ない(絵が終わればエフェクトも終わる)");
-			ImGui::TextDisabled("DestroyOnFinish のエフェクトで音が途切れるのを防ぐ設定");
+			Engine::Editor::HelpText("DestroyOnFinish のエフェクトで音が途切れるのを防ぐ設定");
 
 			return _isChanged;
 		}
@@ -282,8 +282,8 @@ namespace Engine::Editor::Inspector
 
 		const auto& _guid = a_guid;
 
-		ImGui::Text("Effect : %s", a_pEffect->GetName().c_str());
-		ImGui::Separator();
+		Engine::Editor::Value("Effect", "%s", a_pEffect->GetName().c_str());
+		Engine::Editor::Line();
 
 		// 保存ボタン
 		if (ImGui::Button("Save Asset") && a_services.pAssetDatabase)
@@ -298,7 +298,7 @@ namespace Engine::Editor::Inspector
 		// レンダーグラフで描かれる。ここでの編集はそのまま向こうの見た目に反映される
 		if (a_isShowOpenEditorButton)
 		{
-			ImGui::SameLine();
+			Engine::Editor::SameLine();
 			if (ImGui::Button("Open Effect Editor"))
 			{
 				if (auto* _pEffectEditor = MainEditor::Instance().RefEffectEditor())
@@ -308,8 +308,6 @@ namespace Engine::Editor::Inspector
 			}
 		}
 
-		ImGui::Spacing();
-
 		// 参照アセットを引き直す必要があるか
 		bool _isChanged = false;
 
@@ -318,10 +316,8 @@ namespace Engine::Editor::Inspector
 		//------------------------------------------------------------------
 		auto& _particleParts = a_pEffect->RefParticleParts();
 
-		ImGui::SeparatorText("Particle Parts");
-		ImGui::Text("%d / %d",
-			static_cast<int>(_particleParts.size()),
-			static_cast<int>(Resource::EFFECT_PARTICLE_MAX));
+		Engine::Editor::Header("Particle Parts");
+		Engine::Editor::Text("%d / %d", static_cast<int>(_particleParts.size()), static_cast<int>(Resource::EFFECT_PARTICLE_MAX));
 
 		// 上限まで来たら足せない(実体側の進行状態が固定長のため)
 		ImGui::BeginDisabled(_particleParts.size() >= Resource::EFFECT_PARTICLE_MAX);
@@ -364,10 +360,8 @@ namespace Engine::Editor::Inspector
 		//------------------------------------------------------------------
 		auto& _meshParts = a_pEffect->RefMeshParts();
 
-		ImGui::SeparatorText("Mesh Parts");
-		ImGui::Text("%d / %d",
-			static_cast<int>(_meshParts.size()),
-			static_cast<int>(Resource::EFFECT_MESH_MAX));
+		Engine::Editor::Header("Mesh Parts");
+		Engine::Editor::Text("%d / %d", static_cast<int>(_meshParts.size()), static_cast<int>(Resource::EFFECT_MESH_MAX));
 
 		ImGui::BeginDisabled(_meshParts.size() >= Resource::EFFECT_MESH_MAX);
 		if (CreateButton("Add Mesh Part"))
@@ -412,10 +406,8 @@ namespace Engine::Editor::Inspector
 		//------------------------------------------------------------------
 		auto& _soundParts = a_pEffect->RefSoundParts();
 
-		ImGui::SeparatorText("Sound Parts");
-		ImGui::Text("%d / %d",
-			static_cast<int>(_soundParts.size()),
-			static_cast<int>(Resource::EFFECT_SOUND_MAX));
+		Engine::Editor::Header("Sound Parts");
+		Engine::Editor::Text("%d / %d", static_cast<int>(_soundParts.size()), static_cast<int>(Resource::EFFECT_SOUND_MAX));
 
 		// 上限まで来たら足せない(実体側の声の席が固定長のため)
 		ImGui::BeginDisabled(_soundParts.size() >= Resource::EFFECT_SOUND_MAX);

@@ -222,26 +222,24 @@ struct Engine::ECS::ComponentTraits<BossComponent>
 	{
 		BossComponent& _comp = Engine::Editor::GetValue<BossComponent>(a_context.pData);
 
-		Engine::Editor::Section("Combat Start");
+		Engine::Editor::Header("Combat Start");
 		Engine::Editor::Field("StartOnSpawn", _comp.startOnSpawn);
-		Engine::Editor::SameLine();
-		Engine::Editor::HelpText("(no order needed)");
+		Engine::Editor::Tooltip("no order needed");
 
 		// 命令はランタイム値。動きを確かめたいときのためにエディターからも叩けるようにしておく
-		Engine::Editor::Text("CombatStarted : %s", _comp.isCombatStarted ? "yes" : "no");
-		Engine::Editor::SameLine();
+		Engine::Editor::Value("CombatStarted", "%s", _comp.isCombatStarted ? "yes" : "no");
 		if (Engine::Editor::SmallButton(_comp.isCombatStarted ? "Stop" : "Start"))
 		{
 			_comp.isCombatStarted = !_comp.isCombatStarted;
 		}
 
-		Engine::Editor::Section("Range (Standoff)");
+		Engine::Editor::Header("Range (Standoff)");
 		Engine::Editor::Field("KeepDistance", _comp.keepDistance, 0.5f, 0.0f);
 		Engine::Editor::Field("KeepMargin", _comp.keepMargin, 0.1f, 0.0f);
 		Engine::Editor::Field("KeepHeight", _comp.keepHeight, 0.1f);
 		Engine::Editor::Field("HeightMargin", _comp.heightMargin, 0.1f, 0.0f);
 
-		Engine::Editor::Section("Pattern");
+		Engine::Editor::Header("Pattern");
 		Engine::Editor::Field("PatternDuration", _comp.patternDuration, 0.1f, 0.0f);
 		Engine::Editor::Field("PatternDurationRand", _comp.patternDurationRand, 0.1f, 0.0f);
 		Engine::Editor::Field("RushDistance", _comp.rushDistance, 0.5f, 0.0f);
@@ -259,12 +257,12 @@ struct Engine::ECS::ComponentTraits<BossComponent>
 		Engine::Editor::Field("W:Orbit", _comp.weightOrbit, 0.1f, 0.0f);
 		Engine::Editor::Field("W:Retreat", _comp.weightRetreat, 0.1f, 0.0f);
 
-		Engine::Editor::Section("Turn");
+		Engine::Editor::Header("Turn");
 		Engine::Editor::Field("TurnSpeedDeg", _comp.turnSpeedDeg, 1.0f, 0.0f);
 		Engine::Editor::Field("PitchSpeedDeg", _comp.pitchSpeedDeg, 1.0f, 0.0f);
 		Engine::Editor::Field("MaxPitchDeg", _comp.maxPitchDeg, 1.0f, 0.0f, 89.0f);
 
-		Engine::Editor::Section("Maneuver");
+		Engine::Editor::Header("Maneuver");
 		Engine::Editor::Field("StrafeInterval", _comp.strafeInterval, 0.05f, 0.0f);
 		Engine::Editor::Field("StrafeIntervalRand", _comp.strafeIntervalRand, 0.05f, 0.0f);
 		Engine::Editor::Field("StrafeThrottle", _comp.strafeThrottle, 0.01f, 0.0f, 1.0f);
@@ -286,33 +284,33 @@ struct Engine::ECS::ComponentTraits<BossComponent>
 		Engine::Editor::Field("DashInterval", _comp.dashInterval, 0.05f, 0.0f);
 		Engine::Editor::Field("DashIntervalRand", _comp.dashIntervalRand, 0.05f, 0.0f);
 
-		Engine::Editor::Section("Gun");
+		Engine::Editor::Header("Gun");
 		Engine::Editor::Field("GunRange", _comp.gunRange, 1.0f, 0.0f);
 		Engine::Editor::Field("GunConeDeg", _comp.gunConeDeg, 1.0f, 0.0f, 180.0f);
 		Engine::Editor::Field("GunBurstTime", _comp.gunBurstTime, 0.05f, 0.0f);
 		Engine::Editor::Field("GunRestTime", _comp.gunRestTime, 0.05f, 0.0f);
 
-		Engine::Editor::Section("Aim");
+		Engine::Editor::Header("Aim");
 		Engine::Editor::Field("AimOffsetY", _comp.aimOffsetY, 0.05f);
 		Engine::Editor::Field("AimLeadScale", _comp.aimLeadScale, 0.05f, 0.0f, 3.0f);
 
-		Engine::Editor::Section("Missile");
+		Engine::Editor::Header("Missile");
 		Engine::Editor::Field("MissileRange", _comp.missileRange, 1.0f, 0.0f);
 		Engine::Editor::Field("MissileInterval", _comp.missileInterval, 0.1f, 0.0f);
 		Engine::Editor::Field("MissileIntervalRand", _comp.missileIntervalRand, 0.1f, 0.0f);
 
 		// ここから下は毎フレーム上書きされるので表示のみ
-		Engine::Editor::Section("Runtime");
+		Engine::Editor::Header("Runtime");
 		static const char* _patternName[] = {
 			"Standoff", "Rush", "HighGround", "LowGround", "Orbit", "Retreat" };
 		static const char* _maneuverName[] = { "Wait", "Approach", "Keep", "Back", "Hold" };
 
-		Engine::Editor::Text("Pattern  : %s (next %.2f s)", _patternName[static_cast<int>(_comp.pattern)], _comp.patternTimer);
-		Engine::Editor::Text("Maneuver : %s", _maneuverName[static_cast<int>(_comp.maneuver)]);
-		Engine::Editor::Text("Distance : %.2f m", _comp.distance);
-		Engine::Editor::Text("Strafe   : %+.0f (next %.2f s)", _comp.strafeSign, _comp.strafeTimer);
-		Engine::Editor::Text("Hold     : %.2f s", _comp.strafeHoldTimer);
-		Engine::Editor::Text("Gun      : %s (next %.2f s)", _comp.isGunActive ? "fire" : "rest", _comp.gunTimer);
-		Engine::Editor::Text("Missile  : next %.2f s", _comp.missileTimer);
+		Engine::Editor::Value("Pattern", "%s (next %.2f s)", _patternName[static_cast<int>(_comp.pattern)], _comp.patternTimer);
+		Engine::Editor::Value("Maneuver", "%s", _maneuverName[static_cast<int>(_comp.maneuver)]);
+		Engine::Editor::Value("Distance", "%.2f m", _comp.distance);
+		Engine::Editor::Value("Strafe", "%+.0f (next %.2f s)", _comp.strafeSign, _comp.strafeTimer);
+		Engine::Editor::Value("Hold", "%.2f s", _comp.strafeHoldTimer);
+		Engine::Editor::Value("Gun", "%s (next %.2f s)", _comp.isGunActive ? "fire" : "rest", _comp.gunTimer);
+		Engine::Editor::Value("Missile", "next %.2f s", _comp.missileTimer);
 	}
 };

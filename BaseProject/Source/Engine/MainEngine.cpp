@@ -18,7 +18,6 @@
 
 #include "Application/App.h"
 
-
 #include "Option/OptionManager.h"
 
 #include "Editor/EditorCamera/EditorCamera.h"
@@ -304,8 +303,6 @@ namespace Engine
 		m_upTimeManager->Release();
 		m_upWindow->Release();
 
-		
-
 		// ビルドモードによって、仕様を変更
 		switch (m_buildMode)
 		{
@@ -478,7 +475,6 @@ namespace Engine
 			}
 
 			m_upGraphicsEngine->EndFrame();
-
 		}	// EditorPhase
 
 		{

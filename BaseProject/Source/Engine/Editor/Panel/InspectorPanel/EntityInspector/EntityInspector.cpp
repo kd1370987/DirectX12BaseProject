@@ -26,7 +26,7 @@ namespace Engine::Editor::Inspector
 		// 編集対象はプライマリ選択(選択リストの先頭)
 		const ECS::Entity _entity = a_editContext.GetPrimaryEntity();
 
-		if (ImGui::BeginCombo("Add Component", "Select..."))
+		if (Engine::Editor::ComboScope _combo{ "Add Component", "Select..." })
 		{
 			// 数が増えると探せなくなるので名前で絞り込めるようにする
 			const std::string& _search = EditorHelper::DrawSearchBox();
@@ -55,8 +55,6 @@ namespace Engine::Editor::Inspector
 
 				ImGui::PopID();
 			}
-
-			ImGui::EndCombo();
 		}
 
 		// 動きごとに追加
@@ -81,7 +79,7 @@ namespace Engine::Editor::Inspector
 	// コンポーネントの削除
 	void SubmitCommponent(EditorContext& a_editContext, Engine::ECS::World* a_pWorld, ECS::ComponentTypeID a_typeID)
 	{
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// 削除系の色分けは EditorHelper に寄せてある(色をここで持たない)
 		if (Engine::Editor::DeleteButton("RemoveComponnet"))
@@ -387,8 +385,7 @@ namespace Engine::Editor::Inspector
 
 		if (ImGui::BeginPopupModal("CreatePrefabPopup", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			ImGui::Text("Prefab Name");
-			ImGui::InputText("##PrefabName", _nameCach, sizeof(_nameCach));
+			Engine::Editor::Field("Prefab Name##PrefabName", _nameCach, sizeof(_nameCach));
 
 			// 実際に保存される名前(被っていたら _01 が加算されたもの)を出しておく
 			const std::string _inputName = _nameCach;
@@ -396,11 +393,11 @@ namespace Engine::Editor::Inspector
 
 			if (_saveName.empty())
 			{
-				ImGui::TextDisabled("Input prefab name...");
+				Engine::Editor::HelpText("Input prefab name...");
 			}
 			else
 			{
-				ImGui::TextDisabled("Save to : %s", MakePrefabBasePath(_saveName).c_str());
+				Engine::Editor::HelpText("Save to : %s", MakePrefabBasePath(_saveName).c_str());
 			}
 
 			ImGui::BeginDisabled(_saveName.empty());
@@ -411,7 +408,7 @@ namespace Engine::Editor::Inspector
 			}
 			ImGui::EndDisabled();
 
-			ImGui::SameLine();
+			Engine::Editor::SameLine();
 			if (ImGui::Button("Cancel"))
 			{
 				ImGui::CloseCurrentPopup();
@@ -459,20 +456,20 @@ namespace Engine::Editor::Inspector
 		if (!_pWorld->IsAliveEntity(_entity))
 		{
 			a_editContext.ClearEntitySelection();
-			ImGui::Text("No selected");
+			Engine::Editor::HelpText("No selected");
 			return;
 		}
 
 		// 選択中のエンティティをプレハブとして保存する(対象はプライマリ選択の1体)
 		CreatePrefabButton(a_editContext, _pWorld);
 
-		ImGui::Text("Entity ID : %llu", _entity);
+		Engine::Editor::Value("Entity ID", "%llu", _entity);
 
 		// 複数選択中は、コンポーネント編集の対象が先頭1体だけであることを明示しておく
 		// (移動と削除は選択中すべてに効く)
 		if (_selectedCount > 1)
 		{
-			ImGui::TextDisabled("(%d selected / editing the first)", _selectedCount);
+			Engine::Editor::HelpText("(%d selected / editing the first)", _selectedCount);
 		}
 
 		// エンティティが持っているコンポーネントを羅列する
@@ -506,7 +503,6 @@ namespace Engine::Editor::Inspector
 
 					ImGui::TreePop();
 				}
-
 			}
 		}
 
@@ -514,4 +510,3 @@ namespace Engine::Editor::Inspector
 		AddComponent(a_editContext,_pWorld);
 	}
 }
-

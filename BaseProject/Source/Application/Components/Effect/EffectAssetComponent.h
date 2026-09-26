@@ -103,7 +103,7 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 
 		if (Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
-			"Change Effect",
+			"Effect",
 			"EffectAsset",
 			_comp.effectGUID))
 		{
@@ -123,7 +123,7 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 			_comp.isPlay = _comp.playOnStart;
 		}
 		Engine::Editor::Field("DestroyOnFinish", _comp.destroyOnFinish);
-		Engine::Editor::HelpText("出し切ったら自分ごと消す(出しっぱなしのパーツがあると消えない)");
+		Engine::Editor::Tooltip("出し切ったら自分ごと消す(出しっぱなしのパーツがあると消えない)");
 
 		if (_comp.effectGUID == Engine::DefaultGUID)
 		{
@@ -139,22 +139,21 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 			return;
 		}
 
-		Engine::Editor::Separator();
-		Engine::Editor::Text("Particle Parts : %d", static_cast<int>(_pEffect->GetParticleParts().size()));
-		Engine::Editor::Text("Mesh Parts     : %d", static_cast<int>(_pEffect->GetMeshParts().size()));
+		Engine::Editor::Line();
+		Engine::Editor::Value("Particle Parts", "%d", static_cast<int>(_pEffect->GetParticleParts().size()));
+		Engine::Editor::Value("Mesh Parts", "%d", static_cast<int>(_pEffect->GetMeshParts().size()));
 
-		Engine::Editor::Separator();
-		Engine::Editor::Text("Runtime");
+		Engine::Editor::Header("Runtime");
 		Engine::Editor::Field("IsPlay", _comp.isPlay);
-		Engine::Editor::Text("Elapsed : %.2f", _comp.instance.elapsed);
+		Engine::Editor::Value("Elapsed", "%.2f", _comp.instance.elapsed);
 
 		// 置き方の上書き : 制御側のシステムが毎フレーム書くので表示だけ
-		Engine::Editor::Text("Scale : %.2f", _comp.effectScale);
-		Engine::Editor::Text("LengthScale : %.2f", _comp.effectLengthScale);
+		Engine::Editor::Value("Scale", "%.2f", _comp.effectScale);
+		Engine::Editor::Value("LengthScale", "%.2f", _comp.effectLengthScale);
 		if (_comp.isOverrideTransform)
 		{
-			Engine::Editor::Text("Override Pos : %.2f, %.2f, %.2f", _comp.overridePosOffset.x, _comp.overridePosOffset.y, _comp.overridePosOffset.z);
-			Engine::Editor::Text("Override Dir : %.2f, %.2f, %.2f", _comp.overrideEmitDir.x, _comp.overrideEmitDir.y, _comp.overrideEmitDir.z);
+			Engine::Editor::Value("Override Pos", "%.2f, %.2f, %.2f", _comp.overridePosOffset.x, _comp.overridePosOffset.y, _comp.overridePosOffset.z);
+			Engine::Editor::Value("Override Dir", "%.2f, %.2f, %.2f", _comp.overrideEmitDir.x, _comp.overrideEmitDir.y, _comp.overrideEmitDir.z);
 		}
 		else
 		{

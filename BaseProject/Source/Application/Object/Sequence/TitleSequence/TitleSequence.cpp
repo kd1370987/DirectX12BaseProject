@@ -138,7 +138,7 @@ namespace App::Object
 	//======================================================================================
 	void TitleSequence::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Section("Play Button");
+		Engine::Editor::Header("Play Button");
 
 		// 同じシーンに置いた UIButton から選ぶ
 		std::string _current = "None";
@@ -176,20 +176,20 @@ namespace App::Object
 			}
 		}
 
-		Engine::Editor::Section("Next Scene");
+		Engine::Editor::Header("Next Scene");
 
 		Engine::Editor::AssetField(*a_context.pServices, "Scene", "Scene", m_nextSceneGUID);
 
 		m_bgm.DrawInspector(a_context);
 
-		Engine::Editor::Section("Cursor");
+		Engine::Editor::Header("Cursor");
 
 		Engine::Editor::Field("ReleaseCursorLock", m_isReleaseCursorLock);
-		Engine::Editor::HelpText("タイトルの間はカーソルの中央固定を切る");
+		Engine::Editor::Tooltip("タイトルの間はカーソルの中央固定を切る");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Section("Runtime");
-		Engine::Editor::Text("Bound     : %s", m_isBound ? "yes" : "no");
-		Engine::Editor::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
+		Engine::Editor::Header("Runtime");
+		Engine::Editor::Value("Bound", "%s", m_isBound ? "yes" : "no");
+		Engine::Editor::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
 	}
 }

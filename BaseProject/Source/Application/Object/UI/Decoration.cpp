@@ -1074,7 +1074,6 @@ namespace App::Object::Decoration
 			if (Engine::Editor::Field("Frequency", a_oscillation.frequency, 0.01f, 0.0f, 60.0f)) _isChanged = true;
 			if (Engine::Editor::Field("Phase", a_oscillation.phase, 0.01f, 0.0f, 1.0f))          _isChanged = true;
 
-
 			return _isChanged;
 		}
 	}
@@ -1087,7 +1086,6 @@ namespace App::Object::Decoration
 		// 共通
 		//----------------------------------------------------------------------------------
 		if (Engine::Editor::Field("Visible", a_decoration.isVisible)) _isChanged = true;
-		Engine::Editor::SameLine();
 		if (Engine::Editor::Field("Name", a_decoration.name)) _isChanged = true;
 
 		if (Engine::Editor::Field("Type", a_decoration.type)) _isChanged = true;
@@ -1100,8 +1098,7 @@ namespace App::Object::Decoration
 		}
 		Engine::Editor::Tooltip("HUDが飾りを出し分けるための札 (TargetBoxHUD : 0=通常枠 / 1=ロック枠)");
 
-		Engine::Editor::Spacing();
-		Engine::Editor::Section("Transform (親からの相対)");
+		Engine::Editor::Header("Transform (親からの相対)");
 
 		if (Engine::Editor::Field("OffsetPos", a_decoration.offsetPos, 1.0f)) _isChanged = true;
 		Engine::Editor::Tooltip("親のピボット位置からのずれ(px)");
@@ -1119,8 +1116,6 @@ namespace App::Object::Decoration
 		Engine::Editor::Tooltip("親のレイヤーへ足す。大きいほど手前");
 		if (Engine::Editor::Field("Color", a_decoration.color)) _isChanged = true;
 
-		Engine::Editor::Spacing();
-
 		//----------------------------------------------------------------------------------
 		// 種類ごと
 		//----------------------------------------------------------------------------------
@@ -1128,7 +1123,7 @@ namespace App::Object::Decoration
 		{
 		case EDecorationType::Image:
 		{
-			Engine::Editor::Section("Image");
+			Engine::Editor::Header("Image");
 
 			if (Engine::Editor::AssetField(a_services, "Texture", "Texture", a_decoration.texGUID))
 			{
@@ -1145,7 +1140,7 @@ namespace App::Object::Decoration
 
 		case EDecorationType::Text:
 		{
-			Engine::Editor::Section("Text");
+			Engine::Editor::Header("Text");
 
 			if (Engine::Editor::MultilineField("Text", a_decoration.text)) _isChanged = true;
 
@@ -1161,13 +1156,13 @@ namespace App::Object::Decoration
 			if (Engine::Editor::Field("LineSpacing", a_decoration.lineSpacing, 0.01f, 0.1f, 4.0f)) _isChanged = true;
 			if (Engine::Editor::Field("CharSpacing", a_decoration.charSpacing, 0.1f)) _isChanged = true;
 			if (Engine::Editor::Field("TextAlign", a_decoration.textAlign)) _isChanged = true;
-			Engine::Editor::HelpText("ブロック全体の位置は Pivot、行同士の揃えが TextAlign");
+			Engine::Editor::Tooltip("ブロック全体の位置は Pivot、行同士の揃えが TextAlign");
 			break;
 		}
 
 		case EDecorationType::Polygon:
 		default:
-			Engine::Editor::Section("Polygon");
+			Engine::Editor::Header("Polygon");
 			Engine::Editor::HelpText("組み込みの白テクスチャを Color で染めて出します");
 			break;
 		}
@@ -1177,8 +1172,7 @@ namespace App::Object::Decoration
 		//----------------------------------------------------------------------------------
 		if (a_decoration.type != EDecorationType::Text)
 		{
-			Engine::Editor::Spacing();
-			Engine::Editor::Section("Edge");
+			Engine::Editor::Header("Edge");
 
 			if (Engine::Editor::Field("Fill", a_decoration.isFill)) _isChanged = true;
 			Engine::Editor::Tooltip("切ると枠だけになる");
@@ -1194,8 +1188,7 @@ namespace App::Object::Decoration
 		//----------------------------------------------------------------------------------
 		// カーソルへの反応
 		//----------------------------------------------------------------------------------
-		Engine::Editor::Spacing();
-		Engine::Editor::Section("Reaction");
+		Engine::Editor::Header("Reaction");
 
 		bool _hasReaction = a_decoration.opReaction.has_value();
 		if (Engine::Editor::Field("Reaction", _hasReaction))
@@ -1214,7 +1207,7 @@ namespace App::Object::Decoration
 			Engine::Editor::IDScope _id("Reaction");
 
 			Engine::Editor::FlagsField("VisibleState", _reaction.visibleState);
-			Engine::Editor::HelpText("この状態のときだけ出す(カーソル時だけ枠を出す等)");
+			Engine::Editor::Tooltip("この状態のときだけ出す(カーソル時だけ枠を出す等)");
 
 			if (Engine::Editor::Field("BlendSpeed", _reaction.blendSpeed, 0.5f, 0.0f, 120.0f)) _isChanged = true;
 			Engine::Editor::Tooltip("切り替わりの速さ。0 で即時");
@@ -1227,8 +1220,7 @@ namespace App::Object::Decoration
 		//----------------------------------------------------------------------------------
 		// アニメーション
 		//----------------------------------------------------------------------------------
-		Engine::Editor::Spacing();
-		Engine::Editor::Section("Animation");
+		Engine::Editor::Header("Animation");
 
 		// ---- トゥイーン ----
 		bool _hasTween = a_decoration.opTweenAnim.has_value();
@@ -1248,11 +1240,9 @@ namespace App::Object::Decoration
 
 			if (Engine::Editor::Field("Duration", _anim.durationTime, 0.01f, 0.0f, 60.0f)) _isChanged = true;
 			if (Engine::Editor::Field("Loop", _anim.isLoop)) _isChanged = true;
-			Engine::Editor::SameLine();
 			if (Engine::Editor::Field("PingPong", _anim.isPingPong)) _isChanged = true;
 			if (Engine::Editor::Field("Ease", _anim.ease)) _isChanged = true;
 
-			Engine::Editor::Spacing();
 			Engine::Editor::HelpText("チェックを入れたチャンネルだけが動きます");
 
 			if (DrawAnimElementUI("Color##ch", EAnimChannel::COLOR, _anim.channels, _anim.color, DrawColorValue)) _isChanged = true;
@@ -1261,7 +1251,6 @@ namespace App::Object::Decoration
 			if (DrawAnimElementUI("Rotation##ch", EAnimChannel::ROTATION, _anim.channels, _anim.rotation, DrawFloatValue)) _isChanged = true;
 			if (DrawAnimElementUI("UV##ch", EAnimChannel::UV, _anim.channels, _anim.uv, DrawVectorValue)) _isChanged = true;
 
-			Engine::Editor::Spacing();
 			if (Engine::Editor::Button("Replay")) _anim.currentTime = 0.0f;
 			Engine::Editor::SameLine();
 			Engine::Editor::Text("%.2f / %.2f", _anim.currentTime, _anim.durationTime);

@@ -98,25 +98,25 @@ struct Engine::ECS::ComponentTraits<RadialBlurComponent>
 
 		Engine::Editor::Field("RadialBlur Enable", _comp.enable);
 		Engine::Editor::Field("BlurCenter (UV)", _comp.blurCenter, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::HelpText("画面左上が 0,0 / 右下が 1,1");
+		Engine::Editor::Tooltip("画面左上が 0,0 / 右下が 1,1");
 		Engine::Editor::Field("SampleCount", _comp.sampleCount, 1.0f, 1, 64);
 		Engine::Editor::Field("Radius (UV)", _comp.radius, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::HelpText("この内側はボカさない");
+		Engine::Editor::Tooltip("この内側はボカさない");
 		Engine::Editor::Field("Falloff", _comp.falloff, 0.1f, 0.0f, 32.0f);
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::HelpText("Speed Response");
 		Engine::Editor::Field("BaseStrength", _comp.baseStrength, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::HelpText("速度に関係なく常に掛かる量");
+		Engine::Editor::Tooltip("速度に関係なく常に掛かる量");
 		Engine::Editor::Field("StrengthAtSpeed", _comp.strengthAtSpeed, 0.01f, 0.0f, 1.0f);
 		Engine::Editor::Field("SpeedThreshold", _comp.speedThreshold, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::HelpText("これ以下の速さでは掛からない");
+		Engine::Editor::Tooltip("これ以下の速さでは掛からない");
 		Engine::Editor::Field("ResponseRate", _comp.responseRate, 0.1f, 0.0f, 60.0f);
-		Engine::Editor::HelpText("速さの基準は TPSFollowComponent の SpeedReference");
+		Engine::Editor::Tooltip("速さの基準は TPSFollowComponent の SpeedReference");
 
 		// システムが毎フレーム上書きするので表示のみ
-		Engine::Editor::Separator();
-		Engine::Editor::Text("CurrentStrength : %.3f", _comp.currentStrength);
-		Engine::Editor::Text("SendStrength    : %.3f", _comp.GetStrength());
+		Engine::Editor::Line();
+		Engine::Editor::Value("CurrentStrength", "%.3f", _comp.currentStrength);
+		Engine::Editor::Value("SendStrength", "%.3f", _comp.GetStrength());
 	}
 };

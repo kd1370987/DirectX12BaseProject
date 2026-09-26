@@ -405,7 +405,6 @@ namespace Engine::Scene
 		}
 	}
 
-
 	// コンストラクタ・デストラクタ
 	SceneManager::SceneManager()
 	{}

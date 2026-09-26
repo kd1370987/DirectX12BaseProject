@@ -41,7 +41,7 @@ namespace Engine::Editor::Inspector
 		{
 			if (!a_resourceManager.Has<TResource>(a_guid))
 			{
-				ImGui::Text("No loaded file");
+				Engine::Editor::Header("No loaded file");
 				if (ImGui::Button("Load"))
 				{
 					a_resourceManager.LoadImmediate<TResource>(a_guid);
@@ -53,7 +53,7 @@ namespace Engine::Editor::Inspector
 			auto* _pResource = a_resourceManager.Ref(_handle);
 			if (!_pResource)
 			{
-				ImGui::Text("Not found asset");
+				Engine::Editor::WarningText("Not found asset");
 				return nullptr;
 			}
 
@@ -79,7 +79,7 @@ namespace Engine::Editor::Inspector
 			ENGINE_LOG("モデルのconvert処理が完了 : %s", _filePath.c_str());
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		ModelEdit(a_editContext, _pModel);
 	}
@@ -93,10 +93,10 @@ namespace Engine::Editor::Inspector
 
 		// 名前と、GUID表示
 		auto _fileName = a_editContext.pServices->pAssetDatabase->GetFileNameFromGUID(_guid);
-		ImGui::Text("%s", _fileName.c_str());
-		ImGui::Text("%s", _guid.String().c_str());
+		Engine::Editor::Text("%s", _fileName.c_str());
+		Engine::Editor::Text("%s", _guid.String().c_str());
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		auto* _pTexture = ResolveAsset<Resource::Texture>(*a_editContext.pServices->pResourceManager, _guid);
 		if (!_pTexture) { return; }
@@ -241,8 +241,8 @@ namespace Engine::Editor::Inspector
 		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld || !_pWorld->IsInit())
 		{
-			ImGui::Text("No active World.");
-			ImGui::Text("Open a scene to edit effect prefab components.");
+			Engine::Editor::HelpText("No active World.");
+			Engine::Editor::HelpText("Open a scene to edit effect prefab components.");
 			return;
 		}
 
@@ -254,7 +254,7 @@ namespace Engine::Editor::Inspector
 		}
 
 		// ゲームと同じ描画で、炊いたところを繰り返し確認する
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		if (ImGui::Button("Open Effect Editor"))
 		{
 			if (auto* _pEffectEditor = MainEditor::Instance().RefEffectEditor())
@@ -264,13 +264,13 @@ namespace Engine::Editor::Inspector
 		}
 
 		float _lifeTime = _pEffectPrefab->GetLifeTime();
-		if (ImGui::DragFloat("Life Time", &_lifeTime, 0.05f, Resource::EffectPrefab::MIN_LIFE_TIME, 60.0f))
+		if (Engine::Editor::Field("Life Time", _lifeTime, 0.05f, Resource::EffectPrefab::MIN_LIFE_TIME, 60.0f))
 		{
 			_pEffectPrefab->SetLifeTime(_lifeTime);
 		}
-		ImGui::TextDisabled("炊いたらこの秒数で全部消える(各ノードの寿命はこれで頭打ち)");
+		Engine::Editor::Tooltip("炊いたらこの秒数で全部消える(各ノードの寿命はこれで頭打ち)");
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		PrefabComponentsEdit(_pWorld, &_pEffectPrefab->RefPrefab());
 	}
@@ -294,8 +294,8 @@ namespace Engine::Editor::Inspector
 		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld || !_pWorld->IsInit())
 		{
-			ImGui::Text("No active World.");
-			ImGui::Text("Open a scene to edit prefab components.");
+			Engine::Editor::HelpText("No active World.");
+			Engine::Editor::HelpText("Open a scene to edit prefab components.");
 			return;
 		}
 
@@ -317,7 +317,7 @@ namespace Engine::Editor::Inspector
 		//------------------------------------------------------------------
 		auto& _clipboard = a_editContext.prefabClipboard;
 
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		if (ImGui::Button("Copy Signature"))
 		{
 			_clipboard.signature = _pPrefab->GetSignature();
@@ -328,7 +328,7 @@ namespace Engine::Editor::Inspector
 		}
 
 		// コピー前は貼り付けられない
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		ImGui::BeginDisabled(!_clipboard.isValid);
 		if (ImGui::Button("Paste Signature"))
 		{
@@ -340,7 +340,7 @@ namespace Engine::Editor::Inspector
 		// クリップボードの中身を出しておく : 何を貼るのか押す前に分かるようにする
 		if (_clipboard.isValid)
 		{
-			ImGui::TextDisabled("Clipboard : %d components", static_cast<int>(_clipboard.GetCount()));
+			Engine::Editor::HelpText("Clipboard : %d components", static_cast<int>(_clipboard.GetCount()));
 			if (ImGui::IsItemHovered())
 			{
 				ImGui::BeginTooltip();
@@ -356,10 +356,10 @@ namespace Engine::Editor::Inspector
 		}
 		else
 		{
-			ImGui::TextDisabled("Clipboard : empty");
+			Engine::Editor::HelpText("Clipboard : empty");
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		//------------------------------------------------------------------
 		// 一緒に覚えている子エンティティ
@@ -370,11 +370,11 @@ namespace Engine::Editor::Inspector
 		const auto& _childVec = _pPrefab->GetChildren();
 		if (_childVec.empty())
 		{
-			ImGui::TextDisabled("Children : none");
+			Engine::Editor::HelpText("Children : none");
 		}
 		else
 		{
-			ImGui::Text("Children : %d", static_cast<int>(_childVec.size()));
+			Engine::Editor::Value("Children", "%d", static_cast<int>(_childVec.size()));
 
 			if (ImGui::TreeNode("Children List"))
 			{
@@ -397,7 +397,7 @@ namespace Engine::Editor::Inspector
 			}
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		PrefabComponentsEdit(_pWorld, _pPrefab);
 	}
@@ -455,7 +455,7 @@ namespace Engine::Editor::Inspector
 		}
 
 		// ---- コンポーネントの追加 ----
-		if (ImGui::BeginCombo("Add Component", "Select..."))
+		if (Engine::Editor::ComboScope _combo{ "Add Component", "Select..." })
 		{
 			// 数が増えると探せなくなるので名前で絞り込めるようにする
 			const std::string& _search = EditorHelper::DrawSearchBox();
@@ -481,7 +481,6 @@ namespace Engine::Editor::Inspector
 
 				ImGui::PopID();
 			}
-			ImGui::EndCombo();
 		}
 	}
 }

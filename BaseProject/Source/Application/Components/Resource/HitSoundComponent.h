@@ -49,7 +49,7 @@ struct Engine::ECS::ComponentTraits<HitSoundComponent>
 
 		if (Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
-			"Change Sound",
+			"Sound",
 			"Sound",
 			_comp.soundGUID))
 		{

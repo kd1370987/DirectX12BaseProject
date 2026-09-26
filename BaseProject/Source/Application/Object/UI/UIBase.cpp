@@ -782,28 +782,21 @@ namespace App::Object
 
 		// 表示するか : 出し分けを持つ画面(ホームなど)は進行役がここを切り替える
 		Engine::Editor::Field("Visible", m_isVisible);
-		Engine::Editor::SameLine();
-		Engine::Editor::HelpText("(切ると描画も入力も止まる)");
-
-		Engine::Editor::Spacing();
+		Engine::Editor::Tooltip("切ると描画も入力も止まる");
 
 		// 色 : 全ての飾りへ乗算で掛かる。畳まずに常に出しておく
 		// (白い板ポリを1つ置いて、色だけで作り分けられるようにするため)
 		Engine::Editor::Field("Color", m_color);
 
-		Engine::Editor::Spacing();
-		Engine::Editor::Separator();
-		Engine::Editor::Spacing();
+		Engine::Editor::Line();
 
 		// 座標系
 		Engine::Editor::Field("PixelPos", m_pixelPos, 1.0f);						// スクリーン座標
-		Engine::Editor::Spacing();
 
 		Engine::Editor::Field("Rotation", m_rotation, 0.1f, -360.0f, 360.0f);
 		if (m_rotation >= 360) m_rotation -= 360;
 		if (m_rotation <= -360) m_rotation += 360;
 
-		Engine::Editor::Spacing();
 		if (Engine::Editor::Field("Scale", m_scale, 0.01f, 0.0f))						// 等倍拡縮
 		{
 			m_pixelSize = m_editSize * m_scale;
@@ -812,26 +805,24 @@ namespace App::Object
 		{
 			m_editSize = m_pixelSize / m_scale;
 		}
-		Engine::Editor::HelpText("アンカー自身の矩形(当たり判定・判定円の基準)。見た目は飾り側のサイズ");
-
-		Engine::Editor::Spacing();
+		Engine::Editor::Tooltip("アンカー自身の矩形(当たり判定・判定円の基準)。見た目は飾り側のサイズ");
 
 		// 湾曲オプション
 		// 曲げても幅は変わらない。反りだけが増えていく。
 		// 弧は上の PixelSize を -1..1 として張るので、幅0だと曲がらない
 		Engine::Editor::Field("CurveAngle", m_curveAngle, 0.01f, -3.0f, 3.0f);
-		Engine::Editor::HelpText("開き角(ラジアン)。0で曲げない / 正で山なり・負で谷");
+		Engine::Editor::Tooltip("開き角(ラジアン)。0で曲げない / 正で山なり・負で谷");
 		Engine::Editor::Field("CurveRadius", m_curveRadius, 0.01f, 0.0f, 4.0f);
-		Engine::Editor::HelpText("反りの深さの倍率。1で素直な円弧(0も1として扱う)");
+		Engine::Editor::Tooltip("反りの深さの倍率。1で素直な円弧(0も1として扱う)");
 		Engine::Editor::Field("CurveCenter", m_curveCenter, 0.01f);
-		Engine::Editor::HelpText("弧の頂点。PixelSizeを-1..1とした座標(x=横位置 / y=上下のずらし)");
+		Engine::Editor::Tooltip("弧の頂点。PixelSizeを-1..1とした座標(x=横位置 / y=上下のずらし)");
 
 		// 端がどれだけ下がるかを出しておく : 数字だけだと効き具合が読めない
 		if (m_curveAngle != 0.0f)
 		{
 			const float _depth = (m_curveRadius > 0.0f) ? m_curveRadius : 1.0f;
 			const float _sag = m_pixelSize.x * 0.5f * std::tan(m_curveAngle * 0.25f) * _depth;
-			Engine::Editor::Text("端の反り : %.1f px", _sag);
+			Engine::Editor::Value("端の反り", "%.1f px", _sag);
 		}
 
 		// 初期化用ボタン
@@ -842,39 +833,32 @@ namespace App::Object
 			m_rotation = 0.0f;
 		}
 
-		Engine::Editor::Spacing();
-		Engine::Editor::Separator();
-		Engine::Editor::Spacing();
+		Engine::Editor::Line();
 
 		// ピボット : 正規化[0,1]。(0.5,0.5)=中心, (0,0)=左上, (1,1)=右下。
 		// この点が PixelPos に配置され、回転の中心にもなる。
 		Engine::Editor::Field("Pivot (0-1)", m_pivot, 0.01f, 0.0f, 1.0f);
 		Engine::Editor::Field("Layer", m_layer, 0.1f);
-		Engine::Editor::HelpText("重なり順。大きいほど手前(同じ値なら置いた順)");
-
-		Engine::Editor::Spacing();
-		Engine::Editor::Separator();
-		Engine::Editor::Spacing();
+		Engine::Editor::Tooltip("重なり順。大きいほど手前(同じ値なら置いた順)");
 
 		//----------------------------------------------------------------------
 		// カーソルへの反応
 		//
 		// 見た目の変化は飾り側(Decoration の Reaction)。ここは判定と音だけ
 		//----------------------------------------------------------------------
-		Engine::Editor::Section("Interaction");
+		Engine::Editor::Header("Interaction");
 
 		Engine::Editor::Field("Interactable", m_isInteractable);
-		Engine::Editor::SameLine();
-		Engine::Editor::HelpText("(切ると Disabled 扱いになる)");
+		Engine::Editor::Tooltip("切ると Disabled 扱いになる");
 
 		Engine::Editor::Field("ClickAction", m_clickAction);
-		Engine::Editor::HelpText("InputManager へ登録したアクション名");
+		Engine::Editor::Tooltip("InputManager へ登録したアクション名");
 
 		Engine::Editor::Field("HitPadding", m_hitPadding, 1.0f);
-		Engine::Editor::HelpText("判定の矩形へ足す余白(px)");
+		Engine::Editor::Tooltip("判定の矩形へ足す余白(px)");
 
 		Engine::Editor::Field("HitFollowAnim", m_isHitFollowAnim);
-		Engine::Editor::HelpText("飾りのアニメ・反応で大きくなったぶんも判定に入れる(PixelSize より優先)");
+		Engine::Editor::Tooltip("飾りのアニメ・反応で大きくなったぶんも判定に入れる(PixelSize より優先)");
 
 		//----------------------------------------------------------------------
 		// いま効いている判定を出す
@@ -888,11 +872,11 @@ namespace App::Object
 		if (m_isHitFollowAnim && _hasHitBounds)
 		{
 			// 実行中は毎フレーム変わる。止まっているときは素の大きさと同じ
-			Engine::Editor::Text("Hit : %.0f x %.0f (飾りの範囲/アニメ込み)", _hitSize.x * m_scale, _hitSize.y * m_scale);
+			Engine::Editor::Value("Hit", "%.0f x %.0f (飾りの範囲/アニメ込み)", _hitSize.x * m_scale, _hitSize.y * m_scale);
 		}
 		else if (m_pixelSize.x > 0.0f && m_pixelSize.y > 0.0f)
 		{
-			Engine::Editor::Text("Hit : %.0f x %.0f (PixelSize)", m_pixelSize.x, m_pixelSize.y);
+			Engine::Editor::Value("Hit", "%.0f x %.0f (PixelSize)", m_pixelSize.x, m_pixelSize.y);
 
 			if (m_isHitFollowAnim)
 			{
@@ -901,16 +885,14 @@ namespace App::Object
 		}
 		else if (_hasHitBounds)
 		{
-			Engine::Editor::Text("Hit : %.0f x %.0f (飾りの範囲)", _hitSize.x * m_scale, _hitSize.y * m_scale);
-			Engine::Editor::HelpText("PixelSize が 0 なので飾りの範囲を使っています");
+			Engine::Editor::Value("Hit", "%.0f x %.0f (飾りの範囲)", _hitSize.x * m_scale, _hitSize.y * m_scale);
+			Engine::Editor::Tooltip("PixelSize が 0 なので飾りの範囲を使っています");
 		}
 		else
 		{
-			Engine::Editor::TextColored(Math::Color(1.0f, 0.4f, 0.4f, 1.0f), "Hit : なし");
+			Engine::Editor::ErrorText("Hit : なし");
 			Engine::Editor::HelpText("PixelSize も飾りの大きさも 0 です。カーソルに反応しません");
 		}
-
-		Engine::Editor::Spacing();
 
 		// 音を差し替えたら、借りているインスタンスを返して取り直させる
 		if (Engine::Editor::AssetField(*a_context.pServices, "HoverSound", "Sound", m_hoverSoundGUID))
@@ -923,22 +905,20 @@ namespace App::Object
 		}
 		Engine::Editor::Field("SoundVolume", m_soundVolume, 0.01f, 0.0f, 1.0f);
 		Engine::Editor::Field("SoundMinInterval", m_soundMinInterval, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::HelpText("鳴らし直す最短間隔(秒)。縁で揺れて鳴り続けるのを止める");
+		Engine::Editor::Tooltip("鳴らし直す最短間隔(秒)。縁で揺れて鳴り続けるのを止める");
 
 		// 実行中の状態は表示のみ
 		static const char* _stateName[] = { "Normal", "Hovered", "Pressed", "Disabled" };
-		Engine::Editor::Text("State : %s", _stateName[static_cast<int>(GetUIState())]);
+		Engine::Editor::Value("State", "%s", _stateName[static_cast<int>(GetUIState())]);
 
 		// 重なりの取り合いの結果。
 		// 「矩形には入っているのに反応しない」の原因がここだと分かるようにする
 		if (m_isCursorInside && !a_context.IsCursorOwner(this))
 		{
-			Engine::Editor::TextColored(Math::Color(1.0f, 0.8f, 0.3f, 1.0f), "Cursor : 手前の別UIに取られています(Layer %.1f)", m_layer);
+			Engine::Editor::WarningText("Cursor : 手前の別UIに取られています(Layer %.1f)", m_layer);
 		}
 
-		Engine::Editor::Spacing();
-		Engine::Editor::Separator();
-		Engine::Editor::Spacing();
+		Engine::Editor::Line();
 
 		// 飾り
 		DrawDecorationListInspector(a_context);
@@ -953,7 +933,7 @@ namespace App::Object
 	//======================================================================================
 	void UIBase::DrawDecorationListInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Section("Decorations");
+		Engine::Editor::Header("Decorations");
 		Engine::Editor::HelpText("配列の順に描きます(下にあるものほど手前)");
 
 		// ---- 追加 ----
@@ -987,8 +967,6 @@ namespace App::Object
 			}
 			Engine::Editor::Tooltip("Ctrl+クリックで全部消す");
 		}
-
-		Engine::Editor::Spacing();
 
 		// 一覧を回している間に配列を触ると足元が崩れるので、操作は覚えておいて後でまとめて行う
 		int _removeIndex = -1;
@@ -1037,7 +1015,7 @@ namespace App::Object
 					Engine::Editor::IndentScope _indent;
 					if (a_context.pServices) Decoration::DrawDecorationInspector(_decoration, *a_context.pServices);
 				}
-				Engine::Editor::Separator();
+				Engine::Editor::Line();
 			}
 		}
 

@@ -44,7 +44,6 @@ bool Application::Init()
 
 void Application::Release()
 {
-	
 	// シーン解放
 	Engine::Scene::SceneManager::Instance().Release();
 

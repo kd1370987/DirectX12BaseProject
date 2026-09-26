@@ -72,7 +72,7 @@ namespace Engine::Editor
 		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld || !_pWorld->IsInit())
 		{
-			ImGui::TextDisabled("World is not available.");
+			Engine::Editor::HelpText("World is not available.");
 			return;
 		}
 
@@ -83,8 +83,7 @@ namespace Engine::Editor
 		if (!_pProfiler) return;
 
 		// 操作
-		ImGui::Checkbox("Pause", &m_isPaused);
-		ImGui::SameLine();
+		Engine::Editor::Field("Pause", m_isPaused);
 		if (ImGui::Button("Reset Timings"))
 		{
 			_pProfiler->ResetTaskTimings();
@@ -97,7 +96,7 @@ namespace Engine::Editor
 		}
 		const ECS::ECSWorldSnapshot& _snapshot = _pProfiler->GetSnapshot();
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		if (ImGui::BeginTabBar("ECSProfilerTab"))
 		{
@@ -138,10 +137,10 @@ namespace Engine::Editor
 		//------------------------------------------------------------------
 		// エンティティ
 		//------------------------------------------------------------------
-		ImGui::SeparatorText("Entity");
-		ImGui::Text("Alive       : %u", a_snapshot.entity.aliveCount);
-		ImGui::Text("Slots       : %zu", a_snapshot.entity.slotCount);
-		ImGui::Text("Recyclable  : %zu", a_snapshot.entity.recycleCount);
+		Engine::Editor::Header("Entity");
+		Engine::Editor::Value("Alive", "%u", a_snapshot.entity.aliveCount);
+		Engine::Editor::Value("Slots", "%zu", a_snapshot.entity.slotCount);
+		Engine::Editor::Value("Recyclable", "%zu", a_snapshot.entity.recycleCount);
 
 		//------------------------------------------------------------------
 		// アーキタイプ
@@ -159,28 +158,25 @@ namespace Engine::Editor
 			}
 		}
 
-		ImGui::SeparatorText("Archetype");
-		ImGui::Text("Archetypes  : %zu (empty %zu)", a_snapshot.archetypes.size(), _emptyArchetypeCount);
-		ImGui::Text("Chunks      : %zu (kept empty %zu)", _chunkCount, _freeChunkCount);
-		ImGui::Text("Generation  : %llu", static_cast<unsigned long long>(a_snapshot.archetypeGeneration));
+		Engine::Editor::Header("Archetype");
+		Engine::Editor::Value("Archetypes", "%zu (empty %zu)", a_snapshot.archetypes.size(), _emptyArchetypeCount);
+		Engine::Editor::Value("Chunks", "%zu (kept empty %zu)", _chunkCount, _freeChunkCount);
+		Engine::Editor::Value("Generation", "%llu", static_cast<unsigned long long>(a_snapshot.archetypeGeneration));
 
 		//------------------------------------------------------------------
 		// チャンクのメモリ
 		//------------------------------------------------------------------
 		const ECS::ECSChunkMemoryProfile& _memory = a_snapshot.memory;
 
-		ImGui::SeparatorText("Chunk Memory");
-		ImGui::Text("Blocks      : %zu (x %zu chunks, %s / chunk)",
-			_memory.blockCount, _memory.blockChunkNum, FormatBytes(_memory.chunkBytes).c_str());
-		ImGui::Text("Reserved    : %s", FormatBytes(_memory.reservedBytes).c_str());
+		Engine::Editor::Header("Chunk Memory");
+		Engine::Editor::Value("Blocks", "%zu (x %zu chunks, %s / chunk)", _memory.blockCount, _memory.blockChunkNum, FormatBytes(_memory.chunkBytes).c_str());
+		Engine::Editor::Value("Reserved", "%s", FormatBytes(_memory.reservedBytes).c_str());
 
 		// 貸し出し中のチャンク / 確保済みのチャンク
 		{
 			char _overlay[64] = {};
 			snprintf(_overlay, sizeof(_overlay), "%zu / %zu chunks", _memory.usedChunkCount, _memory.totalChunkCount);
-			ImGui::Text("Chunk Use   :");
-			ImGui::SameLine();
-			ImGui::ProgressBar(Ratio(static_cast<double>(_memory.usedChunkCount), static_cast<double>(_memory.totalChunkCount)), ImVec2(-1.0f, 0.0f), _overlay);
+			Engine::Editor::ProgressBar("Chunk Use", Ratio(static_cast<double>(_memory.usedChunkCount), static_cast<double>(_memory.totalChunkCount)), _overlay);
 		}
 
 		// 貸し出し中のチャンクのうち、生きているエンティティが使っている割合
@@ -188,9 +184,7 @@ namespace Engine::Editor
 			const size_t _usedBytes = _memory.usedChunkCount * _memory.chunkBytes;
 			char _overlay[64] = {};
 			snprintf(_overlay, sizeof(_overlay), "%s / %s", FormatBytes(_memory.liveBytes).c_str(), FormatBytes(_usedBytes).c_str());
-			ImGui::Text("Fill        :");
-			ImGui::SameLine();
-			ImGui::ProgressBar(Ratio(static_cast<double>(_memory.liveBytes), static_cast<double>(_usedBytes)), ImVec2(-1.0f, 0.0f), _overlay);
+			Engine::Editor::ProgressBar("Fill", Ratio(static_cast<double>(_memory.liveBytes), static_cast<double>(_usedBytes)), _overlay);
 		}
 
 		//------------------------------------------------------------------
@@ -198,12 +192,12 @@ namespace Engine::Editor
 		//------------------------------------------------------------------
 		const ECS::ECSStructuralChangeProfile& _structural = a_snapshot.structural;
 
-		ImGui::SeparatorText("Structural Change");
-		ImGui::TextDisabled("Applied since last capture / Pending now");
-		ImGui::Text("Create      : %zu / %zu", _structural.created, _structural.pendingCreate);
-		ImGui::Text("Change      : %zu / %zu", _structural.changed, _structural.pendingChange);
-		ImGui::Text("Remove      : %zu / %zu", _structural.removed, _structural.pendingRemove);
-		ImGui::Text("Refresh     : - / %zu", _structural.pendingRefresh);
+		Engine::Editor::Header("Structural Change");
+		Engine::Editor::HelpText("Applied since last capture / Pending now");
+		Engine::Editor::Value("Create", "%zu / %zu", _structural.created, _structural.pendingCreate);
+		Engine::Editor::Value("Change", "%zu / %zu", _structural.changed, _structural.pendingChange);
+		Engine::Editor::Value("Remove", "%zu / %zu", _structural.removed, _structural.pendingRemove);
+		Engine::Editor::Value("Refresh", "- / %zu", _structural.pendingRefresh);
 
 		//------------------------------------------------------------------
 		// システム・リソース
@@ -214,9 +208,9 @@ namespace Engine::Editor
 			_totalMs += _task.lastMs;
 		}
 
-		ImGui::SeparatorText("System / Resource");
-		ImGui::Text("Tasks       : %zu (last total %.3f ms)", a_snapshot.systemTasks.size(), _totalMs);
-		ImGui::Text("Resources   : %zu", a_snapshot.resources.size());
+		Engine::Editor::Header("System / Resource");
+		Engine::Editor::Value("Tasks", "%zu (last total %.3f ms)", a_snapshot.systemTasks.size(), _totalMs);
+		Engine::Editor::Value("Resources", "%zu", a_snapshot.resources.size());
 	}
 
 	//======================================================================================
@@ -225,11 +219,10 @@ namespace Engine::Editor
 	void ECSProfilerView::DrawArchetypes(const ECS::ECSWorldSnapshot& a_snapshot)
 	{
 		m_archetypeFilter.Draw("Filter (component)", 200.0f);
-		ImGui::SameLine();
-		ImGui::Checkbox("Hide Empty", &m_isHideEmptyArchetype);
-		ImGui::SameLine();
-		ImGui::Checkbox("Sort by Entities", &m_isSortArchetypeByEntity);
-		ImGui::Separator();
+		Engine::Editor::SameLine();
+		Engine::Editor::Field("Hide Empty", m_isHideEmptyArchetype);
+		Engine::Editor::Field("Sort by Entities", m_isSortArchetypeByEntity);
+		Engine::Editor::Line();
 
 		// 表示順
 		std::vector<const ECS::ECSArchetypeProfile*> _archetypeVec = {};
@@ -268,15 +261,14 @@ namespace Engine::Editor
 			if (_isOpen)
 			{
 				// 容量とレイアウト
-				ImGui::Text("Capacity : %u / chunk   Stride : %zu B / entity   Max Align : %zu",
-					_archetype.chunkCapacity, _archetype.entityStride, _archetype.maxAlign);
+				Engine::Editor::Text("Capacity : %u / chunk   Stride : %zu B / entity   Max Align : %zu", _archetype.chunkCapacity, _archetype.entityStride, _archetype.maxAlign);
 
 				const size_t _chunkBytes = a_snapshot.memory.chunkBytes;
 				{
 					char _overlay[64] = {};
 					snprintf(_overlay, sizeof(_overlay), "Layout %s / %s",
 						FormatBytes(_archetype.layoutBytes).c_str(), FormatBytes(_chunkBytes).c_str());
-					ImGui::ProgressBar(Ratio(static_cast<double>(_archetype.layoutBytes), static_cast<double>(_chunkBytes)), ImVec2(-1.0f, 0.0f), _overlay);
+					Engine::Editor::ProgressBar("Layout", Ratio(static_cast<double>(_archetype.layoutBytes), static_cast<double>(_chunkBytes)), _overlay);
 				}
 
 				// コンポーネント配列の配置(チャンク内の並び順)
@@ -327,8 +319,8 @@ namespace Engine::Editor
 						snprintf(_overlay, sizeof(_overlay), "%u / %u%s",
 							_chunk.count, _archetype.chunkCapacity, _chunk.isFreeChunk ? " (kept empty)" : "");
 
-						ImGui::Text("[%zu]", _i);
-						ImGui::SameLine();
+						Engine::Editor::Text("[%zu]", _i);
+						Engine::Editor::SameLine();
 						ImGui::ProgressBar(Ratio(_chunk.count, _archetype.chunkCapacity), ImVec2(-1.0f, 0.0f), _overlay);
 						if (ImGui::IsItemHovered())
 						{
@@ -351,8 +343,8 @@ namespace Engine::Editor
 	//======================================================================================
 	void ECSProfilerView::DrawComponents(const ECS::ECSWorldSnapshot& a_snapshot)
 	{
-		ImGui::Checkbox("Hide Unused", &m_isHideUnusedComponent);
-		ImGui::Separator();
+		Engine::Editor::Field("Hide Unused", m_isHideUnusedComponent);
+		Engine::Editor::Line();
 
 		if (!ImGui::BeginTable("ComponentTable", 6, TABLE_FLAGS | ImGuiTableFlags_ScrollY)) return;
 
@@ -385,7 +377,7 @@ namespace Engine::Editor
 	//======================================================================================
 	void ECSProfilerView::DrawSystems(const ECS::ECSWorldSnapshot& a_snapshot)
 	{
-		ImGui::TextDisabled("Timings are measured while the profiler is attached.");
+		Engine::Editor::HelpText("Timings are measured while the profiler is attached.");
 
 		if (!ImGui::BeginChild("SystemList"))
 		{
@@ -456,8 +448,8 @@ namespace Engine::Editor
 						if (ImGui::IsItemHovered())
 						{
 							ImGui::BeginTooltip();
-							ImGui::Text("Read  : %s", _task.readNames.empty() ? "-" : JoinNames(_task.readNames).c_str());
-							ImGui::Text("Write : %s", _task.writeNames.empty() ? "-" : JoinNames(_task.writeNames).c_str());
+							Engine::Editor::Value("Read", "%s", _task.readNames.empty() ? "-" : JoinNames(_task.readNames).c_str());
+							Engine::Editor::Value("Write", "%s", _task.writeNames.empty() ? "-" : JoinNames(_task.writeNames).c_str());
 							ImGui::EndTooltip();
 						}
 					}
@@ -478,7 +470,7 @@ namespace Engine::Editor
 	//======================================================================================
 	void ECSProfilerView::DrawResources(const ECS::ECSWorldSnapshot& a_snapshot)
 	{
-		ImGui::TextDisabled("Size is sizeof(T). Heap memory owned by the resource is not included.");
+		Engine::Editor::HelpText("Size is sizeof(T). Heap memory owned by the resource is not included.");
 
 		if (!ImGui::BeginTable("ResourceTable", 3, TABLE_FLAGS)) return;
 

@@ -100,25 +100,25 @@ struct Engine::ECS::ComponentTraits<TPSFollowComponent>
 		Engine::Editor::Field("LookAtRate", _comp.lookAtRate, 0.1f, 0.0f, 60.0f);
 		Engine::Editor::Field("OrbitRate", _comp.orbitRate, 0.1f, 0.0f, 60.0f);
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::HelpText("Speed Response");
 		Engine::Editor::Field("SpeedReference", _comp.speedReference, 0.5f, 0.1f, 500.0f);
 		Engine::Editor::Field("VerticalSpeedWeight", _comp.verticalSpeedWeight, 0.01f, 0.0f, 1.0f);
 		Engine::Editor::Field("SpeedResponseRate", _comp.speedResponseRate, 0.1f, 0.0f, 60.0f);
-		Engine::Editor::HelpText("小さいほど速度変化の効きがゆっくり立ち上がる");
+		Engine::Editor::Tooltip("小さいほど速度変化の効きがゆっくり立ち上がる");
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::HelpText("Speed Pull Back");
 		Engine::Editor::Field("SpeedPullBack", _comp.speedPullBack, 0.01f, 0.0f, 5.0f);
 		Engine::Editor::Field("MaxPullBack", _comp.maxPullBack, 0.1f, 0.0f, 50.0f);
 		Engine::Editor::Field("PullBackRate", _comp.pullBackRate, 0.1f, 0.0f, 60.0f);
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::HelpText("At Full Speed");
 		Engine::Editor::Field("FovAddAtSpeed", _comp.fovAddAtSpeed, 0.5f, 0.0f, 90.0f);
 		Engine::Editor::Field("FovRate", _comp.fovRate, 0.1f, 0.0f, 60.0f);
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		// 追従の遅れ系は CameraDeadZoneComponent へ移した。
 		// 保存データの互換のためフィールドは残っているが、触っても効かない

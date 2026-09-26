@@ -162,7 +162,7 @@ namespace App::Object
 		Engine::Editor::Field("Weight Dive Attack", m_diveAttackWeight, 0.05f, 0.0f);
 
 		// 目標地点は毎フレーム上書きされるので表示のみ
-		Engine::Editor::Text("Target  : %.1f, %.1f, %.1f (next %.1f s)", m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
-		Engine::Editor::Text("Attack  : %.1f / %.1f s -> %s", m_time, m_attackTime, std::string(magic_enum::enum_name(m_nextAttack)).c_str());
+		Engine::Editor::Value("Target", "%.1f, %.1f, %.1f (next %.1f s)", m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
+		Engine::Editor::Value("Attack", "%.1f / %.1f s -> %s", m_time, m_attackTime, std::string(magic_enum::enum_name(m_nextAttack)).c_str());
 	}
 }

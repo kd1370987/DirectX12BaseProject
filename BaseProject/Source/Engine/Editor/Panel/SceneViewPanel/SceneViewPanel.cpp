@@ -248,7 +248,7 @@ namespace Engine::Editor
 		const auto* _pTex = _pGE->GetCameraPipelines()->GetPresentTexture();
 		if (!_pTex)
 		{
-			ImGui::TextDisabled("画面に出るカメラに描画構成(RenderingPipelineAsset)が設定されていません");
+			Engine::Editor::HelpText("画面に出るカメラに描画構成(RenderingPipelineAsset)が設定されていません");
 			return;
 		}
 
@@ -1001,7 +1001,7 @@ namespace Engine::Editor
 			const auto& _sceneMetaVec = a_editContext.pServices->pAssetDatabase->GetTypeMetaVec("Scene");
 			if (_sceneMetaVec.empty())
 			{
-				ImGui::TextDisabled("Not find SceneAsset");
+				Engine::Editor::HelpText("Not find SceneAsset");
 			}
 
 			// 数が増えると探せなくなるので名前で絞り込めるようにする
@@ -1046,7 +1046,7 @@ namespace Engine::Editor
 				ImGui::PopID();
 			}
 
-			ImGui::Separator();
+			Engine::Editor::Line();
 			if (ImGui::Button("Close", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
 			ImGui::EndPopup();
 		}
@@ -1056,10 +1056,8 @@ namespace Engine::Editor
 		if (m_openSaveAsPopup) { ImGui::OpenPopup("Save Scene As"); m_openSaveAsPopup = false; }
 		if (ImGui::BeginPopupModal("Save Scene As", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			ImGui::Text("Input Filename (.scene) : ");
-
-			// Enterキーで決定できるようにフラグを追加すると便利です
-			bool isEnterPressed = ImGui::InputText("##scenename", &m_sceneNameInput, ImGuiInputTextFlags_EnterReturnsTrue);
+			// Enterキーでも決定できる
+			bool isEnterPressed = Engine::Editor::ConfirmField("File Name (.scene)##scenename", m_sceneNameInput);
 
 			if (ImGui::Button("Save", ImVec2(120, 0)) || isEnterPressed)
 			{
@@ -1087,7 +1085,7 @@ namespace Engine::Editor
 					ImGui::CloseCurrentPopup(); // 保存後に閉じる
 				}
 			}
-			ImGui::SameLine();
+			Engine::Editor::SameLine();
 			if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); } // タイポ修正
 			ImGui::EndPopup();
 		}
@@ -1105,12 +1103,9 @@ namespace Engine::Editor
 		if (m_openCreatePopup) { ImGui::OpenPopup("Create New Scene"); m_openCreatePopup = false; }
 		if (!ImGui::BeginPopupModal("Create New Scene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) return;
 
-		ImGui::Text("Input Filename (.scene) : ");
+		const bool _isEnterPressed = Engine::Editor::ConfirmField("File Name (.scene)##newscenename", m_sceneNameInput);
 
-		const bool _isEnterPressed =
-			ImGui::InputText("##newscenename", &m_sceneNameInput, ImGuiInputTextFlags_EnterReturnsTrue);
-
-		ImGui::TextDisabled("Asset/Scenes/<名前>/ へ空のシーンを作って開きます");
+		Engine::Editor::HelpText("Asset/Scenes/<名前>/ へ空のシーンを作って開きます");
 
 		// 名前が無いままは押させない
 		ImGui::BeginDisabled(m_sceneNameInput.empty());
@@ -1136,7 +1131,7 @@ namespace Engine::Editor
 			// 失敗(同名がある等)のときは閉じない。理由はログへ出ている
 		}
 
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
 
 		ImGui::EndPopup();

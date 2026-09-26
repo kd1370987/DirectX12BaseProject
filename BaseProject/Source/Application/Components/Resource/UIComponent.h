@@ -25,7 +25,6 @@ struct Engine::ECS::ComponentTraits<UIComponent>
 		a_ar.Field("uvOffsetTiling", _comp.uvOffsetTiling);
 		a_ar.Field("color", _comp.color);
 		a_ar.Field("texGUID", _comp.texGUID);
-
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -51,13 +50,12 @@ struct Engine::ECS::ComponentTraits<UIComponent>
 		// テクスチャの選択(現在の表示もヘルパー側で行う)
 		Engine::Editor::AssetField<Resource::Texture>(
 			*a_context.pWorld->RefEngineServices(),
-			"Change Texture",
+			"Texture",
 			"Texture",
 			_comp.texGUID,
 			_comp.texHandle
 		);
 
-		Engine::Editor::Text("ColorScale");
 		Engine::Editor::ColorPicker("ColorScale", _comp.color);
 	}
 };

@@ -14,20 +14,20 @@ namespace Engine::Editor::Inspector
 		if (!a_pAsset) { return; }
 
 		// ---- 概要 ----
-		ImGui::Text("Name             : %s", a_pAsset->GetName().c_str());
+		Engine::Editor::Value("Name", "%s", a_pAsset->GetName().c_str());
 
 		UINT _defaultStartHash = a_pAsset->GetDefaultStartHash();
 		auto _startName = a_pAsset->GetNodeName(_defaultStartHash);
 		if (_startName.empty())
 		{
-			ImGui::Text("DefaultStart     : (unknown) %u", _defaultStartHash);
+			Engine::Editor::Value("DefaultStart", "(unknown) %u", _defaultStartHash);
 		}
 		else
 		{
-			ImGui::Text("DefaultStart     : %s", std::string(_startName).c_str());
+			Engine::Editor::Value("DefaultStart", "%s", std::string(_startName).c_str());
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// ---- ノードエディタ ----
 		if (a_editContext.pServices) a_pAsset->EditImGui(a_handle, *a_editContext.pServices);

@@ -66,12 +66,12 @@ struct Engine::ECS::ComponentTraits<AdditivePoseComponent>
 
 		Engine::Editor::Field("MasterWeight", _comp.masterWeight, 0.01f, 0.0f, 1.0f);
 
-		Engine::Editor::Section("Aim");
+		Engine::Editor::Header("Aim");
 		Engine::Editor::Field("YawLimit(deg)", _comp.yawLimitDeg, 0.5f, 0.0f, 180.0f);
 		Engine::Editor::Field("PitchLimit(deg)", _comp.pitchLimitDeg, 0.5f, 0.0f, 90.0f);
 		Engine::Editor::Field("FollowRate", _comp.followRate, 0.1f, 0.0f);
 
-		Engine::Editor::Section("Lag");
+		Engine::Editor::Header("Lag");
 		Engine::Editor::Field("Stiffness", _comp.lagStiffness, 0.1f, 0.0f);
 		Engine::Editor::Field("Damping", _comp.lagDamping, 0.1f, 0.0f);
 		Engine::Editor::Field("Scale", _comp.lagScale, 0.001f, 0.0f);
@@ -79,7 +79,7 @@ struct Engine::ECS::ComponentTraits<AdditivePoseComponent>
 		Engine::Editor::Field("ArmScale", _comp.lagArmScale, 0.01f, 0.0f);
 		Engine::Editor::Field("LegScale", _comp.lagLegScale, 0.01f, 0.0f);
 
-		Engine::Editor::Section("Runtime");
+		Engine::Editor::Header("Runtime");
 		Engine::Editor::HandleInfo(_comp.handle);
 
 		// 解決済みボーンの確認(読み取り専用)

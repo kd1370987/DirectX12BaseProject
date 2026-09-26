@@ -51,22 +51,20 @@ namespace Engine::Editor
 		if (ImGui::CollapsingHeader("System Statistics", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			DrawFPSAndDeltaTime();
-			ImGui::Separator();
+			Engine::Editor::Line();
 
 			DrawCoreTimings();
-			ImGui::Separator();
+			Engine::Editor::Line();
 
 			DrawMemoryUsage();
 			DrawVRAMUsage();
 			DrawDescriptorHeapUsage();	// ディスクリプタヒープ
-			ImGui::Separator();
+			Engine::Editor::Line();
 
 			DrawRenderStats();			// DrawCall & Primitive
 		}
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Line();
 
 		// 下部にこれまでの「スコープごとの詳細な計測結果（ソート済みテーブル）」を表示する
 		DrawTimerTable(a_editContext.pProfiler);
@@ -81,18 +79,18 @@ namespace Engine::Editor
 	//======================================================================================
 	void ProfilerPanel::DrawTimerTable(Profiler* a_pProfiler)
 	{
-		ImGui::Text("CPU Detail Timings");
-		ImGui::TextDisabled("ENGINE_PROFILE_SCOPE");
+		Engine::Editor::Header("CPU Detail Timings");
+		Engine::Editor::HelpText("ENGINE_PROFILE_SCOPE");
 
 		if (!a_pProfiler)
 		{
-			ImGui::TextDisabled("Profiler is not available.");
+			Engine::Editor::HelpText("Profiler is not available.");
 			return;
 		}
 
 		// 平均を取り直す間隔
 		int _avelageRate = a_pProfiler->GetAvelageRate();
-		if (ImGui::DragInt("Avelage Rate (frame)", &_avelageRate, 1.0f, 1, 600))
+		if (Engine::Editor::Field("Avelage Rate (frame)", _avelageRate, 1.0f, 1, 600))
 		{
 			a_pProfiler->SetAvelageRate(_avelageRate);
 		}
@@ -102,12 +100,12 @@ namespace Engine::Editor
 		{
 			a_pProfiler->ResetAll();
 		}
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		const auto& _results = a_pProfiler->GetResults();
 		if (_results.empty())
 		{
-			ImGui::TextDisabled("No scope has been measured yet.");
+			Engine::Editor::HelpText("No scope has been measured yet.");
 			return;
 		}
 
@@ -178,7 +176,7 @@ namespace Engine::Editor
 		// メモリ使用率
 		// MBに変換して表示
 		double _memInMB = _memUsed / (1024.0 * 1024.0);
-		ImGui::Text("RAM Usage : %.2f MB", _memInMB);
+		Engine::Editor::Value("RAM Usage", "%.2f MB", _memInMB);
 	}
 
 	//======================================================================================
@@ -204,7 +202,7 @@ namespace Engine::Editor
 				// OSがゲームに対して割り当てられている
 				double _vramBudgetMB = static_cast<double>(_videoMemInfo.Budget) / (1024.0 * 1024.0);
 
-				ImGui::Text("VRAM Usage : %.2f / %.2f MB", _vramUsedMB, _vramBudgetMB);
+				Engine::Editor::Value("VRAM Usage", "%.2f / %.2f MB", _vramUsedMB, _vramBudgetMB);
 			}
 		}
 	}
@@ -222,8 +220,8 @@ namespace Engine::Editor
 	{
 		float _dt = Engine::MainEngine::Instance().GetDeltaTime();
 		int _fps = Engine::MainEngine::Instance().GetFPS();
-		ImGui::Text("FPS : %d", _fps);
-		ImGui::Text("DeltaTime : %f", _dt);
+		Engine::Editor::Value("FPS", "%d", _fps);
+		Engine::Editor::Value("DeltaTime", "%f", _dt);
 	}
 
 	//======================================================================================

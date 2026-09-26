@@ -172,7 +172,7 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 
 		// ---- マズルフラッシュ ----
 		// 1発撃つごとに銃口へ出す単発エフェクト。位置と向きは弾と同じ
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::HelpText("Muzzle Flash : 1発撃つごとに銃口へ出す");
 		Engine::Editor::AssetField<Engine::Resource::EffectAsset>(
 			*a_context.pWorld->RefEngineServices(),
@@ -191,7 +191,7 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 		}
 
 		// ---- オーバーヒート ----
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::Field("Use Overheat", _comp.useOverheat);
 
 		{
@@ -207,13 +207,14 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 		if (_comp.heatLimit < 0.01f) _comp.heatLimit = 0.01f;
 
 		// ---- ランタイム状態(参考) ----
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::HelpText("TimeSinceShoot : %.2f s  BurstRemain : %d", _comp.timeSinceShoot, _comp.burstRemain);
 
 		if (_comp.useOverheat)
 		{
-			Engine::Editor::ProgressBar(_comp.HeatRatio());
-			Engine::Editor::HelpText("Heat : %.1f / %.1f%s", _comp.heat, _comp.heatLimit, _comp.isOverheat ? "  [OVERHEAT]" : "");
+			char _overlay[64] = {};
+			snprintf(_overlay, sizeof(_overlay), "%.1f / %.1f%s", _comp.heat, _comp.heatLimit, _comp.isOverheat ? "  [OVERHEAT]" : "");
+			Engine::Editor::ProgressBar("Heat", _comp.HeatRatio(), _overlay);
 		}
 	}
 };

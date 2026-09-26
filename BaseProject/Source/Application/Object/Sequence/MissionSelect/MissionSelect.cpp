@@ -360,16 +360,16 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// エディターでは押して切り替えられないので、ここから出し入れして配置を見る
 		//----------------------------------------------------------------------
-		Engine::Editor::Section("Visible");
+		Engine::Editor::Header("Visible");
 
 		bool _isVisible = m_isVisible;
 		if (Engine::Editor::Field("Visible", _isVisible)) SetVisible(_isVisible);
-		Engine::Editor::HelpText("普段は HomeSequence が出し入れする。配置を見るときはここで切り替える");
+		Engine::Editor::Tooltip("普段は HomeSequence が出し入れする。配置を見るときはここで切り替える");
 
 		//----------------------------------------------------------------------
 		// ミッション
 		//----------------------------------------------------------------------
-		Engine::Editor::Section("Missions");
+		Engine::Editor::Header("Missions");
 		Engine::Editor::HelpText("1ミッション = シーンへ置いた UIButton 1つ。並べ方はそのボタン側で決める");
 
 		int _removeIndex = -1;
@@ -388,7 +388,7 @@ namespace App::Object
 					// 開いている確認ボックスへ即座に反映して、見ながら直せるようにする
 					if (m_confirmIndex == static_cast<int>(_i)) ApplyMissionName(_mission);
 				}
-				Engine::Editor::HelpText("確認ボックスの Text 飾りへ流し込む名前");
+				Engine::Editor::Tooltip("確認ボックスの Text 飾りへ流し込む名前");
 
 				if (Picker::DrawCombo<UIButton>("Button", _pObjectManager, _mission.buttonGUID))
 				{
@@ -397,7 +397,7 @@ namespace App::Object
 				Engine::Editor::HelpText("押すと確認ボックスが出る");
 
 				Engine::Editor::AssetField(*a_context.pServices, "Scene", "Scene", _mission.sceneGUID);
-				Engine::Editor::HelpText("Yes で飛ぶ先");
+				Engine::Editor::Tooltip("Yes で飛ぶ先");
 
 				Engine::Editor::HelpText("カーソルが乗っている間だけ出すUI(画像・説明文)");
 				if (Picker::DrawList<Engine::GameObject::BaseObject>("Detail UI", _pObjectManager, _mission.detailUIGUIDVec))
@@ -433,7 +433,7 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// 確認ボックス
 		//----------------------------------------------------------------------
-		Engine::Editor::Section("Confirm");
+		Engine::Editor::Header("Confirm");
 		Engine::Editor::HelpText("ミッションを押したときに中央へ出すもの");
 
 		if (Picker::DrawList<Engine::GameObject::BaseObject>("Confirm UI", _pObjectManager, m_confirmUIGUIDVec))
@@ -444,11 +444,9 @@ namespace App::Object
 		if (Picker::DrawCombo<UIButton>("Yes", _pObjectManager, m_yesButtonGUID)) m_isBound = false;
 		if (Picker::DrawCombo<UIButton>("No", _pObjectManager, m_noButtonGUID))   m_isBound = false;
 
-		Engine::Editor::Spacing();
-
 		if (Picker::DrawCombo<UIBase>("Name UI", _pObjectManager, m_nameUIGUID)) ApplyVisible();
 		Engine::Editor::Field("Name Decoration", m_nameDecorationName);
-		Engine::Editor::HelpText("上のUIが持つ Text 飾りの名前。ここへミッション名を書き込む");
+		Engine::Editor::Tooltip("上のUIが持つ Text 飾りの名前。ここへミッション名を書き込む");
 
 		// 指定した飾りが本当にあるか、その場で分かるようにしておく
 		if (auto* _pNameUI = Picker::Find<UIBase>(_pObjectManager, m_nameUIGUID))
@@ -457,21 +455,21 @@ namespace App::Object
 
 			if (_pDecoration == nullptr)
 			{
-				Engine::Editor::TextColored(Math::Color(1.0f, 0.4f, 0.4f, 1.0f), "飾りが見つかりません");
+				Engine::Editor::ErrorText("飾りが見つかりません");
 			}
 			else if (_pDecoration->type != Decoration::EDecorationType::Text)
 			{
-				Engine::Editor::TextColored(Math::Color(1.0f, 0.7f, 0.3f, 1.0f), "飾りが Text ではありません");
+				Engine::Editor::WarningText("飾りが Text ではありません");
 			}
 		}
 
 		//----------------------------------------------------------------------
 		// 実行中の状態は表示のみ
 		//----------------------------------------------------------------------
-		Engine::Editor::Section("Runtime");
-		Engine::Editor::Text("Bound     : %s", m_isBound ? "yes" : "no");
-		Engine::Editor::Text("Show      : %d", m_showIndex);
-		Engine::Editor::Text("Confirm   : %d", m_confirmIndex);
-		Engine::Editor::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
+		Engine::Editor::Header("Runtime");
+		Engine::Editor::Value("Bound", "%s", m_isBound ? "yes" : "no");
+		Engine::Editor::Value("Show", "%d", m_showIndex);
+		Engine::Editor::Value("Confirm", "%d", m_confirmIndex);
+		Engine::Editor::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
 	}
 }

@@ -29,128 +29,123 @@ namespace Engine::Editor::Inspector
 		}
 
 		// パラメーター変更
-		ImGui::InputText("Name", &a_pParticles->RefName());
-		ImGui::Text("%s", a_guid.String().c_str());
+		Engine::Editor::Field("Name", a_pParticles->RefName());
+		Engine::Editor::Text("%s", a_guid.String().c_str());
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		ImGui::PushID(1);
-		ImGui::Text("InitialSpeed");
-		ImGui::DragFloat("Min", &a_pParticles->RefInitalSpeedMin(), 0.1f, 0.0f);
-		ImGui::DragFloat("Max", &a_pParticles->RefInitalSpeedMax(), 0.1f, 0.0f);
+		Engine::Editor::Header("InitialSpeed");
+		Engine::Editor::Field("Min", a_pParticles->RefInitalSpeedMin(), 0.1f, 0.0f);
+		Engine::Editor::Field("Max", a_pParticles->RefInitalSpeedMax(), 0.1f, 0.0f);
 		ImGui::PopID();
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// 下限を 0 にしない : 負の値で浮き上がらせたいことがある(煙・炎)
-		ImGui::DragFloat("GravityPow", &a_pParticles->RefGravityPow(), 0.05f);
-		ImGui::TextDisabled("1 で普通に落ちる / 0 で無重力 / 負で浮き上がる");
+		Engine::Editor::Field("GravityPow", a_pParticles->RefGravityPow(), 0.05f);
+		Engine::Editor::Tooltip("1 で普通に落ちる / 0 で無重力 / 負で浮き上がる");
 
 		// ---- 空気抵抗 ----
 		// 勢いよく飛び出して失速する動き。爆発の破片や煙はこれが無いと
 		// 最後まで等速で飛んでいってしまう
-		ImGui::DragFloat("Drag (/s)", &a_pParticles->RefDrag(), 0.05f, 0.0f);
+		Engine::Editor::Field("Drag (/s)", a_pParticles->RefDrag(), 0.05f, 0.0f);
 		if (a_pParticles->GetDrag() <= 0.0f)
 		{
-			ImGui::TextDisabled("0 : 減速しない(等速で飛び続ける)");
+			Engine::Editor::HelpText("0 : 減速しない(等速で飛び続ける)");
 		}
 		else
 		{
-			ImGui::TextDisabled("大きいほど早く失速する(爆発の破片なら 2〜5 が目安)");
+			Engine::Editor::HelpText("大きいほど早く失速する(爆発の破片なら 2〜5 が目安)");
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		ImGui::PushID(2);
-		ImGui::Text("LifeTime");
-		ImGui::DragFloat("Min", &a_pParticles->RefLifeTimeMin(), 0.1f, 0.0f);
-		ImGui::DragFloat("Max", &a_pParticles->RefLifeTimeMax(), 0.1f, 0.0f);
+		Engine::Editor::Header("LifeTime");
+		Engine::Editor::Field("Min", a_pParticles->RefLifeTimeMin(), 0.1f, 0.0f);
+		Engine::Editor::Field("Max", a_pParticles->RefLifeTimeMax(), 0.1f, 0.0f);
 		ImGui::PopID();
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
-		ImGui::DragInt("Capacity", &a_pParticles->RefCapacity(), 1, 0);
-		ImGui::DragInt("EmissionRate", &a_pParticles->RefEmissionRate(), 1, 0);
+		Engine::Editor::Field("Capacity", a_pParticles->RefCapacity(), 1, 0);
+		Engine::Editor::Field("EmissionRate", a_pParticles->RefEmissionRate(), 1, 0);
 
-		ImGui::SeparatorText("Over Lifetime");
-		ImGui::TextDisabled("寿命のどこまで進んだかで、サイズと色を動かす");
+		Engine::Editor::Header("Over Lifetime");
+		Engine::Editor::HelpText("寿命のどこまで進んだかで、サイズと色を動かす");
 
 		// ---- サイズの変化 ----
-		ImGui::DragFloat("EndSizeScale", &a_pParticles->RefEndSizeScale(), 0.05f, 0.0f);
-		ImGui::TextDisabled("寿命の終わりでのサイズ倍率。煙は 1 より大きく、火花は小さく");
+		Engine::Editor::Field("EndSizeScale", a_pParticles->RefEndSizeScale(), 0.05f, 0.0f);
+		Engine::Editor::Tooltip("寿命の終わりでのサイズ倍率。煙は 1 より大きく、火花は小さく");
 
 		// ---- 色の変化 ----
 		// RGB は 1 を超えてよい。超えたぶんがブルームのしきい値を抜けて光る
 		Field("StartColor", a_pParticles->RefStartColor());
 		Field("EndColor", a_pParticles->RefEndColor());
-		ImGui::TextDisabled("RGB は 1 を超えてよい(超えたぶんが光る)。爆発は白→橙→暗い煙");
+		Engine::Editor::Tooltip("RGB は 1 を超えてよい(超えたぶんが光る)。爆発は白→橙→暗い煙");
 
 		// ---- フェード ----
 		// 寿命に対する割合で持つので、粒ごとに寿命がばらついても見え方が揃う
-		ImGui::DragFloat("FadeIn (ratio)", &a_pParticles->RefFadeInRatio(), 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("FadeOut (ratio)", &a_pParticles->RefFadeOutRatio(), 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("FadeIn (ratio)", a_pParticles->RefFadeInRatio(), 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("FadeOut (ratio)", a_pParticles->RefFadeOutRatio(), 0.01f, 0.0f, 1.0f);
 		if (a_pParticles->GetFadeInRatio() + a_pParticles->GetFadeOutRatio() > 1.0f)
 		{
-			ImGui::TextDisabled("合計が 1 を超えています(不透明になりきる前に消え始めます)");
+			Engine::Editor::HelpText("合計が 1 を超えています(不透明になりきる前に消え始めます)");
 		}
-
-		ImGui::Separator();
 
 		// ---- どの座標系で回すか ----
 		// ワールドのままだと、発生源が横へ動いた瞬間に出した粒だけ置き去りになる。
 		// 噴射のように発生源へくっついてほしいものは Local
-		ImGui::Text("Simulation");
+		Engine::Editor::Header("Simulation");
 		Field("SimulationSpace", a_pParticles->RefSimulationSpace());
 		if (a_pParticles->IsLocalSpace())
 		{
-			ImGui::TextDisabled("発生源にくっついて動く(ブースターの噴射など)");
-			ImGui::TextDisabled("※ 重力は発生源のローカル軸に掛かるので GravityPow は 0 推奨");
-			ImGui::TextDisabled("※ 同じアセットを同時に使える発生源は 8 個まで");
+			Engine::Editor::HelpText("発生源にくっついて動く(ブースターの噴射など)");
+			Engine::Editor::HelpText("※ 重力は発生源のローカル軸に掛かるので GravityPow は 0 推奨");
+			Engine::Editor::HelpText("※ 同じアセットを同時に使える発生源は 8 個まで");
 		}
 		else
 		{
-			ImGui::TextDisabled("出したその場に残る(煙・爆発・弾の軌跡など)");
+			Engine::Editor::HelpText("出したその場に残る(煙・爆発・弾の軌跡など)");
 		}
-
-		ImGui::Separator();
 
 		// ---- 色の重ね方 ----
 		// 加算は光り物、半透明は煙や破片。
 		// 加算のまま煙を出すと背景ごと明るくなってしまう
-		ImGui::Text("Blend");
+		Engine::Editor::Header("Blend");
 		Field("BlendMode", a_pParticles->RefBlendMode());
 		if (a_pParticles->GetBlendMode() == Particle::EParticleBlendMode::Additive)
 		{
-			ImGui::TextDisabled("重ねるほど明るくなる。火花・炎・爆発の芯向き");
+			Engine::Editor::HelpText("重ねるほど明るくなる。火花・炎・爆発の芯向き");
 		}
 		else
 		{
-			ImGui::TextDisabled("背景を明るくしない。煙・破片向き");
-			ImGui::TextDisabled("※ 粒の前後は並べ替えていないので、重なりが入れ替わって見えることがあります");
+			Engine::Editor::HelpText("背景を明るくしない。煙・破片向き");
+			Engine::Editor::HelpText("※ 粒の前後は並べ替えていないので、重なりが入れ替わって見えることがあります");
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// ---- 板ポリの向き ----
 		// 進行方向に画像を回すかどうか。Billboard 以外のとき Stretch が効く
-		ImGui::Text("Orientation");
 		Field("Orientation", a_pParticles->RefOrientation());
 		if (a_pParticles->GetOrientation() == Particle::EParticleOrientation::Billboard)
 		{
-			ImGui::TextDisabled("Always faces camera (texture up = screen up)");
+			Engine::Editor::HelpText("Always faces camera (texture up = screen up)");
 		}
 		else
 		{
-			ImGui::TextDisabled("Texture up (V=0) points along velocity");
-			ImGui::DragFloat("Stretch", &a_pParticles->RefStretch(), 0.05f, 0.01f);
+			Engine::Editor::HelpText("Texture up (V=0) points along velocity");
+			Engine::Editor::Field("Stretch", a_pParticles->RefStretch(), 0.05f, 0.01f);
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// 現在選択されているテクスチャ
 		const auto* _pTex = a_services.pResourceManager->Ref(a_pParticles->GetTexHandle());
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// テクスチャ選択コンボボックス
 		// 反映は専用のロード関数を通すので、選択だけを共通ヘルパーに任せる

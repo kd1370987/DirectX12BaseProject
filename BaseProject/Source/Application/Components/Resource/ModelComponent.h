@@ -75,7 +75,6 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-
 		ModelComponent& _comp = Engine::Editor::GetValue<ModelComponent>(a_context.pData);
 
 		// ---------------------------------------------------------
@@ -88,7 +87,7 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		// Release(旧handleで領域解放) → ModelFixupSystemがGUIDから新handleを復元 → 新サイズで領域再確保
 		if (Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
-			"Change Model",
+			"Model",
 			"Model",
 			_comp.modelGUID))
 		{
@@ -121,7 +120,7 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		// ピッカー自体は 0〜1 しか扱えないので、HDRの明るさは
 		// 「色 × 強度」に分けるのが結局いちばん触りやすい。
 		// ---------------------------------------------------------
-		Engine::Editor::Section("Emissive (Bloom)");
+		Engine::Editor::Header("Emissive (Bloom)");
 
 		Engine::Editor::ColorField("Emissive Color", _comp.emissiveColor);
 

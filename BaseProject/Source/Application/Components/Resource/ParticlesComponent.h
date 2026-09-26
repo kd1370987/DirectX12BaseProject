@@ -77,7 +77,6 @@ struct ParticlesComponent
 	bool  wasPlaying = false;		// バーストの立ち上がり / 立ち下がり検出用
 };
 
-
 template<>
 struct Engine::ECS::ComponentTraits<ParticlesComponent>
 {
@@ -137,7 +136,7 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		ParticlesComponent& _comp = Engine::Editor::GetValue<ParticlesComponent>(a_context.pData);
 
 		// ---- 発生源 ----
-		Engine::Editor::Text("Emit Source");
+		Engine::Editor::Header("Emit Source");
 		Engine::Editor::Field("EmitSpace", _comp.emitSpace);
 		if (_comp.emitSpace == EEmitSpace::LocalOffset)
 		{
@@ -153,13 +152,11 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		{
 			// 向きは速度から決まるので EmitDir は使わない
 			Engine::Editor::Field("PosOffset", _comp.posOffset, 0.05f);
-			Engine::Editor::HelpText("Dir : -Velocity (fallback : -Forward)");
+			Engine::Editor::Tooltip("Dir : -Velocity (fallback : -Forward)");
 		}
 
-		Engine::Editor::Separator();
-
 		// ---- 発生量 ----
-		Engine::Editor::Text("Emission");
+		Engine::Editor::Header("Emission");
 		Engine::Editor::Field("EmitCount", _comp.emitCount, 1, 0);
 		Engine::Editor::Field("EmitRate (/s, 0=Burst)", _comp.emitRate, 0.5f, 0.0f);
 
@@ -170,10 +167,8 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 			_comp.isPlay = _comp.playOnStart;
 		}
 
-		Engine::Editor::Separator();
-
 		// ---- 形状 ----
-		Engine::Editor::Text("Shape");
+		Engine::Editor::Header("Shape");
 		Engine::Editor::Field("BaseScale", _comp.baseScale, 0.05f, 0.0f);
 		Engine::Editor::Field("MinScale", _comp.minScale, 0.01f, 0.0f);
 		Engine::Editor::Field("MaxScale", _comp.maxScale, 0.01f, 0.0f);
@@ -188,7 +183,7 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 			Engine::Editor::Field("DirectionAngle (deg)", _comp.directionAngle, 0.5f, 0.0f, 180.0f);
 		}
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		// ---- アセット選択(既存踏襲) ----
 		// ロードではなくキャッシュ参照で解決したいので、選択だけを共通ヘルパーに任せる
@@ -196,7 +191,7 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		GUID _selectedGUID = {};
 		if (Engine::Editor::AssetPicker(
 			*a_context.pWorld->RefEngineServices(),
-			"Change Particle",
+			"Particle",
 			"ParticlesAsset",
 			_comp.particleGUID,
 			_selectedGUID))
@@ -205,7 +200,7 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 			_comp.particleGUID = _selectedGUID;
 		}
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		// ---- 火花(発動時 / 終了時のワンショット) ----
 		// 本体と同じ発生源から、同じフレームに同時に出る
@@ -226,7 +221,7 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 			GUID _selectedSparkGUID = {};
 			if (Engine::Editor::AssetPicker(
 				*a_context.pWorld->RefEngineServices(),
-				"Change Spark Particle",
+				"Spark Particle",
 				"ParticlesAsset",
 				_comp.sparkGUID,
 				_selectedSparkGUID))
@@ -237,7 +232,7 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		}
 
 		// ---- ランタイム状態(参考) ----
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::HelpText("isPlay:%d  pending:%d  spark:%d  time:%.2f", _comp.isPlay ? 1 : 0, _comp.pendingEmitCount, _comp.pendingSparkEmitCount, _comp.time);
 	}
 };

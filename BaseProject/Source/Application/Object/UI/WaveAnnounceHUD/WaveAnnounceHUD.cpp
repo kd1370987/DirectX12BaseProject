@@ -212,11 +212,7 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Spacing();
-		Engine::Editor::Separator();
-		Engine::Editor::Spacing();
-
-		Engine::Editor::Text("WaveAnnounce");
+		Engine::Editor::Header("WaveAnnounce");
 
 		// 合図の音(アセットDBの Sound 一覧から選ぶ)
 		if (Engine::Editor::AssetField(
@@ -240,12 +236,12 @@ namespace App::Object
 			}
 		}
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::Field("ShowTime", m_showTime, 0.1f, 0.0f, 10.0f);
 		Engine::Editor::Field("FadeOut", m_isFadeOut);
 		Engine::Editor::Field("PunchScale", m_punchScale, 0.01f, 0.1f, 4.0f);
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		// 文字の組み立て
 		{
@@ -267,10 +263,9 @@ namespace App::Object
 			OnWaveSpawned(a_context, (m_lastWaveIndex >= 0) ? m_lastWaveIndex : 0, 0);
 		}
 
-		Engine::Editor::Separator();
-		Engine::Editor::Text("LastWave : %d", m_lastWaveIndex + 1);
-		Engine::Editor::Text("Remain   : %.2f", m_remainTime);
-		Engine::Editor::HelpText("SceneSequence がウェーブを出したフレームに反応します");
-		Engine::Editor::HelpText("文字は Text の飾りへ入るので、飾りを1つ足してフォントを選んでください");
+		Engine::Editor::Line();
+		Engine::Editor::Value("LastWave", "%d", m_lastWaveIndex + 1);
+		Engine::Editor::Value("Remain", "%.2f", m_remainTime);
+		Engine::Editor::Tooltip("SceneSequence がウェーブを出したフレームに反応します\n文字は Text の飾りへ入るので、飾りを1つ足してフォントを選んでください");
 	}
 }

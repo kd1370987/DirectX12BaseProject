@@ -15,7 +15,7 @@ namespace Engine::Editor::Inspector
 		// 参照先アセットから戻るためのバー。
 		// 未選択でも出す(直前に見ていたものへ戻れるようにしておく)
 		DrawAssetNavBar(a_editContext);
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// 選択が変わっていればノードエディターを入れ替える。
 		// 未選択になったときにも通して、抱えているものを捨てる
@@ -24,22 +24,21 @@ namespace Engine::Editor::Inspector
 		// アセットが選択チェック
 		if (!a_editContext.pAssetProp)
 		{
-			ImGui::Text("No selected Asset");
+			Engine::Editor::HelpText("No selected Asset");
 			return;
 		}
 
 		// アセットが選択されている場合
 		// メタ情報
-		ImGui::Text("Name : %s", a_editContext.pAssetProp->fileName.c_str());
-		ImGui::Text("GUID : %s", a_editContext.pAssetProp->guid.String().c_str());
-		ImGui::Separator();
-		ImGui::Text("FilePath");
+		Engine::Editor::Value("Name", "%s", a_editContext.pAssetProp->fileName.c_str());
+		Engine::Editor::Value("GUID", "%s", a_editContext.pAssetProp->guid.String().c_str());
+		Engine::Editor::Header("FilePath");
 		for (auto& _ext : a_editContext.pAssetProp->extensionsVec)
 		{
 			auto _filePath = a_editContext.pAssetProp->filePath + a_editContext.pAssetProp->fileName + _ext;
-			ImGui::Text("%s", _filePath.c_str());
+			Engine::Editor::Text("%s", _filePath.c_str());
 		}
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		DrawByType(a_editContext);
 	}

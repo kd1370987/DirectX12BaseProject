@@ -103,7 +103,7 @@ namespace Engine::Editor
 		auto* _pGraphicsEngine = MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGraphicsEngine)
 		{
-			ImGui::TextDisabled("GraphicsEngine がありません");
+			Engine::Editor::HelpText("GraphicsEngine がありません");
 			return;
 		}
 
@@ -111,15 +111,15 @@ namespace Engine::Editor
 		const auto _graphVec = _pGraphicsEngine->GetCameraPipelines()->CollectPipelineGraphs();
 		if (_graphVec.empty())
 		{
-			ImGui::TextDisabled("動いているパイプラインがありません");
-			ImGui::TextDisabled("カメラに描画構成(RenderingPipelineAsset)を設定してください");
+			Engine::Editor::HelpText("動いているパイプラインがありません");
+			Engine::Editor::HelpText("カメラに描画構成(RenderingPipelineAsset)を設定してください");
 			return;
 		}
 
 		// カメラが増減すると添字がずれるので、範囲に収め直す
 		if (m_selectedGraph >= static_cast<int>(_graphVec.size())) m_selectedGraph = 0;
 
-		if (ImGui::BeginCombo("Pipeline", _graphVec[m_selectedGraph].name.c_str()))
+		if (Engine::Editor::ComboScope _combo{ "Pipeline", _graphVec[m_selectedGraph].name.c_str() })
 		{
 			for (int _i = 0; _i < static_cast<int>(_graphVec.size()); ++_i)
 			{
@@ -127,7 +127,6 @@ namespace Engine::Editor
 				if (ImGui::Selectable(_graphVec[_i].name.c_str(), _isSelected)) m_selectedGraph = _i;
 				if (_isSelected) ImGui::SetItemDefaultFocus();
 			}
-			ImGui::EndCombo();
 		}
 
 		const auto* _pGraph = _graphVec[m_selectedGraph].pGraph;
@@ -161,10 +160,10 @@ namespace Engine::Editor
 		// 名前でリソースを探す。出しっぱなしの欄なので入力は消さない
 		const std::string& _search = EditorHelper::DrawSearchBox("##ResourceSearch", "Search resource...", false);
 
-		ImGui::SameLine();
-		ImGui::TextDisabled("| %d 本", static_cast<int>(a_graph.GetVirtualResources().size()));
+		Engine::Editor::SameLine();
+		Engine::Editor::HelpText("| %d 本", static_cast<int>(a_graph.GetVirtualResources().size()));
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		if (ImGui::BeginChild("ResourceViewScrollRegion", ImGui::GetContentRegionAvail(), false, ImGuiWindowFlags_AlwaysVerticalScrollbar))
 		{
@@ -178,25 +177,25 @@ namespace Engine::Editor
 					continue;
 				}
 
-				ImGui::Text("format : %s", ToFormatName(_virtual.GetFormat()));
-				ImGui::Text("usage  : %s", ToUsageText(_virtual.GetUsage()).c_str());
+				Engine::Editor::Value("format", "%s", ToFormatName(_virtual.GetFormat()));
+				Engine::Editor::Value("usage", "%s", ToUsageText(_virtual.GetUsage()).c_str());
 
 				if (_virtual.IsBuffer())
 				{
 					// バッファは width にバイト数が入っている
-					ImGui::Text("size   : %llu bytes", _virtual.GetWidth());
+					Engine::Editor::Value("size", "%llu bytes", _virtual.GetWidth());
 				}
 				else
 				{
-					ImGui::Text("size   : %llu x %u", _virtual.GetWidth(), _virtual.GetHeight());
+					Engine::Editor::Value("size", "%llu x %u", _virtual.GetWidth(), _virtual.GetHeight());
 				}
 
-				if (_virtual.IsImported()) ImGui::TextDisabled("外部から差し込まれたリソース");
-				if (_virtual.IsTemporal()) ImGui::TextDisabled("履歴つき(2枚組)");
+				if (_virtual.IsImported()) Engine::Editor::HelpText("外部から差し込まれたリソース");
+				if (_virtual.IsTemporal()) Engine::Editor::HelpText("履歴つき(2枚組)");
 
 				DrawLifetime(a_graph, _virtual);
 
-				ImGui::Separator();
+				Engine::Editor::Line();
 
 				DrawResourceImage(a_graph, _virtual);
 
@@ -217,7 +216,7 @@ namespace Engine::Editor
 	{
 		if (!a_resource.HasLifetime())
 		{
-			ImGui::TextDisabled("lifetime : どのパスも触っていません");
+			Engine::Editor::HelpText("lifetime : どのパスも触っていません");
 			return;
 		}
 
@@ -234,19 +233,16 @@ namespace Engine::Editor
 		const uint32_t _first = a_resource.GetFirstPassIndex();
 		const uint32_t _last = a_resource.GetLastPassIndex();
 
-		ImGui::Text("lifetime : #%u %s  ->  #%u %s",
-			_first, _passName(_first),
-			_last, _passName(_last));
+		Engine::Editor::Value("lifetime", "#%u %s  ->  #%u %s", _first, _passName(_first), _last, _passName(_last));
 
 		// 何パスぶん抱えているか。長いものほど使い回しの邪魔になる
-		ImGui::SameLine();
-		ImGui::TextDisabled("(%u パス)", _last - _first + 1);
+		Engine::Editor::Tooltip("%u パス", _last - _first + 1);
 
 		if (a_resource.IsAliasable()) return;
 
 		// 使い回せない理由
-		if (a_resource.IsImported())		ImGui::TextDisabled("  実体がグラフの外にあるので使い回せません");
-		else if (a_resource.IsTemporal())	ImGui::TextDisabled("  区間がフレームをまたぐので使い回せません");
+		if (a_resource.IsImported())		Engine::Editor::HelpText("  実体がグラフの外にあるので使い回せません");
+		else if (a_resource.IsTemporal())	Engine::Editor::HelpText("  区間がフレームをまたぐので使い回せません");
 	}
 
 	//======================================================================================
@@ -265,7 +261,7 @@ namespace Engine::Editor
 			D3D12::GPUResource* _pResource = a_graph.RefGPUResource(_resourceID, _slice);
 			if (!_pResource)
 			{
-				ImGui::TextDisabled("実体がありません");
+				Engine::Editor::HelpText("実体がありません");
 				continue;
 			}
 
@@ -273,13 +269,13 @@ namespace Engine::Editor
 			// コピー先として作っただけのものがこれにあたる
 			if (!_pResource->GetImGuiSRV().IsValid())
 			{
-				ImGui::TextDisabled("SRV を持たないので絵にできません");
+				Engine::Editor::HelpText("SRV を持たないので絵にできません");
 				continue;
 			}
 
 			if (_sliceCount > 1)
 			{
-				ImGui::TextDisabled(_slice == 0 ? "今フレーム" : "前フレーム");
+				Engine::Editor::HelpText(_slice == 0 ? "今フレーム" : "前フレーム");
 			}
 
 			// アスペクト比の計算
@@ -310,13 +306,13 @@ namespace Engine::Editor
 
 		if (_report.IsEmpty())
 		{
-			ImGui::TextDisabled("まだコンパイルが通っていません");
+			Engine::Editor::HelpText("まだコンパイルが通っていません");
 			return;
 		}
 
 		DrawAliasingSummary(_report);
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		DrawAliasingTimeline(_report);
 
@@ -329,7 +325,7 @@ namespace Engine::Editor
 	void RenderGraphResourceViewPanel::DrawAliasingSummary(const Graphics::Pipeline::AliasingReport& a_report)
 	{
 		// 縦軸の取り方。構造を読むか、無駄を読むかで使い分ける
-		ImGui::Checkbox("バイト実寸", &m_isByteScale);
+		Engine::Editor::Field("バイト実寸", m_isByteScale);
 
 		if (ImGui::IsItemHovered())
 		{
@@ -338,8 +334,8 @@ namespace Engine::Editor
 				"on  : ヒープ上の実際の高さ。押さえたぶんと使ったぶんの差を読む");
 		}
 
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(160.f);
+		Engine::Editor::SameLine();
+		Engine::Editor::SetNextItemWidth(160.f);
 		ImGui::SliderFloat("##PassWidth", &m_passWidth, 12.f, 90.f, "パス幅 %.0f");
 
 		// 席に着いたぶんだけを足す。
@@ -347,18 +343,18 @@ namespace Engine::Editor
 		uint64_t _aliasedTotal = 0;
 		for (const auto& _entry : a_report.entries) _aliasedTotal += _entry.size;
 
-		ImGui::Text("席 %d", static_cast<int>(a_report.slots.size()));
-		ImGui::SameLine(); ImGui::TextDisabled("|");
-		ImGui::SameLine(); ImGui::Text("パス %d", static_cast<int>(a_report.passNames.size()));
-		ImGui::SameLine(); ImGui::TextDisabled("|");
-		ImGui::SameLine(); ImGui::Text("ヒープ %s", ToByteText(a_report.heapSize).c_str());
+		Engine::Editor::Text("席 %d", static_cast<int>(a_report.slots.size()));
+		Engine::Editor::SameLine(); Engine::Editor::HelpText("|");
+		Engine::Editor::SameLine(); Engine::Editor::Text("パス %d", static_cast<int>(a_report.passNames.size()));
+		Engine::Editor::SameLine(); Engine::Editor::HelpText("|");
+		Engine::Editor::SameLine(); Engine::Editor::Text("ヒープ %s", ToByteText(a_report.heapSize).c_str());
 
 		if (_aliasedTotal > 0)
 		{
 			const float _rate = 100.f * (1.f - static_cast<float>(a_report.heapSize) / static_cast<float>(_aliasedTotal));
 
-			ImGui::SameLine();
-			ImGui::TextDisabled("(1本ずつ作れば %s : %.1f%% 削減)", ToByteText(_aliasedTotal).c_str(), _rate);
+			Engine::Editor::SameLine();
+			Engine::Editor::HelpText("(1本ずつ作れば %s : %.1f%% 削減)", ToByteText(_aliasedTotal).c_str(), _rate);
 		}
 	}
 
@@ -374,7 +370,7 @@ namespace Engine::Editor
 
 		if (_slotCount == 0)
 		{
-			ImGui::TextDisabled("使い回せるリソースがありません");
+			Engine::Editor::HelpText("使い回せるリソースがありません");
 			return;
 		}
 
@@ -595,10 +591,7 @@ namespace Engine::Editor
 				ImGui::Separator();
 
 				ImGui::Text("Slot %u", _pHoveredEntry->slotIndex);
-				ImGui::Text("区間  : #%u -> #%u (%u パス)",
-					_pHoveredEntry->firstPassIndex,
-					_pHoveredEntry->lastPassIndex,
-					_pHoveredEntry->lastPassIndex - _pHoveredEntry->firstPassIndex + 1);
+				Engine::Editor::Value("区間", "#%u -> #%u (%u パス)", _pHoveredEntry->firstPassIndex, _pHoveredEntry->lastPassIndex, _pHoveredEntry->lastPassIndex - _pHoveredEntry->firstPassIndex + 1);
 
 				if (_pHoveredEntry->firstPassIndex < a_report.passNames.size())
 				{
@@ -609,8 +602,8 @@ namespace Engine::Editor
 					ImGui::TextDisabled("  終 : %s", a_report.passNames[_pHoveredEntry->lastPassIndex].c_str());
 				}
 
-				ImGui::Text("大きさ : %s", ToByteText(_pHoveredEntry->size).c_str());
-				ImGui::Text("位置   : %s", ToByteText(_pHoveredEntry->offset).c_str());
+				Engine::Editor::Value("大きさ", "%s", ToByteText(_pHoveredEntry->size).c_str());
+				Engine::Editor::Value("位置", "%s", ToByteText(_pHoveredEntry->offset).c_str());
 
 				// 同じ席を直前に使っていた相手 : バリアの before になっているもの
 				if (!_pHoveredEntry->prevName.empty())

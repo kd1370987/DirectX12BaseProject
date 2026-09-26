@@ -88,7 +88,7 @@ namespace Engine::Editor::Inspector
 			EPassEditResult OnDrawDetail(TPass& a_pass) override
 			{
 				(void)a_pass;
-				for (const char* _pNote : m_notes) ImGui::TextDisabled("%s", _pNote);
+				for (const char* _pNote : m_notes) Engine::Editor::HelpText("%s", _pNote);
 				return EPassEditResult::None;
 			}
 
@@ -107,7 +107,7 @@ namespace Engine::Editor::Inspector
 			char _nameBuf[128] = {};
 			std::snprintf(_nameBuf, sizeof(_nameBuf), "%s", a_name.c_str());
 
-			if (!ImGui::InputText("ResourceName", _nameBuf, sizeof(_nameBuf))) return false;
+			if (!Engine::Editor::Field("ResourceName", _nameBuf, sizeof(_nameBuf))) return false;
 
 			a_name = _nameBuf;
 			return true;
@@ -117,7 +117,7 @@ namespace Engine::Editor::Inspector
 		bool DrawEnableCheck(int& a_enable)
 		{
 			bool _isEnable = (a_enable != 0);
-			if (!ImGui::Checkbox("Enable", &_isEnable)) return false;
+			if (!Engine::Editor::Field("Enable", _isEnable)) return false;
 
 			a_enable = _isEnable ? 1 : 0;
 			return true;
@@ -133,8 +133,8 @@ namespace Engine::Editor::Inspector
 		protected:
 			EPassEditResult OnDrawDetail(ZPrePass& a_pass) override
 			{
-				ImGui::TextDisabled("不透明モデルの深度だけを書きます");
-				ImGui::Text("PassIndex : %d", static_cast<int>(a_pass.GetPassIndex()));
+				Engine::Editor::HelpText("不透明モデルの深度だけを書きます");
+				Engine::Editor::Value("PassIndex", "%d", static_cast<int>(a_pass.GetPassIndex()));
 				return EPassEditResult::None;
 			}
 		};
@@ -144,8 +144,8 @@ namespace Engine::Editor::Inspector
 		protected:
 			EPassEditResult OnDrawDetail(GBufferPass& a_pass) override
 			{
-				ImGui::TextDisabled("不透明モデルをGBufferへ描きます");
-				ImGui::Text("PassIndex : %d", static_cast<int>(a_pass.GetPassIndex()));
+				Engine::Editor::HelpText("不透明モデルをGBufferへ描きます");
+				Engine::Editor::Value("PassIndex", "%d", static_cast<int>(a_pass.GetPassIndex()));
 				return EPassEditResult::None;
 			}
 		};
@@ -163,9 +163,9 @@ namespace Engine::Editor::Inspector
 				auto& _params = a_pass.RefParams();
 				bool _isEdit = false;
 
-				_isEdit |= ImGui::DragFloat("GIIntensity", &_params.giIntensity, 0.01f, 0.0f);
-				_isEdit |= ImGui::DragFloat("DirectionalIntensity", &_params.directionalIntensity, 0.01f, 0.0f);
-				_isEdit |= ImGui::DragFloat("DielectricF0", &_params.dielectricF0, 0.001f, 0.0f, 1.0f);
+				_isEdit |= Engine::Editor::Field("GIIntensity", _params.giIntensity, 0.01f, 0.0f);
+				_isEdit |= Engine::Editor::Field("DirectionalIntensity", _params.directionalIntensity, 0.01f, 0.0f);
+				_isEdit |= Engine::Editor::Field("DielectricF0", _params.dielectricF0, 0.001f, 0.0f, 1.0f);
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
@@ -181,8 +181,8 @@ namespace Engine::Editor::Inspector
 		protected:
 			EPassEditResult OnDrawDetail(TPass& a_pass) override
 			{
-				ImGui::TextDisabled("%s", m_pNote);
-				if (!a_pass.IsReady()) ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "PSO not ready");
+				Engine::Editor::HelpText("%s", m_pNote);
+				if (!a_pass.IsReady()) Engine::Editor::ErrorText("PSO not ready");
 				return EPassEditResult::None;
 			}
 
@@ -208,10 +208,10 @@ namespace Engine::Editor::Inspector
 				const bool _isStructure = DrawResourceName(_params.resourceName);
 
 				// 段ごとに 1, 2, 4, 8... と変える
-				_isParam |= ImGui::DragInt("StepSize", &_params.cb.stepSize, 1, 1, 64);
-				_isParam |= ImGui::DragFloat("PhiDepth", &_params.cb.phiDepth, 0.01f, 0.0f);
-				_isParam |= ImGui::DragFloat("PhiNormal", &_params.cb.phiNormal, 0.1f, 0.0f);
-				_isParam |= ImGui::DragFloat("PhiColor", &_params.cb.phiColor, 0.01f, 0.0f);
+				_isParam |= Engine::Editor::Field("StepSize", _params.cb.stepSize, 1, 1, 64);
+				_isParam |= Engine::Editor::Field("PhiDepth", _params.cb.phiDepth, 0.01f, 0.0f);
+				_isParam |= Engine::Editor::Field("PhiNormal", _params.cb.phiNormal, 0.1f, 0.0f);
+				_isParam |= Engine::Editor::Field("PhiColor", _params.cb.phiColor, 0.01f, 0.0f);
 
 				if (_isStructure)
 				{
@@ -232,12 +232,12 @@ namespace Engine::Editor::Inspector
 				auto& _params = a_pass.RefParams();
 				bool _isEdit = false;
 
-				_isEdit |= ImGui::DragFloat("PhiDepth", &_params.phiDepth, 0.01f, 0.0f);
-				_isEdit |= ImGui::DragFloat("PhiNormal", &_params.phiNormal, 0.1f, 0.0f);
-				_isEdit |= ImGui::DragFloat("BlendRate", &_params.blendRate, 0.01f, 0.0f, 1.0f);
+				_isEdit |= Engine::Editor::Field("PhiDepth", _params.phiDepth, 0.01f, 0.0f);
+				_isEdit |= Engine::Editor::Field("PhiNormal", _params.phiNormal, 0.1f, 0.0f);
+				_isEdit |= Engine::Editor::Field("BlendRate", _params.blendRate, 0.01f, 0.0f, 1.0f);
 
-				ImGui::TextDisabled("HistoryOut を History へ繋いでください");
-				ImGui::TextDisabled("(Temporal なので前フレームのぶんが入ります)");
+				Engine::Editor::HelpText("HistoryOut を History へ繋いでください");
+				Engine::Editor::HelpText("(Temporal なので前フレームのぶんが入ります)");
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
@@ -256,11 +256,11 @@ namespace Engine::Editor::Inspector
 				auto& _params = a_pass.RefParams();
 				bool _isEdit = DrawEnableCheck(_params.enable);
 
-				_isEdit |= ImGui::DragFloat("Threshold", &_params.threshold, 0.01f, 0.0f);
-				_isEdit |= ImGui::DragFloat("SoftKnee", &_params.softKnee, 0.01f, 0.0f, 1.0f);
+				_isEdit |= Engine::Editor::Field("Threshold", _params.threshold, 0.01f, 0.0f);
+				_isEdit |= Engine::Editor::Field("SoftKnee", _params.softKnee, 0.01f, 0.0f, 1.0f);
 
 				// 強さは合成側で効く。抽出側は同じCBを使うので並びを合わせて持っている
-				_isEdit |= ImGui::DragFloat("Intensity", &_params.intensity, 0.01f, 0.0f);
+				_isEdit |= Engine::Editor::Field("Intensity", _params.intensity, 0.01f, 0.0f);
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
@@ -274,10 +274,10 @@ namespace Engine::Editor::Inspector
 				auto& _params = a_pass.RefParams();
 				bool _isEdit = DrawEnableCheck(_params.enable);
 
-				_isEdit |= ImGui::DragFloat("Intensity", &_params.intensity, 0.01f, 0.0f);
+				_isEdit |= Engine::Editor::Field("Intensity", _params.intensity, 0.01f, 0.0f);
 
 				// 抽出のしきい値は BloomExtractPass 側。合成では使わないが並びを合わせて持っている
-				ImGui::TextDisabled("Threshold / SoftKnee は BloomExtractPass 側");
+				Engine::Editor::HelpText("Threshold / SoftKnee は BloomExtractPass 側");
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
@@ -299,10 +299,10 @@ namespace Engine::Editor::Inspector
 				bool _isStructure = DrawResourceName(_params.resourceName);
 
 				// 解像度が変わるとテクスチャを作り直すので組み直しが要る
-				if (ImGui::DragFloat("OutputScale", &_params.outputScale, 0.01f, 0.01f, 1.0f)) _isStructure = true;
+				if (Engine::Editor::Field("OutputScale", _params.outputScale, 0.01f, 0.01f, 1.0f)) _isStructure = true;
 
-				_isParam |= ImGui::DragFloat("Sigma", &_params.sigma, 0.01f, 0.01f, 16.0f);
-				_isParam |= ImGui::DragInt("TapRadius", &_params.tapRadius, 1, 1, 8);
+				_isParam |= Engine::Editor::Field("Sigma", _params.sigma, 0.01f, 0.01f, 16.0f);
+				_isParam |= Engine::Editor::Field("TapRadius", _params.tapRadius, 1, 1, 8);
 
 				if (_isStructure)
 				{
@@ -321,14 +321,14 @@ namespace Engine::Editor::Inspector
 				auto& _params = a_pass.RefParams();
 				bool _isEdit = DrawEnableCheck(_params.enable);
 
-				_isEdit |= ImGui::DragFloat2("BlurCenter", &_params.blurCenter.x, 0.01f);
-				_isEdit |= ImGui::DragFloat("Strength", &_params.strength, 0.001f, 0.0f, 1.0f);
-				_isEdit |= ImGui::DragInt("SampleCount", &_params.sampleCount, 1, 1, 64);
-				_isEdit |= ImGui::DragFloat("Radius", &_params.radius, 0.01f, 0.0f, 2.0f);
-				_isEdit |= ImGui::DragFloat("Falloff", &_params.falloff, 0.01f, 0.0f, 8.0f);
+				_isEdit |= Engine::Editor::Field("BlurCenter", _params.blurCenter, 0.01f);
+				_isEdit |= Engine::Editor::Field("Strength", _params.strength, 0.001f, 0.0f, 1.0f);
+				_isEdit |= Engine::Editor::Field("SampleCount", _params.sampleCount, 1, 1, 64);
+				_isEdit |= Engine::Editor::Field("Radius", _params.radius, 0.01f, 0.0f, 2.0f);
+				_isEdit |= Engine::Editor::Field("Falloff", _params.falloff, 0.01f, 0.0f, 8.0f);
 
 				// 値が変わるだけなのでグラフは組み直さない
-				ImGui::TextDisabled("カメラが RadialBlurComponent を持つあいだはそちらの値が優先される");
+				Engine::Editor::HelpText("カメラが RadialBlurComponent を持つあいだはそちらの値が優先される");
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
@@ -347,12 +347,12 @@ namespace Engine::Editor::Inspector
 				auto& _params = a_pass.RefParams();
 				bool _isEdit = DrawEnableCheck(_params.enable);
 
-				_isEdit |= ImGui::DragFloat2("Center", &_params.center.x, 0.01f);
+				_isEdit |= Engine::Editor::Field("Center", _params.center, 0.01f);
 
 				// 正で樽型、負で糸巻き型
-				_isEdit |= ImGui::DragFloat("Strength", &_params.strength, 0.01f, -2.0f, 2.0f);
+				_isEdit |= Engine::Editor::Field("Strength", _params.strength, 0.01f, -2.0f, 2.0f);
 
-				ImGui::TextDisabled("カメラが FishEyeComponent を持つあいだはそちらの値が優先される");
+				Engine::Editor::HelpText("カメラが FishEyeComponent を持つあいだはそちらの値が優先される");
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
@@ -371,14 +371,14 @@ namespace Engine::Editor::Inspector
 				auto& _params = a_pass.RefParams();
 				bool _isEdit = DrawEnableCheck(_params.enable);
 
-				_isEdit |= ImGui::DragFloat("FocusDistance", &_params.focusDistance, 0.1f, 0.0f);
-				_isEdit |= ImGui::DragFloat("FocusRange", &_params.focusRange, 0.1f, 0.0f);
-				_isEdit |= ImGui::DragFloat("NearRange", &_params.nearRange, 0.1f, 0.0f);
-				_isEdit |= ImGui::DragFloat("FarRange", &_params.farRange, 0.1f, 0.0f);
-				_isEdit |= ImGui::DragFloat("MaxBlurRadius", &_params.maxBlurRadius, 0.1f, 0.0f);
+				_isEdit |= Engine::Editor::Field("FocusDistance", _params.focusDistance, 0.1f, 0.0f);
+				_isEdit |= Engine::Editor::Field("FocusRange", _params.focusRange, 0.1f, 0.0f);
+				_isEdit |= Engine::Editor::Field("NearRange", _params.nearRange, 0.1f, 0.0f);
+				_isEdit |= Engine::Editor::Field("FarRange", _params.farRange, 0.1f, 0.0f);
+				_isEdit |= Engine::Editor::Field("MaxBlurRadius", _params.maxBlurRadius, 0.1f, 0.0f);
 
-				ImGui::TextDisabled("%s", m_pPairNote);
-				ImGui::TextDisabled("カメラが FocusParamComponent を持つあいだはそちらの値が優先される");
+				Engine::Editor::HelpText("%s", m_pPairNote);
+				Engine::Editor::HelpText("カメラが FocusParamComponent を持つあいだはそちらの値が優先される");
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
@@ -396,12 +396,12 @@ namespace Engine::Editor::Inspector
 				bool _isEdit = false;
 
 				int _type = static_cast<int>(_params.type);
-				if (ImGui::DragInt("Type", &_type, 1, 0, 8)) { _params.type = static_cast<uint32_t>(_type); _isEdit = true; }
+				if (Engine::Editor::Field("Type", _type, 1, 0, 8)) { _params.type = static_cast<uint32_t>(_type); _isEdit = true; }
 
-				_isEdit |= ImGui::DragFloat("Exposure", &_params.exposure, 0.01f, 0.0f);
-				_isEdit |= ImGui::DragFloat("WhitePoint", &_params.whitePoint, 0.1f, 0.0f);
+				_isEdit |= Engine::Editor::Field("Exposure", _params.exposure, 0.01f, 0.0f);
+				_isEdit |= Engine::Editor::Field("WhitePoint", _params.whitePoint, 0.1f, 0.0f);
 
-				ImGui::TextDisabled("HDR -> LDR。これより後ろにポストプロセスを置かないこと");
+				Engine::Editor::HelpText("HDR -> LDR。これより後ろにポストプロセスを置かないこと");
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
@@ -417,11 +417,11 @@ namespace Engine::Editor::Inspector
 		protected:
 			EPassEditResult OnDrawDetail(FinalOutputPass& a_pass) override
 			{
-				ImGui::TextDisabled("このノードの絵がカメラの最終出力になります");
+				Engine::Editor::HelpText("このノードの絵がカメラの最終出力になります");
 
 				const Slot* _pInSlot = a_pass.FindInputSlot(Pass::MakeSlotID(FinalOutputPass::kInputName));
-				if (_pInSlot && _pInSlot->IsConnected())	ImGui::Text("Input : %s", _pInSlot->name.c_str());
-				else										ImGui::TextDisabled("Input : (not connected)");
+				if (_pInSlot && _pInSlot->IsConnected())	Engine::Editor::Value("Input", "%s", _pInSlot->name.c_str());
+				else										Engine::Editor::HelpText("Input : (not connected)");
 
 				// 触れる設定を持たない
 				return EPassEditResult::None;
@@ -441,9 +441,9 @@ namespace Engine::Editor::Inspector
 				auto& _params = a_pass.RefParams();
 				bool _isEdit = false;
 
-				ImGui::TextDisabled("ScaleRatio : %.2f (繋がれた解像度から自動)", _params.scaleRatio);
-				_isEdit |= ImGui::DragFloat("DepthSigma", &_params.depthSigma, 0.001f, 0.0f);
-				_isEdit |= ImGui::DragFloat("NormalPower", &_params.normalPower, 0.1f, 0.0f);
+				Engine::Editor::HelpText("ScaleRatio : %.2f (繋がれた解像度から自動)", _params.scaleRatio);
+				_isEdit |= Engine::Editor::Field("DepthSigma", _params.depthSigma, 0.001f, 0.0f);
+				_isEdit |= Engine::Editor::Field("NormalPower", _params.normalPower, 0.1f, 0.0f);
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
@@ -458,7 +458,7 @@ namespace Engine::Editor::Inspector
 
 				bool _isStructure = DrawResourceName(_params.resourceName);
 
-				if (ImGui::BeginCombo("Format", CopyPass::ToFormatName(_params.formatIndex)))
+				if (Engine::Editor::ComboScope _combo{ "Format", CopyPass::ToFormatName(_params.formatIndex) })
 				{
 					for (int _i = 0; _i < CopyPass::kFormatCount; ++_i)
 					{
@@ -470,11 +470,10 @@ namespace Engine::Editor::Inspector
 						}
 						if (_isSelected) ImGui::SetItemDefaultFocus();
 					}
-					ImGui::EndCombo();
 				}
 
-				if (ImGui::Checkbox("History", &_params.isTemporal)) _isStructure = true;
-				ImGui::TextDisabled("入力と同じフォーマット・大きさにすること");
+				if (Engine::Editor::Field("History", _params.isTemporal)) _isStructure = true;
+				Engine::Editor::Tooltip("入力と同じフォーマット・大きさにすること");
 
 				if (!_isStructure) return EPassEditResult::None;
 
@@ -501,15 +500,15 @@ namespace Engine::Editor::Inspector
 				}
 
 				// 写しを取るかどうかは実行インスタンス側の振る舞いなので、値を配る必要がある
-				if (ImGui::Checkbox("Preview", &_params.isPreview) && _result == EPassEditResult::None)
+				if (Engine::Editor::Field("Preview", _params.isPreview) && _result == EPassEditResult::None)
 				{
 					_result = EPassEditResult::Param;
 				}
 
 				// 表示の大きさは設計図側でしか使わないので、配らない
-				ImGui::DragFloat("PreviewWidth", &_params.previewWidth, 1.0f, 64.0f, 1024.0f);
+				Engine::Editor::Field("PreviewWidth", _params.previewWidth, 1.0f, 64.0f, 1024.0f);
 
-				ImGui::TextDisabled("フォーマットと大きさは入力から受け取る");
+				Engine::Editor::HelpText("フォーマットと大きさは入力から受け取る");
 
 				return _result;
 			}
@@ -520,7 +519,7 @@ namespace Engine::Editor::Inspector
 
 				if (!_params.isPreview)
 				{
-					ImGui::TextDisabled("Preview : off");
+					Engine::Editor::HelpText("Preview : off");
 					return;
 				}
 
@@ -533,7 +532,7 @@ namespace Engine::Editor::Inspector
 				if (!_pTex || !_pTex->GetImGuiSRV().IsValid())
 				{
 					// カメラがこのパイプラインを回していないあいだはここに来る
-					ImGui::TextDisabled("表示するものがありません");
+					Engine::Editor::HelpText("表示するものがありません");
 					return;
 				}
 
@@ -548,7 +547,7 @@ namespace Engine::Editor::Inspector
 
 				ImGui::Image(static_cast<ImTextureID>(_gpuHandle.ptr), _size);
 
-				ImGui::TextDisabled("%llu x %u", _desc.Width, _desc.Height);
+				Engine::Editor::HelpText("%llu x %u", _desc.Width, _desc.Height);
 			}
 		};
 
@@ -562,7 +561,7 @@ namespace Engine::Editor::Inspector
 		protected:
 			EPassEditResult OnDrawDetail(TestClearPass& a_pass) override
 			{
-				ImGui::TextDisabled("出力テクスチャを指定色で塗るだけのパスです");
+				Engine::Editor::HelpText("出力テクスチャを指定色で塗るだけのパスです");
 
 				// 自分で塗るので、色を変えてもリソースの作り直しは要らない。
 				// Param を返すと、カメラが回している実行インスタンスへ値だけが写る
@@ -583,12 +582,12 @@ namespace Engine::Editor::Inspector
 					for (Slot& _out : a_pass.RefOutputSlots())
 					{
 						ImGui::PushID(_out.pinID);
-						ImGui::Text("%s : %s", _out.pinName.c_str(), _out.name.c_str());
+						Engine::Editor::Text("%s : %s", _out.pinName.c_str(), _out.name.c_str());
 						// どれもリソースの要件を変えるので、触られたら組み直しが要る
 						_isEdit |= Field("LoadOp", _out.loadOp);
 						_isEdit |= Field("Access", _out.accessType);
-						_isEdit |= ImGui::DragFloat("Scale", &_out.scale, 0.01f, 0.01f, 4.0f);
-						ImGui::Separator();
+						_isEdit |= Engine::Editor::Field("Scale", _out.scale, 0.01f, 0.01f, 4.0f);
+						Engine::Editor::Line();
 						ImGui::PopID();
 					}
 					ImGui::TreePop();
@@ -598,8 +597,8 @@ namespace Engine::Editor::Inspector
 				{
 					for (const Slot& _in : a_pass.GetInputSlots())
 					{
-						if (_in.IsConnected())	ImGui::Text("%s : %s", _in.pinName.c_str(), _in.name.c_str());
-						else					ImGui::TextDisabled("%s : (not connected)", _in.pinName.c_str());
+						if (_in.IsConnected())	Engine::Editor::Text("%s : %s", _in.pinName.c_str(), _in.name.c_str());
+						else					Engine::Editor::HelpText("%s : (not connected)", _in.pinName.c_str());
 					}
 					ImGui::TreePop();
 				}

@@ -117,7 +117,6 @@ namespace App::Game
 			}
 		);
 
-
 		// 最初のシーンを挿入
 		if (m_farstScene.IsValid())
 		{
@@ -160,7 +159,6 @@ namespace App::Game
 	{}
 	void GameManager::EditDraw()
 	{
-
 	}
 	//======================================================================================
 	// ゲーム設定の読み込み / 保存
@@ -190,7 +188,7 @@ namespace App::Game
 	//======================================================================================
 	void GameManager::DrawGameSettingEdit()
 	{
-		Engine::Editor::Text("Farst Scene : %s", m_farstScene.String().c_str());
+		Engine::Editor::Value("Farst Scene", "%s", m_farstScene.String().c_str());
 
 		Engine::Editor::AssetField(
 			Engine::MainEngine::Instance().GetEngineServices(),
@@ -198,7 +196,7 @@ namespace App::Game
 			"Scene",
 			m_farstScene);
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		if (Engine::Editor::Button("Save"))
 		{

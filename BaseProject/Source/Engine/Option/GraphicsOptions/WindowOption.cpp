@@ -6,15 +6,13 @@
 void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineServices&)
 {
 	// ウィンドウサイズ
-	Engine::Editor::Text("WindowSize");
-	Engine::Editor::Text("Width : %f", windowWidth);
-	Engine::Editor::Text("Height : %f", windowHeight);
+	Engine::Editor::Header("WindowSize");
+	Engine::Editor::Value("Width", "%f", windowWidth);
+	Engine::Editor::Value("Height", "%f", windowHeight);
 	Engine::Editor::Field("Width", windowWidth, 1, 0, 1980);
 	Engine::Editor::Field("Height", windowHeight, 1, 0, 1080);
 
-	Engine::Editor::Spacing();
-	Engine::Editor::Separator();
-	Engine::Editor::Spacing();
+	Engine::Editor::Line();
 
 	// ウィンドウタイトル
 	if (Engine::Editor::Field("Title", windowTitle))
@@ -36,9 +34,7 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineSe
 		}
 	}
 
-	Engine::Editor::Spacing();
-	Engine::Editor::Separator();
-	Engine::Editor::Spacing();
+	Engine::Editor::Line();
 
 	// ウィンドウモード
 	if (Engine::Editor::Field("WindowMode", windowMode))
@@ -53,9 +49,7 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineSe
 	Engine::Editor::Field("Vsync", isVsync);
 	Engine::Editor::Field("TargetFrameRate", targetFrameRate, 1, 0, 1000);
 
-	Engine::Editor::Spacing();
-	Engine::Editor::Separator();
-	Engine::Editor::Spacing();
+	Engine::Editor::Line();
 }
 
 void Engine::Option::GraphicsOptions::WindowOption::Archive(Persistence::Archive& a_archive)

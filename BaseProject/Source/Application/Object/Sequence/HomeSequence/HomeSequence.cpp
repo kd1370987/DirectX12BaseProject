@@ -241,19 +241,19 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// エディターでは押して切り替えられないので、ここから切り替えて配置を見る
 		//----------------------------------------------------------------------
-		Engine::Editor::Section("Mode");
+		Engine::Editor::Header("Mode");
 
 		EHomeMode _mode = m_mode;
 		if (Engine::Editor::Field("Mode", _mode))
 		{
 			SetMode(_mode, _pObjectManager);
 		}
-		Engine::Editor::HelpText("配置を見るときはここで切り替える(保存はされない)");
+		Engine::Editor::Tooltip("配置を見るときはここで切り替える(保存はされない)");
 
 		//----------------------------------------------------------------------
 		// ボタン
 		//----------------------------------------------------------------------
-		Engine::Editor::Section("Buttons");
+		Engine::Editor::Header("Buttons");
 
 		if (Picker::DrawCombo<UIButton>("MissionSelect", _pObjectManager, m_missionSelectButtonGUID)) m_isBound = false;
 		if (Picker::DrawCombo<UIButton>("Warehouse", _pObjectManager, m_warehouseButtonGUID))         m_isBound = false;
@@ -264,20 +264,18 @@ namespace App::Object
 			// その場で見た目へ反映する
 			ApplyVisible(_pObjectManager);
 		}
-		Engine::Editor::HelpText("倉庫はまだ中身が無いので、押しても何も起きない");
+		Engine::Editor::Tooltip("倉庫はまだ中身が無いので、押しても何も起きない");
 
 		//----------------------------------------------------------------------
 		// 出し分け
 		//----------------------------------------------------------------------
-		Engine::Editor::Section("Visible Group");
+		Engine::Editor::Header("Visible Group");
 
 		Engine::Editor::HelpText("トップでだけ出すもの(背景・ロゴ・見出しなど)");
 		if (Picker::DrawList<Engine::GameObject::BaseObject>("Home Only", _pObjectManager, m_homeUIGUIDVec))
 		{
 			ApplyVisible(_pObjectManager);
 		}
-
-		Engine::Editor::Spacing();
 
 		Engine::Editor::HelpText("MissionSelect ボタンを押したときに出すもの");
 		if (Picker::DrawList<Engine::GameObject::BaseObject>("Mission Objects", _pObjectManager, m_missionObjectGUIDVec))
@@ -290,12 +288,12 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		m_bgm.DrawInspector(a_context);
 
-		Engine::Editor::Section("Cursor");
+		Engine::Editor::Header("Cursor");
 		Engine::Editor::Field("ReleaseCursorLock", m_isReleaseCursorLock);
-		Engine::Editor::HelpText("ホームの間はカーソルの中央固定を切る");
+		Engine::Editor::Tooltip("ホームの間はカーソルの中央固定を切る");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Section("Runtime");
-		Engine::Editor::Text("Bound : %s", m_isBound ? "yes" : "no");
+		Engine::Editor::Header("Runtime");
+		Engine::Editor::Value("Bound", "%s", m_isBound ? "yes" : "no");
 	}
 }

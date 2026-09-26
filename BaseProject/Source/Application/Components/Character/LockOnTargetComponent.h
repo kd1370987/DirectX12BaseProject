@@ -77,19 +77,19 @@ struct Engine::ECS::ComponentTraits<LockOnTargetComponent>
 		Engine::Editor::Field("TargetOffsetY", _comp.targetOffsetY, 0.01f);
 
 		// 結果は毎フレーム上書きされるので表示のみ
-		Engine::Editor::Separator();
-		Engine::Editor::Text("ReticleFromHUD : %s", _comp.isReticleFromHUD ? "yes" : "no");
+		Engine::Editor::Line();
+		Engine::Editor::Value("ReticleFromHUD", "%s", _comp.isReticleFromHUD ? "yes" : "no");
 		if (_comp.isReticleFromHUD)
 		{
-			Engine::Editor::Text("ReticleCenter  : %.0f, %.0f", _comp.reticleCenter.x, _comp.reticleCenter.y);
+			Engine::Editor::Value("ReticleCenter", "%.0f, %.0f", _comp.reticleCenter.x, _comp.reticleCenter.y);
 		}
-		Engine::Editor::Text("ActiveRadius   : %.0f px", _comp.GetActiveReticleRadius());
-		Engine::Editor::Text("Targets : %d", _comp.targetCount);
-		Engine::Editor::Text("Locked  : %s", _comp.IsLocked() ? "yes" : "no");
+		Engine::Editor::Value("ActiveRadius", "%.0f px", _comp.GetActiveReticleRadius());
+		Engine::Editor::Value("Targets", "%d", _comp.targetCount);
+		Engine::Editor::Value("Locked", "%s", _comp.IsLocked() ? "yes" : "no");
 		if (_comp.IsLocked())
 		{
-			Engine::Editor::Text("LockedScreen : %.0f, %.0f", _comp.lockedScreenPos.x, _comp.lockedScreenPos.y);
-			Engine::Editor::Text("LockedPos    : %.2f, %.2f, %.2f", _comp.lockedPos.x, _comp.lockedPos.y, _comp.lockedPos.z);
+			Engine::Editor::Value("LockedScreen", "%.0f, %.0f", _comp.lockedScreenPos.x, _comp.lockedScreenPos.y);
+			Engine::Editor::Value("LockedPos", "%.2f, %.2f, %.2f", _comp.lockedPos.x, _comp.lockedPos.y, _comp.lockedPos.z);
 		}
 	}
 };

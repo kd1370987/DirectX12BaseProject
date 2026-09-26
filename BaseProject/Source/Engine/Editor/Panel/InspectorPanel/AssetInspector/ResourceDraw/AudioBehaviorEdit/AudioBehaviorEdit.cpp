@@ -60,7 +60,7 @@ namespace Engine::Editor::Inspector
 			{
 				DrawAssetLink(&a_editContext, "", a_part.soundGUID);
 
-				ImGui::SameLine();
+				Engine::Editor::SameLine();
 				if (DeleteButton("Clear"))
 				{
 					a_part.soundGUID = Engine::DefaultGUID;
@@ -70,20 +70,19 @@ namespace Engine::Editor::Inspector
 			else
 			{
 				// 空欄はエラーではないことを明示しておく
-				ImGui::TextDisabled("(empty : このフェーズは鳴らさない)");
+				Engine::Editor::HelpText("(empty : このフェーズは鳴らさない)");
 			}
 
-			if (ImGui::DragFloat("Volume", &a_part.vol, 0.01f, 0.0f, 1.0f))
+			if (Engine::Editor::Field("Volume", a_part.vol, 0.01f, 0.0f, 1.0f))
 			{
 				_isChanged = true;
 			}
 
-			if (ImGui::Checkbox("3D Sound", &a_part.is3DSound))
+			if (Engine::Editor::Field("3D Sound", a_part.is3DSound))
 			{
 				_isChanged = true;
 			}
-			ImGui::SameLine();
-			ImGui::TextDisabled("(鳴らす側が位置を送る)");
+			Engine::Editor::Tooltip("鳴らす側が位置を送る");
 
 			ImGui::PopID();
 
@@ -100,8 +99,8 @@ namespace Engine::Editor::Inspector
 
 		const auto _guid = a_editContext.pAssetProp->guid;
 
-		ImGui::Text("Audio Behavior : %s", a_pBehavior->GetName().c_str());
-		ImGui::Separator();
+		Engine::Editor::Value("Audio Behavior", "%s", a_pBehavior->GetName().c_str());
+		Engine::Editor::Line();
 
 		// 保存ボタン
 		if (ImGui::Button("Save Asset"))
@@ -110,8 +109,6 @@ namespace Engine::Editor::Inspector
 			a_pBehavior->Save(_filePath);
 			ENGINE_LOG("Save AudioBehavior : %s", _filePath.c_str());
 		}
-
-		ImGui::Spacing();
 
 		auto& _audioManager = Engine::Audio::AudioManager::Instance();
 
@@ -123,25 +120,25 @@ namespace Engine::Editor::Inspector
 		//
 		// 実際の呼ばれ方(始動 → 継続 → 終了)と同じ順で押せるようにしてある
 		//------------------------------------------------------------------
-		ImGui::Text("Preview");
+		Engine::Editor::Header("Preview");
 
 		// 下のフェーズ見出しと同じ文字列(Start/Loop/End)を使うので、
 		// ImGuiのIDがぶつからないようにここだけ別スコープにする
 		// (IDのもとはラベル文字列なので、同名の項目は同じIDになる)
 		ImGui::PushID("Preview");
 		if (ImGui::Button("Start")) { a_pBehavior->Start(_audioManager, g_previewInstance); }
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		if (ImGui::Button("Loop")) { a_pBehavior->Loop(_audioManager, g_previewInstance); }
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		if (ImGui::Button("End")) { a_pBehavior->End(_audioManager, g_previewInstance); }
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		if (ImGui::Button("Stop")) { g_previewInstance.StopAll(_audioManager); }
 		ImGui::PopID();
 
 		// 3D指定のパートは試聴では位置を送れないので、原点で鳴ることを断っておく
-		ImGui::TextDisabled("3D指定の音は原点で鳴ります");
+		Engine::Editor::HelpText("3D指定の音は原点で鳴ります");
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		//------------------------------------------------------------------
 		// フェーズごとの割り当て
@@ -161,13 +158,13 @@ namespace Engine::Editor::Inspector
 			switch (_phase)
 			{
 			case Resource::EAudioPhase::Start:
-				ImGui::TextDisabled("始動した瞬間に一度だけ鳴る");
+				Engine::Editor::HelpText("始動した瞬間に一度だけ鳴る");
 				break;
 			case Resource::EAudioPhase::Loop:
-				ImGui::TextDisabled("続いている間ループする");
+				Engine::Editor::HelpText("続いている間ループする");
 				break;
 			case Resource::EAudioPhase::End:
-				ImGui::TextDisabled("終わった瞬間に一度だけ鳴る");
+				Engine::Editor::HelpText("終わった瞬間に一度だけ鳴る");
 				break;
 			default:
 				break;

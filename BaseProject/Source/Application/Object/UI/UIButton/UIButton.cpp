@@ -33,14 +33,10 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Spacing();
-		Engine::Editor::Separator();
-		Engine::Editor::Spacing();
-
-		Engine::Editor::Section("Button");
+		Engine::Editor::Header("Button");
 		Engine::Editor::HelpText("判定・音・状態は上の Interaction、見た目は飾りの Reaction");
 
 		// 差し込まれているかどうかだけ出す(中身はコードなので触れない)
-		Engine::Editor::Text("OnClick : %s", m_onClick ? "set" : "none");
+		Engine::Editor::Value("OnClick", "%s", m_onClick ? "set" : "none");
 	}
 }

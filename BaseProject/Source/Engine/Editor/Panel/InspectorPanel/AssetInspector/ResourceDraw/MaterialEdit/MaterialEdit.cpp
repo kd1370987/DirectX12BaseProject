@@ -24,58 +24,58 @@ namespace Engine::Editor::Inspector
 			a_pMaterial->Archive(_ar);
 		}
 
-		ImGui::InputText("name", &a_pMaterial->name);
-		ImGui::Separator();
+		Engine::Editor::Field("name", a_pMaterial->name);
+		Engine::Editor::Line();
 		Editor::FlagsField("AlphaMode", a_pMaterial->alphaMode);
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// 各テクスチャの描画
 		if (ImGui::CollapsingHeader("Albedo"))
 		{
 			Editor::AssetField<Resource::Texture>(
 				*a_editContext.pServices,
-				"Change AlbedTex",
+				"AlbedTex",
 				"Texture",
 				a_pMaterial->baseColorTexGUID,
 				a_pMaterial->baseColorTex
 			);
 			DrawAssetLink(&a_editContext, "Texture :", a_pMaterial->baseColorTexGUID);
-			ImGui::DragFloat4("AlbedScale", a_pMaterial->baseColor.Data(), 0.01f, 0.0f);
+			Engine::Editor::Field("Albedo Scale", a_pMaterial->baseColor);
 			Editor::Image(*a_editContext.pServices, a_pMaterial->baseColorTex, 256, 256);
 		}
 		if (ImGui::CollapsingHeader("Metallic / Roughness"))
 		{
 			Editor::AssetField<Resource::Texture>(
 				*a_editContext.pServices,
-				"Change MetaricRoughnessTex",
+				"MetaricRoughnessTex",
 				"Texture",
 				a_pMaterial->metaRoughTexGUID,
 				a_pMaterial->metaRoughTex
 			);
 			DrawAssetLink(&a_editContext, "Texture :", a_pMaterial->metaRoughTexGUID);
-			ImGui::DragFloat("MetallicScale", &a_pMaterial->metallic, 0.01f, 0.0f);
-			ImGui::DragFloat("RoughnessScale", &a_pMaterial->roughness, 0.01f, 0.0f);
+			Engine::Editor::Field("MetallicScale", a_pMaterial->metallic, 0.01f, 0.0f);
+			Engine::Editor::Field("RoughnessScale", a_pMaterial->roughness, 0.01f, 0.0f);
 			Editor::Image(*a_editContext.pServices, a_pMaterial->metaRoughTex, 256, 256);
 		}
 		if (ImGui::CollapsingHeader("Emissive"))
 		{
 			Editor::AssetField<Resource::Texture>(
 				*a_editContext.pServices,
-				"Change EmissiveTex",
+				"EmissiveTex",
 				"Texture",
 				a_pMaterial->emissiveTexGUID,
 				a_pMaterial->emissiveTex
 			);
 			DrawAssetLink(&a_editContext, "Texture :", a_pMaterial->emissiveTexGUID);
-			ImGui::DragFloat3("EmissiveScale", &a_pMaterial->emissive.x, 0.01f, 0.0f);
+			Engine::Editor::Field("EmissiveScale", a_pMaterial->emissive, 0.01f, 0.0f);
 			Editor::Image(*a_editContext.pServices, a_pMaterial->emissiveTex, 256, 256);
 		}
 		if (ImGui::CollapsingHeader("Normal"))
 		{
 			Editor::AssetField<Resource::Texture>(
 				*a_editContext.pServices,
-				"Change NormalTex",
+				"NormalTex",
 				"Texture",
 				a_pMaterial->normalTexGUID,
 				a_pMaterial->normalTex

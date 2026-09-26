@@ -33,7 +33,7 @@ namespace Engine::Editor::Inspector
 		// 読み込まれていなければ、ここで読み込む口だけ出す
 		if (!_manager.Has<RenderingPipelineAsset>(m_assetGUID))
 		{
-			ImGui::Text("No loaded file");
+			Engine::Editor::Header("No loaded file");
 			if (ImGui::Button("Load"))
 			{
 				_manager.LoadImmediate<RenderingPipelineAsset>(m_assetGUID);
@@ -46,7 +46,7 @@ namespace Engine::Editor::Inspector
 
 		if (!m_pAsset)
 		{
-			ImGui::Text("Not found asset");
+			Engine::Editor::WarningText("Not found asset");
 			return false;
 		}
 
@@ -80,7 +80,7 @@ namespace Engine::Editor::Inspector
 	void RenderingPipelineEditor::OnDrawHeader(EditorContext& a_editContext)
 	{
 		DrawToolbar(a_editContext);
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		DrawValidation();
 		DrawSelectedPassDetail();
@@ -100,39 +100,39 @@ namespace Engine::Editor::Inspector
 		// 組めていないと画面は真っ黒になるので、ここで分かるようにしておく
 		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
 		{
-			ImGui::SameLine();
-			if (_pGE->GetCameraPipelines()->IsPipelinePresentActive())	ImGui::TextDisabled("| 画面 : 出力中");
-			else								ImGui::TextDisabled("| 画面 : 出ていません");
+			Engine::Editor::SameLine();
+			if (_pGE->GetCameraPipelines()->IsPipelinePresentActive())	Engine::Editor::HelpText("| 画面 : 出力中");
+			else								Engine::Editor::HelpText("| 画面 : 出ていません");
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		DrawAddPass();
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		DrawAddComposite();
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 
 		// 構成が変わっていなければ押しても結果は同じなので、そのときは通さない
 		if (ImGui::Button("Compile") && m_pAsset->IsDirty())
 		{
 			m_pAsset->Compile();
 		}
-		ImGui::SameLine();
-		if (m_pAsset->IsDirty())	ImGui::TextColored(ImVec4(1.0f, 0.7f, 0.2f, 1.0f), "Modified");
-		else						ImGui::TextDisabled("Compiled");
+		Engine::Editor::SameLine();
+		if (m_pAsset->IsDirty())	Engine::Editor::WarningText("Modified");
+		else						Engine::Editor::HelpText("Compiled");
 
 		const RenderGraph* _pGraph = m_pAsset->GetRenderGraph();
-		ImGui::SameLine();
-		ImGui::TextDisabled("| Pass : %d", static_cast<int>(_pGraph->GetPasses().size()));
+		Engine::Editor::SameLine();
+		Engine::Editor::HelpText("| Pass : %d", static_cast<int>(_pGraph->GetPasses().size()));
 
 		// 既存の描画と同じ流れを一式組む。
 		// 今入っているものは全部捨てるので、押し間違いが痛い分だけ確認を挟む
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 		if (ImGui::Button("Standard")) ImGui::OpenPopup("StandardPipelinePopup");
 
 		if (ImGui::BeginPopup("StandardPipelinePopup"))
 		{
-			ImGui::TextDisabled("今のパスと配線をすべて捨てて組み直します");
+			Engine::Editor::HelpText("今のパスと配線をすべて捨てて組み直します");
 
 			PassMetaRegistry* _pRegistry = m_pAsset->RefMetaRegistry();
 			if (CreateButton("Build") && _pRegistry)
@@ -143,7 +143,7 @@ namespace Engine::Editor::Inspector
 				RequestApplyNodePositions();
 				ImGui::CloseCurrentPopup();
 			}
-			ImGui::SameLine();
+			Engine::Editor::SameLine();
 			if (ImGui::Button("Cancel")) ImGui::CloseCurrentPopup();
 
 			ImGui::EndPopup();
@@ -155,7 +155,7 @@ namespace Engine::Editor::Inspector
 		PassMetaRegistry* _pRegistry = m_pAsset->RefMetaRegistry();
 		if (!_pRegistry)
 		{
-			ImGui::TextDisabled("No PassMetaRegistry");
+			Engine::Editor::HelpText("No PassMetaRegistry");
 			return;
 		}
 
@@ -165,13 +165,13 @@ namespace Engine::Editor::Inspector
 		}
 		if (!ImGui::BeginPopup("AddPassPopup")) return;
 
-		ImGui::TextDisabled("Select Pass");
-		ImGui::Separator();
+		Engine::Editor::HelpText("Select Pass");
+		Engine::Editor::Line();
 
 		const auto& _allMeta = _pRegistry->GetAllMeta();
 		if (_allMeta.empty())
 		{
-			ImGui::TextDisabled("No registered pass");
+			Engine::Editor::HelpText("No registered pass");
 			ImGui::EndPopup();
 			return;
 		}
@@ -223,8 +223,8 @@ namespace Engine::Editor::Inspector
 		}
 		if (!ImGui::BeginPopup("AddCompositePopup")) return;
 
-		ImGui::TextDisabled("Select Composite");
-		ImGui::Separator();
+		Engine::Editor::HelpText("Select Composite");
+		Engine::Editor::Line();
 
 		for (const std::string& _typeName : m_compositeNodeRegistry.GetTypeNames())
 		{
@@ -357,24 +357,26 @@ namespace Engine::Editor::Inspector
 
 		if (_issueVec.empty())
 		{
-			ImGui::TextColored(ImVec4(0.4f, 0.9f, 0.4f, 1.0f), "Validation : OK");
+			Engine::Editor::WarningText("Validation : OK");
 			return;
 		}
 
 		// エラーが1つでもあるとコンパイルは通らない
-		if (_isValid)	ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.3f, 1.0f), "Validation : %d warning(s)", static_cast<int>(_issueVec.size()));
-		else			ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "Validation : NG");
+		if (_isValid)	Engine::Editor::WarningText("Validation : %d warning(s)", static_cast<int>(_issueVec.size()));
+		else			Engine::Editor::ErrorText("Validation : NG");
 
 		if (ImGui::TreeNodeEx("Issues", _isValid ? 0 : ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			for (const ValidationIssue& _issue : _issueVec)
 			{
-				const bool _isError = (_issue.level == ValidationIssue::ELevel::Error);
-				const ImVec4 _color = _isError
-					? ImVec4(1.0f, 0.4f, 0.4f, 1.0f)
-					: ImVec4(1.0f, 0.8f, 0.3f, 1.0f);
-
-				ImGui::TextColored(_color, "%s : %s", _isError ? "Error" : "Warn", _issue.message.c_str());
+				if (_issue.level == ValidationIssue::ELevel::Error)
+				{
+					Engine::Editor::ErrorText("Error : %s", _issue.message.c_str());
+				}
+				else
+				{
+					Engine::Editor::WarningText("Warn : %s", _issue.message.c_str());
+				}
 
 				// クリックでそのノードを選ぶ
 				if (!ImGui::IsItemClicked()) continue;
@@ -389,7 +391,7 @@ namespace Engine::Editor::Inspector
 			}
 			ImGui::TreePop();
 		}
-		ImGui::Separator();
+		Engine::Editor::Line();
 	}
 
 	// 選択中のパスの詳細(パス固有の設定)を出す。
@@ -432,7 +434,7 @@ namespace Engine::Editor::Inspector
 			}
 			if (_pNode)
 			{
-				ImGui::Separator();
+				Engine::Editor::Line();
 				return;
 			}
 		}
@@ -440,8 +442,8 @@ namespace Engine::Editor::Inspector
 		if (ImGui::CollapsingHeader("Selected Pass", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::PushID(_nodeID);
-			ImGui::Text("%s", _pPass->GetName().c_str());
-			ImGui::Separator();
+			Engine::Editor::Text("%s", _pPass->GetName().c_str());
+			Engine::Editor::Line();
 
 			// パス固有の設定(フォーマットやスケールなど)もリソースの要件を変えるので、
 			// 触られたら Dirty にする。
@@ -451,7 +453,7 @@ namespace Engine::Editor::Inspector
 			if (!_pEditor)
 			{
 				// 登録漏れ : 触れないだけで動きはするので、気づけるように出しておく
-				ImGui::TextDisabled("編集UIが登録されていません");
+				Engine::Editor::HelpText("編集UIが登録されていません");
 			}
 			else
 			{
@@ -465,7 +467,7 @@ namespace Engine::Editor::Inspector
 
 			ImGui::PopID();
 		}
-		ImGui::Separator();
+		Engine::Editor::Line();
 	}
 
 	//======================================================================================
@@ -571,8 +573,8 @@ namespace Engine::Editor::Inspector
 			m_visiblePinSet.insert(_pIn->pinID);
 
 			ImNodes::BeginInputAttribute(_pIn->pinID);
-			if (_pIn->IsConnected())	ImGui::Text("%s : %s", _pIn->pinName.c_str(), _pIn->name.c_str());
-			else						ImGui::TextDisabled("%s", _pIn->pinName.c_str());
+			if (_pIn->IsConnected())	Engine::Editor::Text("%s : %s", _pIn->pinName.c_str(), _pIn->name.c_str());
+			else						Engine::Editor::HelpText("%s", _pIn->pinName.c_str());
 			ImNodes::EndInputAttribute();
 		}
 
@@ -583,7 +585,7 @@ namespace Engine::Editor::Inspector
 			m_visiblePinSet.insert(_pOut->pinID);
 
 			ImNodes::BeginOutputAttribute(_pOut->pinID);
-			ImGui::Text("%s : %s", _pOut->pinName.c_str(), _pOut->name.c_str());
+			Engine::Editor::Text("%s : %s", _pOut->pinName.c_str(), _pOut->name.c_str());
 			ImNodes::EndOutputAttribute();
 		}
 
@@ -603,7 +605,6 @@ namespace Engine::Editor::Inspector
 			m_pendingRequest = _request;
 		}
 
-		ImGui::Spacing();
 		if (DeleteSmallButton("Ungroup"))
 		{
 			// 札を外すだけ。パスも線もそのままで、個別のノードに戻る
@@ -636,11 +637,11 @@ namespace Engine::Editor::Inspector
 			ImNodes::BeginInputAttribute(_in.pinID);
 			if (_in.IsConnected())
 			{
-				ImGui::Text("%s : %s", _in.pinName.c_str(), _in.name.c_str());
+				Engine::Editor::Text("%s : %s", _in.pinName.c_str(), _in.name.c_str());
 			}
 			else
 			{
-				ImGui::TextDisabled("%s", _in.pinName.c_str());
+				Engine::Editor::HelpText("%s", _in.pinName.c_str());
 			}
 			ImNodes::EndInputAttribute();
 		}
@@ -651,7 +652,7 @@ namespace Engine::Editor::Inspector
 			m_visiblePinSet.insert(_out.pinID);
 
 			ImNodes::BeginOutputAttribute(_out.pinID);
-			ImGui::Text("%s : %s", _out.pinName.c_str(), _out.name.c_str());
+			Engine::Editor::Text("%s : %s", _out.pinName.c_str(), _out.name.c_str());
 			ImNodes::EndOutputAttribute();
 		}
 
@@ -666,7 +667,6 @@ namespace Engine::Editor::Inspector
 		if (!m_pAsset->IsFinalPass(a_pass))
 		{
 			// 削除は反復中に消すとイテレータが壊れるので予約だけする
-			ImGui::Spacing();
 			if (DeleteSmallButton("Delete Pass"))
 			{
 				m_pendingDeletePass = a_pass.GetGUID();

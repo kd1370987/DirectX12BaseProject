@@ -117,7 +117,7 @@ struct Engine::ECS::ComponentTraits<PatrolComponent>
 		Engine::Editor::Field("PatrolPauseTime", _comp.patrolPauseTime, 0.1f, 0.0f);
 		Engine::Editor::Field("PatrolLookYawDeg", _comp.patrolLookYawDeg, 1.0f, 0.0f, 180.0f);
 
-		Engine::Editor::Section("LostTarget");
+		Engine::Editor::Header("LostTarget");
 		Engine::Editor::Field("LostThrottle", _comp.lostThrottle, 0.01f, 0.0f, 1.0f);
 		Engine::Editor::Field("LostArriveDistance", _comp.lostArriveDistance, 0.1f, 0.0f);
 		Engine::Editor::Field("LostMoveTimeout", _comp.lostMoveTimeout, 0.1f, 0.0f);
@@ -125,15 +125,15 @@ struct Engine::ECS::ComponentTraits<PatrolComponent>
 		Engine::Editor::Field("LookAroundYawDeg", _comp.lookAroundYawDeg, 1.0f, 0.0f, 180.0f);
 		Engine::Editor::Field("LookAroundSpeedDeg", _comp.lookAroundSpeedDeg, 1.0f, 0.0f);
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		static const char* _patrolPhaseName[] = { "Move", "Pause" };
-		Engine::Editor::Text("PatrolPhase : %s", _patrolPhaseName[static_cast<int>(_comp.patrolPhase)]);
-		Engine::Editor::Text("WanderDir : %.2f, %.2f, %.2f", _comp.wanderDir.x, _comp.wanderDir.y, _comp.wanderDir.z);
-		Engine::Editor::Text("WanderTimer : %.2f", _comp.wanderTimer);
+		Engine::Editor::Value("PatrolPhase", "%s", _patrolPhaseName[static_cast<int>(_comp.patrolPhase)]);
+		Engine::Editor::Value("WanderDir", "%.2f, %.2f, %.2f", _comp.wanderDir.x, _comp.wanderDir.y, _comp.wanderDir.z);
+		Engine::Editor::Value("WanderTimer", "%.2f", _comp.wanderTimer);
 
 		static const char* _lostPhaseName[] = { "None", "MoveTo", "LookAround" };
-		Engine::Editor::Text("LostPhase : %s", _lostPhaseName[static_cast<int>(_comp.lostPhase)]);
-		Engine::Editor::Text("LastSeenPos : %.2f, %.2f, %.2f", _comp.lastSeenPos.x, _comp.lastSeenPos.y, _comp.lastSeenPos.z);
-		Engine::Editor::Text("LostTimer : %.2f", _comp.lostTimer);
+		Engine::Editor::Value("LostPhase", "%s", _lostPhaseName[static_cast<int>(_comp.lostPhase)]);
+		Engine::Editor::Value("LastSeenPos", "%.2f, %.2f, %.2f", _comp.lastSeenPos.x, _comp.lastSeenPos.y, _comp.lastSeenPos.z);
+		Engine::Editor::Value("LostTimer", "%.2f", _comp.lostTimer);
 	}
 };

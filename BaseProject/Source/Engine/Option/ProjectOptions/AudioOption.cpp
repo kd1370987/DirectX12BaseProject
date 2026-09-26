@@ -30,12 +30,12 @@ void Engine::Option::ProjectOptions::AudioOption::DrawEdit(const ECS::EngineServ
 {
 	bool _isChanged = false;
 
-	Engine::Editor::Section("Master");
+	Engine::Editor::Header("Master");
 
 	if (Engine::Editor::Slider("Master", masterVolume, 0.0f, 1.0f)) _isChanged = true;
-	Engine::Editor::HelpText("全部の音へ掛かる");
+	Engine::Editor::Tooltip("全部の音へ掛かる");
 
-	Engine::Editor::Section("Group");
+	Engine::Editor::Header("Group");
 	Engine::Editor::HelpText("鳴らしている側を触らずに、そのグループだけ上下できる");
 
 	for (size_t _i = 0; _i < groupVolumeArray.size(); ++_i)

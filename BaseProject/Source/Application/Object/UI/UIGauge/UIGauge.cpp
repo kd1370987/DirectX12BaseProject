@@ -470,20 +470,16 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Spacing();
-		Engine::Editor::Separator();
-		Engine::Editor::Spacing();
-
 		//----------------------------------------------------------------------
 		// どこから値を取るか
 		//----------------------------------------------------------------------
-		Engine::Editor::Section("Source");
+		Engine::Editor::Header("Source");
 
 		Engine::Editor::Field("Target", m_target);
-		Engine::Editor::HelpText("見るエンティティの決め方");
+		Engine::Editor::Tooltip("見るエンティティの決め方");
 
 		Engine::Editor::Field("Source", m_source);
-		Engine::Editor::HelpText("見るコンポーネント。持っていなければ何も出ない");
+		Engine::Editor::Tooltip("見るコンポーネント。持っていなければ何も出ない");
 
 		if (m_source != EGaugeSource::Manual)
 		{
@@ -497,33 +493,31 @@ namespace App::Object
 			}
 			else
 			{
-				Engine::Editor::Text("Entity : %u  (%s)", static_cast<uint32_t>(m_targetEntity), m_hasValue ? "ok" : "コンポーネントなし");
+				Engine::Editor::Value("Entity", "%u  (%s)", static_cast<uint32_t>(m_targetEntity), m_hasValue ? "ok" : "コンポーネントなし");
 			}
 		}
 
-		Engine::Editor::Spacing();
-		Engine::Editor::Section("Gauge");
+		Engine::Editor::Header("Gauge");
 
 		//----------------------------------------------------------------------
 		// 中身
 		//----------------------------------------------------------------------
 		Engine::Editor::Field("FillDecoration", m_fillDecorationName);
-		Engine::Editor::HelpText("横幅を縮める飾りの名前");
+		Engine::Editor::Tooltip("横幅を縮める飾りの名前");
 
 		// 指している飾りが本当にあるか、その場で分かるようにしておく
 		if (FindDecorationIndex(m_fillDecorationName) < 0)
 		{
-			Engine::Editor::TextColored(Math::Color(1.0f, 0.4f, 0.4f, 1.0f), "その名前の飾りがありません");
+			Engine::Editor::ErrorText("その名前の飾りがありません");
 		}
 
 		Engine::Editor::Field("Anchor", m_anchor);
-		Engine::Editor::HelpText("減っても動かない場所。Center は両側から均等に減る");
+		Engine::Editor::Tooltip("減っても動かない場所。Center は両側から均等に減る");
 
 		//----------------------------------------------------------------------
 		// 色
 		//----------------------------------------------------------------------
-		Engine::Editor::Spacing();
-		Engine::Editor::Section("Color");
+		Engine::Editor::Header("Color");
 
 		Engine::Editor::Field("BlendColor", m_isBlendColor);
 		Engine::Editor::Tooltip("切ると、しきい値でパッと切り替わる");
@@ -562,29 +556,28 @@ namespace App::Object
 			std::sort(m_colorStopVec.begin(), m_colorStopVec.end(),
 				[](const GaugeColorStop& a, const GaugeColorStop& b) { return a.ratio < b.ratio; });
 		}
-		Engine::Editor::HelpText("残量の小さい順に並べること(Sort で整う)");
+		Engine::Editor::Tooltip("残量の小さい順に並べること(Sort で整う)");
 
 		//----------------------------------------------------------------------
 		// 数値
 		//----------------------------------------------------------------------
-		Engine::Editor::Spacing();
-		Engine::Editor::Section("Value Text");
+		Engine::Editor::Header("Value Text");
 
 		Engine::Editor::Field("TextFormat", m_textFormat);
 
 		if (m_textFormat != EGaugeTextFormat::None)
 		{
 			Engine::Editor::Field("TextDecoration", m_textDecorationName);
-			Engine::Editor::HelpText("数値を流し込む Text 飾りの名前。置き場所はその飾りの OffsetPos");
+			Engine::Editor::Tooltip("数値を流し込む Text 飾りの名前。置き場所はその飾りの OffsetPos");
 
 			const int _textIndex = FindDecorationIndex(m_textDecorationName);
 			if (_textIndex < 0)
 			{
-				Engine::Editor::TextColored(Math::Color(1.0f, 0.4f, 0.4f, 1.0f), "その名前の飾りがありません");
+				Engine::Editor::ErrorText("その名前の飾りがありません");
 			}
 			else if (m_decorationVec[_textIndex].type != Decoration::EDecorationType::Text)
 			{
-				Engine::Editor::TextColored(Math::Color(1.0f, 0.7f, 0.3f, 1.0f), "その飾りが Text ではありません");
+				Engine::Editor::WarningText("その飾りが Text ではありません");
 			}
 
 			if (Engine::Editor::Field("Decimals", m_decimals, 1, 0, 4))
@@ -598,8 +591,7 @@ namespace App::Object
 		// 値 : 実行中は入れる側が毎フレーム書き換える。
 		//      ここで動かせるのは見た目を詰めるため
 		//----------------------------------------------------------------------
-		Engine::Editor::Spacing();
-		Engine::Editor::Section("Value");
+		Engine::Editor::Header("Value");
 
 		if (m_source == EGaugeSource::Manual)
 		{
@@ -613,6 +605,6 @@ namespace App::Object
 		Engine::Editor::Field("Max", m_max, 1.0f, 0.0f, 100000.0f);
 		Engine::Editor::Slider("Current", m_current, 0.0f, std::max(m_max, 1.0f));
 
-		Engine::Editor::Text("Ratio : %.0f %%", GetRatio() * 100.0f);
+		Engine::Editor::Value("Ratio", "%.0f %%", GetRatio() * 100.0f);
 	}
 }

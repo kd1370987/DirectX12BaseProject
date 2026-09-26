@@ -101,10 +101,10 @@ namespace Engine::Editor
 			ImGui::PushID(this);
 
 			DrawResetButton(a_graph);
-			ImGui::Separator();
+			Engine::Editor::Line();
 
 			DrawParameters(a_graph);
-			ImGui::Separator();
+			Engine::Editor::Line();
 
 			DrawAddNode(a_graph);
 
@@ -131,14 +131,14 @@ namespace Engine::Editor
 			ImGui::SetNextWindowPos(_center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 			if (ImGui::BeginPopupModal("Reset Confirmation Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 			{
-				ImGui::Text("Are you sure you want to reset the state machine?\nAll nodes, links, and parameters will be permanently deleted.");
-				ImGui::Separator();
+				Engine::Editor::Text("Are you sure you want to reset the state machine?\nAll nodes, links, and parameters will be permanently deleted.");
+				Engine::Editor::Line();
 				if (DeleteButton("Yes, Reset", Math::Vector2(120, 0)))
 				{
 					a_graph.Clear();
 					ImGui::CloseCurrentPopup();
 				}
-				ImGui::SameLine();
+				Engine::Editor::SameLine();
 				if (ImGui::Button("Cancel", ImVec2(120, 0)))
 				{
 					ImGui::CloseCurrentPopup();
@@ -154,7 +154,7 @@ namespace Engine::Editor
 		{
 			auto& _params = a_graph.Parameters();
 
-			ImGui::Text("Parameters");
+			Engine::Editor::Header("Parameters");
 			ImGui::Indent();
 
 			if (CreateButton("Add Parameter"))
@@ -170,10 +170,10 @@ namespace Engine::Editor
 				static int _paramTypeIdx = 0;
 				const char* _typeNames[] = { "Float", "Int", "Bool", "Trigger" };
 
-				ImGui::InputText("New Param Name", _paramName, sizeof(_paramName));
-				ImGui::Separator();
-				ImGui::Combo("Type", &_paramTypeIdx, _typeNames, IM_ARRAYSIZE(_typeNames));
-				ImGui::Separator();
+				Engine::Editor::Field("New Param Name", _paramName, sizeof(_paramName));
+				Engine::Editor::Line();
+				Engine::Editor::Combo("Type", _paramTypeIdx, _typeNames);
+				Engine::Editor::Line();
 
 				if (CreateButton("Create", Math::Vector2(120, 0)))
 				{
@@ -193,7 +193,7 @@ namespace Engine::Editor
 						}
 					}
 				}
-				ImGui::SameLine();
+				Engine::Editor::SameLine();
 				if (ImGui::Button("Cancel", ImVec2(120, 0)))
 				{
 					std::memset(_paramName, 0, sizeof(_paramName));
@@ -202,7 +202,7 @@ namespace Engine::Editor
 				ImGui::EndPopup();
 			}
 
-			ImGui::Separator();
+			Engine::Editor::Line();
 
 			if (ImGui::TreeNodeEx("ParametersList"))
 			{
@@ -221,8 +221,8 @@ namespace Engine::Editor
 						_deleteParamHash = _hash;
 					}
 					ImGui::PopStyleColor(2);
-					ImGui::SameLine();
-					ImGui::Text("[%s] %s", _typeNames[static_cast<int>(_param.type)], _param.name.c_str());
+					Engine::Editor::SameLine();
+					Engine::Editor::Text("[%s] %s", _typeNames[static_cast<int>(_param.type)], _param.name.c_str());
 					ImGui::PopID();
 				}
 
@@ -253,8 +253,8 @@ namespace Engine::Editor
 			if (ImGui::BeginPopupModal("Add Node Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 			{
 				static char _name[256] = "";
-				ImGui::InputText("Node Name", _name, sizeof(_name));
-				ImGui::Separator();
+				Engine::Editor::Field("Node Name", _name, sizeof(_name));
+				Engine::Editor::Line();
 
 				if (CreateButton("Create", Math::Vector2(120, 0)))
 				{
@@ -266,7 +266,7 @@ namespace Engine::Editor
 					}
 				}
 				ImGui::SetItemDefaultFocus();
-				ImGui::Separator();
+				Engine::Editor::Line();
 				if (ImGui::Button("Cancel", ImVec2(120, 0)))
 				{
 					std::memset(_name, 0, sizeof(_name));
@@ -382,18 +382,17 @@ namespace Engine::Editor
 			EditorHelper::DrawNodeTitleBar(a_node.name);
 
 			ImNodes::BeginInputAttribute(a_node.inPinID);
-			ImGui::Text("In");
+			Engine::Editor::Text("In");
 			ImNodes::EndInputAttribute();
 
 			ImNodes::BeginOutputAttribute(a_node.outPinID);
-			ImGui::Text("Out");
+			Engine::Editor::Text("Out");
 			ImNodes::EndOutputAttribute();
 
 			// マシン固有のノード内部UI
 			if (a_drawBody) a_drawBody(a_node);
 
 			// ノード削除ボタン(反復中に消すとイテレータが壊れるので予約だけする)
-			ImGui::Spacing();
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.85f, 0.3f, 0.3f, 1.0f));
 			if (DeleteSmallButton("Delete Node"))
@@ -468,7 +467,7 @@ namespace Engine::Editor
 				return;
 			}
 
-			ImGui::Text("Edit Link ID : %d", m_editingLinkID);
+			Engine::Editor::Value("Edit Link ID", "%d", m_editingLinkID);
 
 			if (DeleteButton("Delete Arrow", Math::Vector2(90, 0)))
 			{
@@ -479,11 +478,11 @@ namespace Engine::Editor
 				ImGui::EndPopup();
 				return;
 			}
-			ImGui::Separator();
+			Engine::Editor::Line();
 
 			// 遷移時のブレンド時間(アニメ用途。未使用マシンでは触らなくてよい)
-			ImGui::DragFloat("BlendDuration", &_pArrow->blendDuration, 0.01f, 0.0f);
-			ImGui::Separator();
+			Engine::Editor::Field("BlendDuration", _pArrow->blendDuration, 0.01f, 0.0f);
+			Engine::Editor::Line();
 
 			auto& _params = a_graph.Parameters();
 
@@ -491,7 +490,7 @@ namespace Engine::Editor
 			int _uiIndex = 0;
 			for (auto _it = _pArrow->conditions.begin(); _it != _pArrow->conditions.end();)
 			{
-				ImGui::Separator();
+				Engine::Editor::Line();
 				ImGui::PushID(_uiIndex);
 
 				if (DeleteButton("x"))
@@ -507,7 +506,7 @@ namespace Engine::Editor
 				{
 					_preview = _params[_it->paramHash].name.c_str();
 				}
-				ImGui::SetNextItemWidth(150.0f);
+				Engine::Editor::SetNextItemWidth(150.0f);
 				if (ImGui::BeginCombo("##Param", _preview))
 				{
 					for (auto& [_hash, _param] : _params)
@@ -528,16 +527,16 @@ namespace Engine::Editor
 					}
 					ImGui::EndCombo();
 				}
-				ImGui::Separator();
+				Engine::Editor::Line();
 
 				// 比較演算子 + 閾値
-				ImGui::SetNextItemWidth(100.0f);
+				Engine::Editor::SetNextItemWidth(100.0f);
 				Field("Condition", _it->op);
 				if (_params.find(_it->paramHash) != _params.end())
 				{
 					auto& _paramDef = _params[_it->paramHash];
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(100.0f);
+					Engine::Editor::SameLine();
+					Engine::Editor::SetNextItemWidth(100.0f);
 					if (_paramDef.type == StateGraph::EParamType::Float)
 					{
 						ImGui::InputFloat("##ThresholdF", &_it->thresholdFloat);
@@ -552,7 +551,7 @@ namespace Engine::Editor
 				++_it;
 				++_uiIndex;
 			}
-			ImGui::Separator();
+			Engine::Editor::Line();
 
 			if (CreateButton("Add Condition"))
 			{

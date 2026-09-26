@@ -95,7 +95,7 @@ struct Engine::ECS::ComponentTraits<MissileLockComponent>
 	{
 		MissileLockComponent& _comp = Engine::Editor::GetValue<MissileLockComponent>(a_context.pData);
 
-		Engine::Editor::Text("Salvo");
+		Engine::Editor::Header("Salvo");
 		if (Engine::Editor::Field("MissileCount", _comp.missileCount, 1, 0, MissileLockComponent::MISSILE_MAX))
 		{
 			_comp.missileCount = std::clamp(_comp.missileCount, 0, MissileLockComponent::MISSILE_MAX);
@@ -104,9 +104,7 @@ struct Engine::ECS::ComponentTraits<MissileLockComponent>
 		Engine::Editor::Field("LaunchInterval", _comp.launchInterval, 0.01f, 0.0f, 5.0f, "%.3f s");
 		Engine::Editor::Field("SpreadAngle", _comp.spreadAngle, 0.5f, 0.0f, 89.0f, "%.1f deg");
 
-		Engine::Editor::Separator();
-
-		Engine::Editor::Text("Lock");
+		Engine::Editor::Header("Lock");
 		Engine::Editor::Field("MaxDistance", _comp.maxDistance, 1.0f, 0.0f);
 		Engine::Editor::Field("TargetOffsetY", _comp.targetOffsetY, 0.01f);
 		Engine::Editor::Field("ReticleRadius", _comp.reticleRadius, 1.0f, 0.0f, 4096.0f);
@@ -114,16 +112,16 @@ struct Engine::ECS::ComponentTraits<MissileLockComponent>
 		Engine::Editor::Field("RequireLock", _comp.requireLock);
 
 		// 結果は毎フレーム上書きされるので表示のみ
-		Engine::Editor::Separator();
-		Engine::Editor::Text("ReticleFromHUD : %s", _comp.isReticleFromHUD ? "yes" : "no");
+		Engine::Editor::Line();
+		Engine::Editor::Value("ReticleFromHUD", "%s", _comp.isReticleFromHUD ? "yes" : "no");
 		if (_comp.isReticleFromHUD)
 		{
-			Engine::Editor::Text("ReticleCenter  : %.0f, %.0f", _comp.reticleCenter.x, _comp.reticleCenter.y);
+			Engine::Editor::Value("ReticleCenter", "%.0f, %.0f", _comp.reticleCenter.x, _comp.reticleCenter.y);
 		}
-		Engine::Editor::Text("ActiveRadius   : %.0f px", _comp.GetActiveReticleRadius());
+		Engine::Editor::Value("ActiveRadius", "%.0f px", _comp.GetActiveReticleRadius());
 		Engine::Editor::Text("Charging : %s  Locks : %d", _comp.isCharging ? "yes" : "no", _comp.lockCount);
-		Engine::Editor::Text("FireRemain : %d / %d", _comp.fireRemain, _comp.fireTotal);
-		Engine::Editor::Text("Cooldown : %.2f s", _comp.cooldownTimer);
+		Engine::Editor::Value("FireRemain", "%d / %d", _comp.fireRemain, _comp.fireTotal);
+		Engine::Editor::Value("Cooldown", "%.2f s", _comp.cooldownTimer);
 
 		Engine::Editor::HelpText("Bullet prefab / speed / muzzle : MissilePod's GunStateComponent");
 	}

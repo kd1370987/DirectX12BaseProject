@@ -146,12 +146,12 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 	{
 		BoosterEffectComponent& _comp = Engine::Editor::GetValue<BoosterEffectComponent>(a_context.pData);
 
-		Engine::Editor::Section("Mount");
+		Engine::Editor::Header("Mount");
 		Engine::Editor::HelpText("このエンティティの行列基準。エフェクトの置き方だけを決める");
 		Engine::Editor::Field("PosOffset", _comp.posOffset, 0.01f);
 		Engine::Editor::Field("EmitDir (local)", _comp.emitDir, 0.01f);
 
-		Engine::Editor::Section("Burst");
+		Engine::Editor::Header("Burst");
 		Engine::Editor::HelpText("点火した瞬間だけ大きく見せて、時間で元の大きさへ戻す");
 		Engine::Editor::Field("BaseScale", _comp.baseScale, 0.01f, 0.0f);
 		Engine::Editor::Field("BurstScale", _comp.burstScale, 0.01f, 0.0f);
@@ -161,7 +161,7 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 			Engine::Editor::HelpText("0 : 膨らませない(常に BaseScale)");
 		}
 
-		Engine::Editor::Section("Boost Dash");
+		Engine::Editor::Header("Boost Dash");
 		Engine::Editor::HelpText("ブースト中だけジェットを太らせる(上の大きさに掛かる)");
 		Engine::Editor::Field("BoostScale", _comp.boostScale, 0.01f, 0.0f);
 		Engine::Editor::Field("BoostBlendTime (s)", _comp.boostBlendTime, 0.01f, 0.0f);
@@ -170,7 +170,7 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 			Engine::Editor::HelpText("1 以下 : ブーストしても太らない");
 		}
 
-		Engine::Editor::Section("Charge Dash");
+		Engine::Editor::Header("Charge Dash");
 		Engine::Editor::HelpText("溜めている間は太らせ、撃ち出している間は束を前へ伸ばす");
 		Engine::Editor::Field("ChargeScale", _comp.chargeScale, 0.01f, 0.0f);
 		if (_comp.chargeScale <= 1.0f)
@@ -184,7 +184,7 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 			Engine::Editor::HelpText("1 以下 : 撃ち出しても伸びない");
 		}
 
-		Engine::Editor::Section("Boost Spark");
+		Engine::Editor::Header("Boost Spark");
 		Engine::Editor::HelpText("踏み込んだ瞬間に噴射口へ1回だけ出す。ジェットとは別のアセット");
 		Engine::Editor::AssetField<Engine::Resource::EffectAsset>(
 			*a_context.pWorld->RefEngineServices(),
@@ -199,13 +199,13 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 		}
 
 		// ランタイムは表示のみ
-		Engine::Editor::Section("Runtime");
-		Engine::Editor::Text("BurstTimer : %.3f", _comp.burstTimer);
-		Engine::Editor::Text("Playing    : %s", _comp.wasPlaying ? "true" : "false");
-		Engine::Editor::Text("Boosting   : %s", _comp.isBoosting ? "true" : "false");
-		Engine::Editor::Text("BoostBlend : %.3f", _comp.boostBlend);
-		Engine::Editor::Text("ChargeRate : %.3f", _comp.chargeRate);
-		Engine::Editor::Text("ChargeDash : %s", _comp.isChargeDashing ? "true" : "false");
-		Engine::Editor::Text("DashBlend  : %.3f", _comp.dashLengthBlend);
+		Engine::Editor::Header("Runtime");
+		Engine::Editor::Value("BurstTimer", "%.3f", _comp.burstTimer);
+		Engine::Editor::Value("Playing", "%s", _comp.wasPlaying ? "true" : "false");
+		Engine::Editor::Value("Boosting", "%s", _comp.isBoosting ? "true" : "false");
+		Engine::Editor::Value("BoostBlend", "%.3f", _comp.boostBlend);
+		Engine::Editor::Value("ChargeRate", "%.3f", _comp.chargeRate);
+		Engine::Editor::Value("ChargeDash", "%s", _comp.isChargeDashing ? "true" : "false");
+		Engine::Editor::Value("DashBlend", "%.3f", _comp.dashLengthBlend);
 	}
 };

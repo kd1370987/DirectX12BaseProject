@@ -51,6 +51,6 @@ struct Engine::ECS::ComponentTraits<BoidSpownerComponent>
 			_services.pResourceManager->ReleaseHandle(_comp.prefab);
 		}
 		Engine::Editor::Field("SpawnRadius", _comp.spawnRadius, 0.1f, 0.0f);
-		Engine::Editor::HelpText("(spawn count is decided by the controller)");
+		Engine::Editor::Tooltip("(spawn count is decided by the controller)");
 	}
 };

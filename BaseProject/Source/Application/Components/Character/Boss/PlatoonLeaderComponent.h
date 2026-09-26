@@ -45,18 +45,18 @@ struct Engine::ECS::ComponentTraits<PlatoonLeaderComponent>
 		Engine::Editor::Field("Distance", _comp.distance, 0.1f, 0.0f);
 		Engine::Editor::Field("FollowGain", _comp.followGain, 0.05f, 0.0f);
 		Engine::Editor::Field("TurnSpeedDeg", _comp.turnSpeedDeg, 1.0f, 0.0f);
-		Engine::Editor::HelpText("(max speed : MovementComponent.moveSpeed)");
+		Engine::Editor::Tooltip("(max speed : MovementComponent.moveSpeed)");
 
 		// 生成時に書き込まれる値なので表示のみ
-		Engine::Editor::Text("PlatoonIndex : %d", _comp.platoonIndex);
-		Engine::Editor::Text("AlongWorm    : %.1f m", _comp.distanceAlongWorm);
+		Engine::Editor::Value("PlatoonIndex", "%d", _comp.platoonIndex);
+		Engine::Editor::Value("AlongWorm", "%.1f m", _comp.distanceAlongWorm);
 		if (_comp.preLeader == Engine::ECS::Limits::INVALID_ENTITY)
 		{
 			Engine::Editor::HelpText("PreLeader    : (none)");
 		}
 		else
 		{
-			Engine::Editor::Text("PreLeader    : %llu", static_cast<unsigned long long>(_comp.preLeader));
+			Engine::Editor::Value("PreLeader", "%llu", static_cast<unsigned long long>(_comp.preLeader));
 		}
 	}
 };

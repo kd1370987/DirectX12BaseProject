@@ -48,22 +48,22 @@ namespace Engine::Editor::Inspector
 			ENGINE_LOG("テクスチャの保存が完了 : %s", _filePath.c_str());
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// ---- リソース情報 ----
 		const auto& _desc = a_pTexture->GetDesc();
-		ImGui::Text("Name       : %s", a_pTexture->GetName().c_str());
-		ImGui::Text("Size       : %llu x %u", _desc.Width, _desc.Height);
-		ImGui::Text("MipLevels  : %u", static_cast<UINT>(_desc.MipLevels));
-		ImGui::Text("ArraySize  : %u", static_cast<UINT>(_desc.DepthOrArraySize));
-		ImGui::Text("Format     : %s", std::string(magic_enum::enum_name(_desc.Format)).c_str());
-		ImGui::Text("SampleCount: %u", _desc.SampleDesc.Count);
-		ImGui::Text("Usage      : %s", MakeUsageString(a_pTexture->GetUsage()).c_str());
+		Engine::Editor::Value("Name", "%s", a_pTexture->GetName().c_str());
+		Engine::Editor::Value("Size", "%llu x %u", _desc.Width, _desc.Height);
+		Engine::Editor::Value("MipLevels", "%u", static_cast<UINT>(_desc.MipLevels));
+		Engine::Editor::Value("ArraySize", "%u", static_cast<UINT>(_desc.DepthOrArraySize));
+		Engine::Editor::Value("Format", "%s", std::string(magic_enum::enum_name(_desc.Format)).c_str());
+		Engine::Editor::Value("SampleCount", "%u", _desc.SampleDesc.Count);
+		Engine::Editor::Value("Usage", "%s", MakeUsageString(a_pTexture->GetUsage()).c_str());
 
 		const auto& _clearColor = a_pTexture->GetClearColor();
-		ImGui::Text("ClearColor : %.3f, %.3f, %.3f, %.3f", _clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
+		Engine::Editor::Value("ClearColor", "%.3f, %.3f, %.3f, %.3f", _clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// ---- 画像の描画 ----
 		auto _winOp = Option::OptionManager::GetInstance().GetWindowOption();

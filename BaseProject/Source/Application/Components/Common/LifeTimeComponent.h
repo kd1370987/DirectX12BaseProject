@@ -31,6 +31,6 @@ struct Engine::ECS::ComponentTraits<LifeTimeComponent>
 	{
 		LifeTimeComponent& _comp = Engine::Editor::GetValue<LifeTimeComponent>(a_context.pData);
 		Engine::Editor::Field("LifeTime", _comp.value, 0.1f);
-		Engine::Editor::HelpText("0 以下で消滅 / 負の値は無期限");
+		Engine::Editor::Tooltip("0 以下で消滅 / 負の値は無期限");
 	}
 };

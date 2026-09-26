@@ -95,8 +95,8 @@ namespace Engine::Editor::Inspector
 			{
 				int _count = static_cast<int>(a_group.members.size());
 
-				ImGui::SetNextItemWidth(120.0f);
-				if (!ImGui::DragInt("Count", &_count, 0.1f, 1, kMaxCount)) return EPassEditResult::None;
+				Engine::Editor::SetNextItemWidth(120.0f);
+				if (!Engine::Editor::Field("Count", _count, 0.1f, 1, kMaxCount)) return EPassEditResult::None;
 
 				_count = std::clamp(_count, 1, kMaxCount);
 				if (_count == static_cast<int>(a_group.members.size())) return EPassEditResult::None;
@@ -117,9 +117,9 @@ namespace Engine::Editor::Inspector
 				PassEditorRegistry& a_passEditorRegistry,
 				CompositeNodeRequest& a_outRequest) override
 			{
-				ImGui::TextDisabled("同じパスを %d 段つないでいます", static_cast<int>(a_group.members.size()));
-				ImGui::TextDisabled("StepSize は段ごとに 1, 2, 4, 8... と広げます");
-				ImGui::Separator();
+				Engine::Editor::HelpText("同じパスを %d 段つないでいます", static_cast<int>(a_group.members.size()));
+				Engine::Editor::HelpText("StepSize は段ごとに 1, 2, 4, 8... と広げます");
+				Engine::Editor::Line();
 
 				EPassEditResult _result = EPassEditResult::None;
 
@@ -150,7 +150,7 @@ namespace Engine::Editor::Inspector
 					ImGui::PopID();
 				}
 
-				ImGui::Separator();
+				Engine::Editor::Line();
 				const int _count = static_cast<int>(a_group.members.size());
 
 				if (CreateButton("Add Stage") && _count < kMaxCount)
@@ -158,7 +158,7 @@ namespace Engine::Editor::Inspector
 					a_outRequest.resizeCount = _count + 1;
 					_result = EPassEditResult::Structure;
 				}
-				ImGui::SameLine();
+				Engine::Editor::SameLine();
 				if (DeleteSmallButton("Remove Stage") && _count > 1)
 				{
 					a_outRequest.resizeCount = _count - 1;
@@ -389,8 +389,8 @@ namespace Engine::Editor::Inspector
 			{
 				(void)a_outRequest;
 
-				ImGui::TextDisabled("Extract -> Blur x4 -> Kawase -> Composite");
-				ImGui::TextDisabled("段数は Kawase の入力が4本固定なので変えられません");
+				Engine::Editor::HelpText("Extract -> Blur x4 -> Kawase -> Composite");
+				Engine::Editor::HelpText("段数は Kawase の入力が4本固定なので変えられません");
 
 				// 一番よく触る強さだけノードに出しておく
 				auto* _pComposite = FindMember<BloomCompositePass>(a_group);
@@ -398,8 +398,8 @@ namespace Engine::Editor::Inspector
 
 				auto& _params = static_cast<BloomCompositePass*>(_pComposite)->RefParams();
 
-				ImGui::SetNextItemWidth(120.0f);
-				const bool _isEdit = ImGui::DragFloat("Intensity", &_params.intensity, 0.01f, 0.0f);
+				Engine::Editor::SetNextItemWidth(120.0f);
+				const bool _isEdit = Engine::Editor::Field("Intensity", _params.intensity, 0.01f, 0.0f);
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
@@ -411,9 +411,9 @@ namespace Engine::Editor::Inspector
 			{
 				(void)a_outRequest;
 
-				ImGui::TextDisabled("縮小率ごとにボケの広がりが変わり、重ねると");
-				ImGui::TextDisabled("芯は明るく外へゆるく広がる減衰になります");
-				ImGui::Separator();
+				Engine::Editor::HelpText("縮小率ごとにボケの広がりが変わり、重ねると");
+				Engine::Editor::HelpText("芯は明るく外へゆるく広がる減衰になります");
+				Engine::Editor::Line();
 
 				EPassEditResult _result = EPassEditResult::None;
 

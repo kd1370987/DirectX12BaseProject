@@ -99,13 +99,8 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Spacing();
-		Engine::Editor::Separator();
-		Engine::Editor::Spacing();
-
-		Engine::Editor::Text("Missile Lock");
-		Engine::Editor::Text("Collect radius : %.0f px", CalcCollectRadius());
-		Engine::Editor::HelpText("この円の内側に入った敵をミサイルが溜めます(アンカーの PixelSize に内接)");
-		Engine::Editor::HelpText("中心は PixelPos。倍率や弾数はプレイヤーの MissileLockComponent");
+		Engine::Editor::Header("Missile Lock");
+		Engine::Editor::Value("Collect radius", "%.0f px", CalcCollectRadius());
+		Engine::Editor::Tooltip("この円の内側に入った敵をミサイルが溜めます(アンカーの PixelSize に内接)\n中心は PixelPos。倍率や弾数はプレイヤーの MissileLockComponent");
 	}
 }

@@ -51,7 +51,7 @@ namespace Engine::Editor
 		auto* _pManager = Engine::Scene::SceneManager::Instance().RefGameObjectManager();
 		if (!_pManager)
 		{
-			ImGui::TextDisabled("No GameObjectManager");
+			Engine::Editor::HelpText("No GameObjectManager");
 			a_editContext.pGameObject = nullptr;
 			return;
 		}
@@ -65,13 +65,13 @@ namespace Engine::Editor
 		}
 		if (ImGui::BeginPopup("AddObjectPopup"))
 		{
-			ImGui::TextDisabled("Select Class");
-			ImGui::Separator();
+			Engine::Editor::HelpText("Select Class");
+			Engine::Editor::Line();
 
 			const auto& _allMeta = GameObject::ObjectMetaRegistry::Instance().GetAllMeta();
 			if (_allMeta.empty())
 			{
-				ImGui::TextDisabled("No registered class");
+				Engine::Editor::HelpText("No registered class");
 			}
 			else
 			{
@@ -113,13 +113,13 @@ namespace Engine::Editor
 
 		const auto& _objects = _pManager->GetObjects();
 
-		ImGui::Text("ObjectNum : %d", static_cast<int>(_objects.size()));
-		ImGui::Separator();
+		Engine::Editor::Value("ObjectNum", "%d", static_cast<int>(_objects.size()));
+		Engine::Editor::Line();
 
 		// 名前でオブジェクトを探す。出しっぱなしの欄なので入力は消さない
 		const std::string& _search = EditorHelper::DrawSearchBox("##ObjectSearch", "Search object...", false);
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// 選択中ポインタがまだ生きているか検証(破棄やシーン切り替えでダングリング化するのを防ぐ)
 		// 絞り込みで一覧から外れただけの相手を「消えた」と誤判定しないよう、検証は絞り込みの前に行う
@@ -305,7 +305,7 @@ namespace Engine::Editor
 			{
 				a_pObject->SetParentGUID({});
 			}
-			ImGui::Separator();
+			Engine::Editor::Line();
 		}
 
 		if (ImGui::MenuItem("Destroy"))
@@ -333,7 +333,7 @@ namespace Engine::Editor
 			const Engine::GUID _guid = a_pObject->GetGUID();
 			ImGui::SetDragDropPayload(DRAG_PAYLOAD_NAME, &_guid, sizeof(Engine::GUID));
 
-			ImGui::Text("%s", MakeLabel(a_pObject).c_str());
+			Engine::Editor::Text("%s", MakeLabel(a_pObject).c_str());
 			ImGui::EndDragDropSource();
 		}
 

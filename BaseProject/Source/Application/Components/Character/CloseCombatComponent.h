@@ -62,8 +62,8 @@ struct Engine::ECS::ComponentTraits<CloseCombatComponent>
 		Engine::Editor::Field("StrafeRatio", _comp.strafeRatio, 0.01f, 0.0f, 1.0f);
 		Engine::Editor::Field("KeepDistance", _comp.keepDistance, 0.1f, 0.0f);
 
-		Engine::Editor::Separator();
-		Engine::Editor::Text("Phase : %s", _comp.isFirePhase ? "Fire" : "Move");
-		Engine::Editor::Text("Timer : %.2f", _comp.timer);
+		Engine::Editor::Line();
+		Engine::Editor::Value("Phase", "%s", _comp.isFirePhase ? "Fire" : "Move");
+		Engine::Editor::Value("Timer", "%.2f", _comp.timer);
 	}
 };

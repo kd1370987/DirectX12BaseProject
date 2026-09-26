@@ -24,7 +24,7 @@ namespace Engine::Editor::Inspector
 			if (!a_label || a_label[0] == '\0') return;
 
 			ImGui::TextUnformatted(a_label);
-			ImGui::SameLine();
+			Engine::Editor::SameLine();
 		}
 
 		//-----------------------------------------------------------------------------------------
@@ -37,8 +37,8 @@ namespace Engine::Editor::Inspector
 			if (!ImGui::IsItemHovered()) return;
 
 			ImGui::BeginTooltip();
-			ImGui::Text("Type : %s", a_prop.type.c_str());
-			ImGui::Text("Path : %s", a_prop.filePath.c_str());
+			Engine::Editor::Value("Type", "%s", a_prop.type.c_str());
+			Engine::Editor::Value("Path", "%s", a_prop.filePath.c_str());
 			ImGui::TextDisabled("%s", a_prop.guid.String().c_str());
 
 			if (a_isJumpable)
@@ -98,7 +98,7 @@ namespace Engine::Editor::Inspector
 		if (IsEmptyGUID(a_guid))
 		{
 			DrawLabel(a_label);
-			ImGui::TextDisabled("(none)");
+			Engine::Editor::HelpText("(none)");
 			return false;
 		}
 
@@ -110,7 +110,7 @@ namespace Engine::Editor::Inspector
 		if (!_pAsset)
 		{
 			DrawLabel(a_label);
-			ImGui::TextDisabled("(missing) %s", a_guid.String().c_str());
+			Engine::Editor::HelpText("(missing) %s", a_guid.String().c_str());
 			return false;
 		}
 
@@ -125,7 +125,7 @@ namespace Engine::Editor::Inspector
 		// リンクの見た目にすると押せそうに見えてしまうので、ただの文字で出す
 		if (!a_pEditContext)
 		{
-			ImGui::TextDisabled("%s", _text.c_str());
+			Engine::Editor::HelpText("%s", _text.c_str());
 			DrawLinkTooltip(*_pAsset, false);
 			return false;
 		}
@@ -157,11 +157,11 @@ namespace Engine::Editor::Inspector
 		const bool _isBack = ImGui::ArrowButton("##AssetBack", ImGuiDir_Left);
 		ImGui::EndDisabled();
 
-		ImGui::SameLine();
+		Engine::Editor::SameLine();
 
 		if (_historyVec.empty())
 		{
-			ImGui::TextDisabled("(no history)");
+			Engine::Editor::HelpText("(no history)");
 			return;
 		}
 
@@ -169,8 +169,7 @@ namespace Engine::Editor::Inspector
 		const auto* _pBackAsset =
 			a_editContext.pServices->pAssetDatabase->FindAssetProperty(_historyVec.back());
 
-		ImGui::TextDisabled("Back : %s",
-			_pBackAsset ? _pBackAsset->fileName.c_str() : "(missing)");
+		Engine::Editor::HelpText("Back : %s", _pBackAsset ? _pBackAsset->fileName.c_str() : "(missing)");
 
 		if (!_isBack) return;
 

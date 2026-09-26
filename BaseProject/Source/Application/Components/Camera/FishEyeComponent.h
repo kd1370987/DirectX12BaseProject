@@ -52,8 +52,8 @@ struct Engine::ECS::ComponentTraits<FishEyeComponent>
 
 		Engine::Editor::Field("FishEye Enable", _comp.enable);
 		Engine::Editor::Field("Center (UV)", _comp.center, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::HelpText("画面左上が 0,0 / 右下が 1,1");
+		Engine::Editor::Tooltip("画面左上が 0,0 / 右下が 1,1");
 		Engine::Editor::Field("Strength", _comp.strength, 0.01f, -1.0f, 2.0f);
-		Engine::Editor::HelpText("正で樽型(四隅が黒くなる) / 負で糸巻き型");
+		Engine::Editor::Tooltip("正で樽型(四隅が黒くなる) / 負で糸巻き型");
 	}
 };

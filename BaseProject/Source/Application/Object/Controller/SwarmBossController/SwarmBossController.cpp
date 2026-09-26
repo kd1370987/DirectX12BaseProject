@@ -933,16 +933,16 @@ namespace App::Object
 		if (!a_context.pServices) return;
 		auto& _services = *a_context.pServices;
 
-		Engine::Editor::Section("Leader");
+		Engine::Editor::Header("Leader");
 		Engine::Editor::AssetField(_services, "Leader Prefab", "Prefab", m_leaderPrefabGUID);
 		Engine::Editor::Field("Spawn Pos", m_spawnPos, 0.1f);
 
-		Engine::Editor::Section("Platoon Leader");
+		Engine::Editor::Header("Platoon Leader");
 		Engine::Editor::AssetField(_services, "Platoon Prefab", "Prefab", m_platoonPrefabGUID);
 		Engine::Editor::Field("Max Platoon Leader", m_maxPlatoonLeader);
-		Engine::Editor::HelpText("Line up behind the leader (-Z) by PlatoonLeaderComponent.distance");
+		Engine::Editor::Tooltip("Line up behind the leader (-Z) by PlatoonLeaderComponent.distance");
 
-		Engine::Editor::Section("Boid");
+		Engine::Editor::Header("Boid");
 		Engine::Editor::Field("Max Boid", m_maxBoid);
 		if (m_maxPlatoonLeader > 0)
 		{
@@ -953,22 +953,22 @@ namespace App::Object
 		Engine::Editor::Field("Boid Collider Radius", m_boidColliderRadius, 0.05f, 0.0f);
 		Engine::Editor::Field("Boid Health", m_boidHealth, 1.0f, 0.0f);
 		Engine::Editor::Field("Boid Release Delay", m_boidReleaseDelay, 0.05f, 0.0f);
-		Engine::Editor::HelpText("Hit : player attacks only (passes through terrain)");
+		Engine::Editor::Tooltip("Hit : player attacks only (passes through terrain)");
 
 		Engine::Editor::Field("Contact Damage", m_contactDamage, 0.5f, 0.0f);
 		Engine::Editor::Field("Contact Cooldown", m_contactDamageCooldown, 0.05f, 0.0f);
-		Engine::Editor::HelpText("Per boid : touch player -> damage, then no check for cooldown sec");
+		Engine::Editor::Tooltip("Per boid : touch player -> damage, then no check for cooldown sec");
 
-		Engine::Editor::Section("Speed");
+		Engine::Editor::Header("Speed");
 		Engine::Editor::Field("Leader Speed", m_leaderSpeed, 0.5f, 0.0f);
 		Engine::Editor::Field("Platoon Scale", m_platoonSpeedScale, 0.05f, 0.0f);
 		Engine::Editor::Field("Boid Scale", m_boidSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::HelpText("Platoon %.1f / Boid %.1f (written on spawn, overrides prefab)", m_leaderSpeed * m_platoonSpeedScale, m_leaderSpeed * m_boidSpeedScale);
+		Engine::Editor::Tooltip("Platoon %.1f / Boid %.1f (written on spawn, overrides prefab)", m_leaderSpeed * m_platoonSpeedScale, m_leaderSpeed * m_boidSpeedScale);
 
-		Engine::Editor::Section("Leader Action");
+		Engine::Editor::Header("Leader Action");
 		m_stateMachine.DrawInspector();
 
-		Engine::Editor::Section("Wave");
+		Engine::Editor::Header("Wave");
 		Engine::Editor::Field("Wave Speed", m_waveSpeed, 1.0f, 0.0f);
 		Engine::Editor::Field("Wave Interval", m_waveInterval, 0.05f, 0.0f);
 		Engine::Editor::Field("Wave Width", m_waveWidth, 0.5f, 0.0f);
@@ -977,16 +977,16 @@ namespace App::Object
 		Engine::Editor::Field("Peak Intensity", m_wavePeakIntensity, 0.05f, 0.0f);
 		Engine::Editor::ColorField("Base Color", m_waveBaseColor);
 		Engine::Editor::ColorField("Peak Color", m_wavePeakColor);
-		Engine::Editor::HelpText("Bloom picks up pixels over 1.0 : keep the peak above it");
+		Engine::Editor::Tooltip("Bloom picks up pixels over 1.0 : keep the peak above it");
 
 		// 頭から尾までを流れるので、1本が抜けるまでにかかる時間を出しておく
 		if (m_waveSpeed > 0.0f)
 		{
 			Engine::Editor::HelpText("Worm length %.1f m / travel %.1f s (interval %.1f s)", GetWormLength(), (GetWormLength() + m_waveWidth) / m_waveSpeed, m_waveInterval);
 		}
-		Engine::Editor::Text("Running : %u", static_cast<uint32_t>(m_waveVec.size()));
+		Engine::Editor::Value("Running", "%u", static_cast<uint32_t>(m_waveVec.size()));
 
-		Engine::Editor::Section("Ground Effect");
+		Engine::Editor::Header("Ground Effect");
 		if (Engine::Editor::AssetField(
 			_services, "Ground Effect", "EffectAsset", m_groundEffectGUID))
 		{
@@ -1000,7 +1000,7 @@ namespace App::Object
 		}
 		else if (!m_isGroundEffectOneShot)
 		{
-			Engine::Editor::TextColored(Math::Color(1.0f, 0.5f, 0.2f, 1.0f), "Loading, or has a part with Duration 0 (never ends) : not spawned");
+			Engine::Editor::ErrorText("Loading, or has a part with Duration 0 (never ends) : not spawned");
 		}
 		Engine::Editor::Field("Effect Max Height", m_groundEffectMaxHeight, 0.5f, 0.0f);
 		Engine::Editor::Field("Effect Max Depth", m_groundEffectMaxDepth, 1.0f, 0.0f);
@@ -1010,7 +1010,7 @@ namespace App::Object
 		Engine::Editor::Field("Effect Interval", m_groundEffectInterval, 0.05f, 0.01f);
 		Engine::Editor::Field("Effect Max Per Frame", m_groundEffectMaxSpawnPerFrame);
 
-		Engine::Editor::Section("Burrow Effect (leader)");
+		Engine::Editor::Header("Burrow Effect (leader)");
 		if (Engine::Editor::AssetField(
 			_services, "Burrow Effect", "EffectPrefab", m_burrowEffectGUID))
 		{
@@ -1018,7 +1018,7 @@ namespace App::Object
 			m_burrowEffectRef = {};
 		}
 		Engine::Editor::Field("Burrow Cooldown", m_burrowEffectCooldown, 0.05f, 0.0f);
-		Engine::Editor::HelpText("Leader : %s", !m_isLeaderGroundKnown ? "(unknown)"
+		Engine::Editor::Value("Leader", "%s", !m_isLeaderGroundKnown ? "(unknown)"
 			: (m_wasLeaderUnderGround ? "under ground" : "above ground"));
 
 		// 間隔が来たボイドだけがレイを打つので、1フレームの本数の目安を出しておく
@@ -1028,8 +1028,8 @@ namespace App::Object
 		}
 
 		// ここから下は実行中の状態なので表示のみ
-		Engine::Editor::Section("Runtime");
-		Engine::Editor::Text("Spawned : %s", m_isSpown ? "yes" : "no");
+		Engine::Editor::Header("Runtime");
+		Engine::Editor::Value("Spawned", "%s", m_isSpown ? "yes" : "no");
 		if (!m_isSpown)
 		{
 			// 置いた直後はプレハブ未設定のまま Awake を通っているので、設定してから出せるようにする
@@ -1040,12 +1040,12 @@ namespace App::Object
 			}
 		}
 
-		Engine::Editor::Text("Leader  : %llu", static_cast<unsigned long long>(m_leaderEntity));
-		Engine::Editor::Text("Platoon : %u / %u", static_cast<uint32_t>(m_platoonLeaderEntities.size()), m_maxPlatoonLeader);
+		Engine::Editor::Value("Leader", "%llu", static_cast<unsigned long long>(m_leaderEntity));
+		Engine::Editor::Value("Platoon", "%u / %u", static_cast<uint32_t>(m_platoonLeaderEntities.size()), m_maxPlatoonLeader);
 		for (size_t _i = 0; _i < m_platoonLeaderEntities.size(); ++_i)
 		{
 			Engine::Editor::BulletText("[%u] %llu", static_cast<uint32_t>(_i), static_cast<unsigned long long>(m_platoonLeaderEntities[_i]));
 		}
-		Engine::Editor::Text("HP      : %u / %u (alive boids)", m_currentBoids, m_maxBoid);
+		Engine::Editor::Value("HP", "%u / %u (alive boids)", m_currentBoids, m_maxBoid);
 	}
 }

@@ -44,11 +44,11 @@ struct Engine::ECS::ComponentTraits<AimTargetPosComponent>
 		Engine::Editor::Field("StartOffset", _comp.startOffset, 0.1f, 0.0f);
 
 		// 結果は表示のみ(システムが毎フレーム上書きする)
-		Engine::Editor::Separator();
-		Engine::Editor::Text("AimPos : %.2f, %.2f, %.2f", _comp.pos.x, _comp.pos.y, _comp.pos.z);
-		Engine::Editor::Text("AimDir : %.2f, %.2f, %.2f", _comp.dir.x, _comp.dir.y, _comp.dir.z);
-		Engine::Editor::Text("IsHit  : %s", _comp.isHit ? "true" : "false");
-		Engine::Editor::Text("IsValid: %s", _comp.isValid ? "true" : "false");
-		Engine::Editor::HelpText("HitEntity : %llu", static_cast<unsigned long long>(_comp.hitEntity));
+		Engine::Editor::Line();
+		Engine::Editor::Value("AimPos", "%.2f, %.2f, %.2f", _comp.pos.x, _comp.pos.y, _comp.pos.z);
+		Engine::Editor::Value("AimDir", "%.2f, %.2f, %.2f", _comp.dir.x, _comp.dir.y, _comp.dir.z);
+		Engine::Editor::Value("IsHit", "%s", _comp.isHit ? "true" : "false");
+		Engine::Editor::Value("IsValid", "%s", _comp.isValid ? "true" : "false");
+		Engine::Editor::Tooltip("HitEntity : %llu", static_cast<unsigned long long>(_comp.hitEntity));
 	}
 };

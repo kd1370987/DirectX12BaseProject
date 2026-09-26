@@ -5,7 +5,6 @@ struct SkeletonPoseComponent
 	Engine::RangeHandle<Engine::Resource::BoneMatrix> skeletonPoseHandle;
 };
 
-
 template<>
 struct Engine::ECS::ComponentTraits<SkeletonPoseComponent>
 {

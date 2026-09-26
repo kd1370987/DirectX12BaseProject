@@ -67,22 +67,20 @@ struct Engine::ECS::ComponentTraits<HealthComponent>
 
 		char _label[32] = {};
 		std::snprintf(_label, sizeof(_label), "%.0f / %.0f", _comp.currentHealth, _comp.maxHealth);
-		Engine::Editor::ProgressBar(_ratio, _label);
-		Engine::Editor::SameLine();
-		Engine::Editor::Text("Current");
+		Engine::Editor::ProgressBar("Current", _ratio, _label);
 
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 
 		if (Engine::Editor::Field("ReleaseDelay", _comp.releaseDelay, 0.05f, 0.0f))
 		{
 			if (_comp.releaseDelay < 0.0f) _comp.releaseDelay = 0.0f;
 		}
-		Engine::Editor::HelpText("(死亡してから消えるまでの秒数)");
+		Engine::Editor::Tooltip("(死亡してから消えるまでの秒数)");
 
 		// 死亡状態は表示のみ
 		if (_comp.isDead)
 		{
-			Engine::Editor::TextColored(Math::Color(1.0f, 0.4f, 0.4f, 1.0f), "Dead : %.2f / %.2f", _comp.deathTimer, _comp.releaseDelay);
+			Engine::Editor::ErrorText("Dead : %.2f / %.2f", _comp.deathTimer, _comp.releaseDelay);
 		}
 		else
 		{

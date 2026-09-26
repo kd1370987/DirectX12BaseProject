@@ -24,7 +24,6 @@ struct BoidLeaderComponent
 template<>
 struct Engine::ECS::ComponentTraits<BoidLeaderComponent>
 {
-
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
 		BoidLeaderComponent& _comp = Engine::Editor::GetValue<BoidLeaderComponent>(a_pData);
@@ -36,5 +35,4 @@ struct Engine::ECS::ComponentTraits<BoidLeaderComponent>
 		BoidLeaderComponent& _comp = Engine::Editor::GetValue<BoidLeaderComponent>(a_context.pData);
 		Engine::Editor::Field("TurnSpeedDeg", _comp.turnSpeedDeg, 1.0f, 0.0f);
 	}
-
 };

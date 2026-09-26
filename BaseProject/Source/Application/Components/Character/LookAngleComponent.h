@@ -85,9 +85,9 @@ struct Engine::ECS::ComponentTraits<LookAngleComponent>
 		LookAngleComponent& _comp = Engine::Editor::GetValue<LookAngleComponent>(a_context.pData);
 		Engine::Editor::Field("Yaw", _comp.Yaw, 0.1f);
 		Engine::Editor::Field("Pith", _comp.Pitch, 0.1f);
-		Engine::Editor::Separator();
+		Engine::Editor::Line();
 		Engine::Editor::Field("MaxPitch", _comp.maxPitch, 0.1f);
 		Engine::Editor::Field("ApplyPitchToBody", _comp.isApplyPitchToBody);
-		Engine::Editor::HelpText("(body tilts up/down. humanoids : off)");
+		Engine::Editor::Tooltip("(body tilts up/down. humanoids : off)");
 	}
 };

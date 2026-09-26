@@ -12,30 +12,25 @@ namespace Engine::Editor::Inspector
 		const auto& _metaData = a_pMesh->GetMetaData();
 
 		// ---- 概要 ----
-		ImGui::Text("Vertices   : %zu", a_pMesh->GetVertexVec().size());
-		ImGui::Text("Subsets    : %zu", _metaData.subsets.size());
-		ImGui::Text("IsSkinMesh : %s", _metaData.isSkinMesh ? "true" : "false");
+		Engine::Editor::Value("Vertices", "%zu", a_pMesh->GetVertexVec().size());
+		Engine::Editor::Value("Subsets", "%zu", _metaData.subsets.size());
+		Engine::Editor::Value("IsSkinMesh", "%s", _metaData.isSkinMesh ? "true" : "false");
 
 		// 実体化しているドメインデータ
-		ImGui::Text(
-			"Domains    : %s%s%s",
-			a_pMesh->HasRasterData() ? "[Raster]" : "",
-			a_pMesh->HasRtData() ? "[Raytracing]" : "",
-			a_pMesh->HasMeshShaderData() ? "[MeshShader]" : ""
-		);
+		Engine::Editor::Value("Domains", "%s%s%s", a_pMesh->HasRasterData() ? "[Raster]" : "", a_pMesh->HasRtData() ? "[Raytracing]" : "", a_pMesh->HasMeshShaderData() ? "[MeshShader]" : "");
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// ---- 境界ボリューム ----
 		if (ImGui::CollapsingHeader("Bounds", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			const auto& _aabb = _metaData.aabb;
-			ImGui::Text("AABB Center : %.3f, %.3f, %.3f", _aabb.Center.x, _aabb.Center.y, _aabb.Center.z);
-			ImGui::Text("AABB Extents: %.3f, %.3f, %.3f", _aabb.Extents.x, _aabb.Extents.y, _aabb.Extents.z);
+			Engine::Editor::Value("AABB Center", "%.3f, %.3f, %.3f", _aabb.Center.x, _aabb.Center.y, _aabb.Center.z);
+			Engine::Editor::Value("AABB Extents", "%.3f, %.3f, %.3f", _aabb.Extents.x, _aabb.Extents.y, _aabb.Extents.z);
 
 			const auto& _bSphere = _metaData.bSphere;
-			ImGui::Text("Sphere Center: %.3f, %.3f, %.3f", _bSphere.Center.x, _bSphere.Center.y, _bSphere.Center.z);
-			ImGui::Text("Sphere Radius: %.3f", _bSphere.Radius);
+			Engine::Editor::Value("Sphere Center", "%.3f, %.3f, %.3f", _bSphere.Center.x, _bSphere.Center.y, _bSphere.Center.z);
+			Engine::Editor::Value("Sphere Radius", "%.3f", _bSphere.Radius);
 		}
 
 		// ---- サブセット ----
@@ -44,10 +39,7 @@ namespace Engine::Editor::Inspector
 			for (size_t _i = 0; _i < _metaData.subsets.size(); ++_i)
 			{
 				const auto& _subset = _metaData.subsets[_i];
-				ImGui::Text(
-					"[%zu] material=%u faceStart=%u faceCount=%u",
-					_i, _subset.materialNumber, _subset.faceStart, _subset.faceCount
-				);
+				Engine::Editor::Text("[%zu] material=%u faceStart=%u faceCount=%u", _i, _subset.materialNumber, _subset.faceStart, _subset.faceCount);
 			}
 		}
 
@@ -56,10 +48,9 @@ namespace Engine::Editor::Inspector
 		{
 			const auto& _rtData = a_pMesh->GetRtData();
 
-			ImGui::Text("VertexHandle");
+			Engine::Editor::Header("VertexHandle");
 			HandleInfo(_rtData.vertexHandle);
-			ImGui::Separator();
-			ImGui::Text("IndexHandle");
+			Engine::Editor::Header("IndexHandle");
 			HandleInfo(_rtData.indexHandle);
 		}
 
@@ -68,22 +59,17 @@ namespace Engine::Editor::Inspector
 		{
 			const auto& _meshShaderData = a_pMesh->GetMeshShaderData();
 
-			ImGui::Text("Meshlets            : %zu", _meshShaderData.meshlets.size());
-			ImGui::Text("UniqueVertexIndices : %zu", _meshShaderData.uniqueVertexIndices.size());
-			ImGui::Text("PrimitiveIndices    : %zu", _meshShaderData.primitiveIndices.size());
-			ImGui::Text("CullData            : %zu", _meshShaderData.cullData.size());
+			Engine::Editor::Value("Meshlets", "%zu", _meshShaderData.meshlets.size());
+			Engine::Editor::Value("UniqueVertexIndices", "%zu", _meshShaderData.uniqueVertexIndices.size());
+			Engine::Editor::Value("PrimitiveIndices", "%zu", _meshShaderData.primitiveIndices.size());
+			Engine::Editor::Value("CullData", "%zu", _meshShaderData.cullData.size());
 
 			if (ImGui::TreeNode("SubsetMeshlets"))
 			{
 				for (size_t _i = 0; _i < _meshShaderData.subsetMeshlets.size(); ++_i)
 				{
 					const auto& _subsetMeshlet = _meshShaderData.subsetMeshlets[_i];
-					ImGui::Text(
-						"[%zu] meshletOffset=%u meshletCount=%u cullOffset=%u cullCount=%u",
-						_i,
-						_subsetMeshlet.meshletOffset, _subsetMeshlet.meshletCount,
-						_subsetMeshlet.cullOffset, _subsetMeshlet.cullCount
-					);
+					Engine::Editor::Text("[%zu] meshletOffset=%u meshletCount=%u cullOffset=%u cullCount=%u", _i, _subsetMeshlet.meshletOffset, _subsetMeshlet.meshletCount, _subsetMeshlet.cullOffset, _subsetMeshlet.cullCount);
 				}
 				ImGui::TreePop();
 			}

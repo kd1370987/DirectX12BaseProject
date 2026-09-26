@@ -64,6 +64,6 @@ struct Engine::ECS::ComponentTraits<BallisticComponent>
 		Engine::Editor::Field("Stop Effect On Rest", _comp.isStopEffectOnRest);
 
 		// 実行中の値は表示のみ
-		Engine::Editor::Text("Velocity : %.1f, %.1f, %.1f (%s)", _comp.velocity.x, _comp.velocity.y, _comp.velocity.z, _comp.isResting ? "rest" : "flying");
+		Engine::Editor::Value("Velocity", "%.1f, %.1f, %.1f (%s)", _comp.velocity.x, _comp.velocity.y, _comp.velocity.z, _comp.isResting ? "rest" : "flying");
 	}
 };

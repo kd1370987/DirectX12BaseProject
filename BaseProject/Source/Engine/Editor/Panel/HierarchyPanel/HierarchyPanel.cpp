@@ -54,9 +54,9 @@ namespace Engine::Editor
 
 		// 全エンティティ取得
 		UINT _aliveEntityCount = _pWorld->GetAliveEntityCount();
-		ImGui::Text("EntityNum : %d", _aliveEntityCount);
+		Engine::Editor::Value("EntityNum", "%d", _aliveEntityCount);
 
-		ImGui::Separator();
+		Engine::Editor::Line();
 
 		// エンティティ一覧表示
 		ImGui::BeginChild("EntityList");
@@ -74,14 +74,14 @@ namespace Engine::Editor
 					AddEntity(a_editContext,_pWorld);
 				}
 
-				ImGui::Separator();
-				ImGui::TextDisabled("From Prefab");
+				Engine::Editor::Line();
+				Engine::Editor::HelpText("From Prefab");
 
 				// アセットデータベースに登録されているプレハブ一覧
 				const auto& _prefabList = a_editContext.pServices->pAssetDatabase->GetTypeMetaVec("Prefab");
 				if (_prefabList.empty())
 				{
-					ImGui::TextDisabled("  (no prefab)");
+					Engine::Editor::HelpText("  (no prefab)");
 				}
 				else
 				{
@@ -101,12 +101,12 @@ namespace Engine::Editor
 
 				ImGui::EndPopup();
 			}
-			ImGui::Separator();
+			Engine::Editor::Line();
 
 			// 名前でエンティティを探す。出しっぱなしの欄なので入力は消さない
 			const std::string& _search = EditorHelper::DrawSearchBox("##EntitySearch", "Search entity...", false);
 
-			ImGui::Separator();
+			Engine::Editor::Line();
 
 			// ループ中のコンポーネント追加/削除によるベクター破損を防ぐため、一度EntityIDのリストをコピーする
 			const auto& _entityLocationList = _pWorld->GetEntityList();
@@ -313,7 +313,7 @@ namespace Engine::Editor
 		if (ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("Entity", &a_entity, sizeof(ECS::Entity));
-			ImGui::Text("%s", a_label.c_str());
+			Engine::Editor::Text("%s", a_label.c_str());
 			ImGui::EndDragDropSource();
 		}
 
