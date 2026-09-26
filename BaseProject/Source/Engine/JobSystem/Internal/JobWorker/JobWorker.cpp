@@ -1,6 +1,7 @@
 ﻿#include "JobWorker.h"
 
 #include "../JobContext.h"
+#include "../../Profile/ThreadProfiler.h"
 
 namespace Engine::Thread
 {
@@ -64,6 +65,12 @@ namespace Engine::Thread
 	}
 	void Engine::Thread::JobWorker::Run()
 	{
+		// 稼働時間の計測対象にする : ジョブを実行している間だけ Busy になる
+		if (m_pContext->pThreadProfiler)
+		{
+			m_pContext->pThreadProfiler->BindWorkerThread(m_workerID);
+		}
+
 		while (m_isRunning.load(std::memory_order_acquire))
 		{
 			// ジョブの入れ物準備
@@ -79,6 +86,7 @@ namespace Engine::Thread
 			// ほかのWorkerから盗む
 			if (TrySteal(_pJob))
 			{
+				ThreadProfiler::CountSteal();
 				Execute(_pJob);
 				continue;
 			}
@@ -95,10 +103,18 @@ namespace Engine::Thread
 		{
 			Execute(_pRestJob);
 		}
+
+		// 記録はジョブシステムと一緒に捨てられるので、スレッドを抜ける前に外しておく
+		ThreadProfiler::UnbindCurrentThread();
 	}
 	void JobWorker::Execute(Job* a_pJob)
 	{
 		if (a_pJob == nullptr) return;
+
+		// ここから完了通知までを「動いていた時間」として数える。
+		// 後続を流す処理もこのジョブの仕事のうちなので、スコープは関数の終わりまで取る
+		ThreadStateScope _busyScope(EThreadState::Busy);
+		ThreadProfiler::CountJob();
 
 		// 取り出した時点で「待っている仕事」ではなくなる
 		m_pContext->OnJobDequeued();

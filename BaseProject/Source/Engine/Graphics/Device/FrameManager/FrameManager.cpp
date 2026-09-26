@@ -1,5 +1,7 @@
 ﻿#include "FrameManager.h"
 
+#include "Engine/JobSystem/Profile/ThreadProfiler.h"
+
 namespace Engine::Graphics
 {
 	void FrameManager::Init(D3D12::Device* a_pDevice)
@@ -89,7 +91,8 @@ namespace Engine::Graphics
 				return;
 			}
 
-			// 待機処理
+			// 待機処理 : GPUに追いつかれるのを待っている間は、スレッドとしては止まっている
+			Thread::ThreadStateScope _idleScope(Thread::EThreadState::Idle);
 			if (WAIT_OBJECT_0 != WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE))
 			{
 				ENGINE_ERRLOG(false, "待機処理エラー");

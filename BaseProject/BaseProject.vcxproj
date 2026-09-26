@@ -505,6 +505,7 @@
     <ClCompile Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.cpp" />
     <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ECSProfilerView.cpp" />
+    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ThreadProfilerView.cpp" />
     <ClCompile Include="Source\Engine\GameObject\BaseObject\BaseObject.cpp" />
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.cpp" />
     <ClCompile Include="Source\Application\ECS\World\APPWorld.cpp" />
@@ -575,6 +576,7 @@
     <ClCompile Include="Source\Engine\JobSystem\Internal\JobQueue\JobQueue.cpp" />
     <ClCompile Include="Source\Engine\JobSystem\Internal\JobWorker\JobWorker.cpp" />
     <ClCompile Include="Source\Engine\JobSystem\JobSystem.cpp" />
+    <ClCompile Include="Source\Engine\JobSystem\Profile\ThreadProfiler.cpp" />
     <ClCompile Include="Source\Engine\MainEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Frame\RenderContext\RenderContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Device\BackBuffer\BackBuffer.cpp" />
@@ -1112,6 +1114,7 @@
     <ClInclude Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.h" />
     <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ECSProfilerView.h" />
+    <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ThreadProfilerView.h" />
     <ClInclude Include="Source\Engine\GameObject\BaseObject\BaseObject.h" />
     <ClInclude Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.h" />
     <ClInclude Include="Source\Application\Components\Resource\SoundComponent.h" />
@@ -1152,6 +1155,7 @@
     <ClInclude Include="Source\Engine\JobSystem\Internal\JobQueue\JobQueue.h" />
     <ClInclude Include="Source\Engine\JobSystem\Internal\JobWorker\JobWorker.h" />
     <ClInclude Include="Source\Engine\JobSystem\JobSystem.h" />
+    <ClInclude Include="Source\Engine\JobSystem\Profile\ThreadProfiler.h" />
     <ClInclude Include="Source\Engine\MainEngine.h" />
     <ClInclude Include="Source\Engine\EngineCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h" />

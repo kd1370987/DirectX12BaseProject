@@ -29,6 +29,7 @@
 #include "Input/InputManager/InputManager.h"
 
 #include "JobSystem/JobSystem.h"
+#include "JobSystem/Profile/ThreadProfiler.h"
 
 #include "Physics/PhysicsEngine.h"
 
@@ -389,6 +390,16 @@ namespace Engine
 		// フレーム終了
 		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
 		m_upTimeManager->EndFrame(_winOp.isVsync);
+
+		// スレッドごとの稼働時間を1フレームぶん締める。
+		// FPS制限の待ちまで含めた位置で区切るので、フレーム時間とずれない
+		if (m_upJobSystem)
+		{
+			if (auto* _pThreadProfiler = m_upJobSystem->RefThreadProfiler())
+			{
+				_pThreadProfiler->EndFrame();
+			}
+		}
 	}
 
 	void MainEngine::BeginDraw()

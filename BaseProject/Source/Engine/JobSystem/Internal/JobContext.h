@@ -2,6 +2,7 @@
 namespace Engine::Thread
 {
 	class JobWorker;
+	class ThreadProfiler;
 
 	//==========================================================================================
 	// ジョブシステムとワーカースレッドの共有データ
@@ -24,6 +25,9 @@ namespace Engine::Thread
 	struct JobContext
 	{
 		std::vector<JobWorker*> pJobWorker = {};
+
+		// スレッドごとの稼働時間の計測先 : ワーカーは起動直後に自分を登録する
+		ThreadProfiler* pThreadProfiler = nullptr;
 
 		// ---- 完了待ち ----
 		std::atomic<uint32_t>	pendingJobCount = 0;	// 未完了ジョブ数(キュー待ち + 実行中)

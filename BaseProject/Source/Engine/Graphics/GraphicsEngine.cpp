@@ -21,6 +21,9 @@
 #include "MouseCursor/MouseCursor.h"
 #include "DebugDraw/DebugDraw.h"
 
+// スレッドの稼働時間の計測(Present の待ちを外す)
+#include "Engine/JobSystem/Profile/ThreadProfiler.h"
+
 // レンダリングパイプライン(パスの型情報)
 #include "RenderingPipeline/RenderingPipelineMetaRegistry.h"
 
@@ -502,7 +505,11 @@ namespace Engine::Graphics
 		m_upRenderDevice->EndFrame();
 
 		// スワップチェイン切替
-		m_upBackBuffer->Present(a_isVsync);
+		// 垂直同期やキューの詰まりでここは止まることがあるので、止まっている時間として数える
+		{
+			Thread::ThreadStateScope _idleScope(Thread::EThreadState::Idle);
+			m_upBackBuffer->Present(a_isVsync);
+		}
 	}
 
 

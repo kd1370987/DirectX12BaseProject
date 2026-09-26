@@ -4,6 +4,7 @@ namespace Engine::Thread
 {
 	class JobWorker;
 	struct JobContext;
+	class ThreadProfiler;
 
 	class JobSystem
 	{
@@ -55,9 +56,17 @@ namespace Engine::Thread
 		uint32_t GetWorkerCount() const { return m_workerCount; }
 		bool IsRunning() const { return m_isRunning.load(std::memory_order_acquire); }
 
+		// スレッドごとの稼働時間の計測 : 起動していないときは nullptr
+		// フレームの区切り(EndFrame)と結果の読み出しはメインスレッドから行うこと
+		ThreadProfiler* RefThreadProfiler() { return m_upThreadProfiler.get(); }
+
 	private:
 
 		uint32_t m_workerCount = 0;
+
+		// スレッドごとの稼働時間の計測 : ワーカーが記録を書き込むので、
+		// ワーカーより先に宣言して「ワーカーが片付いた後に壊れる」ようにしておく
+		std::unique_ptr<ThreadProfiler> m_upThreadProfiler = nullptr;
 
 		// ワーカーとの共有データ : 完了待ちのカウンタもここが持つ。
 		// ワーカーが動いている間ずっと参照されるので、

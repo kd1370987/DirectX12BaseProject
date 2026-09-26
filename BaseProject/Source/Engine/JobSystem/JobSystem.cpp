@@ -2,6 +2,7 @@
 
 #include "Internal/JobContext.h"
 #include "Internal/JobWorker/JobWorker.h"
+#include "Profile/ThreadProfiler.h"
 
 namespace Engine::Thread
 {
@@ -32,8 +33,14 @@ namespace Engine::Thread
 		m_workerCount = a_threadCount;
 		m_nextWorker.store(0, std::memory_order_relaxed);
 
+		// 稼働時間の計測 : Init はメインスレッドから呼ばれるので、呼んだスレッドをメインとして登録する
+		m_upThreadProfiler = std::make_unique<ThreadProfiler>();
+		m_upThreadProfiler->Init(a_threadCount);
+		m_upThreadProfiler->BindMainThread();
+
 		// コンテキスト作成
 		m_upJobContext = std::make_unique<JobContext>();
+		m_upJobContext->pThreadProfiler = m_upThreadProfiler.get();
 
 		// ワーカースレッドクラスの作成
 		m_jobWorkers.resize(a_threadCount);
@@ -82,6 +89,10 @@ namespace Engine::Thread
 		m_jobWorkers.clear();
 		m_upJobContext.reset();
 		m_workerCount = 0;
+
+		// 記録を捨てる前に、メインスレッドの登録を外す (Release はメインスレッドから呼ばれる)
+		ThreadProfiler::UnbindCurrentThread();
+		m_upThreadProfiler.reset();
 	}
 
 	Job* Engine::Thread::JobSystem::PushJob(std::function<void()>&& a_job)
@@ -167,6 +178,8 @@ namespace Engine::Thread
 	{
 		if (!m_upJobContext) return;
 
+		// 待っている間は「動いていない」: ジョブ待ちとして数える
+		ThreadStateScope _waitScope(EThreadState::JobWait);
 		m_upJobContext->WaitForAllJobs();
 	}
 
@@ -174,6 +187,9 @@ namespace Engine::Thread
 	{
 		if (a_pJob == nullptr || !m_upJobContext) return;
 
+		// 待っている間は「動いていない」: ジョブ待ちとして数える。
+		// ワーカーのジョブの中から待った場合も、そのワーカーの Busy から外れる
+		ThreadStateScope _waitScope(EThreadState::JobWait);
 		m_upJobContext->WaitForJobFinished(
 			[a_pJob]() { return a_pJob->IsFinished(); }
 		);

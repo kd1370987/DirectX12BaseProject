@@ -2,6 +2,7 @@
 
 #include "../IPanel.h"
 #include "ECSProfilerView.h"
+#include "ThreadProfilerView.h"
 
 namespace Engine::Editor
 {
@@ -16,6 +17,7 @@ namespace Engine::Editor
 	/// メニューバーの View で表示を切り替える
 	///   Engine : エンジン全体の統計とスコープごとの計測
 	///   ECS    : 今のシーンのワールドの中身(ECSWorldProfiler の結果)
+	///   Thread : メイン・ワーカースレッドの稼働時間(ThreadProfiler の結果)
 	/// </summary>
 	class ProfilerPanel : public IPanel
 	{
@@ -33,6 +35,7 @@ namespace Engine::Editor
 		{
 			Engine,		// エンジン全体
 			ECS,		// ECSワールド
+			Thread,		// スレッドの稼働時間
 		};
 
 		// メニューバー
@@ -66,5 +69,6 @@ namespace Engine::Editor
 
 		EView			m_eView = EView::Engine;	// 今の表示
 		ECSProfilerView	m_ecsView = {};				// ECSワールドの表示
+		ThreadProfilerView m_threadView = {};		// スレッドの稼働時間の表示
 	};
 }

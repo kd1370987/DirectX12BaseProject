@@ -21,6 +21,7 @@ namespace Engine::Editor
 		{
 		case EView::Engine:	DrawEngineView(a_editContext);	break;
 		case EView::ECS:	m_ecsView.Draw();				break;
+		case EView::Thread:	m_threadView.Draw();			break;
 		}
 	}
 
@@ -35,6 +36,7 @@ namespace Engine::Editor
 		{
 			if (ImGui::MenuItem("Engine", nullptr, m_eView == EView::Engine)) m_eView = EView::Engine;
 			if (ImGui::MenuItem("ECS", nullptr, m_eView == EView::ECS)) m_eView = EView::ECS;
+			if (ImGui::MenuItem("Thread", nullptr, m_eView == EView::Thread)) m_eView = EView::Thread;
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();

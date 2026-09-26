@@ -1177,6 +1177,9 @@
     <Filter Include="Source\Engine\JobSystem\Internal\JobWorker">
       <UniqueIdentifier>{2ba258d8-193e-4d09-84e4-e258e97fd74e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\JobSystem\Profile">
+      <UniqueIdentifier>{686bb404-88ad-474d-bf51-b8d4bba2d2b8}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Option">
       <UniqueIdentifier>{881cff70-bcd4-4e3e-b84b-26111ec77600}</UniqueIdentifier>
     </Filter>
@@ -2328,6 +2331,9 @@
     <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ECSProfilerView.cpp">
       <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ThreadProfilerView.cpp">
+      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.cpp">
       <Filter>Source\Engine\Editor\Panel\RenderGraphResourceViewPanel</Filter>
     </ClCompile>
@@ -2417,6 +2423,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\JobSystem\Internal\JobWorker\JobWorker.cpp">
       <Filter>Source\Engine\JobSystem\Internal\JobWorker</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\JobSystem\Profile\ThreadProfiler.cpp">
+      <Filter>Source\Engine\JobSystem\Profile</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Option\OptionManager.cpp">
       <Filter>Source\Engine\Option</Filter>
@@ -3896,6 +3905,9 @@
     <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ECSProfilerView.h">
       <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ThreadProfilerView.h">
+      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.h">
       <Filter>Source\Engine\Editor\Panel\RenderGraphResourceViewPanel</Filter>
     </ClInclude>
@@ -4021,6 +4033,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\JobSystem\Internal\JobWorker\JobWorker.h">
       <Filter>Source\Engine\JobSystem\Internal\JobWorker</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\JobSystem\Profile\ThreadProfiler.h">
+      <Filter>Source\Engine\JobSystem\Profile</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Option\IOption.h">
       <Filter>Source\Engine\Option</Filter>

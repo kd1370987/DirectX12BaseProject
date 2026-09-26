@@ -1,5 +1,7 @@
 ﻿#include "FPSController.h"
 
+#include "Engine/JobSystem/Profile/ThreadProfiler.h"
+
 namespace Engine::Time
 {
 	void FPSController::SetMaxFPS(UINT a_fps)
@@ -18,7 +20,8 @@ namespace Engine::Time
 		// 垂直同期がない場合のみFPSを制御する
 		if (!a_isVsync)
 		{
-			// ターゲット時間までスリープ
+			// ターゲット時間までスリープ : 止まっている時間として数える
+			Thread::ThreadStateScope _idleScope(Thread::EThreadState::Idle);
 			while (true)
 			{
 				auto _elapsed = std::chrono::steady_clock::now() - m_frameStart;
