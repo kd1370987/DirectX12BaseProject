@@ -6,8 +6,6 @@
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
 #include <psapi.h>
 
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 // 古いSDK対策 (Windows8.1+ のヘッダにしか定義がない)
 #ifndef WM_DPICHANGED
 #define WM_DPICHANGED 0x02E0
@@ -79,7 +77,7 @@ LRESULT CALLBACK WndProc(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_
 	// (描くのはアプリ側。ゲームモードの間だけ)。枠やリサイズの境目はOSに任せるので
 	// ヒットテストが HTCLIENT のときだけ止める。
 	//
-	// ImGui のハンドラより前に置くこと。あちらも WM_SETCURSOR を拾って
+	// 横取り先(エディターの ImGui)より前に置くこと。あちらも WM_SETCURSOR を拾って
 	// カーソルの形を設定するので、後ろに回すと上書きされて消えなくなる。
 	//
 	// 消してよいかどうかはアプリ側のカーソルが SetCursorHidden で決める(画像を出せているフレームだけ true)。
@@ -93,7 +91,8 @@ LRESULT CALLBACK WndProc(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_
 		return TRUE;
 	}
 
-	if (ImGui_ImplWin32_WndProcHandler(a_hWnd, a_message, a_wParam, a_lParam))
+	// エディターが先に受け取る(ImGui の入力)
+	if (_pWindow && _pWindow->CallMessageHook(a_hWnd, a_message, a_wParam, a_lParam))
 		return true;
 
 	// ウィンドウズからのメッセージを処理

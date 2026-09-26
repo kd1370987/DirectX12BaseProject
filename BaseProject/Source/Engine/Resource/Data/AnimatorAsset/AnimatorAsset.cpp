@@ -1,7 +1,5 @@
 ﻿#include "AnimatorAsset.h"
 
-#include "../../../Editor/Helper/EditorField.inl"
-
 #include "../../Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Manager/ResourceManager/ResourceManager.h"
 
@@ -53,9 +51,6 @@ namespace Engine::Resource
 				_node.animGUID = _pModel->GetAnimationGUIDFromHandle(_node.playAnimData);
 			}
 		}
-
-		// ImNodes上の現在座標をノードへ書き戻す
-		m_editor.SyncPositions(m_graph);
 
 		auto _dir = Engine::File::GetDirFromPath(a_savePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_savePath);
@@ -144,155 +139,16 @@ namespace Engine::Resource
 			}
 		}
 
-		// 復元した座標は次のDrawでImNodesへ反映
-		m_editor.RequestApplyLoadedPositions();
+		// 復元した座標はエディターが読み込み回数の変化を見て反映する
+		++m_loadCount;
 	}
 
 	void AnimatorAsset::Release()
 	{
 		m_graph.Clear();
-		m_editor.DestroyContext();
 		m_name.clear();
 		m_modelGUID = Engine::DefaultGUID;
 		m_modelHandle = {};
 		m_additiveBones.clear();
-	}
-
-	//======================================================================================
-	// エディター
-	//======================================================================================
-	void AnimatorAsset::EditImGui(const Handle<AnimatorAsset>& a_handle, const ECS::EngineServices& a_services)
-	{
-		// 保存(ファイルパスはハンドル→GUID→パスで解決)
-		if (Engine::Editor::Button("Save") && a_services.pAssetDatabase)
-		{
-			auto _guid = a_services.pResourceManager->GetCache<AnimatorAsset>(a_handle);
-			auto _path = a_services.pAssetDatabase->GetFilePathFromGUID(_guid);
-			Save(_path, *a_services.pResourceManager);
-			ENGINE_LOG("%s : Save AnimatorAsset", _path.c_str());
-		}
-		Engine::Editor::Line();
-
-		// アニメを付随させるための参照モデル選択(Animator固有)
-		BindModelComb(a_services);
-		Engine::Editor::Line();
-
-		// 加算ポーズの対象ボーン定義
-		AdditiveBoneEdit(*a_services.pResourceManager);
-		Engine::Editor::Line();
-
-		// ノード本体だけ(アニメ選択UI)を注入して汎用ノードエディタを描画
-		m_editor.Draw(m_graph,
-			[this, &a_services](AnimatorNode& a_node)
-			{
-				if (m_modelHandle == Handle<Model>()) return;
-
-				auto* _pModel = a_services.pResourceManager->Get(m_modelHandle);
-				if (!_pModel) return;
-
-				Engine::Editor::ItemWidthScope _itemWidth(130.0f);
-
-				// アニメ選択
-				Engine::Editor::ModelAnimationField(a_services, "Animation##ChangeAnimation", _pModel, a_node.playAnimData);
-
-				// 再生スピード
-				Engine::Editor::Field("Speed##AnimationSpeed", a_node.speed, 0.01f, 0.0f);
-
-				// ループフラグ
-				Engine::Editor::Field("Loop", a_node.isLoop);
-
-				// 加算ポーズの効き(ステートごと)
-				Engine::Editor::Field("Additive##AdditiveWeight", a_node.additiveWeight, 0.01f, 0.0f, 1.0f);
-			});
-	}
-
-	//======================================================================================
-	// Animator固有UI: 参照モデル選択
-	//======================================================================================
-	void AnimatorAsset::BindModelComb(const ECS::EngineServices& a_services)
-	{
-		Engine::Editor::AssetField<Model>(
-			a_services,
-			"model",
-			"Model",
-			m_modelGUID,
-			m_modelHandle
-		);
-	}
-
-	//======================================================================================
-	// Animator固有UI: 加算ポーズの対象ボーン定義
-	//======================================================================================
-	void AnimatorAsset::AdditiveBoneEdit(const ResourceManager& a_resourceManager)
-	{
-		if (!Engine::Editor::CollapsingHeader("Additive Bones")) return;
-
-		const auto* _pModel = a_resourceManager.Get(m_modelHandle);
-		if (!_pModel)
-		{
-			Engine::Editor::HelpText("Select a model first");
-			return;
-		}
-
-		// チャンネルごとの配分合計。1.0から大きく外れていると見た目が破綻するので目安として出す。
-		float _shareSum[3] = { 0.0f, 0.0f, 0.0f };
-		for (const auto& _def : m_additiveBones)
-		{
-			size_t _chIdx = static_cast<size_t>(_def.channel);
-			if (_chIdx < 3) _shareSum[_chIdx] += _def.share;
-		}
-		Engine::Editor::Value("Share sum", "Aim %.2f / LagArm %.2f / LagLeg %.2f", _shareSum[0], _shareSum[1], _shareSum[2]);
-
-		int _removeIdx = -1;
-		for (size_t _i = 0; _i < m_additiveBones.size(); ++_i)
-		{
-			AdditiveBoneDef& _def = m_additiveBones[_i];
-			Engine::Editor::IDScope _id(static_cast<int>(_i));
-
-			// 対象ノード選択
-			Engine::Editor::ModelNodeField("Node", _pModel, _def.nodeName, _def.nodeNameHash);
-
-			// チャンネル選択
-			if (Engine::Editor::ComboScope _combo{ "Channel", ToString(_def.channel) })
-			{
-				const EAdditiveChannel _channelVec[] =
-				{
-					EAdditiveChannel::Aim,
-					EAdditiveChannel::LagArm,
-					EAdditiveChannel::LagLeg
-				};
-				for (auto _ch : _channelVec)
-				{
-					bool _selected = (_def.channel == _ch);
-					if (Engine::Editor::Selectable(ToString(_ch), _selected))
-					{
-						_def.channel = _ch;
-					}
-					if (_selected) Engine::Editor::SetItemDefaultFocus();
-				}
-			}
-
-			Engine::Editor::Field("Share", _def.share, 0.01f, 0.0f, 1.0f);
-
-			// Lag系のみ軸ごとの効きを使う(符号を反転させると左右対称にできる)
-			if (_def.channel != EAdditiveChannel::Aim)
-			{
-				Engine::Editor::Field("AxisScale", _def.axisScale, 0.01f);
-			}
-
-			if (Engine::Editor::DeleteButton("Remove")) _removeIdx = static_cast<int>(_i);
-
-			Engine::Editor::Line();
-		}
-
-		if (_removeIdx >= 0)
-		{
-			m_additiveBones.erase(m_additiveBones.begin() + _removeIdx);
-		}
-
-		if (Engine::Editor::CreateButton("Add Bone"))
-		{
-			m_additiveBones.emplace_back();
-		}
 	}
 }

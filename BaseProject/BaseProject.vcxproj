@@ -263,7 +263,11 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Engine\Editor\Helper\EditorField.cpp" />
+    <ClCompile Include="Source\Engine\Editor\Helper\EditorField.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Frame\DrawSubmitter\DrawSubmitter.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Frame\SceneView\SceneView.cpp" />
@@ -470,43 +474,191 @@
     <ClCompile Include="Source\Engine\ECS\System\SystemManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\World\World.cpp" />
     <ClCompile Include="Source\Engine\ECS\World\Profile\ECSWorldProfiler.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Editor.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Helper\EditorHelper.cpp" />
-    <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\PanelManager.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Profiler\Profiler.cpp" />
-    <ClCompile Include="Source\Engine\Editor\EditorCamera\EditorCamera.cpp" />
-    <ClCompile Include="Source\Engine\Editor\EffectEditor\EffectEditor.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\GameObjectHierarchyPanel\GameObjectHierarchyPanel.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\HierarchyPanel\HierarchyPanel.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetLink.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit\MaterialEdit.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit\MeshEdit.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit\ModelEdit.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.cpp" />
-    <ClCompile Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\CompositeNode.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\BuiltinCompositeNodes.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor\PassEditor.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor\BuiltinPassEditors.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\InspectorPanel.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ECSProfilerView.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ThreadProfilerView.cpp" />
+    <ClCompile Include="Source\Engine\Editor\Editor.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Helper\EditorHelper.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\PanelManager.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Profiler\Profiler.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\EditorCamera\EditorCamera.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\EffectEditor\EffectEditor.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\GameObjectHierarchyPanel\GameObjectHierarchyPanel.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\HierarchyPanel\HierarchyPanel.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetLink.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit\MaterialEdit.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit\MeshEdit.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit\ModelEdit.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\CompositeNode.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\BuiltinCompositeNodes.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor\PassEditor.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor\BuiltinPassEditors.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\InspectorPanel.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ECSProfilerView.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ThreadProfilerView.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\BaseObject\BaseObject.cpp" />
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.cpp" />
     <ClCompile Include="Source\Application\ECS\World\APPWorld.cpp" />
@@ -645,7 +797,11 @@
     <ClCompile Include="Source\Engine\Resource\Data\AudioBehavior\IO\AudioBehaviorIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\EffectAsset\EffectAsset.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\EffectAsset\IO\EffectAssetIO.cpp" />
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit\EffectAssetEdit.cpp" />
+    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit\EffectAssetEdit.cpp">
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem\EffectFixupSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem\EffectUpdateSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem\BoosterEffectSystem.cpp" />
@@ -673,6 +829,12 @@
     <ClCompile Include="Source\Engine\Utility\Math\Matrix.cpp" />
     <ClCompile Include="Source\Engine\Window\NativeWindow.cpp" />
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Engine\Editor\EditorPCH.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -683,6 +845,7 @@
     <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\Editor\EditorPCH.h" />
     <ClInclude Include="Source\Engine\Editor\Helper\EditorField.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.h" />
     <ClInclude Include="Source\Engine\Graphics\Frame\DrawSubmitter\DrawSubmitter.h" />
@@ -1761,4 +1924,15 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
+  <!--
+    エディター配下(Source\Engine\Editor)の .cpp は EditorPCH を使う。
+    共通の Pch.h には ImGui が無いので、付け忘れると ImGui が見えずにエラーになる。
+    原因が分かりにくいので、ここで先に止めてファイル名を出す
+  -->
+  <Target Name="CheckEditorPch" BeforeTargets="ClCompile">
+    <ItemGroup>
+      <_EditorCppWithoutEditorPch Include="@(ClCompile)" Condition="$([System.String]::Copy('%(ClCompile.Identity)').StartsWith('Source\Engine\Editor\')) And '%(ClCompile.PrecompiledHeaderFile)' != 'Engine/Editor/EditorPCH.h'" />
+    </ItemGroup>
+    <Error Condition="'@(_EditorCppWithoutEditorPch)' != ''" Text="EditorPCH を使っていないエディターのファイルがあります(vcxproj で PrecompiledHeaderFile / ForcedIncludeFiles を Engine/Editor/EditorPCH.h にすること): @(_EditorCppWithoutEditorPch)" />
+  </Target>
 </Project>

@@ -6,14 +6,17 @@
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Device/BackBuffer/BackBuffer.h"
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Window/NativeWindow.h"
 
-// ImGui のバックエンドと ImGuizmo は、ここ(初期化とフレーム開始)だけで使う。
-// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
+// ImGui のバックエンドは、ここ(初期化とフレーム開始)だけで使う。
+// EditorPCH へ置くとエディター配下の全翻訳単位に広がるため
 #pragma warning(push, 0)
 #include <imgui_impl_dx12.h>
 #include <imgui_impl_win32.h>
-#include <imGuizmo.h>
 #pragma warning(pop)
+
+// imgui_impl_win32.h では宣言が伏せてあるので、使う側で宣言する
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 namespace Engine::Editor
 {
 	namespace
@@ -83,6 +86,16 @@ namespace Engine::Editor
 
 		// 描画するバックエンド・プラットフォームを設定
 		ImGui_ImplWin32_Init(a_hwnd);
+
+		// ウィンドウのメッセージを ImGui へ流す(ウィンドウ側は ImGui を知らないので、ここでつなぐ)
+		if (auto* _pWindow = Engine::MainEngine::Instance().RefNativeWindow())
+		{
+			_pWindow->SetMessageHook(
+				[](HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_lParam)
+				{
+					return ImGui_ImplWin32_WndProcHandler(a_hWnd, a_message, a_wParam, a_lParam) != 0;
+				});
+		}
 
 		// DX12オブジェクトをセット
 		ImGui_ImplDX12_InitInfo _initInfo = {};
@@ -195,6 +208,12 @@ namespace Engine::Editor
 
 	void ImGuiContext::Release()
 	{
+		// 壊した後にメッセージが流れてこないよう、先に外す
+		if (auto* _pWindow = Engine::MainEngine::Instance().RefNativeWindow())
+		{
+			_pWindow->SetMessageHook(nullptr);
+		}
+
 		// ノード
 		ImNodes::DestroyContext();
 

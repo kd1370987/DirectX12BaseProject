@@ -8,12 +8,6 @@
 #include "../../Resource/Data/Texture/Texture.h"
 #include "../../Resource/Data/Animation/Animation.h"
 
-// ImGuizmo はギズモを触る側だけで使う。
-// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
-#pragma warning(push, 0)
-#include <imGuizmo.h>
-#pragma warning(pop)
-
 namespace Engine::Editor
 {
 	namespace

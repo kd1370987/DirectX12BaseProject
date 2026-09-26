@@ -10,9 +10,11 @@
 // ランタイムのパラメータ実体(StateMachineInstance)はエンティティごとに
 // StateMachineComponent 側のプールが持つ(このアセットは共有設計図なので保持しない)。
 //
+// 編集UI(ノードエディタ)はエディター側(Inspector::AnimatorEdit)が持つ。
+// ここはデータだけを持ち、ImGui / ImNodes を知らない。
+//
 //==========================================================================================
 #include "Engine/Resource/StateGraph/StateGraph.h"
-#include "Engine/Editor/Widget/StateGraphEditor/StateGraphEditor.h"
 #include "AdditivePoseTypes.h"
 
 namespace Engine::ECS
@@ -62,6 +64,7 @@ namespace Engine::Resource
 
 		// 保存と読み込み
 		// a_resourceManager : 参照モデルからアニメのGUIDを引く
+		// ノードの座標は保存しない側(エディター)が、呼ぶ前にグラフへ書き戻しておくこと
 		void Save(const std::string& a_savePath, const ResourceManager& a_resourceManager);
 		// a_resourceManager : 参照モデルを読み込む先
 		void Load(const std::string& a_fileDir, const std::string& a_fileName, ResourceManager& a_resourceManager);
@@ -70,9 +73,16 @@ namespace Engine::Resource
 		// 解放
 		void Release();
 
-		// エディターからの呼び出し用(設計図を編集する)
-		// a_services : 保存先のパス解決と、参照モデルの選び直しに使う
-		void EditImGui(const Handle<AnimatorAsset>& a_handle, const ECS::EngineServices& a_services);
+		//----------------------------------------------------------------------------------
+		// エディター用 : 設計図を直接書き換える
+		//----------------------------------------------------------------------------------
+		Graph& RefGraph() { return m_graph; }
+		Engine::GUID& RefModelGUID() { return m_modelGUID; }
+		Handle<Model>& RefModelHandle() { return m_modelHandle; }
+		std::vector<AdditiveBoneDef>& RefAdditiveBones() { return m_additiveBones; }
+
+		// 読み込んだ回数 : エディターが「読み直されたか」を見て、ノードの座標を反映し直すのに使う
+		uint32_t GetLoadCount() const { return m_loadCount; }
 
 		// 名前
 		void SetName(const std::string& a_name) { m_name = a_name; }
@@ -112,12 +122,6 @@ namespace Engine::Resource
 		}
 
 	private:
-		// 参照モデル選択UI(Animator固有)
-		void BindModelComb(const ECS::EngineServices& a_services);
-
-		// 加算ポーズのボーン定義編集UI
-		void AdditiveBoneEdit(const ResourceManager& a_resourceManager);
-
 		// 加算ポーズのボーン定義のシリアライズ(Save/Load共通)
 		void ArchiveAdditiveBones(Persistence::Archive& a_arch);
 
@@ -138,7 +142,7 @@ namespace Engine::Resource
 		// 加算ポーズの対象ボーン定義(モデル依存の構造情報)
 		std::vector<AdditiveBoneDef> m_additiveBones;
 
-		// 編集UI(汎用ウィジェット)
-		Engine::Editor::StateGraphEditor<AnimatorNode> m_editor;
+		// 読み込んだ回数
+		uint32_t		m_loadCount = 0;
 	};
 }

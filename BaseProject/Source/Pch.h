@@ -105,15 +105,11 @@ namespace DXSM = DirectX::SimpleMath;
 #pragma comment(lib, "Xinput.lib")
 
 //---------------------------------------------------------
-// ImGui
+// ImGui はここに置かない
 //
-// バックエンド(imgui_impl_*)は ImGuiContext.cpp、
-// ImGuizmo はギズモを触る側で読む
+// エディター配下だけが使うので、Engine/Editor/EditorPCH.h に置いてある。
+// エディターの外は Engine::Editor の EditorField 関数で編集UIを組む
 //---------------------------------------------------------
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui.h>
-#include <imgui_stdlib.h>
-#include <imnodes.h>           // ノードエディタ
 
 //---------------------------------------------------------
 // Other Third-Party Libraries

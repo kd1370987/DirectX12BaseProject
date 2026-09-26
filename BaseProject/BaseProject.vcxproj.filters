@@ -2211,6 +2211,9 @@
     <ClCompile Include="Source\Engine\Editor\Helper\EditorHelper.cpp">
       <Filter>Source\Engine\Editor\Helper</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\EditorPCH.cpp">
+      <Filter>Source\Engine\Editor</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Helper\EditorField.cpp">
       <Filter>Source\Engine\Editor\Helper</Filter>
     </ClCompile>
@@ -3745,6 +3748,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\EffectEditor\EffectEditor.h">
       <Filter>Source\Engine\Editor\EffectEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\EditorPCH.h">
+      <Filter>Source\Engine\Editor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.h">
       <Filter>Source\Engine\Editor\Helper</Filter>

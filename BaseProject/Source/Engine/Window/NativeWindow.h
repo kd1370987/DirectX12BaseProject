@@ -80,6 +80,21 @@ namespace Engine::Window
 		// バイト単位での取得
 		double GetMemoryUsage();
 
+		//----------------------------------------------------------------------------------
+		// メッセージの横取り
+		//
+		// 既定の処理より先にメッセージを渡す先。処理したら true を返す(以降は何もしない)。
+		// エディター(ImGui)が入力を受け取るために登録する。
+		// ウィンドウ側は ImGui を知らないので、つなぐのはエディターの役
+		//----------------------------------------------------------------------------------
+		using MessageHook = bool(*)(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_lParam);
+		void SetMessageHook(MessageHook a_hook) { m_messageHook = a_hook; }
+
+		bool CallMessageHook(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_lParam) const
+		{
+			return m_messageHook && m_messageHook(a_hWnd, a_message, a_wParam, a_lParam);
+		}
+
 	private:
 
 		/// <summary>
@@ -111,6 +126,9 @@ namespace Engine::Window
 
 		// クライアント領域でOSのカーソルを消すか
 		bool m_isCursorHidden = false;
+
+		// メッセージの横取り先
+		MessageHook m_messageHook = nullptr;
 
 		// ウィンドウ設定
 		UINT m_clientWidth = 0;
