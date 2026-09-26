@@ -72,26 +72,26 @@ struct Engine::ECS::ComponentTraits<CameraDeadZoneComponent>
 	{
 		CameraDeadZoneComponent& _comp = Engine::Editor::GetValue<CameraDeadZoneComponent>(a_context.pData);
 
-		ImGui::Text("Dead Zone");
-		ImGui::DragFloat2("HalfExtents (NDC)", &_comp.halfExtents.x, 0.01f, 0.0f, 1.0f);
-		ImGui::TextDisabled("0 = 常に追従 / 1 = 画面端まで自由");
-		ImGui::DragFloat("FollowRate", &_comp.followRate, 0.1f, 0.0f, 60.0f);
+		Engine::Editor::Text("Dead Zone");
+		Engine::Editor::Field("HalfExtents (NDC)", _comp.halfExtents, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::HelpText("0 = 常に追従 / 1 = 画面端まで自由");
+		Engine::Editor::Field("FollowRate", _comp.followRate, 0.1f, 0.0f, 60.0f);
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
-		ImGui::Text("Depth");
-		ImGui::DragFloat("DepthTolerance (m)", &_comp.depthTolerance, 0.1f, 0.0f);
-		ImGui::DragFloat("DepthFollowRate", &_comp.depthFollowRate, 0.1f, 0.0f, 60.0f);
+		Engine::Editor::Text("Depth");
+		Engine::Editor::Field("DepthTolerance (m)", _comp.depthTolerance, 0.1f, 0.0f);
+		Engine::Editor::Field("DepthFollowRate", _comp.depthFollowRate, 0.1f, 0.0f, 60.0f);
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
-		ImGui::DragFloat("SnapDistance (m)", &_comp.snapDistance, 0.5f, 0.0f);
-		ImGui::TextDisabled("これ以上離れたら枠を無視して一気に寄せます");
+		Engine::Editor::Field("SnapDistance (m)", _comp.snapDistance, 0.5f, 0.0f);
+		Engine::Editor::HelpText("これ以上離れたら枠を無視して一気に寄せます");
 
 		// 結果は毎フレーム上書きされるので表示のみ
-		ImGui::Separator();
-		ImGui::Text("ScreenNDC : %.2f, %.2f", _comp.currentNdc.x, _comp.currentNdc.y);
-		ImGui::Text("Outside   : %s", _comp.isOutside ? "yes" : "no");
-		ImGui::TextDisabled("既定の構図は CameraFocusTargetComponent の OffsetPos");
+		Engine::Editor::Separator();
+		Engine::Editor::Text("ScreenNDC : %.2f, %.2f", _comp.currentNdc.x, _comp.currentNdc.y);
+		Engine::Editor::Text("Outside   : %s", _comp.isOutside ? "yes" : "no");
+		Engine::Editor::HelpText("既定の構図は CameraFocusTargetComponent の OffsetPos");
 	}
 };

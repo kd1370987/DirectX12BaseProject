@@ -40,15 +40,15 @@ struct Engine::ECS::ComponentTraits<AimTargetPosComponent>
 	{
 		AimTargetPosComponent& _comp = Engine::Editor::GetValue<AimTargetPosComponent>(a_context.pData);
 
-		ImGui::DragFloat("MaxDistance", &_comp.maxDistance, 1.0f, 0.0f);
-		ImGui::DragFloat("StartOffset", &_comp.startOffset, 0.1f, 0.0f);
+		Engine::Editor::Field("MaxDistance", _comp.maxDistance, 1.0f, 0.0f);
+		Engine::Editor::Field("StartOffset", _comp.startOffset, 0.1f, 0.0f);
 
 		// 結果は表示のみ(システムが毎フレーム上書きする)
-		ImGui::Separator();
-		ImGui::Text("AimPos : %.2f, %.2f, %.2f", _comp.pos.x, _comp.pos.y, _comp.pos.z);
-		ImGui::Text("AimDir : %.2f, %.2f, %.2f", _comp.dir.x, _comp.dir.y, _comp.dir.z);
-		ImGui::Text("IsHit  : %s", _comp.isHit ? "true" : "false");
-		ImGui::Text("IsValid: %s", _comp.isValid ? "true" : "false");
-		ImGui::TextDisabled("HitEntity : %llu", static_cast<unsigned long long>(_comp.hitEntity));
+		Engine::Editor::Separator();
+		Engine::Editor::Text("AimPos : %.2f, %.2f, %.2f", _comp.pos.x, _comp.pos.y, _comp.pos.z);
+		Engine::Editor::Text("AimDir : %.2f, %.2f, %.2f", _comp.dir.x, _comp.dir.y, _comp.dir.z);
+		Engine::Editor::Text("IsHit  : %s", _comp.isHit ? "true" : "false");
+		Engine::Editor::Text("IsValid: %s", _comp.isValid ? "true" : "false");
+		Engine::Editor::HelpText("HitEntity : %llu", static_cast<unsigned long long>(_comp.hitEntity));
 	}
 };

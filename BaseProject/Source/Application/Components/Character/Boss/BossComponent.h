@@ -222,98 +222,97 @@ struct Engine::ECS::ComponentTraits<BossComponent>
 	{
 		BossComponent& _comp = Engine::Editor::GetValue<BossComponent>(a_context.pData);
 
-		ImGui::SeparatorText("Combat Start");
-		ImGui::Checkbox("StartOnSpawn", &_comp.startOnSpawn);
-		ImGui::SameLine();
-		ImGui::TextDisabled("(no order needed)");
+		Engine::Editor::Section("Combat Start");
+		Engine::Editor::Field("StartOnSpawn", _comp.startOnSpawn);
+		Engine::Editor::SameLine();
+		Engine::Editor::HelpText("(no order needed)");
 
 		// 命令はランタイム値。動きを確かめたいときのためにエディターからも叩けるようにしておく
-		ImGui::Text("CombatStarted : %s", _comp.isCombatStarted ? "yes" : "no");
-		ImGui::SameLine();
-		if (ImGui::SmallButton(_comp.isCombatStarted ? "Stop" : "Start"))
+		Engine::Editor::Text("CombatStarted : %s", _comp.isCombatStarted ? "yes" : "no");
+		Engine::Editor::SameLine();
+		if (Engine::Editor::SmallButton(_comp.isCombatStarted ? "Stop" : "Start"))
 		{
 			_comp.isCombatStarted = !_comp.isCombatStarted;
 		}
 
-		ImGui::SeparatorText("Range (Standoff)");
-		ImGui::DragFloat("KeepDistance", &_comp.keepDistance, 0.5f, 0.0f);
-		ImGui::DragFloat("KeepMargin", &_comp.keepMargin, 0.1f, 0.0f);
-		ImGui::DragFloat("KeepHeight", &_comp.keepHeight, 0.1f);
-		ImGui::DragFloat("HeightMargin", &_comp.heightMargin, 0.1f, 0.0f);
+		Engine::Editor::Section("Range (Standoff)");
+		Engine::Editor::Field("KeepDistance", _comp.keepDistance, 0.5f, 0.0f);
+		Engine::Editor::Field("KeepMargin", _comp.keepMargin, 0.1f, 0.0f);
+		Engine::Editor::Field("KeepHeight", _comp.keepHeight, 0.1f);
+		Engine::Editor::Field("HeightMargin", _comp.heightMargin, 0.1f, 0.0f);
 
-		ImGui::SeparatorText("Pattern");
-		ImGui::DragFloat("PatternDuration", &_comp.patternDuration, 0.1f, 0.0f);
-		ImGui::DragFloat("PatternDurationRand", &_comp.patternDurationRand, 0.1f, 0.0f);
-		ImGui::DragFloat("RushDistance", &_comp.rushDistance, 0.5f, 0.0f);
-		ImGui::DragFloat("RushHeight", &_comp.rushHeight, 0.1f);
-		ImGui::DragFloat("HighGroundHeight", &_comp.highGroundHeight, 0.5f);
-		ImGui::DragFloat("LowGroundHeight", &_comp.lowGroundHeight, 0.5f);
-		ImGui::DragFloat("RetreatDistance", &_comp.retreatDistance, 0.5f, 0.0f);
-		ImGui::DragFloat("OrbitStrafeScale", &_comp.orbitStrafeScale, 0.05f, 0.0f, 3.0f);
+		Engine::Editor::Section("Pattern");
+		Engine::Editor::Field("PatternDuration", _comp.patternDuration, 0.1f, 0.0f);
+		Engine::Editor::Field("PatternDurationRand", _comp.patternDurationRand, 0.1f, 0.0f);
+		Engine::Editor::Field("RushDistance", _comp.rushDistance, 0.5f, 0.0f);
+		Engine::Editor::Field("RushHeight", _comp.rushHeight, 0.1f);
+		Engine::Editor::Field("HighGroundHeight", _comp.highGroundHeight, 0.5f);
+		Engine::Editor::Field("LowGroundHeight", _comp.lowGroundHeight, 0.5f);
+		Engine::Editor::Field("RetreatDistance", _comp.retreatDistance, 0.5f, 0.0f);
+		Engine::Editor::Field("OrbitStrafeScale", _comp.orbitStrafeScale, 0.05f, 0.0f, 3.0f);
 
-		ImGui::TextDisabled("Weight (0 = never picked)");
-		ImGui::DragFloat("W:Standoff", &_comp.weightStandoff, 0.1f, 0.0f);
-		ImGui::DragFloat("W:Rush", &_comp.weightRush, 0.1f, 0.0f);
-		ImGui::DragFloat("W:HighGround", &_comp.weightHighGround, 0.1f, 0.0f);
-		ImGui::DragFloat("W:LowGround", &_comp.weightLowGround, 0.1f, 0.0f);
-		ImGui::DragFloat("W:Orbit", &_comp.weightOrbit, 0.1f, 0.0f);
-		ImGui::DragFloat("W:Retreat", &_comp.weightRetreat, 0.1f, 0.0f);
+		Engine::Editor::HelpText("Weight (0 = never picked)");
+		Engine::Editor::Field("W:Standoff", _comp.weightStandoff, 0.1f, 0.0f);
+		Engine::Editor::Field("W:Rush", _comp.weightRush, 0.1f, 0.0f);
+		Engine::Editor::Field("W:HighGround", _comp.weightHighGround, 0.1f, 0.0f);
+		Engine::Editor::Field("W:LowGround", _comp.weightLowGround, 0.1f, 0.0f);
+		Engine::Editor::Field("W:Orbit", _comp.weightOrbit, 0.1f, 0.0f);
+		Engine::Editor::Field("W:Retreat", _comp.weightRetreat, 0.1f, 0.0f);
 
-		ImGui::SeparatorText("Turn");
-		ImGui::DragFloat("TurnSpeedDeg", &_comp.turnSpeedDeg, 1.0f, 0.0f);
-		ImGui::DragFloat("PitchSpeedDeg", &_comp.pitchSpeedDeg, 1.0f, 0.0f);
-		ImGui::DragFloat("MaxPitchDeg", &_comp.maxPitchDeg, 1.0f, 0.0f, 89.0f);
+		Engine::Editor::Section("Turn");
+		Engine::Editor::Field("TurnSpeedDeg", _comp.turnSpeedDeg, 1.0f, 0.0f);
+		Engine::Editor::Field("PitchSpeedDeg", _comp.pitchSpeedDeg, 1.0f, 0.0f);
+		Engine::Editor::Field("MaxPitchDeg", _comp.maxPitchDeg, 1.0f, 0.0f, 89.0f);
 
-		ImGui::SeparatorText("Maneuver");
-		ImGui::DragFloat("StrafeInterval", &_comp.strafeInterval, 0.05f, 0.0f);
-		ImGui::DragFloat("StrafeIntervalRand", &_comp.strafeIntervalRand, 0.05f, 0.0f);
-		ImGui::DragFloat("StrafeThrottle", &_comp.strafeThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Section("Maneuver");
+		Engine::Editor::Field("StrafeInterval", _comp.strafeInterval, 0.05f, 0.0f);
+		Engine::Editor::Field("StrafeIntervalRand", _comp.strafeIntervalRand, 0.05f, 0.0f);
+		Engine::Editor::Field("StrafeThrottle", _comp.strafeThrottle, 0.01f, 0.0f, 1.0f);
 
-		ImGui::TextDisabled("Hold (pause at strafe turn-around)");
-		ImGui::DragFloat("StrafeHoldChance", &_comp.strafeHoldChance, 0.01f, 0.0f, 1.0f);
-		if (ImGui::DragFloat("StrafeHoldTimeMin", &_comp.strafeHoldTimeMin, 0.05f, 0.0f))
+		Engine::Editor::HelpText("Hold (pause at strafe turn-around)");
+		Engine::Editor::Field("StrafeHoldChance", _comp.strafeHoldChance, 0.01f, 0.0f, 1.0f);
+		if (Engine::Editor::Field("StrafeHoldTimeMin", _comp.strafeHoldTimeMin, 0.05f, 0.0f))
 		{
 			if (_comp.strafeHoldTimeMax < _comp.strafeHoldTimeMin) _comp.strafeHoldTimeMax = _comp.strafeHoldTimeMin;
 		}
-		if (ImGui::DragFloat("StrafeHoldTimeMax", &_comp.strafeHoldTimeMax, 0.05f, 0.0f))
+		if (Engine::Editor::Field("StrafeHoldTimeMax", _comp.strafeHoldTimeMax, 0.05f, 0.0f))
 		{
 			if (_comp.strafeHoldTimeMax < _comp.strafeHoldTimeMin) _comp.strafeHoldTimeMin = _comp.strafeHoldTimeMax;
 		}
-		ImGui::DragFloat("ApproachThrottle", &_comp.approachThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("BackThrottle", &_comp.backThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("VerticalThrottle", &_comp.verticalThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("BoostFuelReserve", &_comp.boostFuelReserve, 0.5f, 0.0f);
-		ImGui::DragFloat("DashInterval", &_comp.dashInterval, 0.05f, 0.0f);
-		ImGui::DragFloat("DashIntervalRand", &_comp.dashIntervalRand, 0.05f, 0.0f);
+		Engine::Editor::Field("ApproachThrottle", _comp.approachThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("BackThrottle", _comp.backThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("VerticalThrottle", _comp.verticalThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("BoostFuelReserve", _comp.boostFuelReserve, 0.5f, 0.0f);
+		Engine::Editor::Field("DashInterval", _comp.dashInterval, 0.05f, 0.0f);
+		Engine::Editor::Field("DashIntervalRand", _comp.dashIntervalRand, 0.05f, 0.0f);
 
-		ImGui::SeparatorText("Gun");
-		ImGui::DragFloat("GunRange", &_comp.gunRange, 1.0f, 0.0f);
-		ImGui::DragFloat("GunConeDeg", &_comp.gunConeDeg, 1.0f, 0.0f, 180.0f);
-		ImGui::DragFloat("GunBurstTime", &_comp.gunBurstTime, 0.05f, 0.0f);
-		ImGui::DragFloat("GunRestTime", &_comp.gunRestTime, 0.05f, 0.0f);
+		Engine::Editor::Section("Gun");
+		Engine::Editor::Field("GunRange", _comp.gunRange, 1.0f, 0.0f);
+		Engine::Editor::Field("GunConeDeg", _comp.gunConeDeg, 1.0f, 0.0f, 180.0f);
+		Engine::Editor::Field("GunBurstTime", _comp.gunBurstTime, 0.05f, 0.0f);
+		Engine::Editor::Field("GunRestTime", _comp.gunRestTime, 0.05f, 0.0f);
 
-		ImGui::SeparatorText("Aim");
-		ImGui::DragFloat("AimOffsetY", &_comp.aimOffsetY, 0.05f);
-		ImGui::DragFloat("AimLeadScale", &_comp.aimLeadScale, 0.05f, 0.0f, 3.0f);
+		Engine::Editor::Section("Aim");
+		Engine::Editor::Field("AimOffsetY", _comp.aimOffsetY, 0.05f);
+		Engine::Editor::Field("AimLeadScale", _comp.aimLeadScale, 0.05f, 0.0f, 3.0f);
 
-		ImGui::SeparatorText("Missile");
-		ImGui::DragFloat("MissileRange", &_comp.missileRange, 1.0f, 0.0f);
-		ImGui::DragFloat("MissileInterval", &_comp.missileInterval, 0.1f, 0.0f);
-		ImGui::DragFloat("MissileIntervalRand", &_comp.missileIntervalRand, 0.1f, 0.0f);
+		Engine::Editor::Section("Missile");
+		Engine::Editor::Field("MissileRange", _comp.missileRange, 1.0f, 0.0f);
+		Engine::Editor::Field("MissileInterval", _comp.missileInterval, 0.1f, 0.0f);
+		Engine::Editor::Field("MissileIntervalRand", _comp.missileIntervalRand, 0.1f, 0.0f);
 
 		// ここから下は毎フレーム上書きされるので表示のみ
-		ImGui::SeparatorText("Runtime");
+		Engine::Editor::Section("Runtime");
 		static const char* _patternName[] = {
 			"Standoff", "Rush", "HighGround", "LowGround", "Orbit", "Retreat" };
 		static const char* _maneuverName[] = { "Wait", "Approach", "Keep", "Back", "Hold" };
 
-		ImGui::Text("Pattern  : %s (next %.2f s)",
-			_patternName[static_cast<int>(_comp.pattern)], _comp.patternTimer);
-		ImGui::Text("Maneuver : %s", _maneuverName[static_cast<int>(_comp.maneuver)]);
-		ImGui::Text("Distance : %.2f m", _comp.distance);
-		ImGui::Text("Strafe   : %+.0f (next %.2f s)", _comp.strafeSign, _comp.strafeTimer);
-		ImGui::Text("Hold     : %.2f s", _comp.strafeHoldTimer);
-		ImGui::Text("Gun      : %s (next %.2f s)", _comp.isGunActive ? "fire" : "rest", _comp.gunTimer);
-		ImGui::Text("Missile  : next %.2f s", _comp.missileTimer);
+		Engine::Editor::Text("Pattern  : %s (next %.2f s)", _patternName[static_cast<int>(_comp.pattern)], _comp.patternTimer);
+		Engine::Editor::Text("Maneuver : %s", _maneuverName[static_cast<int>(_comp.maneuver)]);
+		Engine::Editor::Text("Distance : %.2f m", _comp.distance);
+		Engine::Editor::Text("Strafe   : %+.0f (next %.2f s)", _comp.strafeSign, _comp.strafeTimer);
+		Engine::Editor::Text("Hold     : %.2f s", _comp.strafeHoldTimer);
+		Engine::Editor::Text("Gun      : %s (next %.2f s)", _comp.isGunActive ? "fire" : "rest", _comp.gunTimer);
+		Engine::Editor::Text("Missile  : next %.2f s", _comp.missileTimer);
 	}
 };

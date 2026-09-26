@@ -113,20 +113,19 @@ namespace App::Input
 		{
 			bool _isChanged = false;
 
-			if (ImGui::BeginCombo(a_label, KeyName(a_code).c_str()))
+			if (Engine::Editor::ComboScope _combo{ a_label, KeyName(a_code).c_str() })
 			{
 				for (const auto& [_code, _name] : KeyTable())
 				{
 					const bool _isSelected = (_code == a_code);
 
-					if (ImGui::Selectable(_name.c_str(), _isSelected))
+					if (Engine::Editor::Selectable(_name.c_str(), _isSelected))
 					{
 						a_code = _code;
 						_isChanged = true;
 					}
-					if (_isSelected) ImGui::SetItemDefaultFocus();
+					if (_isSelected) Engine::Editor::SetItemDefaultFocus();
 				}
-				ImGui::EndCombo();
 			}
 			return _isChanged;
 		}
@@ -142,8 +141,8 @@ namespace App::Input
 				auto _it = a_map.find(_action);
 				if (_it == a_map.end()) continue;
 
-				ImGui::PushID(static_cast<int>(_action));
-				ImGui::SeparatorText(std::string(magic_enum::enum_name(_action)).c_str());
+				Engine::Editor::IDScope _id(static_cast<int>(_action));
+				Engine::Editor::Section(std::string(magic_enum::enum_name(_action)).c_str());
 
 				if (auto* _pAxis = std::get_if<Game::AxisInputData>(&_it->second))
 				{
@@ -156,8 +155,6 @@ namespace App::Input
 				{
 					_isChanged |= DrawKeyCombo("Key", _pButton->key);
 				}
-
-				ImGui::PopID();
 			}
 
 			return _isChanged;
@@ -186,11 +183,10 @@ namespace App::Input
 		Engine::Editor::MainEditor::Instance().RegisterEditFunc(
 			[this]()
 			{
-				if (ImGui::Begin("InputSetting"))
+				if (Engine::Editor::WindowScope _window{ "InputSetting" })
 				{
 					Edit();
 				}
-				ImGui::End();
 			}
 		);
 	}
@@ -292,7 +288,7 @@ namespace App::Input
 	{
 		if (!m_pUserData)
 		{
-			ImGui::TextDisabled("ユーザーデータが設定されていません");
+			Engine::Editor::HelpText("ユーザーデータが設定されていません");
 			return;
 		}
 
@@ -301,36 +297,34 @@ namespace App::Input
 
 		// ---- 既定へ戻す ----
 		// 保存・リセットは色を付けない(生成=緑 / 削除=赤 の決まりに合わせる)
-		if (ImGui::Button("Reset To Default"))
+		if (Engine::Editor::Button("Reset To Default"))
 		{
 			ResetToDefault();
 		}
-		ImGui::SameLine();
-		ImGui::TextDisabled("(作った時の割り当てへ戻す)");
+		Engine::Editor::SameLine();
+		Engine::Editor::HelpText("(作った時の割り当てへ戻す)");
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
 		// ---- マウス感度 ----
 		// ここは持っているだけで、実際の振り向きの速さは
 		// エンジン側の InputOption(Project設定)が持っている
-		ImGui::DragFloat("MouseSensitivity", &_settings.mouseSensitivity, 0.01f, 0.01f, 10.0f);
-		if (ImGui::IsItemDeactivatedAfterEdit()) _isChanged = true;
+		Engine::Editor::Field("MouseSensitivity", _settings.mouseSensitivity, 0.01f, 0.01f, 10.0f);
+		if (Engine::Editor::IsItemEditFinished()) _isChanged = true;
 
 		// ---- 割り当て ----
-		if (ImGui::CollapsingHeader("Keyboard", ImGuiTreeNodeFlags_DefaultOpen))
+		if (Engine::Editor::CollapsingHeader("Keyboard", true))
 		{
-			ImGui::PushID("Keyboard");
+			Engine::Editor::IDScope _id("Keyboard");
 			_isChanged |= DrawActionMapEdit(_settings.keyboard);
-			ImGui::PopID();
 		}
 
-		if (ImGui::CollapsingHeader("Mouse"))
+		if (Engine::Editor::CollapsingHeader("Mouse"))
 		{
-			ImGui::TextDisabled("視点(Look)はマウスの移動量そのものなので割り当ては無い");
+			Engine::Editor::HelpText("視点(Look)はマウスの移動量そのものなので割り当ては無い");
 
-			ImGui::PushID("Mouse");
+			Engine::Editor::IDScope _id("Mouse");
 			_isChanged |= DrawActionMapEdit(_settings.mouse);
-			ImGui::PopID();
 		}
 
 		// 触られていたら、その場で入力へ反映してユーザーデータへ書き出す

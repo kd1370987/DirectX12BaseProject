@@ -42,14 +42,11 @@ struct Engine::ECS::ComponentTraits<TPSCameraStateComponent>
 		TPSCameraStateComponent& _comp = Engine::Editor::GetValue<TPSCameraStateComponent>(a_context.pData);
 
 		// システムが毎フレーム上書きするので表示のみ
-		ImGui::Text("LookAtCamera  : %.2f, %.2f, %.2f",
-			_comp.currentLookAt.x, _comp.currentLookAt.y, _comp.currentLookAt.z);
-		ImGui::Text("LookAtWorld   : %.2f, %.2f, %.2f",
-			_comp.lookAtWorld.x, _comp.lookAtWorld.y, _comp.lookAtWorld.z);
-		ImGui::Text("CurrentPivot  : %.2f, %.2f, %.2f",
-			_comp.currentPivot.x, _comp.currentPivot.y, _comp.currentPivot.z);
-		ImGui::Text("PullBack      : %.2f", _comp.currentPullBack);
-		ImGui::Text("Speed01       : %.2f", _comp.currentSpeed01);
-		ImGui::Text("FovAdd        : %.2f", _comp.currentFovAdd);
+		Engine::Editor::Text("LookAtCamera  : %.2f, %.2f, %.2f", _comp.currentLookAt.x, _comp.currentLookAt.y, _comp.currentLookAt.z);
+		Engine::Editor::Text("LookAtWorld   : %.2f, %.2f, %.2f", _comp.lookAtWorld.x, _comp.lookAtWorld.y, _comp.lookAtWorld.z);
+		Engine::Editor::Text("CurrentPivot  : %.2f, %.2f, %.2f", _comp.currentPivot.x, _comp.currentPivot.y, _comp.currentPivot.z);
+		Engine::Editor::Text("PullBack      : %.2f", _comp.currentPullBack);
+		Engine::Editor::Text("Speed01       : %.2f", _comp.currentSpeed01);
+		Engine::Editor::Text("FovAdd        : %.2f", _comp.currentFovAdd);
 	}
 };

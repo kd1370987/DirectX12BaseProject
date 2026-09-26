@@ -23,17 +23,17 @@ struct Engine::ECS::ComponentTraits<HomingComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		HomingComponent& _comp = Engine::Editor::GetValue<HomingComponent>(a_context.pData);
-		ImGui::DragFloat("turnSpeed", &_comp.turnSpeed, 0.1f);
-		ImGui::DragFloat("searchRange", &_comp.searchRange, 0.1f);
+		Engine::Editor::Field("turnSpeed", _comp.turnSpeed, 0.1f);
+		Engine::Editor::Field("searchRange", _comp.searchRange, 0.1f);
 
 		// 追跡中の相手(表示のみ。発射時に埋まる)
 		if (_comp.targetEntity == Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			ImGui::TextDisabled("Target : None");
+			Engine::Editor::HelpText("Target : None");
 		}
 		else
 		{
-			ImGui::TextDisabled("Target : %llu", static_cast<unsigned long long>(_comp.targetEntity));
+			Engine::Editor::HelpText("Target : %llu", static_cast<unsigned long long>(_comp.targetEntity));
 		}
 	}
 };

@@ -4,7 +4,7 @@
 #include "Application/ECS/World/APPWorld.h"
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 #include "Engine/Common/Color.h"
 
 #include "Application/Components/Hierarchy/SpawnerComponent.h"
@@ -16,12 +16,6 @@
 #include "Application/Game/GameManager/GameManager.h"
 
 #include "Engine/Scene/SceneManager/SceneManager.h"
-
-// ImGuizmo はギズモを触る側だけで使う。
-// プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
-#pragma warning(push, 0)
-#include <imGuizmo.h>
-#pragma warning(pop)
 
 //==========================================================================================
 // SceneSequence
@@ -692,7 +686,7 @@ namespace App::Object
 	//======================================================================================
 	// ギズモ : インスペクタで選んだ1点を動かす
 	//--------------------------------------------------------------------------------------
-	// ImGuizmo は一度に1つの行列しか操作できないので、対象はインスペクタ側で選ぶ。
+	// ギズモは一度に1つの行列しか操作できないので、対象はインスペクタ側で選ぶ。
 	// SetDrawlist / SetRect は呼び出し元(SceneViewPanel)が済ませてある。
 	//======================================================================================
 	bool SceneSequence::DrawGizmo(
@@ -721,20 +715,9 @@ namespace App::Object
 		Math::Matrix _mat = Math::Matrix::CreateTranslation(_worldPos);
 
 		// Ctrl を押している間だけスナップ(エンティティ用ギズモと同じ操作感)
-		float _snapValues[3] = { 1.0f, 1.0f, 1.0f };
-		const bool _isSnap = ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
+		const float _snap = Engine::Editor::IsCtrlDown() ? 1.0f : 0.0f;
 
-		ImGuizmo::Manipulate(
-			&a_ctx.viewMat._11,
-			&a_ctx.projMat._11,
-			ImGuizmo::OPERATION::TRANSLATE,
-			ImGuizmo::MODE::WORLD,
-			&_mat._11,
-			nullptr,
-			_isSnap ? &_snapValues[0] : nullptr
-		);
-
-		if (ImGuizmo::IsUsing())
+		if (Engine::Editor::TranslateGizmo(a_ctx.viewMat, a_ctx.projMat, _mat, _snap))
 		{
 			// 保持しているのは相対座標なので、基準を引いてから書き戻す
 			*_pTargetPos = Math::Vector3(_mat._41, _mat._42, _mat._43) - _origin;
@@ -854,43 +837,43 @@ namespace App::Object
 	//======================================================================================
 	void SceneSequence::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		ImGui::Text("Time : %.2f", m_time);
-		ImGui::SameLine();
-		if (ImGui::Button("Reset Progress")) ResetProgress();
+		Engine::Editor::Text("Time : %.2f", m_time);
+		Engine::Editor::SameLine();
+		if (Engine::Editor::Button("Reset Progress")) ResetProgress();
 
-		ImGui::TextDisabled("Gizmo : select a position below (Ctrl to snap)");
+		Engine::Editor::HelpText("Gizmo : select a position below (Ctrl to snap)");
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
 		m_bgm.DrawInspector(a_context);
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
 		//----------------------------------------------------------------------
 		// 決着(リザルトへの遷移)
 		//----------------------------------------------------------------------
-		if (ImGui::CollapsingHeader("Result", ImGuiTreeNodeFlags_DefaultOpen))
+		if (Engine::Editor::CollapsingHeader("Result", true))
 		{
-			ImGui::TextDisabled("負け : プレイヤーが倒された");
-			ImGui::TextDisabled("勝ち : 生き残って全ウェーブを全滅させた(ボスも1ウェーブ)");
+			Engine::Editor::HelpText("負け : プレイヤーが倒された");
+			Engine::Editor::HelpText("勝ち : 生き残って全ウェーブを全滅させた(ボスも1ウェーブ)");
 
-			Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			Engine::Editor::AssetField(
 				*a_context.pServices,
 				"Result Scene", "Scene", m_resultSceneGUID);
 			if (!m_resultSceneGUID.IsValid())
 			{
-				ImGui::TextDisabled("(未設定 : 決着しても移動しません)");
+				Engine::Editor::HelpText("(未設定 : 決着しても移動しません)");
 			}
 
-			ImGui::DragFloat("Clear Delay (s)", &m_clearDelay, 0.1f, 0.0f, 60.0f);
-			ImGui::DragFloat("Dead Delay (s)", &m_deadDelay, 0.1f, 0.0f, 60.0f);
-			ImGui::TextDisabled("決着してから移るまでの間(演出を見せる時間)");
+			Engine::Editor::Field("Clear Delay (s)", m_clearDelay, 0.1f, 0.0f, 60.0f);
+			Engine::Editor::Field("Dead Delay (s)", m_deadDelay, 0.1f, 0.0f, 60.0f);
+			Engine::Editor::HelpText("決着してから移るまでの間(演出を見せる時間)");
 
-			ImGui::Checkbox("Reset On Start", &m_isResetOnStart);
-			ImGui::TextDisabled("シーンの入り口でスコアとタイムを消す");
+			Engine::Editor::Field("Reset On Start", m_isResetOnStart);
+			Engine::Editor::HelpText("シーンの入り口でスコアとタイムを消す");
 
 			// 実行中の状態は表示のみ
-			ImGui::Separator();
+			Engine::Editor::Separator();
 			const char* _resultName = "None";
 			switch (m_result)
 			{
@@ -898,37 +881,37 @@ namespace App::Object
 			case App::Game::EGameResult::GameOver: _resultName = "GameOver"; break;
 			default: break;
 			}
-			ImGui::Text("Result    : %s", _resultName);
-			ImGui::Text("Timer     : %.2f", m_resultTimer);
-			ImGui::Text("Cleared   : %d / %d", GetClearedWaveCount(), static_cast<int>(m_waves.size()));
-			ImGui::Text("PlayerHit : %s", m_isPlayerFound ? "found" : "not yet");
-			ImGui::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
+			Engine::Editor::Text("Result    : %s", _resultName);
+			Engine::Editor::Text("Timer     : %.2f", m_resultTimer);
+			Engine::Editor::Text("Cleared   : %d / %d", GetClearedWaveCount(), static_cast<int>(m_waves.size()));
+			Engine::Editor::Text("PlayerHit : %s", m_isPlayerFound ? "found" : "not yet");
+			Engine::Editor::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
 		}
 
 		//----------------------------------------------------------------------
 		// ポーズ(重ねるシーン)
 		//----------------------------------------------------------------------
-		if (ImGui::CollapsingHeader("Pause", ImGuiTreeNodeFlags_DefaultOpen))
+		if (Engine::Editor::CollapsingHeader("Pause", true))
 		{
-			ImGui::TextDisabled("切り替えずに重ねるので、閉じれば続きから再開する");
+			Engine::Editor::HelpText("切り替えずに重ねるので、閉じれば続きから再開する");
 
-			Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+			Engine::Editor::AssetField(
 				*a_context.pServices,
 				"Pause Scene", "Scene", m_pauseSceneGUID);
 			if (!m_pauseSceneGUID.IsValid())
 			{
-				ImGui::TextDisabled("(未設定 : ポーズしません)");
+				Engine::Editor::HelpText("(未設定 : ポーズしません)");
 			}
 
-			Engine::Editor::EditorHelper::DrawEnumCombo("Pause Action", m_pauseAction);
-			ImGui::TextDisabled("InputManager へ登録したアクション名(既定 : Esc)");
+			Engine::Editor::Field("Pause Action", m_pauseAction);
+			Engine::Editor::HelpText("InputManager へ登録したアクション名(既定 : Esc)");
 
-			ImGui::Text("Paused    : %s", m_isPauseRequested ? "yes" : "no");
+			Engine::Editor::Text("Paused    : %s", m_isPauseRequested ? "yes" : "no");
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
-		if (Engine::Editor::EditorHelper::CreateButton("Add Wave")) m_waves.emplace_back();
+		if (Engine::Editor::CreateButton("Add Wave")) m_waves.emplace_back();
 
 		int _removeWaveIndex = -1;
 
@@ -936,39 +919,36 @@ namespace App::Object
 		{
 			Wave& _wave = m_waves[_i];
 
-			ImGui::PushID(static_cast<int>(_i));
+			Engine::Editor::IDScope _id(static_cast<int>(_i));
 
 			const std::string _label = "Wave " + std::to_string(_i);
-			if (ImGui::CollapsingHeader(_label.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+			if (Engine::Editor::CollapsingHeader(_label.c_str(), true))
 			{
 				// ---- 基準位置 ----
 				// ここを動かすと配下の出現位置(相対座標)がまとめて動く
-				ImGui::DragFloat3("Wave Pos", &_wave.pos.x, 0.1f);
+				Engine::Editor::Field("Wave Pos", _wave.pos, 0.1f);
 
-				ImGui::SameLine();
+				Engine::Editor::SameLine();
 				const bool _isGizmoWave =
 					(m_gizmoWaveIndex == static_cast<int>(_i)) && (m_gizmoSpawnIndex < 0);
-				if (ImGui::RadioButton("Gizmo##wave", _isGizmoWave))
+				if (Engine::Editor::RadioButton("Gizmo##wave", _isGizmoWave))
 				{
 					m_gizmoWaveIndex  = static_cast<int>(_i);
 					m_gizmoSpawnIndex = -1;
 				}
 
 				// ---- 出現条件 ----
-				ImGui::Checkbox("IsAnnihilation", &_wave.isAnnihilation);
-				ImGui::SameLine();
-				ImGui::TextDisabled(_wave.isAnnihilation ? "(after prev cleared)" : "(from scene start)");
+				Engine::Editor::Field("IsAnnihilation", _wave.isAnnihilation);
+				Engine::Editor::SameLine();
+				Engine::Editor::HelpText(_wave.isAnnihilation ? "(after prev cleared)" : "(from scene start)");
 
-				ImGui::DragFloat("Timing", &_wave.timing, 0.1f, 0.0f, 3600.0f);
+				Engine::Editor::Field("Timing", _wave.timing, 0.1f, 0.0f, 3600.0f);
 
 				// ---- 進行状況 ----
-				ImGui::TextDisabled("Spawned : %s / Alive : %d / Cleared : %s",
-					_wave.isSpawned ? "yes" : "no",
-					_wave.aliveCount,
-					_wave.isCleared ? "yes" : "no");
+				Engine::Editor::HelpText("Spawned : %s / Alive : %d / Cleared : %s", _wave.isSpawned ? "yes" : "no", _wave.aliveCount, _wave.isCleared ? "yes" : "no");
 
 				// ---- 出現させるエンティティ ----
-				if (Engine::Editor::EditorHelper::CreateButton("Add Spawn")) _wave.spawnEntities.emplace_back();
+				if (Engine::Editor::CreateButton("Add Spawn")) _wave.spawnEntities.emplace_back();
 
 				int _removeSpawnIndex = -1;
 
@@ -976,11 +956,11 @@ namespace App::Object
 				{
 					SpawnSettings& _settings = _wave.spawnEntities[_s];
 
-					ImGui::PushID(static_cast<int>(_s));
-					ImGui::Separator();
+					Engine::Editor::IDScope _spawnID(static_cast<int>(_s));
+					Engine::Editor::Separator();
 
 					// プレハブを選び直したらハンドルを捨てて解決し直させる
-					if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+					if (Engine::Editor::AssetField(
 						*a_context.pServices,
 						"Prefab", "Prefab", _settings.spawnEntityGUID))
 					{
@@ -988,27 +968,22 @@ namespace App::Object
 					}
 
 					// 位置はウェーブからの相対
-					ImGui::DragFloat3("Pos (relative)", &_settings.pos.x, 0.1f);
+					Engine::Editor::Field("Pos (relative)", _settings.pos, 0.1f);
 
-					ImGui::SameLine();
+					Engine::Editor::SameLine();
 					const bool _isGizmoSpawn =
 						(m_gizmoWaveIndex == static_cast<int>(_i)) &&
 						(m_gizmoSpawnIndex == static_cast<int>(_s));
-					if (ImGui::RadioButton("Gizmo##spawn", _isGizmoSpawn))
+					if (Engine::Editor::RadioButton("Gizmo##spawn", _isGizmoSpawn))
 					{
 						m_gizmoWaveIndex  = static_cast<int>(_i);
 						m_gizmoSpawnIndex = static_cast<int>(_s);
 					}
 
-					ImGui::DragFloat3("Dir", &_settings.dir.x, 0.01f);
-					ImGui::TextDisabled("World : %.2f, %.2f, %.2f",
-						_wave.pos.x + _settings.pos.x,
-						_wave.pos.y + _settings.pos.y,
-						_wave.pos.z + _settings.pos.z);
+					Engine::Editor::Field("Dir", _settings.dir, 0.01f);
+					Engine::Editor::HelpText("World : %.2f, %.2f, %.2f", _wave.pos.x + _settings.pos.x, _wave.pos.y + _settings.pos.y, _wave.pos.z + _settings.pos.z);
 
-					if (Engine::Editor::EditorHelper::DeleteButton("Remove Spawn")) _removeSpawnIndex = static_cast<int>(_s);
-
-					ImGui::PopID();
+					if (Engine::Editor::DeleteButton("Remove Spawn")) _removeSpawnIndex = static_cast<int>(_s);
 				}
 
 				if (_removeSpawnIndex >= 0)
@@ -1020,11 +995,9 @@ namespace App::Object
 					ClearGizmoTarget();
 				}
 
-				ImGui::Separator();
-				if (Engine::Editor::EditorHelper::DeleteButton("Remove Wave")) _removeWaveIndex = static_cast<int>(_i);
+				Engine::Editor::Separator();
+				if (Engine::Editor::DeleteButton("Remove Wave")) _removeWaveIndex = static_cast<int>(_i);
 			}
-
-			ImGui::PopID();
 		}
 
 		if (_removeWaveIndex >= 0)
@@ -1039,11 +1012,11 @@ namespace App::Object
 		//==================================================================================
 		// ボスへの戦闘開始命令
 		//==================================================================================
-		ImGui::Separator();
-		ImGui::SeparatorText("Boss Orders");
-		ImGui::TextDisabled("Bosses stand by until an order reaches them");
+		Engine::Editor::Separator();
+		Engine::Editor::Section("Boss Orders");
+		Engine::Editor::HelpText("Bosses stand by until an order reaches them");
 
-		if (Engine::Editor::EditorHelper::CreateButton("Add Boss Order")) m_bossOrders.emplace_back();
+		if (Engine::Editor::CreateButton("Add Boss Order")) m_bossOrders.emplace_back();
 
 		int _removeOrderIndex = -1;
 
@@ -1052,40 +1025,35 @@ namespace App::Object
 			BossOrder& _order = m_bossOrders[_i];
 
 			// ウェーブ側と添え字が衝突しないように別の基点でIDを振る
-			ImGui::PushID(static_cast<int>(_i) + 10000);
+			Engine::Editor::IDScope _id(static_cast<int>(_i) + 10000);
 
 			const std::string _label = "Boss Order " + std::to_string(_i);
-			if (ImGui::CollapsingHeader(_label.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+			if (Engine::Editor::CollapsingHeader(_label.c_str(), true))
 			{
 				// ---- 送る条件 ----
-				ImGui::DragInt("AfterWaveIndex", &_order.afterWaveIndex, 0.1f, -1,
-					static_cast<int>(m_waves.size()) - 1);
-				ImGui::SameLine();
-				ImGui::TextDisabled(_order.afterWaveIndex < 0
+				Engine::Editor::Field("AfterWaveIndex", _order.afterWaveIndex, 0.1f, -1, static_cast<int>(m_waves.size()) - 1);
+				Engine::Editor::SameLine();
+				Engine::Editor::HelpText(_order.afterWaveIndex < 0
 					? "(from scene start)"
 					: "(after that wave cleared)");
 
-				ImGui::DragFloat("Timing", &_order.timing, 0.1f, 0.0f, 3600.0f);
+				Engine::Editor::Field("Timing", _order.timing, 0.1f, 0.0f, 3600.0f);
 
 				// ---- 送る相手 ----
-				ImGui::DragInt("TargetWaveIndex", &_order.targetWaveIndex, 0.1f, -1,
-					static_cast<int>(m_waves.size()) - 1);
-				ImGui::SameLine();
-				ImGui::TextDisabled(_order.targetWaveIndex < 0
+				Engine::Editor::Field("TargetWaveIndex", _order.targetWaveIndex, 0.1f, -1, static_cast<int>(m_waves.size()) - 1);
+				Engine::Editor::SameLine();
+				Engine::Editor::HelpText(_order.targetWaveIndex < 0
 					? "(all bosses)"
 					: "(bosses spawned by that wave)");
 
 				// ---- 進行状況 ----
-				ImGui::TextDisabled("Sent : %s / Count : %d",
-					_order.isSent ? "yes" : "no", _order.sentCount);
+				Engine::Editor::HelpText("Sent : %s / Count : %d", _order.isSent ? "yes" : "no", _order.sentCount);
 
-				if (Engine::Editor::EditorHelper::DeleteButton("Remove Boss Order"))
+				if (Engine::Editor::DeleteButton("Remove Boss Order"))
 				{
 					_removeOrderIndex = static_cast<int>(_i);
 				}
 			}
-
-			ImGui::PopID();
 		}
 
 		if (_removeOrderIndex >= 0)

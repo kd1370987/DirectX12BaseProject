@@ -212,14 +212,14 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
-		ImGui::Text("WaveAnnounce");
+		Engine::Editor::Text("WaveAnnounce");
 
 		// 合図の音(アセットDBの Sound 一覧から選ぶ)
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		if (Engine::Editor::AssetField(
 			*a_context.pServices,
 			"Wave Sound",
 			"Sound",
@@ -228,7 +228,7 @@ namespace App::Object
 			RequestSound(a_context);
 		}
 
-		if (ImGui::DragFloat("Volume", &m_volume, 0.01f, 0.0f, 1.0f))
+		if (Engine::Editor::Field("Volume", m_volume, 0.01f, 0.0f, 1.0f))
 		{
 			// 鳴らしながら調整できるよう、発行済みインスタンスへ即時反映する
 			if (a_context.pServices && a_context.pServices->pAudioManager)
@@ -240,37 +240,37 @@ namespace App::Object
 			}
 		}
 
-		ImGui::Separator();
-		ImGui::DragFloat("ShowTime", &m_showTime, 0.1f, 0.0f, 10.0f);
-		ImGui::Checkbox("FadeOut", &m_isFadeOut);
-		ImGui::DragFloat("PunchScale", &m_punchScale, 0.01f, 0.1f, 4.0f);
+		Engine::Editor::Separator();
+		Engine::Editor::Field("ShowTime", m_showTime, 0.1f, 0.0f, 10.0f);
+		Engine::Editor::Field("FadeOut", m_isFadeOut);
+		Engine::Editor::Field("PunchScale", m_punchScale, 0.01f, 0.1f, 4.0f);
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
 		// 文字の組み立て
 		{
 			char _buf[64] = {};
 			std::snprintf(_buf, sizeof(_buf), "%s", m_prefix.c_str());
-			if (ImGui::InputText("Prefix", _buf, sizeof(_buf))) m_prefix = _buf;
+			if (Engine::Editor::Field("Prefix", _buf, sizeof(_buf))) m_prefix = _buf;
 		}
-		ImGui::Checkbox("ShowTotal", &m_isShowTotal);
+		Engine::Editor::Field("ShowTotal", m_isShowTotal);
 		if (m_isShowTotal)
 		{
 			char _buf[16] = {};
 			std::snprintf(_buf, sizeof(_buf), "%s", m_separator.c_str());
-			if (ImGui::InputText("Separator", _buf, sizeof(_buf))) m_separator = _buf;
+			if (Engine::Editor::Field("Separator", _buf, sizeof(_buf))) m_separator = _buf;
 		}
 
 		// 確認用に出してみる
-		if (ImGui::Button("Test"))
+		if (Engine::Editor::Button("Test"))
 		{
 			OnWaveSpawned(a_context, (m_lastWaveIndex >= 0) ? m_lastWaveIndex : 0, 0);
 		}
 
-		ImGui::Separator();
-		ImGui::Text("LastWave : %d", m_lastWaveIndex + 1);
-		ImGui::Text("Remain   : %.2f", m_remainTime);
-		ImGui::TextDisabled("SceneSequence がウェーブを出したフレームに反応します");
-		ImGui::TextDisabled("文字は Text の飾りへ入るので、飾りを1つ足してフォントを選んでください");
+		Engine::Editor::Separator();
+		Engine::Editor::Text("LastWave : %d", m_lastWaveIndex + 1);
+		Engine::Editor::Text("Remain   : %.2f", m_remainTime);
+		Engine::Editor::HelpText("SceneSequence がウェーブを出したフレームに反応します");
+		Engine::Editor::HelpText("文字は Text の飾りへ入るので、飾りを1つ足してフォントを選んでください");
 	}
 }

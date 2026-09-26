@@ -2,7 +2,7 @@
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 //==========================================================================================
 // ExplosionComponent
@@ -95,20 +95,18 @@ struct Engine::ECS::ComponentTraits<ExplosionComponent>
 		{
 			PartsEffect& _parts = _comp.parts[_i];
 
-			ImGui::PushID(_i);
-			ImGui::SeparatorText(("Parts " + std::to_string(_i)).c_str());
+			Engine::Editor::IDScope _id(_i);
+			Engine::Editor::Section(("Parts " + std::to_string(_i)).c_str());
 
-			if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pWorld->RefEngineServices(), "Effect Prefab", "Prefab", _parts.prefabGUID))
+			if (Engine::Editor::AssetField(*a_context.pWorld->RefEngineServices(), "Effect Prefab", "Prefab", _parts.prefabGUID))
 			{
 				_parts.prefabHandle = {};	// GUIDが変わったら作り直し
 			}
-			ImGui::DragFloat("EmitTime", &_parts.emitTime, 0.05f, 0.0f);
-
-			ImGui::PopID();
+			Engine::Editor::Field("EmitTime", _parts.emitTime, 0.05f, 0.0f);
 		}
 
-		ImGui::Separator();
-		ImGui::Text("ElapsedTime : %.2f", _comp.elapsedTime);
-		ImGui::TextDisabled("全パーツを出し終えたら自分は消える");
+		Engine::Editor::Separator();
+		Engine::Editor::Text("ElapsedTime : %.2f", _comp.elapsedTime);
+		Engine::Editor::HelpText("全パーツを出し終えたら自分は消える");
 	}
 };

@@ -16,8 +16,8 @@ struct Engine::ECS::ComponentTraits<NameComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		NameComponent& _comp = Engine::Editor::GetValue<NameComponent>(a_context.pData);
-		ImGui::InputText("##Name", _comp.name, 64);
-		ImGui::SameLine();
-		ImGui::Text("Name");
+		Engine::Editor::Field("##Name", _comp.name, 64);
+		Engine::Editor::SameLine();
+		Engine::Editor::Text("Name");
 	}
 };

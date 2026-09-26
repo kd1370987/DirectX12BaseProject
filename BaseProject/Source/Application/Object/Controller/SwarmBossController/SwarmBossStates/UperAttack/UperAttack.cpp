@@ -4,7 +4,7 @@
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Persistence/Archive/Archive.h"
 #include "Engine/ECS/System/SystemContext.h"
-#include "Engine/Editor/Helper/EditorHelper.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 
 // App
 #include "../../../../../ECS/World/APPWorld.h"
@@ -265,24 +265,24 @@ namespace App::Object
 
 	void SwarmBossUperAttackState::DrawInspector()
 	{
-		ImGui::DragFloat("Burrow Depth", &m_burrowDepth, 0.5f, 0.0f);
-		ImGui::DragFloat("Depth Tolerance", &m_depthTolerance, 0.1f, 0.0f);
-		ImGui::DragFloat("Burrow Forward", &m_burrowForward, 0.5f, 0.0f);
-		ImGui::DragFloat("Burrow Throttle", &m_burrowThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Burrow Max Time", &m_burrowMaxTime, 0.1f, 0.0f);
-		ImGui::DragFloat("Approach Speed Scale", &m_approachSpeedScale, 0.05f, 0.0f);
-		ImGui::DragFloat("Under Distance", &m_underDistance, 0.1f, 0.0f);
-		ImGui::DragFloat("Approach Max Time", &m_approachMaxTime, 0.1f, 0.0f);
-		ImGui::DragFloat("Uper Speed Scale", &m_uperSpeedScale, 0.05f, 0.0f);
-		ImGui::DragFloat("Overshoot Height", &m_overshootHeight, 0.5f, 0.0f);
-		ImGui::DragFloat("Uper Max Time", &m_uperMaxTime, 0.1f, 0.0f);
-		ImGui::DragFloat("Recover Time", &m_recoverTime, 0.05f, 0.0f);
-		ImGui::DragFloat("Recover Throttle", &m_recoverThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::TextDisabled("Speed scale above Platoon Scale tears the line apart");
+		Engine::Editor::Field("Burrow Depth", m_burrowDepth, 0.5f, 0.0f);
+		Engine::Editor::Field("Depth Tolerance", m_depthTolerance, 0.1f, 0.0f);
+		Engine::Editor::Field("Burrow Forward", m_burrowForward, 0.5f, 0.0f);
+		Engine::Editor::Field("Burrow Throttle", m_burrowThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("Burrow Max Time", m_burrowMaxTime, 0.1f, 0.0f);
+		Engine::Editor::Field("Approach Speed Scale", m_approachSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Field("Under Distance", m_underDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("Approach Max Time", m_approachMaxTime, 0.1f, 0.0f);
+		Engine::Editor::Field("Uper Speed Scale", m_uperSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Field("Overshoot Height", m_overshootHeight, 0.5f, 0.0f);
+		Engine::Editor::Field("Uper Max Time", m_uperMaxTime, 0.1f, 0.0f);
+		Engine::Editor::Field("Recover Time", m_recoverTime, 0.05f, 0.0f);
+		Engine::Editor::Field("Recover Throttle", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::HelpText("Speed scale above Platoon Scale tears the line apart");
 
 		// 実行中の状態は表示のみ
-		ImGui::Text("Phase   : %s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		ImGui::Text("Player  : %.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
-		ImGui::Text("Ground  : %.1f (depth %.1f, %s)", m_groundHeight, m_depth, m_isUnderGround ? "under" : "above");
+		Engine::Editor::Text("Phase   : %s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::Editor::Text("Player  : %.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
+		Engine::Editor::Text("Ground  : %.1f (depth %.1f, %s)", m_groundHeight, m_depth, m_isUnderGround ? "under" : "above");
 	}
 }

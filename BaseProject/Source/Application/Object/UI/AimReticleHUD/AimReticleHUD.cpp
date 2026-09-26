@@ -111,26 +111,26 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
-		ImGui::Text("AutoAim");
+		Engine::Editor::Text("AutoAim");
 
 		// 判定半径の作り方
-		ImGui::Checkbox("UseTextureSize", &m_isUseTextureSize);
-		ImGui::SetItemTooltip("アンカーの PixelSize から作る(飾りの大きさではない)");
+		Engine::Editor::Field("UseTextureSize", m_isUseTextureSize);
+		Engine::Editor::Tooltip("アンカーの PixelSize から作る(飾りの大きさではない)");
 		if (m_isUseTextureSize)
 		{
-			ImGui::DragFloat("RadiusScale", &m_radiusScale, 0.01f, 0.0f, 4.0f);
+			Engine::Editor::Field("RadiusScale", m_radiusScale, 0.01f, 0.0f, 4.0f);
 		}
 		else
 		{
-			ImGui::DragFloat("LockRadius", &m_lockRadius, 1.0f, 0.0f, 4096.0f);
+			Engine::Editor::Field("LockRadius", m_lockRadius, 1.0f, 0.0f, 4096.0f);
 		}
 
-		ImGui::Text("Radius : %.0f px", CalcLockRadius());
-		ImGui::TextDisabled("この円の内側に入った敵だけがロック対象になります");
-		ImGui::TextDisabled("(中心は PixelPos。プレイヤーの LockOnTargetComponent へ毎フレーム渡します)");
+		Engine::Editor::Text("Radius : %.0f px", CalcLockRadius());
+		Engine::Editor::HelpText("この円の内側に入った敵だけがロック対象になります");
+		Engine::Editor::HelpText("(中心は PixelPos。プレイヤーの LockOnTargetComponent へ毎フレーム渡します)");
 	}
 }

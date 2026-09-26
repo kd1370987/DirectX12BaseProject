@@ -135,7 +135,7 @@ namespace Engine::Editor::Inspector
 			ImGui::TextDisabled("今のパスと配線をすべて捨てて組み直します");
 
 			PassMetaRegistry* _pRegistry = m_pAsset->RefMetaRegistry();
-			if (EditorHelper::CreateButton("Build") && _pRegistry)
+			if (CreateButton("Build") && _pRegistry)
 			{
 				BuildStandardPipeline(*m_pAsset, *_pRegistry);
 
@@ -159,7 +159,7 @@ namespace Engine::Editor::Inspector
 			return;
 		}
 
-		if (EditorHelper::CreateButton("AddPass"))
+		if (CreateButton("AddPass"))
 		{
 			ImGui::OpenPopup("AddPassPopup");
 		}
@@ -217,7 +217,7 @@ namespace Engine::Editor::Inspector
 	//======================================================================================
 	void RenderingPipelineEditor::DrawAddComposite()
 	{
-		if (EditorHelper::CreateButton("AddComposite"))
+		if (CreateButton("AddComposite"))
 		{
 			ImGui::OpenPopup("AddCompositePopup");
 		}
@@ -604,7 +604,7 @@ namespace Engine::Editor::Inspector
 		}
 
 		ImGui::Spacing();
-		if (EditorHelper::DeleteSmallButton("Ungroup"))
+		if (DeleteSmallButton("Ungroup"))
 		{
 			// 札を外すだけ。パスも線もそのままで、個別のノードに戻る
 			for (Pass* _pMember : a_group.members)
@@ -667,7 +667,7 @@ namespace Engine::Editor::Inspector
 		{
 			// 削除は反復中に消すとイテレータが壊れるので予約だけする
 			ImGui::Spacing();
-			if (EditorHelper::DeleteSmallButton("Delete Pass"))
+			if (DeleteSmallButton("Delete Pass"))
 			{
 				m_pendingDeletePass = a_pass.GetGUID();
 			}

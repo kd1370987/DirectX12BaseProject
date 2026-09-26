@@ -72,25 +72,24 @@ struct Engine::ECS::ComponentTraits<LockOnTargetComponent>
 	{
 		LockOnTargetComponent& _comp = Engine::Editor::GetValue<LockOnTargetComponent>(a_context.pData);
 
-		ImGui::DragFloat("ReticleRadius", &_comp.reticleRadius, 1.0f, 0.0f, 4096.0f);
-		ImGui::DragFloat("MaxDistance", &_comp.maxDistance, 1.0f, 0.0f);
-		ImGui::DragFloat("TargetOffsetY", &_comp.targetOffsetY, 0.01f);
+		Engine::Editor::Field("ReticleRadius", _comp.reticleRadius, 1.0f, 0.0f, 4096.0f);
+		Engine::Editor::Field("MaxDistance", _comp.maxDistance, 1.0f, 0.0f);
+		Engine::Editor::Field("TargetOffsetY", _comp.targetOffsetY, 0.01f);
 
 		// 結果は毎フレーム上書きされるので表示のみ
-		ImGui::Separator();
-		ImGui::Text("ReticleFromHUD : %s", _comp.isReticleFromHUD ? "yes" : "no");
+		Engine::Editor::Separator();
+		Engine::Editor::Text("ReticleFromHUD : %s", _comp.isReticleFromHUD ? "yes" : "no");
 		if (_comp.isReticleFromHUD)
 		{
-			ImGui::Text("ReticleCenter  : %.0f, %.0f", _comp.reticleCenter.x, _comp.reticleCenter.y);
+			Engine::Editor::Text("ReticleCenter  : %.0f, %.0f", _comp.reticleCenter.x, _comp.reticleCenter.y);
 		}
-		ImGui::Text("ActiveRadius   : %.0f px", _comp.GetActiveReticleRadius());
-		ImGui::Text("Targets : %d", _comp.targetCount);
-		ImGui::Text("Locked  : %s", _comp.IsLocked() ? "yes" : "no");
+		Engine::Editor::Text("ActiveRadius   : %.0f px", _comp.GetActiveReticleRadius());
+		Engine::Editor::Text("Targets : %d", _comp.targetCount);
+		Engine::Editor::Text("Locked  : %s", _comp.IsLocked() ? "yes" : "no");
 		if (_comp.IsLocked())
 		{
-			ImGui::Text("LockedScreen : %.0f, %.0f", _comp.lockedScreenPos.x, _comp.lockedScreenPos.y);
-			ImGui::Text("LockedPos    : %.2f, %.2f, %.2f",
-				_comp.lockedPos.x, _comp.lockedPos.y, _comp.lockedPos.z);
+			Engine::Editor::Text("LockedScreen : %.0f, %.0f", _comp.lockedScreenPos.x, _comp.lockedScreenPos.y);
+			Engine::Editor::Text("LockedPos    : %.2f, %.2f, %.2f", _comp.lockedPos.x, _comp.lockedPos.y, _comp.lockedPos.z);
 		}
 	}
 };

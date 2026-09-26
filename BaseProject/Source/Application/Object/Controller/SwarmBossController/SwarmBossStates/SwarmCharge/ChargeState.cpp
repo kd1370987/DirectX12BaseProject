@@ -4,7 +4,7 @@
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Persistence/Archive/Archive.h"
 #include "Engine/ECS/System/SystemContext.h"
-#include "Engine/Editor/Helper/EditorHelper.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 
 // App
 #include "../../../../../ECS/World/APPWorld.h"
@@ -217,18 +217,18 @@ namespace App::Object
 
 	void SwarmBossChargeState::DrawInspector()
 	{
-		ImGui::DragFloat("Windup Time", &m_windupTime, 0.05f, 0.0f);
-		ImGui::DragFloat("Windup Throttle", &m_windupThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Charge Speed Scale", &m_chargeSpeedScale, 0.05f, 0.0f);
-		ImGui::DragFloat("Homing Turn Speed", &m_homingTurnSpeed, 0.01f, 0.0f);
-		ImGui::DragFloat("Max Charge Time", &m_maxChargeTime, 0.1f, 0.0f);
-		ImGui::DragFloat("Overshoot Distance", &m_overshootDistance, 0.5f, 0.0f);
-		ImGui::DragFloat("Recover Time", &m_recoverTime, 0.05f, 0.0f);
-		ImGui::DragFloat("Recover Throttle", &m_recoverThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::TextDisabled("Speed scale above Platoon Scale tears the line apart");
+		Engine::Editor::Field("Windup Time", m_windupTime, 0.05f, 0.0f);
+		Engine::Editor::Field("Windup Throttle", m_windupThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("Charge Speed Scale", m_chargeSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Field("Homing Turn Speed", m_homingTurnSpeed, 0.01f, 0.0f);
+		Engine::Editor::Field("Max Charge Time", m_maxChargeTime, 0.1f, 0.0f);
+		Engine::Editor::Field("Overshoot Distance", m_overshootDistance, 0.5f, 0.0f);
+		Engine::Editor::Field("Recover Time", m_recoverTime, 0.05f, 0.0f);
+		Engine::Editor::Field("Recover Throttle", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::HelpText("Speed scale above Platoon Scale tears the line apart");
 
 		// 実行中の状態は表示のみ
-		ImGui::Text("Phase   : %s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		ImGui::Text("Player  : %.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
+		Engine::Editor::Text("Phase   : %s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::Editor::Text("Player  : %.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
 	}
 }

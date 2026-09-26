@@ -18,6 +18,6 @@ struct Engine::ECS::ComponentTraits<EffectComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		ImGui::TextDisabled("Marker only. LifeTime is LifeTimeComponent.");
+		Engine::Editor::HelpText("Marker only. LifeTime is LifeTimeComponent.");
 	}
 };

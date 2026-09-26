@@ -440,7 +440,7 @@ namespace Engine::Editor::Inspector
 					_func(_compEditContext);
 				}
 
-				if (Engine::Editor::EditorHelper::DeleteButton("RemoveComponent"))
+				if (Engine::Editor::DeleteButton("RemoveComponent"))
 				{
 					_removeTypeID = _compTypeID;
 				}

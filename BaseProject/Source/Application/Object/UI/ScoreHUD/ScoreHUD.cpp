@@ -4,7 +4,7 @@
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/ECS/World/World.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 #include "Application/Game/GameManager/GameManager.h"
 
@@ -157,55 +157,55 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
-		ImGui::Text("Score");
-		ImGui::TextDisabled("画像の飾りを1つ置き、0〜9 を横一列に並べたテクスチャを指定すること");
-		ImGui::TextDisabled("コマの切り出し(UVScale / UVOffset)は AtlasCount から自動で決まる");
+		Engine::Editor::Text("Score");
+		Engine::Editor::HelpText("画像の飾りを1つ置き、0〜9 を横一列に並べたテクスチャを指定すること");
+		Engine::Editor::HelpText("コマの切り出し(UVScale / UVOffset)は AtlasCount から自動で決まる");
 
 		// 何を出すか。中身は GlobalGameContext から貰う
-		Engine::Editor::EditorHelper::DrawEnumCombo("ValueKind", m_valueKind);
-		ImGui::TextDisabled("Time は秒だけ(小数は切り捨て)");
+		Engine::Editor::Field("ValueKind", m_valueKind);
+		Engine::Editor::HelpText("Time は秒だけ(小数は切り捨て)");
 
-		if (ImGui::DragInt("DigitCount", &m_digitCount, 1, 1, 9))
+		if (Engine::Editor::Field("DigitCount", m_digitCount, 1, 1, 9))
 		{
 			m_digitCount = std::clamp(m_digitCount, 1, 9);
 		}
-		ImGui::TextDisabled("表示する桁数。足りないぶんは 0 で埋める");
+		Engine::Editor::HelpText("表示する桁数。足りないぶんは 0 で埋める");
 
-		if (ImGui::DragInt("AtlasCount", &m_atlasCount, 1, 1, 64))
+		if (Engine::Editor::Field("AtlasCount", m_atlasCount, 1, 1, 64))
 		{
 			m_atlasCount = std::max(m_atlasCount, 1);
 		}
-		ImGui::TextDisabled("テクスチャに並んでいるコマ数(0〜9 だけなら 10)");
+		Engine::Editor::HelpText("テクスチャに並んでいるコマ数(0〜9 だけなら 10)");
 
-		ImGui::DragFloat("DigitSpacing", &m_digitSpacing, 0.5f);
-		ImGui::TextDisabled("桁と桁の間隔(px)。アンカーの PixelSize.x が1桁ぶんの送り幅");
+		Engine::Editor::Field("DigitSpacing", m_digitSpacing, 0.5f);
+		Engine::Editor::HelpText("桁と桁の間隔(px)。アンカーの PixelSize.x が1桁ぶんの送り幅");
 
-		ImGui::Separator();
-		ImGui::DragFloat("PunchScale", &m_punchScale, 0.01f, 1.0f, 4.0f);
-		ImGui::DragFloat("PunchTime", &m_punchTime, 0.01f, 0.0f, 2.0f);
-		ImGui::TextDisabled("スコアが増えたフレームだけ大きくして戻す");
+		Engine::Editor::Separator();
+		Engine::Editor::Field("PunchScale", m_punchScale, 0.01f, 1.0f, 4.0f);
+		Engine::Editor::Field("PunchTime", m_punchTime, 0.01f, 0.0f, 2.0f);
+		Engine::Editor::HelpText("スコアが増えたフレームだけ大きくして戻す");
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
 		// 中身はシーンをまたぐグローバル側。ここでは表示と確認だけ
 		auto& _gameData = App::Game::GameManager::Instance().RefGameData();
 
-		ImGui::Text("Value : %d", m_value);
-		ImGui::Text("Score : %d", _gameData.score);
-		ImGui::Text("Kill  : %d", _gameData.killCount);
-		ImGui::Text("Time  : %.2f", _gameData.time);
+		Engine::Editor::Text("Value : %d", m_value);
+		Engine::Editor::Text("Score : %d", _gameData.score);
+		Engine::Editor::Text("Kill  : %d", _gameData.killCount);
+		Engine::Editor::Text("Time  : %.2f", _gameData.time);
 
 		// 実際に倒さなくても並びを確かめられるようにしておく
-		if (Engine::Editor::EditorHelper::CreateButton("Add 100"))
+		if (Engine::Editor::CreateButton("Add 100"))
 		{
 			_gameData.AddScore(100);
 		}
-		ImGui::SameLine();
-		if (Engine::Editor::EditorHelper::DeleteButton("Reset"))
+		Engine::Editor::SameLine();
+		if (Engine::Editor::DeleteButton("Reset"))
 		{
 			_gameData.ResetRun();
 		}

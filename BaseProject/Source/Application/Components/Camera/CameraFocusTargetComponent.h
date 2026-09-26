@@ -30,6 +30,6 @@ struct Engine::ECS::ComponentTraits<CameraFocusTargetComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		CameraFocusTargetComponent& _comp = Engine::Editor::GetValue<CameraFocusTargetComponent>(a_context.pData);
-		ImGui::DragFloat3("OffsetPos", &_comp.offsetPos.x,0.01f);
+		Engine::Editor::Field("OffsetPos", _comp.offsetPos, 0.01f);
 	}
 };

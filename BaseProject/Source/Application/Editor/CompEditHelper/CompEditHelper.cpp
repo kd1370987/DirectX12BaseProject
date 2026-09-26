@@ -25,7 +25,7 @@ namespace App::Editor
 
 		if (!_pWorld || _parentID == Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: No parent via HierarchyComponent.");
+			Engine::Editor::TextColored(Math::Color(1, 1, 0, 1), "Warning: No parent via HierarchyComponent.");
 			return;
 		}
 
@@ -33,7 +33,7 @@ namespace App::Editor
 		auto* _pParentModelComp = _pWorld->RefData<ModelComponent>(_parentID);
 		if (!_pParentModelComp)
 		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: ModelComponent not found on Parent.");
+			Engine::Editor::TextColored(Math::Color(1, 1, 0, 1), "Warning: ModelComponent not found on Parent.");
 			return;
 		}
 
@@ -54,7 +54,7 @@ namespace App::Editor
 		// RefData は生きているエンティティ前提で添え字を引くので、必ず先に弾く。
 		if (!_pWorld || a_editContext.entity == Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: No entity. Set the node on the scene entity.");
+			Engine::Editor::TextColored(Math::Color(1, 1, 0, 1), "Warning: No entity. Set the node on the scene entity.");
 			return;
 		}
 
@@ -62,7 +62,7 @@ namespace App::Editor
 		auto* _pSelfModelComp = _pWorld->RefData<ModelComponent>(a_editContext.entity);
 		if (!_pSelfModelComp)
 		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: ModelComponent not found on Self.");
+			Engine::Editor::TextColored(Math::Color(1, 1, 0, 1), "Warning: ModelComponent not found on Self.");
 			return;
 		}
 
@@ -81,12 +81,12 @@ namespace App::Editor
 		const auto* _pParentModel = a_editContext.pWorld->RefEngineServices()->pResourceManager->Get(a_modelHandle);
 		if (!_pParentModel)
 		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "Warning: Model Resource is null.");
+			Engine::Editor::TextColored(Math::Color(1, 1, 0, 1), "Warning: Model Resource is null.");
 			return;
 		}
 
 		// ノード一覧の描画自体はエンジン側の共通ヘルパーに任せる
-		Engine::Editor::EditorHelper::DrawModelNodeCombo(
+		Engine::Editor::ModelNodeField(
 			"Target Node",
 			_pParentModel,
 			a_nodeIndex,

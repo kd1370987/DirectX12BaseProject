@@ -53,20 +53,20 @@ struct Engine::ECS::ComponentTraits<TargetEntityComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		TargetEntityComponent& _comp = Engine::Editor::GetValue<TargetEntityComponent>(a_context.pData);
-		ImGui::SeparatorText("Detect");
-		ImGui::DragFloat("DetectDistance", &_comp.detectDistance, 0.1f, 0.0f);
-		ImGui::DragFloat("DetectExitDistance", &_comp.detectExitDistance, 0.1f, 0.0f);
+		Engine::Editor::Section("Detect");
+		Engine::Editor::Field("DetectDistance", _comp.detectDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("DetectExitDistance", _comp.detectExitDistance, 0.1f, 0.0f);
 
-		ImGui::SeparatorText("Attack");
-		ImGui::DragFloat("AttackDistance", &_comp.attackDistance, 0.1f, 0.0f);
-		ImGui::DragFloat("AttackExitDistance", &_comp.attackExitDistance, 0.1f, 0.0f);
+		Engine::Editor::Section("Attack");
+		Engine::Editor::Field("AttackDistance", _comp.attackDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("AttackExitDistance", _comp.attackExitDistance, 0.1f, 0.0f);
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 		bool _isFind = _comp.isFind;
-		ImGui::Checkbox("IsFind",&_isFind);
+		Engine::Editor::Field("IsFind", _isFind);
 		bool _isInAttackRange = _comp.isInAttackRange;
-		ImGui::Checkbox("IsInAttackRange",&_isInAttackRange);
-		ImGui::Text("Distance : %f",_comp.distance);
+		Engine::Editor::Field("IsInAttackRange", _isInAttackRange);
+		Engine::Editor::Text("Distance : %f", _comp.distance);
 
 	}
 };

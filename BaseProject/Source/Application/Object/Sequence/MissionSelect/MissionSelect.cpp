@@ -3,7 +3,7 @@
 #include "Engine/ECS/System/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/GameObject/GameObjectManager/GameObjectManager.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 #include "../../ObjectPicker.h"
 #include "../../UI/UIBase.h"
@@ -360,17 +360,17 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// エディターでは押して切り替えられないので、ここから出し入れして配置を見る
 		//----------------------------------------------------------------------
-		ImGui::SeparatorText("Visible");
+		Engine::Editor::Section("Visible");
 
 		bool _isVisible = m_isVisible;
-		if (ImGui::Checkbox("Visible", &_isVisible)) SetVisible(_isVisible);
-		ImGui::TextDisabled("普段は HomeSequence が出し入れする。配置を見るときはここで切り替える");
+		if (Engine::Editor::Field("Visible", _isVisible)) SetVisible(_isVisible);
+		Engine::Editor::HelpText("普段は HomeSequence が出し入れする。配置を見るときはここで切り替える");
 
 		//----------------------------------------------------------------------
 		// ミッション
 		//----------------------------------------------------------------------
-		ImGui::SeparatorText("Missions");
-		ImGui::TextDisabled("1ミッション = シーンへ置いた UIButton 1つ。並べ方はそのボタン側で決める");
+		Engine::Editor::Section("Missions");
+		Engine::Editor::HelpText("1ミッション = シーンへ置いた UIButton 1つ。並べ方はそのボタン側で決める");
 
 		int _removeIndex = -1;
 
@@ -378,42 +378,38 @@ namespace App::Object
 		{
 			MissionEntry& _mission = m_missionVec[_i];
 
-			ImGui::PushID(static_cast<int>(_i));
+			Engine::Editor::IDScope _id(static_cast<int>(_i));
 
 			const std::string _label = std::to_string(_i) + " : " + _mission.name;
-			if (ImGui::TreeNode(_label.c_str()))
+			if (Engine::Editor::TreeScope _tree{ _label.c_str() })
 			{
-				if (ImGui::InputText("Name", &_mission.name))
+				if (Engine::Editor::Field("Name", _mission.name))
 				{
 					// 開いている確認ボックスへ即座に反映して、見ながら直せるようにする
 					if (m_confirmIndex == static_cast<int>(_i)) ApplyMissionName(_mission);
 				}
-				ImGui::TextDisabled("確認ボックスの Text 飾りへ流し込む名前");
+				Engine::Editor::HelpText("確認ボックスの Text 飾りへ流し込む名前");
 
 				if (Picker::DrawCombo<UIButton>("Button", _pObjectManager, _mission.buttonGUID))
 				{
 					m_isBound = false;
 				}
-				ImGui::TextDisabled("押すと確認ボックスが出る");
+				Engine::Editor::HelpText("押すと確認ボックスが出る");
 
-				Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pServices, "Scene", "Scene", _mission.sceneGUID);
-				ImGui::TextDisabled("Yes で飛ぶ先");
+				Engine::Editor::AssetField(*a_context.pServices, "Scene", "Scene", _mission.sceneGUID);
+				Engine::Editor::HelpText("Yes で飛ぶ先");
 
-				ImGui::TextDisabled("カーソルが乗っている間だけ出すUI(画像・説明文)");
+				Engine::Editor::HelpText("カーソルが乗っている間だけ出すUI(画像・説明文)");
 				if (Picker::DrawList<Engine::GameObject::BaseObject>("Detail UI", _pObjectManager, _mission.detailUIGUIDVec))
 				{
 					ApplyVisible();
 				}
 
-				if (Engine::Editor::EditorHelper::DeleteButton("Remove Mission"))
+				if (Engine::Editor::DeleteButton("Remove Mission"))
 				{
 					_removeIndex = static_cast<int>(_i);
 				}
-
-				ImGui::TreePop();
 			}
-
-			ImGui::PopID();
 		}
 
 		if (_removeIndex >= 0)
@@ -428,7 +424,7 @@ namespace App::Object
 			ApplyVisible();
 		}
 
-		if (Engine::Editor::EditorHelper::CreateButton("Add Mission"))
+		if (Engine::Editor::CreateButton("Add Mission"))
 		{
 			m_missionVec.push_back({});
 			m_isBound = false;
@@ -437,8 +433,8 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// 確認ボックス
 		//----------------------------------------------------------------------
-		ImGui::SeparatorText("Confirm");
-		ImGui::TextDisabled("ミッションを押したときに中央へ出すもの");
+		Engine::Editor::Section("Confirm");
+		Engine::Editor::HelpText("ミッションを押したときに中央へ出すもの");
 
 		if (Picker::DrawList<Engine::GameObject::BaseObject>("Confirm UI", _pObjectManager, m_confirmUIGUIDVec))
 		{
@@ -448,11 +444,11 @@ namespace App::Object
 		if (Picker::DrawCombo<UIButton>("Yes", _pObjectManager, m_yesButtonGUID)) m_isBound = false;
 		if (Picker::DrawCombo<UIButton>("No", _pObjectManager, m_noButtonGUID))   m_isBound = false;
 
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
 
 		if (Picker::DrawCombo<UIBase>("Name UI", _pObjectManager, m_nameUIGUID)) ApplyVisible();
-		ImGui::InputText("Name Decoration", &m_nameDecorationName);
-		ImGui::TextDisabled("上のUIが持つ Text 飾りの名前。ここへミッション名を書き込む");
+		Engine::Editor::Field("Name Decoration", m_nameDecorationName);
+		Engine::Editor::HelpText("上のUIが持つ Text 飾りの名前。ここへミッション名を書き込む");
 
 		// 指定した飾りが本当にあるか、その場で分かるようにしておく
 		if (auto* _pNameUI = Picker::Find<UIBase>(_pObjectManager, m_nameUIGUID))
@@ -461,21 +457,21 @@ namespace App::Object
 
 			if (_pDecoration == nullptr)
 			{
-				ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "飾りが見つかりません");
+				Engine::Editor::TextColored(Math::Color(1.0f, 0.4f, 0.4f, 1.0f), "飾りが見つかりません");
 			}
 			else if (_pDecoration->type != Decoration::EDecorationType::Text)
 			{
-				ImGui::TextColored(ImVec4(1.0f, 0.7f, 0.3f, 1.0f), "飾りが Text ではありません");
+				Engine::Editor::TextColored(Math::Color(1.0f, 0.7f, 0.3f, 1.0f), "飾りが Text ではありません");
 			}
 		}
 
 		//----------------------------------------------------------------------
 		// 実行中の状態は表示のみ
 		//----------------------------------------------------------------------
-		ImGui::SeparatorText("Runtime");
-		ImGui::Text("Bound     : %s", m_isBound ? "yes" : "no");
-		ImGui::Text("Show      : %d", m_showIndex);
-		ImGui::Text("Confirm   : %d", m_confirmIndex);
-		ImGui::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
+		Engine::Editor::Section("Runtime");
+		Engine::Editor::Text("Bound     : %s", m_isBound ? "yes" : "no");
+		Engine::Editor::Text("Show      : %d", m_showIndex);
+		Engine::Editor::Text("Confirm   : %d", m_confirmIndex);
+		Engine::Editor::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
 	}
 }

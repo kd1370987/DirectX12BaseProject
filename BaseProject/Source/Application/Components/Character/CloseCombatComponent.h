@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 //==========================================================================================
 // CloseCombatComponent
@@ -56,14 +56,14 @@ struct Engine::ECS::ComponentTraits<CloseCombatComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		CloseCombatComponent& _comp = Engine::Editor::GetValue<CloseCombatComponent>(a_context.pData);
-		ImGui::DragFloat("FireTime", &_comp.fireTime, 0.1f, 0.0f);
-		ImGui::DragFloat("MoveTime", &_comp.moveTime, 0.1f, 0.0f);
-		ImGui::DragFloat("MoveThrottle", &_comp.moveThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("StrafeRatio", &_comp.strafeRatio, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("KeepDistance", &_comp.keepDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("FireTime", _comp.fireTime, 0.1f, 0.0f);
+		Engine::Editor::Field("MoveTime", _comp.moveTime, 0.1f, 0.0f);
+		Engine::Editor::Field("MoveThrottle", _comp.moveThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("StrafeRatio", _comp.strafeRatio, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("KeepDistance", _comp.keepDistance, 0.1f, 0.0f);
 
-		ImGui::Separator();
-		ImGui::Text("Phase : %s", _comp.isFirePhase ? "Fire" : "Move");
-		ImGui::Text("Timer : %.2f", _comp.timer);
+		Engine::Editor::Separator();
+		Engine::Editor::Text("Phase : %s", _comp.isFirePhase ? "Fire" : "Move");
+		Engine::Editor::Text("Timer : %.2f", _comp.timer);
 	}
 };

@@ -1,6 +1,6 @@
 ﻿#include "ActionStateMachineAsset.h"
 
-#include "../../../Editor/Helper/EditorHelper.h"
+#include "../../../Editor/Helper/EditorField.h"
 
 #include "../../Manager/AssetDatabase/AssetDatabase.h"
 #include "../../Manager/ResourceManager/ResourceManager.h"
@@ -80,35 +80,34 @@ namespace Engine::Resource
 	//======================================================================================
 	void ActionStateMachineAsset::EditImGui(const Handle<ActionStateMachineAsset>& a_handle, const ECS::EngineServices& a_services)
 	{
-		if (ImGui::Button("Save") && a_services.pAssetDatabase)
+		if (Engine::Editor::Button("Save") && a_services.pAssetDatabase)
 		{
 			auto _guid = a_services.pResourceManager->GetCache<ActionStateMachineAsset>(a_handle);
 			auto _path = a_services.pAssetDatabase->GetFilePathFromGUID(_guid);
 			Save(_path);
 			ENGINE_LOG("%s : Save ActionStateMachineAsset", _path.c_str());
 		}
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
 		// ノード本体(行動制約UI)だけを注入して汎用ノードエディタを描画
 		m_editor.Draw(m_graph,
 			[](ActionNode& a_node)
 			{
-				ImGui::PushItemWidth(120.0f);
-				ImGui::Checkbox("CanMove", &a_node.canMove);
-				ImGui::Checkbox("CanRotate", &a_node.canRotate);
-				ImGui::Checkbox("Invincible", &a_node.invincible);
-				ImGui::DragFloat("SpeedScale", &a_node.moveSpeedScale, 0.01f, 0.0f, 10.0f);
+				Engine::Editor::ItemWidthScope _itemWidth(120.0f);
+				Engine::Editor::Field("CanMove", a_node.canMove);
+				Engine::Editor::Field("CanRotate", a_node.canRotate);
+				Engine::Editor::Field("Invincible", a_node.invincible);
+				Engine::Editor::Field("SpeedScale", a_node.moveSpeedScale, 0.01f, 0.0f, 10.0f);
 
 				// 向きの調整(CanRotate が入っているときだけ意味を持つ)
 				static const char* _faceModeName[] = { "MoveDirection", "AimDirection", "Keep" };
 				int _faceMode = static_cast<int>(a_node.faceMode);
-				if (ImGui::Combo("FaceMode", &_faceMode, _faceModeName, IM_ARRAYSIZE(_faceModeName)))
+				if (Engine::Editor::Combo("FaceMode", _faceMode, _faceModeName))
 				{
 					a_node.faceMode = static_cast<EFaceMode>(_faceMode);
 				}
-				ImGui::DragFloat("TurnSpeed", &a_node.turnSpeed, 0.1f, 0.0f, 100.0f);
-				ImGui::DragFloat("FaceYawOffset", &a_node.faceYawOffsetDeg, 0.5f, -180.0f, 180.0f);
-				ImGui::PopItemWidth();
+				Engine::Editor::Field("TurnSpeed", a_node.turnSpeed, 0.1f, 0.0f, 100.0f);
+				Engine::Editor::Field("FaceYawOffset", a_node.faceYawOffsetDeg, 0.5f, -180.0f, 180.0f);
 			});
 	}
 }

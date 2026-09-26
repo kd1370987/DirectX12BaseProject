@@ -19,7 +19,7 @@ struct Engine::ECS::ComponentTraits<TPSLookAngleComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		TPSLookAngleComponent& _comp = Engine::Editor::GetValue<TPSLookAngleComponent>(a_context.pData);
-		ImGui::DragFloat("Pitch", &_comp.Pitch);
-		ImGui::DragFloat("CrampPitch", &_comp.ClampPitch);
+		Engine::Editor::Field("Pitch", _comp.Pitch);
+		Engine::Editor::Field("CrampPitch", _comp.ClampPitch);
 	}
 };

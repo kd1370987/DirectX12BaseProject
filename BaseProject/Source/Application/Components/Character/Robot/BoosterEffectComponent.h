@@ -2,8 +2,8 @@
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
-#include "Engine/Editor/Helper/EditorHelper.inl"
+#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/Editor/Helper/EditorField.inl"
 
 //==========================================================================================
 // BoosterEffectComponent
@@ -146,66 +146,66 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 	{
 		BoosterEffectComponent& _comp = Engine::Editor::GetValue<BoosterEffectComponent>(a_context.pData);
 
-		ImGui::SeparatorText("Mount");
-		ImGui::TextDisabled("このエンティティの行列基準。エフェクトの置き方だけを決める");
-		ImGui::DragFloat3("PosOffset", &_comp.posOffset.x, 0.01f);
-		ImGui::DragFloat3("EmitDir (local)", &_comp.emitDir.x, 0.01f);
+		Engine::Editor::Section("Mount");
+		Engine::Editor::HelpText("このエンティティの行列基準。エフェクトの置き方だけを決める");
+		Engine::Editor::Field("PosOffset", _comp.posOffset, 0.01f);
+		Engine::Editor::Field("EmitDir (local)", _comp.emitDir, 0.01f);
 
-		ImGui::SeparatorText("Burst");
-		ImGui::TextDisabled("点火した瞬間だけ大きく見せて、時間で元の大きさへ戻す");
-		ImGui::DragFloat("BaseScale", &_comp.baseScale, 0.01f, 0.0f);
-		ImGui::DragFloat("BurstScale", &_comp.burstScale, 0.01f, 0.0f);
-		ImGui::DragFloat("BurstTime (s)", &_comp.burstTime, 0.01f, 0.0f);
+		Engine::Editor::Section("Burst");
+		Engine::Editor::HelpText("点火した瞬間だけ大きく見せて、時間で元の大きさへ戻す");
+		Engine::Editor::Field("BaseScale", _comp.baseScale, 0.01f, 0.0f);
+		Engine::Editor::Field("BurstScale", _comp.burstScale, 0.01f, 0.0f);
+		Engine::Editor::Field("BurstTime (s)", _comp.burstTime, 0.01f, 0.0f);
 		if (_comp.burstTime <= 0.0f)
 		{
-			ImGui::TextDisabled("0 : 膨らませない(常に BaseScale)");
+			Engine::Editor::HelpText("0 : 膨らませない(常に BaseScale)");
 		}
 
-		ImGui::SeparatorText("Boost Dash");
-		ImGui::TextDisabled("ブースト中だけジェットを太らせる(上の大きさに掛かる)");
-		ImGui::DragFloat("BoostScale", &_comp.boostScale, 0.01f, 0.0f);
-		ImGui::DragFloat("BoostBlendTime (s)", &_comp.boostBlendTime, 0.01f, 0.0f);
+		Engine::Editor::Section("Boost Dash");
+		Engine::Editor::HelpText("ブースト中だけジェットを太らせる(上の大きさに掛かる)");
+		Engine::Editor::Field("BoostScale", _comp.boostScale, 0.01f, 0.0f);
+		Engine::Editor::Field("BoostBlendTime (s)", _comp.boostBlendTime, 0.01f, 0.0f);
 		if (_comp.boostScale <= 1.0f)
 		{
-			ImGui::TextDisabled("1 以下 : ブーストしても太らない");
+			Engine::Editor::HelpText("1 以下 : ブーストしても太らない");
 		}
 
-		ImGui::SeparatorText("Charge Dash");
-		ImGui::TextDisabled("溜めている間は太らせ、撃ち出している間は束を前へ伸ばす");
-		ImGui::DragFloat("ChargeScale", &_comp.chargeScale, 0.01f, 0.0f);
+		Engine::Editor::Section("Charge Dash");
+		Engine::Editor::HelpText("溜めている間は太らせ、撃ち出している間は束を前へ伸ばす");
+		Engine::Editor::Field("ChargeScale", _comp.chargeScale, 0.01f, 0.0f);
 		if (_comp.chargeScale <= 1.0f)
 		{
-			ImGui::TextDisabled("1 以下 : 溜めても太らない");
+			Engine::Editor::HelpText("1 以下 : 溜めても太らない");
 		}
-		ImGui::DragFloat("DashLengthScale", &_comp.dashLengthScale, 0.01f, 0.0f);
-		ImGui::DragFloat("DashLengthBlendTime (s)", &_comp.dashLengthBlendTime, 0.01f, 0.0f);
+		Engine::Editor::Field("DashLengthScale", _comp.dashLengthScale, 0.01f, 0.0f);
+		Engine::Editor::Field("DashLengthBlendTime (s)", _comp.dashLengthBlendTime, 0.01f, 0.0f);
 		if (_comp.dashLengthScale <= 1.0f)
 		{
-			ImGui::TextDisabled("1 以下 : 撃ち出しても伸びない");
+			Engine::Editor::HelpText("1 以下 : 撃ち出しても伸びない");
 		}
 
-		ImGui::SeparatorText("Boost Spark");
-		ImGui::TextDisabled("踏み込んだ瞬間に噴射口へ1回だけ出す。ジェットとは別のアセット");
-		Engine::Editor::EditorHelper::DrawAssetSelectCombo<Engine::Resource::EffectAsset>(
+		Engine::Editor::Section("Boost Spark");
+		Engine::Editor::HelpText("踏み込んだ瞬間に噴射口へ1回だけ出す。ジェットとは別のアセット");
+		Engine::Editor::AssetField<Engine::Resource::EffectAsset>(
 			*a_context.pWorld->RefEngineServices(),
 			"Spark Effect",
 			"EffectAsset",
 			_comp.sparkEffectGUID,
 			_comp.sparkHandle);
-		ImGui::DragFloat("SparkScale", &_comp.sparkScale, 0.01f, 0.0f);
+		Engine::Editor::Field("SparkScale", _comp.sparkScale, 0.01f, 0.0f);
 		if (_comp.sparkEffectGUID == Engine::DefaultGUID)
 		{
-			ImGui::TextDisabled("(未設定 : ダッシュしても何も出ない)");
+			Engine::Editor::HelpText("(未設定 : ダッシュしても何も出ない)");
 		}
 
 		// ランタイムは表示のみ
-		ImGui::SeparatorText("Runtime");
-		ImGui::Text("BurstTimer : %.3f", _comp.burstTimer);
-		ImGui::Text("Playing    : %s", _comp.wasPlaying ? "true" : "false");
-		ImGui::Text("Boosting   : %s", _comp.isBoosting ? "true" : "false");
-		ImGui::Text("BoostBlend : %.3f", _comp.boostBlend);
-		ImGui::Text("ChargeRate : %.3f", _comp.chargeRate);
-		ImGui::Text("ChargeDash : %s", _comp.isChargeDashing ? "true" : "false");
-		ImGui::Text("DashBlend  : %.3f", _comp.dashLengthBlend);
+		Engine::Editor::Section("Runtime");
+		Engine::Editor::Text("BurstTimer : %.3f", _comp.burstTimer);
+		Engine::Editor::Text("Playing    : %s", _comp.wasPlaying ? "true" : "false");
+		Engine::Editor::Text("Boosting   : %s", _comp.isBoosting ? "true" : "false");
+		Engine::Editor::Text("BoostBlend : %.3f", _comp.boostBlend);
+		Engine::Editor::Text("ChargeRate : %.3f", _comp.chargeRate);
+		Engine::Editor::Text("ChargeDash : %s", _comp.isChargeDashing ? "true" : "false");
+		Engine::Editor::Text("DashBlend  : %.3f", _comp.dashLengthBlend);
 	}
 };

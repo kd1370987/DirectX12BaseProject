@@ -35,11 +35,11 @@ struct Engine::ECS::ComponentTraits<FocusParamComponent>
 
 	static void Edit(CompEditContext& a_context) {
 		auto* _comp = static_cast<FocusParamComponent*>(a_context.pData);
-		ImGui::Checkbox("DoF Enable", &_comp->enable);
-		ImGui::DragFloat("FocusDistance", &_comp->focusDistance, 0.1f, 0.0f);
-		ImGui::DragFloat("FocusRange", &_comp->focusRange, 0.1f, 0.0f);
-		ImGui::DragFloat("NearRange", &_comp->nearRange, 0.1f, 0.0f);
-		ImGui::DragFloat("FarRange", &_comp->farRange, 0.1f, 0.0f);
-		ImGui::DragFloat("MaxBlurRadius", &_comp->maxBlurRadius, 0.1f, 0.0f, 32.0f);
+		Engine::Editor::Field("DoF Enable", _comp->enable);
+		Engine::Editor::Field("FocusDistance", _comp->focusDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("FocusRange", _comp->focusRange, 0.1f, 0.0f);
+		Engine::Editor::Field("NearRange", _comp->nearRange, 0.1f, 0.0f);
+		Engine::Editor::Field("FarRange", _comp->farRange, 0.1f, 0.0f);
+		Engine::Editor::Field("MaxBlurRadius", _comp->maxBlurRadius, 0.1f, 0.0f, 32.0f);
 	}
 };

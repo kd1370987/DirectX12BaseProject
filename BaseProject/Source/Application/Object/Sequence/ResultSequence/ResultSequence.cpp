@@ -5,7 +5,7 @@
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Option/OptionManager.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 #include "../../UI/UIButton/UIButton.h"
 #include "../../../Game/GameManager/GameManager.h"
@@ -135,15 +135,15 @@ namespace App::Object
 	//======================================================================================
 	void ResultSequence::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		ImGui::SeparatorText("Home Button");
+		Engine::Editor::Section("Home Button");
 
 		// 同じシーンに置いた UIButton から選ぶ
 		std::string _current = "None";
 		if (m_homeButtonGUID.IsValid()) _current = m_homeButtonGUID.String();
 
-		if (ImGui::BeginCombo("Button", _current.c_str()))
+		if (Engine::Editor::ComboScope _combo{ "Button", _current.c_str() })
 		{
-			if (ImGui::Selectable("None", !m_homeButtonGUID.IsValid()))
+			if (Engine::Editor::Selectable("None", !m_homeButtonGUID.IsValid()))
 			{
 				m_homeButtonGUID = {};
 				m_isBound = false;
@@ -158,39 +158,36 @@ namespace App::Object
 					if (!_pButton) continue;
 
 					// 同名でもIDがぶつからないようにする
-					ImGui::PushID(static_cast<int>(_i));
+					Engine::Editor::IDScope _id(static_cast<int>(_i));
 
 					const bool _isSelected = (m_homeButtonGUID == _pButton->GetGUID());
-					if (ImGui::Selectable(_pButton->GetGUID().String().c_str(), _isSelected))
+					if (Engine::Editor::Selectable(_pButton->GetGUID().String().c_str(), _isSelected))
 					{
 						m_homeButtonGUID = _pButton->GetGUID();
 
 						// 差し込み直させる
 						m_isBound = false;
 					}
-					if (_isSelected) ImGui::SetItemDefaultFocus();
-
-					ImGui::PopID();
+					if (_isSelected) Engine::Editor::SetItemDefaultFocus();
 				}
 			}
-			ImGui::EndCombo();
 		}
 
-		ImGui::SeparatorText("Title Scene");
+		Engine::Editor::Section("Title Scene");
 
-		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pServices, "Scene", "Scene", m_titleSceneGUID);
+		Engine::Editor::AssetField(*a_context.pServices, "Scene", "Scene", m_titleSceneGUID);
 
 		m_bgm.DrawInspector(a_context);
 
-		ImGui::SeparatorText("Cursor");
+		Engine::Editor::Section("Cursor");
 
-		ImGui::Checkbox("ReleaseCursorLock", &m_isReleaseCursorLock);
-		ImGui::TextDisabled("リザルトの間はカーソルの中央固定を切る");
+		Engine::Editor::Field("ReleaseCursorLock", m_isReleaseCursorLock);
+		Engine::Editor::HelpText("リザルトの間はカーソルの中央固定を切る");
 
 		//----------------------------------------------------------------------
 		// 持ち越されてきた記録(表示のみ)
 		//----------------------------------------------------------------------
-		ImGui::SeparatorText("Carried Data");
+		Engine::Editor::Section("Carried Data");
 
 		const auto& _gameData = App::Game::GameManager::Instance().GetGameData();
 
@@ -202,16 +199,16 @@ namespace App::Object
 		default: break;
 		}
 
-		ImGui::Text("Result : %s", _resultName);
-		ImGui::Text("Score  : %d", _gameData.score);
-		ImGui::Text("Kill   : %d", _gameData.killCount);
-		ImGui::Text("Time   : %.2f", _gameData.time);
-		ImGui::Text("Wave   : %d / %d", _gameData.clearedWaveCount, _gameData.totalWaveCount);
-		ImGui::TextDisabled("数字を画面に出すのは ScoreHUD の仕事");
+		Engine::Editor::Text("Result : %s", _resultName);
+		Engine::Editor::Text("Score  : %d", _gameData.score);
+		Engine::Editor::Text("Kill   : %d", _gameData.killCount);
+		Engine::Editor::Text("Time   : %.2f", _gameData.time);
+		Engine::Editor::Text("Wave   : %d / %d", _gameData.clearedWaveCount, _gameData.totalWaveCount);
+		Engine::Editor::HelpText("数字を画面に出すのは ScoreHUD の仕事");
 
 		// 実行中の状態は表示のみ
-		ImGui::SeparatorText("Runtime");
-		ImGui::Text("Bound     : %s", m_isBound ? "yes" : "no");
-		ImGui::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
+		Engine::Editor::Section("Runtime");
+		Engine::Editor::Text("Bound     : %s", m_isBound ? "yes" : "no");
+		Engine::Editor::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
 	}
 }

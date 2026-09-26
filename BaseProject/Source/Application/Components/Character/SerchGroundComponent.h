@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 //==========================================================================================
 // SerchGroundComponent
@@ -39,14 +39,14 @@ struct Engine::ECS::ComponentTraits<SerchGroundComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		SerchGroundComponent& _comp = Engine::Editor::GetValue<SerchGroundComponent>(a_context.pData);
-		ImGui::DragFloat("MaxDistance", &_comp.maxDistance, 1.0f, 0.0f);
+		Engine::Editor::Field("MaxDistance", _comp.maxDistance, 1.0f, 0.0f);
 
 		// 毎フレーム書き直される値なので表示のみ
 		if (!_comp.isFoundGround)
 		{
-			ImGui::TextDisabled("Ground : (not found)");
+			Engine::Editor::HelpText("Ground : (not found)");
 			return;
 		}
-		ImGui::Text("Ground : %.1f (%s)", _comp.groundHeight, _comp.isUnderGround ? "under" : "above");
+		Engine::Editor::Text("Ground : %.1f (%s)", _comp.groundHeight, _comp.isUnderGround ? "under" : "above");
 	}
 };

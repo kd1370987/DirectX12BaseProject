@@ -96,27 +96,27 @@ struct Engine::ECS::ComponentTraits<RadialBlurComponent>
 	{
 		RadialBlurComponent& _comp = Engine::Editor::GetValue<RadialBlurComponent>(a_context.pData);
 
-		ImGui::Checkbox("RadialBlur Enable", &_comp.enable);
-		ImGui::DragFloat2("BlurCenter (UV)", &_comp.blurCenter.x, 0.01f, 0.0f, 1.0f);
-		ImGui::TextDisabled("画面左上が 0,0 / 右下が 1,1");
-		ImGui::DragInt("SampleCount", &_comp.sampleCount, 1.0f, 1, 64);
-		ImGui::DragFloat("Radius (UV)", &_comp.radius, 0.01f, 0.0f, 1.0f);
-		ImGui::TextDisabled("この内側はボカさない");
-		ImGui::DragFloat("Falloff", &_comp.falloff, 0.1f, 0.0f, 32.0f);
+		Engine::Editor::Field("RadialBlur Enable", _comp.enable);
+		Engine::Editor::Field("BlurCenter (UV)", _comp.blurCenter, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::HelpText("画面左上が 0,0 / 右下が 1,1");
+		Engine::Editor::Field("SampleCount", _comp.sampleCount, 1.0f, 1, 64);
+		Engine::Editor::Field("Radius (UV)", _comp.radius, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::HelpText("この内側はボカさない");
+		Engine::Editor::Field("Falloff", _comp.falloff, 0.1f, 0.0f, 32.0f);
 
-		ImGui::Separator();
-		ImGui::TextDisabled("Speed Response");
-		ImGui::DragFloat("BaseStrength", &_comp.baseStrength, 0.01f, 0.0f, 1.0f);
-		ImGui::TextDisabled("速度に関係なく常に掛かる量");
-		ImGui::DragFloat("StrengthAtSpeed", &_comp.strengthAtSpeed, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("SpeedThreshold", &_comp.speedThreshold, 0.01f, 0.0f, 1.0f);
-		ImGui::TextDisabled("これ以下の速さでは掛からない");
-		ImGui::DragFloat("ResponseRate", &_comp.responseRate, 0.1f, 0.0f, 60.0f);
-		ImGui::TextDisabled("速さの基準は TPSFollowComponent の SpeedReference");
+		Engine::Editor::Separator();
+		Engine::Editor::HelpText("Speed Response");
+		Engine::Editor::Field("BaseStrength", _comp.baseStrength, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::HelpText("速度に関係なく常に掛かる量");
+		Engine::Editor::Field("StrengthAtSpeed", _comp.strengthAtSpeed, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("SpeedThreshold", _comp.speedThreshold, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::HelpText("これ以下の速さでは掛からない");
+		Engine::Editor::Field("ResponseRate", _comp.responseRate, 0.1f, 0.0f, 60.0f);
+		Engine::Editor::HelpText("速さの基準は TPSFollowComponent の SpeedReference");
 
 		// システムが毎フレーム上書きするので表示のみ
-		ImGui::Separator();
-		ImGui::Text("CurrentStrength : %.3f", _comp.currentStrength);
-		ImGui::Text("SendStrength    : %.3f", _comp.GetStrength());
+		Engine::Editor::Separator();
+		Engine::Editor::Text("CurrentStrength : %.3f", _comp.currentStrength);
+		Engine::Editor::Text("SendStrength    : %.3f", _comp.GetStrength());
 	}
 };

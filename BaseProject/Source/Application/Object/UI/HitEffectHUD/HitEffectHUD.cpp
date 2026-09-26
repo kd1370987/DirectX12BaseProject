@@ -212,14 +212,14 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
-		ImGui::Text("HitEffect");
+		Engine::Editor::Text("HitEffect");
 
 		// ヒット音(アセットDBの Sound 一覧から選ぶ)
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		if (Engine::Editor::AssetField(
 			*a_context.pServices,
 			"Hit Sound",
 			"Sound",
@@ -228,7 +228,7 @@ namespace App::Object
 			RequestSound(a_context);
 		}
 
-		if (ImGui::DragFloat("Volume", &m_volume, 0.01f, 0.0f, 1.0f))
+		if (Engine::Editor::Field("Volume", m_volume, 0.01f, 0.0f, 1.0f))
 		{
 			// 鳴らしながら調整できるよう、発行済みインスタンスへ即時反映する
 			if (a_context.pServices && a_context.pServices->pAudioManager)
@@ -240,18 +240,18 @@ namespace App::Object
 			}
 		}
 
-		ImGui::Separator();
-		ImGui::DragFloat("ShowTime", &m_showTime, 0.01f, 0.0f, 5.0f);
-		ImGui::DragFloat("MinInterval", &m_minInterval, 0.01f, 0.0f, 1.0f);
-		ImGui::Checkbox("FadeOut", &m_isFadeOut);
-		ImGui::DragFloat("PunchScale", &m_punchScale, 0.01f, 0.1f, 4.0f);
+		Engine::Editor::Separator();
+		Engine::Editor::Field("ShowTime", m_showTime, 0.01f, 0.0f, 5.0f);
+		Engine::Editor::Field("MinInterval", m_minInterval, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("FadeOut", m_isFadeOut);
+		Engine::Editor::Field("PunchScale", m_punchScale, 0.01f, 0.1f, 4.0f);
 
 		// 確認用に鳴らしてみる
-		if (ImGui::Button("Test")) OnHit(a_context);
+		if (Engine::Editor::Button("Test")) OnHit(a_context);
 
-		ImGui::Separator();
-		ImGui::Text("HitCount : %d", m_hitCount);
-		ImGui::Text("Remain   : %.2f", m_remainTime);
-		ImGui::TextDisabled("自分が撃った弾が HealthComponent 持ちに当たったフレームに反応します");
+		Engine::Editor::Separator();
+		Engine::Editor::Text("HitCount : %d", m_hitCount);
+		Engine::Editor::Text("Remain   : %.2f", m_remainTime);
+		Engine::Editor::HelpText("自分が撃った弾が HealthComponent 持ちに当たったフレームに反応します");
 	}
 }

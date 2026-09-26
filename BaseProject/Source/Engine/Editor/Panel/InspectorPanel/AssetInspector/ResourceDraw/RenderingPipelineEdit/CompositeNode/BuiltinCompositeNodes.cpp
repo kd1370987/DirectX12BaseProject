@@ -153,13 +153,13 @@ namespace Engine::Editor::Inspector
 				ImGui::Separator();
 				const int _count = static_cast<int>(a_group.members.size());
 
-				if (EditorHelper::CreateButton("Add Stage") && _count < kMaxCount)
+				if (CreateButton("Add Stage") && _count < kMaxCount)
 				{
 					a_outRequest.resizeCount = _count + 1;
 					_result = EPassEditResult::Structure;
 				}
 				ImGui::SameLine();
-				if (EditorHelper::DeleteSmallButton("Remove Stage") && _count > 1)
+				if (DeleteSmallButton("Remove Stage") && _count > 1)
 				{
 					a_outRequest.resizeCount = _count - 1;
 					_result = EPassEditResult::Structure;

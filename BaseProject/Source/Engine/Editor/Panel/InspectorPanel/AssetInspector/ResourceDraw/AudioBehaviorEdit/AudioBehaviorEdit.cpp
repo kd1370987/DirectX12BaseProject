@@ -49,7 +49,7 @@ namespace Engine::Editor::Inspector
 			ImGui::PushID(static_cast<int>(a_phase));
 
 			// 音の差し替え
-			if (EditorHelper::DrawAssetSelectComboGUID(*a_editContext.pServices, "Sound", "Sound", a_part.soundGUID))
+			if (AssetField(*a_editContext.pServices, "Sound", "Sound", a_part.soundGUID))
 			{
 				_isChanged = true;
 			}
@@ -61,7 +61,7 @@ namespace Engine::Editor::Inspector
 				DrawAssetLink(&a_editContext, "", a_part.soundGUID);
 
 				ImGui::SameLine();
-				if (EditorHelper::DeleteButton("Clear"))
+				if (DeleteButton("Clear"))
 				{
 					a_part.soundGUID = Engine::DefaultGUID;
 					_isChanged = true;

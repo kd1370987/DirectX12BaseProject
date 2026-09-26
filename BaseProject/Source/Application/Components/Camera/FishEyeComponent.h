@@ -50,10 +50,10 @@ struct Engine::ECS::ComponentTraits<FishEyeComponent>
 	{
 		FishEyeComponent& _comp = Engine::Editor::GetValue<FishEyeComponent>(a_context.pData);
 
-		ImGui::Checkbox("FishEye Enable", &_comp.enable);
-		ImGui::DragFloat2("Center (UV)", &_comp.center.x, 0.01f, 0.0f, 1.0f);
-		ImGui::TextDisabled("画面左上が 0,0 / 右下が 1,1");
-		ImGui::DragFloat("Strength", &_comp.strength, 0.01f, -1.0f, 2.0f);
-		ImGui::TextDisabled("正で樽型(四隅が黒くなる) / 負で糸巻き型");
+		Engine::Editor::Field("FishEye Enable", _comp.enable);
+		Engine::Editor::Field("Center (UV)", _comp.center, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::HelpText("画面左上が 0,0 / 右下が 1,1");
+		Engine::Editor::Field("Strength", _comp.strength, 0.01f, -1.0f, 2.0f);
+		Engine::Editor::HelpText("正で樽型(四隅が黒くなる) / 負で糸巻き型");
 	}
 };

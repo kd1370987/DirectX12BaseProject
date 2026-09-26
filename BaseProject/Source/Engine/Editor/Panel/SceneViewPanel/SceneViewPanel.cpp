@@ -1008,7 +1008,7 @@ namespace Engine::Editor
 			const std::string& _search = EditorHelper::DrawSearchBox();
 
 			// 同名のシーンが別フォルダにあり得るので、置き場所を添える対象を先に拾う
-			const auto _duplicatedSet = EditorHelper::CollectDuplicatedNames(
+			const auto _duplicatedSet = CollectDuplicatedNames(
 				_sceneMetaVec,
 				[](const Resource::AssetProperty& a_prop) { return a_prop.fileName; });
 
@@ -1024,7 +1024,7 @@ namespace Engine::Editor
 				// (Selectable のIDはラベル文字列から作られるため)
 				ImGui::PushID(static_cast<int>(_i));
 
-				const std::string _label = EditorHelper::MakeUniqueLabel(
+				const std::string _label = MakeUniqueLabel(
 					_duplicatedSet, _sceneMeta.fileName,
 					Engine::File::GetDirFromPath(_sceneMeta.filePath));
 

@@ -2,7 +2,7 @@
 
 #include "../IOption.h"
 
-#include "../../Editor/Helper/EditorHelper.h"
+#include "../../Editor/Helper/EditorField.h"
 
 namespace Engine::Option::GraphicsOptions
 {

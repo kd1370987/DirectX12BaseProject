@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../Engine/Editor/Helper/EditorHelper.h"
+#include "../../../Engine/Editor/Helper/EditorField.h"
 #include "../../../Engine/ECS/World/World.h"
 #include "../../../Engine/Audio/AudioManager.h"
 
@@ -47,7 +47,7 @@ struct Engine::ECS::ComponentTraits<HitSoundComponent>
 	{
 		HitSoundComponent& _comp = Engine::Editor::GetValue<HitSoundComponent>(a_context.pData);
 
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		if (Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
 			"Change Sound",
 			"Sound",
@@ -62,13 +62,13 @@ struct Engine::ECS::ComponentTraits<HitSoundComponent>
 		}
 
 		// 音量は発行済みインスタンスへ即時反映して、鳴らしながら調整できるようにする
-		if (ImGui::DragFloat("Volume", &_comp.vol, 0.01f, 0.0f, 1.0f))
+		if (Engine::Editor::Field("Volume", _comp.vol, 0.01f, 0.0f, 1.0f))
 		{
 			auto* _pInstance = Engine::Audio::AudioManager::Instance().RefInstance(_comp.soundInstanceHandle);
 			if (_pInstance) _pInstance->SetVolume(_comp.vol);
 		}
 
-		if (ImGui::DragFloat("MinInterval", &_comp.minInterval, 0.01f, 0.0f, 10.0f, "%.2f s"))
+		if (Engine::Editor::Field("MinInterval", _comp.minInterval, 0.01f, 0.0f, 10.0f, "%.2f s"))
 		{
 			if (_comp.minInterval < 0.0f) _comp.minInterval = 0.0f;
 		}

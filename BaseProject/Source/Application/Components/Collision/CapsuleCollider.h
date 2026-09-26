@@ -24,8 +24,8 @@ struct Engine::ECS::ComponentTraits<CapsuleColliderComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		CapsuleColliderComponent& _comp = Engine::Editor::GetValue<CapsuleColliderComponent>(a_context.pData);
-		ImGui::DragFloat("Radius", &_comp.radius, 0.05f, 0.0f, 100.0f);
-		ImGui::DragFloat("Height", &_comp.height, 0.05f, 0.0f, 100.0f);
-		ImGui::DragFloat3("Offset", &_comp.offset.x, 0.05f);
+		Engine::Editor::Field("Radius", _comp.radius, 0.05f, 0.0f, 100.0f);
+		Engine::Editor::Field("Height", _comp.height, 0.05f, 0.0f, 100.0f);
+		Engine::Editor::Field("Offset", _comp.offset, 0.05f);
 	}
 };

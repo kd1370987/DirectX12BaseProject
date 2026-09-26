@@ -95,36 +95,36 @@ struct Engine::ECS::ComponentTraits<MissileLockComponent>
 	{
 		MissileLockComponent& _comp = Engine::Editor::GetValue<MissileLockComponent>(a_context.pData);
 
-		ImGui::Text("Salvo");
-		if (ImGui::DragInt("MissileCount", &_comp.missileCount, 1, 0, MissileLockComponent::MISSILE_MAX))
+		Engine::Editor::Text("Salvo");
+		if (Engine::Editor::Field("MissileCount", _comp.missileCount, 1, 0, MissileLockComponent::MISSILE_MAX))
 		{
 			_comp.missileCount = std::clamp(_comp.missileCount, 0, MissileLockComponent::MISSILE_MAX);
 		}
-		ImGui::DragFloat("Cooldown", &_comp.cooldown, 0.05f, 0.0f, 60.0f, "%.2f s");
-		ImGui::DragFloat("LaunchInterval", &_comp.launchInterval, 0.01f, 0.0f, 5.0f, "%.3f s");
-		ImGui::DragFloat("SpreadAngle", &_comp.spreadAngle, 0.5f, 0.0f, 89.0f, "%.1f deg");
+		Engine::Editor::Field("Cooldown", _comp.cooldown, 0.05f, 0.0f, 60.0f, "%.2f s");
+		Engine::Editor::Field("LaunchInterval", _comp.launchInterval, 0.01f, 0.0f, 5.0f, "%.3f s");
+		Engine::Editor::Field("SpreadAngle", _comp.spreadAngle, 0.5f, 0.0f, 89.0f, "%.1f deg");
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
-		ImGui::Text("Lock");
-		ImGui::DragFloat("MaxDistance", &_comp.maxDistance, 1.0f, 0.0f);
-		ImGui::DragFloat("TargetOffsetY", &_comp.targetOffsetY, 0.01f);
-		ImGui::DragFloat("ReticleRadius", &_comp.reticleRadius, 1.0f, 0.0f, 4096.0f);
-		ImGui::DragFloat("ReticleScale", &_comp.reticleScale, 0.01f, 0.0f, 4.0f);
-		ImGui::Checkbox("RequireLock", &_comp.requireLock);
+		Engine::Editor::Text("Lock");
+		Engine::Editor::Field("MaxDistance", _comp.maxDistance, 1.0f, 0.0f);
+		Engine::Editor::Field("TargetOffsetY", _comp.targetOffsetY, 0.01f);
+		Engine::Editor::Field("ReticleRadius", _comp.reticleRadius, 1.0f, 0.0f, 4096.0f);
+		Engine::Editor::Field("ReticleScale", _comp.reticleScale, 0.01f, 0.0f, 4.0f);
+		Engine::Editor::Field("RequireLock", _comp.requireLock);
 
 		// 結果は毎フレーム上書きされるので表示のみ
-		ImGui::Separator();
-		ImGui::Text("ReticleFromHUD : %s", _comp.isReticleFromHUD ? "yes" : "no");
+		Engine::Editor::Separator();
+		Engine::Editor::Text("ReticleFromHUD : %s", _comp.isReticleFromHUD ? "yes" : "no");
 		if (_comp.isReticleFromHUD)
 		{
-			ImGui::Text("ReticleCenter  : %.0f, %.0f", _comp.reticleCenter.x, _comp.reticleCenter.y);
+			Engine::Editor::Text("ReticleCenter  : %.0f, %.0f", _comp.reticleCenter.x, _comp.reticleCenter.y);
 		}
-		ImGui::Text("ActiveRadius   : %.0f px", _comp.GetActiveReticleRadius());
-		ImGui::Text("Charging : %s  Locks : %d", _comp.isCharging ? "yes" : "no", _comp.lockCount);
-		ImGui::Text("FireRemain : %d / %d", _comp.fireRemain, _comp.fireTotal);
-		ImGui::Text("Cooldown : %.2f s", _comp.cooldownTimer);
+		Engine::Editor::Text("ActiveRadius   : %.0f px", _comp.GetActiveReticleRadius());
+		Engine::Editor::Text("Charging : %s  Locks : %d", _comp.isCharging ? "yes" : "no", _comp.lockCount);
+		Engine::Editor::Text("FireRemain : %d / %d", _comp.fireRemain, _comp.fireTotal);
+		Engine::Editor::Text("Cooldown : %.2f s", _comp.cooldownTimer);
 
-		ImGui::TextDisabled("Bullet prefab / speed / muzzle : MissilePod's GunStateComponent");
+		Engine::Editor::HelpText("Bullet prefab / speed / muzzle : MissilePod's GunStateComponent");
 	}
 };

@@ -57,10 +57,10 @@ namespace Engine::Editor::Inspector
 			const auto& _rtData = a_pMesh->GetRtData();
 
 			ImGui::Text("VertexHandle");
-			EditorHelper::DrawHandle(_rtData.vertexHandle);
+			HandleInfo(_rtData.vertexHandle);
 			ImGui::Separator();
 			ImGui::Text("IndexHandle");
-			EditorHelper::DrawHandle(_rtData.indexHandle);
+			HandleInfo(_rtData.indexHandle);
 		}
 
 		// ---- メッシュシェーダーデータ ----

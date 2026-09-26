@@ -80,27 +80,27 @@ struct Engine::ECS::ComponentTraits<PointLightComponent>
 	{
 		PointLightComponent& _comp = Engine::Editor::GetValue<PointLightComponent>(a_context.pData);
 
-		ImGui::SeparatorText("Mount");
-		ImGui::TextDisabled("このエンティティの行列基準。原点以外を光らせたいときに使う");
-		ImGui::DragFloat3("PosOffset", &_comp.posOffset.x, 0.01f);
+		Engine::Editor::Section("Mount");
+		Engine::Editor::HelpText("このエンティティの行列基準。原点以外を光らせたいときに使う");
+		Engine::Editor::Field("PosOffset", _comp.posOffset, 0.01f);
 
-		ImGui::SeparatorText("Light");
+		Engine::Editor::Section("Light");
 		// 色は 0〜1 のピッカーで選び、1.0 超えの明るさは Brightness 側で作る
 		// (ピッカー自体が 0〜1 しか扱えないため)
-		ImGui::ColorEdit3("Color", _comp.color.Data());
+		Engine::Editor::ColorField("Color", _comp.color, false);
 
 		// 逆二乗で減衰した後に効くので、見た目が出るまで数十は要る
-		ImGui::DragFloat("Brightness", &_comp.brightness, 0.5f, 0.0f, FLT_MAX);
+		Engine::Editor::Field("Brightness", _comp.brightness, 0.5f, 0.0f, FLT_MAX);
 
 		// これを超えた先は計算ごと飛ばされる。大きくするほど拾うピクセルが増える
-		ImGui::DragFloat("Range", &_comp.range, 0.1f, 0.0f, FLT_MAX);
+		Engine::Editor::Field("Range", _comp.range, 0.1f, 0.0f, FLT_MAX);
 		if (_comp.range <= 0.0f)
 		{
-			ImGui::TextDisabled("0 : どこも照らさない");
+			Engine::Editor::HelpText("0 : どこも照らさない");
 		}
 
 		// ランタイムは表示のみ
-		ImGui::SeparatorText("Runtime");
-		ImGui::Text("Handle : %s", _comp.handle.IsValid() ? "取得済み" : "未取得(上限かも)");
+		Engine::Editor::Section("Runtime");
+		Engine::Editor::Text("Handle : %s", _comp.handle.IsValid() ? "取得済み" : "未取得(上限かも)");
 	}
 };

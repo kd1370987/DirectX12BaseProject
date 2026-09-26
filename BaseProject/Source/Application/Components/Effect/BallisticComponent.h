@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 //==========================================================================================
 // BallisticComponent
@@ -55,16 +55,15 @@ struct Engine::ECS::ComponentTraits<BallisticComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		BallisticComponent& _comp = Engine::Editor::GetValue<BallisticComponent>(a_context.pData);
-		ImGui::DragFloat("Gravity Scale", &_comp.gravityScale, 0.01f);
-		ImGui::DragFloat("Restitution", &_comp.restitution, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Friction", &_comp.friction, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Rest Speed", &_comp.restSpeed, 0.05f, 0.0f);
-		ImGui::DragFloat("Ground Offset", &_comp.groundOffset, 0.01f, 0.0f);
-		ImGui::DragFloat("Shrink Time", &_comp.shrinkTime, 0.01f, 0.0f);
-		ImGui::Checkbox("Stop Effect On Rest", &_comp.isStopEffectOnRest);
+		Engine::Editor::Field("Gravity Scale", _comp.gravityScale, 0.01f);
+		Engine::Editor::Field("Restitution", _comp.restitution, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("Friction", _comp.friction, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("Rest Speed", _comp.restSpeed, 0.05f, 0.0f);
+		Engine::Editor::Field("Ground Offset", _comp.groundOffset, 0.01f, 0.0f);
+		Engine::Editor::Field("Shrink Time", _comp.shrinkTime, 0.01f, 0.0f);
+		Engine::Editor::Field("Stop Effect On Rest", _comp.isStopEffectOnRest);
 
 		// 実行中の値は表示のみ
-		ImGui::Text("Velocity : %.1f, %.1f, %.1f (%s)",
-			_comp.velocity.x, _comp.velocity.y, _comp.velocity.z, _comp.isResting ? "rest" : "flying");
+		Engine::Editor::Text("Velocity : %.1f, %.1f, %.1f (%s)", _comp.velocity.x, _comp.velocity.y, _comp.velocity.z, _comp.isResting ? "rest" : "flying");
 	}
 };

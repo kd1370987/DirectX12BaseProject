@@ -55,7 +55,7 @@ namespace Engine::Editor::Inspector
 			bool _isChanged = false;
 
 			// ---- 何を出すか ----
-			if (EditorHelper::DrawAssetSelectComboGUID(a_services, "Particle", "ParticlesAsset", a_part.particleGUID))
+			if (AssetField(a_services, "Particle", "ParticlesAsset", a_part.particleGUID))
 			{
 				_isChanged = true;
 			}
@@ -64,7 +64,7 @@ namespace Engine::Editor::Inspector
 			if (a_part.IsValid())
 			{
 				ImGui::SameLine();
-				if (EditorHelper::DeleteButton("Clear"))
+				if (DeleteButton("Clear"))
 				{
 					a_part.particleGUID = Engine::DefaultGUID;
 					_isChanged = true;
@@ -74,7 +74,7 @@ namespace Engine::Editor::Inspector
 			ImGui::SeparatorText("Emit Source");
 
 			// ---- どこから出すか ----
-			EditorHelper::DrawEnumCombo("Space", a_part.space);
+			Field("Space", a_part.space);
 			if (a_part.space == Resource::EEffectSpace::LocalOffset)
 			{
 				ImGui::DragFloat3("PosOffset", &a_part.posOffset.x, 0.05f);
@@ -93,7 +93,7 @@ namespace Engine::Editor::Inspector
 			ImGui::SeparatorText("Emit Shape");
 
 			// ---- どっちへ出すか ----
-			EditorHelper::DrawEnumCombo("Shape", a_part.emitShape);
+			Field("Shape", a_part.emitShape);
 			switch (a_part.emitShape)
 			{
 			case Particle::EParticleEmitShape::Sphere:
@@ -152,7 +152,7 @@ namespace Engine::Editor::Inspector
 			bool _isChanged = false;
 
 			// ---- 何を出すか ----
-			if (EditorHelper::DrawAssetSelectComboGUID(a_services, "Model", "Model", a_part.modelGUID))
+			if (AssetField(a_services, "Model", "Model", a_part.modelGUID))
 			{
 				_isChanged = true;
 			}
@@ -161,7 +161,7 @@ namespace Engine::Editor::Inspector
 			if (a_part.IsValid())
 			{
 				ImGui::SameLine();
-				if (EditorHelper::DeleteButton("Clear"))
+				if (DeleteButton("Clear"))
 				{
 					a_part.modelGUID = Engine::DefaultGUID;
 					_isChanged = true;
@@ -204,7 +204,7 @@ namespace Engine::Editor::Inspector
 			bool _isChanged = false;
 
 			// ---- 何を鳴らすか ----
-			if (EditorHelper::DrawAssetSelectComboGUID(a_services, "Sound", "Sound", a_part.soundGUID))
+			if (AssetField(a_services, "Sound", "Sound", a_part.soundGUID))
 			{
 				_isChanged = true;
 			}
@@ -213,7 +213,7 @@ namespace Engine::Editor::Inspector
 			if (a_part.IsValid())
 			{
 				ImGui::SameLine();
-				if (EditorHelper::DeleteButton("Clear"))
+				if (DeleteButton("Clear"))
 				{
 					a_part.soundGUID = Engine::DefaultGUID;
 					_isChanged = true;
@@ -325,7 +325,7 @@ namespace Engine::Editor::Inspector
 
 		// 上限まで来たら足せない(実体側の進行状態が固定長のため)
 		ImGui::BeginDisabled(_particleParts.size() >= Resource::EFFECT_PARTICLE_MAX);
-		if (EditorHelper::CreateButton("Add Particle Part"))
+		if (CreateButton("Add Particle Part"))
 		{
 			a_pEffect->AddParticlePart();
 		}
@@ -341,7 +341,7 @@ namespace Engine::Editor::Inspector
 			const std::string _label = "Particle " + std::to_string(_i);
 			if (ImGui::TreeNodeEx(_label.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 			{
-				if (EditorHelper::DeleteButton("Remove Part"))
+				if (DeleteButton("Remove Part"))
 				{
 					_removeParticleIndex = static_cast<int>(_i);
 				}
@@ -370,7 +370,7 @@ namespace Engine::Editor::Inspector
 			static_cast<int>(Resource::EFFECT_MESH_MAX));
 
 		ImGui::BeginDisabled(_meshParts.size() >= Resource::EFFECT_MESH_MAX);
-		if (EditorHelper::CreateButton("Add Mesh Part"))
+		if (CreateButton("Add Mesh Part"))
 		{
 			a_pEffect->AddMeshPart();
 		}
@@ -386,7 +386,7 @@ namespace Engine::Editor::Inspector
 			const std::string _label = "Mesh " + std::to_string(_i);
 			if (ImGui::TreeNodeEx(_label.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 			{
-				if (EditorHelper::DeleteButton("Remove Part"))
+				if (DeleteButton("Remove Part"))
 				{
 					_removeMeshIndex = static_cast<int>(_i);
 				}
@@ -419,7 +419,7 @@ namespace Engine::Editor::Inspector
 
 		// 上限まで来たら足せない(実体側の声の席が固定長のため)
 		ImGui::BeginDisabled(_soundParts.size() >= Resource::EFFECT_SOUND_MAX);
-		if (EditorHelper::CreateButton("Add Sound Part"))
+		if (CreateButton("Add Sound Part"))
 		{
 			a_pEffect->AddSoundPart();
 		}
@@ -435,7 +435,7 @@ namespace Engine::Editor::Inspector
 			const std::string _label = "Sound " + std::to_string(_i);
 			if (ImGui::TreeNodeEx(_label.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 			{
-				if (EditorHelper::DeleteButton("Remove Part"))
+				if (DeleteButton("Remove Part"))
 				{
 					_removeSoundIndex = static_cast<int>(_i);
 				}

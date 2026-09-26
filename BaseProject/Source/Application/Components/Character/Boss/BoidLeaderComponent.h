@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 #include "Application/Utility/PrefabSpawnHelper.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
@@ -34,7 +34,7 @@ struct Engine::ECS::ComponentTraits<BoidLeaderComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		BoidLeaderComponent& _comp = Engine::Editor::GetValue<BoidLeaderComponent>(a_context.pData);
-		ImGui::DragFloat("TurnSpeedDeg", &_comp.turnSpeedDeg, 1.0f, 0.0f);
+		Engine::Editor::Field("TurnSpeedDeg", _comp.turnSpeedDeg, 1.0f, 0.0f);
 	}
 
 };

@@ -33,10 +33,10 @@ namespace Engine::Option::ProjectOptions
 
 		void DrawEdit(const ECS::EngineServices&) override
 		{
-			Editor::EditorHelper::DrawEnumCombo("BuildMode",buildMode);
-			ImGui::InputText("AssetRootPath",&assetRootPath);
+			Engine::Editor::Field("BuildMode",buildMode);
+			Engine::Editor::Field("AssetRootPath", assetRootPath);
 			int _count = (int)maxThreadCount;
-			ImGui::DragInt("maxThreadCount",&_count);
+			Engine::Editor::Field("maxThreadCount", _count);
 			maxThreadCount = (UINT)_count;
 		}
 

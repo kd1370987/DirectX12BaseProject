@@ -83,11 +83,11 @@ struct Engine::ECS::ComponentTraits<LookAngleComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		LookAngleComponent& _comp = Engine::Editor::GetValue<LookAngleComponent>(a_context.pData);
-		ImGui::DragFloat("Yaw", &_comp.Yaw, 0.1f);
-		ImGui::DragFloat("Pith", &_comp.Pitch, 0.1f);
-		ImGui::Separator();
-		ImGui::DragFloat("MaxPitch", &_comp.maxPitch, 0.1f);
-		ImGui::Checkbox("ApplyPitchToBody", &_comp.isApplyPitchToBody);
-		ImGui::TextDisabled("(body tilts up/down. humanoids : off)");
+		Engine::Editor::Field("Yaw", _comp.Yaw, 0.1f);
+		Engine::Editor::Field("Pith", _comp.Pitch, 0.1f);
+		Engine::Editor::Separator();
+		Engine::Editor::Field("MaxPitch", _comp.maxPitch, 0.1f);
+		Engine::Editor::Field("ApplyPitchToBody", _comp.isApplyPitchToBody);
+		Engine::Editor::HelpText("(body tilts up/down. humanoids : off)");
 	}
 };

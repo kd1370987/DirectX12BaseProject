@@ -2,7 +2,7 @@
 
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
-#include "../../../Engine/Editor/Helper/EditorHelper.inl"
+#include "../../../Engine/Editor/Helper/EditorField.inl"
 namespace Engine::Resource
 {
 	class AnimatorAsset;
@@ -55,7 +55,7 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 		StateMachineComponent& _comp = Engine::Editor::GetValue<StateMachineComponent>(a_context.pData);
 
 		// ステートマシンの選択
-		Editor::EditorHelper::DrawAssetSelectCombo<Resource::AnimatorAsset>(
+		Engine::Editor::AssetField<Resource::AnimatorAsset>(
 			*a_context.pWorld->RefEngineServices(),
 			"Change StateMachine",
 			"AnimatorAsset",
@@ -68,7 +68,7 @@ struct Engine::ECS::ComponentTraits<StateMachineComponent>
 		if (_sm)
 		{
 			std::string _nodeNameStr(_sm->GetNodeName(_comp.currentStateHash));
-			ImGui::Text("Current Node : %s", _nodeNameStr.c_str());
+			Engine::Editor::Text("Current Node : %s", _nodeNameStr.c_str());
 		}
 	}
 };

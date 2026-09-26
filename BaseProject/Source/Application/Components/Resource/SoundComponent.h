@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../../Engine/Editor/Helper/EditorHelper.h"
+#include "../../../Engine/Editor/Helper/EditorField.h"
 #include "../../../Engine/ECS/World/World.h"
 #include "../../../Engine/Audio/AudioManager.h"
 
@@ -31,7 +31,7 @@ struct Engine::ECS::ComponentTraits<SoundComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		SoundComponent& _comp = Engine::Editor::GetValue<SoundComponent>(a_context.pData);
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		if (Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
 			"Change Sound",
 			"Sound",
@@ -49,15 +49,15 @@ struct Engine::ECS::ComponentTraits<SoundComponent>
 		// ループ再生するかどうか。
 		// 鳴らす側のシステムが Play(isLoop) で参照する。
 		// (例: ブースト継続音は true、発進音のような単発は false)
-		ImGui::Checkbox("Loop", &_comp.isLoop);
+		Engine::Editor::Field("Loop", _comp.isLoop);
 
 		// 湧いた瞬間に鳴らすか。爆発などのエフェクトプレハブに付けておくと、
 		// 出した側が鳴らしに行かなくてもエフェクト単体で音まで完結する
-		ImGui::Checkbox("Play On Spawn", &_comp.isPlayOnSpawn);
-		ImGui::TextDisabled("湧いたフレームに一度だけ鳴る");
+		Engine::Editor::Field("Play On Spawn", _comp.isPlayOnSpawn);
+		Engine::Editor::HelpText("湧いたフレームに一度だけ鳴る");
 
 		// 音量は発行済みインスタンスへ即時反映して、鳴らしながら調整できるようにする
-		if (ImGui::DragFloat("Volume", &_comp.vol, 0.01f, 0.0f, 1.0f))
+		if (Engine::Editor::Field("Volume", _comp.vol, 0.01f, 0.0f, 1.0f))
 		{
 			auto* _pInstance = Engine::Audio::AudioManager::Instance().RefInstance(_comp.soundInstanceHandle);
 			if (_pInstance) _pInstance->SetVolume(_comp.vol);

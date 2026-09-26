@@ -40,7 +40,7 @@ struct Engine::ECS::ComponentTraits<AudioListenerComponent>
 	{
 		AudioListenerComponent& _comp = Engine::Editor::GetValue<AudioListenerComponent>(a_context.pData);
 
-		ImGui::DragFloat3("PosOffset", &_comp.posOffset.x, 0.05f);
-		ImGui::Checkbox("UseVelocity (Doppler)", &_comp.useVelocity);
+		Engine::Editor::Field("PosOffset", _comp.posOffset, 0.05f);
+		Engine::Editor::Field("UseVelocity (Doppler)", _comp.useVelocity);
 	}
 };

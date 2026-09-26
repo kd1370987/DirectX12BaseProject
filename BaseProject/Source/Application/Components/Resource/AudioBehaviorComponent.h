@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../../Engine/Editor/Helper/EditorHelper.h"
+#include "../../../Engine/Editor/Helper/EditorField.h"
 #include "../../../Engine/ECS/World/World.h"
 #include "../../../Engine/Audio/AudioManager.h"
 #include "../../../Engine/Resource/Data/AudioBehavior/AudioBehavior.h"
@@ -58,7 +58,7 @@ struct Engine::ECS::ComponentTraits<AudioBehaviorComponent>
 	{
 		AudioBehaviorComponent& _comp = Engine::Editor::GetValue<AudioBehaviorComponent>(a_context.pData);
 
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		if (Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
 			"Change AudioBehavior",
 			"AudioBehavior",
@@ -75,7 +75,7 @@ struct Engine::ECS::ComponentTraits<AudioBehaviorComponent>
 
 		if (_comp.behaviorGUID == Engine::DefaultGUID)
 		{
-			ImGui::TextDisabled("(未設定 : 何も鳴らない)");
+			Engine::Editor::HelpText("(未設定 : 何も鳴らない)");
 			return;
 		}
 
@@ -83,19 +83,17 @@ struct Engine::ECS::ComponentTraits<AudioBehaviorComponent>
 		auto* _pBehavior = a_context.pWorld->RefEngineServices()->pResourceManager->Ref(_comp.behaviorHandle);
 		if (!_pBehavior)
 		{
-			ImGui::TextDisabled("(読み込み中)");
+			Engine::Editor::HelpText("(読み込み中)");
 			return;
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 		for (size_t _i = 0; _i < Engine::Resource::AUDIO_PHASE_COUNT; ++_i)
 		{
 			const auto _phase = static_cast<Engine::Resource::EAudioPhase>(_i);
 			const bool _hasPart = _pBehavior->HasPart(_phase);
 
-			ImGui::Text("%s : %s",
-				Engine::Resource::ToString(_phase),
-				_hasPart ? "assigned" : "empty");
+			Engine::Editor::Text("%s : %s", Engine::Resource::ToString(_phase), _hasPart ? "assigned" : "empty");
 		}
 	}
 };

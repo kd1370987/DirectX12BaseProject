@@ -589,7 +589,7 @@ namespace Engine::Editor
 		ImGui::TextDisabled("右ドラッグ中のみ視点操作 / WASD・EQ移動 / Shift加速");
 
 		ImGui::SameLine();
-		if (EditorHelper::DeleteButton("Close"))
+		if (DeleteButton("Close"))
 		{
 			ImGui::CloseCurrentPopup();
 			Close();

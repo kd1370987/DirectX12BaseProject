@@ -108,32 +108,32 @@ struct Engine::ECS::ComponentTraits<PatrolComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		PatrolComponent& _comp = Engine::Editor::GetValue<PatrolComponent>(a_context.pData);
-		ImGui::DragFloat("PatrolThrottle", &_comp.patrolThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("ChaseThrottle", &_comp.chaseThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("RetargetInterval", &_comp.retargetInterval, 0.1f, 0.0f);
-		ImGui::DragFloat("StopDistance", &_comp.stopDistance, 0.1f, 0.0f);
-		ImGui::DragFloat("KeepMargin", &_comp.keepMargin, 0.1f, 0.0f);
-		ImGui::DragFloat("BackThrottle", &_comp.backThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("PatrolPauseTime", &_comp.patrolPauseTime, 0.1f, 0.0f);
-		ImGui::DragFloat("PatrolLookYawDeg", &_comp.patrolLookYawDeg, 1.0f, 0.0f, 180.0f);
+		Engine::Editor::Field("PatrolThrottle", _comp.patrolThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("ChaseThrottle", _comp.chaseThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("RetargetInterval", _comp.retargetInterval, 0.1f, 0.0f);
+		Engine::Editor::Field("StopDistance", _comp.stopDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("KeepMargin", _comp.keepMargin, 0.1f, 0.0f);
+		Engine::Editor::Field("BackThrottle", _comp.backThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("PatrolPauseTime", _comp.patrolPauseTime, 0.1f, 0.0f);
+		Engine::Editor::Field("PatrolLookYawDeg", _comp.patrolLookYawDeg, 1.0f, 0.0f, 180.0f);
 
-		ImGui::SeparatorText("LostTarget");
-		ImGui::DragFloat("LostThrottle", &_comp.lostThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("LostArriveDistance", &_comp.lostArriveDistance, 0.1f, 0.0f);
-		ImGui::DragFloat("LostMoveTimeout", &_comp.lostMoveTimeout, 0.1f, 0.0f);
-		ImGui::DragFloat("LookAroundTime", &_comp.lookAroundTime, 0.1f, 0.0f);
-		ImGui::DragFloat("LookAroundYawDeg", &_comp.lookAroundYawDeg, 1.0f, 0.0f, 180.0f);
-		ImGui::DragFloat("LookAroundSpeedDeg", &_comp.lookAroundSpeedDeg, 1.0f, 0.0f);
+		Engine::Editor::Section("LostTarget");
+		Engine::Editor::Field("LostThrottle", _comp.lostThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("LostArriveDistance", _comp.lostArriveDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("LostMoveTimeout", _comp.lostMoveTimeout, 0.1f, 0.0f);
+		Engine::Editor::Field("LookAroundTime", _comp.lookAroundTime, 0.1f, 0.0f);
+		Engine::Editor::Field("LookAroundYawDeg", _comp.lookAroundYawDeg, 1.0f, 0.0f, 180.0f);
+		Engine::Editor::Field("LookAroundSpeedDeg", _comp.lookAroundSpeedDeg, 1.0f, 0.0f);
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 		static const char* _patrolPhaseName[] = { "Move", "Pause" };
-		ImGui::Text("PatrolPhase : %s", _patrolPhaseName[static_cast<int>(_comp.patrolPhase)]);
-		ImGui::Text("WanderDir : %.2f, %.2f, %.2f", _comp.wanderDir.x, _comp.wanderDir.y, _comp.wanderDir.z);
-		ImGui::Text("WanderTimer : %.2f", _comp.wanderTimer);
+		Engine::Editor::Text("PatrolPhase : %s", _patrolPhaseName[static_cast<int>(_comp.patrolPhase)]);
+		Engine::Editor::Text("WanderDir : %.2f, %.2f, %.2f", _comp.wanderDir.x, _comp.wanderDir.y, _comp.wanderDir.z);
+		Engine::Editor::Text("WanderTimer : %.2f", _comp.wanderTimer);
 
 		static const char* _lostPhaseName[] = { "None", "MoveTo", "LookAround" };
-		ImGui::Text("LostPhase : %s", _lostPhaseName[static_cast<int>(_comp.lostPhase)]);
-		ImGui::Text("LastSeenPos : %.2f, %.2f, %.2f", _comp.lastSeenPos.x, _comp.lastSeenPos.y, _comp.lastSeenPos.z);
-		ImGui::Text("LostTimer : %.2f", _comp.lostTimer);
+		Engine::Editor::Text("LostPhase : %s", _lostPhaseName[static_cast<int>(_comp.lostPhase)]);
+		Engine::Editor::Text("LastSeenPos : %.2f, %.2f, %.2f", _comp.lastSeenPos.x, _comp.lastSeenPos.y, _comp.lastSeenPos.z);
+		Engine::Editor::Text("LostTimer : %.2f", _comp.lostTimer);
 	}
 };

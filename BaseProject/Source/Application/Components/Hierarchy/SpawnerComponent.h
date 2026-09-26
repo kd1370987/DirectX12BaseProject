@@ -32,7 +32,7 @@ struct Engine::ECS::ComponentTraits<SpawnerComponent>
 		SpawnerComponent& _comp = Engine::Editor::GetValue<SpawnerComponent>(a_context.pData);
 
 		// 生成時に書き込まれる値なので表示のみ
-		ImGui::Text("SpawnerGUID : %s", _comp.spawnerGUID.String().c_str());
-		ImGui::Text("WaveIndex   : %d", _comp.waveIndex);
+		Engine::Editor::Text("SpawnerGUID : %s", _comp.spawnerGUID.String().c_str());
+		Engine::Editor::Text("WaveIndex   : %d", _comp.waveIndex);
 	}
 };

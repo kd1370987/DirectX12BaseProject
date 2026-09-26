@@ -6,7 +6,7 @@
 #include "Engine/Resource/Data/Prefab/Prefab.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
 #include "Engine/Resource/Data/EffectPrefab/EffectPrefab.h"
-#include "Engine/Editor/Helper/EditorHelper.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 
 // App
 #include "../../../ECS/World/APPWorld.h"
@@ -933,64 +933,61 @@ namespace App::Object
 		if (!a_context.pServices) return;
 		auto& _services = *a_context.pServices;
 
-		ImGui::SeparatorText("Leader");
-		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(_services, "Leader Prefab", "Prefab", m_leaderPrefabGUID);
-		ImGui::DragFloat3("Spawn Pos", &m_spawnPos.x, 0.1f);
+		Engine::Editor::Section("Leader");
+		Engine::Editor::AssetField(_services, "Leader Prefab", "Prefab", m_leaderPrefabGUID);
+		Engine::Editor::Field("Spawn Pos", m_spawnPos, 0.1f);
 
-		ImGui::SeparatorText("Platoon Leader");
-		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(_services, "Platoon Prefab", "Prefab", m_platoonPrefabGUID);
-		ImGui::InputScalar("Max Platoon Leader", ImGuiDataType_U32, &m_maxPlatoonLeader);
-		ImGui::TextDisabled("Line up behind the leader (-Z) by PlatoonLeaderComponent.distance");
+		Engine::Editor::Section("Platoon Leader");
+		Engine::Editor::AssetField(_services, "Platoon Prefab", "Prefab", m_platoonPrefabGUID);
+		Engine::Editor::Field("Max Platoon Leader", m_maxPlatoonLeader);
+		Engine::Editor::HelpText("Line up behind the leader (-Z) by PlatoonLeaderComponent.distance");
 
-		ImGui::SeparatorText("Boid");
-		ImGui::InputScalar("Max Boid", ImGuiDataType_U32, &m_maxBoid);
+		Engine::Editor::Section("Boid");
+		Engine::Editor::Field("Max Boid", m_maxBoid);
 		if (m_maxPlatoonLeader > 0)
 		{
-			ImGui::TextDisabled("Per platoon : %u (+1 for the first %u)",
-				m_maxBoid / m_maxPlatoonLeader, m_maxBoid % m_maxPlatoonLeader);
+			Engine::Editor::HelpText("Per platoon : %u (+1 for the first %u)", m_maxBoid / m_maxPlatoonLeader, m_maxBoid % m_maxPlatoonLeader);
 		}
-		ImGui::TextDisabled("Boid prefab / radius : BoidSpownerComponent on the platoon prefab");
+		Engine::Editor::HelpText("Boid prefab / radius : BoidSpownerComponent on the platoon prefab");
 
-		ImGui::DragFloat("Boid Collider Radius", &m_boidColliderRadius, 0.05f, 0.0f);
-		ImGui::DragFloat("Boid Health", &m_boidHealth, 1.0f, 0.0f);
-		ImGui::DragFloat("Boid Release Delay", &m_boidReleaseDelay, 0.05f, 0.0f);
-		ImGui::TextDisabled("Hit : player attacks only (passes through terrain)");
+		Engine::Editor::Field("Boid Collider Radius", m_boidColliderRadius, 0.05f, 0.0f);
+		Engine::Editor::Field("Boid Health", m_boidHealth, 1.0f, 0.0f);
+		Engine::Editor::Field("Boid Release Delay", m_boidReleaseDelay, 0.05f, 0.0f);
+		Engine::Editor::HelpText("Hit : player attacks only (passes through terrain)");
 
-		ImGui::DragFloat("Contact Damage", &m_contactDamage, 0.5f, 0.0f);
-		ImGui::DragFloat("Contact Cooldown", &m_contactDamageCooldown, 0.05f, 0.0f);
-		ImGui::TextDisabled("Per boid : touch player -> damage, then no check for cooldown sec");
+		Engine::Editor::Field("Contact Damage", m_contactDamage, 0.5f, 0.0f);
+		Engine::Editor::Field("Contact Cooldown", m_contactDamageCooldown, 0.05f, 0.0f);
+		Engine::Editor::HelpText("Per boid : touch player -> damage, then no check for cooldown sec");
 
-		ImGui::SeparatorText("Speed");
-		ImGui::DragFloat("Leader Speed", &m_leaderSpeed, 0.5f, 0.0f);
-		ImGui::DragFloat("Platoon Scale", &m_platoonSpeedScale, 0.05f, 0.0f);
-		ImGui::DragFloat("Boid Scale", &m_boidSpeedScale, 0.05f, 0.0f);
-		ImGui::TextDisabled("Platoon %.1f / Boid %.1f (written on spawn, overrides prefab)",
-			m_leaderSpeed * m_platoonSpeedScale, m_leaderSpeed * m_boidSpeedScale);
+		Engine::Editor::Section("Speed");
+		Engine::Editor::Field("Leader Speed", m_leaderSpeed, 0.5f, 0.0f);
+		Engine::Editor::Field("Platoon Scale", m_platoonSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Field("Boid Scale", m_boidSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::HelpText("Platoon %.1f / Boid %.1f (written on spawn, overrides prefab)", m_leaderSpeed * m_platoonSpeedScale, m_leaderSpeed * m_boidSpeedScale);
 
-		ImGui::SeparatorText("Leader Action");
+		Engine::Editor::Section("Leader Action");
 		m_stateMachine.DrawInspector();
 
-		ImGui::SeparatorText("Wave");
-		ImGui::DragFloat("Wave Speed", &m_waveSpeed, 1.0f, 0.0f);
-		ImGui::DragFloat("Wave Interval", &m_waveInterval, 0.05f, 0.0f);
-		ImGui::DragFloat("Wave Width", &m_waveWidth, 0.5f, 0.0f);
-		ImGui::InputScalar("Max Wave", ImGuiDataType_U32, &m_maxWave);
-		ImGui::DragFloat("Base Intensity", &m_waveBaseIntensity, 0.05f, 0.0f);
-		ImGui::DragFloat("Peak Intensity", &m_wavePeakIntensity, 0.05f, 0.0f);
-		ImGui::ColorEdit3("Base Color", &m_waveBaseColor.x);
-		ImGui::ColorEdit3("Peak Color", &m_wavePeakColor.x);
-		ImGui::TextDisabled("Bloom picks up pixels over 1.0 : keep the peak above it");
+		Engine::Editor::Section("Wave");
+		Engine::Editor::Field("Wave Speed", m_waveSpeed, 1.0f, 0.0f);
+		Engine::Editor::Field("Wave Interval", m_waveInterval, 0.05f, 0.0f);
+		Engine::Editor::Field("Wave Width", m_waveWidth, 0.5f, 0.0f);
+		Engine::Editor::Field("Max Wave", m_maxWave);
+		Engine::Editor::Field("Base Intensity", m_waveBaseIntensity, 0.05f, 0.0f);
+		Engine::Editor::Field("Peak Intensity", m_wavePeakIntensity, 0.05f, 0.0f);
+		Engine::Editor::ColorField("Base Color", m_waveBaseColor);
+		Engine::Editor::ColorField("Peak Color", m_wavePeakColor);
+		Engine::Editor::HelpText("Bloom picks up pixels over 1.0 : keep the peak above it");
 
 		// 頭から尾までを流れるので、1本が抜けるまでにかかる時間を出しておく
 		if (m_waveSpeed > 0.0f)
 		{
-			ImGui::TextDisabled("Worm length %.1f m / travel %.1f s (interval %.1f s)",
-				GetWormLength(), (GetWormLength() + m_waveWidth) / m_waveSpeed, m_waveInterval);
+			Engine::Editor::HelpText("Worm length %.1f m / travel %.1f s (interval %.1f s)", GetWormLength(), (GetWormLength() + m_waveWidth) / m_waveSpeed, m_waveInterval);
 		}
-		ImGui::Text("Running : %u", static_cast<uint32_t>(m_waveVec.size()));
+		Engine::Editor::Text("Running : %u", static_cast<uint32_t>(m_waveVec.size()));
 
-		ImGui::SeparatorText("Ground Effect");
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		Engine::Editor::Section("Ground Effect");
+		if (Engine::Editor::AssetField(
 			_services, "Ground Effect", "EffectAsset", m_groundEffectGUID))
 		{
 			m_groundEffectRef = (m_groundEffectGUID != Engine::DefaultGUID)
@@ -999,59 +996,56 @@ namespace App::Object
 		}
 		if (m_groundEffectGUID == Engine::DefaultGUID)
 		{
-			ImGui::TextDisabled("(not set : no dust)");
+			Engine::Editor::HelpText("(not set : no dust)");
 		}
 		else if (!m_isGroundEffectOneShot)
 		{
-			ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.2f, 1.0f),
-				"Loading, or has a part with Duration 0 (never ends) : not spawned");
+			Engine::Editor::TextColored(Math::Color(1.0f, 0.5f, 0.2f, 1.0f), "Loading, or has a part with Duration 0 (never ends) : not spawned");
 		}
-		ImGui::DragFloat("Effect Max Height", &m_groundEffectMaxHeight, 0.5f, 0.0f);
-		ImGui::DragFloat("Effect Max Depth", &m_groundEffectMaxDepth, 1.0f, 0.0f);
-		ImGui::DragFloat("Effect Near Scale", &m_groundEffectNearScale, 0.01f, 0.0f);
-		ImGui::DragFloat("Effect Far Scale", &m_groundEffectFarScale, 0.01f, 0.0f);
-		ImGui::DragFloat("Effect Under Scale", &m_groundEffectUnderScale, 0.01f, 0.0f);
-		ImGui::DragFloat("Effect Interval", &m_groundEffectInterval, 0.05f, 0.01f);
-		ImGui::InputScalar("Effect Max Per Frame", ImGuiDataType_U32, &m_groundEffectMaxSpawnPerFrame);
+		Engine::Editor::Field("Effect Max Height", m_groundEffectMaxHeight, 0.5f, 0.0f);
+		Engine::Editor::Field("Effect Max Depth", m_groundEffectMaxDepth, 1.0f, 0.0f);
+		Engine::Editor::Field("Effect Near Scale", m_groundEffectNearScale, 0.01f, 0.0f);
+		Engine::Editor::Field("Effect Far Scale", m_groundEffectFarScale, 0.01f, 0.0f);
+		Engine::Editor::Field("Effect Under Scale", m_groundEffectUnderScale, 0.01f, 0.0f);
+		Engine::Editor::Field("Effect Interval", m_groundEffectInterval, 0.05f, 0.01f);
+		Engine::Editor::Field("Effect Max Per Frame", m_groundEffectMaxSpawnPerFrame);
 
-		ImGui::SeparatorText("Burrow Effect (leader)");
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		Engine::Editor::Section("Burrow Effect (leader)");
+		if (Engine::Editor::AssetField(
 			_services, "Burrow Effect", "EffectPrefab", m_burrowEffectGUID))
 		{
 			// 差し替えたら次に炊くときに読み直す
 			m_burrowEffectRef = {};
 		}
-		ImGui::DragFloat("Burrow Cooldown", &m_burrowEffectCooldown, 0.05f, 0.0f);
-		ImGui::TextDisabled("Leader : %s", !m_isLeaderGroundKnown ? "(unknown)"
+		Engine::Editor::Field("Burrow Cooldown", m_burrowEffectCooldown, 0.05f, 0.0f);
+		Engine::Editor::HelpText("Leader : %s", !m_isLeaderGroundKnown ? "(unknown)"
 			: (m_wasLeaderUnderGround ? "under ground" : "above ground"));
 
 		// 間隔が来たボイドだけがレイを打つので、1フレームの本数の目安を出しておく
 		if (m_groundEffectInterval > 0.0f)
 		{
-			ImGui::TextDisabled("Rays : about %.0f boids / s (up to 2 rays each)",
-				static_cast<float>(m_maxBoid) / m_groundEffectInterval);
+			Engine::Editor::HelpText("Rays : about %.0f boids / s (up to 2 rays each)", static_cast<float>(m_maxBoid) / m_groundEffectInterval);
 		}
 
 		// ここから下は実行中の状態なので表示のみ
-		ImGui::SeparatorText("Runtime");
-		ImGui::Text("Spawned : %s", m_isSpown ? "yes" : "no");
+		Engine::Editor::Section("Runtime");
+		Engine::Editor::Text("Spawned : %s", m_isSpown ? "yes" : "no");
 		if (!m_isSpown)
 		{
 			// 置いた直後はプレハブ未設定のまま Awake を通っているので、設定してから出せるようにする
-			ImGui::SameLine();
-			if (Engine::Editor::EditorHelper::CreateSmallButton("Spawn"))
+			Engine::Editor::SameLine();
+			if (Engine::Editor::CreateSmallButton("Spawn"))
 			{
 				Spawn(a_context);
 			}
 		}
 
-		ImGui::Text("Leader  : %llu", static_cast<unsigned long long>(m_leaderEntity));
-		ImGui::Text("Platoon : %u / %u", static_cast<uint32_t>(m_platoonLeaderEntities.size()), m_maxPlatoonLeader);
+		Engine::Editor::Text("Leader  : %llu", static_cast<unsigned long long>(m_leaderEntity));
+		Engine::Editor::Text("Platoon : %u / %u", static_cast<uint32_t>(m_platoonLeaderEntities.size()), m_maxPlatoonLeader);
 		for (size_t _i = 0; _i < m_platoonLeaderEntities.size(); ++_i)
 		{
-			ImGui::BulletText("[%u] %llu", static_cast<uint32_t>(_i),
-				static_cast<unsigned long long>(m_platoonLeaderEntities[_i]));
+			Engine::Editor::BulletText("[%u] %llu", static_cast<uint32_t>(_i), static_cast<unsigned long long>(m_platoonLeaderEntities[_i]));
 		}
-		ImGui::Text("HP      : %u / %u (alive boids)", m_currentBoids, m_maxBoid);
+		Engine::Editor::Text("HP      : %u / %u (alive boids)", m_currentBoids, m_maxBoid);
 	}
 }

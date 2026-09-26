@@ -52,7 +52,7 @@ struct Engine::ECS::ComponentTraits<HealthComponent>
 	{
 		HealthComponent& _comp = Engine::Editor::GetValue<HealthComponent>(a_context.pData);
 
-		if (ImGui::DragFloat("MaxHealth", &_comp.maxHealth, 1.0f, 0.0f))
+		if (Engine::Editor::Field("MaxHealth", _comp.maxHealth, 1.0f, 0.0f))
 		{
 			if (_comp.maxHealth < 0.0f) _comp.maxHealth = 0.0f;
 
@@ -67,27 +67,26 @@ struct Engine::ECS::ComponentTraits<HealthComponent>
 
 		char _label[32] = {};
 		std::snprintf(_label, sizeof(_label), "%.0f / %.0f", _comp.currentHealth, _comp.maxHealth);
-		ImGui::ProgressBar(_ratio, ImVec2(-FLT_MIN, 0.0f), _label);
-		ImGui::SameLine();
-		ImGui::Text("Current");
+		Engine::Editor::ProgressBar(_ratio, _label);
+		Engine::Editor::SameLine();
+		Engine::Editor::Text("Current");
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
-		if (ImGui::DragFloat("ReleaseDelay", &_comp.releaseDelay, 0.05f, 0.0f))
+		if (Engine::Editor::Field("ReleaseDelay", _comp.releaseDelay, 0.05f, 0.0f))
 		{
 			if (_comp.releaseDelay < 0.0f) _comp.releaseDelay = 0.0f;
 		}
-		ImGui::TextDisabled("(死亡してから消えるまでの秒数)");
+		Engine::Editor::HelpText("(死亡してから消えるまでの秒数)");
 
 		// 死亡状態は表示のみ
 		if (_comp.isDead)
 		{
-			ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f),
-				"Dead : %.2f / %.2f", _comp.deathTimer, _comp.releaseDelay);
+			Engine::Editor::TextColored(Math::Color(1.0f, 0.4f, 0.4f, 1.0f), "Dead : %.2f / %.2f", _comp.deathTimer, _comp.releaseDelay);
 		}
 		else
 		{
-			ImGui::TextDisabled("Alive");
+			Engine::Editor::HelpText("Alive");
 		}
 	}
 };

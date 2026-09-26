@@ -5,7 +5,7 @@
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 #include "../../../../Engine/ECS/World/World.h"
 
@@ -370,8 +370,8 @@ namespace App::Object
 	//======================================================================================
 	void SceneAmbientObject::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		ImGui::TextDisabled("シーン全体の環境設定。シーンに1つだけ置く");
-		ImGui::Separator();
+		Engine::Editor::HelpText("シーン全体の環境設定。シーンに1つだけ置く");
+		Engine::Editor::Separator();
 
 		DrawLightingInspector();
 		DrawFogInspector();
@@ -384,104 +384,102 @@ namespace App::Object
 
 	void SceneAmbientObject::DrawLightingInspector()
 	{
-		ImGui::SeparatorText("Lighting");
+		Engine::Editor::Section("Lighting");
 
-		ImGui::DragFloat3("AmbientColor", &m_ambient.ambientColorScale.x, 0.01f);
-		ImGui::DragFloat3("DLColor", &m_dlColor.x, 0.01f);
-		ImGui::DragFloat3("DLDir", &m_dlDir.x, 0.01f);
+		Engine::Editor::Field("AmbientColor", m_ambient.ambientColorScale, 0.01f);
+		Engine::Editor::Field("DLColor", m_dlColor, 0.01f);
+		Engine::Editor::Field("DLDir", m_dlDir, 0.01f);
 		if (!m_dlHandle.IsValid())
 		{
-			ImGui::TextDisabled("(平行光の席が取れていません : 上限かも)");
+			Engine::Editor::HelpText("(平行光の席が取れていません : 上限かも)");
 		}
 	}
 
 	void SceneAmbientObject::DrawFogInspector()
 	{
 		// enable が false の間はシェーダー側で計算ごとスキップされる
-		ImGui::SeparatorText("HeightFog");
+		Engine::Editor::Section("HeightFog");
 		{
 			bool _enable = (m_ambient.heightFogEnable != 0);
-			if (ImGui::Checkbox("HeightFogEnable", &_enable))
+			if (Engine::Editor::Field("HeightFogEnable", _enable))
 			{
 				m_ambient.heightFogEnable = _enable ? 1 : 0;
 			}
 
-			ImGui::ColorEdit3("HeightFogColor", &m_ambient.heightFogColor.x);
-			ImGui::DragFloat("HeightFogHeight", &m_ambient.heightFogHeight, 0.1f);
+			Engine::Editor::ColorField("HeightFogColor", m_ambient.heightFogColor);
+			Engine::Editor::Field("HeightFogHeight", m_ambient.heightFogHeight, 0.1f);
 			// 基準高さからこの距離だけ進むと 100%
-			ImGui::DragFloat("HeightFogMaxRange", &m_ambient.heightFogMaxRange, 0.1f, 0.0f);
+			Engine::Editor::Field("HeightFogMaxRange", m_ambient.heightFogMaxRange, 0.1f, 0.0f);
 
 			// どちら側へ濃くしていくか
 			static const char* _denseName[] = { "Upward", "Downward" };
 			int _denseDown = m_ambient.heightFogDenseDown != 0 ? 1 : 0;
-			if (ImGui::Combo("HeightFogDense", &_denseDown, _denseName, IM_ARRAYSIZE(_denseName)))
+			if (Engine::Editor::Combo("HeightFogDense", _denseDown, _denseName))
 			{
 				m_ambient.heightFogDenseDown = _denseDown;
 			}
 		}
 
-		ImGui::SeparatorText("DistanceFog");
+		Engine::Editor::Section("DistanceFog");
 		{
 			bool _enable = (m_ambient.distanceFogEnable != 0);
-			if (ImGui::Checkbox("DistanceFogEnable", &_enable))
+			if (Engine::Editor::Field("DistanceFogEnable", _enable))
 			{
 				m_ambient.distanceFogEnable = _enable ? 1 : 0;
 			}
 
-			ImGui::ColorEdit3("DistanceFogColor", &m_ambient.distanceFogColor.x);
-			ImGui::DragFloat("DistanceFogStart", &m_ambient.distanceFogStart, 0.1f, 0.0f);
+			Engine::Editor::ColorField("DistanceFogColor", m_ambient.distanceFogColor);
+			Engine::Editor::Field("DistanceFogStart", m_ambient.distanceFogStart, 0.1f, 0.0f);
 			// この距離で 100%。開始距離より手前には下げられないようにしておく
-			ImGui::DragFloat("DistanceFogMaxRange", &m_ambient.distanceFogMaxRange, 0.1f,
-				m_ambient.distanceFogStart, FLT_MAX);
+			Engine::Editor::Field("DistanceFogMaxRange", m_ambient.distanceFogMaxRange, 0.1f, m_ambient.distanceFogStart, FLT_MAX);
 		}
 	}
 
 	void SceneAmbientObject::DrawSkyInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		ImGui::SeparatorText("Sky");
+		Engine::Editor::Section("Sky");
 
 		if (!a_context.pServices || !a_context.pServices->pResourceManager)
 		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "ResourceManager is null");
+			Engine::Editor::TextColored(Math::Color(1, 1, 0, 1), "ResourceManager is null");
 			return;
 		}
 
 		// 正距円筒(横:縦 = 2:1)のテクスチャを想定している。
 		// 選ぶだけで空になるので、スカイドームのモデルは置かなくてよい
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		if (Engine::Editor::AssetField(
 			*a_context.pServices,
 			"Sky Texture", "Texture", m_skyTexGUID))
 		{
 			m_skyTexRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::Texture>(m_skyTexGUID);
 		}
-		Engine::Editor::EditorHelper::DrawTexture(*a_context.pServices, m_skyTexRef, 256, 128);
+		Engine::Editor::Image(*a_context.pServices, m_skyTexRef, 256, 128);
 
 		if (!m_skyTexGUID.IsValid())
 		{
-			ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.3f, 1.0f),
-				"(Sky Texture 未設定 : 空は描かれません)");
+			Engine::Editor::TextColored(Math::Color(0.8f, 0.8f, 0.3f, 1.0f), "(Sky Texture 未設定 : 空は描かれません)");
 		}
 
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
 
 		// 露出 : 出力先がHDRなので 1.0 を超えて構わない。
 		// 超えた分はブルームの抽出しきい値に乗り、最後にトーンマップで落ちる
-		ImGui::DragFloat("Exposure", &m_sky.exposure, 0.01f, 0.0f, 100.0f);
+		Engine::Editor::Field("Exposure", m_sky.exposure, 0.01f, 0.0f, 100.0f);
 
 		// 地平線の高さ = 仮想ドームの中心の高さ。カメラがここから離れると地平線が動く
-		ImGui::DragFloat("HorizonHeight", &m_sky.horizonHeight, 0.1f);
+		Engine::Editor::Field("HorizonHeight", m_sky.horizonHeight, 0.1f);
 
 		// 半径 : 小さいほどカメラの上下で地平線が強く動く。
 		// 十分大きく取ると、ほぼ無限遠のスカイボックスと同じ見え方になる
-		ImGui::DragFloat("Radius", &m_sky.radius, 1.0f, 0.01f, 100000.0f);
+		Engine::Editor::Field("Radius", m_sky.radius, 1.0f, 0.01f, 100000.0f);
 		if (m_sky.radius < 0.01f) m_sky.radius = 0.01f;
 
 		// 方位の回転 : 空を回して太陽や雲の位置を平行光の向きに合わせる
-		ImGui::DragFloat("RotationDeg", &m_sky.rotationDeg, 0.5f, -360.0f, 360.0f);
+		Engine::Editor::Field("RotationDeg", m_sky.rotationDeg, 0.5f, -360.0f, 360.0f);
 		if (m_sky.rotationDeg >= 360.0f) m_sky.rotationDeg -= 360.0f;
 		if (m_sky.rotationDeg <= -360.0f) m_sky.rotationDeg += 360.0f;
 
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
 
 		//----------------------------------------------------------------------
 		// 空に被写界深度を掛けるか
@@ -491,17 +489,18 @@ namespace App::Object
 		// 掛けたいときだけ有効にして、倍率で強さを決める(1.0 で他の遠景と同じ)
 		//----------------------------------------------------------------------
 		bool _isSkyDof = (m_sky.isSkyDof != 0);
-		if (ImGui::Checkbox("IsSkyDof", &_isSkyDof))
+		if (Engine::Editor::Field("IsSkyDof", _isSkyDof))
 		{
 			m_sky.isSkyDof = _isSkyDof ? 1 : 0;
 		}
 
-		ImGui::BeginDisabled(!_isSkyDof);
-		ImGui::DragFloat("SkyDofScale", &m_sky.dofScale, 0.01f, 0.0f, 1.0f);
-		ImGui::EndDisabled();
+		{
+			Engine::Editor::DisabledScope _disabled(!_isSkyDof);
+			Engine::Editor::Field("SkyDofScale", m_sky.dofScale, 0.01f, 0.0f, 1.0f);
+		}
 		if (!_isSkyDof)
 		{
-			ImGui::TextDisabled("(空にはボケが掛かりません)");
+			Engine::Editor::HelpText("(空にはボケが掛かりません)");
 		}
 	}
 
@@ -510,16 +509,16 @@ namespace App::Object
 	//======================================================================================
 	void SceneAmbientObject::DrawDastInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		ImGui::SeparatorText("Dast");
+		Engine::Editor::Section("Dast");
 
 		if (!a_context.pServices || !a_context.pServices->pResourceManager)
 		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "ResourceManager is null");
+			Engine::Editor::TextColored(Math::Color(1, 1, 0, 1), "ResourceManager is null");
 			return;
 		}
 
 		// 差し替えたら次の Update が古いエンティティを片付けて出し直す
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		if (Engine::Editor::AssetField(
 			*a_context.pServices,
 			"Dast Effect", "EffectAsset", m_dast.effectGUID))
 		{
@@ -533,7 +532,7 @@ namespace App::Object
 
 		if (m_dast.effectGUID == Engine::DefaultGUID)
 		{
-			ImGui::TextDisabled("(未設定 : チリは出ません)");
+			Engine::Editor::HelpText("(未設定 : チリは出ません)");
 			return;
 		}
 
@@ -542,50 +541,49 @@ namespace App::Object
 		// 読み込みを先に始めさせるため(出すのはエンティティ側のハンドル)
 		if (const auto* _pEffect = a_context.pServices->pResourceManager->Ref(m_dast.m_effectAsset))
 		{
-			ImGui::Text("Particle Parts : %d", static_cast<int>(_pEffect->GetParticleParts().size()));
-			ImGui::Text("Mesh Parts     : %d", static_cast<int>(_pEffect->GetMeshParts().size()));
+			Engine::Editor::Text("Particle Parts : %d", static_cast<int>(_pEffect->GetParticleParts().size()));
+			Engine::Editor::Text("Mesh Parts     : %d", static_cast<int>(_pEffect->GetMeshParts().size()));
 		}
 		else
 		{
-			ImGui::TextDisabled("(読み込み中)");
+			Engine::Editor::HelpText("(読み込み中)");
 		}
 
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
 
 		// 出現空間の広さ。エフェクト全体の倍率として渡すので、
 		// ばらつき半径だけでなく粒の大きさにも掛かる
-		ImGui::DragFloat("Volume Scale", &m_dast.scale, 0.1f, 0.01f, 10000.0f);
+		Engine::Editor::Field("Volume Scale", m_dast.scale, 0.1f, 0.01f, 10000.0f);
 		if (m_dast.scale < 0.01f) m_dast.scale = 0.01f;
 
 		// 色スケール : まだ絵には効かない。
 		// 粒の色はパーティクルアセットの定数バッファ(全員で共有)が持っているので、
 		// 個体ごとに掛けるには描画側に受け口を足す必要がある
-		ImGui::ColorEdit4("Color Scale", m_dast.m_colorScale.Data());
-		ImGui::TextDisabled("(色はパーティクルアセット側。ここはまだ絵に反映されません)");
+		Engine::Editor::ColorField("Color Scale", m_dast.m_colorScale);
+		Engine::Editor::HelpText("(色はパーティクルアセット側。ここはまだ絵に反映されません)");
 
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
 
 		// カメラがこの距離だけ離れたら追従を始める。
 		// 0 にすると常にカメラへ張り付くので、進んでいる感じが出なくなる
-		ImGui::DragFloat("Follow Length", &m_dast.length, 0.1f, 0.0f, 10000.0f);
+		Engine::Editor::Field("Follow Length", m_dast.length, 0.1f, 0.0f, 10000.0f);
 		if (m_dast.length < 0.0f) m_dast.length = 0.0f;
 
 		// 追従スピード(毎秒)。0 以下ならその場で詰め切る(＝常に張り付く)
-		ImGui::DragFloat("Follow Speed", &m_dast.speed, 0.1f, 0.0f, 10000.0f);
+		Engine::Editor::Field("Follow Speed", m_dast.speed, 0.1f, 0.0f, 10000.0f);
 		if (m_dast.speed < 0.0f) m_dast.speed = 0.0f;
 
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
 
 		// 今どこに居るか。追従の具合を見るための表示なので触らせない
-		ImGui::Text("Center : %.1f, %.1f, %.1f",
-			m_dast.center.x, m_dast.center.y, m_dast.center.z);
+		Engine::Editor::Text("Center : %.1f, %.1f, %.1f", m_dast.center.x, m_dast.center.y, m_dast.center.z);
 
 		if (!a_context.pWorld || !a_context.pWorld->IsAliveEntity(m_dastEntity))
 		{
-			ImGui::TextDisabled("(まだ出ていません : 次の更新で出ます)");
+			Engine::Editor::HelpText("(まだ出ていません : 次の更新で出ます)");
 		}
 
-		if (ImGui::Button("Reset Center"))
+		if (Engine::Editor::Button("Reset Center"))
 		{
 			// 次の更新でカメラの位置へ置き直す
 			m_isDastCentered = false;

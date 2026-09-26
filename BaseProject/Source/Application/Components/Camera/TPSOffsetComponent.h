@@ -19,8 +19,8 @@ struct Engine::ECS::ComponentTraits<TPSOffsetComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		TPSOffsetComponent& _comp = Engine::Editor::GetValue<TPSOffsetComponent>(a_context.pData);
-		ImGui::DragFloat("x", &_comp.x);
-		ImGui::DragFloat("y", &_comp.y);
-		ImGui::DragFloat("z", &_comp.z);
+		Engine::Editor::Field("x", _comp.x);
+		Engine::Editor::Field("y", _comp.y);
+		Engine::Editor::Field("z", _comp.z);
 	}
 };

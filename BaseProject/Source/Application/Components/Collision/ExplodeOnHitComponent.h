@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 // CollisionEvent がヒットしたときの反応を設定するコンポーネント。
 //
@@ -24,7 +24,7 @@ struct Engine::ECS::ComponentTraits<ExplodeOnHitComponent>
 	{
 		ExplodeOnHitComponent& _comp = Engine::Editor::GetValue<ExplodeOnHitComponent>(a_context.pData);
 
-		ImGui::Checkbox("DestroySelf", &_comp.destroySelf);
-		ImGui::TextDisabled("Effect is DeathEffectComponent.");
+		Engine::Editor::Field("DestroySelf", _comp.destroySelf);
+		Engine::Editor::HelpText("Effect is DeathEffectComponent.");
 	}
 };

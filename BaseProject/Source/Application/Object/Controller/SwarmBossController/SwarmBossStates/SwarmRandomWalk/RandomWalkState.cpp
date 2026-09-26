@@ -4,7 +4,7 @@
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Persistence/Archive/Archive.h"
 #include "Engine/ECS/System/SystemContext.h"
-#include "Engine/Editor/Helper/EditorHelper.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 
 // App
 #include "../../../../../ECS/World/APPWorld.h"
@@ -150,21 +150,19 @@ namespace App::Object
 
 	void SwarmBossRandomWalkState::DrawInspector()
 	{
-		ImGui::DragFloat("Wander Radius", &m_wanderRadius, 0.5f, 0.0f);
-		ImGui::DragFloat("Wander Height", &m_wanderHeight, 0.5f, 0.0f);
-		ImGui::DragFloat("Wander Interval", &m_wanderInterval, 0.1f, 0.0f);
-		ImGui::DragFloat("Arrive Distance", &m_arriveDistance, 0.1f, 0.0f);
-		ImGui::DragFloat("Throttle", &m_throttle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Attack Interval Min", &m_minDurationTime, 0.1f, 0.0f);
-		ImGui::DragFloat("Attack Interval Max", &m_maxDurationTime, 0.1f, 0.0f);
-		ImGui::DragFloat("Weight Charge", &m_chargeWeight, 0.05f, 0.0f);
-		ImGui::DragFloat("Weight Uper Attack", &m_uperAttackWeight, 0.05f, 0.0f);
-		ImGui::DragFloat("Weight Dive Attack", &m_diveAttackWeight, 0.05f, 0.0f);
+		Engine::Editor::Field("Wander Radius", m_wanderRadius, 0.5f, 0.0f);
+		Engine::Editor::Field("Wander Height", m_wanderHeight, 0.5f, 0.0f);
+		Engine::Editor::Field("Wander Interval", m_wanderInterval, 0.1f, 0.0f);
+		Engine::Editor::Field("Arrive Distance", m_arriveDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("Throttle", m_throttle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("Attack Interval Min", m_minDurationTime, 0.1f, 0.0f);
+		Engine::Editor::Field("Attack Interval Max", m_maxDurationTime, 0.1f, 0.0f);
+		Engine::Editor::Field("Weight Charge", m_chargeWeight, 0.05f, 0.0f);
+		Engine::Editor::Field("Weight Uper Attack", m_uperAttackWeight, 0.05f, 0.0f);
+		Engine::Editor::Field("Weight Dive Attack", m_diveAttackWeight, 0.05f, 0.0f);
 
 		// 目標地点は毎フレーム上書きされるので表示のみ
-		ImGui::Text("Target  : %.1f, %.1f, %.1f (next %.1f s)",
-			m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
-		ImGui::Text("Attack  : %.1f / %.1f s -> %s", m_time, m_attackTime,
-			std::string(magic_enum::enum_name(m_nextAttack)).c_str());
+		Engine::Editor::Text("Target  : %.1f, %.1f, %.1f (next %.1f s)", m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
+		Engine::Editor::Text("Attack  : %.1f / %.1f s -> %s", m_time, m_attackTime, std::string(magic_enum::enum_name(m_nextAttack)).c_str());
 	}
 }

@@ -6,18 +6,18 @@
 void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineServices&)
 {
 	// ウィンドウサイズ
-	ImGui::Text("WindowSize");
-	ImGui::Text("Width : %f", windowWidth);
-	ImGui::Text("Height : %f", windowHeight);
-	ImGui::DragInt("Width", &windowWidth, 1, 0, 1980);
-	ImGui::DragInt("Height", &windowHeight, 1, 0, 1080);
+	Engine::Editor::Text("WindowSize");
+	Engine::Editor::Text("Width : %f", windowWidth);
+	Engine::Editor::Text("Height : %f", windowHeight);
+	Engine::Editor::Field("Width", windowWidth, 1, 0, 1980);
+	Engine::Editor::Field("Height", windowHeight, 1, 0, 1080);
 
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Spacing();
+	Engine::Editor::Spacing();
+	Engine::Editor::Separator();
+	Engine::Editor::Spacing();
 
 	// ウィンドウタイトル
-	if (ImGui::InputText("Title", &windowTitle))
+	if (Engine::Editor::Field("Title", windowTitle))
 	{
 		// ウィンドウがない状況はあり得ないが一応
 		auto* _pWindow = MainEngine::Instance().RefNativeWindow();
@@ -26,7 +26,7 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineSe
 			_pWindow->ChangeTitle(windowTitle);
 		}
 	}
-	if (ImGui::Checkbox("IsTitleFPS", &isTitleFPS))
+	if (Engine::Editor::Field("IsTitleFPS", isTitleFPS))
 	{
 		// FPS表示を消すため
 		auto* _pWindow = MainEngine::Instance().RefNativeWindow();
@@ -36,12 +36,12 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineSe
 		}
 	}
 
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Spacing();
+	Engine::Editor::Spacing();
+	Engine::Editor::Separator();
+	Engine::Editor::Spacing();
 
 	// ウィンドウモード
-	if (Editor::EditorHelper::DrawEnumCombo("WindowMode", windowMode))
+	if (Engine::Editor::Field("WindowMode", windowMode))
 	{
 		// ウィンドウがない状況はあり得ないが一応
 		auto* _pWindow = MainEngine::Instance().RefNativeWindow();
@@ -50,12 +50,12 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineSe
 			_pWindow->ChangeWindowMode(windowMode);
 		}
 	}
-	ImGui::Checkbox("Vsync", &isVsync);
-	ImGui::DragInt("TargetFrameRate", &targetFrameRate, 1, 0, 1000);
+	Engine::Editor::Field("Vsync", isVsync);
+	Engine::Editor::Field("TargetFrameRate", targetFrameRate, 1, 0, 1000);
 
-	ImGui::Spacing();
-	ImGui::Separator();
-	ImGui::Spacing();
+	Engine::Editor::Spacing();
+	Engine::Editor::Separator();
+	Engine::Editor::Spacing();
 }
 
 void Engine::Option::GraphicsOptions::WindowOption::Archive(Persistence::Archive& a_archive)

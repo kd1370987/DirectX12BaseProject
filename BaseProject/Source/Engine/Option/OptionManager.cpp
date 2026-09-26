@@ -48,11 +48,10 @@ namespace Engine::Option
 	{
 		for (auto* _pOption : m_pOptionList)
 		{
-			ImGui::Separator();
-			if (ImGui::TreeNodeEx(_pOption->GetName().c_str(), ImGuiTreeNodeFlags_SpanFullWidth))
+			Engine::Editor::Separator();
+			if (Engine::Editor::TreeScope _tree{ _pOption->GetName().c_str(), false, true })
 			{
 				_pOption->DrawEdit(a_services);
-				ImGui::TreePop();
 			}
 		}
 	}

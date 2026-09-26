@@ -59,7 +59,7 @@ namespace Engine::Editor
 		// ------------------------------------------------------------------
 		// AddObject : クラスメタマネージャーに登録済みのクラスを選んでシーンへ追加する
 		// ------------------------------------------------------------------
-		if (Engine::Editor::EditorHelper::CreateButton("AddObject"))
+		if (Engine::Editor::CreateButton("AddObject"))
 		{
 			ImGui::OpenPopup("AddObjectPopup");
 		}

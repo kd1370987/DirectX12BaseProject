@@ -30,7 +30,7 @@ struct Engine::ECS::ComponentTraits<LifeTimeComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		LifeTimeComponent& _comp = Engine::Editor::GetValue<LifeTimeComponent>(a_context.pData);
-		ImGui::DragFloat("LifeTime", &_comp.value, 0.1f);
-		ImGui::TextDisabled("0 以下で消滅 / 負の値は無期限");
+		Engine::Editor::Field("LifeTime", _comp.value, 0.1f);
+		Engine::Editor::HelpText("0 以下で消滅 / 負の値は無期限");
 	}
 };

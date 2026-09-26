@@ -43,9 +43,9 @@ struct Engine::ECS::ComponentTraits<MovementComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		MovementComponent& _comp = Engine::Editor::GetValue<MovementComponent>(a_context.pData);
-		ImGui::DragFloat("MoveSpeed", &_comp.moveSpeed, 0.1f, 0.0f, FLT_MAX);
-		ImGui::DragFloat("Acceleration", &_comp.acceleration, 0.1f, 0.0f, FLT_MAX);
-		ImGui::DragFloat("Deceleration", &_comp.deceleration, 0.1f, 0.0f, FLT_MAX);
-		ImGui::LabelText("Velocity", "%.2f, %.2f , %.2f", _comp.velocity.x, _comp.velocity.y, _comp.velocity.z);
+		Engine::Editor::Field("MoveSpeed", _comp.moveSpeed, 0.1f, 0.0f, FLT_MAX);
+		Engine::Editor::Field("Acceleration", _comp.acceleration, 0.1f, 0.0f, FLT_MAX);
+		Engine::Editor::Field("Deceleration", _comp.deceleration, 0.1f, 0.0f, FLT_MAX);
+		Engine::Editor::LabelText("Velocity", "%.2f, %.2f , %.2f", _comp.velocity.x, _comp.velocity.y, _comp.velocity.z);
 	}
 };

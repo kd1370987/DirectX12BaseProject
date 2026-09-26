@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/System/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Application/ECS/World/APPWorld.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
 #include "Application/Components/Character/HealthComponent.h"
@@ -470,128 +470,124 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
 		//----------------------------------------------------------------------
 		// どこから値を取るか
 		//----------------------------------------------------------------------
-		ImGui::SeparatorText("Source");
+		Engine::Editor::Section("Source");
 
-		Engine::Editor::EditorHelper::DrawEnumCombo("Target", m_target);
-		ImGui::TextDisabled("見るエンティティの決め方");
+		Engine::Editor::Field("Target", m_target);
+		Engine::Editor::HelpText("見るエンティティの決め方");
 
-		Engine::Editor::EditorHelper::DrawEnumCombo("Source", m_source);
-		ImGui::TextDisabled("見るコンポーネント。持っていなければ何も出ない");
+		Engine::Editor::Field("Source", m_source);
+		Engine::Editor::HelpText("見るコンポーネント。持っていなければ何も出ない");
 
 		if (m_source != EGaugeSource::Manual)
 		{
-			ImGui::Checkbox("HideWhenNoValue", &m_isHideWhenNoValue);
-			ImGui::SetItemTooltip("値が取れないフレームは描かない(ロックしていない等)");
+			Engine::Editor::Field("HideWhenNoValue", m_isHideWhenNoValue);
+			Engine::Editor::Tooltip("値が取れないフレームは描かない(ロックしていない等)");
 
 			// 今どれを見ているかが分かるようにしておく
 			if (m_targetEntity == Engine::ECS::Limits::INVALID_ENTITY)
 			{
-				ImGui::TextDisabled("Entity : none");
+				Engine::Editor::HelpText("Entity : none");
 			}
 			else
 			{
-				ImGui::Text("Entity : %u  (%s)",
-					static_cast<uint32_t>(m_targetEntity),
-					m_hasValue ? "ok" : "コンポーネントなし");
+				Engine::Editor::Text("Entity : %u  (%s)", static_cast<uint32_t>(m_targetEntity), m_hasValue ? "ok" : "コンポーネントなし");
 			}
 		}
 
-		ImGui::Spacing();
-		ImGui::SeparatorText("Gauge");
+		Engine::Editor::Spacing();
+		Engine::Editor::Section("Gauge");
 
 		//----------------------------------------------------------------------
 		// 中身
 		//----------------------------------------------------------------------
-		ImGui::InputText("FillDecoration", &m_fillDecorationName);
-		ImGui::TextDisabled("横幅を縮める飾りの名前");
+		Engine::Editor::Field("FillDecoration", m_fillDecorationName);
+		Engine::Editor::HelpText("横幅を縮める飾りの名前");
 
 		// 指している飾りが本当にあるか、その場で分かるようにしておく
 		if (FindDecorationIndex(m_fillDecorationName) < 0)
 		{
-			ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "その名前の飾りがありません");
+			Engine::Editor::TextColored(Math::Color(1.0f, 0.4f, 0.4f, 1.0f), "その名前の飾りがありません");
 		}
 
-		Engine::Editor::EditorHelper::DrawEnumCombo("Anchor", m_anchor);
-		ImGui::TextDisabled("減っても動かない場所。Center は両側から均等に減る");
+		Engine::Editor::Field("Anchor", m_anchor);
+		Engine::Editor::HelpText("減っても動かない場所。Center は両側から均等に減る");
 
 		//----------------------------------------------------------------------
 		// 色
 		//----------------------------------------------------------------------
-		ImGui::Spacing();
-		ImGui::SeparatorText("Color");
+		Engine::Editor::Spacing();
+		Engine::Editor::Section("Color");
 
-		ImGui::Checkbox("BlendColor", &m_isBlendColor);
-		ImGui::SetItemTooltip("切ると、しきい値でパッと切り替わる");
+		Engine::Editor::Field("BlendColor", m_isBlendColor);
+		Engine::Editor::Tooltip("切ると、しきい値でパッと切り替わる");
 
 		int _removeIndex = -1;
 
 		for (size_t _i = 0; _i < m_colorStopVec.size(); ++_i)
 		{
-			ImGui::PushID(static_cast<int>(_i));
+			Engine::Editor::IDScope _id(static_cast<int>(_i));
 
 			// ボタンを先に置く : 後ろへ並べると幅を取られて押しにくい
-			if (Engine::Editor::EditorHelper::DeleteSmallButton("X")) _removeIndex = static_cast<int>(_i);
+			if (Engine::Editor::DeleteSmallButton("X")) _removeIndex = static_cast<int>(_i);
 
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(80.0f);
-			if (ImGui::DragFloat("##ratio", &m_colorStopVec[_i].ratio, 0.01f, 0.0f, 1.0f))
+			Engine::Editor::SameLine();
+			Engine::Editor::SetNextItemWidth(80.0f);
+			if (Engine::Editor::Field("##ratio", m_colorStopVec[_i].ratio, 0.01f, 0.0f, 1.0f))
 			{
 				m_colorStopVec[_i].ratio = std::clamp(m_colorStopVec[_i].ratio, 0.0f, 1.0f);
 			}
 
-			ImGui::SameLine();
-			Engine::Editor::EditorHelper::DrawColorEdit("##color", m_colorStopVec[_i].color);
-
-			ImGui::PopID();
+			Engine::Editor::SameLine();
+			Engine::Editor::Field("##color", m_colorStopVec[_i].color);
 		}
 
 		if (_removeIndex >= 0) m_colorStopVec.erase(m_colorStopVec.begin() + _removeIndex);
 
-		if (Engine::Editor::EditorHelper::CreateButton("Add Color Stop"))
+		if (Engine::Editor::CreateButton("Add Color Stop"))
 		{
 			m_colorStopVec.push_back({});
 		}
 
-		ImGui::SameLine();
-		if (ImGui::Button("Sort"))
+		Engine::Editor::SameLine();
+		if (Engine::Editor::Button("Sort"))
 		{
 			// 残量の小さい順に並んでいることが前提の作りなので、ここで直せるようにしておく
 			std::sort(m_colorStopVec.begin(), m_colorStopVec.end(),
 				[](const GaugeColorStop& a, const GaugeColorStop& b) { return a.ratio < b.ratio; });
 		}
-		ImGui::TextDisabled("残量の小さい順に並べること(Sort で整う)");
+		Engine::Editor::HelpText("残量の小さい順に並べること(Sort で整う)");
 
 		//----------------------------------------------------------------------
 		// 数値
 		//----------------------------------------------------------------------
-		ImGui::Spacing();
-		ImGui::SeparatorText("Value Text");
+		Engine::Editor::Spacing();
+		Engine::Editor::Section("Value Text");
 
-		Engine::Editor::EditorHelper::DrawEnumCombo("TextFormat", m_textFormat);
+		Engine::Editor::Field("TextFormat", m_textFormat);
 
 		if (m_textFormat != EGaugeTextFormat::None)
 		{
-			ImGui::InputText("TextDecoration", &m_textDecorationName);
-			ImGui::TextDisabled("数値を流し込む Text 飾りの名前。置き場所はその飾りの OffsetPos");
+			Engine::Editor::Field("TextDecoration", m_textDecorationName);
+			Engine::Editor::HelpText("数値を流し込む Text 飾りの名前。置き場所はその飾りの OffsetPos");
 
 			const int _textIndex = FindDecorationIndex(m_textDecorationName);
 			if (_textIndex < 0)
 			{
-				ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "その名前の飾りがありません");
+				Engine::Editor::TextColored(Math::Color(1.0f, 0.4f, 0.4f, 1.0f), "その名前の飾りがありません");
 			}
 			else if (m_decorationVec[_textIndex].type != Decoration::EDecorationType::Text)
 			{
-				ImGui::TextColored(ImVec4(1.0f, 0.7f, 0.3f, 1.0f), "その飾りが Text ではありません");
+				Engine::Editor::TextColored(Math::Color(1.0f, 0.7f, 0.3f, 1.0f), "その飾りが Text ではありません");
 			}
 
-			if (ImGui::DragInt("Decimals", &m_decimals, 1, 0, 4))
+			if (Engine::Editor::Field("Decimals", m_decimals, 1, 0, 4))
 			{
 				m_decimals = std::clamp(m_decimals, 0, 4);
 				m_appliedText.clear();	// 桁を変えたらすぐ出し直す
@@ -602,21 +598,21 @@ namespace App::Object
 		// 値 : 実行中は入れる側が毎フレーム書き換える。
 		//      ここで動かせるのは見た目を詰めるため
 		//----------------------------------------------------------------------
-		ImGui::Spacing();
-		ImGui::SeparatorText("Value");
+		Engine::Editor::Spacing();
+		Engine::Editor::Section("Value");
 
 		if (m_source == EGaugeSource::Manual)
 		{
-			ImGui::TextDisabled("実行中は SetValue を呼ぶ側の値で上書きされる");
+			Engine::Editor::HelpText("実行中は SetValue を呼ぶ側の値で上書きされる");
 		}
 		else
 		{
-			ImGui::TextDisabled("実行中は見ているコンポーネントの値で毎フレーム上書きされる");
+			Engine::Editor::HelpText("実行中は見ているコンポーネントの値で毎フレーム上書きされる");
 		}
 
-		ImGui::DragFloat("Max", &m_max, 1.0f, 0.0f, 100000.0f);
-		ImGui::SliderFloat("Current", &m_current, 0.0f, std::max(m_max, 1.0f));
+		Engine::Editor::Field("Max", m_max, 1.0f, 0.0f, 100000.0f);
+		Engine::Editor::Slider("Current", m_current, 0.0f, std::max(m_max, 1.0f));
 
-		ImGui::Text("Ratio : %.0f %%", GetRatio() * 100.0f);
+		Engine::Editor::Text("Ratio : %.0f %%", GetRatio() * 100.0f);
 	}
 }

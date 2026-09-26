@@ -64,23 +64,23 @@ struct Engine::ECS::ComponentTraits<AdditivePoseComponent>
 		using namespace Engine;
 		AdditivePoseComponent& _comp = Engine::Editor::GetValue<AdditivePoseComponent>(a_context.pData);
 
-		ImGui::DragFloat("MasterWeight", &_comp.masterWeight, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("MasterWeight", _comp.masterWeight, 0.01f, 0.0f, 1.0f);
 
-		ImGui::SeparatorText("Aim");
-		ImGui::DragFloat("YawLimit(deg)",	&_comp.yawLimitDeg,		0.5f, 0.0f, 180.0f);
-		ImGui::DragFloat("PitchLimit(deg)",	&_comp.pitchLimitDeg,	0.5f, 0.0f, 90.0f);
-		ImGui::DragFloat("FollowRate",		&_comp.followRate,		0.1f, 0.0f);
+		Engine::Editor::Section("Aim");
+		Engine::Editor::Field("YawLimit(deg)", _comp.yawLimitDeg, 0.5f, 0.0f, 180.0f);
+		Engine::Editor::Field("PitchLimit(deg)", _comp.pitchLimitDeg, 0.5f, 0.0f, 90.0f);
+		Engine::Editor::Field("FollowRate", _comp.followRate, 0.1f, 0.0f);
 
-		ImGui::SeparatorText("Lag");
-		ImGui::DragFloat("Stiffness",		&_comp.lagStiffness,	0.1f, 0.0f);
-		ImGui::DragFloat("Damping",			&_comp.lagDamping,		0.1f, 0.0f);
-		ImGui::DragFloat("Scale",			&_comp.lagScale,		0.001f, 0.0f);
-		ImGui::DragFloat("LagLimit(deg)",	&_comp.lagLimitDeg,		0.5f, 0.0f, 90.0f);
-		ImGui::DragFloat("ArmScale",		&_comp.lagArmScale,		0.01f, 0.0f);
-		ImGui::DragFloat("LegScale",		&_comp.lagLegScale,		0.01f, 0.0f);
+		Engine::Editor::Section("Lag");
+		Engine::Editor::Field("Stiffness", _comp.lagStiffness, 0.1f, 0.0f);
+		Engine::Editor::Field("Damping", _comp.lagDamping, 0.1f, 0.0f);
+		Engine::Editor::Field("Scale", _comp.lagScale, 0.001f, 0.0f);
+		Engine::Editor::Field("LagLimit(deg)", _comp.lagLimitDeg, 0.5f, 0.0f, 90.0f);
+		Engine::Editor::Field("ArmScale", _comp.lagArmScale, 0.01f, 0.0f);
+		Engine::Editor::Field("LegScale", _comp.lagLegScale, 0.01f, 0.0f);
 
-		ImGui::SeparatorText("Runtime");
-		Editor::EditorHelper::DrawHandle(_comp.handle);
+		Engine::Editor::Section("Runtime");
+		Engine::Editor::HandleInfo(_comp.handle);
 
 		// 解決済みボーンの確認(読み取り専用)
 		if (a_context.pWorld)
@@ -89,14 +89,12 @@ struct Engine::ECS::ComponentTraits<AdditivePoseComponent>
 			auto _entryVec = _pool.GetRange(_comp.handle);
 			if (_entryVec.empty())
 			{
-				ImGui::TextDisabled("No resolved bones");
+				Engine::Editor::HelpText("No resolved bones");
 			}
 			for (size_t _i = 0; _i < _entryVec.size(); ++_i)
 			{
 				const AdditiveBoneEntry& _entry = _entryVec[_i];
-				ImGui::Text("[%zu] node=%d share=%.2f ch=%s",
-					_i, _entry.nodeIdx, _entry.share,
-					Resource::ToString(_entry.channel));
+				Engine::Editor::Text("[%zu] node=%d share=%.2f ch=%s", _i, _entry.nodeIdx, _entry.share, Resource::ToString(_entry.channel));
 			}
 		}
 	}

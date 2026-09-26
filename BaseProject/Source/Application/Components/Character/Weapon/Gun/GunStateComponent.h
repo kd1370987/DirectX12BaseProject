@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "Engine/Editor/Helper/EditorHelper.h"
-#include "Engine/Editor/Helper/EditorHelper.inl"
+#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/Editor/Helper/EditorField.inl"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
 
 #include "../../../../Editor/CompEditHelper/CompEditHelper.h"
@@ -134,30 +134,31 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 	{
 		GunStateComponent& _comp = Engine::Editor::GetValue<GunStateComponent>(a_context.pData);
 
-		ImGui::DragFloat("Speed", &_comp.speed, 0.1f, 0.0f);
+		Engine::Editor::Field("Speed", _comp.speed, 0.1f, 0.0f);
 
-		Engine::Editor::EditorHelper::DrawEnumCombo("FireMode", _comp.fireMode);
+		Engine::Editor::Field("FireMode", _comp.fireMode);
 
 		// 発射レート(発/秒)。Auto は連射間隔、Burst はバースト内の間隔
-		if (ImGui::DragFloat("Fire Rate", &_comp.fireRate, 0.1f, 0.01f, 1000.0f, "%.2f /s"))
+		if (Engine::Editor::Field("Fire Rate", _comp.fireRate, 0.1f, 0.01f, 1000.0f, "%.2f /s"))
 		{
 			if (_comp.fireRate < 0.01f) _comp.fireRate = 0.01f;
 		}
 
 		// バースト設定は Burst のときだけ効くので、それ以外は無効表示にする
-		ImGui::BeginDisabled(_comp.fireMode != EFireMode::Burst);
-		if (ImGui::DragInt("Burst Count", &_comp.burstCount, 1, 1, 100))
 		{
-			if (_comp.burstCount < 1) _comp.burstCount = 1;
+			Engine::Editor::DisabledScope _disabled(_comp.fireMode != EFireMode::Burst);
+			if (Engine::Editor::Field("Burst Count", _comp.burstCount, 1, 1, 100))
+			{
+				if (_comp.burstCount < 1) _comp.burstCount = 1;
+			}
+			if (Engine::Editor::Field("Burst Interval", _comp.burstInterval, 0.05f, 0.0f, 60.0f, "%.2f s"))
+			{
+				if (_comp.burstInterval < 0.0f) _comp.burstInterval = 0.0f;
+			}
 		}
-		if (ImGui::DragFloat("Burst Interval", &_comp.burstInterval, 0.05f, 0.0f, 60.0f, "%.2f s"))
-		{
-			if (_comp.burstInterval < 0.0f) _comp.burstInterval = 0.0f;
-		}
-		ImGui::EndDisabled();
 
 		// 発射するプレハブの選択(アセットDBの Prefab 一覧から)
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pWorld->RefEngineServices(), "Bullet Prefab", "Prefab", _comp.bulletPrefabGUID))
+		if (Engine::Editor::AssetField(*a_context.pWorld->RefEngineServices(), "Bullet Prefab", "Prefab", _comp.bulletPrefabGUID))
 		{
 			// GUIDが変わったらハンドルは作り直す(発射時に再解決)
 			_comp.bulletPrefabHandle = {};
@@ -171,49 +172,48 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 
 		// ---- マズルフラッシュ ----
 		// 1発撃つごとに銃口へ出す単発エフェクト。位置と向きは弾と同じ
-		ImGui::Separator();
-		ImGui::TextDisabled("Muzzle Flash : 1発撃つごとに銃口へ出す");
-		Engine::Editor::EditorHelper::DrawAssetSelectCombo<Engine::Resource::EffectAsset>(
+		Engine::Editor::Separator();
+		Engine::Editor::HelpText("Muzzle Flash : 1発撃つごとに銃口へ出す");
+		Engine::Editor::AssetField<Engine::Resource::EffectAsset>(
 			*a_context.pWorld->RefEngineServices(),
 			"Muzzle Effect",
 			"EffectAsset",
 			_comp.muzzleEffectGUID,
 			_comp.muzzleEffectHandle);
-		ImGui::DragFloat("Muzzle Effect Scale", &_comp.muzzleEffectScale, 0.01f, 0.0f);
+		Engine::Editor::Field("Muzzle Effect Scale", _comp.muzzleEffectScale, 0.01f, 0.0f);
 		if (_comp.muzzleEffectGUID == Engine::DefaultGUID)
 		{
-			ImGui::TextDisabled("(未設定 : 撃っても何も出ない)");
+			Engine::Editor::HelpText("(未設定 : 撃っても何も出ない)");
 		}
 		else
 		{
-			ImGui::TextDisabled("出し切ったら自分で消えるので、Duration を入れたアセットを指定すること");
+			Engine::Editor::HelpText("出し切ったら自分で消えるので、Duration を入れたアセットを指定すること");
 		}
 
 		// ---- オーバーヒート ----
-		ImGui::Separator();
-		ImGui::Checkbox("Use Overheat", &_comp.useOverheat);
+		Engine::Editor::Separator();
+		Engine::Editor::Field("Use Overheat", _comp.useOverheat);
 
-		ImGui::BeginDisabled(!_comp.useOverheat);
-		ImGui::DragFloat("Heat Per Shot", &_comp.heatPerShot, 0.1f, 0.0f, 1000.0f);
-		ImGui::DragFloat("Heat Limit", &_comp.heatLimit, 1.0f, 0.01f, 10000.0f);
-		ImGui::DragFloat("Heat Cool Rate", &_comp.heatCoolRate, 0.5f, 0.0f, 10000.0f, "%.2f /s");
-		ImGui::DragFloat("Overheat Cool Scale", &_comp.overheatCoolScale, 0.01f, 0.0f, 4.0f);
-		ImGui::DragFloat("Restart Heat Ratio", &_comp.restartHeatRatio, 0.01f, 0.0f, 1.0f);
-		ImGui::EndDisabled();
+		{
+			Engine::Editor::DisabledScope _disabled(!_comp.useOverheat);
+			Engine::Editor::Field("Heat Per Shot", _comp.heatPerShot, 0.1f, 0.0f, 1000.0f);
+			Engine::Editor::Field("Heat Limit", _comp.heatLimit, 1.0f, 0.01f, 10000.0f);
+			Engine::Editor::Field("Heat Cool Rate", _comp.heatCoolRate, 0.5f, 0.0f, 10000.0f, "%.2f /s");
+			Engine::Editor::Field("Overheat Cool Scale", _comp.overheatCoolScale, 0.01f, 0.0f, 4.0f);
+			Engine::Editor::Field("Restart Heat Ratio", _comp.restartHeatRatio, 0.01f, 0.0f, 1.0f);
+		}
 
 		// 上限が 0 以下だと割り算も判定も壊れるので下限で止める
 		if (_comp.heatLimit < 0.01f) _comp.heatLimit = 0.01f;
 
 		// ---- ランタイム状態(参考) ----
-		ImGui::Separator();
-		ImGui::TextDisabled("TimeSinceShoot : %.2f s  BurstRemain : %d",
-			_comp.timeSinceShoot, _comp.burstRemain);
+		Engine::Editor::Separator();
+		Engine::Editor::HelpText("TimeSinceShoot : %.2f s  BurstRemain : %d", _comp.timeSinceShoot, _comp.burstRemain);
 
 		if (_comp.useOverheat)
 		{
-			ImGui::ProgressBar(_comp.HeatRatio(), ImVec2(-1.0f, 0.0f));
-			ImGui::TextDisabled("Heat : %.1f / %.1f%s",
-				_comp.heat, _comp.heatLimit, _comp.isOverheat ? "  [OVERHEAT]" : "");
+			Engine::Editor::ProgressBar(_comp.HeatRatio());
+			Engine::Editor::HelpText("Heat : %.1f / %.1f%s", _comp.heat, _comp.heatLimit, _comp.isOverheat ? "  [OVERHEAT]" : "");
 		}
 	}
 };

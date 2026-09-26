@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../../Engine/Editor/Helper/EditorHelper.h"
+#include "../../../Engine/Editor/Helper/EditorField.h"
 #include "../../../Engine/ECS/World/World.h"
 
 //==========================================================================================
@@ -42,14 +42,14 @@ struct Engine::ECS::ComponentTraits<FlyingSoundComponent>
 
 		// 鳴っているボイスはエンティティごとにリソース側が持っているので、
 		// ここでの変更は「次に生成されたエンティティ」から効く
-		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
 			"Change Sound",
 			"Sound",
 			_comp.soundGUID);
 
-		ImGui::DragFloat("Volume", &_comp.vol, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("DistanceScaler", &_comp.distanceScaler, 0.05f, 0.01f, 1000.0f);
-		ImGui::Checkbox("Loop", &_comp.isLoop);
+		Engine::Editor::Field("Volume", _comp.vol, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("DistanceScaler", _comp.distanceScaler, 0.05f, 0.01f, 1000.0f);
+		Engine::Editor::Field("Loop", _comp.isLoop);
 	}
 };

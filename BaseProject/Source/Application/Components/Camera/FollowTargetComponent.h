@@ -23,8 +23,8 @@ struct Engine::ECS::ComponentTraits<FollowTargetComponent>
 
 		ECS::Entity _entity = _comp.target;
 
-		ImGui::InputScalar("TargetEntity", ImGuiDataType_U64, &_entity);
-		ImGui::Text("%s", _comp.targetGUID.String().c_str());
+		Engine::Editor::Field("TargetEntity", _entity);
+		Engine::Editor::Text("%s", _comp.targetGUID.String().c_str());
 
 		// エンティティの変更がされたらGUIDを変更
 		if (_entity != _comp.target)

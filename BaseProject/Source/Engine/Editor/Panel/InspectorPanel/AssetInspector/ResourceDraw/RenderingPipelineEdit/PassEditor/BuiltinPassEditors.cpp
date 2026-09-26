@@ -566,7 +566,7 @@ namespace Engine::Editor::Inspector
 
 				// 自分で塗るので、色を変えてもリソースの作り直しは要らない。
 				// Param を返すと、カメラが回している実行インスタンスへ値だけが写る
-				if (EditorHelper::DrawColorEdit("ClearColor", a_pass.RefParams().clearColor)) return EPassEditResult::Param;
+				if (Field("ClearColor", a_pass.RefParams().clearColor)) return EPassEditResult::Param;
 				return EPassEditResult::None;
 			}
 		};
@@ -585,8 +585,8 @@ namespace Engine::Editor::Inspector
 						ImGui::PushID(_out.pinID);
 						ImGui::Text("%s : %s", _out.pinName.c_str(), _out.name.c_str());
 						// どれもリソースの要件を変えるので、触られたら組み直しが要る
-						_isEdit |= EditorHelper::DrawEnumCombo("LoadOp", _out.loadOp);
-						_isEdit |= EditorHelper::DrawEnumCombo("Access", _out.accessType);
+						_isEdit |= Field("LoadOp", _out.loadOp);
+						_isEdit |= Field("Access", _out.accessType);
 						_isEdit |= ImGui::DragFloat("Scale", &_out.scale, 0.01f, 0.01f, 4.0f);
 						ImGui::Separator();
 						ImGui::PopID();

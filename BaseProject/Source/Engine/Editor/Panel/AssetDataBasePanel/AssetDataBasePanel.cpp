@@ -70,7 +70,7 @@ namespace Engine::Editor
 	}
 	void AssetDataBasePanel::CreateAssetButton(EditorContext& a_editContext)
 	{
-		if (Engine::Editor::EditorHelper::CreateButton("Create New Asset..."))
+		if (Engine::Editor::CreateButton("Create New Asset..."))
 		{
 			ImGui::OpenPopup("CreateResourcePopup");
 		}
@@ -96,7 +96,7 @@ namespace Engine::Editor
 					ImGui::InputText("Name", m_nameCach, sizeof(m_nameCach));
 					ImGui::InputText("FilePath", m_pathCach, sizeof(m_pathCach));
 
-					if (Engine::Editor::EditorHelper::CreateButton("Create"))
+					if (Engine::Editor::CreateButton("Create"))
 					{
 						// 辞書から該当する関数を引っ張ってきて実行！
 						m_assetCreateFuncs[_typeName](

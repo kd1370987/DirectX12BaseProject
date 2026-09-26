@@ -20,13 +20,13 @@ struct Engine::ECS::ComponentTraits<MoveIntentComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		MoveIntentComponent& _comp = Engine::Editor::GetValue<MoveIntentComponent>(a_context.pData);
-		ImGui::Text("MoveIntent");
-		ImGui::Text("x : %f", _comp.value.x);
-		ImGui::Text("y : %f", _comp.value.y);
-		ImGui::Text("z : %f", _comp.value.z);
+		Engine::Editor::Text("MoveIntent");
+		Engine::Editor::Text("x : %f", _comp.value.x);
+		Engine::Editor::Text("y : %f", _comp.value.y);
+		Engine::Editor::Text("z : %f", _comp.value.z);
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
-		ImGui::DragFloat("JumpPow", &_comp.jumpPow, 0.01f, 0);
+		Engine::Editor::Field("JumpPow", _comp.jumpPow, 0.01f, 0);
 	}
 };

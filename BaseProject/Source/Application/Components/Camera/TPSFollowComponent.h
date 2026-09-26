@@ -94,43 +94,42 @@ struct Engine::ECS::ComponentTraits<TPSFollowComponent>
 	{
 		TPSFollowComponent& _comp = Engine::Editor::GetValue<TPSFollowComponent>(a_context.pData);
 
-		ImGui::TextDisabled("Follow Rate");
-		ImGui::DragFloat("PosRateH", &_comp.posRateHorizontal, 0.1f, 0.0f, 60.0f);
-		ImGui::DragFloat("PosRateV", &_comp.posRateVertical, 0.1f, 0.0f, 60.0f);
-		ImGui::DragFloat("LookAtRate", &_comp.lookAtRate, 0.1f, 0.0f, 60.0f);
-		ImGui::DragFloat("OrbitRate", &_comp.orbitRate, 0.1f, 0.0f, 60.0f);
+		Engine::Editor::HelpText("Follow Rate");
+		Engine::Editor::Field("PosRateH", _comp.posRateHorizontal, 0.1f, 0.0f, 60.0f);
+		Engine::Editor::Field("PosRateV", _comp.posRateVertical, 0.1f, 0.0f, 60.0f);
+		Engine::Editor::Field("LookAtRate", _comp.lookAtRate, 0.1f, 0.0f, 60.0f);
+		Engine::Editor::Field("OrbitRate", _comp.orbitRate, 0.1f, 0.0f, 60.0f);
 
-		ImGui::Separator();
-		ImGui::TextDisabled("Speed Response");
-		ImGui::DragFloat("SpeedReference", &_comp.speedReference, 0.5f, 0.1f, 500.0f);
-		ImGui::DragFloat("VerticalSpeedWeight", &_comp.verticalSpeedWeight, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("SpeedResponseRate", &_comp.speedResponseRate, 0.1f, 0.0f, 60.0f);
-		ImGui::TextDisabled("小さいほど速度変化の効きがゆっくり立ち上がる");
+		Engine::Editor::Separator();
+		Engine::Editor::HelpText("Speed Response");
+		Engine::Editor::Field("SpeedReference", _comp.speedReference, 0.5f, 0.1f, 500.0f);
+		Engine::Editor::Field("VerticalSpeedWeight", _comp.verticalSpeedWeight, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("SpeedResponseRate", _comp.speedResponseRate, 0.1f, 0.0f, 60.0f);
+		Engine::Editor::HelpText("小さいほど速度変化の効きがゆっくり立ち上がる");
 
-		ImGui::Separator();
-		ImGui::TextDisabled("Speed Pull Back");
-		ImGui::DragFloat("SpeedPullBack", &_comp.speedPullBack, 0.01f, 0.0f, 5.0f);
-		ImGui::DragFloat("MaxPullBack", &_comp.maxPullBack, 0.1f, 0.0f, 50.0f);
-		ImGui::DragFloat("PullBackRate", &_comp.pullBackRate, 0.1f, 0.0f, 60.0f);
+		Engine::Editor::Separator();
+		Engine::Editor::HelpText("Speed Pull Back");
+		Engine::Editor::Field("SpeedPullBack", _comp.speedPullBack, 0.01f, 0.0f, 5.0f);
+		Engine::Editor::Field("MaxPullBack", _comp.maxPullBack, 0.1f, 0.0f, 50.0f);
+		Engine::Editor::Field("PullBackRate", _comp.pullBackRate, 0.1f, 0.0f, 60.0f);
 
-		ImGui::Separator();
-		ImGui::TextDisabled("At Full Speed");
-		ImGui::DragFloat("FovAddAtSpeed", &_comp.fovAddAtSpeed, 0.5f, 0.0f, 90.0f);
-		ImGui::DragFloat("FovRate", &_comp.fovRate, 0.1f, 0.0f, 60.0f);
+		Engine::Editor::Separator();
+		Engine::Editor::HelpText("At Full Speed");
+		Engine::Editor::Field("FovAddAtSpeed", _comp.fovAddAtSpeed, 0.5f, 0.0f, 90.0f);
+		Engine::Editor::Field("FovRate", _comp.fovRate, 0.1f, 0.0f, 60.0f);
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
 		// 追従の遅れ系は CameraDeadZoneComponent へ移した。
 		// 保存データの互換のためフィールドは残っているが、触っても効かない
-		if (ImGui::CollapsingHeader("Legacy (未使用)"))
+		if (Engine::Editor::CollapsingHeader("Legacy (未使用)"))
 		{
-			ImGui::TextDisabled("追従範囲は CameraDeadZoneComponent が持ちます");
-			ImGui::BeginDisabled(true);
-			ImGui::DragFloat("FollowRateScale", &_comp.followRateScale, 0.01f, 0.0f, 1.0f);
-			ImGui::DragFloat("MaxLagAtSpeed", &_comp.maxLagAtSpeed, 0.1f, 0.0f, 100.0f);
-			ImGui::DragFloat("LookAtLagRatio", &_comp.lookAtLagRatio, 0.01f, 0.0f, 1.0f);
-			ImGui::DragFloat("MaxLagDistance", &_comp.maxLagDistance, 0.1f, 0.0f, 100.0f);
-			ImGui::EndDisabled();
+			Engine::Editor::HelpText("追従範囲は CameraDeadZoneComponent が持ちます");
+			Engine::Editor::DisabledScope _disabled(true);
+			Engine::Editor::Field("FollowRateScale", _comp.followRateScale, 0.01f, 0.0f, 1.0f);
+			Engine::Editor::Field("MaxLagAtSpeed", _comp.maxLagAtSpeed, 0.1f, 0.0f, 100.0f);
+			Engine::Editor::Field("LookAtLagRatio", _comp.lookAtLagRatio, 0.01f, 0.0f, 1.0f);
+			Engine::Editor::Field("MaxLagDistance", _comp.maxLagDistance, 0.1f, 0.0f, 100.0f);
 		}
 	}
 };

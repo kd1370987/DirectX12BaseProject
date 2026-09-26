@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "../../Engine/GameObject/GameObjectManager/GameObjectManager.h"
-#include "../../Engine/Editor/Helper/EditorHelper.h"
+#include "../../Engine/Editor/Helper/EditorField.h"
 
 //==========================================================================================
 // シーンに置いたオブジェクトを GUID で指すための小物
@@ -75,9 +75,10 @@ namespace App::Object::Picker
 			_currentLabel = _pCurrent ? MakeLabel(_pCurrent) : ("(missing) " + a_inoutGUID.String().substr(0, 8));
 		}
 
-		if (!ImGui::BeginCombo(a_label, _currentLabel.c_str())) return false;
+		Engine::Editor::ComboScope _combo(a_label, _currentLabel.c_str());
+		if (!_combo) return false;
 
-		if (ImGui::Selectable("None", !a_inoutGUID.IsValid()))
+		if (Engine::Editor::Selectable("None", !a_inoutGUID.IsValid()))
 		{
 			a_inoutGUID = {};
 			_isChanged = true;
@@ -92,21 +93,17 @@ namespace App::Object::Picker
 				if (!_pObject) continue;
 
 				// 同名でもIDがぶつからないようにする
-				ImGui::PushID(static_cast<int>(_i));
+				Engine::Editor::IDScope _id(static_cast<int>(_i));
 
 				const bool _isSelected = (a_inoutGUID == _pObject->GetGUID());
-				if (ImGui::Selectable(MakeLabel(_pObject).c_str(), _isSelected))
+				if (Engine::Editor::Selectable(MakeLabel(_pObject).c_str(), _isSelected))
 				{
 					a_inoutGUID = _pObject->GetGUID();
 					_isChanged = true;
 				}
-				if (_isSelected) ImGui::SetItemDefaultFocus();
-
-				ImGui::PopID();
+				if (_isSelected) Engine::Editor::SetItemDefaultFocus();
 			}
 		}
-
-		ImGui::EndCombo();
 
 		return _isChanged;
 	}
@@ -123,25 +120,24 @@ namespace App::Object::Picker
 	{
 		bool _isChanged = false;
 
-		if (!ImGui::TreeNode(a_label)) return false;
+		Engine::Editor::TreeScope _tree(a_label);
+		if (!_tree) return false;
 
 		// 回している間に配列を触ると足元が崩れるので、削除は覚えておいて後で行う
 		int _removeIndex = -1;
 
 		for (size_t _i = 0; _i < a_inoutGUIDVec.size(); ++_i)
 		{
-			ImGui::PushID(static_cast<int>(_i));
+			Engine::Editor::IDScope _id(static_cast<int>(_i));
 
 			// ボタンを先に置く : コンボが残り幅を全部使うため
-			if (Engine::Editor::EditorHelper::DeleteSmallButton("X"))
+			if (Engine::Editor::DeleteSmallButton("X"))
 			{
 				_removeIndex = static_cast<int>(_i);
 			}
 
-			ImGui::SameLine();
+			Engine::Editor::SameLine();
 			if (DrawCombo<T>("##Object", a_pObjectManager, a_inoutGUIDVec[_i])) _isChanged = true;
-
-			ImGui::PopID();
 		}
 
 		if (_removeIndex >= 0)
@@ -150,13 +146,11 @@ namespace App::Object::Picker
 			_isChanged = true;
 		}
 
-		if (Engine::Editor::EditorHelper::CreateButton("Add"))
+		if (Engine::Editor::CreateButton("Add"))
 		{
 			a_inoutGUIDVec.push_back({});
 			_isChanged = true;
 		}
-
-		ImGui::TreePop();
 
 		return _isChanged;
 	}

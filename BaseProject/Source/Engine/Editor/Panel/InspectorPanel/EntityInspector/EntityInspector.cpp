@@ -84,7 +84,7 @@ namespace Engine::Editor::Inspector
 		ImGui::Separator();
 
 		// 削除系の色分けは EditorHelper に寄せてある(色をここで持たない)
-		if (Engine::Editor::EditorHelper::DeleteButton("RemoveComponnet"))
+		if (Engine::Editor::DeleteButton("RemoveComponnet"))
 		{
 			a_pWorld->ReserveRemoveComponent(a_typeID, a_editContext.GetPrimaryEntity());
 		}
@@ -368,7 +368,7 @@ namespace Engine::Editor::Inspector
 		// 入力中のプレハブ名
 		static char _nameCach[256] = "";
 
-		if (Engine::Editor::EditorHelper::CreateButton("Create Prefab"))
+		if (Engine::Editor::CreateButton("Create Prefab"))
 		{
 			// 入力の初期値はエンティティ名にしておく
 			std::string _defaultName = "NewPrefab";
@@ -433,7 +433,7 @@ namespace Engine::Editor::Inspector
 			? ("RemoveEntity (" + std::to_string(_selectedCount) + ")")
 			: std::string("RemoveEntity");
 
-		if (Engine::Editor::EditorHelper::DeleteButton(_removeLabel.c_str()))
+		if (Engine::Editor::DeleteButton(_removeLabel.c_str()))
 		{
 			// 解放予約だけしておく。実際に消えるのは次の BeginFrame で、
 			// その前に Release フェーズが走るので、借りているもの

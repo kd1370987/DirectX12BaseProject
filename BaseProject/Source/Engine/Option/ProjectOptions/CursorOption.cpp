@@ -1,6 +1,6 @@
 #include "CursorOption.h"
 
-#include "../../Editor/Helper/EditorHelper.h"
+#include "../../Editor/Helper/EditorField.h"
 
 namespace
 {
@@ -11,33 +11,33 @@ namespace
 
 void Engine::Option::ProjectOptions::CursorOption::DrawEdit(const ECS::EngineServices& a_services)
 {
-	ImGui::Checkbox("Enable", &isEnable);
-	ImGui::SameLine();
-	ImGui::TextDisabled("(切るとOSのカーソルがそのまま出る)");
+	Engine::Editor::Field("Enable", isEnable);
+	Engine::Editor::SameLine();
+	Engine::Editor::HelpText("(切るとOSのカーソルがそのまま出る)");
 
-	ImGui::SeparatorText("Texture");
+	Engine::Editor::Section("Texture");
 
-	Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(a_services, "Cursor", "Texture", textureGUID);
+	Engine::Editor::AssetField(a_services, "Cursor", "Texture", textureGUID);
 	if (!textureGUID.IsValid())
 	{
-		ImGui::TextDisabled("(未設定 : OSのカーソルを消さずにそのまま出す)");
+		Engine::Editor::HelpText("(未設定 : OSのカーソルを消さずにそのまま出す)");
 	}
 
-	ImGui::SeparatorText("Shape");
+	Engine::Editor::Section("Shape");
 
-	ImGui::DragFloat("Size", &sizePixel, 1.0f, MIN_SIZE, MAX_SIZE, "%.0f px");
+	Engine::Editor::Field("Size", sizePixel, 1.0f, MIN_SIZE, MAX_SIZE, "%.0f px");
 	sizePixel = std::clamp(sizePixel, MIN_SIZE, MAX_SIZE);
-	ImGui::SameLine();
-	ImGui::TextDisabled("(描画解像度基準)");
+	Engine::Editor::SameLine();
+	Engine::Editor::HelpText("(描画解像度基準)");
 
 	// ホットスポットは「画像のどこがカーソルの先端か」。
 	// 矢印の絵は余白の中に描かれていることが多く、中心(0.5,0.5)ではまず合わない
-	ImGui::DragFloat2("Hotspot", &hotspot.x, 0.005f, 0.0f, 1.0f);
+	Engine::Editor::Field("Hotspot", hotspot, 0.005f, 0.0f, 1.0f);
 	hotspot.x = std::clamp(hotspot.x, 0.0f, 1.0f);
 	hotspot.y = std::clamp(hotspot.y, 0.0f, 1.0f);
-	ImGui::TextDisabled("画像の中で実際に指している点(正規化)。矢印なら尖端");
+	Engine::Editor::HelpText("画像の中で実際に指している点(正規化)。矢印なら尖端");
 
-	ImGui::ColorEdit4("Color", color.Data());
+	Engine::Editor::ColorField("Color", color);
 }
 
 void Engine::Option::ProjectOptions::CursorOption::Archive(Persistence::Archive& a_archive)

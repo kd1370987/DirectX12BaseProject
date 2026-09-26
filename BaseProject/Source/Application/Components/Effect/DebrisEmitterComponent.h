@@ -2,7 +2,7 @@
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/EffectPrefab/EffectPrefab.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 #include "Engine/ECS/World/World.h"
 
 //==========================================================================================
@@ -74,20 +74,20 @@ struct Engine::ECS::ComponentTraits<DebrisEmitterComponent>
 	{
 		DebrisEmitterComponent& _comp = Engine::Editor::GetValue<DebrisEmitterComponent>(a_context.pData);
 
-		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(), "Debris", "EffectPrefab", _comp.debrisGUID);
 		if (_comp.debrisGUID == Engine::DefaultGUID)
 		{
-			ImGui::TextDisabled("(未設定 : 何も撒かない)");
+			Engine::Editor::HelpText("(未設定 : 何も撒かない)");
 		}
 
-		ImGui::DragInt("Count", &_comp.count, 1.0f, 0, 200);
-		ImGui::DragFloatRange2("Speed", &_comp.speedMin, &_comp.speedMax, 0.1f, 0.0f, 500.0f);
-		ImGui::DragFloatRange2("Elevation", &_comp.elevationMinDeg, &_comp.elevationMaxDeg, 0.5f, -90.0f, 90.0f);
-		ImGui::DragFloat("Start Radius", &_comp.startRadius, 0.05f, 0.0f);
-		ImGui::DragFloat("Start Height", &_comp.startHeight, 0.05f);
-		ImGui::DragFloatRange2("Spin", &_comp.spinMinDeg, &_comp.spinMaxDeg, 1.0f, 0.0f, 3600.0f);
-		ImGui::DragFloatRange2("Scale", &_comp.scaleMin, &_comp.scaleMax, 0.01f, 0.0f, 10.0f);
-		ImGui::TextDisabled("仰角は水平から(90で真上)。回転の軸は1個ずつ乱数");
+		Engine::Editor::Field("Count", _comp.count, 1.0f, 0, 200);
+		Engine::Editor::RangeField("Speed", _comp.speedMin, _comp.speedMax, 0.1f, 0.0f, 500.0f);
+		Engine::Editor::RangeField("Elevation", _comp.elevationMinDeg, _comp.elevationMaxDeg, 0.5f, -90.0f, 90.0f);
+		Engine::Editor::Field("Start Radius", _comp.startRadius, 0.05f, 0.0f);
+		Engine::Editor::Field("Start Height", _comp.startHeight, 0.05f);
+		Engine::Editor::RangeField("Spin", _comp.spinMinDeg, _comp.spinMaxDeg, 1.0f, 0.0f, 3600.0f);
+		Engine::Editor::RangeField("Scale", _comp.scaleMin, _comp.scaleMax, 0.01f, 0.0f, 10.0f);
+		Engine::Editor::HelpText("仰角は水平から(90で真上)。回転の軸は1個ずつ乱数");
 	}
 };

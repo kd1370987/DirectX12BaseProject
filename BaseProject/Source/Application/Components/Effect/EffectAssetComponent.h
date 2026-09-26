@@ -2,7 +2,7 @@
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 #include "Engine/ECS/World/World.h"
 
 //==========================================================================================
@@ -101,7 +101,7 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 	{
 		EffectAssetComponent& _comp = Engine::Editor::GetValue<EffectAssetComponent>(a_context.pData);
 
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		if (Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
 			"Change Effect",
 			"EffectAsset",
@@ -118,16 +118,16 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 
 		// 出っぱなしにするか。切り替えは即座に反映して、エディタで確認できるようにする
 		// (生成時の反映は EffectFixupSystem が行う)
-		if (ImGui::Checkbox("PlayOnStart", &_comp.playOnStart))
+		if (Engine::Editor::Field("PlayOnStart", _comp.playOnStart))
 		{
 			_comp.isPlay = _comp.playOnStart;
 		}
-		ImGui::Checkbox("DestroyOnFinish", &_comp.destroyOnFinish);
-		ImGui::TextDisabled("出し切ったら自分ごと消す(出しっぱなしのパーツがあると消えない)");
+		Engine::Editor::Field("DestroyOnFinish", _comp.destroyOnFinish);
+		Engine::Editor::HelpText("出し切ったら自分ごと消す(出しっぱなしのパーツがあると消えない)");
 
 		if (_comp.effectGUID == Engine::DefaultGUID)
 		{
-			ImGui::TextDisabled("(未設定 : 何も出ない)");
+			Engine::Editor::HelpText("(未設定 : 何も出ない)");
 			return;
 		}
 
@@ -135,32 +135,30 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 		auto* _pEffect = a_context.pWorld->RefEngineServices()->pResourceManager->Ref(_comp.effectHandle);
 		if (!_pEffect)
 		{
-			ImGui::TextDisabled("(読み込み中)");
+			Engine::Editor::HelpText("(読み込み中)");
 			return;
 		}
 
-		ImGui::Separator();
-		ImGui::Text("Particle Parts : %d", static_cast<int>(_pEffect->GetParticleParts().size()));
-		ImGui::Text("Mesh Parts     : %d", static_cast<int>(_pEffect->GetMeshParts().size()));
+		Engine::Editor::Separator();
+		Engine::Editor::Text("Particle Parts : %d", static_cast<int>(_pEffect->GetParticleParts().size()));
+		Engine::Editor::Text("Mesh Parts     : %d", static_cast<int>(_pEffect->GetMeshParts().size()));
 
-		ImGui::Separator();
-		ImGui::Text("Runtime");
-		ImGui::Checkbox("IsPlay", &_comp.isPlay);
-		ImGui::Text("Elapsed : %.2f", _comp.instance.elapsed);
+		Engine::Editor::Separator();
+		Engine::Editor::Text("Runtime");
+		Engine::Editor::Field("IsPlay", _comp.isPlay);
+		Engine::Editor::Text("Elapsed : %.2f", _comp.instance.elapsed);
 
 		// 置き方の上書き : 制御側のシステムが毎フレーム書くので表示だけ
-		ImGui::Text("Scale : %.2f", _comp.effectScale);
-		ImGui::Text("LengthScale : %.2f", _comp.effectLengthScale);
+		Engine::Editor::Text("Scale : %.2f", _comp.effectScale);
+		Engine::Editor::Text("LengthScale : %.2f", _comp.effectLengthScale);
 		if (_comp.isOverrideTransform)
 		{
-			ImGui::Text("Override Pos : %.2f, %.2f, %.2f",
-				_comp.overridePosOffset.x, _comp.overridePosOffset.y, _comp.overridePosOffset.z);
-			ImGui::Text("Override Dir : %.2f, %.2f, %.2f",
-				_comp.overrideEmitDir.x, _comp.overrideEmitDir.y, _comp.overrideEmitDir.z);
+			Engine::Editor::Text("Override Pos : %.2f, %.2f, %.2f", _comp.overridePosOffset.x, _comp.overridePosOffset.y, _comp.overridePosOffset.z);
+			Engine::Editor::Text("Override Dir : %.2f, %.2f, %.2f", _comp.overrideEmitDir.x, _comp.overrideEmitDir.y, _comp.overrideEmitDir.z);
 		}
 		else
 		{
-			ImGui::TextDisabled("(置き方はアセットのパーツ側)");
+			Engine::Editor::HelpText("(置き方はアセットのパーツ側)");
 		}
 	}
 };

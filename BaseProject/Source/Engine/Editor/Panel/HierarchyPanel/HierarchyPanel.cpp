@@ -62,7 +62,7 @@ namespace Engine::Editor
 		ImGui::BeginChild("EntityList");
 		{
 			// エンティティ追加(空 or プレハブから)
-			if (Engine::Editor::EditorHelper::CreateButton("AddEntity"))
+			if (Engine::Editor::CreateButton("AddEntity"))
 			{
 				ImGui::OpenPopup("AddEntityPopup");
 			}

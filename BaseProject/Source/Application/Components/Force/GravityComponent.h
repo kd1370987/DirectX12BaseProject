@@ -17,6 +17,6 @@ struct Engine::ECS::ComponentTraits<GravityComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		GravityComponent& _comp = Engine::Editor::GetValue<GravityComponent>(a_context.pData);
-		ImGui::DragFloat("GravityScale", &_comp.scale, 0.1f);
+		Engine::Editor::Field("GravityScale", _comp.scale, 0.1f);
 	}
 };

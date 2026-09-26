@@ -36,8 +36,8 @@ struct Engine::ECS::ComponentTraits<ActionIntentComponent>
 		auto _left = _comp.isLeftWeaponShoot;
 		auto _right = _comp.isRightWeaponShoot;
 		auto _missile = _comp.isMissileHold;
-		ImGui::Checkbox("isLeftWeaponShoot", &_left);
-		ImGui::Checkbox("isRightWeaponShoot", &_right);
-		ImGui::Checkbox("isMissileHold", &_missile);
+		Engine::Editor::Field("isLeftWeaponShoot", _left);
+		Engine::Editor::Field("isRightWeaponShoot", _right);
+		Engine::Editor::Field("isMissileHold", _missile);
 	}
 };

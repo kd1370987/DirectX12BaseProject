@@ -38,17 +38,17 @@ struct Engine::ECS::ComponentTraits<ProjectileComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		ProjectileComponent& _comp = Engine::Editor::GetValue<ProjectileComponent>(a_context.pData);
-		ImGui::DragFloat("speed", &_comp.speed, 0.1f);
-		ImGui::DragFloat("damage", &_comp.damage, 0.1f);
+		Engine::Editor::Field("speed", _comp.speed, 0.1f);
+		Engine::Editor::Field("damage", _comp.damage, 0.1f);
 
 		// 発射元(表示のみ。発射時に埋まる)
 		if (_comp.shooterEntity == Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			ImGui::TextDisabled("Shooter : None");
+			Engine::Editor::HelpText("Shooter : None");
 		}
 		else
 		{
-			ImGui::TextDisabled("Shooter : %llu", static_cast<unsigned long long>(_comp.shooterEntity));
+			Engine::Editor::HelpText("Shooter : %llu", static_cast<unsigned long long>(_comp.shooterEntity));
 		}
 	}
 };

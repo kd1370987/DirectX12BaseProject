@@ -99,13 +99,13 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
-		ImGui::Text("Missile Lock");
-		ImGui::Text("Collect radius : %.0f px", CalcCollectRadius());
-		ImGui::TextDisabled("この円の内側に入った敵をミサイルが溜めます(アンカーの PixelSize に内接)");
-		ImGui::TextDisabled("中心は PixelPos。倍率や弾数はプレイヤーの MissileLockComponent");
+		Engine::Editor::Text("Missile Lock");
+		Engine::Editor::Text("Collect radius : %.0f px", CalcCollectRadius());
+		Engine::Editor::HelpText("この円の内側に入った敵をミサイルが溜めます(アンカーの PixelSize に内接)");
+		Engine::Editor::HelpText("中心は PixelPos。倍率や弾数はプレイヤーの MissileLockComponent");
 	}
 }

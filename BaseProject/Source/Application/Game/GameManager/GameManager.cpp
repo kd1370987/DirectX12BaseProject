@@ -132,11 +132,10 @@ namespace App::Game
 		Engine::Editor::MainEditor::Instance().RegisterEditFunc(
 			[&]()
 			{
-				if (ImGui::Begin("GameSetting"))
+				if (Engine::Editor::WindowScope _window{ "GameSetting" })
 				{
 					DrawGameSettingEdit();
 				}
-				ImGui::End();
 			}
 		);
 	}
@@ -191,17 +190,17 @@ namespace App::Game
 	//======================================================================================
 	void GameManager::DrawGameSettingEdit()
 	{
-		ImGui::Text("Farst Scene : %s", m_farstScene.String().c_str());
+		Engine::Editor::Text("Farst Scene : %s", m_farstScene.String().c_str());
 
-		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		Engine::Editor::AssetField(
 			Engine::MainEngine::Instance().GetEngineServices(),
 			"##FarstScene",
 			"Scene",
 			m_farstScene);
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
-		if (ImGui::Button("Save"))
+		if (Engine::Editor::Button("Save"))
 		{
 			SaveGameSetting();
 		}

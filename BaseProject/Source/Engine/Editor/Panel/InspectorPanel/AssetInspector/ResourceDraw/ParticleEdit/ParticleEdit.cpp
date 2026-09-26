@@ -81,8 +81,8 @@ namespace Engine::Editor::Inspector
 
 		// ---- 色の変化 ----
 		// RGB は 1 を超えてよい。超えたぶんがブルームのしきい値を抜けて光る
-		EditorHelper::DrawColorEdit("StartColor", a_pParticles->RefStartColor());
-		EditorHelper::DrawColorEdit("EndColor", a_pParticles->RefEndColor());
+		Field("StartColor", a_pParticles->RefStartColor());
+		Field("EndColor", a_pParticles->RefEndColor());
 		ImGui::TextDisabled("RGB は 1 を超えてよい(超えたぶんが光る)。爆発は白→橙→暗い煙");
 
 		// ---- フェード ----
@@ -100,7 +100,7 @@ namespace Engine::Editor::Inspector
 		// ワールドのままだと、発生源が横へ動いた瞬間に出した粒だけ置き去りになる。
 		// 噴射のように発生源へくっついてほしいものは Local
 		ImGui::Text("Simulation");
-		EditorHelper::DrawEnumCombo("SimulationSpace", a_pParticles->RefSimulationSpace());
+		Field("SimulationSpace", a_pParticles->RefSimulationSpace());
 		if (a_pParticles->IsLocalSpace())
 		{
 			ImGui::TextDisabled("発生源にくっついて動く(ブースターの噴射など)");
@@ -118,7 +118,7 @@ namespace Engine::Editor::Inspector
 		// 加算は光り物、半透明は煙や破片。
 		// 加算のまま煙を出すと背景ごと明るくなってしまう
 		ImGui::Text("Blend");
-		EditorHelper::DrawEnumCombo("BlendMode", a_pParticles->RefBlendMode());
+		Field("BlendMode", a_pParticles->RefBlendMode());
 		if (a_pParticles->GetBlendMode() == Particle::EParticleBlendMode::Additive)
 		{
 			ImGui::TextDisabled("重ねるほど明るくなる。火花・炎・爆発の芯向き");
@@ -134,7 +134,7 @@ namespace Engine::Editor::Inspector
 		// ---- 板ポリの向き ----
 		// 進行方向に画像を回すかどうか。Billboard 以外のとき Stretch が効く
 		ImGui::Text("Orientation");
-		EditorHelper::DrawEnumCombo("Orientation", a_pParticles->RefOrientation());
+		Field("Orientation", a_pParticles->RefOrientation());
 		if (a_pParticles->GetOrientation() == Particle::EParticleOrientation::Billboard)
 		{
 			ImGui::TextDisabled("Always faces camera (texture up = screen up)");
@@ -155,7 +155,7 @@ namespace Engine::Editor::Inspector
 		// テクスチャ選択コンボボックス
 		// 反映は専用のロード関数を通すので、選択だけを共通ヘルパーに任せる
 		GUID _selectedGUID = {};
-		if (Editor::EditorHelper::DrawAssetGUIDCombo(
+		if (Editor::AssetPicker(
 			a_services,
 			"SelectTexture",
 			"Texture",

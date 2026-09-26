@@ -3,7 +3,7 @@
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Engine/Resource/Data/Particles/ParticlesAsset.h"
 #include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
-#include "../../../Engine/Editor/Helper/EditorHelper.h"	// DrawEnumCombo
+#include "../../../Engine/Editor/Helper/EditorField.h"	// DrawEnumCombo
 
 // パーティクルの発生源(位置・方向)をどこから取るか
 // ※ 値は保存されるので、増やすときは必ず末尾に足すこと
@@ -137,63 +137,64 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		ParticlesComponent& _comp = Engine::Editor::GetValue<ParticlesComponent>(a_context.pData);
 
 		// ---- 発生源 ----
-		ImGui::Text("Emit Source");
-		Editor::EditorHelper::DrawEnumCombo("EmitSpace", _comp.emitSpace);
+		Engine::Editor::Text("Emit Source");
+		Engine::Editor::Field("EmitSpace", _comp.emitSpace);
 		if (_comp.emitSpace == EEmitSpace::LocalOffset)
 		{
-			ImGui::DragFloat3("PosOffset", &_comp.posOffset.x, 0.05f);
-			ImGui::DragFloat3("EmitDir (local)", &_comp.emitDir.x, 0.05f);
+			Engine::Editor::Field("PosOffset", _comp.posOffset, 0.05f);
+			Engine::Editor::Field("EmitDir (local)", _comp.emitDir, 0.05f);
 		}
 		else if (_comp.emitSpace == EEmitSpace::FixedWorld)
 		{
-			ImGui::DragFloat3("WorldPos", &_comp.worldPos.x, 0.05f);
-			ImGui::DragFloat3("EmitDir", &_comp.emitDir.x, 0.05f);
+			Engine::Editor::Field("WorldPos", _comp.worldPos, 0.05f);
+			Engine::Editor::Field("EmitDir", _comp.emitDir, 0.05f);
 		}
 		else if (_comp.emitSpace == EEmitSpace::ReverseVelocity)
 		{
 			// 向きは速度から決まるので EmitDir は使わない
-			ImGui::DragFloat3("PosOffset", &_comp.posOffset.x, 0.05f);
-			ImGui::TextDisabled("Dir : -Velocity (fallback : -Forward)");
+			Engine::Editor::Field("PosOffset", _comp.posOffset, 0.05f);
+			Engine::Editor::HelpText("Dir : -Velocity (fallback : -Forward)");
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
 		// ---- 発生量 ----
-		ImGui::Text("Emission");
-		ImGui::DragInt("EmitCount", &_comp.emitCount, 1, 0);
-		ImGui::DragFloat("EmitRate (/s, 0=Burst)", &_comp.emitRate, 0.5f, 0.0f);
+		Engine::Editor::Text("Emission");
+		Engine::Editor::Field("EmitCount", _comp.emitCount, 1, 0);
+		Engine::Editor::Field("EmitRate (/s, 0=Burst)", _comp.emitRate, 0.5f, 0.0f);
 
 		// 出っぱなしにするか。切り替えは即座に反映して、エディタで確認できるようにする
 		// (生成時の反映は ParticleFixupSystem が行う)
-		if (ImGui::Checkbox("PlayOnStart", &_comp.playOnStart))
+		if (Engine::Editor::Field("PlayOnStart", _comp.playOnStart))
 		{
 			_comp.isPlay = _comp.playOnStart;
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
 		// ---- 形状 ----
-		ImGui::Text("Shape");
-		ImGui::DragFloat("BaseScale", &_comp.baseScale, 0.05f, 0.0f);
-		ImGui::DragFloat("MinScale", &_comp.minScale, 0.01f, 0.0f);
-		ImGui::DragFloat("MaxScale", &_comp.maxScale, 0.01f, 0.0f);
-		ImGui::DragFloat("PositionRadius", &_comp.positionRadius, 0.05f, 0.0f);
+		Engine::Editor::Text("Shape");
+		Engine::Editor::Field("BaseScale", _comp.baseScale, 0.05f, 0.0f);
+		Engine::Editor::Field("MinScale", _comp.minScale, 0.01f, 0.0f);
+		Engine::Editor::Field("MaxScale", _comp.maxScale, 0.01f, 0.0f);
+		Engine::Editor::Field("PositionRadius", _comp.positionRadius, 0.05f, 0.0f);
 
 		// どっちへ出すか。Cone の角度を 360 にしても全方向にはならないので、
 		// 爆発のように四方八方へ飛ばしたいときは Sphere を選ぶ
-		Editor::EditorHelper::DrawEnumCombo("EmitShape", _comp.emitShape);
+		Engine::Editor::Field("EmitShape", _comp.emitShape);
 
-		ImGui::BeginDisabled(_comp.emitShape != Engine::Particle::EParticleEmitShape::Cone);
-		ImGui::DragFloat("DirectionAngle (deg)", &_comp.directionAngle, 0.5f, 0.0f, 180.0f);
-		ImGui::EndDisabled();
+		{
+			Engine::Editor::DisabledScope _disabled(_comp.emitShape != Engine::Particle::EParticleEmitShape::Cone);
+			Engine::Editor::Field("DirectionAngle (deg)", _comp.directionAngle, 0.5f, 0.0f, 180.0f);
+		}
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
 		// ---- アセット選択(既存踏襲) ----
 		// ロードではなくキャッシュ参照で解決したいので、選択だけを共通ヘルパーに任せる
-		Editor::EditorHelper::DrawHandle(_comp.particlesAssetHandle);
+		Engine::Editor::HandleInfo(_comp.particlesAssetHandle);
 		GUID _selectedGUID = {};
-		if (Editor::EditorHelper::DrawAssetGUIDCombo(
+		if (Engine::Editor::AssetPicker(
 			*a_context.pWorld->RefEngineServices(),
 			"Change Particle",
 			"ParticlesAsset",
@@ -204,26 +205,26 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 			_comp.particleGUID = _selectedGUID;
 		}
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
 		// ---- 火花(発動時 / 終了時のワンショット) ----
 		// 本体と同じ発生源から、同じフレームに同時に出る
-		if (ImGui::CollapsingHeader("Spark (Start / End)"))
+		if (Engine::Editor::CollapsingHeader("Spark (Start / End)"))
 		{
-			ImGui::Checkbox("EmitSparkOnStart", &_comp.emitSparkOnStart);
-			ImGui::Checkbox("EmitSparkOnEnd", &_comp.emitSparkOnEnd);
+			Engine::Editor::Field("EmitSparkOnStart", _comp.emitSparkOnStart);
+			Engine::Editor::Field("EmitSparkOnEnd", _comp.emitSparkOnEnd);
 
-			ImGui::DragInt("SparkEmitCount", &_comp.sparkEmitCount, 1, 0);
+			Engine::Editor::Field("SparkEmitCount", _comp.sparkEmitCount, 1, 0);
 
-			ImGui::DragFloat("SparkBaseScale", &_comp.sparkBaseScale, 0.05f, 0.0f);
-			ImGui::DragFloat("SparkMinScale", &_comp.sparkMinScale, 0.01f, 0.0f);
-			ImGui::DragFloat("SparkMaxScale", &_comp.sparkMaxScale, 0.01f, 0.0f);
-			ImGui::DragFloat("SparkPositionRadius", &_comp.sparkPositionRadius, 0.05f, 0.0f);
-			ImGui::DragFloat("SparkDirectionAngle (deg)", &_comp.sparkDirectionAngle, 0.5f, 0.0f);
+			Engine::Editor::Field("SparkBaseScale", _comp.sparkBaseScale, 0.05f, 0.0f);
+			Engine::Editor::Field("SparkMinScale", _comp.sparkMinScale, 0.01f, 0.0f);
+			Engine::Editor::Field("SparkMaxScale", _comp.sparkMaxScale, 0.01f, 0.0f);
+			Engine::Editor::Field("SparkPositionRadius", _comp.sparkPositionRadius, 0.05f, 0.0f);
+			Engine::Editor::Field("SparkDirectionAngle (deg)", _comp.sparkDirectionAngle, 0.5f, 0.0f);
 
-			Editor::EditorHelper::DrawHandle(_comp.sparkAssetHandle);
+			Engine::Editor::HandleInfo(_comp.sparkAssetHandle);
 			GUID _selectedSparkGUID = {};
-			if (Editor::EditorHelper::DrawAssetGUIDCombo(
+			if (Engine::Editor::AssetPicker(
 				*a_context.pWorld->RefEngineServices(),
 				"Change Spark Particle",
 				"ParticlesAsset",
@@ -236,8 +237,7 @@ struct Engine::ECS::ComponentTraits<ParticlesComponent>
 		}
 
 		// ---- ランタイム状態(参考) ----
-		ImGui::Separator();
-		ImGui::TextDisabled("isPlay:%d  pending:%d  spark:%d  time:%.2f",
-			_comp.isPlay ? 1 : 0, _comp.pendingEmitCount, _comp.pendingSparkEmitCount, _comp.time);
+		Engine::Editor::Separator();
+		Engine::Editor::HelpText("isPlay:%d  pending:%d  spark:%d  time:%.2f", _comp.isPlay ? 1 : 0, _comp.pendingEmitCount, _comp.pendingSparkEmitCount, _comp.time);
 	}
 };

@@ -15,7 +15,8 @@
 //
 //==========================================================================================
 #include "Engine/Resource/StateGraph/StateGraph.h"
-#include "Engine/Editor/Helper/EditorHelper.h"	// DrawEnumCombo
+#include "Engine/Editor/Helper/EditorField.h"	// Field / CreateButton など
+#include "Engine/Editor/Helper/EditorHelper.h"	// DrawNodeTitleBar
 
 namespace Engine::Editor
 {
@@ -121,7 +122,7 @@ namespace Engine::Editor
 		void DrawResetButton(Graph& a_graph)
 		{
 			// ノード・遷移・パラメータを全部消すので削除扱い(色は EditorHelper に寄せてある)
-			if (EditorHelper::DeleteButton("Reset All"))
+			if (DeleteButton("Reset All"))
 			{
 				ImGui::OpenPopup("Reset Confirmation Popup");
 			}
@@ -132,7 +133,7 @@ namespace Engine::Editor
 			{
 				ImGui::Text("Are you sure you want to reset the state machine?\nAll nodes, links, and parameters will be permanently deleted.");
 				ImGui::Separator();
-				if (EditorHelper::DeleteButton("Yes, Reset", ImVec2(120, 0)))
+				if (DeleteButton("Yes, Reset", Math::Vector2(120, 0)))
 				{
 					a_graph.Clear();
 					ImGui::CloseCurrentPopup();
@@ -156,7 +157,7 @@ namespace Engine::Editor
 			ImGui::Text("Parameters");
 			ImGui::Indent();
 
-			if (EditorHelper::CreateButton("Add Parameter"))
+			if (CreateButton("Add Parameter"))
 			{
 				ImGui::OpenPopup("Add Parameter Popup");
 			}
@@ -174,7 +175,7 @@ namespace Engine::Editor
 				ImGui::Combo("Type", &_paramTypeIdx, _typeNames, IM_ARRAYSIZE(_typeNames));
 				ImGui::Separator();
 
-				if (EditorHelper::CreateButton("Create", ImVec2(120, 0)))
+				if (CreateButton("Create", Math::Vector2(120, 0)))
 				{
 					if (std::strlen(_paramName) > 0)
 					{
@@ -215,7 +216,7 @@ namespace Engine::Editor
 					ImGui::PushID(_uiIndex++);
 					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
 					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.85f, 0.3f, 0.3f, 1.0f));
-					if (EditorHelper::DeleteSmallButton("x"))
+					if (DeleteSmallButton("x"))
 					{
 						_deleteParamHash = _hash;
 					}
@@ -242,7 +243,7 @@ namespace Engine::Editor
 		//----------------------------------------------------------------------------------
 		void DrawAddNode(Graph& a_graph)
 		{
-			if (EditorHelper::CreateButton("Add Node"))
+			if (CreateButton("Add Node"))
 			{
 				ImGui::OpenPopup("Add Node Popup");
 			}
@@ -255,7 +256,7 @@ namespace Engine::Editor
 				ImGui::InputText("Node Name", _name, sizeof(_name));
 				ImGui::Separator();
 
-				if (EditorHelper::CreateButton("Create", ImVec2(120, 0)))
+				if (CreateButton("Create", Math::Vector2(120, 0)))
 				{
 					if (std::strlen(_name) > 0)
 					{
@@ -395,7 +396,7 @@ namespace Engine::Editor
 			ImGui::Spacing();
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.85f, 0.3f, 0.3f, 1.0f));
-			if (EditorHelper::DeleteSmallButton("Delete Node"))
+			if (DeleteSmallButton("Delete Node"))
 			{
 				m_pendingDeleteNode = a_node.hash;
 			}
@@ -469,7 +470,7 @@ namespace Engine::Editor
 
 			ImGui::Text("Edit Link ID : %d", m_editingLinkID);
 
-			if (EditorHelper::DeleteButton("Delete Arrow", ImVec2(90, 0)))
+			if (DeleteButton("Delete Arrow", Math::Vector2(90, 0)))
 			{
 				auto _it = std::remove_if(_pArrowVec->begin(), _pArrowVec->end(),
 					[this](const StateGraph::TransitionArrow& a) { return a.linkID == m_editingLinkID; });
@@ -493,7 +494,7 @@ namespace Engine::Editor
 				ImGui::Separator();
 				ImGui::PushID(_uiIndex);
 
-				if (EditorHelper::DeleteButton("x"))
+				if (DeleteButton("x"))
 				{
 					_it = _pArrow->conditions.erase(_it);
 					ImGui::PopID();
@@ -531,7 +532,7 @@ namespace Engine::Editor
 
 				// 比較演算子 + 閾値
 				ImGui::SetNextItemWidth(100.0f);
-				EditorHelper::DrawEnumCombo("Condition", _it->op);
+				Field("Condition", _it->op);
 				if (_params.find(_it->paramHash) != _params.end())
 				{
 					auto& _paramDef = _params[_it->paramHash];
@@ -553,7 +554,7 @@ namespace Engine::Editor
 			}
 			ImGui::Separator();
 
-			if (EditorHelper::CreateButton("Add Condition"))
+			if (CreateButton("Add Condition"))
 			{
 				_pArrow->conditions.emplace_back();
 			}

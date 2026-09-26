@@ -39,20 +39,20 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		AnimatorComponent& _comp = Engine::Editor::GetValue<AnimatorComponent>(a_context.pData);
-		ImGui::Text("Handle : idx = %d,  gen = %d", (int)_comp.animHandle.GetIndex(), (int)_comp.animHandle.GetGeneration());
-		ImGui::InputScalar("clipID", ImGuiDataType_U32, &_comp.clipID);
-		ImGui::Text("Time : %f", &_comp.time);
+		Engine::Editor::Text("Handle : idx = %d,  gen = %d", (int)_comp.animHandle.GetIndex(), (int)_comp.animHandle.GetGeneration());
+		Engine::Editor::Field("clipID", _comp.clipID);
+		Engine::Editor::Text("Time : %f", &_comp.time);
 
-		ImGui::DragFloat("Speed", &_comp.speed);
+		Engine::Editor::Field("Speed", _comp.speed);
 
 		ECS::Flg& _isLoop = _comp.isLoop;
 		bool _value = _isLoop != 0;
-		if (ImGui::Checkbox("IsLoop", &_value))
+		if (Engine::Editor::Field("IsLoop", _value))
 		{
 			_isLoop = _value ? 1u : 0u;
 		}
 
-		Engine::Editor::EditorHelper::DrawHandle(_comp.dynamicInstanceHandle);
+		Engine::Editor::HandleInfo(_comp.dynamicInstanceHandle);
 
 		// プレハブ編集では実体が無い(entity は INVALID)。
 		// 無効IDでエンティティ参照するとレンジ外になるので、実体があるときだけ辿る。
@@ -66,7 +66,7 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 			if (!_pModel) return;
 
 			// モデル内のアニメーションコンボ
-			Engine::Editor::EditorHelper::DrawModelAnimationCombo(*a_context.pWorld->RefEngineServices(), "Animation", _pModel, _comp.animHandle);
+			Engine::Editor::ModelAnimationField(*a_context.pWorld->RefEngineServices(), "Animation", _pModel, _comp.animHandle);
 		}
 	}
 };

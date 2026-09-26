@@ -58,20 +58,21 @@ namespace Engine::Option::GraphicsOptions
 
 		void DrawEdit(const ECS::EngineServices&) override
 		{
-			Editor::EditorHelper::DrawEnumCombo("ToneMapType", type);
+			Engine::Editor::Field("ToneMapType", type);
 
-			ImGui::DragFloat("Exposure", &exposure, 0.01f, 0.0f, 10.0f);
+			Engine::Editor::Field("Exposure", exposure, 0.01f, 0.0f, 10.0f);
 
 			// 白点を見ない種類のときは触らせない(効かない値を触れると混乱する)
 			const bool _useWhitePoint =
 				(type == EToneMapType::ReinhardExtended) || (type == EToneMapType::Uncharted2);
 
-			ImGui::BeginDisabled(!_useWhitePoint);
-			ImGui::DragFloat("WhitePoint", &whitePoint, 0.05f, 0.01f, 64.0f);
-			ImGui::EndDisabled();
+			{
+				Engine::Editor::DisabledScope _disabled(!_useWhitePoint);
+				Engine::Editor::Field("WhitePoint", whitePoint, 0.05f, 0.01f, 64.0f);
+			}
 			if (!_useWhitePoint)
 			{
-				ImGui::TextDisabled("(WhitePoint は ReinhardExtended / Uncharted2 のみ)");
+				Engine::Editor::HelpText("(WhitePoint は ReinhardExtended / Uncharted2 のみ)");
 			}
 		}
 

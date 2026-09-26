@@ -128,62 +128,60 @@ struct Engine::ECS::ComponentTraits<ChargeDashComponent>
 	{
 		ChargeDashComponent& _comp = Engine::Editor::GetValue<ChargeDashComponent>(a_context.pData);
 
-		ImGui::SeparatorText("Charge");
-		ImGui::TextDisabled("Space を押しっぱなしで溜める。溜まりきる前に離したら発動しない");
-		ImGui::DragFloat("ChargeTime (s)", &_comp.chargeTime, 0.01f, 0.0f);
-		ImGui::Checkbox("AutoRelease", &_comp.isAutoRelease);
+		Engine::Editor::Section("Charge");
+		Engine::Editor::HelpText("Space を押しっぱなしで溜める。溜まりきる前に離したら発動しない");
+		Engine::Editor::Field("ChargeTime (s)", _comp.chargeTime, 0.01f, 0.0f);
+		Engine::Editor::Field("AutoRelease", _comp.isAutoRelease);
 		if (_comp.isAutoRelease)
 		{
-			ImGui::TextDisabled("溜まりきった瞬間に自動で発動する");
+			Engine::Editor::HelpText("溜まりきった瞬間に自動で発動する");
 		}
 
-		ImGui::SeparatorText("Dash");
-		ImGui::TextDisabled("出た瞬間の向きへ直進する。進む軸は変えられない(曲がれない)");
-		ImGui::DragFloat("DashSpeed (m/s)", &_comp.dashSpeed, 0.5f, 0.0f);
-		ImGui::DragFloat("StrafeSpeed (m/s)", &_comp.dashStrafeSpeed, 0.5f, 0.0f);
-		ImGui::TextDisabled("進行軸から外れた向きへ流れる速さ。0 で真っ直ぐしか動けない");
-		ImGui::DragFloat("VerticalSpeed (m/s)", &_comp.dashVerticalSpeed, 0.5f, 0.0f);
-		ImGui::DragFloat("CoolTime (s)", &_comp.coolTime, 0.01f, 0.0f);
-		ImGui::Checkbox("UseMoveDir", &_comp.isUseMoveDir);
-		ImGui::TextDisabled(_comp.isUseMoveDir
+		Engine::Editor::Section("Dash");
+		Engine::Editor::HelpText("出た瞬間の向きへ直進する。進む軸は変えられない(曲がれない)");
+		Engine::Editor::Field("DashSpeed (m/s)", _comp.dashSpeed, 0.5f, 0.0f);
+		Engine::Editor::Field("StrafeSpeed (m/s)", _comp.dashStrafeSpeed, 0.5f, 0.0f);
+		Engine::Editor::HelpText("進行軸から外れた向きへ流れる速さ。0 で真っ直ぐしか動けない");
+		Engine::Editor::Field("VerticalSpeed (m/s)", _comp.dashVerticalSpeed, 0.5f, 0.0f);
+		Engine::Editor::Field("CoolTime (s)", _comp.coolTime, 0.01f, 0.0f);
+		Engine::Editor::Field("UseMoveDir", _comp.isUseMoveDir);
+		Engine::Editor::HelpText(_comp.isUseMoveDir
 			? "移動入力があればその向き / 無ければ視点の正面"
 			: "いつでも視点の正面へ出る");
-		ImGui::Checkbox("KeepHeight", &_comp.isKeepHeight);
-		ImGui::TextDisabled(_comp.isKeepHeight
+		Engine::Editor::Field("KeepHeight", _comp.isKeepHeight);
+		Engine::Editor::HelpText(_comp.isKeepHeight
 			? "ダッシュ中は落ちない(上下は入力ぶんだけ)"
 			: "落ちながら進む(上下入力は重力に足される)");
-		ImGui::Checkbox("UseJumpAscend", &_comp.isUseJumpAscend);
-		ImGui::TextDisabled(_comp.isUseJumpAscend
+		Engine::Editor::Field("UseJumpAscend", _comp.isUseJumpAscend);
+		Engine::Editor::HelpText(_comp.isUseJumpAscend
 			? "ダッシュ中だけ Space が上昇になる"
 			: "上下は急降下(LCtrl)だけ");
 
-		ImGui::SeparatorText("Energy");
-		ImGui::TextDisabled("ブーストと同じ燃料(BoostComponent)を吸う。尽きたら止まる");
-		ImGui::DragFloat("FuelPerSec", &_comp.dashFuelPerSec, 1.0f, 0.0f);
+		Engine::Editor::Section("Energy");
+		Engine::Editor::HelpText("ブーストと同じ燃料(BoostComponent)を吸う。尽きたら止まる");
+		Engine::Editor::Field("FuelPerSec", _comp.dashFuelPerSec, 1.0f, 0.0f);
 		if (_comp.dashFuelPerSec <= 0.0f)
 		{
-			ImGui::TextDisabled("0 : エネルギーを消費しない(逆入力でしか止まらない)");
+			Engine::Editor::HelpText("0 : エネルギーを消費しない(逆入力でしか止まらない)");
 		}
 		else
 		{
-			ImGui::TextDisabled("回復量(FuelRegeneration)より大きくしないと尽きません");
+			Engine::Editor::HelpText("回復量(FuelRegeneration)より大きくしないと尽きません");
 		}
 
-		ImGui::SeparatorText("Brake");
-		ImGui::TextDisabled("進行方向の逆へ入力すると止まる(既定の操作なら S)");
-		ImGui::SliderFloat("BrakeDot", &_comp.brakeDot, -1.0f, 0.0f);
-		ImGui::TextDisabled("-1 : 真後ろだけ / 0 に近いほど横入力でも止まる");
-		ImGui::SliderFloat("ExitSpeedScale", &_comp.exitSpeedScale, 0.0f, 1.0f);
-		ImGui::TextDisabled("止まった直後に残す速さの割合。0 で完全停止");
+		Engine::Editor::Section("Brake");
+		Engine::Editor::HelpText("進行方向の逆へ入力すると止まる(既定の操作なら S)");
+		Engine::Editor::Slider("BrakeDot", _comp.brakeDot, -1.0f, 0.0f);
+		Engine::Editor::HelpText("-1 : 真後ろだけ / 0 に近いほど横入力でも止まる");
+		Engine::Editor::Slider("ExitSpeedScale", _comp.exitSpeedScale, 0.0f, 1.0f);
+		Engine::Editor::HelpText("止まった直後に残す速さの割合。0 で完全停止");
 
 		// ランタイムは表示のみ
-		ImGui::SeparatorText("Runtime");
-		ImGui::ProgressBar(std::clamp(_comp.charge01, 0.0f, 1.0f), ImVec2(-FLT_MIN, 0),
-			_comp.isCharged ? "Charged" : "Charging");
-		ImGui::Text("Dashing     : %s", _comp.isDashing ? "true" : "false");
-		ImGui::Text("DashElapsed : %.3f", _comp.dashElapsed);
-		ImGui::Text("CoolTimer   : %.3f", _comp.coolTimer);
-		ImGui::Text("DashDir     : %.2f, %.2f, %.2f",
-			_comp.dashDir.x, _comp.dashDir.y, _comp.dashDir.z);
+		Engine::Editor::Section("Runtime");
+		Engine::Editor::ProgressBar(std::clamp(_comp.charge01, 0.0f, 1.0f), _comp.isCharged ? "Charged" : "Charging");
+		Engine::Editor::Text("Dashing     : %s", _comp.isDashing ? "true" : "false");
+		Engine::Editor::Text("DashElapsed : %.3f", _comp.dashElapsed);
+		Engine::Editor::Text("CoolTimer   : %.3f", _comp.coolTimer);
+		Engine::Editor::Text("DashDir     : %.2f, %.2f, %.2f", _comp.dashDir.x, _comp.dashDir.y, _comp.dashDir.z);
 	}
 };

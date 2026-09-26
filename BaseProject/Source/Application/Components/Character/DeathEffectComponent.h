@@ -2,8 +2,8 @@
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
-#include "Engine/Editor/Helper/EditorHelper.inl"
+#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/Editor/Helper/EditorField.inl"
 
 //==========================================================================================
 // DeathEffectComponent
@@ -60,7 +60,7 @@ struct Engine::ECS::ComponentTraits<DeathEffectComponent>
 	{
 		DeathEffectComponent& _comp = Engine::Editor::GetValue<DeathEffectComponent>(a_context.pData);
 
-		Engine::Editor::EditorHelper::DrawAssetSelectCombo<Engine::Resource::EffectAsset>(
+		Engine::Editor::AssetField<Engine::Resource::EffectAsset>(
 			*a_context.pWorld->RefEngineServices(),
 			"Death Effect",
 			"EffectAsset",
@@ -69,7 +69,7 @@ struct Engine::ECS::ComponentTraits<DeathEffectComponent>
 
 		if (_comp.effectGUID == Engine::DefaultGUID)
 		{
-			ImGui::TextDisabled("(未設定 : 死んでも何も出ない)");
+			Engine::Editor::HelpText("(未設定 : 死んでも何も出ない)");
 			return;
 		}
 
@@ -77,12 +77,10 @@ struct Engine::ECS::ComponentTraits<DeathEffectComponent>
 		const auto* _pEffect = a_context.pWorld->RefEngineServices()->pResourceManager->Get(_comp.effectHandle);
 		if (!_pEffect)
 		{
-			ImGui::TextDisabled("(読み込み中 / 見つからないアセット)");
+			Engine::Editor::HelpText("(読み込み中 / 見つからないアセット)");
 			return;
 		}
 
-		ImGui::TextDisabled("Particle Parts : %d / Mesh Parts : %d",
-			static_cast<int>(_pEffect->GetParticleParts().size()),
-			static_cast<int>(_pEffect->GetMeshParts().size()));
+		Engine::Editor::HelpText("Particle Parts : %d / Mesh Parts : %d", static_cast<int>(_pEffect->GetParticleParts().size()), static_cast<int>(_pEffect->GetMeshParts().size()));
 	}
 };

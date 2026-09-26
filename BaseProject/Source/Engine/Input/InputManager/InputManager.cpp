@@ -20,17 +20,11 @@ namespace Engine::Input
 		// エディタのテキスト入力欄にフォーカスがあるか(=文字入力中か)。
 		// この間はゲーム側の入力を無効化し、プレイヤー操作やシーン遷移が
 		// 誤って走らないようにする。
-		//
-		// 注意: WantCaptureKeyboard は NavEnableKeyboard 有効時、ImGuiウィンドウに
-		//       フォーカスがあるだけで常時 true になり得る(ドッキング型エディタでは
-		//       ほぼ常時ブロックされてしまう)。そのため、テキスト入力中だけ true になる
-		//       WantTextInput を使う。
-		bool IsUICapturingInput()
-		{
-			// ImGuiコンテキストが無い(エディタ無効時など)なら何もブロックしない
-			if (ImGui::GetCurrentContext() == nullptr) return false;
-			return ImGui::GetIO().WantTextInput;
-		}
+		// エディタが無い(無効時など)ときは何もブロックしない
+		bool IsUICapturingInput()
+		{
+			return Editor::IsTextInputActive();
+		}
 
 		// ゲーム入力を受け付けてよい状態か。
 		//

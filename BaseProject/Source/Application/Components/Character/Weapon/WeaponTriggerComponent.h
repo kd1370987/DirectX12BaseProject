@@ -31,8 +31,7 @@ struct Engine::ECS::ComponentTraits<WeaponTriggerComponent>
 
 		// 配信された結果を見るだけ。ここから触っても次のフレームで上書きされる
 		bool _pulled = _comp.isPulled;
-		ImGui::BeginDisabled(true);
-		ImGui::Checkbox("isPulled", &_pulled);
-		ImGui::EndDisabled();
+		Engine::Editor::DisabledScope _disabled(true);
+		Engine::Editor::Field("isPulled", _pulled);
 	}
 };

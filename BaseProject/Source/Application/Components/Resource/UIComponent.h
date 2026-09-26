@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "../../../Engine/Editor/Helper/EditorHelper.inl"
+#include "../../../Engine/Editor/Helper/EditorField.inl"
 
 struct UIComponent
 {
@@ -34,12 +34,22 @@ struct Engine::ECS::ComponentTraits<UIComponent>
 		using namespace Engine;
 		UIComponent& _comp = Engine::Editor::GetValue<UIComponent>(a_context.pData);
 
-		// UV関連の設定
-		ImGui::DragFloat2("UVOffset", &_comp.uvOffsetTiling.x, 0.1f);
-		ImGui::DragFloat2("UVTile", &_comp.uvOffsetTiling.z, 0.1f);
+		// UV関連の設定 : uvOffsetTiling は xy がオフセット、zw がタイリング
+		Math::Vector2 _uvOffset(_comp.uvOffsetTiling.x, _comp.uvOffsetTiling.y);
+		if (Engine::Editor::Field("UVOffset", _uvOffset, 0.1f))
+		{
+			_comp.uvOffsetTiling.x = _uvOffset.x;
+			_comp.uvOffsetTiling.y = _uvOffset.y;
+		}
+		Math::Vector2 _uvTile(_comp.uvOffsetTiling.z, _comp.uvOffsetTiling.w);
+		if (Engine::Editor::Field("UVTile", _uvTile, 0.1f))
+		{
+			_comp.uvOffsetTiling.z = _uvTile.x;
+			_comp.uvOffsetTiling.w = _uvTile.y;
+		}
 
 		// テクスチャの選択(現在の表示もヘルパー側で行う)
-		Editor::EditorHelper::DrawAssetSelectCombo<Resource::Texture>(
+		Engine::Editor::AssetField<Resource::Texture>(
 			*a_context.pWorld->RefEngineServices(),
 			"Change Texture",
 			"Texture",
@@ -47,7 +57,7 @@ struct Engine::ECS::ComponentTraits<UIComponent>
 			_comp.texHandle
 		);
 
-		ImGui::Text("ColorScale");
-		ImGui::ColorPicker4("ColorScale", _comp.color.Data());
+		Engine::Editor::Text("ColorScale");
+		Engine::Editor::ColorPicker("ColorScale", _comp.color);
 	}
 };

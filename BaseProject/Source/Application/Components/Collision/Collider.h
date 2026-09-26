@@ -113,17 +113,17 @@ struct Engine::ECS::ComponentTraits<ColliderComponent>
 		ColliderComponent& _comp = Engine::Editor::GetValue<ColliderComponent>(a_context.pData);
 
 		// レイヤー選択
-		Editor::EditorHelper::DrawEnumCombo("MyLayer", _comp.layer);
-		Editor::EditorHelper::DrawEnumFlagsCombo("HItLayer", _comp.collideLayer);
+		Engine::Editor::Field("MyLayer", _comp.layer);
+		Engine::Editor::FlagsField("HItLayer", _comp.collideLayer);
 
 		// 物理解決
 		bool _is = _comp.isPhysical != 0;
-		if (ImGui::Checkbox("IsPhysical", &_is))
+		if (Engine::Editor::Field("IsPhysical", _is))
 		{
 			_comp.isPhysical = _is ? 1u : 0u;
 		}
 
 		// シェープタイプ
-		Editor::EditorHelper::DrawEnumCombo("ShapeType",_comp.shapeType);
+		Engine::Editor::Field("ShapeType",_comp.shapeType);
 	}
 };

@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/System/SystemContext.h"	// ObjectContext が運ぶサービス群
 
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 //==========================================================================================
 // UIButton
@@ -33,14 +33,14 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
-		ImGui::SeparatorText("Button");
-		ImGui::TextDisabled("判定・音・状態は上の Interaction、見た目は飾りの Reaction");
+		Engine::Editor::Section("Button");
+		Engine::Editor::HelpText("判定・音・状態は上の Interaction、見た目は飾りの Reaction");
 
 		// 差し込まれているかどうかだけ出す(中身はコードなので触れない)
-		ImGui::Text("OnClick : %s", m_onClick ? "set" : "none");
+		Engine::Editor::Text("OnClick : %s", m_onClick ? "set" : "none");
 	}
 }

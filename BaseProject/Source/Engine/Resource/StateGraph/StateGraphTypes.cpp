@@ -49,7 +49,7 @@ namespace Engine::StateGraph
 
 	void TransitionArrow::EditArrow(int a_srcOutPinID, int a_dstInPinID) const
 	{
-		ImNodes::Link(linkID, a_srcOutPinID, a_dstInPinID);
+		Engine::Editor::NodeLink(linkID, a_srcOutPinID, a_dstInPinID);
 	}
 
 	void StateNodeBase::ArchiveTopology(Persistence::Archive& a_arch)

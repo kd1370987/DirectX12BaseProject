@@ -31,45 +31,43 @@ void Engine::Option::ProjectOptions::InputOption::DrawEdit(const ECS::EngineServ
 	//======================================================================
 	// カーソル
 	//======================================================================
-	ImGui::SeparatorText("Cursor");
+	Engine::Editor::Section("Cursor");
 
-	if (ImGui::Checkbox("CursorLockToCenter", &isCursorLockedToCenter))
+	if (Engine::Editor::Field("CursorLockToCenter", isCursorLockedToCenter))
 	{
 		Input::InputManager::Instance().SetCursorCentered(isCursorLockedToCenter);
 	}
-	ImGui::SameLine();
-	ImGui::TextDisabled("(プレイ中だけ画面中央へ固定)");
+	Engine::Editor::SameLine();
+	Engine::Editor::HelpText("(プレイ中だけ画面中央へ固定)");
 
 	//======================================================================
 	// 視点感度
 	//======================================================================
-	ImGui::SeparatorText("Mouse Look");
+	Engine::Editor::Section("Mouse Look");
 
-	ImGui::DragFloat("SensitivityX", &lookSensitivityX, 0.005f,
-		MIN_SENSITIVITY, MAX_SENSITIVITY, "%.3f deg/count");
-	ImGui::DragFloat("SensitivityY", &lookSensitivityY, 0.005f,
-		MIN_SENSITIVITY, MAX_SENSITIVITY, "%.3f deg/count");
+	Engine::Editor::Field("SensitivityX", lookSensitivityX, 0.005f, MIN_SENSITIVITY, MAX_SENSITIVITY, "%.3f deg/count");
+	Engine::Editor::Field("SensitivityY", lookSensitivityY, 0.005f, MIN_SENSITIVITY, MAX_SENSITIVITY, "%.3f deg/count");
 
 	// DragFloat の min/max は入力欄への直接入力までは止めないので、ここで押さえる
 	lookSensitivityX = std::clamp(lookSensitivityX, MIN_SENSITIVITY, MAX_SENSITIVITY);
 	lookSensitivityY = std::clamp(lookSensitivityY, MIN_SENSITIVITY, MAX_SENSITIVITY);
 
 	// 左右と上下を揃える(別々にしたい人のほうが少ないので、片方から合わせられるようにする)
-	if (ImGui::Button("Y = X"))
+	if (Engine::Editor::Button("Y = X"))
 	{
 		lookSensitivityY = lookSensitivityX;
 	}
-	ImGui::SameLine();
-	if (ImGui::Button("Reset"))
+	Engine::Editor::SameLine();
+	if (Engine::Editor::Button("Reset"))
 	{
 		lookSensitivityX = DEFAULT_SENSITIVITY;
 		lookSensitivityY = DEFAULT_SENSITIVITY;
 		isInvertLookY    = false;
 	}
 
-	ImGui::Checkbox("InvertY", &isInvertLookY);
-	ImGui::SameLine();
-	ImGui::TextDisabled("(上下の反転)");
+	Engine::Editor::Field("InvertY", isInvertLookY);
+	Engine::Editor::SameLine();
+	Engine::Editor::HelpText("(上下の反転)");
 
 	//======================================================================
 	// 目安の表示
@@ -77,20 +75,18 @@ void Engine::Option::ProjectOptions::InputOption::DrawEdit(const ECS::EngineServ
 	// 感度の数値だけでは速さが想像できないので、
 	// 「360度振り向くのにマウスを何cm動かすか」に直して見せる。
 	// この欄は表示専用で、入力には影響しない。
-	ImGui::SeparatorText("Reference");
+	Engine::Editor::Section("Reference");
 
-	if (ImGui::DragInt("MouseDPI", &mouseDpi, 50.0f, 100, 32000))
+	if (Engine::Editor::Field("MouseDPI", mouseDpi, 50.0f, 100, 32000))
 	{
 		mouseDpi = std::clamp(mouseDpi, 100, 32000);
 	}
-	ImGui::SameLine();
-	ImGui::TextDisabled("(表示の計算にだけ使う)");
+	Engine::Editor::SameLine();
+	Engine::Editor::HelpText("(表示の計算にだけ使う)");
 
-	ImGui::Text("360 turn : %.1f cm (X) / %.1f cm (Y)",
-		CalcCentiMeterPer360(lookSensitivityX, mouseDpi),
-		CalcCentiMeterPer360(lookSensitivityY, mouseDpi));
+	Engine::Editor::Text("360 turn : %.1f cm (X) / %.1f cm (Y)", CalcCentiMeterPer360(lookSensitivityX, mouseDpi), CalcCentiMeterPer360(lookSensitivityY, mouseDpi));
 
-	ImGui::TextDisabled("Windows側のポインター速度・加速は影響しない(生の入力を使用)");
+	Engine::Editor::HelpText("Windows側のポインター速度・加速は影響しない(生の入力を使用)");
 }
 
 void Engine::Option::ProjectOptions::InputOption::Archive(Persistence::Archive& a_archive)

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 //==========================================================================================
 // BoidSpownerComponent
@@ -45,12 +45,12 @@ struct Engine::ECS::ComponentTraits<BoidSpownerComponent>
 		BoidSpownerComponent& _comp = Engine::Editor::GetValue<BoidSpownerComponent>(a_context.pData);
 		auto& _services = *a_context.pWorld->RefEngineServices();
 
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(_services, "Boid Prefab", "Prefab", _comp.boidPrefabGUID))
+		if (Engine::Editor::AssetField(_services, "Boid Prefab", "Prefab", _comp.boidPrefabGUID))
 		{
 			// GUIDが変わったら作り直し。借りていたぶんは返す
 			_services.pResourceManager->ReleaseHandle(_comp.prefab);
 		}
-		ImGui::DragFloat("SpawnRadius", &_comp.spawnRadius, 0.1f, 0.0f);
-		ImGui::TextDisabled("(spawn count is decided by the controller)");
+		Engine::Editor::Field("SpawnRadius", _comp.spawnRadius, 0.1f, 0.0f);
+		Engine::Editor::HelpText("(spawn count is decided by the controller)");
 	}
 };

@@ -5,7 +5,7 @@
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Option/OptionManager.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 #include "../../UI/UIButton/UIButton.h"
 
@@ -138,15 +138,15 @@ namespace App::Object
 	//======================================================================================
 	void TitleSequence::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		ImGui::SeparatorText("Play Button");
+		Engine::Editor::Section("Play Button");
 
 		// 同じシーンに置いた UIButton から選ぶ
 		std::string _current = "None";
 		if (m_playButtonGUID.IsValid()) _current = m_playButtonGUID.String();
 
-		if (ImGui::BeginCombo("Button", _current.c_str()))
+		if (Engine::Editor::ComboScope _combo{ "Button", _current.c_str() })
 		{
-			if (ImGui::Selectable("None", !m_playButtonGUID.IsValid()))
+			if (Engine::Editor::Selectable("None", !m_playButtonGUID.IsValid()))
 			{
 				m_playButtonGUID = {};
 				m_isBound = false;
@@ -161,38 +161,35 @@ namespace App::Object
 					if (!_pButton) continue;
 
 					// 同名でもIDがぶつからないようにする
-					ImGui::PushID(static_cast<int>(_i));
+					Engine::Editor::IDScope _id(static_cast<int>(_i));
 
 					const bool _isSelected = (m_playButtonGUID == _pButton->GetGUID());
-					if (ImGui::Selectable(_pButton->GetGUID().String().c_str(), _isSelected))
+					if (Engine::Editor::Selectable(_pButton->GetGUID().String().c_str(), _isSelected))
 					{
 						m_playButtonGUID = _pButton->GetGUID();
 
 						// 差し込み直させる
 						m_isBound = false;
 					}
-					if (_isSelected) ImGui::SetItemDefaultFocus();
-
-					ImGui::PopID();
+					if (_isSelected) Engine::Editor::SetItemDefaultFocus();
 				}
 			}
-			ImGui::EndCombo();
 		}
 
-		ImGui::SeparatorText("Next Scene");
+		Engine::Editor::Section("Next Scene");
 
-		Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pServices, "Scene", "Scene", m_nextSceneGUID);
+		Engine::Editor::AssetField(*a_context.pServices, "Scene", "Scene", m_nextSceneGUID);
 
 		m_bgm.DrawInspector(a_context);
 
-		ImGui::SeparatorText("Cursor");
+		Engine::Editor::Section("Cursor");
 
-		ImGui::Checkbox("ReleaseCursorLock", &m_isReleaseCursorLock);
-		ImGui::TextDisabled("タイトルの間はカーソルの中央固定を切る");
+		Engine::Editor::Field("ReleaseCursorLock", m_isReleaseCursorLock);
+		Engine::Editor::HelpText("タイトルの間はカーソルの中央固定を切る");
 
 		// 実行中の状態は表示のみ
-		ImGui::SeparatorText("Runtime");
-		ImGui::Text("Bound     : %s", m_isBound ? "yes" : "no");
-		ImGui::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
+		Engine::Editor::Section("Runtime");
+		Engine::Editor::Text("Bound     : %s", m_isBound ? "yes" : "no");
+		Engine::Editor::Text("Requested : %s", m_isSceneRequested ? "yes" : "no");
 	}
 }

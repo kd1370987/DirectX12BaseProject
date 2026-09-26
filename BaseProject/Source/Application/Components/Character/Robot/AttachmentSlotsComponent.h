@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 #include "Application/Components/Persistence/GUIDComponent.h"
 #include "Application/Components/Persistence/NameComponent.h"
 
@@ -60,7 +60,7 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 		auto* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld)
 		{
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), "World is null");
+			Engine::Editor::TextColored(Math::Color(1, 1, 0, 1), "World is null");
 			return;
 		}
 
@@ -101,7 +101,7 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 			_candidateVec.push_back({ _e, _pGuid->guid, _entityLabel(_e, _pGuid->guid) });
 		}
 
-		const auto _duplicatedSet = Engine::Editor::EditorHelper::CollectDuplicatedNames(
+		const auto _duplicatedSet = Engine::Editor::CollectDuplicatedNames(
 			_candidateVec, [](const SlotCandidate& a_candidate) { return a_candidate.name; });
 
 		// 同名を見分けるための手掛かり。GUIDは長いので頭だけ出す
@@ -117,14 +117,14 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 			std::string _current = "None";
 			if (a_slot.guid != Engine::DefaultGUID)
 			{
-				_current = Engine::Editor::EditorHelper::MakeUniqueLabel(
+				_current = Engine::Editor::MakeUniqueLabel(
 					_duplicatedSet, _entityLabel(a_slot.id, a_slot.guid), _guidHint(a_slot.guid));
 			}
 
-			if (ImGui::BeginCombo(a_label, _current.c_str()))
+			if (Engine::Editor::ComboScope _combo{ a_label, _current.c_str() })
 			{
 				// クリア用
-				if (ImGui::Selectable("None", a_slot.guid == Engine::DefaultGUID))
+				if (Engine::Editor::Selectable("None", a_slot.guid == Engine::DefaultGUID))
 				{
 					a_slot.guid = {};
 					a_slot.id = Engine::ECS::Limits::INVALID_ENTITY;
@@ -134,38 +134,36 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 				for (const SlotCandidate& _candidate : _candidateVec)
 				{
 					// 名前が同じでもImGuiのIDがぶつからないようにエンティティIDでPushID
-					ImGui::PushID(static_cast<int>(_candidate.entity));
+					Engine::Editor::IDScope _id(static_cast<int>(_candidate.entity));
 
 					bool _selected = (a_slot.guid == _candidate.guid);
 
-					const std::string _label = Engine::Editor::EditorHelper::MakeUniqueLabel(
+					const std::string _label = Engine::Editor::MakeUniqueLabel(
 						_duplicatedSet, _candidate.name, _guidHint(_candidate.guid));
 
-					if (ImGui::Selectable(_label.c_str(), _selected))
+					if (Engine::Editor::Selectable(_label.c_str(), _selected))
 					{
 						a_slot.guid = _candidate.guid;
 						a_slot.id = _candidate.entity;
 					}
-					if (_selected) ImGui::SetItemDefaultFocus();
-					ImGui::PopID();
+					if (_selected) Engine::Editor::SetItemDefaultFocus();
 				}
-				ImGui::EndCombo();
 			}
 
 			// 参考: 解決済みのランタイムID
-			ImGui::SameLine();
-			ImGui::TextDisabled("id:%llu", static_cast<unsigned long long>(a_slot.id));
+			Engine::Editor::SameLine();
+			Engine::Editor::HelpText("id:%llu", static_cast<unsigned long long>(a_slot.id));
 		};
 
-		ImGui::Text("Boosters");
+		Engine::Editor::Text("Boosters");
 		_drawSlot("R Shoulder", _comp.rightShoulderBoost);
 		_drawSlot("L Shoulder", _comp.leftShoulderBoost);
 		_drawSlot("R Leg",      _comp.rightLegBoost);
 		_drawSlot("L Leg",      _comp.leftLegBoost);
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
-		ImGui::Text("Weapons");
+		Engine::Editor::Text("Weapons");
 		_drawSlot("Left Weapon",  _comp.leftWeapon);
 		_drawSlot("Right Weapon", _comp.rightWeapon);
 		_drawSlot("Missile",      _comp.missile);

@@ -11,7 +11,7 @@
 #include "Engine/Window/NativeWindow.h"				// クライアント領域の実サイズ取得用
 #include "Engine/Audio/AudioManager.h"				// 乗った音・押した音
 
-#include "../../../Engine/Editor/Helper/EditorHelper.h"
+#include "../../../Engine/Editor/Helper/EditorField.h"
 
 namespace App::Object
 {
@@ -781,100 +781,100 @@ namespace App::Object
 		const float _h = static_cast<float>(_winOp.windowHeight);
 
 		// 表示するか : 出し分けを持つ画面(ホームなど)は進行役がここを切り替える
-		ImGui::Checkbox("Visible", &m_isVisible);
-		ImGui::SameLine();
-		ImGui::TextDisabled("(切ると描画も入力も止まる)");
+		Engine::Editor::Field("Visible", m_isVisible);
+		Engine::Editor::SameLine();
+		Engine::Editor::HelpText("(切ると描画も入力も止まる)");
 
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
 
 		// 色 : 全ての飾りへ乗算で掛かる。畳まずに常に出しておく
 		// (白い板ポリを1つ置いて、色だけで作り分けられるようにするため)
-		Engine::Editor::EditorHelper::DrawColorEdit("Color", m_color);
+		Engine::Editor::Field("Color", m_color);
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
 		// 座標系
-		ImGui::DragFloat2("PixelPos", &m_pixelPos.x, 1.0f);						// スクリーン座標
-		ImGui::Spacing();
+		Engine::Editor::Field("PixelPos", m_pixelPos, 1.0f);						// スクリーン座標
+		Engine::Editor::Spacing();
 
-		ImGui::DragFloat("Rotation", &m_rotation, 0.1f, -360.0f, 360.0f);
+		Engine::Editor::Field("Rotation", m_rotation, 0.1f, -360.0f, 360.0f);
 		if (m_rotation >= 360) m_rotation -= 360;
 		if (m_rotation <= -360) m_rotation += 360;
 
-		ImGui::Spacing();
-		if (ImGui::DragFloat("Scale", &m_scale, 0.01f, 0.0f))						// 等倍拡縮
+		Engine::Editor::Spacing();
+		if (Engine::Editor::Field("Scale", m_scale, 0.01f, 0.0f))						// 等倍拡縮
 		{
 			m_pixelSize = m_editSize * m_scale;
 		}
-		if (ImGui::DragFloat2("PixelSize", &m_pixelSize.x, 1.0f, 0.0f, 8192.0f))	// ピクセルサイズ
+		if (Engine::Editor::Field("PixelSize", m_pixelSize, 1.0f, 0.0f, 8192.0f))	// ピクセルサイズ
 		{
 			m_editSize = m_pixelSize / m_scale;
 		}
-		ImGui::TextDisabled("アンカー自身の矩形(当たり判定・判定円の基準)。見た目は飾り側のサイズ");
+		Engine::Editor::HelpText("アンカー自身の矩形(当たり判定・判定円の基準)。見た目は飾り側のサイズ");
 
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
 
 		// 湾曲オプション
 		// 曲げても幅は変わらない。反りだけが増えていく。
 		// 弧は上の PixelSize を -1..1 として張るので、幅0だと曲がらない
-		ImGui::DragFloat("CurveAngle", &m_curveAngle, 0.01f, -3.0f, 3.0f);
-		ImGui::TextDisabled("開き角(ラジアン)。0で曲げない / 正で山なり・負で谷");
-		ImGui::DragFloat("CurveRadius", &m_curveRadius, 0.01f, 0.0f, 4.0f);
-		ImGui::TextDisabled("反りの深さの倍率。1で素直な円弧(0も1として扱う)");
-		ImGui::DragFloat2("CurveCenter", &m_curveCenter.x, 0.01f);
-		ImGui::TextDisabled("弧の頂点。PixelSizeを-1..1とした座標(x=横位置 / y=上下のずらし)");
+		Engine::Editor::Field("CurveAngle", m_curveAngle, 0.01f, -3.0f, 3.0f);
+		Engine::Editor::HelpText("開き角(ラジアン)。0で曲げない / 正で山なり・負で谷");
+		Engine::Editor::Field("CurveRadius", m_curveRadius, 0.01f, 0.0f, 4.0f);
+		Engine::Editor::HelpText("反りの深さの倍率。1で素直な円弧(0も1として扱う)");
+		Engine::Editor::Field("CurveCenter", m_curveCenter, 0.01f);
+		Engine::Editor::HelpText("弧の頂点。PixelSizeを-1..1とした座標(x=横位置 / y=上下のずらし)");
 
 		// 端がどれだけ下がるかを出しておく : 数字だけだと効き具合が読めない
 		if (m_curveAngle != 0.0f)
 		{
 			const float _depth = (m_curveRadius > 0.0f) ? m_curveRadius : 1.0f;
 			const float _sag = m_pixelSize.x * 0.5f * std::tan(m_curveAngle * 0.25f) * _depth;
-			ImGui::Text("端の反り : %.1f px", _sag);
+			Engine::Editor::Text("端の反り : %.1f px", _sag);
 		}
 
 		// 初期化用ボタン
-		if (ImGui::Button("RefreshTransform"))
+		if (Engine::Editor::Button("RefreshTransform"))
 		{
 			m_pixelPos = { _w / 2.0f,_h / 2.0f };
 			m_pixelSize = { _w / 4 ,_h / 4 };
 			m_rotation = 0.0f;
 		}
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
 		// ピボット : 正規化[0,1]。(0.5,0.5)=中心, (0,0)=左上, (1,1)=右下。
 		// この点が PixelPos に配置され、回転の中心にもなる。
-		ImGui::DragFloat2("Pivot (0-1)", &m_pivot.x, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Layer", &m_layer, 0.1f);
-		ImGui::TextDisabled("重なり順。大きいほど手前(同じ値なら置いた順)");
+		Engine::Editor::Field("Pivot (0-1)", m_pivot, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("Layer", m_layer, 0.1f);
+		Engine::Editor::HelpText("重なり順。大きいほど手前(同じ値なら置いた順)");
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
 		//----------------------------------------------------------------------
 		// カーソルへの反応
 		//
 		// 見た目の変化は飾り側(Decoration の Reaction)。ここは判定と音だけ
 		//----------------------------------------------------------------------
-		ImGui::SeparatorText("Interaction");
+		Engine::Editor::Section("Interaction");
 
-		ImGui::Checkbox("Interactable", &m_isInteractable);
-		ImGui::SameLine();
-		ImGui::TextDisabled("(切ると Disabled 扱いになる)");
+		Engine::Editor::Field("Interactable", m_isInteractable);
+		Engine::Editor::SameLine();
+		Engine::Editor::HelpText("(切ると Disabled 扱いになる)");
 
-		Engine::Editor::EditorHelper::DrawEnumCombo("ClickAction", m_clickAction);
-		ImGui::TextDisabled("InputManager へ登録したアクション名");
+		Engine::Editor::Field("ClickAction", m_clickAction);
+		Engine::Editor::HelpText("InputManager へ登録したアクション名");
 
-		ImGui::DragFloat2("HitPadding", &m_hitPadding.x, 1.0f);
-		ImGui::TextDisabled("判定の矩形へ足す余白(px)");
+		Engine::Editor::Field("HitPadding", m_hitPadding, 1.0f);
+		Engine::Editor::HelpText("判定の矩形へ足す余白(px)");
 
-		ImGui::Checkbox("HitFollowAnim", &m_isHitFollowAnim);
-		ImGui::TextDisabled("飾りのアニメ・反応で大きくなったぶんも判定に入れる(PixelSize より優先)");
+		Engine::Editor::Field("HitFollowAnim", m_isHitFollowAnim);
+		Engine::Editor::HelpText("飾りのアニメ・反応で大きくなったぶんも判定に入れる(PixelSize より優先)");
 
 		//----------------------------------------------------------------------
 		// いま効いている判定を出す
@@ -888,59 +888,57 @@ namespace App::Object
 		if (m_isHitFollowAnim && _hasHitBounds)
 		{
 			// 実行中は毎フレーム変わる。止まっているときは素の大きさと同じ
-			ImGui::Text("Hit : %.0f x %.0f (飾りの範囲/アニメ込み)",
-				_hitSize.x * m_scale, _hitSize.y * m_scale);
+			Engine::Editor::Text("Hit : %.0f x %.0f (飾りの範囲/アニメ込み)", _hitSize.x * m_scale, _hitSize.y * m_scale);
 		}
 		else if (m_pixelSize.x > 0.0f && m_pixelSize.y > 0.0f)
 		{
-			ImGui::Text("Hit : %.0f x %.0f (PixelSize)", m_pixelSize.x, m_pixelSize.y);
+			Engine::Editor::Text("Hit : %.0f x %.0f (PixelSize)", m_pixelSize.x, m_pixelSize.y);
 
 			if (m_isHitFollowAnim)
 			{
-				ImGui::TextDisabled("HitFollowAnim は立っていますが、測れる飾りが無いので PixelSize です");
+				Engine::Editor::HelpText("HitFollowAnim は立っていますが、測れる飾りが無いので PixelSize です");
 			}
 		}
 		else if (_hasHitBounds)
 		{
-			ImGui::Text("Hit : %.0f x %.0f (飾りの範囲)", _hitSize.x * m_scale, _hitSize.y * m_scale);
-			ImGui::TextDisabled("PixelSize が 0 なので飾りの範囲を使っています");
+			Engine::Editor::Text("Hit : %.0f x %.0f (飾りの範囲)", _hitSize.x * m_scale, _hitSize.y * m_scale);
+			Engine::Editor::HelpText("PixelSize が 0 なので飾りの範囲を使っています");
 		}
 		else
 		{
-			ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "Hit : なし");
-			ImGui::TextDisabled("PixelSize も飾りの大きさも 0 です。カーソルに反応しません");
+			Engine::Editor::TextColored(Math::Color(1.0f, 0.4f, 0.4f, 1.0f), "Hit : なし");
+			Engine::Editor::HelpText("PixelSize も飾りの大きさも 0 です。カーソルに反応しません");
 		}
 
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
 
 		// 音を差し替えたら、借りているインスタンスを返して取り直させる
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pServices, "HoverSound", "Sound", m_hoverSoundGUID))
+		if (Engine::Editor::AssetField(*a_context.pServices, "HoverSound", "Sound", m_hoverSoundGUID))
 		{
 			ReleaseUISounds(a_context);
 		}
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(*a_context.pServices, "PressSound", "Sound", m_pressSoundGUID))
+		if (Engine::Editor::AssetField(*a_context.pServices, "PressSound", "Sound", m_pressSoundGUID))
 		{
 			ReleaseUISounds(a_context);
 		}
-		ImGui::DragFloat("SoundVolume", &m_soundVolume, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("SoundMinInterval", &m_soundMinInterval, 0.01f, 0.0f, 1.0f);
-		ImGui::TextDisabled("鳴らし直す最短間隔(秒)。縁で揺れて鳴り続けるのを止める");
+		Engine::Editor::Field("SoundVolume", m_soundVolume, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("SoundMinInterval", m_soundMinInterval, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::HelpText("鳴らし直す最短間隔(秒)。縁で揺れて鳴り続けるのを止める");
 
 		// 実行中の状態は表示のみ
 		static const char* _stateName[] = { "Normal", "Hovered", "Pressed", "Disabled" };
-		ImGui::Text("State : %s", _stateName[static_cast<int>(GetUIState())]);
+		Engine::Editor::Text("State : %s", _stateName[static_cast<int>(GetUIState())]);
 
 		// 重なりの取り合いの結果。
 		// 「矩形には入っているのに反応しない」の原因がここだと分かるようにする
 		if (m_isCursorInside && !a_context.IsCursorOwner(this))
 		{
-			ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.3f, 1.0f),
-				"Cursor : 手前の別UIに取られています(Layer %.1f)", m_layer);
+			Engine::Editor::TextColored(Math::Color(1.0f, 0.8f, 0.3f, 1.0f), "Cursor : 手前の別UIに取られています(Layer %.1f)", m_layer);
 		}
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
 		// 飾り
 		DrawDecorationListInspector(a_context);
@@ -955,23 +953,23 @@ namespace App::Object
 	//======================================================================================
 	void UIBase::DrawDecorationListInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		ImGui::SeparatorText("Decorations");
-		ImGui::TextDisabled("配列の順に描きます(下にあるものほど手前)");
+		Engine::Editor::Section("Decorations");
+		Engine::Editor::HelpText("配列の順に描きます(下にあるものほど手前)");
 
 		// ---- 追加 ----
-		if (Engine::Editor::EditorHelper::CreateButton("Add Polygon"))
+		if (Engine::Editor::CreateButton("Add Polygon"))
 		{
 			AddDecoration(Decoration::EDecorationType::Polygon);
 			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
 		}
-		ImGui::SameLine();
-		if (Engine::Editor::EditorHelper::CreateButton("Add Image"))
+		Engine::Editor::SameLine();
+		if (Engine::Editor::CreateButton("Add Image"))
 		{
 			AddDecoration(Decoration::EDecorationType::Image);
 			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
 		}
-		ImGui::SameLine();
-		if (Engine::Editor::EditorHelper::CreateButton("Add Text"))
+		Engine::Editor::SameLine();
+		if (Engine::Editor::CreateButton("Add Text"))
 		{
 			AddDecoration(Decoration::EDecorationType::Text);
 			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
@@ -981,16 +979,16 @@ namespace App::Object
 		// 戻せないので Ctrl を押している間だけ効かせる
 		if (!m_decorationVec.empty())
 		{
-			ImGui::SameLine();
-			if (Engine::Editor::EditorHelper::DeleteButton("Clear All") && ImGui::GetIO().KeyCtrl)
+			Engine::Editor::SameLine();
+			if (Engine::Editor::DeleteButton("Clear All") && Engine::Editor::IsCtrlDown())
 			{
 				m_decorationVec.clear();
 				m_editDecorationIndex = -1;
 			}
-			ImGui::SetItemTooltip("Ctrl+クリックで全部消す");
+			Engine::Editor::Tooltip("Ctrl+クリックで全部消す");
 		}
 
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
 
 		// 一覧を回している間に配列を触ると足元が崩れるので、操作は覚えておいて後でまとめて行う
 		int _removeIndex = -1;
@@ -1000,7 +998,7 @@ namespace App::Object
 		{
 			Decoration::Decoration& _decoration = m_decorationVec[_i];
 
-			ImGui::PushID(_i);
+			Engine::Editor::IDScope _id(_i);
 
 			//----------------------------------------------------------------------
 			// 1行ぶん : [X][↑][↓] 名前
@@ -1009,39 +1007,38 @@ namespace App::Object
 			// Selectable は残りの幅を全部使うので、後ろへ並べると
 			// ボタンが行の外まで押し出されて押せなくなる
 			//----------------------------------------------------------------------
-			if (Engine::Editor::EditorHelper::DeleteSmallButton("X")) _removeIndex = _i;
-			ImGui::SetItemTooltip("この飾りを消す");
+			if (Engine::Editor::DeleteSmallButton("X")) _removeIndex = _i;
+			Engine::Editor::Tooltip("この飾りを消す");
 
-			ImGui::SameLine();
-			if (ImGui::ArrowButton("##Up", ImGuiDir_Up) && _i > 0) _swapIndex = _i - 1;
+			Engine::Editor::SameLine();
+			if (Engine::Editor::ArrowButton("##Up", Engine::Editor::EArrowDir::Up) && _i > 0) _swapIndex = _i - 1;
 
-			ImGui::SameLine();
-			if (ImGui::ArrowButton("##Down", ImGuiDir_Down) &&
+			Engine::Editor::SameLine();
+			if (Engine::Editor::ArrowButton("##Down", Engine::Editor::EArrowDir::Down) &&
 				_i + 1 < static_cast<int>(m_decorationVec.size()))
 			{
 				_swapIndex = _i;
 			}
 
 			// 開閉 : 開いているものだけ中身を出す
-			ImGui::SameLine();
+			Engine::Editor::SameLine();
 			const bool _isOpen = (m_editDecorationIndex == _i);
 			const std::string _label =
 				std::to_string(_i) + " : " + (_decoration.name.empty() ? "(no name)" : _decoration.name);
 
-			if (ImGui::Selectable(_label.c_str(), _isOpen))
+			if (Engine::Editor::Selectable(_label.c_str(), _isOpen))
 			{
 				m_editDecorationIndex = _isOpen ? -1 : _i;
 			}
 
 			if (_isOpen)
 			{
-				ImGui::Indent();
-				if (a_context.pServices) Decoration::DrawDecorationInspector(_decoration, *a_context.pServices);
-				ImGui::Unindent();
-				ImGui::Separator();
+				{
+					Engine::Editor::IndentScope _indent;
+					if (a_context.pServices) Decoration::DrawDecorationInspector(_decoration, *a_context.pServices);
+				}
+				Engine::Editor::Separator();
 			}
-
-			ImGui::PopID();
 		}
 
 		if (_swapIndex >= 0)
@@ -1077,32 +1074,17 @@ namespace App::Object
 
 		// ゲーム内ピクセル(左上原点) から シーンビュー上ピクセルへ。
 		// m_pixelPos はピボットのスクリーン座標なので、ハンドルはそのままピボット位置を指す。
-		ImVec2 _handle = {};
+		Math::Vector2 _handle = {};
 		_handle.x = a_ctx.viewportPos.x + (m_pixelPos.x / _w) * a_ctx.viewportSize.x;
 		_handle.y = a_ctx.viewportPos.y + (m_pixelPos.y / _h) * a_ctx.viewportSize.y;
 
 		// ギズモハンドルの半径 : ピクセル
 		static const float _handleRadius = 9.0f;
 
-		// ドラッグ操作用の透明ボタン
-		ImGui::SetCursorScreenPos(ImVec2(_handle.x - _handleRadius,_handle.y - _handleRadius));
-		ImGui::InvisibleButton("##UIGizmo", ImVec2(_handleRadius * 2.0f, _handleRadius * 2.0f));
-		const bool _active = ImGui::IsItemActive();			// 選択されているかどうか
-		const bool _hovered = ImGui::IsItemHovered();		// カーソルが重なっているかどうか
-
-		// ハンドル描画(十字 + 円)
-		ImDrawList* _dl = ImGui::GetWindowDrawList();
-		const ImU32 _col = _active ? IM_COL32(255, 200, 0, 255)
-			: _hovered ? IM_COL32(255, 255, 255, 255)
-			: IM_COL32(0, 200, 255, 255);
-		_dl->AddCircle(_handle, _handleRadius, _col, 20, 2.0f);
-		_dl->AddLine(ImVec2(_handle.x - _handleRadius * 1.8f, _handle.y), ImVec2(_handle.x + _handleRadius * 1.8f, _handle.y), _col, 1.5f);
-		_dl->AddLine(ImVec2(_handle.x, _handle.y - _handleRadius * 1.8f), ImVec2(_handle.x, _handle.y + _handleRadius * 1.8f), _col, 1.5f);
-
 		// ドラッグ中はマウス位置からピクセル座標を逆算して更新
-		if (_active)
+		Math::Vector2 _mouse = {};
+		if (Engine::Editor::ScreenHandle("##UIGizmo", _handle, _handleRadius, _mouse))
 		{
-			const ImVec2 _mouse = ImGui::GetMousePos();
 			const float _u = (_mouse.x - a_ctx.viewportPos.x) / a_ctx.viewportSize.x;	// 0..1
 			const float _v = (_mouse.y - a_ctx.viewportPos.y) / a_ctx.viewportSize.y;	// 0..1
 			m_pixelPos.x = std::clamp(_u * _w, 0.0f, _w);

@@ -199,29 +199,26 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
+		Engine::Editor::Separator();
+		Engine::Editor::Spacing();
 
-		ImGui::Text("TargetBox");
+		Engine::Editor::Text("TargetBox");
 
 		if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
 
 		// ロック枠へ掛ける色。飾りの色へ乗算で乗る
-		Engine::Editor::EditorHelper::DrawColorEdit("LockColor", m_lockColor);
-		ImGui::DragFloat("LockSizeScale", &m_lockSizeScale, 0.01f, 0.0f, 8.0f);
+		Engine::Editor::Field("LockColor", m_lockColor);
+		Engine::Editor::Field("LockSizeScale", m_lockSizeScale, 0.01f, 0.0f, 8.0f);
 
-		ImGui::TextDisabled("飾りの Group : 0 = 通常枠 / 1 = ロック枠");
-		ImGui::Text("Lock decoration : %s",
-			HasDecorationGroup(GROUP_LOCK) ? "yes" : "no (通常枠を LockColor で代用)");
+		Engine::Editor::HelpText("飾りの Group : 0 = 通常枠 / 1 = ロック枠");
+		Engine::Editor::Text("Lock decoration : %s", HasDecorationGroup(GROUP_LOCK) ? "yes" : "no (通常枠を LockColor で代用)");
 
 		// 枠は画面内の敵すべてに出る。
 		// ロック(赤枠)の判定半径と距離はプレイヤー側(LockOnTargetComponent)の設定
-		ImGui::TextDisabled("Boxes : every enemy on screen (within MaxDistance)");
-		ImGui::TextDisabled("Lock radius / range : Player's LockOnTargetComponent");
-		ImGui::TextDisabled("PixelPos is unused (follows enemies)");
-		ImGui::Text("Boxes : %d%s",
-			static_cast<int>(m_targetScreenPosVec.size()),
-			m_isLocked ? " (+lock)" : "");
+		Engine::Editor::HelpText("Boxes : every enemy on screen (within MaxDistance)");
+		Engine::Editor::HelpText("Lock radius / range : Player's LockOnTargetComponent");
+		Engine::Editor::HelpText("PixelPos is unused (follows enemies)");
+		Engine::Editor::Text("Boxes : %d%s", static_cast<int>(m_targetScreenPosVec.size()), m_isLocked ? " (+lock)" : "");
 	}
 }

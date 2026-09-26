@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 //==========================================================================================
 // PlatoonLeaderComponent
@@ -42,21 +42,21 @@ struct Engine::ECS::ComponentTraits<PlatoonLeaderComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		PlatoonLeaderComponent& _comp = Engine::Editor::GetValue<PlatoonLeaderComponent>(a_context.pData);
-		ImGui::DragFloat("Distance", &_comp.distance, 0.1f, 0.0f);
-		ImGui::DragFloat("FollowGain", &_comp.followGain, 0.05f, 0.0f);
-		ImGui::DragFloat("TurnSpeedDeg", &_comp.turnSpeedDeg, 1.0f, 0.0f);
-		ImGui::TextDisabled("(max speed : MovementComponent.moveSpeed)");
+		Engine::Editor::Field("Distance", _comp.distance, 0.1f, 0.0f);
+		Engine::Editor::Field("FollowGain", _comp.followGain, 0.05f, 0.0f);
+		Engine::Editor::Field("TurnSpeedDeg", _comp.turnSpeedDeg, 1.0f, 0.0f);
+		Engine::Editor::HelpText("(max speed : MovementComponent.moveSpeed)");
 
 		// 生成時に書き込まれる値なので表示のみ
-		ImGui::Text("PlatoonIndex : %d", _comp.platoonIndex);
-		ImGui::Text("AlongWorm    : %.1f m", _comp.distanceAlongWorm);
+		Engine::Editor::Text("PlatoonIndex : %d", _comp.platoonIndex);
+		Engine::Editor::Text("AlongWorm    : %.1f m", _comp.distanceAlongWorm);
 		if (_comp.preLeader == Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			ImGui::TextDisabled("PreLeader    : (none)");
+			Engine::Editor::HelpText("PreLeader    : (none)");
 		}
 		else
 		{
-			ImGui::Text("PreLeader    : %llu", static_cast<unsigned long long>(_comp.preLeader));
+			Engine::Editor::Text("PreLeader    : %llu", static_cast<unsigned long long>(_comp.preLeader));
 		}
 	}
 };

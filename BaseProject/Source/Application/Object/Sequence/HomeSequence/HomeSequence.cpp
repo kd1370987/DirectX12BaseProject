@@ -4,7 +4,7 @@
 #include "Engine/GameObject/GameObjectManager/GameObjectManager.h"
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Option/OptionManager.h"
-#include "Engine/Editor/Helper/EditorHelper.h"
+#include "Engine/Editor/Helper/EditorField.h"
 
 #include "../../ObjectPicker.h"
 #include "../../UI/UIBase.h"
@@ -241,45 +241,45 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// エディターでは押して切り替えられないので、ここから切り替えて配置を見る
 		//----------------------------------------------------------------------
-		ImGui::SeparatorText("Mode");
+		Engine::Editor::Section("Mode");
 
 		EHomeMode _mode = m_mode;
-		if (Engine::Editor::EditorHelper::DrawEnumCombo("Mode", _mode))
+		if (Engine::Editor::Field("Mode", _mode))
 		{
 			SetMode(_mode, _pObjectManager);
 		}
-		ImGui::TextDisabled("配置を見るときはここで切り替える(保存はされない)");
+		Engine::Editor::HelpText("配置を見るときはここで切り替える(保存はされない)");
 
 		//----------------------------------------------------------------------
 		// ボタン
 		//----------------------------------------------------------------------
-		ImGui::SeparatorText("Buttons");
+		Engine::Editor::Section("Buttons");
 
 		if (Picker::DrawCombo<UIButton>("MissionSelect", _pObjectManager, m_missionSelectButtonGUID)) m_isBound = false;
 		if (Picker::DrawCombo<UIButton>("Warehouse", _pObjectManager, m_warehouseButtonGUID))         m_isBound = false;
 		if (Picker::DrawCombo<UIButton>("Back", _pObjectManager, m_backButtonGUID))                   m_isBound = false;
 
-		if (ImGui::Checkbox("WarehouseInteractable", &m_isWarehouseInteractable))
+		if (Engine::Editor::Field("WarehouseInteractable", m_isWarehouseInteractable))
 		{
 			// その場で見た目へ反映する
 			ApplyVisible(_pObjectManager);
 		}
-		ImGui::TextDisabled("倉庫はまだ中身が無いので、押しても何も起きない");
+		Engine::Editor::HelpText("倉庫はまだ中身が無いので、押しても何も起きない");
 
 		//----------------------------------------------------------------------
 		// 出し分け
 		//----------------------------------------------------------------------
-		ImGui::SeparatorText("Visible Group");
+		Engine::Editor::Section("Visible Group");
 
-		ImGui::TextDisabled("トップでだけ出すもの(背景・ロゴ・見出しなど)");
+		Engine::Editor::HelpText("トップでだけ出すもの(背景・ロゴ・見出しなど)");
 		if (Picker::DrawList<Engine::GameObject::BaseObject>("Home Only", _pObjectManager, m_homeUIGUIDVec))
 		{
 			ApplyVisible(_pObjectManager);
 		}
 
-		ImGui::Spacing();
+		Engine::Editor::Spacing();
 
-		ImGui::TextDisabled("MissionSelect ボタンを押したときに出すもの");
+		Engine::Editor::HelpText("MissionSelect ボタンを押したときに出すもの");
 		if (Picker::DrawList<Engine::GameObject::BaseObject>("Mission Objects", _pObjectManager, m_missionObjectGUIDVec))
 		{
 			ApplyVisible(_pObjectManager);
@@ -290,12 +290,12 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		m_bgm.DrawInspector(a_context);
 
-		ImGui::SeparatorText("Cursor");
-		ImGui::Checkbox("ReleaseCursorLock", &m_isReleaseCursorLock);
-		ImGui::TextDisabled("ホームの間はカーソルの中央固定を切る");
+		Engine::Editor::Section("Cursor");
+		Engine::Editor::Field("ReleaseCursorLock", m_isReleaseCursorLock);
+		Engine::Editor::HelpText("ホームの間はカーソルの中央固定を切る");
 
 		// 実行中の状態は表示のみ
-		ImGui::SeparatorText("Runtime");
-		ImGui::Text("Bound : %s", m_isBound ? "yes" : "no");
+		Engine::Editor::Section("Runtime");
+		Engine::Editor::Text("Bound : %s", m_isBound ? "yes" : "no");
 	}
 }

@@ -1,11 +1,11 @@
 ﻿#include "RenderingOption.h"
 
-#include "../../Editor/Helper/EditorHelper.inl"
+#include "../../Editor/Helper/EditorField.inl"
 
 void Engine::Option::GraphicsOptions::RenderingOption::DrawEdit(const ECS::EngineServices&)
 {
-	ImGui::Checkbox("isZPre", &isZPre);
-	ImGui::Checkbox("useJitter (TAA)", &useJitter);
+	Engine::Editor::Field("isZPre", isZPre);
+	Engine::Editor::Field("useJitter (TAA)", useJitter);
 }
 
 void Engine::Option::GraphicsOptions::RenderingOption::Archive(Persistence::Archive& a_archive)

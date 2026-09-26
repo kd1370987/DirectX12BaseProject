@@ -3,7 +3,7 @@
 #include "../../../Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 
-#include "../../../Engine/Editor/Helper/EditorHelper.h"
+#include "../../../Engine/Editor/Helper/EditorField.h"
 
 #include "../../../Engine/ECS/World/World.h"
 
@@ -86,7 +86,7 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		// 「新モデルの描画コマンド + 旧モデルサイズのノードポーズ領域」で走り、spanが範囲外になる。
 		// 差し替えはリフレッシュ経路に任せる :
 		// Release(旧handleで領域解放) → ModelFixupSystemがGUIDから新handleを復元 → 新サイズで領域再確保
-		if (Engine::Editor::EditorHelper::DrawAssetSelectComboGUID(
+		if (Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(),
 			"Change Model",
 			"Model",
@@ -108,12 +108,11 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		// インスペクタが縦に短くなるのと、こちらはドラッグや右クリックでの
 		// 数値入力にも対応していて、色の指定方法を選べるため。
 		//
-		// ※ emissiveScale / emissiveColor は Math::Vector3(3成分)なので必ず3成分版を使うこと。
-		//    ColorEdit4 にすると float 4個ぶん書き戻され、
-		//    直後にあるメンバをアルファ値で潰してしまう。
+		// ※ emissiveScale / emissiveColor は Math::Vector3(3成分)なので、
+		//    ColorField は Vector3 の版(RGBの3つだけ書き戻す)が選ばれる。
 		// ---------------------------------------------------------
-		ImGui::ColorEdit4("ColorScale", _comp.colorScale.Data());
-		ImGui::ColorEdit3("EmissiveScale", (float*)&_comp.emissiveScale.x);
+		Engine::Editor::ColorField("ColorScale", _comp.colorScale);
+		Engine::Editor::ColorField("EmissiveScale", _comp.emissiveScale);
 
 		// ---------------------------------------------------------
 		// 自己発光（ブルーム用）
@@ -122,15 +121,15 @@ struct Engine::ECS::ComponentTraits<ModelComponent>
 		// ピッカー自体は 0〜1 しか扱えないので、HDRの明るさは
 		// 「色 × 強度」に分けるのが結局いちばん触りやすい。
 		// ---------------------------------------------------------
-		ImGui::SeparatorText("Emissive (Bloom)");
+		Engine::Editor::Section("Emissive (Bloom)");
 
-		ImGui::ColorEdit3("Emissive Color", (float*)&_comp.emissiveColor.x);
+		Engine::Editor::ColorField("Emissive Color", _comp.emissiveColor);
 
 		// 上限なし。ブルームのしきい値(既定1.0)を超えるまで上げると光り出す
-		ImGui::DragFloat("Emissive Intensity", &_comp.emissiveIntensity, 0.05f, 0.0f, FLT_MAX);
+		Engine::Editor::Field("Emissive Intensity", _comp.emissiveIntensity, 0.05f, 0.0f, FLT_MAX);
 
 		// 実際にシェーダーへ渡る値。しきい値を超えているかの目安になる
 		const Math::Vector3 _emissiveAdd = _comp.GetEmissiveAdd();
-		ImGui::TextDisabled("-> (%.2f, %.2f, %.2f)", _emissiveAdd.x, _emissiveAdd.y, _emissiveAdd.z);
+		Engine::Editor::HelpText("-> (%.2f, %.2f, %.2f)", _emissiveAdd.x, _emissiveAdd.y, _emissiveAdd.z);
 	}
 };

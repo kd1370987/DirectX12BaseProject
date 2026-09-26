@@ -4,7 +4,7 @@
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Persistence/Archive/Archive.h"
 #include "Engine/ECS/System/SystemContext.h"
-#include "Engine/Editor/Helper/EditorHelper.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
@@ -301,25 +301,25 @@ namespace App::Object
 
 	void SwarmBossDiveAttackState::DrawInspector()
 	{
-		ImGui::DragFloat("Launch Distance", &m_launchDistance, 0.5f, 0.0f);
-		ImGui::DragFloat("Launch Height", &m_launchHeight, 0.5f);
-		ImGui::DragFloat("Rise Throttle", &m_riseThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Arrive Distance", &m_arriveDistance, 0.1f, 0.0f);
-		ImGui::DragFloat("Rise Max Time", &m_riseMaxTime, 0.1f, 0.0f);
-		ImGui::DragFloat("Hover Time", &m_hoverTime, 0.05f, 0.0f);
-		ImGui::DragFloat("Hover Throttle", &m_hoverThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Arc Height", &m_arcHeight, 0.5f);
-		ImGui::DragFloat("Dive Speed Scale", &m_diveSpeedScale, 0.05f, 0.0f);
-		ImGui::DragFloat("Follow Gain", &m_followGain, 0.05f, 0.0f);
-		ImGui::DragFloat("Dive Max Time", &m_diveMaxTime, 0.1f, 0.0f);
-		ImGui::DragFloat("Recover Time", &m_recoverTime, 0.05f, 0.0f);
-		ImGui::DragFloat("Recover Throttle", &m_recoverThrottle, 0.01f, 0.0f, 1.0f);
-		ImGui::TextDisabled("Speed scale above Platoon Scale tears the line apart");
+		Engine::Editor::Field("Launch Distance", m_launchDistance, 0.5f, 0.0f);
+		Engine::Editor::Field("Launch Height", m_launchHeight, 0.5f);
+		Engine::Editor::Field("Rise Throttle", m_riseThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("Arrive Distance", m_arriveDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("Rise Max Time", m_riseMaxTime, 0.1f, 0.0f);
+		Engine::Editor::Field("Hover Time", m_hoverTime, 0.05f, 0.0f);
+		Engine::Editor::Field("Hover Throttle", m_hoverThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("Arc Height", m_arcHeight, 0.5f);
+		Engine::Editor::Field("Dive Speed Scale", m_diveSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Field("Follow Gain", m_followGain, 0.05f, 0.0f);
+		Engine::Editor::Field("Dive Max Time", m_diveMaxTime, 0.1f, 0.0f);
+		Engine::Editor::Field("Recover Time", m_recoverTime, 0.05f, 0.0f);
+		Engine::Editor::Field("Recover Throttle", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::HelpText("Speed scale above Platoon Scale tears the line apart");
 
 		// 実行中の状態は表示のみ
-		ImGui::Text("Phase   : %s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		ImGui::Text("Player  : %.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
-		ImGui::Text("Launch  : %.1f, %.1f, %.1f", m_launchPos.x, m_launchPos.y, m_launchPos.z);
-		ImGui::Text("Curve t : %.2f", m_curveT);
+		Engine::Editor::Text("Phase   : %s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::Editor::Text("Player  : %.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
+		Engine::Editor::Text("Launch  : %.1f, %.1f, %.1f", m_launchPos.x, m_launchPos.y, m_launchPos.z);
+		Engine::Editor::Text("Curve t : %.2f", m_curveT);
 	}
 }

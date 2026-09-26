@@ -40,12 +40,12 @@ struct Engine::ECS::ComponentTraits<LocalTransformComponent>
 	{
 		LocalTransformComponent& _comp = Engine::Editor::GetValue<LocalTransformComponent>(a_context.pData);
 
-		Engine::Editor::EditorHelper::DrawEnumFlagsCombo("ETransformInheritance",_comp.inheritance);
+		Engine::Editor::FlagsField("ETransformInheritance",_comp.inheritance);
 
 		bool _isEdit = false;
-		_isEdit |= ImGui::DragFloat3("Position", &_comp.pos.x);
-		_isEdit |= Engine::Editor::EditorHelper::DragRotationDeg3FromQuaternion(_comp.quat);
-		_isEdit |= ImGui::DragFloat3("Scale", &_comp.scale.x);
+		_isEdit |= Engine::Editor::Field("Position", _comp.pos);
+		_isEdit |= Engine::Editor::Field("Rotation", _comp.quat);
+		_isEdit |= Engine::Editor::Field("Scale", _comp.scale);
 		_comp.isDirty |= _isEdit;
 	}
 };

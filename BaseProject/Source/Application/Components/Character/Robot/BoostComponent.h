@@ -59,27 +59,27 @@ struct Engine::ECS::ComponentTraits<BoostComponent>
 		using namespace Engine;
 		BoostComponent& _comp = Engine::Editor::GetValue<BoostComponent>(a_context.pData);
 
-		ImGui::Text("Boost Parameters");
-		ImGui::DragFloat("Max Fuel", &_comp.maxFuel, 1.0f, 0.0f);
-		ImGui::DragFloat("Boost Power (m/s)", &_comp.boostPower, 0.1f, 0.0f);
-		ImGui::DragFloat("Tap Boost Scale", &_comp.tapBoostScale, 0.05f, 0.0f);
-		ImGui::DragFloat("Tap Boost Time", &_comp.tapBoostTime, 0.01f, 0.0f);
-		ImGui::TextDisabled("(踏み込みが続く秒数。0で1フレームだけ = ほぼ効かない)");
-		ImGui::DragFloat("Boost Fuel (Tap)", &_comp.boostFuel, 0.1f, 0.0f);
-		ImGui::DragFloat("Boost Fuel / Sec", &_comp.boostFuelPerSec, 0.1f, 0.0f);
+		Engine::Editor::Text("Boost Parameters");
+		Engine::Editor::Field("Max Fuel", _comp.maxFuel, 1.0f, 0.0f);
+		Engine::Editor::Field("Boost Power (m/s)", _comp.boostPower, 0.1f, 0.0f);
+		Engine::Editor::Field("Tap Boost Scale", _comp.tapBoostScale, 0.05f, 0.0f);
+		Engine::Editor::Field("Tap Boost Time", _comp.tapBoostTime, 0.01f, 0.0f);
+		Engine::Editor::HelpText("(踏み込みが続く秒数。0で1フレームだけ = ほぼ効かない)");
+		Engine::Editor::Field("Boost Fuel (Tap)", _comp.boostFuel, 0.1f, 0.0f);
+		Engine::Editor::Field("Boost Fuel / Sec", _comp.boostFuelPerSec, 0.1f, 0.0f);
 
-		ImGui::Separator();
+		Engine::Editor::Separator();
 
-		ImGui::Text("Runtime State");
-		ImGui::Checkbox("Boost Triger (Input)", &_comp.isJustBoosted);
-		ImGui::Checkbox("Boost Intent (Input)", &_comp.isBoostIntent);
-		ImGui::Checkbox("Is Boosting (Active)", &_comp.isBoosting);
+		Engine::Editor::Text("Runtime State");
+		Engine::Editor::Field("Boost Triger (Input)", _comp.isJustBoosted);
+		Engine::Editor::Field("Boost Intent (Input)", _comp.isBoostIntent);
+		Engine::Editor::Field("Is Boosting (Active)", _comp.isBoosting);
 
 		// 現在の燃料残量を可視化するプログレスバー（maxFuelが0の時のゼロ除算を防止）
 		float fraction = (_comp.maxFuel > 0.0f) ? (_comp.currentFuel / _comp.maxFuel) : 0.0f;
 		char overlay[32];
 		snprintf(overlay, sizeof(overlay), "%.1f / %.1f", _comp.currentFuel, _comp.maxFuel);
-		ImGui::ProgressBar(fraction, ImVec2(-FLT_MIN, 0), overlay);
-		ImGui::DragFloat("FuelRegeneration", &_comp.fuelRegeneration, 0.1f, 0.0f);
+		Engine::Editor::ProgressBar(fraction, overlay);
+		Engine::Editor::Field("FuelRegeneration", _comp.fuelRegeneration, 0.1f, 0.0f);
 	}
 };

@@ -4,7 +4,7 @@
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPipelineAsset/RenderingPipelineAsset.h"
-#include "Engine/Editor/Helper/EditorHelper.inl"
+#include "Engine/Editor/Helper/EditorField.inl"
 
 struct CameraParamComponent
 {
@@ -109,10 +109,10 @@ struct Engine::ECS::ComponentTraits<CameraParamComponent>
 		bool _isEdit = false;
 
 		// 映すかどうかの切り替え。射影行列には関係しないので _isEdit には混ぜない
-		ImGui::Checkbox("IsActive", &_comp.isActive);
+		Engine::Editor::Field("IsActive", _comp.isActive);
 
 		// 描画構成 : 空なら従来のレンダーグラフだけが動く
-		Engine::Editor::EditorHelper::DrawAssetSelectCombo<Engine::Graphics::Pipeline::RenderingPipelineAsset>(
+		Engine::Editor::AssetField<Engine::Graphics::Pipeline::RenderingPipelineAsset>(
 			*a_context.pWorld->RefEngineServices(),
 			"Pipeline",
 			"RenderingPipelineAsset",
@@ -122,18 +122,18 @@ struct Engine::ECS::ComponentTraits<CameraParamComponent>
 
 		// 描画サイズ : 0 なら画面の描画解像度に追従する
 		int _viewport[2] = { static_cast<int>(_comp.viewportWidth), static_cast<int>(_comp.viewportHeight) };
-		if (ImGui::DragInt2("Viewport(0=Auto)", _viewport, 1.0f, 0, 8192))
+		if (Engine::Editor::Field("Viewport(0=Auto)", _viewport, 1.0f, 0, 8192))
 		{
 			_comp.viewportWidth = static_cast<UINT>(std::max(0, _viewport[0]));
 			_comp.viewportHeight = static_cast<UINT>(std::max(0, _viewport[1]));
 		}
-		ImGui::DragInt("RenderOrder", &_comp.renderOrder);
-		ImGui::Separator();
+		Engine::Editor::Field("RenderOrder", _comp.renderOrder);
+		Engine::Editor::Separator();
 
-		_isEdit |= ImGui::DragFloat("Fov", &_comp.fovY);
-		_isEdit |= ImGui::DragFloat("Aspect", &_comp.aspectRatio);
-		_isEdit |= ImGui::DragFloat("NearZ", &_comp.nearZ, 0.01f, 0.1f);
-		_isEdit |= ImGui::DragFloat("FarZ", &_comp.farZ,1.0f,1.0f);
+		_isEdit |= Engine::Editor::Field("Fov", _comp.fovY);
+		_isEdit |= Engine::Editor::Field("Aspect", _comp.aspectRatio);
+		_isEdit |= Engine::Editor::Field("NearZ", _comp.nearZ, 0.01f, 0.1f);
+		_isEdit |= Engine::Editor::Field("FarZ", _comp.farZ, 1.0f, 1.0f);
 
 		_comp.nearZ = std::max(0.1f, _comp.nearZ);
 		_comp.farZ = std::max(1.0f,_comp.farZ);

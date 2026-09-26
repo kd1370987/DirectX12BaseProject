@@ -60,32 +60,32 @@ struct Engine::ECS::ComponentTraits<BoidComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		BoidComponent& _comp = Engine::Editor::GetValue<BoidComponent>(a_context.pData);
-		ImGui::DragFloat3("targetPos",&_comp.targetPos.x);
-		ImGui::DragFloat("pow",&_comp.pow);
-		ImGui::DragFloat("slowRadius",&_comp.slowRadius);
-		ImGui::DragFloat("maxSpeed",&_comp.maxSpeed);
-		ImGui::DragFloat("seekWeight",&_comp.seekWeight);
-		ImGui::Separator();
-		ImGui::DragFloat("DistanceLenge", &_comp.distanceLenge);
-		ImGui::DragFloat("separationDistance",&_comp.separationDistance);
-		ImGui::DragFloat("separationWeight",&_comp.separationWeight);
-		ImGui::Separator();
-		ImGui::DragFloat("neighborDistance",&_comp.neighborDistance);
-		ImGui::DragFloat("alignmentWeight",&_comp.alignmentWeight);
-		ImGui::DragFloat("cohesionWeight",&_comp.cohesionWeight);
-		ImGui::Separator();
-		ImGui::DragFloat("maxSteeringForce",&_comp.maxSteeringForce);
-		ImGui::Separator();
-		ImGui::DragFloat("turnSpeedDeg",&_comp.turnSpeedDeg);
+		Engine::Editor::Field("targetPos", _comp.targetPos);
+		Engine::Editor::Field("pow", _comp.pow);
+		Engine::Editor::Field("slowRadius", _comp.slowRadius);
+		Engine::Editor::Field("maxSpeed", _comp.maxSpeed);
+		Engine::Editor::Field("seekWeight", _comp.seekWeight);
+		Engine::Editor::Separator();
+		Engine::Editor::Field("DistanceLenge", _comp.distanceLenge);
+		Engine::Editor::Field("separationDistance", _comp.separationDistance);
+		Engine::Editor::Field("separationWeight", _comp.separationWeight);
+		Engine::Editor::Separator();
+		Engine::Editor::Field("neighborDistance", _comp.neighborDistance);
+		Engine::Editor::Field("alignmentWeight", _comp.alignmentWeight);
+		Engine::Editor::Field("cohesionWeight", _comp.cohesionWeight);
+		Engine::Editor::Separator();
+		Engine::Editor::Field("maxSteeringForce", _comp.maxSteeringForce);
+		Engine::Editor::Separator();
+		Engine::Editor::Field("turnSpeedDeg", _comp.turnSpeedDeg);
 		// 毎フレーム計算される値なので表示のみ
-		ImGui::Text("FromPlatoonLeader : %.1f m", _comp.distanceFromPlatoonLeader);
+		Engine::Editor::Text("FromPlatoonLeader : %.1f m", _comp.distanceFromPlatoonLeader);
 		if (_comp.platoonID == Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			ImGui::TextDisabled("PlatoonID : (none)");
+			Engine::Editor::HelpText("PlatoonID : (none)");
 		}
 		else
 		{
-			ImGui::Text("PlatoonID : %llu", static_cast<unsigned long long>(_comp.platoonID));
+			Engine::Editor::Text("PlatoonID : %llu", static_cast<unsigned long long>(_comp.platoonID));
 		}
 
 	}

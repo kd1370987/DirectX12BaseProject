@@ -21,7 +21,7 @@ struct Engine::ECS::ComponentTraits<RayColliderComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		RayColliderComponent& _comp = Engine::Editor::GetValue<RayColliderComponent>(a_context.pData);
-		ImGui::DragFloat("StepUp (登れる段差)", &_comp.stepUp, 0.01f, 0.0f, 10.0f);
-		ImGui::DragFloat("SnapDown (吸着距離)", &_comp.snapDown, 0.01f, 0.0f, 10.0f);
+		Engine::Editor::Field("StepUp (登れる段差)", _comp.stepUp, 0.01f, 0.0f, 10.0f);
+		Engine::Editor::Field("SnapDown (吸着距離)", _comp.snapDown, 0.01f, 0.0f, 10.0f);
 	}
 };

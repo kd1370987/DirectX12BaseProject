@@ -2256,6 +2256,9 @@
     <ClCompile Include="Source\Engine\Editor\Helper\EditorHelper.cpp">
       <Filter>Source\Engine\Editor\Helper</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Helper\EditorField.cpp">
+      <Filter>Source\Engine\Editor\Helper</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp">
       <Filter>Source\Engine\Editor\ImGui</Filter>
     </ClCompile>
@@ -3821,7 +3824,10 @@
     <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.h">
       <Filter>Source\Engine\Editor\Helper</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.inl">
+    <ClInclude Include="Source\Engine\Editor\Helper\EditorField.h">
+      <Filter>Source\Engine\Editor\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Helper\EditorField.inl">
       <Filter>Source\Engine\Editor\Helper</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h">
