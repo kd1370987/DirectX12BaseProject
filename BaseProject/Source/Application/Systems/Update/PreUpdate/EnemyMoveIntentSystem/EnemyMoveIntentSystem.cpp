@@ -24,13 +24,10 @@
 //
 // ※ 戦闘に入る/抜ける判定は距離のみ(SearchPlayerSystem)。視界コーンは廃止した。
 //
-// ・方向の選択と「見失い探索のフェーズ進行」だけをここで行う。最終的な
-//   「動けるか / 速度倍率」は FSM 側の canMove / moveSpeedScale を見て
-//   ActionBehaviorSystem がゲートする。
-// ・フェーズ(PatrolComponent.lostPhase)は
-//     LostTargetBridgeSystem … FSM のパラメータ(LostSearch)へ橋渡し
-//     LookAroundSystem       … 見失い探索中の旋回
-//   が読む。どちらも PatrolComponent を読むだけなので本システムの後ろに回る。
+// ・方向の選択と「見失い探索のフェーズ進行」だけをここで行う。
+//   死亡中に止めるのは DeathStateSystem(移動入力を消す)の担当。
+// ・フェーズ(PatrolComponent.lostPhase)は LookAroundSystem(見失い探索中の旋回)が読む。
+//   PatrolComponent を読むだけなので本システムの後ろに回る。
 // ・MoveIntent は敵の場合「世界空間の水平方向 × throttle(0..1)」を意味する
 //   (プレイヤーはカメラ相対。消費側が別システムなので解釈を分けてよい)。
 //   実速度への変換は EnemyMovementSystem が行う。

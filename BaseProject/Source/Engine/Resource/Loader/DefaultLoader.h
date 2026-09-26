@@ -3,7 +3,6 @@
 #include "../Data/Model/IO/ModelIO.h"
 #include "../Data/Texture/IO/TextureIO.h"
 #include "../Data/AnimatorAsset/IO/AnimatorAssetIO.h"
-#include "../Data/ActionStateMachineAsset/IO/ActionStateMachineAssetIO.h"
 #include "../Data/Shader/IO/ShaderIO.h"
 #include "../Data/Particles/IO/ParticlesIO.h"
 #include "../Data/Material/IO/MaterialIO.h"
@@ -87,15 +86,6 @@ namespace Engine::Resource
 		static AnimatorAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
 			return AnimatorAssetIO::LoadFromFile(a_path, *a_pContext->pResourceManager);
-		}
-	};
-	// ゲームプレイ用ステートマシン
-	template<>
-	struct DefaultLoader<ActionStateMachineAsset>
-	{
-		static ActionStateMachineAsset LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
-		{
-			return ActionStateMachineAssetIO::LoadFromFile(a_path);
 		}
 	};
 	// シェーダー

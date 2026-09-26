@@ -130,11 +130,6 @@
 #include "Application/Systems/Init/PostDeserialize/StateMachineFixupSystem/StateMachineFixupSystem.h"
 #include "Application/Systems/Update/Update/StateMachineCommitSystem/StateMachineCommitSystem.h"
 #include "Application/Systems/Update/PreUpdate/PlayerIntentSystem/PlayerIntentSystem.h"
-#include "Application/Components/Resource/ActionStateComponent.h"
-#include "Application/Systems/Init/PostDeserialize/ActionStateFixupSystem/ActionStateFixupSystem.h"
-#include "Application/Systems/Update/PreUpdate/ActionIntentSystem/ActionIntentSystem.h"
-#include "Application/Systems/Update/Update/ActionStateCommitSystem/ActionStateCommitSystem.h"
-#include "Application/Systems/Update/Update/ActionBehaviorSystem/ActionBehaviorSystem.h"
 #include "Application/Systems/Update/Animation/AnimationStateSystem/AnimationStateSystem.h"
 #include "Application/Systems/Update/Update/Move/RobotBoostSystem/RobotBoostSystem.h"
 #include "Application/Systems/Update/Update/Move/ChargeDashSystem/ChargeDashSystem.h"
@@ -166,10 +161,8 @@
 #include "../../Systems/Update/PostUpdate/AdditivePoseSystem/AdditivePoseSystem.h"
 #include "../../Systems/Release/AdditivePoseFreeSystem/AdditivePoseFreeSystem.h"
 #include "../../Systems/Update/PreUpdate/SearchPlayerSystem/SearchPlayerSystem.h"
-#include "../../Systems/Update/PreUpdate/SightStateBridgeSystem/SightStateBridgeSystem.h"
 #include "../../Systems/Update/Update/FaceTargetSystem/FaceTargetSystem.h"
 #include "../../Systems/Update/PreUpdate/EnemyMoveIntentSystem/EnemyMoveIntentSystem.h"
-#include "../../Systems/Update/PreUpdate/LostTargetBridgeSystem/LostTargetBridgeSystem.h"
 #include "../../Systems/Update/Update/LookAroundSystem/LookAroundSystem.h"
 #include "../../Systems/Update/Update/Move/EnemyMovementSystem/EnemyMovementSystem.h"
 #include "../../Systems/Init/PostDeserialize/SoundFixupSystem/SoundFixupSystem.h"
@@ -274,7 +267,6 @@ namespace App::ECS
 		a_world.RegisterComponent<SpawnerComponent>("SpawnerComponent");
 		a_world.RegisterComponent<FollowAnimationNodeComponent>("FollowAnimationNodeComponent");
 		a_world.RegisterComponent<StateMachineComponent>("StateMachineComponent");
-		a_world.RegisterComponent<ActionStateComponent>("ActionStateComponent");
 		a_world.RegisterComponent<MoveIntentComponent>("MoveIntentComponent");
 		a_world.RegisterComponent<PreviousWorldMatrixComponent>("PreviousWorldMatrixComponent");
 		a_world.RegisterComponent<BoostComponent>("BoostComponent");
@@ -352,7 +344,6 @@ namespace App::ECS
 		a_world.RegisterSystem<ModelFixupSystem>();
 		a_world.RegisterSystem<GUIDFixupSystem>();
 		a_world.RegisterSystem<StateMachineFixupSystem>();
-		a_world.RegisterSystem<ActionStateFixupSystem>();
 		a_world.RegisterSystem<ParticleFixupSystem>();
 		a_world.RegisterSystem<EffectFixupSystem>();
 		a_world.RegisterSystem<SoundFixupSystem>();
@@ -376,9 +367,7 @@ namespace App::ECS
 		a_world.RegisterSystem<SelfWeaponTriggerSystem>();
 		a_world.RegisterSystem<ThrusterEffectSystem>();
 		a_world.RegisterSystem<BoostSoundSystem>();
-		a_world.RegisterSystem<ActionIntentSystem>();
 		a_world.RegisterSystem<SearchPlayerSystem>();
-		a_world.RegisterSystem<SightStateBridgeSystem>();
 		// 索敵結果(isFind)を敵の発射入力へ。銃が子なら AttachmentDispatchSystem が配信する
 		a_world.RegisterSystem<EnemyShootIntentSystem>();
 		// ボスの行動決定。プレイヤーの入力と同じ形(視点角/移動/ブースト/発射/狙点)を作る
@@ -390,10 +379,7 @@ namespace App::ECS
 		// EnemyMoveIntentSystem が書いた移動入力を攻撃圏の中だけ上書きするので、
 		// 必ずあちらの後ろに置くこと(PatrolComponent を読んで辺は張ってある)
 		a_world.RegisterSystem<CloseCombatIntentSystem>();
-		// 見失い探索のフェーズ(EnemyMoveIntentSystem が進める)を FSM パラメータへ
-		a_world.RegisterSystem<LostTargetBridgeSystem>();
 		a_world.RegisterSystem<StateMachineCommitSystem>();
-		a_world.RegisterSystem<ActionStateCommitSystem>();
 		// コライダーを物理空間(Jolt)へ登録する(静的も動くものも)
 		a_world.RegisterSystem<RegisterPhysicsBodySystem>();
 		a_world.RegisterSystem<CameraStartSystem>();
@@ -413,7 +399,7 @@ namespace App::ECS
 		a_world.RegisterSystem<InputMoveSystem>();
 		a_world.RegisterSystem<GravitySystem>();
 		a_world.RegisterSystem<RotationSystem>();
-		// プレイヤーの旋回は ActionState を見て切り替えるので専用システムが持つ
+		// プレイヤーの旋回は「撃っているか」で進行方向/狙い方向を切り替えるので専用システムが持つ
 		a_world.RegisterSystem<LockOnRotationSystem>();
 		a_world.RegisterSystem<FaceTargetSystem>();
 		// 見失い探索中の旋回。視認中(FaceTargetSystem)とは条件が排他
@@ -429,7 +415,6 @@ namespace App::ECS
 		a_world.RegisterSystem<MovementIntegrationSystem>();
 		a_world.RegisterSystem<CharacterMovementSystem>();
 		a_world.RegisterSystem<EnemyMovementSystem>();
-		a_world.RegisterSystem<ActionBehaviorSystem>();
 		a_world.RegisterSystem<TPSSystem>();
 		// スピードで動く画角(TPSSystem が fovBoost を書く)を射影行列へ反映する。
 		// CameraParamComponent を読むので TPSSystem より後に回る
@@ -535,7 +520,6 @@ namespace App::ECS
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
-		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
 
 		a_world.AddResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 		a_world.AddResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();

@@ -21,7 +21,6 @@ namespace Engine::Resource
 		ReleaseData<Texture>();
 		ReleaseData<Shader>();
 		ReleaseData<AnimatorAsset>();
-		ReleaseData<ActionStateMachineAsset>();
 		ReleaseData<ParticlesAsset>();
 		ReleaseData<Prefab>();
 		ReleaseData<EffectPrefab>();
@@ -57,7 +56,6 @@ namespace Engine::Resource
 		SweepUnused<EffectPrefab>();
 		SweepUnused<ParticlesAsset>();
 		SweepUnused<AudioBehavior>();
-		SweepUnused<ActionStateMachineAsset>();
 		SweepUnused<AnimatorAsset>();
 
 		// フォントもアトラステクスチャを ResourceRef で握っているので、テクスチャより先に片付ける

@@ -7,9 +7,6 @@
 // 設計図データ・遷移ロジックは Engine::StateGraph の再利用コアに委譲し、
 // このクラスは「ステートごとに再生するアニメ」という Animator 固有の意味付けを担当する。
 //
-// ゲームプレイ(移動可否・無敵など行動)を決めるステートマシンは別アセット
-// (ActionStateMachineAsset)として分離している。
-//
 // ランタイムのパラメータ実体(StateMachineInstance)はエンティティごとに
 // StateMachineComponent 側のプールが持つ(このアセットは共有設計図なので保持しない)。
 //

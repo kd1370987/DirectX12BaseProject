@@ -109,10 +109,6 @@ namespace Engine::Editor::Inspector
 		{
 			AnimatorDraw(a_editContext);
 		}
-		else if (_type == "ActionStateMachineAsset")
-		{
-			ActionStateMachineDraw(a_editContext);
-		}
 		else if (_type == "Texture")
 		{
 			TextureDraw(a_editContext);

@@ -36,6 +36,21 @@ struct HealthComponent
 	float deathTimer = 0.0f;		// 死亡してからの経過秒 : ランタイム
 };
 
+//==========================================================================================
+// 死亡状態か。HealthComponent を持たないもの(=死なないもの)は false。
+//
+// クエリに HealthComponent を入れると、持たない側がシステムの対象から丸ごと外れてしまう。
+// 「持っていれば見る」で済ませたい所(旋回系など)で使う。
+// isDead を書くのは PostUpdate 帯(HealthSystem)だけなので、Update 帯から引いても競合しない
+//==========================================================================================
+inline bool IsDeadEntity(Engine::ECS::World& a_world, const Engine::ECS::Entity& a_entity)
+{
+	if (!a_world.HasComponent<HealthComponent>(a_entity)) return false;
+
+	const HealthComponent* _pHealth = a_world.RefData<HealthComponent>(a_entity);
+	return _pHealth && _pHealth->isDead;
+}
+
 template<>
 struct Engine::ECS::ComponentTraits<HealthComponent>
 {

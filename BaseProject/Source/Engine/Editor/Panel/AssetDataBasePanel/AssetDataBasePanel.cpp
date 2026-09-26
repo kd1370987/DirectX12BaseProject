@@ -1,6 +1,5 @@
 ﻿#include "AssetDataBasePanel.h"
 #include "Engine/Resource/Data/AnimatorAsset/IO/AnimatorAssetIO.h"
-#include "Engine/Resource/Data/ActionStateMachineAsset/IO/ActionStateMachineAssetIO.h"
 #include "Engine/Resource/Data/Particles/IO/ParticlesIO.h"
 #include "Engine/Resource/Data/AudioBehavior/IO/AudioBehaviorIO.h"
 #include "Engine/Resource/Data/EffectAsset/IO/EffectAssetIO.h"
@@ -22,10 +21,6 @@ namespace Engine::Editor
 	{
 		m_assetCreateFuncs["AnimatorAsset"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
 			Resource::AnimatorAssetIO::Create(*a_services.pResourceManager, path, name);
-			};
-
-		m_assetCreateFuncs["ActionStateMachineAsset"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
-			Resource::ActionStateMachineAssetIO::Create(*a_services.pAssetDatabase, path, name);
 			};
 
 		m_assetCreateFuncs["ParticlesAsset"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {

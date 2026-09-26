@@ -517,9 +517,6 @@
     <Filter Include="Source\Application\Systems\Init\PostDeserialize">
       <UniqueIdentifier>{ba1325b4-b2d8-41ca-a294-32a33e67d591}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem">
-      <UniqueIdentifier>{5d8a3f21-6c94-4b07-a1e8-2f7c9b4d6e13}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem">
       <UniqueIdentifier>{c4f81a26-3b57-4e19-9a72-5d1e6f8b02a4}</UniqueIdentifier>
     </Filter>
@@ -721,9 +718,6 @@
     <Filter Include="Source\Application\Systems\Update\PreUpdate">
       <UniqueIdentifier>{92e1804e-1dd1-4801-b8ae-22c3f2e892a5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\ActionIntentSystem">
-      <UniqueIdentifier>{7e2b9c46-1f83-4a50-9d27-6b8e3f1a5c94}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem">
       <UniqueIdentifier>{b2e7a1c4-9f3d-4a6b-8c21-7de5f0a4b913}</UniqueIdentifier>
     </Filter>
@@ -754,9 +748,6 @@
     <Filter Include="Source\Application\Systems\Update\PreUpdate\HomingSystem">
       <UniqueIdentifier>{d4a71e6b-5b92-4f38-b247-ae60c135f9d8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem">
-      <UniqueIdentifier>{e5b81c72-6c03-4a49-9358-bf71d246a0e9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate\MainCameraSystem">
       <UniqueIdentifier>{7c1a4f52-3b6d-4a90-9e1f-2d5c8b0a41e7}</UniqueIdentifier>
     </Filter>
@@ -768,9 +759,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem">
       <UniqueIdentifier>{c0de001e-1111-4222-8333-0000c0de001e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem">
-      <UniqueIdentifier>{a1d47b38-2e69-4c05-8f14-7b3d9e02c6a5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem">
       <UniqueIdentifier>{d9c8b3a5-1e42-4f7a-b6d0-3c8f5a2e9107}</UniqueIdentifier>
@@ -786,12 +774,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem">
       <UniqueIdentifier>{92d037be-07d0-497e-b6f0-9845d50682d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem">
-      <UniqueIdentifier>{8b1d4f73-2a96-4c58-9e07-3d6b8f1c5a29}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem">
-      <UniqueIdentifier>{2f6c8d19-4b71-4e32-8a05-9c1e7b3f2d68}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\Effect">
       <UniqueIdentifier>{08fe880d-dda2-407a-b38f-12f9b01d0b38}</UniqueIdentifier>
@@ -1027,9 +1009,6 @@
     <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw">
       <UniqueIdentifier>{81b2b532-3f42-4981-8cd4-687ee5365994}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit">
-      <UniqueIdentifier>{70cca349-0b1e-43a7-b236-71865c15f3df}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit">
       <UniqueIdentifier>{ec53dd8b-9023-4799-a533-1fa18c7bfeb5}</UniqueIdentifier>
     </Filter>
@@ -1242,12 +1221,6 @@
     </Filter>
     <Filter Include="Source\Engine\Resource\Data">
       <UniqueIdentifier>{6062637c-08e6-4c7e-bf79-22e848b47b22}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Data\ActionStateMachineAsset">
-      <UniqueIdentifier>{3a1f7c52-8e64-4d19-9b27-1f6a2c8b4e05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Resource\Data\ActionStateMachineAsset\IO">
-      <UniqueIdentifier>{9c4e2b18-7a35-4f60-8d91-3e5b7f0a2c46}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource\Data\Animation">
       <UniqueIdentifier>{8d90e9d0-bb1c-43bb-9a42-a6315e9364d2}</UniqueIdentifier>
@@ -1869,9 +1842,6 @@
     <ClCompile Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.cpp">
       <Filter>Source\Application\Systems\Init\Awake\ModelReadyGateSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem\ActionStateFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem\AttachmentSlotLinkSystem.cpp">
       <Filter>Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem</Filter>
     </ClCompile>
@@ -2040,9 +2010,6 @@
     <ClCompile Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.cpp">
       <Filter>Source\Application\Systems\Update\PostUpdate\SkinningSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\ActionIntentSystem\ActionIntentSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\ActionIntentSystem</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
     </ClCompile>
@@ -2073,9 +2040,6 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\HomingSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem\LostTargetBridgeSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\MainCameraSystem\MainCameraSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\MainCameraSystem</Filter>
     </ClCompile>
@@ -2088,9 +2052,6 @@
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem\SelfWeaponTriggerSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.cpp">
       <Filter>Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem</Filter>
     </ClCompile>
@@ -2099,12 +2060,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Acceleration\GravitySystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\ActionBehaviorSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\ActionStateCommitSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem\BoosterEffectSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem</Filter>
@@ -2285,9 +2240,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit\ActionStateMachineEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit</Filter>
@@ -2477,12 +2429,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Common\ScopedResourceBuild.cpp">
       <Filter>Source\Engine\Resource\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\ActionStateMachineAsset\ActionStateMachineAsset.cpp">
-      <Filter>Source\Engine\Resource\Data\ActionStateMachineAsset</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Resource\Data\ActionStateMachineAsset\IO\ActionStateMachineAssetIO.cpp">
-      <Filter>Source\Engine\Resource\Data\ActionStateMachineAsset\IO</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Animation\Animation.cpp">
       <Filter>Source\Engine\Resource\Data\Animation</Filter>
@@ -3113,9 +3059,6 @@
     <ClInclude Include="Source\Application\Components\Persistence\NameComponent.h">
       <Filter>Source\Application\Components\Persistence</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\ActionStateComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Resource\AnimatorComponent.h">
       <Filter>Source\Application\Components\Resource</Filter>
     </ClInclude>
@@ -3359,9 +3302,6 @@
     <ClInclude Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.h">
       <Filter>Source\Application\Systems\Init\Awake\ModelReadyGateSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem\ActionStateFixupSystem.h">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\ActionStateFixupSystem</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem\AttachmentSlotLinkSystem.h">
       <Filter>Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem</Filter>
     </ClInclude>
@@ -3530,9 +3470,6 @@
     <ClInclude Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.h">
       <Filter>Source\Application\Systems\Update\PostUpdate\SkinningSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\ActionIntentSystem\ActionIntentSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\ActionIntentSystem</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
     </ClInclude>
@@ -3563,9 +3500,6 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\HomingSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem\LostTargetBridgeSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\LostTargetBridgeSystem</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\MainCameraSystem\MainCameraSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\MainCameraSystem</Filter>
     </ClInclude>
@@ -3578,9 +3512,6 @@
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem\SelfWeaponTriggerSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem\SightStateBridgeSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\SightStateBridgeSystem</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.h">
       <Filter>Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem</Filter>
     </ClInclude>
@@ -3589,12 +3520,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h">
       <Filter>Source\Application\Systems\Update\Update\Acceleration\GravitySystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\ActionBehaviorSystem\ActionBehaviorSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\ActionBehaviorSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\ActionStateCommitSystem\ActionStateCommitSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\ActionStateCommitSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem\BoosterEffectSystem.h">
       <Filter>Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem</Filter>
@@ -3862,9 +3787,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit\ActionStateMachineEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ActionStateMachineEdit</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit</Filter>
@@ -4135,12 +4057,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Common\ScopedResourceBuild.h">
       <Filter>Source\Engine\Resource\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\ActionStateMachineAsset\ActionStateMachineAsset.h">
-      <Filter>Source\Engine\Resource\Data\ActionStateMachineAsset</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Resource\Data\ActionStateMachineAsset\IO\ActionStateMachineAssetIO.h">
-      <Filter>Source\Engine\Resource\Data\ActionStateMachineAsset\IO</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\Animation\Animation.h">
       <Filter>Source\Engine\Resource\Data\Animation</Filter>

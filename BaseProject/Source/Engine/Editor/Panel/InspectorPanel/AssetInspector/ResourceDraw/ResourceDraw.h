@@ -15,7 +15,6 @@ namespace Engine::Editor::Inspector
 
 	// ステートマシン
 	void AnimatorDraw(EditorContext& a_editContext);
-	void ActionStateMachineDraw(EditorContext& a_editContext);
 
 	// パーティクル
 	void ParticleDraw(EditorContext& a_editContext);

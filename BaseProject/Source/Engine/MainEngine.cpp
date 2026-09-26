@@ -661,12 +661,6 @@ namespace Engine
 		_stateExt.typeExt.push_back(".obstet");
 		_stateExt.typeExt.push_back(".ojstet");
 		_assetDB.AddSupporedExtensions(_stateExt);
-		// ゲームプレイ用ステートマシン
-		Resource::TypeExtension _actionSmExt = {};
-		_actionSmExt.type = "ActionStateMachineAsset";
-		_actionSmExt.typeExt.push_back(".obasm");
-		_actionSmExt.typeExt.push_back(".ojasm");
-		_assetDB.AddSupporedExtensions(_actionSmExt);
 		// パーティクル
 		Resource::TypeExtension _particExt = {};
 		_particExt.type = "ParticlesAsset";

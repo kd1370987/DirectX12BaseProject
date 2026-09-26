@@ -178,7 +178,6 @@ namespace Engine::Resource
 #include "Resource/Data/Sound/Sound.h"										// サウンド
 #include "Resource/Data/AudioBehavior/AudioBehavior.h"					// サウンドの流れ(始動/継続/終了)
 #include "Resource/Data/AnimatorAsset/AnimatorAsset.h"						// アニメーション
-#include "Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"	// アクション用ステートマシン
 #include "Resource/Data/Particles/ParticlesAsset.h"							// パーティクル
 #include "Resource/Data/EffectAsset/EffectAsset.h"							// エフェクト(パーティクル+メッシュのまとめ)
 #include "Resource/Data/EffectPrefab/EffectPrefab.h"						// エフェクトプレハブ(炊いたら時間で消える大きな演出)

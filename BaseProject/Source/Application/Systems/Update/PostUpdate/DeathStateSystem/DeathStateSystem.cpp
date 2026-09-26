@@ -7,9 +7,6 @@
 #include "Application/Components/Character/Robot/BoostComponent.h"
 #include "Application/Components/Intent/MoveIntentComponent.h"
 #include "Application/Components/Intent/ActionIntentComponent.h"
-#include "Application/Components/Resource/ActionStateComponent.h"
-
-#include "Engine/Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 
 //==============================================================================
 // DeathStateSystem
@@ -23,18 +20,15 @@
 //
 // タスクは分かれているが、どれも「死んでいるか」しか見ていない。
 //
-//   [PreUpdate] FSMへ IsDead を渡す
-//       行動ステートマシンの Death ノードへ落とすためのパラメータ。
-//       他の橋渡し(SightStateBridgeSystem 等)と同じ帯に置いてあるので、
-//       遷移を評価する ActionStateCommitSystem(Update)より必ず先になる。
-//       Death ノードを canMove=false にしておけば、水平速度は
-//       ActionBehaviorSystem が止めてくれる(重力はそのまま = その場に落ちる)。
-//
 //   [Update] 入力/AIの結果を握りつぶす
 //       意図を作るのは Input 帯(プレイヤー)と PreUpdate 帯(敵・ボス)なので、
 //       Update 帯で消せば作り手がどれでも後から潰せる。
 //       消費側(CharacterMovementSystem / GunShootSystem / BossMissileSalvoSystem)は
 //       ここが書いたものを読む側になるため、依存の向きだけで自動的に後ろへ並ぶ。
+//       移動系は「移動入力 × 速度」で水平速度を毎フレーム上書きするので、
+//       入力を消せば水平方向は止まる(重力はそのまま = その場に落ちる)。
+//       向きを変えないのは旋回系(LockOnRotation / FaceTarget / LookAround)が
+//       IsDeadEntity を見て自分で止める。
 //
 //   [PostUpdate] 時間を進めて解放予約する
 //       releaseDelay を過ぎたら ReserveReleaseEntity。解放予約したエンティティは
@@ -42,47 +36,10 @@
 //
 // ※ 死亡状態そのものを別コンポーネント(DeadTag 等)にしなかったのは、
 //   ランタイムの ReserveAddComponent が「アーキタイプの引っ越し + PostDeserialize からやり直し」に
-//   なるため。初期化系(ActionStateFixupSystem など)が死ぬたびに走り直してしまう。
+//   なるため。初期化系(StateMachineFixupSystem など)が死ぬたびに走り直してしまう。
 //==============================================================================
 void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 {
-	//--------------------------------------------------------------------------
-	// [PreUpdate] 死亡を行動ステートマシンへ渡す
-	//--------------------------------------------------------------------------
-	a_world.ActiveTask<const HealthComponent, ActionStateComponent>(
-		Engine::ECS::ESystemType::PreUpdate,
-		"DeathStateBridgeSystem",
-		[](
-			Engine::ECS::Chunk*      a_pChunk,
-			uint32_t                          a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			ActiveTag*                        a_tags,
-			const HealthComponent*            a_healthArray,
-			ActionStateComponent*             a_stateArray
-		)
-		{
-			static const UINT s_deadHash = Engine::String::ToHash("IsDead");
-
-			auto& _pool =
-				a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::ActionStateInstance>>();
-
-			for (size_t _i = 0; _i < a_count; ++_i)
-			{
-				const HealthComponent& _health = a_healthArray[_i];
-				ActionStateComponent&  _state  = a_stateArray[_i];
-
-				auto* _pInstance = _pool.Ref(_state.instanceHandle);
-				if (!_pInstance) continue;
-
-				// 設計図(パラメータ定義を足すので Ref で可変参照を取る)
-				auto* _pActionSM = a_ctx.pServices->pResourceManager->Ref(_state.actionHandle);
-				if (!_pActionSM) continue;
-
-				_pActionSM->SetBoolParam(*_pInstance, s_deadHash, "IsDead", _health.isDead);
-			}
-		}
-	);
-
 	//--------------------------------------------------------------------------
 	// [Update] 死んでいるあいだの移動入力を消す
 	//--------------------------------------------------------------------------

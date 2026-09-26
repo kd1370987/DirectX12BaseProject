@@ -1,32 +1,30 @@
 ﻿#include "LockOnRotationSystem.h"
 
 #include "Application/ECS/World/APPWorld.h"
-#include "Engine/Resource/Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 
 #include "Application/Components/Tag/PlayerControllTag.h"
 #include "Application/Components/Character/LookAngleComponent.h"
 #include "Application/Components/Character/AimTargetPosComponent.h"
 #include "Application/Components/Character/LockOnTargetComponent.h"
+#include "Application/Components/Character/HealthComponent.h"
+#include "Application/Components/Intent/ActionIntentComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "../../../../../Components/Force/VelocityComponent.h"
-#include "../../../../../Components/Resource/ActionStateComponent.h"
 
 //==============================================================================
 // LockOnRotationSystem
 //
 // プレイヤー専用の旋回システム。
-// 現在の ActionState(ActionNode)を見て「体をどちらへ向けるか」を切り替える。
+// 「撃っているか」(ActionIntentComponent)を見て「体をどちらへ向けるか」を切り替える。
 //
-//   ・EFaceMode::AimDirection … 狙点(AimTargetPosComponent)の方向を体全体で向く。
-//                               銃を撃つ/敵をターゲットしているステートで使う。
-//   ・EFaceMode::MoveDirection … 進行方向を向く(従来の RotationSystem と同じ挙動)。
-//   ・EFaceMode::Keep          … 旋回しない。
-//   ・canRotate == false       … モードに関わらず旋回しない(マスタースイッチ)。
+//   ・撃っている   … 狙点(AimTargetPosComponent)の方向を体全体で向く。
+//   ・撃っていない … 進行方向を向く(従来の RotationSystem と同じ挙動)。
+//   ・死亡中       … 旋回しない。
 //
 // ただしロック対象(LockOnTargetComponent.lockedEntity ＝ HUD で赤枠になっている敵)が
-// 居る間は、モードより優先してその相手を向く。ロックしているのに進行方向を向いて
+// 居る間は、撃っているかに関わらずその相手を向く。ロックしているのに進行方向を向いて
 // 背中を見せる、という見え方を避けるため。
-// 「旋回しない」指定(Keep / canRotate == false)はロックより強い。
+// 死亡中の「旋回しない」はロックより強い。
 //
 // 旋回は Y 軸まわり(Yaw)のみ。上下に傾かないよう方向は水平化する。
 // 上体だけの追従は AdditivePoseSystem が別に持っているので、
@@ -34,12 +32,13 @@
 //
 // 汎用の RotationSystem は PlayerControllTag を除外しているので姿勢は競合しない。
 // 逆に言うと、プレイヤーの姿勢はこのシステムが全部を持つ。そのため
-// ステートマシンを積んでいないプレイヤー用に「従来通り」のタスクも登録しておく。
+// 攻撃入力を持たないプレイヤー用に「従来通り」のタスクも登録しておく。
 //==============================================================================
 namespace
 {
-	// 旋回速度の既定値(従来の RotationSystem と同じ)
-	constexpr float kDefaultTurnSpeed = 12.0f;
+	// 旋回速度(1秒あたりの補間強度)
+	constexpr float kDefaultTurnSpeed = 12.0f;	// 進行方向を向くとき(従来の RotationSystem と同じ)
+	constexpr float kAimTurnSpeed     = 14.0f;	// 撃っている間。狙いに遅れないよう少し速くする
 
 	//--------------------------------------------------------------------------
 	// 水平方向のベクトルから Yaw を作る。
@@ -82,11 +81,11 @@ namespace
 void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 {
 	//==========================================================================
-	// ステートマシンを持つプレイヤー(本命)
+	// 攻撃入力を持つプレイヤー(本命)
 	//==========================================================================
 	a_world.ActiveTask<
 		const PlayerControllTag,
-		const ActionStateComponent,
+		const ActionIntentComponent,
 		const LookAngleComponent,
 		const VelocityComponent,
 		LocalTransformComponent>(
@@ -99,53 +98,32 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const PlayerControllTag* a_playerTagArray,
-			const ActionStateComponent* a_stateArray,
+			const ActionIntentComponent* a_actionIntentArray,
 			const LookAngleComponent* a_lookArray,
 			const VelocityComponent* a_velocityArray,
 			LocalTransformComponent* a_trsArray
 		)
 		{
-			using namespace Engine::Resource;
-
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const ActionStateComponent&	_state		= a_stateArray[_i];
-				const LookAngleComponent&	_lookAng	= a_lookArray[_i];
-				const VelocityComponent&	_velComp	= a_velocityArray[_i];
-				LocalTransformComponent&	_trs		= a_trsArray[_i];
+				const ActionIntentComponent&	_actionIntent	= a_actionIntentArray[_i];
+				const LookAngleComponent&		_lookAng		= a_lookArray[_i];
+				const VelocityComponent&		_velComp		= a_velocityArray[_i];
+				LocalTransformComponent&		_trs			= a_trsArray[_i];
 
-				//==============================================================
-				// 現在のステートから向きの決め方を取り出す
-				//--------------------------------------------------------------
-				// 設計図やノードが取れなくても止まらないように、
-				// 取れなければ従来通り「進行方向を向く」で扱う。
-				//==============================================================
-				EFaceMode	_faceMode	= EFaceMode::MoveDirection;
-				float		_turnSpeed	= kDefaultTurnSpeed;
-				float		_yawOffset	= 0.0f;
+				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
-				const auto* _pSM = a_ctx.pServices->pResourceManager->Get(_state.actionHandle);
-				if (_pSM)
-				{
-					if (const ActionNode* _pNode = _pSM->GetStateNode(_state.currentStateHash))
-					{
-						// このステート中は向きを変えられない
-						if (!_pNode->canRotate) continue;
+				// 死んだら向きを変えない
+				if (IsDeadEntity(*a_ctx.pWorld, _self)) continue;
 
-						_faceMode	= _pNode->faceMode;
-						_turnSpeed	= _pNode->turnSpeed;
-						_yawOffset	= _pNode->faceYawOffsetDeg;
-					}
-				}
-
-				if (_faceMode == EFaceMode::Keep) continue;
+				// 撃っている間は狙い方向、それ以外は進行方向
+				const bool	_isAim		= _actionIntent.IsAnyWeaponShoot();
+				const float	_turnSpeed	= _isAim ? kAimTurnSpeed : kDefaultTurnSpeed;
 
 				//==============================================================
 				// 目標 Yaw を求める
 				//==============================================================
 				float _targetYaw = 0.0f;
-
-				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
 				//--------------------------------------------------------------
 				// ロック中の相手が居ればそちらを最優先で向く。
@@ -167,9 +145,9 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 
 				if (_hasLockYaw)
 				{
-					// ロック優先。下の faceMode 別の処理は飛ばす
+					// ロック優先。下の狙い/進行方向の処理は飛ばす
 				}
-				else if (_faceMode == EFaceMode::AimDirection)
+				else if (_isAim)
 				{
 					//----------------------------------------------------------
 					// 狙っている方向。
@@ -213,15 +191,13 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 					if (!CalcYawFromDir(Math::Vector3(_velComp.value), _targetYaw)) continue;
 				}
 
-				_targetYaw += DirectX::XMConvertToRadians(_yawOffset);
-
 				ApplyYawSlerp(_trs, _targetYaw, _turnSpeed, a_ctx.dt);
 			}
 		}
 	);
 
 	//==========================================================================
-	// ステートマシンを持たないプレイヤー(従来通り進行方向を向くだけ)
+	// 攻撃入力を持たないプレイヤー(従来通り進行方向を向くだけ)
 	//--------------------------------------------------------------------------
 	// RotationSystem が PlayerControllTag を除外している以上、
 	// ここで拾わないと一切旋回しなくなってしまう。
@@ -231,7 +207,7 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 		const VelocityComponent,
 		LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,
-		"LockOnRotationSystem_NoActionState",
+		"LockOnRotationSystem_NoActionIntent",
 		[]
 		(
 			Engine::ECS::Chunk* a_pChunk,
@@ -248,12 +224,15 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 				const VelocityComponent&	_velComp	= a_velocityArray[_i];
 				LocalTransformComponent&	_trs		= a_trsArray[_i];
 
+				// 死んだら向きを変えない
+				if (IsDeadEntity(*a_ctx.pWorld, a_pChunk->entityData[_i])) continue;
+
 				float _targetYaw = 0.0f;
 				if (!CalcYawFromDir(Math::Vector3(_velComp.value), _targetYaw)) continue;
 
 				ApplyYawSlerp(_trs, _targetYaw, kDefaultTurnSpeed, a_ctx.dt);
 			}
 		},
-		Engine::ECS::Exclude<ActionStateComponent>()
+		Engine::ECS::Exclude<ActionIntentComponent>()
 	);
 }

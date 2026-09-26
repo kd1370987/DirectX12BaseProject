@@ -18,9 +18,7 @@
 // ・移動速度は MovementComponent.moveSpeed(プレイヤーと同じ置き場)。
 //   加速度/減速度で実速度へ均すのは MovementIntegrationSystem の担当。
 // ・y(重力/ジャンプ)は触らない。GravitySystem に任せる。
-// ・この後 ActionBehaviorSystem が現在ステートの canMove / moveSpeedScale で
-//   水平速度をゲート・スケールするので、本システムは Update 帯で
-//   ActionBehaviorSystem より前に登録すること。
+// ・死亡中は DeathStateSystem が移動入力を消すので、ここで水平速度が 0 になる。
 //==============================================================================
 void EnemyMovementSystem::Init(App::ECS::APPWorld& a_world)
 {

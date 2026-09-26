@@ -5,7 +5,6 @@
 
 // 各リソース
 #include "../../Data/AnimatorAsset/AnimatorAsset.h"
-#include "../../Data/ActionStateMachineAsset/ActionStateMachineAsset.h"
 #include "../../Data/Particles/ParticlesAsset.h"
 
 // ローダー
@@ -410,7 +409,6 @@ namespace Engine::Resource
 		ResourceData<Texture> m_textureData;									// テクスチャ
 		ResourceData<Shader> m_shaderData;										// シェーダー
 		ResourceData<AnimatorAsset> m_animatorAssetData;						// アニメーターアセット
-		ResourceData<ActionStateMachineAsset> m_actionStateMachineAssetData;	// ゲームプレイ用ステートマシン
 		ResourceData<ParticlesAsset> m_particleAssetData;						// パーティクル
 		ResourceData<Prefab> m_prefabData;										// プレハブデータ
 		ResourceData<Sound> m_soundData;										// サウンド
@@ -1073,7 +1071,6 @@ namespace Engine::Resource
 	template<> inline ResourceData<Texture>& ResourceManager::RefData<Texture>() { return m_textureData; }
 	template<> inline ResourceData<Shader>& ResourceManager::RefData<Shader>() { return m_shaderData; }
 	template<> inline ResourceData<AnimatorAsset>& ResourceManager::RefData<AnimatorAsset>() { return m_animatorAssetData; }
-	template<> inline ResourceData<ActionStateMachineAsset>& ResourceManager::RefData<ActionStateMachineAsset>() { return m_actionStateMachineAssetData; }
 	template<> inline ResourceData<ParticlesAsset>& ResourceManager::RefData<ParticlesAsset>() { return m_particleAssetData; }
 	template<> inline ResourceData<Prefab>& ResourceManager::RefData<Prefab>() { return m_prefabData; }
 	template<> inline ResourceData<Sound>& ResourceManager::RefData<Sound>() { return m_soundData; }
@@ -1091,7 +1088,6 @@ namespace Engine::Resource
 	template<> inline const ResourceData<Texture>& ResourceManager::GetData<Texture>() const { return m_textureData; }
 	template<> inline const ResourceData<Shader>& ResourceManager::GetData<Shader>() const { return m_shaderData; }
 	template<> inline const ResourceData<AnimatorAsset>& ResourceManager::GetData<AnimatorAsset>() const { return m_animatorAssetData; }
-	template<> inline const ResourceData<ActionStateMachineAsset>& ResourceManager::GetData<ActionStateMachineAsset>() const { return m_actionStateMachineAssetData; }
 	template<> inline const ResourceData<ParticlesAsset>& ResourceManager::GetData<ParticlesAsset>() const { return m_particleAssetData; }
 	template<> inline const ResourceData<Prefab>& ResourceManager::GetData<Prefab>() const { return m_prefabData; }
 	template<> inline const ResourceData<Sound>& ResourceManager::GetData<Sound>() const { return m_soundData; }

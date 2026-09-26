@@ -10,7 +10,6 @@
 #include "ShaderEdit/ShaderEdit.h"
 #include "ParticleEdit/ParticleEdit.h"
 #include "AnimatorEdit/AnimatorEdit.h"
-#include "ActionStateMachineEdit/ActionStateMachineEdit.h"
 #include "AudioBehaviorEdit/AudioBehaviorEdit.h"
 #include "EffectAssetEdit/EffectAssetEdit.h"
 
@@ -118,21 +117,6 @@ namespace Engine::Editor::Inspector
 		auto _handle = a_editContext.pServices->pResourceManager->GetCache<Resource::AnimatorAsset>(_guid);
 
 		AnimatorEdit(a_editContext, _pAnimator, _handle);
-	}
-
-	//-----------------------------------------------------------------------------------------
-	// ゲームプレイ用ステートマシン
-	//-----------------------------------------------------------------------------------------
-	void ActionStateMachineDraw(EditorContext& a_editContext)
-	{
-		auto _guid = a_editContext.pAssetProp->guid;
-
-		auto* _pAsset = ResolveAsset<Resource::ActionStateMachineAsset>(*a_editContext.pServices->pResourceManager, _guid);
-		if (!_pAsset) { return; }
-
-		auto _handle = a_editContext.pServices->pResourceManager->GetCache<Resource::ActionStateMachineAsset>(_guid);
-
-		ActionStateMachineEdit(a_editContext, _pAsset, _handle);
 	}
 
 	//-----------------------------------------------------------------------------------------

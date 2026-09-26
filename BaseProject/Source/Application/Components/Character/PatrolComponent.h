@@ -12,9 +12,8 @@
 //     発見済みのプレイヤーを見失ったら、最後に見た地点まで移動し、着いたら周囲を見渡す。
 //     見渡している間に再発見できれば追跡へ戻り、できなければ徘徊へ戻る。
 //
-// 実際の速度は throttle(0..1) × MovementComponent.moveSpeed。さらに FSM 側の
-// moveSpeedScale / canMove で ActionBehaviorSystem がゲート・スケールする
-// (=状態が最終的な行動を決める)。加速度/減速度も MovementComponent 側。
+// 実際の速度は throttle(0..1) × MovementComponent.moveSpeed(EnemyMovementSystem)。
+// 加速度/減速度も MovementComponent 側。
 //==========================================================================================
 
 // 徘徊のフェーズ

@@ -20,7 +20,7 @@
 //   正で前方が下がる。AdditivePoseSystem が -Pitch を使っているのと同じ規約)。
 // ・このエンジンは左手系でローカル +Z が前方。Vector3 オーバーロードは
 //   (pitch,yaw,roll)順で軸が入れ替わるのでスカラー版を明示的に使う。
-// ・プレイヤーは ActionState を見て挙動を切り替える LockOnRotationSystem が
+// ・プレイヤーは「撃っているか」で挙動を切り替える LockOnRotationSystem が
 //   姿勢を書くので、二重書き込みにならないよう PlayerControllTag を除外する。
 //==============================================================================
 void RotationSystem::Init(App::ECS::APPWorld& a_world)

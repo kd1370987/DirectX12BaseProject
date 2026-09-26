@@ -11,7 +11,7 @@
 //   CharacterMovementSystem(移動の基準軸)がこの角度を読む。
 //
 // 体(LocalTransform)の向きをこの角度へ合わせるのは RotationSystem。
-// プレイヤーだけは ActionState を見て「進行方向 / 狙い方向」を切り替える
+// プレイヤーだけは「撃っているか」を見て「進行方向 / 狙い方向」を切り替える
 // LockOnRotationSystem が担当するため、RotationSystem からは除外される。
 //
 // ・体の向きに使うのは既定では Yaw だけ。人型は上体だけで狙う(上下は
