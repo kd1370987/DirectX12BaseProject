@@ -47,6 +47,9 @@ void Application::Release()
 	// シーン解放
 	Engine::Scene::SceneManager::Instance().Release();
 
+	// ゲーム解放 : リソースの参照を握っているので、エンジンより先に手放す
+	App::Game::GameManager::Instance().Release();
+
 	// エンジン解放
 	Engine::MainEngine::Instance().Release();
 }

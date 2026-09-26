@@ -2,6 +2,7 @@
 
 // エンジン
 #include "../../../Engine/MainEngine.h"
+#include "../../../Engine/Graphics/GraphicsEngine.h"
 
 // シーン関係
 #include "../../../Engine/Scene/SceneManager/SceneManager.h"
@@ -33,6 +34,7 @@
 // App
 #include "../UserData/UserData.h"
 #include "../InputActions/InputManager/InputActionManager.h"
+#include "../MouseCursor/MouseCursor.h"
 
 // エディター
 #include "Engine/Editor/Editor.h"
@@ -69,6 +71,13 @@ namespace App::Game
 		{
 			m_upInputActionManager = std::make_unique<Input::InputActionManager>();
 			m_upInputActionManager->Init(m_upUserData.get());
+		}
+
+		// マウスカーソル
+		if (!m_upMouseCursor)
+		{
+			m_upMouseCursor = std::make_unique<MouseCursor>();
+			m_upMouseCursor->Init(&Engine::MainEngine::Instance().GetEngineServices());
 		}
 
 		// ------------------------------------------------------------------
@@ -142,6 +151,10 @@ namespace App::Game
 	{	
 		ENGINE_PROFILE_SCOPE("GameUpdate");
 
+		// マウスカーソルの位置決め。
+		// ゲームモードかどうかで出し方が変わるので、モード切替(Application::ToggleAppMode)の後で呼ばれるここで決める
+		if (m_upMouseCursor) m_upMouseCursor->Update();
+
 		// シーンマネージャーの更新
 		const auto& _services = Engine::MainEngine::Instance().GetEngineServices();
 		Engine::Scene::SceneManager::Instance().Update(*_services.pResourceManager, a_dt);
@@ -152,9 +165,25 @@ namespace App::Game
 
 		// シーンの描画 : 描画命令を積むだけで実行はしない
 		Engine::Scene::SceneManager::Instance().Draw();
+
+		// マウスカーソルはどのUIよりも手前に出したいので、シーンのUIを積み終えた最後に積む
+		if (m_upMouseCursor)
+		{
+			if (auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine())
+			{
+				m_upMouseCursor->SubmitUI(_pGE->RefDrawSubmitter());
+			}
+		}
 	}
 	void GameManager::Release()
-	{}
+	{
+		// カーソル画像の参照を返す。リソースの解放(MainEngine::Release)より前であること
+		if (m_upMouseCursor)
+		{
+			m_upMouseCursor->Release();
+			m_upMouseCursor.reset();
+		}
+	}
 	void GameManager::FireGlobalEvent(const std::string & a_eventName)
 	{}
 	void GameManager::EditDraw()

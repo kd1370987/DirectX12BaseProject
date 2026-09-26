@@ -1090,7 +1090,7 @@
     <Filter Include="Source\Engine\Graphics\DebugDraw">
       <UniqueIdentifier>{c0de0f02-2222-4333-8444-0000c0de0f02}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\MouseCursor">
+    <Filter Include="Source\Application\Game\MouseCursor">
       <UniqueIdentifier>{c0de0f01-1111-4222-8333-0000c0de0f01}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Input">
@@ -2319,8 +2319,8 @@
     <ClCompile Include="Source\Engine\Graphics\DebugDraw\DebugDraw.cpp">
       <Filter>Source\Engine\Graphics\DebugDraw</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\MouseCursor\MouseCursor.cpp">
-      <Filter>Source\Engine\Graphics\MouseCursor</Filter>
+    <ClCompile Include="Source\Application\Game\MouseCursor\MouseCursor.cpp">
+      <Filter>Source\Application\Game\MouseCursor</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Frame\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\Frame\RenderContext</Filter>
@@ -3887,8 +3887,8 @@
     <ClInclude Include="Source\Engine\Graphics\DebugDraw\DebugDraw.h">
       <Filter>Source\Engine\Graphics\DebugDraw</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\MouseCursor\MouseCursor.h">
-      <Filter>Source\Engine\Graphics\MouseCursor</Filter>
+    <ClInclude Include="Source\Application\Game\MouseCursor\MouseCursor.h">
+      <Filter>Source\Application\Game\MouseCursor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Frame\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\Frame\RenderContext</Filter>

@@ -18,7 +18,6 @@
 #include "Raytracing/RaytracingEngine/RaytracingEngine.h"
 #include "Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 #include "../Resource/Data/QuadPolygon/QuadPolygon.h"
-#include "MouseCursor/MouseCursor.h"
 #include "DebugDraw/DebugDraw.h"
 
 // スレッドの稼働時間の計測(Present の待ちを外す)
@@ -254,18 +253,6 @@ namespace Engine::Graphics
 		// レイトレワールド構築
 		m_upRayEngine = std::make_unique<Raytracing::RayEngine>();
 		m_upRayEngine->CommitWorld(_pDevice, m_upDescriptorHeapManager.get(), a_pCmdList, m_pResourceManager);
-
-		// マウスカーソル
-		m_upMouseCursor = std::make_unique<MouseCursor>();
-		m_upMouseCursor->Init(m_upDescriptorHeapManager.get(), m_pResourceManager);
-	}
-
-	void GraphicsEngine::ReleaseMouseCursor()
-	{
-		if (!m_upMouseCursor) return;
-
-		m_upMouseCursor->Release();
-		m_upMouseCursor.reset();
 	}
 
 	Pipeline::PassMetaRegistry* GraphicsEngine::RefPassMetaRegistry()
@@ -379,20 +366,6 @@ namespace Engine::Graphics
 		auto* _pCmdList = m_upRenderDevice->AcquireDirectCommandList();
 		// GPUが実際に完了させた値 : これ以下でタグ付けされた領域だけをフリーリストに戻す
 		auto _completedFence = m_upRenderDevice->GetCompletedFenceValue();
-
-		// 自前のマウスカーソルを最前面へ。
-		// UIパスは深度を切ってあるので積んだ順がそのまま前後になる。
-		// シーンのUIを全部積み終えたここで積むことで、必ず一番手前に出る。
-		//
-		// ゲームモード以外はエディターのImGuiが上に重なるので、あちらの
-		// 最前面レイヤーへ描く(MouseCursor::DrawImGui)。ここでは積まない
-		if (MainEngine::Instance().GetMode() == EAppMode::Game)
-		{
-			if (m_upMouseCursor)
-			{
-				m_upMouseCursor->SubmitUI(m_upDrawSubmitter.get());
-			}
-		}
 
 		// メッシュバッファの更新
 		m_upMeshBufferAllocator->UpdateFrame(_pCmdList, _completedFence);

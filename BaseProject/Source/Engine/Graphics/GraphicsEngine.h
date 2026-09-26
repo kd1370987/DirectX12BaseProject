@@ -42,7 +42,6 @@ namespace Engine::Graphics
 	class DebugDraw;
 	class BackBuffer;
 	class PipelineStateManager;
-	class MouseCursor;
 
 	namespace Pipeline
 	{
@@ -123,14 +122,9 @@ namespace Engine::Graphics
 		void ReleaseBackBuffer();
 
 		// 初期化・解放
-		// パーティクル・レイトレワールド・自前カーソルもここで作り、ここで捨てる
-		// (自前カーソルだけは先に ReleaseMouseCursor で手放しておくこと)
+		// パーティクル・レイトレワールドもここで作り、ここで捨てる
 		void Init(D3D12::GraphicsCommandList* a_pCmdList, const GraphicsEngineDesc& a_desc);
 		void Release();
-
-		// 自前カーソルの解放。
-		// テクスチャの参照を握っているので、リソースの解放より前に呼ぶ
-		void ReleaseMouseCursor();
 
 		//--------------------------------------------------------------------------------------------
 		// フレーム
@@ -257,9 +251,6 @@ namespace Engine::Graphics
 		// レイトレワールド
 		Raytracing::RayEngine* RefRayEngine() { return m_upRayEngine.get(); }
 
-		// 自前で描くマウスカーソル
-		MouseCursor* RefMouseCursor() { return m_upMouseCursor.get(); }
-
 	private:
 		//--------------------------------------------------------------------------------------------
 		// 仕事ごとの持ち物
@@ -321,9 +312,6 @@ namespace Engine::Graphics
 
 		// レイトレワールド(TLAS/BLAS・各種バッファ)
 		std::unique_ptr<Raytracing::RayEngine> m_upRayEngine = nullptr;
-
-		// 自前で描くマウスカーソル
-		std::unique_ptr<MouseCursor> m_upMouseCursor = nullptr;
 
 		// ライト本体のプール
 		LightManager m_lightManager = {};

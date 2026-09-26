@@ -10,6 +10,7 @@ namespace App::Input
 namespace App::Game
 {
 	class UserData;
+	class MouseCursor;
 
 	/// <summary>
 	/// シングルトン
@@ -35,7 +36,7 @@ namespace App::Game
 		void Draw();
 
 		/// <summary>
-		/// ゲーム終了処理
+		/// ゲーム終了処理 : リソースの参照を返すので、エンジンの解放より前に呼ぶこと
 		/// </summary>
 		void Release();
 
@@ -88,6 +89,9 @@ namespace App::Game
 		// ---- 設定 ----
 		// 入力
 		std::unique_ptr<Input::InputActionManager> m_upInputActionManager;
+
+		// ゲーム中に自前で描くマウスカーソル
+		std::unique_ptr<MouseCursor> m_upMouseCursor;
 
 	// シングルトン
 	private:

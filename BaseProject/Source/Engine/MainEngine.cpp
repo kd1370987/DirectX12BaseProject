@@ -1,7 +1,6 @@
 ﻿#include "MainEngine.h"
 
 #include "Engine/Window/NativeWindow.h"
-#include "Graphics/MouseCursor/MouseCursor.h"
 #include "Engine/Time/TimeManager.h"
 #include "Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "Resource/Manager/ResourceManager/ResourceManager.h"
@@ -185,7 +184,7 @@ namespace Engine
 			static_cast<UINT>(_winOp.windowHeight)
 		);
 
-		// 描画周り初期化(パイプラインステート管理・パーティクル・レイトレワールド・自前カーソルもここで作られる)
+		// 描画周り初期化(パイプラインステート管理・パーティクル・レイトレワールドもここで作られる)
 		Graphics::GraphicsEngineDesc _geDesc = {};
 		_geDesc.width = static_cast<UINT>(_winOp.windowWidth);
 		_geDesc.height = static_cast<UINT>(_winOp.windowHeight);
@@ -201,15 +200,6 @@ namespace Engine
 			assert(0 && "エディターの初期化に失敗");
 			return;
 		}
-
-		// マウスカーソル(持ち主はグラフィックスエンジン)
-		Engine::Editor::MainEditor::Instance().RegisterEditFunc(
-			[this]()
-			{
-				auto* _pCursor = m_upGraphicsEngine ? m_upGraphicsEngine->RefMouseCursor() : nullptr;
-				if (_pCursor) _pCursor->DrawImGui();
-			}
-		);
 
 		// ダイレクトキューの実行
 		m_upGraphicsEngine->RefRenderDevice()->ExecuteImmediate(_pCmdList);
@@ -227,10 +217,6 @@ namespace Engine
 		m_upJobSystem->Release();
 
 		// アプリケーション・上位層の解放
-
-		// 自前カーソルが握っているテクスチャの参照を返す。
-		// リソースの解放より前に手放しておくこと
-		m_upGraphicsEngine->ReleaseMouseCursor();
 
 		// 再生中のサウンドインスタンスを破棄。
 		// SoundEffectInstance は生成元の SoundEffect(= Resource::Sound) を
@@ -363,19 +349,6 @@ namespace Engine
 		Audio::AudioManager::Instance().Update();
 
 		m_upGraphicsEngine->RefParticleManager()->BeginFrame();	// パーティクルデータの更新
-
-		// 自前カーソルの位置決め。
-		// 描くのは後(ゲームはUIパス / エディターはImGui)だが、どちらから描かれても
-		// 同じ位置になるようここで一度だけ決める。
-		// OSのカーソルを消してよいかもここで決まるのでウィンドウへ伝える
-		if (auto* _pCursor = m_upGraphicsEngine->RefMouseCursor())
-		{
-			_pCursor->Update();
-			if (m_upWindow)
-			{
-				m_upWindow->SetCursorHidden(_pCursor->IsHideOSCursor());
-			}
-		}
 
 		m_upResourceManager->RefAssetDatabase().Update();
 
