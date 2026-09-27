@@ -162,6 +162,8 @@ void HitDetectSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 物理空間へ重なり・掃引クエリを撃つ
+	.ReadsResource<Engine::Physics::PhysicsWorld>()
 	// 絞り込みに使わない書き込み : 弾の前フレーム位置とヒットの記録
 	.Writes<ProjectileComponent>()
 	.WritesResource<HitEventResource>();

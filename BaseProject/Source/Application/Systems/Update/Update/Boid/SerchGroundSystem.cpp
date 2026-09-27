@@ -91,5 +91,7 @@ void SerchGroundSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 物理空間へレイを撃つ
+	.ReadsResource<Engine::Physics::PhysicsWorld>();
 }

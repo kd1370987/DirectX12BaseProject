@@ -49,5 +49,7 @@ void EnemyMovementSystem::Init(App::ECS::APPWorld& a_world)
 				// y は重力に任せる
 			}
 		}
-	);
+	)
+	// 順序 : 目標速度(Velocity)の書き手を EnemyMovement → SwarmLeaderMove → CharacterMovement → PlatoonFollow の順に並べる
+	.Before("SwarmLeaderMoveSystem");
 }

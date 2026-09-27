@@ -234,6 +234,82 @@ namespace Engine::ECS
 		m_jobScratch.clear();
 	}
 
+	namespace
+	{
+		//------------------------------------------------------------------------------------------
+		// 推移閉包 : [a][b] = a から辿って b に届く(a の後に b が走ることが保証されている)
+		// フェーズあたりのタスクは数十なので、素直に辿ってよい
+		//------------------------------------------------------------------------------------------
+		ScheduleAdjacency BuildReach(const ScheduleAdjacency& a_adj)
+		{
+			const size_t _num = a_adj.size();
+			ScheduleAdjacency _reach(_num, std::vector<uint8_t>(_num, 0));
+
+			for (size_t _from = 0; _from < _num; ++_from)
+			{
+				std::vector<size_t> _stack = { _from };
+				while (!_stack.empty())
+				{
+					const size_t _cur = _stack.back();
+					_stack.pop_back();
+
+					for (size_t _to = 0; _to < _num; ++_to)
+					{
+						if (!a_adj[_cur][_to] || _reach[_from][_to]) continue;
+
+						_reach[_from][_to] = 1;
+						_stack.push_back(_to);
+					}
+				}
+			}
+			return _reach;
+		}
+
+		//------------------------------------------------------------------------------------------
+		// Kahn法で並べる : 並べられた数を返す(足りなければ循環している)
+		//
+		// 同じ段のものは先入れ先出しで、最初の段は登録順。
+		// 明示の順序が無いフェーズでは、以前の TopologicalSort と同じ並びになる
+		//------------------------------------------------------------------------------------------
+		size_t SortByGraph(
+			const std::vector<SystemTask*>& a_taskVec,
+			const ScheduleAdjacency& a_adj,
+			std::vector<SystemTask*>& a_outVec)
+		{
+			const size_t _num = a_taskVec.size();
+
+			std::vector<uint32_t> _indegree(_num, 0);
+			for (size_t _from = 0; _from < _num; ++_from)
+			{
+				for (size_t _to = 0; _to < _num; ++_to)
+				{
+					if (a_adj[_from][_to]) _indegree[_to]++;
+				}
+			}
+
+			std::queue<size_t> _queue;
+			for (size_t _i = 0; _i < _num; ++_i)
+			{
+				if (_indegree[_i] == 0) _queue.push(_i);
+			}
+
+			a_outVec.clear();
+			while (!_queue.empty())
+			{
+				const size_t _cur = _queue.front();
+				_queue.pop();
+				a_outVec.push_back(a_taskVec[_cur]);
+
+				for (size_t _to = 0; _to < _num; ++_to)
+				{
+					if (!a_adj[_cur][_to]) continue;
+					if (--_indegree[_to] == 0) _queue.push(_to);
+				}
+			}
+			return a_outVec.size();
+		}
+	}
+
 	void SystemManager::Sort()
 	{
 		// 変更がなければソートしない
@@ -252,32 +328,30 @@ namespace Engine::ECS
 				_taskVec.push_back(_upTask.get());
 			}
 
+			PhaseScheduleReport& _report = m_scheduleReportMap[_systemPhase];
+			_report = {};
+
+			// 明示の順序 + RAW でグラフを組んで並べる
+			ScheduleAdjacency _adj = {};
+			BuildPhaseGraph(_taskVec, _adj, _report);
+
 			auto& _sortedVec = m_compileTaskMap[_systemPhase];
+			const size_t _sortedCount = SortByGraph(_taskVec, _adj, _sortedVec);
 
-			const bool _isSuccess = Engine::Algorithm::Graph::TopologicalSort(
-				_taskVec,
-				_sortedVec,
-				[](const SystemTask* a, const SystemTask* b)
-				{
-					// a が読むものを b が書くなら b の後(コンポーネント・リソースとも)
-					return IsReadAfterWrite(*a, *b);
-				}
-			);
-
-			// ここまでに並べられた数(失敗したときは、ここから後ろが循環に巻き込まれたもの)
-			const size_t _sortedCount = _sortedVec.size();
-
-			// 失敗＝依存が循環している。
+			// 足りない＝依存が循環している。
 			// ソート結果には循環に巻き込まれたタスクが入らないので、
 			// そのまま使うとシステムが黙って実行されなくなる。
 			// 何が落ちたのかを出したうえで、登録順で後ろに足して実行だけは続けさせる。
-			if (!_isSuccess)
+			if (_sortedCount < _taskVec.size())
 			{
-				ReportSortFailure(_systemPhase, _taskVec, _sortedVec);
+				ReportSortFailure(_systemPhase, _taskVec, _sortedVec, _adj);
 			}
 
 			// 並びの診断(実行には影響しない)
-			BuildScheduleReport(_systemPhase, _taskVec, _sortedVec, _sortedCount);
+			BuildScheduleReport(_systemPhase, _taskVec, _sortedVec, _sortedCount, _adj, _report);
+
+			// 循環はログを出した後で止める(After / Before で向きを決めること)
+			assert(_sortedCount == _taskVec.size() && "システムの依存が循環しています(ECS プロファイラの Systems を参照)");
 
 			// 待つ相手の組み立て
 			auto& _compiledVec = m_compiledTaskMap[_systemPhase];
@@ -312,102 +386,148 @@ namespace Engine::ECS
 		m_isChange = false;
 	}
 
+	//----------------------------------------------------------------------------------------------
+	// 並べ方の元になるグラフ
+	//
+	//   明示の順序 : After(相手) なら 相手 → 自分、Before(相手) なら 自分 → 相手
+	//   RAW        : 読む側を書く側の後へ。ただし明示の順序(推移も含む)で
+	//                読む側が先と決まっている組では使わない
+	//
+	// RAW を打ち消すのは、読み書きが往復する組を明示の順序で解くため。
+	// 打ち消したものは診断へ残す(何を明示で上書きしたかが分かるように)
+	//----------------------------------------------------------------------------------------------
+	void SystemManager::BuildPhaseGraph(
+		const std::vector<SystemTask*>& a_taskVec,
+		ScheduleAdjacency& a_outAdj,
+		PhaseScheduleReport& a_report)
+	{
+		const size_t _num = a_taskVec.size();
+
+		//------------------------------------------------------------------
+		// 明示の順序
+		//------------------------------------------------------------------
+		ScheduleAdjacency _explicit(_num, std::vector<uint8_t>(_num, 0));
+
+		// 同じ名前のタスクが複数あれば全部に掛ける。見つからなければ false
+		auto _forEachByName = [&a_taskVec](const std::string& a_name, auto&& a_func)
+			{
+				bool _isFound = false;
+				for (size_t _k = 0; _k < a_taskVec.size(); ++_k)
+				{
+					if (a_taskVec[_k]->name != a_name) continue;
+					a_func(_k);
+					_isFound = true;
+				}
+				return _isFound;
+			};
+
+		for (size_t _i = 0; _i < _num; ++_i)
+		{
+			const SystemTask& _task = *a_taskVec[_i];
+
+			for (const std::string& _name : _task.afterNames)
+			{
+				const bool _isFound = _forEachByName(_name, [&](size_t a_k) { if (a_k != _i) _explicit[a_k][_i] = 1; });
+				if (!_isFound) a_report.unknownOrderVec.push_back(_task.name + " -> After(" + _name + ")");
+			}
+			for (const std::string& _name : _task.beforeNames)
+			{
+				const bool _isFound = _forEachByName(_name, [&](size_t a_k) { if (a_k != _i) _explicit[_i][a_k] = 1; });
+				if (!_isFound) a_report.unknownOrderVec.push_back(_task.name + " -> Before(" + _name + ")");
+			}
+		}
+
+		const ScheduleAdjacency _explicitReach = BuildReach(_explicit);
+
+		//------------------------------------------------------------------
+		// RAW : 読む側 _r を書く側 _w の後へ
+		//------------------------------------------------------------------
+		a_outAdj = _explicit;
+		for (size_t _r = 0; _r < _num; ++_r)
+		{
+			for (size_t _w = 0; _w < _num; ++_w)
+			{
+				if (_r == _w) continue;
+				if (!IsReadAfterWrite(*a_taskVec[_r], *a_taskVec[_w])) continue;
+
+				// 明示の順序で読む側が先と決まっている
+				if (_explicitReach[_r][_w])
+				{
+					a_report.overriddenRawVec.push_back({ a_taskVec[_r], a_taskVec[_w] });
+					continue;
+				}
+
+				a_outAdj[_w][_r] = 1;
+			}
+		}
+	}
+
 	void SystemManager::ReportSortFailure(
 		ESystemType a_phase,
 		const std::vector<SystemTask*>& a_allTaskVec,
-		std::vector<SystemTask*>& a_sortedTaskVec)
+		std::vector<SystemTask*>& a_sortedTaskVec,
+		const ScheduleAdjacency& a_adj)
 	{
-		ENGINE_LOG("[ECS] システムのトポロジカルソートに失敗しました (phase = %d)", static_cast<int>(a_phase));
-		ENGINE_LOG("[ECS] 依存が循環しています。下記のタスクの read/write を見直してください");
+		ENGINE_LOG("[ECS] システムのトポロジカルソートに失敗しました (phase = %s)", magic_enum::enum_name(a_phase).data());
+		ENGINE_LOG("[ECS] 依存が循環しています。read/write を見直すか、After / Before で向きを決めてください");
 
 		// 並べられなかった＝循環に巻き込まれたタスク
-		for (SystemTask* _pTask : a_allTaskVec)
+		std::vector<size_t> _cyclicIndexVec = {};
+		for (size_t _i = 0; _i < a_allTaskVec.size(); ++_i)
 		{
+			SystemTask* _pTask = a_allTaskVec[_i];
 			if (!_pTask) continue;
 
 			const bool _isSorted =
 				std::find(a_sortedTaskVec.begin(), a_sortedTaskVec.end(), _pTask) != a_sortedTaskVec.end();
-			if (_isSorted) continue;
+			if (!_isSorted) _cyclicIndexVec.push_back(_i);
+		}
 
-			ENGINE_LOG("[ECS]   循環: %s", _pTask->name.c_str());
+		for (size_t _i : _cyclicIndexVec)
+		{
+			ENGINE_LOG("[ECS]   循環: %s", a_allTaskVec[_i]->name.c_str());
 
-			// 相手も出す。read と write が互いに噛み合っているものが原因
-			for (SystemTask* _pOther : a_allTaskVec)
+			// 循環の中で、このタスクの後に並べたい相手(辺の向き)を出す
+			for (size_t _k : _cyclicIndexVec)
 			{
-				if (!_pOther || _pOther == _pTask) continue;
-
-				const bool _isMutual =
-					IsReadAfterWrite(*_pTask, *_pOther) &&
-					IsReadAfterWrite(*_pOther, *_pTask);
-
-				if (_isMutual)
-				{
-					ENGINE_LOG("[ECS]     <-> %s (相互に read/write が噛み合っています)", _pOther->name.c_str());
-				}
+				if (_k == _i || !a_adj[_i][_k]) continue;
+				ENGINE_LOG("[ECS]     -> %s", a_allTaskVec[_k]->name.c_str());
 			}
 
 			// 実行だけは続けさせる(登録順で末尾に足す)
-			a_sortedTaskVec.push_back(_pTask);
+			a_sortedTaskVec.push_back(a_allTaskVec[_i]);
 		}
 	}
-
-
 
 	//----------------------------------------------------------------------------------------------
 	// 並びの診断
 	//
-	// ソートの辺は RAW(自分が読むものを相手が書く → 相手の後)だけなので、
-	// 「衝突はしているが RAW の経路で前後がつながっていない」組は、
+	// 「衝突はしているが、順序(明示・RAW)の経路で前後がつながっていない」組は、
 	// Kahn法の段と登録順でたまたまその並びになっているだけになる。
 	// 登録の位置やシステムの追加で黙って入れ替わりうるので、ここで拾って見えるようにする。
+	// 見つけたら After / Before で向きを決めること。
 	//
-	// 拾えるのは宣言(read / write)に出ているものだけ。
-	// RefData やリソース越しの読み書きは宣言に出ないので、ここには現れない
+	// 拾えるのは宣言(read / write / TaskAccess)に出ているものだけ
 	//----------------------------------------------------------------------------------------------
 	void SystemManager::BuildScheduleReport(
 		ESystemType a_phase,
 		const std::vector<SystemTask*>& a_allTaskVec,
 		const std::vector<SystemTask*>& a_sortedTaskVec,
-		size_t a_sortedCount)
+		size_t a_sortedCount,
+		const ScheduleAdjacency& a_adj,
+		PhaseScheduleReport& a_report)
 	{
-		PhaseScheduleReport& _report = m_scheduleReportMap[a_phase];
-		_report = {};
-
 		const size_t _num = a_allTaskVec.size();
-		_report.isSorted = (a_sortedCount >= _num);
+		a_report.isSorted = (a_sortedCount >= _num);
 
 		// 循環に巻き込まれ、末尾に足されたもの
 		for (size_t _i = a_sortedCount; _i < a_sortedTaskVec.size(); ++_i)
 		{
-			_report.cyclicTaskVec.push_back(a_sortedTaskVec[_i]);
+			a_report.cyclicTaskVec.push_back(a_sortedTaskVec[_i]);
 		}
 
-		//------------------------------------------------------------------
-		// RAW の経路で届くか(推移閉包)
-		//   _reach[a][b] : a が終わってから b が走ることが依存で保証されている
-		// フェーズあたりのタスクは数十なので、素直に辿ってよい
-		//------------------------------------------------------------------
-		std::vector<std::vector<uint8_t>> _reach(_num, std::vector<uint8_t>(_num, 0));
-		for (size_t _from = 0; _from < _num; ++_from)
-		{
-			std::vector<size_t> _stack = { _from };
-			while (!_stack.empty())
-			{
-				const size_t _cur = _stack.back();
-				_stack.pop_back();
-
-				for (size_t _to = 0; _to < _num; ++_to)
-				{
-					if (_to == _cur || _reach[_from][_to]) continue;
-
-					// _to が読むものを _cur が書く → _cur の後に _to
-					if (!IsReadAfterWrite(*a_allTaskVec[_to], *a_allTaskVec[_cur])) continue;
-
-					_reach[_from][_to] = 1;
-					_stack.push_back(_to);
-				}
-			}
-		}
+		// 順序の経路で届くか
+		const ScheduleAdjacency _reach = BuildReach(a_adj);
 
 		//------------------------------------------------------------------
 		// 今の並びで前後にある衝突の組のうち、経路でつながっていないもの
@@ -431,11 +551,11 @@ namespace Engine::ECS
 
 				const size_t _li = _indexMap[_pLater];
 
-				// どちらかの向きに経路があれば前後は依存で決まっている。
+				// どちらかの向きに経路があれば前後は決まっている。
 				// 両向きにある(循環の中)ものは循環側で報告しているので数えない
 				if (_reach[_ei][_li] || _reach[_li][_ei]) continue;
 
-				ScheduleAmbiguity& _amb = _report.ambiguityVec.emplace_back();
+				ScheduleAmbiguity& _amb = a_report.ambiguityVec.emplace_back();
 				_amb.pEarlier = _pEarlier;
 				_amb.pLater = _pLater;
 				_amb.conflictSig =
@@ -447,14 +567,21 @@ namespace Engine::ECS
 			}
 		}
 
-		// 件数だけログへ出す(中身は ECS プロファイラの Systems で見る)
-		if (!_report.isSorted || !_report.ambiguityVec.empty())
+		// 見つからなかった順序の宣言は書き間違いなので警告する
+		for (const std::string& _unknown : a_report.unknownOrderVec)
 		{
-			ENGINE_LOG("[ECS] %s : ソート%s / 循環 %zu 件 / 前後が依存で決まっていない衝突 %zu 組",
+			ENGINE_WARNING("[ECS] %s : 同じフェーズに無いタスクへの順序です (%s)",
+				magic_enum::enum_name(a_phase).data(), _unknown.c_str());
+		}
+
+		// 件数だけログへ出す(中身は ECS プロファイラの Systems で見る)
+		if (!a_report.isSorted || !a_report.ambiguityVec.empty())
+		{
+			ENGINE_LOG("[ECS] %s : ソート%s / 循環 %zu 件 / 前後が決まっていない衝突 %zu 組",
 				magic_enum::enum_name(a_phase).data(),
-				_report.isSorted ? "成功" : "失敗",
-				_report.cyclicTaskVec.size(),
-				_report.ambiguityVec.size());
+				a_report.isSorted ? "成功" : "失敗",
+				a_report.cyclicTaskVec.size(),
+				a_report.ambiguityVec.size());
 		}
 	}
 

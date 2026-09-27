@@ -76,6 +76,9 @@ void SphereCollisionSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : 押し出し同士の並び
+	.ReadsResource<Engine::Physics::PhysicsWorld>()
+	.After("CapsuleCollisionSystem")
 	// 絞り込みに使わない読み : isPhysical
 	.Reads<ColliderComponent>();
 }

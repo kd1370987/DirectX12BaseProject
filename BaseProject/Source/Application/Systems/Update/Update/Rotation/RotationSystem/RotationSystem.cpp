@@ -58,5 +58,7 @@ void RotationSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		},
 		Engine::ECS::Exclude<PlayerControllTag>{}
-	);
+	)
+	// 順序 : 姿勢(LocalTransform)の書き手同士の並び
+	.After("BallisticSystem");
 }

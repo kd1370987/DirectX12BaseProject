@@ -58,5 +58,7 @@ void CharacterMovementSystem::Init(App::ECS::APPWorld& a_world)
 				_velComp.value.z = (_moveIntent.value.z * _cosY - _moveIntent.value.x * _sinY) * _speed;
 			}
 		}
-	);
+	)
+	// 順序 : 目標速度(Velocity)の書き手同士の並び
+	.After("SwarmLeaderMoveSystem");
 }

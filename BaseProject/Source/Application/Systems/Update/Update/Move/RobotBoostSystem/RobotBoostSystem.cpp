@@ -263,6 +263,8 @@ void RobotBoostSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : 重力が足した落下ぶんを、上下のブーストで打ち消せるよう後に置く
+	.After("GravitySystem")
 	// 絞り込みに使わない書き込み : 蹴り出しで実速度を RefData で書く(持っている機体だけ)
 	.Writes<MovementComponent>();
 }

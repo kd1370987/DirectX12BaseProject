@@ -29,9 +29,9 @@
 //
 // ・前の相手の位置と実速度は RefData で引く。どちらも前フレームの Physics の結果なので、
 //   列の中で誰から先に処理しても同じ値を見る(並び順に依存しない)。
-// ・自分の座標もクエリに入れず RefData で引く。BoidSystem(同じ Update 帯)が
-//   LocalTransform を write / Velocity を read で宣言しているので、こちらが
-//   LocalTransform を read / Velocity を write で並べると依存が輪になる。
+// ・自分の座標も RefData で引く(読みは TaskAccess で宣言してある)。
+//   LocalTransform を読んで Velocity を書くので、その逆をする LockOnRotationSystem とは
+//   読み書きが往復する。あちらが After(PlatoonFollowSystem) で向きを決めている。
 // ・前の相手が居なくなったら目標速度を 0 にして止める。
 //==============================================================================
 namespace
@@ -161,8 +161,10 @@ void PlatoonFollowSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
-	// 絞り込みに使わない読み : 前の相手の向き。
-	// ※ 自分と前の相手の LocalTransform も読んでいるが、宣言すると LockOnRotationSystem と
-	//   依存が循環する(型単位でしか見ないため)。順序の仕組みを変える(Step4)まで宣言を保留している
-	.Reads<LookAngleComponent>();
+	// 順序 : 目標速度(Velocity)の書き手同士の並び
+	.After("CharacterMovementSystem")
+	// 絞り込みに使わない読み : 前の相手の向きと、自分と前の相手の位置。
+	// LocalTransform の読みは LockOnRotationSystem と読み書きが往復するので、
+	// あちらが After(PlatoonFollowSystem) で向きを決めている
+	.Reads<LookAngleComponent, LocalTransformComponent>();
 }

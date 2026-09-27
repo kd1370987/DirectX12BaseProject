@@ -40,5 +40,8 @@ void CameraProjUpdateSystem::Init(App::ECS::APPWorld& a_world)
 				);
 			}
 		}
-	);
+	)
+	// 順序 : TPSSystem が書いた画角(fovBoost)を同じフレームで射影へ反映する
+	// (CameraParam は読んで書くので、読み書きだけでは前後が決まらない)
+	.After("TPSSystem");
 }

@@ -248,6 +248,8 @@ void BoosterEffectSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : エフェクト(EffectAsset)の書き手を EffectUpdate → BoosterEffect → GunShoot → Ballistic の順に並べる
+	.After("EffectUpdateSystem")
 	// 絞り込みに使わない読み : スパークの位置
 	.Reads<WorldMatrixComponent>();
 }

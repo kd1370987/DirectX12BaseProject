@@ -195,6 +195,10 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : 姿勢の書き手同士の並びに加えて、PlatoonFollowSystem の後に置く。
+	// あちらは LocalTransform を読んで Velocity を書き、こちらは Velocity を読んで LocalTransform を書くので、
+	// 読み書きだけでは循環する(対象はプレイヤーと小隊長で重ならない)
+	.After({ "RotationSystem", "PlatoonFollowSystem" })
 	// 絞り込みに使わない読み : 死亡判定・ロック相手・狙点
 	.Reads<HealthComponent, LockOnTargetComponent, AimTargetPosComponent>();
 
@@ -237,6 +241,8 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 		},
 		Engine::ECS::Exclude<ActionIntentComponent>()
 	)
+	// 順序 : 姿勢の書き手同士(攻撃入力の有無で対象は重ならない)
+	.After("LockOnRotationSystem")
 	// 絞り込みに使わない読み : 死亡判定(IsDeadEntity)
 	.Reads<HealthComponent>();
 }

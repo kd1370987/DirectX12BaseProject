@@ -63,6 +63,39 @@ namespace Engine::ECS
 			return *this;
 		}
 
+		//--------------------------------------------------------------------------------------
+		// 明示の順序(同じフェーズのタスク名で指定する)
+		//
+		// 読み書きから決まる並び(RAW)より優先する。次の2つに使う。
+		//   ・書き手同士や「読んだ後に書く」組の前後を決める(RAW では辺が張られない)
+		//   ・読み書きが往復して RAW だけでは循環する組の向きを決める
+		// 同じ名前のタスクが複数あれば全部に掛かる。見つからない名前は Sort で警告する。
+		//--------------------------------------------------------------------------------------
+
+		// このタスクより先に走らせるもの
+		TaskAccess& After(std::string_view a_taskName)
+		{
+			if (m_pTask) m_pTask->afterNames.emplace_back(a_taskName);
+			return *this;
+		}
+		TaskAccess& After(std::initializer_list<std::string_view> a_taskNames)
+		{
+			for (std::string_view _name : a_taskNames) After(_name);
+			return *this;
+		}
+
+		// このタスクより後に走らせるもの
+		TaskAccess& Before(std::string_view a_taskName)
+		{
+			if (m_pTask) m_pTask->beforeNames.emplace_back(a_taskName);
+			return *this;
+		}
+		TaskAccess& Before(std::initializer_list<std::string_view> a_taskNames)
+		{
+			for (std::string_view _name : a_taskNames) Before(_name);
+			return *this;
+		}
+
 	private:
 
 		template<typename Comp>

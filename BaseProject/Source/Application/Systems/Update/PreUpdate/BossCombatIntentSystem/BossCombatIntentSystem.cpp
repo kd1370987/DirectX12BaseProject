@@ -602,6 +602,8 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : 移動入力・発射入力の書き手同士(対象はボスだけで重ならない)。敵の行動決定の後に置く
+	.After({ "EnemyShootIntentSystem", "EnemyMoveIntentSystem", "CloseCombatIntentSystem" })
 	// 絞り込みに使わない読み : 相手の位置と速度、武器の弾速、自分の接地を RefData で読む
 	.Reads<WorldMatrixComponent, MovementComponent, VelocityComponent, GunStateComponent, GroundStateComponent>();
 }

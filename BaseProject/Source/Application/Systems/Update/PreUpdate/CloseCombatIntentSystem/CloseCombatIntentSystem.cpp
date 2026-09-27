@@ -179,6 +179,8 @@ void CloseCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : 発射入力(ActionIntent)の書き手同士。相手は近距離型を除外しているので対象は重ならない
+	.After("EnemyShootIntentSystem")
 	// 絞り込みに使わない読み : ターゲットの位置を RefData で読む
 	.Reads<WorldMatrixComponent>();
 }

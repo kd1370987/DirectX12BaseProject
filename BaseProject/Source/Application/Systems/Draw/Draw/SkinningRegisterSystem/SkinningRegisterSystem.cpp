@@ -25,7 +25,7 @@ void SkinningRegisterSystem::Init(App::ECS::APPWorld& a_world)
 		>
 		(
 		Engine::ECS::ESystemType::Draw,
-		"RegisterRayWorldSystem",
+		"SkinningRegisterSystem",
 		[]
 		(
 			Engine::ECS::Chunk* a_pChunk,

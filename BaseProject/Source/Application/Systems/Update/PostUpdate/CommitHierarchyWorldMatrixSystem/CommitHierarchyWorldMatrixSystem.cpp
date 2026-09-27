@@ -128,6 +128,11 @@ void CommitHierarchyWorldMatrixSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
-	// ※ LocalTransform::isDirty も書いているが、CalcMatrixSystem と宣言が循環するので保留(Step4/5)
-	.ReadsResource<HierarchyResource>();
+	// 階層の深さの上限を読む
+	.ReadsResource<HierarchyResource>()
+	// 汚れ印(LocalTransform::isDirty)を下ろすので書き込みも宣言する
+	.Writes<LocalTransformComponent>()
+	// 順序 : CalcMatrixSystem と互いに LocalTransform を読んで書く(対象は階層の有無で重ならない)。
+	// 読み書きだけでは循環するので、階層なしを先に組む
+	.After("CalcMatrixSystem");
 }

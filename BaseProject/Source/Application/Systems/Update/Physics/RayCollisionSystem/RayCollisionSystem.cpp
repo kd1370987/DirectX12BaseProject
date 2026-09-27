@@ -121,6 +121,10 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : 積分で動かした後の位置を地面へ合わせる(積分 → 接地 → 押し出し → 当たり判定)。
+	// 積分は速度を読み、こちらは速度を書くので、向きを決めないと「接地が先」に並ぶ
+	.ReadsResource<Engine::Physics::PhysicsWorld>()
+	.After({ "PositionIntegrationSystem", "MovementIntegrationSystem" })
 	// 速度は書き換えるだけでなく読んでもいる(上昇中はスナップしない)。
 	// 読みを宣言しておくと、速度を書く Gravity / RobotBoost / ChargeDash の後ろに並ぶ
 	.Reads<VelocityComponent>();

@@ -24,7 +24,7 @@ void RegisterAnimatedRayWorldSystem::Init(App::ECS::APPWorld& a_world)
 	>
 		(
 			Engine::ECS::ESystemType::Draw,
-			"RegisterRayWorldSystem",
+			"RegisterAnimatedRayWorldSystem",
 			[]
 			(
 				Engine::ECS::Chunk* a_pChunk,

@@ -143,6 +143,8 @@ void LookAroundSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : 姿勢(LocalTransform)の書き手を FaceTarget → LookAround → Ballistic → Rotation → LockOnRotation の順に並べる
+	.After("FaceTargetSystem")
 	// 絞り込みに使わない読み : 死亡判定(IsDeadEntity)
 	.Reads<HealthComponent>();
 }

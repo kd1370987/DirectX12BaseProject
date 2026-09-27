@@ -217,6 +217,8 @@ namespace Engine::ECS
 				_out.writeNames = ToComponentNames(_pTask->writeSig);
 				_out.readResourceNames = ToResourceNames(_pTask->resReadSig);
 				_out.writeResourceNames = ToResourceNames(_pTask->resWriteSig);
+				_out.afterNames = _pTask->afterNames;
+				_out.beforeNames = _pTask->beforeNames;
 
 				// 実行のされ方
 				_out.isJob = (_pTask->exec == ETaskExec::Job);
@@ -311,6 +313,13 @@ namespace Engine::ECS
 					_outAmb.conflictNames.push_back("[Res] " + _resName);
 				}
 			}
+
+			for (const auto& [_pReader, _pWriter] : _report.overriddenRawVec)
+			{
+				if (!_pReader || !_pWriter) continue;
+				_out.overriddenRaws.push_back(_pReader->name + " <- " + _pWriter->name);
+			}
+			_out.unknownOrders = _report.unknownOrderVec;
 		}
 	}
 

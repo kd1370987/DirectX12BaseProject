@@ -97,6 +97,8 @@ void HealthSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : 死亡(DeathEventResource)を積む側同士の並び
+	.After("ExplodeOnHitSystem")
 	.ReadsResource<HitEventResource>()
 	.WritesResource<DeathEventResource>();
 }

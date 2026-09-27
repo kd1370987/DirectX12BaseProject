@@ -63,6 +63,8 @@ void RegisterPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 				_collComp.physicsBody = _physicsWorld.CreateModelBody(_resourceManager, _desc);
 			}
 		})
+	// 物理空間へボディを置く
+	.WritesResource<Engine::Physics::PhysicsWorld>()
 	// 絞り込みに使わない読み : 親を辿ってワールド行列を組む(HierarchyTransform)
 	.Reads<HierarchyComponent>();
 }

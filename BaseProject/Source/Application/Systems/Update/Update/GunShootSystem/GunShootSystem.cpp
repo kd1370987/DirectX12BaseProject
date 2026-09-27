@@ -371,6 +371,8 @@ void GunShootSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : エフェクト(EffectAsset)の書き手同士の並び
+	.After("BoosterEffectSystem")
 	// 絞り込みに使わない読み書き : 狙点・親を辿った索敵結果と発射元(ProjectileSpawn)、自分のマズルフラッシュ
 	.Reads<AimTargetPosComponent, TargetEntityComponent, HierarchyComponent, ColliderComponent, EnemyTag>()
 	.Writes<EffectAssetComponent>();

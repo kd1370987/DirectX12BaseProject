@@ -83,5 +83,7 @@ void AnimationSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 順序 : ステートが決めたクリップを、同じフレームのうちに再生する
+	.After("AnimationStateSystem");
 }

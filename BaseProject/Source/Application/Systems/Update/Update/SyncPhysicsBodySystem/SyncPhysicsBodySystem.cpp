@@ -47,6 +47,10 @@ void SyncPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 物理空間のボディを動かす。BallisticSystem のレイ(静的な地面だけを見る)は動かす前に撃たせる。
+	// あちらは LocalTransform を書いて物理空間を読み、こちらはその逆なので、向きを決めないと循環する
+	.WritesResource<Engine::Physics::PhysicsWorld>()
+	.After("BallisticSystem")
 	// 絞り込みに使わない読み : 親を辿ってワールド行列を組む(HierarchyTransform)
 	.Reads<HierarchyComponent>();
 }

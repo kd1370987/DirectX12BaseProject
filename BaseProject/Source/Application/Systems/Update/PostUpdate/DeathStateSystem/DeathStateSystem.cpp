@@ -23,8 +23,9 @@
 //   [Update] 入力/AIの結果を握りつぶす
 //       意図を作るのは Input 帯(プレイヤー)と PreUpdate 帯(敵・ボス)なので、
 //       Update 帯で消せば作り手がどれでも後から潰せる。
-//       消費側(CharacterMovementSystem / GunShootSystem / BossMissileSalvoSystem)は
+//       消費側(CharacterMovementSystem / RobotBoostSystem / BossMissileSalvoSystem)は
 //       ここが書いたものを読む側になるため、依存の向きだけで自動的に後ろへ並ぶ。
+//       ただし攻撃入力だけは PreUpdate 帯で消す(銃へ配られるのが PreUpdate 帯のため)。
 //       移動系は「移動入力 × 速度」で水平速度を毎フレーム上書きするので、
 //       入力を消せば水平方向は止まる(重力はそのまま = その場に落ちる)。
 //       向きを変えないのは旋回系(LockOnRotation / FaceTarget / LookAround)が
@@ -67,10 +68,16 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 	);
 
 	//--------------------------------------------------------------------------
-	// [Update] 死んでいるあいだの攻撃入力を消す
+	// [PreUpdate] 死んでいるあいだの攻撃入力を消す
+	//
+	// 攻撃入力は同じ PreUpdate 帯で武器の引き金(WeaponTriggerComponent)へ配られ、
+	// 銃(GunShootSystem)はそちらを読む。Update 帯で消していた頃は配った後だったので、
+	// 死んでいる間も銃を撃ち続けていた。
+	// 入力を作る側(敵・ボス・近距離型)の後、配る側(AttachmentDispatch / SelfWeaponTrigger)の前で消す。
+	// 配る側はここが書いた ActionIntent を読むので、読み書きで自動的に後ろへ並ぶ
 	//--------------------------------------------------------------------------
 	a_world.ActiveTask<const HealthComponent, ActionIntentComponent>(
-		Engine::ECS::ESystemType::Update,
+		Engine::ECS::ESystemType::PreUpdate,
 		"DeathActionIntentGateSystem",
 		[](
 			Engine::ECS::Chunk*      a_pChunk,
@@ -91,7 +98,9 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 				_intent.isMissileHold      = false;
 			}
 		}
-	);
+	)
+	// 順序 : 攻撃入力(ActionIntent)の書き手同士。入力を作る側の後に消す
+	.After({ "EnemyShootIntentSystem", "CloseCombatIntentSystem", "BossCombatIntentSystem" });
 
 	//--------------------------------------------------------------------------
 	// [Update] 死んでいるあいだのブーストを止める
@@ -180,5 +189,8 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 				a_ctx.pWorld->ReserveReleaseEntity(a_pChunk->entityData[_i]);
 			}
 		}
-	);
+	)
+	// 順序 : 体力(HealthComponent)の書き手同士。死亡状態にする HealthSystem の後で時間を進める
+	// (以前は登録順で後ろに並ぶ想定だったが、実際には段の都合で先に走っていた)
+	.After("HealthSystem");
 }

@@ -38,5 +38,7 @@ void SelfWeaponTriggerSystem::Init(App::ECS::APPWorld& a_world)
 				a_triggerArray[_i].isPulled = a_intentArray[_i].IsAnyWeaponShoot();
 			}
 		}
-	);
+	)
+	// 順序 : 引き金(WeaponTrigger)の書き手同士。子の武器へ配る側と、本体が武器のものへ書く側で対象は重ならない
+	.After("AttachmentDispatchSystem");
 }

@@ -144,6 +144,8 @@ void BossMissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : ポッドの銃設定(GunState)とミサイルの溜めの書き手同士(プレイヤーとボスで対象は重ならない)
+	.After("MissileSalvoSystem")
 	// 絞り込みに使わない読み書き : ポッドの銃設定(弾のハンドルを解決して書く)と発射元
 	.Reads<ModelComponent, ColliderComponent, HierarchyComponent, EnemyTag>()
 	.Writes<GunStateComponent>();

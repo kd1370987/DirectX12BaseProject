@@ -94,5 +94,7 @@ void MovementIntegrationSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 順序 : 座標(LocalTransform)の書き手同士(加減速の有無で対象は重ならない)
+	.After("PositionIntegrationSystem");
 }

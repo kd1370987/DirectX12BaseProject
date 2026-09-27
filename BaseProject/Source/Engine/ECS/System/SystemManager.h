@@ -26,6 +26,10 @@ namespace Engine::ECS
 		ResourceSignature resReadSig;								// 読み込みのみを行うリソース
 		ResourceSignature resWriteSig;								// 書き込みを行うリソース
 
+		// 明示の順序(同じフェーズのタスク名) : 読み書きの依存より優先する
+		std::vector<std::string> afterNames;						// このタスクより先に走らせるもの
+		std::vector<std::string> beforeNames;						// このタスクより後に走らせるもの
+
 		std::function<void(SystemTask&, const SystemContext&)> executeFunc;	// チャンク処理(自身のタスクを受け取る)
 		QueryCache query;											// クエリ結果(RegisterTask のみ使う。カスタムタスクは空のまま)
 
@@ -46,14 +50,27 @@ namespace Engine::ECS
 	};
 
 	//------------------------------------------------------------------------------------------
-	// 並びの診断(Sort のたびに作り直す。実行には使わない)
+	// 並びの決め方
 	//
-	// ソートが辺にするのは RAW(読む側 → 書いた側の後)だけなので、
-	// 書き手同士や「読んだ後に書く」組み合わせは、段と登録順で並んでいるにすぎない。
-	// それを見えるようにするための記録
+	// フェーズ内の並びは次の2つの辺で決める。
+	//   ・明示の順序 : TaskAccess::After / Before で宣言したもの(最優先)
+	//   ・RAW        : 読む側を、同じものを書く側の後へ(既定の並べ方)
+	// 明示の順序で「読む側が先」と決まっている組では、その RAW は使わない。
+	// 読み書きが往復する組(例 : A が X を書いて Y を読み、B が Y を書いて X を読む)は
+	// RAW だけでは循環するので、明示の順序を1つ足して向きを決める。
+	//
+	// 書き手同士や「読んだ後に書く」組み合わせには RAW の辺が張られないので、
+	// 明示の順序が無ければ段と登録順で並んでいるにすぎない(= 前後が決まっていない)。
 	//------------------------------------------------------------------------------------------
 
-	// 衝突しているのに、依存(RAW)の経路で前後が保証されていない組
+	// [from][to] = from の後に to が走る
+	using ScheduleAdjacency = std::vector<std::vector<uint8_t>>;
+
+	//------------------------------------------------------------------------------------------
+	// 並びの診断(Sort のたびに作り直す。実行には使わない)
+	//------------------------------------------------------------------------------------------
+
+	// 衝突しているのに、順序(明示・RAW)の経路で前後が保証されていない組
 	struct ScheduleAmbiguity
 	{
 		const SystemTask* pEarlier = nullptr;	// 今の並びで先に走る方
@@ -68,8 +85,13 @@ namespace Engine::ECS
 		bool isSorted = true;								// トポロジカルソートが成功したか
 		std::vector<const SystemTask*> cyclicTaskVec;		// 循環に巻き込まれ、登録順で末尾に足されたもの
 		std::vector<ScheduleAmbiguity> ambiguityVec;		// 前後が依存で決まっていない衝突
-	};
 
+		// 明示の順序で打ち消した RAW(読む側, 書く側)。読む側が先に走る
+		std::vector<std::pair<const SystemTask*, const SystemTask*>> overriddenRawVec;
+
+		// 同じフェーズに見つからなかった順序の宣言(「タスク名 -> After(相手)」の形)
+		std::vector<std::string> unknownOrderVec;
+	};
 
 	//==========================================================================================
 	// システムの管理
@@ -126,20 +148,31 @@ namespace Engine::ECS
 
 	private:
 
+		// 並べ方の元になるグラフを組む : 明示の順序 + RAW(明示で逆向きが決まっている組は除く)。
+		// 打ち消した RAW と、見つからなかった順序の宣言は a_report へ残す
+		void BuildPhaseGraph(
+			const std::vector<SystemTask*>& a_taskVec,
+			ScheduleAdjacency& a_outAdj,
+			PhaseScheduleReport& a_report
+		);
+
 		// ソート失敗(依存の循環)時に、巻き込まれたタスクをログへ出して
 		// 登録順で末尾へ足す。黙って実行されなくなるのを防ぐための後始末。
 		void ReportSortFailure(
 			ESystemType a_phase,
 			const std::vector<SystemTask*>& a_allTaskVec,
-			std::vector<SystemTask*>& a_sortedTaskVec
+			std::vector<SystemTask*>& a_sortedTaskVec,
+			const ScheduleAdjacency& a_adj
 		);
 
-		// 並びの診断を作る : 循環に巻き込まれたものと、前後が依存で決まっていない衝突を集める
+		// 並びの診断を作る : 循環に巻き込まれたものと、前後が決まっていない衝突を集める
 		void BuildScheduleReport(
 			ESystemType a_phase,
 			const std::vector<SystemTask*>& a_allTaskVec,
 			const std::vector<SystemTask*>& a_sortedTaskVec,
-			size_t a_sortedCount
+			size_t a_sortedCount,
+			const ScheduleAdjacency& a_adj,
+			PhaseScheduleReport& a_report
 		);
 
 	public:

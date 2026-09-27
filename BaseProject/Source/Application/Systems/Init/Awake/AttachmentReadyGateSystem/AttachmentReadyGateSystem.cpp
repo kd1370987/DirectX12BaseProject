@@ -57,6 +57,8 @@ void AttachmentReadyGateSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : 待ちの登録(ResourceWaitResource)は書き手同士なので向きを決めておく
+	.After("ModelReadyGateSystem")
 	// 絞り込みに使わない読み書き : 親のモデル、待ちの登録
 	.Reads<ModelComponent>()
 	.WritesResource<ResourceWaitResource>();

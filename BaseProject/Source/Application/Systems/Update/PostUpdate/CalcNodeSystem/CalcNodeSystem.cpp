@@ -49,5 +49,7 @@ void CalcNodeSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 順序 : クリップと加算ポーズでローカルを組み終えてから、ワールドを組む
+	.After("AdditivePoseSystem");
 }

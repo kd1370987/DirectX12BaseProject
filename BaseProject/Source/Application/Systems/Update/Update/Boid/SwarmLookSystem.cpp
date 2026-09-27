@@ -123,7 +123,9 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 					a_platoonArray[_i].turnSpeedDeg, a_ctx.dt);
 			}
 		}
-	);
+	)
+	// 順序 : 向き(LookAngle)はリーダー → 小隊長 → ボイドの順に決める
+	.After("SwarmLookSystem_Leader");
 
 	//--------------------------------------------------------------------------
 	// ボイド : 所属している小隊長の向きへ
@@ -163,5 +165,7 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 				_look.Pitch = std::clamp(_look.Pitch, -_look.maxPitch, _look.maxPitch);
 			}
 		}
-	);
+	)
+	// 順序 : ボイドは小隊長の今フレームの向きへ寄せる
+	.After("SwarmLookSystem_Platoon");
 }

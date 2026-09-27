@@ -90,5 +90,8 @@ void CapsuleCollisionSystem::Init(App::ECS::APPWorld& a_world)
 					_isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}
 		}
-	);
+	)
+	// 順序 : 積分と接地の後で押し出す(動いた後の位置で壁から出す)
+	.ReadsResource<Engine::Physics::PhysicsWorld>()
+	.After("RayCollisionSystem");
 }

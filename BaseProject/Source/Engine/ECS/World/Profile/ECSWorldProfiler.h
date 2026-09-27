@@ -92,6 +92,8 @@ namespace Engine::ECS
 		std::vector<std::string>	writeNames = {};		// 書き込みのコンポーネント
 		std::vector<std::string>	readResourceNames = {};	// 読み込みのリソース
 		std::vector<std::string>	writeResourceNames = {};// 書き込みのリソース
+		std::vector<std::string>	afterNames = {};		// 明示の順序 : これより先に走らせるもの
+		std::vector<std::string>	beforeNames = {};		// 明示の順序 : これより後に走らせるもの
 
 		// 実行のされ方
 		bool						isJob = false;			// ワーカーで走るか
@@ -127,6 +129,8 @@ namespace Engine::ECS
 		bool										isSorted = true;		// トポロジカルソートが成功したか
 		std::vector<std::string>					cyclicTaskNames = {};	// 循環に巻き込まれたもの
 		std::vector<ECSScheduleAmbiguityProfile>	ambiguities = {};
+		std::vector<std::string>					overriddenRaws = {};	// 明示の順序で打ち消した RAW(「読む側 <- 書く側」)
+		std::vector<std::string>					unknownOrders = {};		// 見つからなかった順序の宣言
 	};
 
 	// リソース1つ

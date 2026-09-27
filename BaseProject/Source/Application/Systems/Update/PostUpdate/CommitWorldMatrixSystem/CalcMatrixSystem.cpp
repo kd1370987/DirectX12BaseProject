@@ -43,5 +43,8 @@ void CalcMatrixSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		},
 		Engine::ECS::Exclude<HierarchyComponent>()
-	);
+	)
+	// 汚れ印(LocalTransform::isDirty)を下ろすので書き込みも宣言する。
+	// クエリの型は const のまま(姿勢そのものは読むだけ)
+	.Writes<LocalTransformComponent>();
 }

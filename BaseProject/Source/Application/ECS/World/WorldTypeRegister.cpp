@@ -489,8 +489,7 @@ namespace App::ECS
 		// 被弾で体力を削り、尽きたら死亡状態にする(体力持ちは ExplodeOnHit の対象外)
 		a_world.RegisterSystem<HealthSystem>();
 		// 死亡状態のあいだ入力/AIを止め、指定秒たったら解放予約する。
-		// 体力を書く HealthSystem より後に登録すること
-		// (同じ PostUpdate 帯で HealthComponent を書く同士なので登録順で並ぶ)
+		// 体力を書く HealthSystem との前後は、タスク側の After("HealthSystem") で決めている
 		a_world.RegisterSystem<DeathStateSystem>();
 		// 寿命持ち(弾・エフェクトなど)の共通処理。尽きたら自分で消える
 		a_world.RegisterSystem<LifeTimeSystem>();

@@ -542,6 +542,8 @@ namespace Engine::Editor
 							Engine::Editor::Value("Write", "%s", _task.writeNames.empty() ? "-" : JoinNames(_task.writeNames).c_str());
 							Engine::Editor::Value("Read Res", "%s", _task.readResourceNames.empty() ? "-" : JoinNames(_task.readResourceNames).c_str());
 							Engine::Editor::Value("Write Res", "%s", _task.writeResourceNames.empty() ? "-" : JoinNames(_task.writeResourceNames).c_str());
+							Engine::Editor::Value("After", "%s", _task.afterNames.empty() ? "-" : JoinNames(_task.afterNames).c_str());
+							Engine::Editor::Value("Before", "%s", _task.beforeNames.empty() ? "-" : JoinNames(_task.beforeNames).c_str());
 							ImGui::EndTooltip();
 						}
 					}
@@ -555,6 +557,37 @@ namespace Engine::Editor
 				// 今の並びは Kahn法の段と登録順で決まっているだけなので、
 				// 登録位置やシステムの追加で黙って入れ替わりうる
 				//----------------------------------------------------------
+				//----------------------------------------------------------
+				// 見つからなかった順序の宣言(名前の書き間違い)
+				//----------------------------------------------------------
+				if (_pSchedule)
+				{
+					for (const std::string& _unknown : _pSchedule->unknownOrders)
+					{
+						Engine::Editor::ErrorText("Unknown order: %s", _unknown.c_str());
+					}
+				}
+
+				//----------------------------------------------------------
+				// 明示の順序で打ち消した RAW
+				//
+				// 読み書きが往復する組を、After / Before で向きを決めたもの。
+				// 「読む側 <- 書く側」の読む側が先に走る(書かれる前の値を読む)
+				//----------------------------------------------------------
+				if (_pSchedule && !_pSchedule->overriddenRaws.empty())
+				{
+					if (ImGui::TreeNodeEx("##Overridden", ImGuiTreeNodeFlags_SpanAvailWidth,
+						"Overridden read-after-write (%zu)", _pSchedule->overriddenRaws.size()))
+					{
+						Engine::Editor::HelpText("Reader runs first because of an explicit After / Before (reads the value before the writer).");
+						for (const std::string& _text : _pSchedule->overriddenRaws)
+						{
+							ImGui::BulletText("%s", _text.c_str());
+						}
+						ImGui::TreePop();
+					}
+				}
+
 				if (_pSchedule && !_pSchedule->ambiguities.empty())
 				{
 					if (ImGui::TreeNodeEx("##Ambiguity", ImGuiTreeNodeFlags_SpanAvailWidth,
