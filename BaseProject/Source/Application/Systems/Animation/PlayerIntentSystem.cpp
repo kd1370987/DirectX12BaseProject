@@ -3,7 +3,7 @@
 #include "Application/Components/Movement/MoveIntentComponent.h"
 #include "Application/Components/Combat/ActionIntentComponent.h"
 #include "Application/Components/Animation/StateMachineComponent.h"
-#include "Application/Components/Movement/BoostComponent.h"
+#include "Application/Components/Movement/BoostParamsComponent.h"
 #include "Application/Components/Physics/GroundStateComponent.h"
 
 #include "Engine/Resource/Data/AnimatorAsset/AnimatorAsset.h"
@@ -23,7 +23,7 @@
 //==========================================================================================
 void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const MoveIntentComponent, const BoostComponent, const StateMachineComponent>(
+	a_world.ActiveTask<const MoveIntentComponent, const BoostParamsComponent, const StateMachineComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"PlayerIntentSystem",
 		[]
@@ -33,7 +33,7 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const MoveIntentComponent* a_moveIntentArray,
-			const BoostComponent* a_boostComp,
+			const BoostParamsComponent* a_boostComp,
 			const StateMachineComponent* a_smArray
 			)
 		{
@@ -46,7 +46,7 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const MoveIntentComponent& _intentComp = a_moveIntentArray[_i];
-				const BoostComponent& _boostComp = a_boostComp[_i];
+				const BoostParamsComponent& _boostComp = a_boostComp[_i];
 				const StateMachineComponent& _smComp = a_smArray[_i];
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 

@@ -4,7 +4,7 @@
 
 #include "Application/Components/Attachment/AttachmentSlotsComponent.h"
 #include "Application/Components/Combat/ActionIntentComponent.h"
-#include "Application/Components/Combat/AimTargetPosComponent.h"
+#include "Application/Components/Combat/AimResultComponent.h"
 #include "Application/Components/Weapon/WeaponTriggerComponent.h"
 
 //==========================================================================================
@@ -16,7 +16,7 @@
 //
 // ここが渡すのは「引き金を引いているか」と「どこを狙っているか」だけ。
 // 撃てるかどうか(連射間隔・バースト・オーバーヒート)も、何をどう撃つか(弾・弾速・銃口)も
-// 武器側の GunStateComponent が持ち、GunShootSystem が判断する。
+// 武器側の GunStateComponent が持ち、GunTriggerSystem が判断する。
 // 持ち主は左右どちらの武器を使うかしか知らない。
 //
 // ※ ブースター(移動スラスター)の噴射制御は ThrusterEffectSystem が担当する。
@@ -49,12 +49,12 @@ void AttachmentDispatchSystem::Init(App::ECS::APPWorld& a_world)
 			};
 
 			// 狙点(AimTargetSystem がカメラのレイで求めた着弾点)を子へ配信
-			auto _setAimTarget = [&a_ctx](Engine::ECS::Entity a_e, const AimTargetPosComponent* a_pSrc)
+			auto _setAimTarget = [&a_ctx](Engine::ECS::Entity a_e, const AimResultComponent* a_pSrc)
 			{
 				if (!a_pSrc) return;
 				if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return;
-				if (!a_ctx.pWorld->HasComponent<AimTargetPosComponent>(a_e)) return;
-				if (auto* _p = a_ctx.pWorld->RefData<AimTargetPosComponent>(a_e))
+				if (!a_ctx.pWorld->HasComponent<AimResultComponent>(a_e)) return;
+				if (auto* _p = a_ctx.pWorld->RefData<AimResultComponent>(a_e))
 				{
 					// 結果だけを渡す(maxDistance / startOffset は子側の設定を壊さない)
 					_p->pos			= a_pSrc->pos;
@@ -72,9 +72,9 @@ void AttachmentDispatchSystem::Init(App::ECS::APPWorld& a_world)
 
 				// 親の狙点(付いていないプレイヤーもあり得るので任意扱い)
 				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
-				const AimTargetPosComponent* _pAim =
-					a_ctx.pWorld->HasComponent<AimTargetPosComponent>(_self)
-					? a_ctx.pWorld->RefData<AimTargetPosComponent>(_self)
+				const AimResultComponent* _pAim =
+					a_ctx.pWorld->HasComponent<AimResultComponent>(_self)
+					? a_ctx.pWorld->RefData<AimResultComponent>(_self)
 					: nullptr;
 
 				// --- 左右の武器へ配信 ---
@@ -94,6 +94,6 @@ void AttachmentDispatchSystem::Init(App::ECS::APPWorld& a_world)
 		}
 	)
 	// 絞り込みに使わない読み書き : 自分の狙点を読み、子(武器)の引き金と狙点へ RefData で配る
-	.Reads<AimTargetPosComponent>()
-	.Writes<WeaponTriggerComponent, AimTargetPosComponent>();
+	.Reads<AimResultComponent>()
+	.Writes<WeaponTriggerComponent, AimResultComponent>();
 }

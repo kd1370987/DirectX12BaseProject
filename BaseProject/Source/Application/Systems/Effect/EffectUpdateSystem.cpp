@@ -23,7 +23,7 @@
 //==========================================================================================
 void EffectUpdateSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<EffectAssetComponent>(
+	a_world.ActiveTask<const EffectAssetComponent, EffectRuntimeComponent, const EffectPlayRequestComponent>(
 		Engine::ECS::ESystemType::Update,
 		"EffectUpdateSystem",
 		[]
@@ -32,7 +32,9 @@ void EffectUpdateSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
-			EffectAssetComponent* a_effectArray
+			const EffectAssetComponent* a_effectArray,
+			EffectRuntimeComponent* a_runtimeArray,
+			const EffectPlayRequestComponent* a_requestArray
 			)
 		{
 			auto* _pResourceManager = a_ctx.pServices->pResourceManager;
@@ -42,9 +44,11 @@ void EffectUpdateSystem::Init(App::ECS::APPWorld& a_world)
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				EffectAssetComponent& _comp = a_effectArray[_i];
+				const EffectAssetComponent& _comp = a_effectArray[_i];
+				EffectRuntimeComponent& _runtime = a_runtimeArray[_i];
+				const EffectPlayRequestComponent& _request = a_requestArray[_i];
 
-				auto* _pEffect = _pResourceManager->Ref(_comp.effectHandle);
+				auto* _pEffect = _pResourceManager->Ref(_runtime.effectHandle);
 				if (!_pEffect) continue;
 
 				//----------------------------------------------------------
@@ -65,32 +69,32 @@ void EffectUpdateSystem::Init(App::ECS::APPWorld& a_world)
 					if (const auto* _pWorldMat = a_ctx.pWorld->RefData<WorldMatrixComponent>(_self))
 					{
 						const Math::Matrix _world(_pWorldMat->worldMat);
-						_comp.instance.SetSoundPos(*_pAudioManager, _world.Translation());
+						_runtime.instance.SetSoundPos(*_pAudioManager, _world.Translation());
 					}
 				}
 
 				// ---- 再生 / 停止の切り替え ----
 				// アセット側の実体が「再生中か」を覚えているので、
-				// 要求(isPlay)との差を見れば立ち上がり・立ち下がりが分かる
-				if (_comp.isPlay && !_comp.instance.isPlaying)
+				// 要求(EffectPlayRequestComponent)との差を見れば立ち上がり・立ち下がりが分かる
+				if (_request.isPlay && !_runtime.instance.isPlaying)
 				{
-					_pEffect->Play(_comp.instance);
+					_pEffect->Play(_runtime.instance);
 				}
-				else if (!_comp.isPlay && _comp.instance.isPlaying)
+				else if (!_request.isPlay && _runtime.instance.isPlaying)
 				{
 					// 音も一緒に止める(止めるのはループを掛けたものだけ)
-					_pEffect->Stop(_comp.instance, _pAudioManager);
+					_pEffect->Stop(_runtime.instance, _pAudioManager);
 				}
 
 				// ---- 時間を進めて、このフレームの発生数を決める ----
 				// 時間が来たサウンドパーツを鳴らすのもこの中
-				_pEffect->Update(_comp.instance, a_ctx.dt, _pAudioManager);
+				_pEffect->Update(_runtime.instance, a_ctx.dt, _pAudioManager);
 
 				// ---- 出し切ったら自分ごと消す ----
 				// 解放予約だけしておく。実際に消えるのは次の BeginFrame で、
 				// その前に Release フェーズが走るので借りているものは返ってから消える
 				// (音が鳴り終わるまで待つかはサウンドパーツの isWaitFinish 次第)
-				if (_comp.destroyOnFinish && _pEffect->IsFinished(_comp.instance, _pAudioManager))
+				if (_comp.destroyOnFinish && _pEffect->IsFinished(_runtime.instance, _pAudioManager))
 				{
 					a_ctx.pWorld->ReserveReleaseEntity(a_pChunk->entityData[_i]);
 				}

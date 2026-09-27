@@ -27,7 +27,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 	//--------------------------------------------------------------------------
 	// 再生するエフェクト : ハンドルと進行状態
 	//--------------------------------------------------------------------------
-	a_world.PostDeserializeTask<EffectAssetComponent>(
+	a_world.PostDeserializeTask<const EffectAssetComponent, EffectRuntimeComponent, EffectPlayRequestComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"EffectFixupSystem",
 		[]
@@ -36,7 +36,9 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
-			EffectAssetComponent* a_effectArray
+			const EffectAssetComponent* a_effectArray,
+			EffectRuntimeComponent* a_runtimeArray,
+			EffectPlayRequestComponent* a_requestArray
 			)
 		{
 			auto* _pResourceManager = a_ctx.pServices->pResourceManager;
@@ -46,38 +48,40 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				EffectAssetComponent& _effectComp = a_effectArray[_i];
+				const EffectAssetComponent& _effectComp = a_effectArray[_i];
+				EffectRuntimeComponent& _runtime = a_runtimeArray[_i];
+				EffectPlayRequestComponent& _request = a_requestArray[_i];
 
 				// 借りている声を先に返す。
 				// 進行状態を丸ごと潰すと、ハンドルまで消えて返却先が分からなくなる
 				if (_pAudioManager)
 				{
-					_effectComp.instance.ReleaseSounds(*_pAudioManager);
+					_runtime.instance.ReleaseSounds(*_pAudioManager);
 				}
 
 				// 進行状態はランタイム値なので、作り直しでリセットしておく。
 				// これをしないと、差し替え前の再生位置から続きが出てしまう
-				_effectComp.instance = {};
+				_runtime.instance = {};
 
 				// 出っぱなしの指定なら、ここで再生状態にしておく。
 				// isPlay は保存されないので、誰かが立てないと何も出ない
-				_effectComp.isPlay = _effectComp.playOnStart;
+				_request.isPlay = _effectComp.playOnStart;
 
 				if (_effectComp.effectGUID == Engine::DefaultGUID)
 				{
-					_effectComp.effectHandle = {};
+					_runtime.effectHandle = {};
 					continue;
 				}
 
-				_pResourceManager->AcquireImmediate(_effectComp.effectHandle, _effectComp.effectGUID);
+				_pResourceManager->AcquireImmediate(_runtime.effectHandle, _effectComp.effectGUID);
 
 				// 鳴らす瞬間に読み込みが走らないよう、声はここで確保しておく。
 				// (爆発のように「出た瞬間に鳴ってほしい」ものが1フレーム遅れないように)
 				if (_pAudioManager)
 				{
-					if (auto* _pEffect = _pResourceManager->Ref(_effectComp.effectHandle))
+					if (auto* _pEffect = _pResourceManager->Ref(_runtime.effectHandle))
 					{
-						_pEffect->CreateSoundInstances(*_pAudioManager, _effectComp.instance);
+						_pEffect->CreateSoundInstances(*_pAudioManager, _runtime.instance);
 					}
 				}
 			}

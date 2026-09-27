@@ -2,12 +2,12 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Movement/VelocityComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
+#include "Application/Components/Movement/ActualVelocityComponent.h"
 #include "Application/Components/Movement/MoveIntentComponent.h"
 #include "Application/Components/Movement/LookAngleComponent.h"
 #include "Application/Components/Movement/ChargeDashComponent.h"
-#include "Application/Components/Movement/BoostComponent.h"
+#include "Application/Components/Movement/BoostStateComponent.h"
 
 //==============================================================================
 // ChargeDashSystem
@@ -26,27 +26,24 @@
 //   上下は入力ぶんをそのまま dashVerticalSpeed で足す。
 //
 // ・止まるのは「エネルギーが尽きたとき」と「逆入力が入ったとき」の2つだけで、
-//   時間では止まらない。エネルギーはブーストと同じ BoostComponent の燃料を吸う。
+//   時間では止まらない。エネルギーはブーストと同じ燃料(BoostStateComponent)を吸う。
 //   燃料は RobotBoostSystem が毎フレーム回復させているので、
 //   dashFuelPerSec がその回復量を上回っていないと永久に飛べてしまう。
 //
-//   BoostComponent もクエリに入れずに RefData で引く。
-//   クエリに入れると RobotBoostSystem と互いに読み書きすることになり、
-//   Boost の読み書きで両向きに辺が張られて依存が輪になる。
+//   BoostStateComponent はクエリに入れずに RefData で引く。
+//   ブーストを持たない機体もダッシュの対象から外さないため(持たない相手は燃料が尽きない)。
+//   燃料を書く順序は RobotBoostSystem → こちら(読み書きの依存で決まる)。
 //
 // ・速度の入れ方
-//   VelocityComponent(目標速度)だけを書くと、実速度は MovementIntegrationSystem が
-//   MovementComponent.acceleration で追いかける。プレイヤーの加速度は 150 前後なので
+//   DesiredVelocityComponent(目標速度)だけを書くと、実速度は MovementIntegrationSystem が
+//   MovementParamsComponent.acceleration で追いかける。プレイヤーの加速度は 150 前後なので
 //   dashSpeed 90 に乗るまで 0.6 秒ほどかかり、ダッシュが終わる頃にようやく最高速になる。
-//   撃ち出しの手応えが出ないので、実速度(MovementComponent.velocity)にも同じ値を直接入れて
+//   撃ち出しの手応えが出ないので、実速度(ActualVelocityComponent)にも同じ値を直接入れて
 //   その場で最高速へ乗せる。目標と実速度が一致していれば、
 //   後段の MovementIntegrationSystem は差分 0 でそのまま通す。
 //
-//   MovementComponent をクエリに入れずに RefData で引くのは依存が輪になるため。
-//   クエリに入れると
-//     「こちらが Velocity を書く → MovementIntegration が読む」
-//     「MovementIntegration が Movement を書く → こちらが読む」
-//   の2辺で循環し、システムの順序が決められなくなる。
+//   実速度もクエリに入れずに RefData で引く。加減速を持たない機体(実速度を持たない)も
+//   対象から外さないため。持っているときだけ書く。
 //
 // ・実行帯は Physics。速度を書く仲間(GravitySystem / RobotBoostSystem)より後に
 //   登録して、ダッシュ中はこちらの値が最後に残るようにしている
@@ -55,7 +52,7 @@
 //==============================================================================
 void ChargeDashSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<ChargeDashComponent, VelocityComponent, const MoveIntentComponent,
+	a_world.ActiveTask<ChargeDashComponent, DesiredVelocityComponent, const MoveIntentComponent,
 		const LookAngleComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"ChargeDashSystem",
@@ -66,7 +63,7 @@ void ChargeDashSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			ChargeDashComponent* a_dashArray,
-			VelocityComponent* a_velArray,
+			DesiredVelocityComponent* a_velArray,
 			const MoveIntentComponent* a_moveIntentArray,
 			const LookAngleComponent* a_lookArray
 		)
@@ -74,7 +71,7 @@ void ChargeDashSystem::Init(App::ECS::APPWorld& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				ChargeDashComponent&       _dashComp   = a_dashArray[_i];
-				VelocityComponent&         _velComp    = a_velArray[_i];
+				DesiredVelocityComponent&         _velComp    = a_velArray[_i];
 				const MoveIntentComponent& _moveIntent = a_moveIntentArray[_i];
 				const LookAngleComponent&  _lookComp   = a_lookArray[_i];
 
@@ -107,24 +104,15 @@ void ChargeDashSystem::Init(App::ECS::APPWorld& a_world)
 				//----------------------------------------------------------
 				// 実速度への直接書き込み(加速度を飛ばして最高速へ乗せる)
 				//
-				// MovementComponent を持たない相手は目標速度だけで動くので、
-				// 持っているときだけ書く。
+				// 実速度を持たない相手は目標速度だけで動くので、持っているときだけ書く。
 				// RefData は持っていないコンポーネントなら nullptr を返す
 				//----------------------------------------------------------
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
-				MovementComponent* _pMovement = nullptr;
-				if (a_ctx.pWorld->HasComponent<MovementComponent>(_self))
-				{
-					_pMovement = a_ctx.pWorld->RefData<MovementComponent>(_self);
-				}
+				ActualVelocityComponent* _pActual = a_ctx.pWorld->RefData<ActualVelocityComponent>(_self);
 
 				// ダッシュを支えるエネルギー。ブーストと同じ燃料を吸う
 				// (持っていない相手は尽きないので、逆入力でしか止まらない)
-				BoostComponent* _pBoost = nullptr;
-				if (a_ctx.pWorld->HasComponent<BoostComponent>(_self))
-				{
-					_pBoost = a_ctx.pWorld->RefData<BoostComponent>(_self);
-				}
+				BoostStateComponent* _pBoost = a_ctx.pWorld->RefData<BoostStateComponent>(_self);
 
 				// 目標速度と実速度へ同じ水平速度を入れる
 				auto _applyHorizontal = [&](const Math::Vector3& a_velocity)
@@ -132,10 +120,10 @@ void ChargeDashSystem::Init(App::ECS::APPWorld& a_world)
 					_velComp.value.x = a_velocity.x;
 					_velComp.value.z = a_velocity.z;
 
-					if (_pMovement)
+					if (_pActual)
 					{
-						_pMovement->velocity.x = _velComp.value.x;
-						_pMovement->velocity.z = _velComp.value.z;
+						_pActual->value.x = _velComp.value.x;
+						_pActual->value.z = _velComp.value.z;
 					}
 				};
 
@@ -345,6 +333,6 @@ void ChargeDashSystem::Init(App::ECS::APPWorld& a_world)
 	)
 	// 絞り込みに使わない読み書き : 実速度とブーストの燃料を RefData で触る(持っている機体だけ)。
 	// 燃料を読むので、回復させる RobotBoostSystem の後ろに並ぶ
-	.Reads<BoostComponent>()
-	.Writes<MovementComponent, BoostComponent>();
+	.Reads<BoostStateComponent>()
+	.Writes<ActualVelocityComponent, BoostStateComponent>();
 }

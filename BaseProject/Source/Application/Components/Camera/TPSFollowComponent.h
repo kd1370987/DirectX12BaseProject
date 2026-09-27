@@ -16,6 +16,11 @@
 //==========================================================================================
 struct TPSFollowComponent
 {
+	// ---- 位置 ----
+	// y はピボット(追従先の足元からの高さ)、z は引きの距離(負で後ろ)。x は今は使っていない。
+	// 以前は TPSOffsetComponent として別に持っていた(常に TPSFollow と一緒だったので統合した)
+	Math::Vector3 offset = { 0.0f, 0.0f, 0.0f };
+
 	// ---- 追従速度(1秒あたりの減衰レート) ----
 	// ※ posRate* が効くのは CameraDeadZoneComponent を持たないカメラだけ。
 	//    デッドゾーンを持つカメラは「枠から出たぶんだけ寄せる」方式になり、
@@ -88,12 +93,20 @@ struct Engine::ECS::ComponentTraits<TPSFollowComponent>
 		a_ar.Field("lookAtLagRatio", _comp.lookAtLagRatio);
 		a_ar.Field("fovAddAtSpeed", _comp.fovAddAtSpeed);
 		a_ar.Field("fovRate", _comp.fovRate);
+
+		// 位置(旧 TPSOffsetComponent)。バイナリの並びを崩さないよう末尾に足してある
+		a_ar.Field("offset", _comp.offset);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
 		TPSFollowComponent& _comp = Engine::Editor::GetValue<TPSFollowComponent>(a_context.pData);
 
+		Engine::Editor::HelpText("Offset");
+		Engine::Editor::Field("Offset", _comp.offset);
+		Engine::Editor::Tooltip("y : ピボットの高さ / z : 引きの距離(負で後ろ)");
+
+		Engine::Editor::Line();
 		Engine::Editor::HelpText("Follow Rate");
 		Engine::Editor::Field("PosRateH", _comp.posRateHorizontal, 0.1f, 0.0f, 60.0f);
 		Engine::Editor::Field("PosRateV", _comp.posRateVertical, 0.1f, 0.0f, 60.0f);

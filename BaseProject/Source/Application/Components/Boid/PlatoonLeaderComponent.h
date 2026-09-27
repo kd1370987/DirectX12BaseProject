@@ -45,7 +45,7 @@ struct Engine::ECS::ComponentTraits<PlatoonLeaderComponent>
 		Engine::Editor::Field("Distance", _comp.distance, 0.1f, 0.0f);
 		Engine::Editor::Field("FollowGain", _comp.followGain, 0.05f, 0.0f);
 		Engine::Editor::Field("TurnSpeedDeg", _comp.turnSpeedDeg, 1.0f, 0.0f);
-		Engine::Editor::Tooltip("(max speed : MovementComponent.moveSpeed)");
+		Engine::Editor::Tooltip("(max speed : MovementParamsComponent.moveSpeed)");
 
 		// 生成時に書き込まれる値なので表示のみ
 		Engine::Editor::Value("PlatoonIndex", "%d", _comp.platoonIndex);

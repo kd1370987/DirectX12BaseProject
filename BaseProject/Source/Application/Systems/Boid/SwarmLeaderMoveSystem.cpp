@@ -4,8 +4,8 @@
 
 #include "Application/Components/Boid/BoidLeaderComponent.h"
 #include "Application/Components/Movement/MoveIntentComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
+#include "Application/Components/Movement/MovementParamsComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
 
 //==============================================================================
 // SwarmLeaderMoveSystem
@@ -24,8 +24,8 @@
 //==============================================================================
 void SwarmLeaderMoveSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const BoidLeaderComponent, const MoveIntentComponent, const MovementComponent,
-		VelocityComponent>(
+	a_world.ActiveTask<const BoidLeaderComponent, const MoveIntentComponent, const MovementParamsComponent,
+		DesiredVelocityComponent>(
 		Engine::ECS::ESystemType::Update,
 		"SwarmLeaderMoveSystem",
 		[](
@@ -35,14 +35,14 @@ void SwarmLeaderMoveSystem::Init(App::ECS::APPWorld& a_world)
 			ActiveTag*                        a_tags,
 			const BoidLeaderComponent*        a_leaderArray,
 			const MoveIntentComponent*        a_intentArray,
-			const MovementComponent*          a_movementArray,
-			VelocityComponent*                a_velArray
+			const MovementParamsComponent*          a_movementArray,
+			DesiredVelocityComponent*                a_velArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const MoveIntentComponent& _intent = a_intentArray[_i];
-				const MovementComponent&   _move   = a_movementArray[_i];
+				const MovementParamsComponent&   _move   = a_movementArray[_i];
 
 				a_velArray[_i].value = _intent.value * _move.moveSpeed;
 			}

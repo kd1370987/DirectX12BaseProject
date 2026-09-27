@@ -59,7 +59,7 @@ namespace App::Object
 	{
 		Manual,			// 外から SetValue で入れる(コンポーネントを見ない)
 		Health,			// HealthComponent      : currentHealth / maxHealth
-		BoostFuel,		// BoostComponent       : currentFuel / maxFuel
+		BoostFuel,		// BoostStateComponent / BoostParamsComponent : currentFuel / maxFuel
 		Overheat,		// GunStateComponent    : heat / heatLimit
 		ChargeDash,		// ChargeDashComponent  : chargeTimer / chargeTime
 	};

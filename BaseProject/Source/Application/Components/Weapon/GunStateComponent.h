@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "GunFireComponent.h"
+
 #include "Engine/Editor/Helper/EditorField.h"
 #include "Engine/Editor/Helper/EditorField.inl"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
@@ -18,7 +20,7 @@ enum class EFireMode : uint32_t
 // 「今この瞬間に撃てるのか」(連射間隔・バースト・熱)をすべてここが持つ。
 //
 // 持ち主は WeaponTriggerComponent に「引いているか」を書くだけで、
-// 撃てる/撃てないの判断には一切関わらない。判断するのは GunShootSystem。
+// 撃てる/撃てないの判断には一切関わらない。判断するのは GunTriggerSystem。
 //
 // 単発撃ち(トリガーの立ち上がりで1発)は用意していない。
 // 押しっぱなしの Auto を基本にして、ミサイルのようにまとめて撃つものは Burst を使う。
@@ -92,6 +94,9 @@ struct GunStateComponent
 template<>
 struct Engine::ECS::ComponentTraits<GunStateComponent>
 {
+	// 発射の結果(このフレームに撃ったか・銃口の位置と向き)は実行中の値なので、自動で付ける
+	using Requires = Engine::ECS::RequireComponents<GunFireComponent>;
+
 	//----------------------------------------------------------------------------------
 	// 借りているリソースを返す
 	//

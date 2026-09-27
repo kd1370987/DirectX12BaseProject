@@ -2,13 +2,12 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Boid/BoidComponent.h"
-#include "Application/Components/Movement/LookAngleComponent.h"
-#include "Application/Components/Boid/PlatoonLeaderComponent.h"
+#include "Application/Components/Boid/BoidMembershipComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Boid/BoidWaveStateComponent.h"
 #include "Application/Components/Render/EmissiveOverrideComponent.h"
 #include "Application/InstanceResource/WormWaveResource.h"
+#include "Application/InstanceResource/PlatoonAxisResource.h"
 
 //==============================================================================
 // BoidWaveSystem
@@ -23,32 +22,19 @@
 // 後ろの項は、小隊長から見た実際の位置を進行方向へ投影したもの(毎フレーム計算)。
 // 頭側が負、尾側が正。体が曲がっていても、伸ばした一本の紐の上での距離になる。
 //
-// ・小隊長の位置と前方は、先にまとめて引いて配列に持つ。
-//   ボイド1体ごとに RefData を叩くと、4000体ぶんの飛び飛びのアクセスになるため。
-// ・前方は LookAngleComponent から作る(SwarmLookSystem が進行方向へ寄せている値)。
-//   速度から直に作らないのは、止まった瞬間に向きが決まらなくなるのを避けるため。
+// ・小隊長の位置と前方は、前段の PlatoonAxisSystem が PlatoonAxisResource へまとめたものを引く。
+//   以前はチャンクごとに ForEach で小隊長を集め直していた。
 // ・発光の強さと色は、一番近いウェーブとの距離だけで決まる(重ねて明るくはしない)。
 //
 // ・書き込むのは自分専用の2つだけ。
 //     BoidWaveStateComponent    … 小隊長からの1次元距離(計算途中の値)
 //     EmissiveOverrideComponent … 発光の差し替え。ModelComponent へ写すのは
 //                                 ApplyEmissiveOverrideSystem(PreDraw)
-//   以前は BoidComponent と ModelComponent を直接書いていて、それらを読むだけの
-//   BoidSystem / SwarmLookSystem などと依存が循環していた(Update のソートが失敗していた)。
-//   BoidComponent は所属(platoonID)を読むだけなので const。
+//   所属(BoidMembershipComponent)は読むだけ。
 // ・どちらも SwarmBossController がボイドの生成時に付ける。持っていないボイドは光らない。
 //==============================================================================
 namespace
 {
-	// 小隊長1体ぶんの、ウェーブの計算に要るもの
-	struct PlatoonAxis
-	{
-		Engine::ECS::Entity entity = Engine::ECS::Limits::INVALID_ENTITY;
-		Math::Vector3 pos = {};				// 位置(ワールド)
-		Math::Vector3 forward = {};			// 進んでいる向き(単位ベクトル)
-		float distanceAlongWorm = 0.0f;		// 頭からの1次元位置
-	};
-
 	//--------------------------------------------------------------------------
 	// ウェーブの帯の中での強さ(中心で1、幅の端で0)
 	//
@@ -65,16 +51,16 @@ namespace
 
 void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 {
-	// 書くのは自分のチャンクの2つだけ(小隊長は読むだけ)なので、チャンクを分けてワーカーで回す
-	a_world.ActiveJobTask<const BoidComponent, const LocalTransformComponent, BoidWaveStateComponent, EmissiveOverrideComponent>(
+	// 書くのは自分のチャンクの2つだけ(小隊長の軸は読むだけ)なので、チャンクを分けてワーカーで回す
+	a_world.ActiveJobTask<const BoidMembershipComponent, const LocalTransformComponent, BoidWaveStateComponent, EmissiveOverrideComponent>(
 		Engine::ECS::ESystemType::Update,
 		"BoidWaveSystem",
 		[](
-			Engine::ECS::Chunk*               a_pChunk,
+			Engine::ECS::Chunk*,
 			uint32_t                          a_count,
 			const Engine::ECS::SystemContext& a_ctx,
-			ActiveTag*                        a_tags,
-			const BoidComponent*              a_boidArray,
+			ActiveTag*,
+			const BoidMembershipComponent*    a_memberArray,
 			const LocalTransformComponent*    a_localTRSArray,
 			BoidWaveStateComponent*           a_waveStateArray,
 			EmissiveOverrideComponent*        a_emissiveArray
@@ -88,66 +74,20 @@ void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 			// プレハブに設定された発光をそのまま残す
 			if (!_wave.isActive) return;
 
-			//------------------------------------------------------------------
-			// 小隊長の位置と前方を先に集める
-			//
-			// 数は小隊長の数(数十)なので、ボイドごとの引き直しより線形探索のほうが速い。
-			// チャンクごとに集め直しているが、1回あたりは小隊長の数ぶんなので割に合う。
-			//
-			// 置き場を thread_local にしているのは、確保した領域を使い回すため。
-			// Job でチャンクを分けて同時に回るので、ワーカーごとに別の置き場を持つ
-			//------------------------------------------------------------------
-			thread_local std::vector<PlatoonAxis> _axisVec = {};
-			_axisVec.clear();
+			const PlatoonAxisResource& _axisRes = a_ctx.pWorld->GetResource<PlatoonAxisResource>();
+			if (_axisRes.axisMap.empty()) return;
 
-			a_ctx.pWorld->ForEach<const ActiveTag, const PlatoonLeaderComponent,
-				const LocalTransformComponent, const LookAngleComponent>(
-				[](
-					Engine::ECS::Chunk* a_pLeaderChunk,
-					uint32_t a_leaderCount,
-					const ActiveTag* a_leaderTags,
-					const PlatoonLeaderComponent* a_platoonArray,
-					const LocalTransformComponent* a_leaderTRSArray,
-					const LookAngleComponent* a_lookArray
-				)
-				{
-					for (uint32_t _i = 0; _i < a_leaderCount; ++_i)
-					{
-						PlatoonAxis _axis = {};
-						_axis.entity            = a_pLeaderChunk->entityData[_i];
-						_axis.pos               = a_leaderTRSArray[_i].pos;
-						_axis.forward           = MakeLookForward(a_lookArray[_i]);
-						_axis.distanceAlongWorm = a_platoonArray[_i].distanceAlongWorm;
-
-						_axisVec.push_back(_axis);
-					}
-				}
-			);
-
-			if (_axisVec.empty()) return;
-
-			//------------------------------------------------------------------
-			// ボイドごとに1次元位置を出して、発光を決める
-			//------------------------------------------------------------------
 			for (uint32_t _i = 0; _i < a_count; ++_i)
 			{
-				const BoidComponent& _boid = a_boidArray[_i];
-				BoidWaveStateComponent& _waveState = a_waveStateArray[_i];
-
-				// 自分の小隊長を引く
-				const PlatoonAxis* _pAxis = nullptr;
-				for (const PlatoonAxis& _axis : _axisVec)
-				{
-					if (_axis.entity != _boid.platoonID) continue;
-					_pAxis = &_axis;
-					break;
-				}
+				// 自分の小隊長の軸
+				const PlatoonAxisResource::Axis* _pAxis = _axisRes.Find(a_memberArray[_i].platoonID);
 				if (!_pAxis) continue;
 
 				//--------------------------------------------------------------
 				// 小隊長からの1次元距離。
 				// 進行方向へ投影して符号を反転させる(頭側が負、尾側が正)
 				//--------------------------------------------------------------
+				BoidWaveStateComponent& _waveState = a_waveStateArray[_i];
 				const Math::Vector3 _toBoid = a_localTRSArray[_i].pos - _pAxis->pos;
 				_waveState.distanceFromPlatoonLeader = -_toBoid.Dot(_pAxis->forward);
 
@@ -173,7 +113,5 @@ void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
-	// 絞り込みに使わない読み : 小隊長の軸(位置・向き)を別の ForEach で集める
-	.Reads<PlatoonLeaderComponent, LocalTransformComponent, LookAngleComponent>()
-	.ReadsResource<WormWaveResource>();
+	.ReadsResource<WormWaveResource, PlatoonAxisResource>();
 }

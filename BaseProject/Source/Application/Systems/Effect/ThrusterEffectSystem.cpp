@@ -3,11 +3,13 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Attachment/AttachmentSlotsComponent.h"
-#include "Application/Components/Movement/BoostComponent.h"
+#include "Application/Components/Movement/BoostParamsComponent.h"
+#include "Application/Components/Movement/BoostIntentComponent.h"
+#include "Application/Components/Movement/BoostStateComponent.h"
 #include "Application/Components/Movement/ChargeDashComponent.h"
 #include "Application/Components/Movement/MoveIntentComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
-#include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
+#include "Application/Components/Effect/EffectPlayRequestComponent.h"
 #include "Application/Components/Effect/BoosterEffectComponent.h"
 
 //==========================================================================================
@@ -38,7 +40,7 @@
 //==========================================================================================
 void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const AttachmentSlotsComponent, const MoveIntentComponent, const VelocityComponent, const BoostComponent>(
+	a_world.ActiveTask<const AttachmentSlotsComponent, const MoveIntentComponent, const DesiredVelocityComponent, const BoostParamsComponent, const BoostIntentComponent, const BoostStateComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"ThrusterEffectSystem",
 		[]
@@ -49,8 +51,10 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 			ActiveTag* a_tags,
 			const AttachmentSlotsComponent* a_slotsArray,
 			const MoveIntentComponent* a_moveArray,
-			const VelocityComponent* a_velocityArray,
-			const BoostComponent* a_boostArray
+			const DesiredVelocityComponent* a_velocityArray,
+			const BoostParamsComponent* a_boostArray,
+			const BoostIntentComponent* a_boostIntentArray,
+			const BoostStateComponent* a_boostStateArray
 			)
 		{
 			// 微小な速度ノイズで点火しないための閾値
@@ -66,9 +70,9 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return;
 
-				if (a_ctx.pWorld->HasComponent<EffectAssetComponent>(a_e))
+				if (a_ctx.pWorld->HasComponent<EffectPlayRequestComponent>(a_e))
 				{
-					if (auto* _pEffect = a_ctx.pWorld->RefData<EffectAssetComponent>(a_e))
+					if (auto* _pEffect = a_ctx.pWorld->RefData<EffectPlayRequestComponent>(a_e))
 					{
 						_pEffect->isPlay = a_on;
 					}
@@ -89,8 +93,8 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				const AttachmentSlotsComponent& _slots = a_slotsArray[_i];
 				const MoveIntentComponent& _move = a_moveArray[_i];
-				const VelocityComponent& _velocity = a_velocityArray[_i];
-				const BoostComponent& _boost = a_boostArray[_i];
+				const DesiredVelocityComponent& _velocity = a_velocityArray[_i];
+				const BoostParamsComponent& _boost = a_boostArray[_i];
 
 				// ---- 移動状態の判定 ----
 
@@ -107,7 +111,7 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 
 				// ブースト中か : 入力が入っていて、かつ燃料が使用量を上回っている
 				// (RobotBoostSystem の推力適用条件に合わせている)
-				bool _boosting = _boost.isBoostIntent && (_boost.currentFuel > _boost.boostFuel);
+				bool _boosting = a_boostIntentArray[_i].isBoostIntent && (a_boostStateArray[_i].currentFuel > _boost.boostFuel);
 
 				//--------------------------------------------------------------
 				// チャージダッシュの溜め具合と、撃ち出し中か
@@ -161,5 +165,5 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 	)
 	// 絞り込みに使わない読み書き : 自分の溜め具合を読み、子(ブースター)の噴射へ RefData で配る
 	.Reads<ChargeDashComponent>()
-	.Writes<EffectAssetComponent, BoosterEffectComponent>();
+	.Writes<EffectPlayRequestComponent, BoosterEffectComponent>();
 }

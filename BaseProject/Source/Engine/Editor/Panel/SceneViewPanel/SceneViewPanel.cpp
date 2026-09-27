@@ -20,7 +20,7 @@
 #include "Application/Components/Effect/ParticlesComponent.h"
 #include "Application/Components/Camera/CameraFocusTargetComponent.h"
 #include "Application/Components/Movement/LookAngleComponent.h"
-#include "Application/Components/Camera/TPSOffsetComponent.h"
+#include "Application/Components/Camera/TPSFollowComponent.h"
 #include "Application/Components/Camera/FollowTargetComponent.h"
 
 // 物理空間(PhysicsWorld)は使わない。エディターでは当たり判定の有無に関わらず、
@@ -775,10 +775,11 @@ namespace Engine::Editor
 		// y はピボットの高さ、z は引きの距離として使われる(TPSSystem)。
 		// 追従ターゲットが引ければピボット位置を、引けなければ自分基準のオフセットを出す。
 		//==================================================================================
-		if (a_pWorld->HasComponent<TPSOffsetComponent>(a_entity))
+		if (a_pWorld->HasComponent<TPSFollowComponent>(a_entity))
 		{
-			if (auto* _pOffset = a_pWorld->RefData<TPSOffsetComponent>(a_entity))
+			if (auto* _pFollowComp = a_pWorld->RefData<TPSFollowComponent>(a_entity))
 			{
+				const Math::Vector3 _offset = _pFollowComp->offset;
 				ECS::Entity _target = ECS::Limits::INVALID_ENTITY;
 				if (a_pWorld->HasComponent<FollowTargetComponent>(a_entity))
 				{
@@ -799,7 +800,7 @@ namespace Engine::Editor
 				{
 					// ピボット = ターゲット座標 + 上方向 * y
 					const Math::Vector3 _pivot =
-						Math::Vector3(_pTargetTrs->pos) + Math::Vector3::Up() * _pOffset->y;
+						Math::Vector3(_pTargetTrs->pos) + Math::Vector3::Up() * _offset.y;
 
 					_hud.Marker(_pivot, HUD_COL_CAMERA, "TPS Pivot", 5.0f);
 					// ピボットから現在のカメラ位置まで。ここの長さが実際の引き量になる。
@@ -808,7 +809,7 @@ namespace Engine::Editor
 				else
 				{
 					const Math::Vector3 _offsetPos =
-						_originPos + Math::Vector3(_pOffset->x, _pOffset->y, _pOffset->z);
+						_originPos + _offset;
 					_hud.Line(_originPos, _offsetPos, HUD_COL_CAMERA, 1.0f);
 					_hud.Marker(_offsetPos, HUD_COL_CAMERA, "TPS Offset", 5.0f);
 				}

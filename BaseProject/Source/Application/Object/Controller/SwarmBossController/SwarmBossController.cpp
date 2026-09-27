@@ -14,8 +14,8 @@
 #include "../../../Utility/EffectPrefabSpawnHelper.h"
 
 #include "Application/Components/Transform/LocalTransformComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
+#include "Application/Components/Movement/MovementParamsComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
 #include "Application/Components/Core/GUIDComponent.h"
 #include "Application/Components/Core/SpawnerComponent.h"
 #include "Application/Components/Boid/SwarmBossBoidTag.h"
@@ -27,7 +27,7 @@
 #include "Application/Components/Input/PlayerControllTag.h"
 #include "../../../InstanceResource/SwarmContactDamageResource.h"
 #include "Engine/ECS/Component/CollisionEvent.h"
-#include "Application/Components/Boid/BoidComponent.h"
+#include "Application/Components/Boid/BoidSteeringParamsComponent.h"
 #include "Application/Components/Boid/BoidWaveStateComponent.h"
 #include "Application/Components/Render/EmissiveOverrideComponent.h"
 #include "Application/Components/Movement/LookAngleComponent.h"
@@ -110,8 +110,8 @@ namespace App::Object
 			std::vector<Engine::Resource::PrefabInstanceData>& a_instanceVec,
 			float a_speed)
 		{
-			EditRootComponent<MovementComponent>(a_world, a_instanceVec,
-				[a_speed](MovementComponent& a_comp)
+			EditRootComponent<MovementParamsComponent>(a_world, a_instanceVec,
+				[a_speed](MovementParamsComponent& a_comp)
 				{
 					a_comp.moveSpeed    = a_speed;
 					a_comp.acceleration = a_speed * 4.0f;
@@ -512,7 +512,7 @@ namespace App::Object
 		// リーダーに必須なコンポーネントを付与 : すでにあればスキップ
 		// (LocalTransform は BuildSpawnInstanceData が足している)
 		ApplyMoveSpeed(_world, _instanceVec, m_leaderSpeed);
-		EnsureRootComponent<VelocityComponent>(_world, _instanceVec);
+		EnsureRootComponent<DesiredVelocityComponent>(_world, _instanceVec);
 		EnsureRootComponent<BoidLeaderComponent>(_world, _instanceVec);
 
 		// 地面との関係(上下にレイを打つのは SerchGroundSystem)。アッパー攻撃で潜る深さに使う
@@ -609,7 +609,7 @@ namespace App::Object
 			// 必須なコンポーネントを付与 : すでにあればスキップ。
 			// 速さはリーダーより速くしておく(同じだと離された分を詰められない)
 			ApplyMoveSpeed(_world, _instanceVec, m_leaderSpeed * m_platoonSpeedScale);
-			EnsureRootComponent<VelocityComponent>(_world, _instanceVec);
+			EnsureRootComponent<DesiredVelocityComponent>(_world, _instanceVec);
 
 			// 前の相手の後ろを狙うのに前方が要る(LookAngle から作る)。
 			// 上下も体ごと向く(列が潜っても機体の向きが進路と揃う)
@@ -725,16 +725,21 @@ namespace App::Object
 			// 速さはリーダー・小隊長より速くしておく(最後尾なので一番速さが要る)。
 			// 舵(maxSteeringForce)も速さに比例させないと、最高速に乗る前に曲がれなくなる
 			const float _boidSpeed = m_leaderSpeed * m_boidSpeedScale;
-			EditRootComponent<BoidComponent>(_world, _instanceVec,
-				[&](BoidComponent& a_comp)
+			EditRootComponent<BoidSteeringParamsComponent>(_world, _instanceVec,
+				[&](BoidSteeringParamsComponent& a_comp)
 				{
-					a_comp.platoonID        = a_platoonLeader;
 					a_comp.maxSpeed         = _boidSpeed;
 					a_comp.maxSteeringForce = _boidSpeed * 4.0f;
 				}
 			);
+			EditRootComponent<BoidMembershipComponent>(_world, _instanceVec,
+				[&](BoidMembershipComponent& a_comp)
+				{
+					a_comp.platoonID = a_platoonLeader;
+				}
+			);
 			ApplyMoveSpeed(_world, _instanceVec, _boidSpeed);
-			EnsureRootComponent<VelocityComponent>(_world, _instanceVec);
+			EnsureRootComponent<DesiredVelocityComponent>(_world, _instanceVec);
 
 			// ボスの体である印。Controller はこれを数えて体力にする
 			EnsureRootComponent<SwarmBossBoidTag>(_world, _instanceVec);

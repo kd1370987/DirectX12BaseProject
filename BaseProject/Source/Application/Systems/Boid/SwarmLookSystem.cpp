@@ -3,10 +3,11 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Movement/LookAngleComponent.h"
-#include "Application/Components/Boid/BoidComponent.h"
+#include "Application/Components/Boid/BoidMembershipComponent.h"
+#include "Application/Components/Boid/BoidSteeringParamsComponent.h"
 #include "Application/Components/Boid/BoidLeaderComponent.h"
 #include "Application/Components/Boid/PlatoonLeaderComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
+#include "Application/Components/Movement/ActualVelocityComponent.h"
 
 //==============================================================================
 // SwarmLookSystem
@@ -14,8 +15,8 @@
 // 群れのボス(リーダー / 小隊長 / ボイド)の「どちらを向いているか」を進める。
 // 持ち物は既存の LookAngleComponent で、体の向き(quat)にするのは RotationSystem。
 //
-//   リーダー・小隊長 … 実際に進んでいる向き(MovementComponent.velocity)へ寄せる
-//   ボイド           … 所属している小隊長(BoidComponent.platoonID)の向きへ寄せる
+//   リーダー・小隊長 … 実際に進んでいる向き(ActualVelocityComponent)へ寄せる
+//   ボイド           … 所属している小隊長(BoidMembershipComponent.platoonID)の向きへ寄せる
 //
 // ・寄せる速さは各コンポーネントの turnSpeedDeg(度/秒)。Yaw と Pitch に同じ値を使う。
 // ・止まっている間(速度がほぼ 0)は向きを変えない。0 ベクトルから角度を作ると
@@ -78,7 +79,7 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 	//--------------------------------------------------------------------------
 	// リーダー : 進んでいる向きへ
 	//--------------------------------------------------------------------------
-	a_world.ActiveTask<const BoidLeaderComponent, const MovementComponent, LookAngleComponent>(
+	a_world.ActiveTask<const BoidLeaderComponent, const ActualVelocityComponent, LookAngleComponent>(
 		Engine::ECS::ESystemType::Update,
 		"SwarmLookSystem_Leader",
 		[](
@@ -87,14 +88,14 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
 			const BoidLeaderComponent*        a_leaderArray,
-			const MovementComponent*          a_movementArray,
+			const ActualVelocityComponent*    a_actualArray,
 			LookAngleComponent*               a_lookArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				TurnToVelocity(
-					a_lookArray[_i], a_movementArray[_i].velocity,
+					a_lookArray[_i], a_actualArray[_i].value,
 					a_leaderArray[_i].turnSpeedDeg, a_ctx.dt);
 			}
 		}
@@ -103,7 +104,7 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 	//--------------------------------------------------------------------------
 	// 小隊長 : 進んでいる向きへ
 	//--------------------------------------------------------------------------
-	a_world.ActiveTask<const PlatoonLeaderComponent, const MovementComponent, LookAngleComponent>(
+	a_world.ActiveTask<const PlatoonLeaderComponent, const ActualVelocityComponent, LookAngleComponent>(
 		Engine::ECS::ESystemType::Update,
 		"SwarmLookSystem_Platoon",
 		[](
@@ -112,14 +113,14 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
 			const PlatoonLeaderComponent*     a_platoonArray,
-			const MovementComponent*          a_movementArray,
+			const ActualVelocityComponent*    a_actualArray,
 			LookAngleComponent*               a_lookArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				TurnToVelocity(
-					a_lookArray[_i], a_movementArray[_i].velocity,
+					a_lookArray[_i], a_actualArray[_i].value,
 					a_platoonArray[_i].turnSpeedDeg, a_ctx.dt);
 			}
 		}
@@ -130,7 +131,7 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 	//--------------------------------------------------------------------------
 	// ボイド : 所属している小隊長の向きへ
 	//--------------------------------------------------------------------------
-	a_world.ActiveJobTask<const BoidComponent, LookAngleComponent>(
+	a_world.ActiveJobTask<const BoidMembershipComponent, const BoidSteeringParamsComponent, LookAngleComponent>(
 		Engine::ECS::ESystemType::Update,
 		"SwarmLookSystem_Boid",
 		[](
@@ -138,7 +139,8 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t                          a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
-			const BoidComponent*              a_boidArray,
+			const BoidMembershipComponent*    a_memberArray,
+			const BoidSteeringParamsComponent* a_paramsArray,
 			LookAngleComponent*               a_lookArray
 		)
 		{
@@ -146,11 +148,10 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const BoidComponent& _boid = a_boidArray[_i];
 				LookAngleComponent&  _look = a_lookArray[_i];
 
 				// 所属が無い / 小隊長が居なくなったなら今の向きのまま
-				const Engine::ECS::Entity _platoon = _boid.platoonID;
+				const Engine::ECS::Entity _platoon = a_memberArray[_i].platoonID;
 				if (_platoon == Engine::ECS::Limits::INVALID_ENTITY) continue;
 				if (!_world.IsAliveEntity(_platoon)) continue;
 				if (!_world.HasComponent<LookAngleComponent>(_platoon)) continue;
@@ -158,7 +159,7 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 				const LookAngleComponent* _pTargetLook = _world.RefData<LookAngleComponent>(_platoon);
 				if (!_pTargetLook) continue;
 
-				const float _step = _boid.turnSpeedDeg * a_ctx.dt;
+				const float _step = a_paramsArray[_i].turnSpeedDeg * a_ctx.dt;
 
 				_look.Yaw   = MoveTowardDeg(_look.Yaw, _pTargetLook->Yaw, _step);
 				_look.Pitch = MoveTowardDeg(_look.Pitch, _pTargetLook->Pitch, _step);

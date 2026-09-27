@@ -20,11 +20,9 @@
 #include "Application/Components/Camera/FishEyeComponent.h"
 #include "Application/Components/Camera/ProjMatComponent.h"
 #include "Application/Components/Camera/FollowTargetComponent.h"
-#include "Application/Components/Camera/TPSOffsetComponent.h"
-#include "Application/Components/Camera/TPSLookAngleComponent.h"
 #include "Application/Components/Movement/GravityComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
+#include "Application/Components/Movement/MovementParamsComponent.h"
 #include "Application/Components/Movement/LookAngleComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
@@ -46,7 +44,7 @@
 #include "Application/Components/Transform/FollowAnimationNodeComponent.h"
 #include "Application/Components/Core/SpawnerComponent.h"
 #include "Application/Components/Transform/PreviousWorldMatrixComponent.h"
-#include "Application/Components/Movement/BoostComponent.h"
+#include "Application/Components/Movement/BoostParamsComponent.h"
 #include "Application/Components/Effect/BoosterEffectComponent.h"
 #include "Application/Components/Movement/ChargeDashComponent.h"
 #include "Application/Components/Combat/ScoreTargetComponent.h"
@@ -66,7 +64,7 @@
 #include "Application/Components/Camera/CameraFocusTargetComponent.h"
 #include "Application/Components/Camera/CameraDeadZoneComponent.h"
 #include "Application/Components/Animation/AdditivePoseComponent.h"
-#include "Application/Components/Combat/AimTargetPosComponent.h"
+#include "Application/Components/Combat/AimConfigComponent.h"
 #include "Application/Components/Combat/TargetEntityComponent.h"
 #include "Application/Components/Combat/LockOnTargetComponent.h"
 #include "Application/Components/Audio/SoundComponent.h"
@@ -75,8 +73,8 @@
 #include "Application/Components/Weapon/HomingComponent.h"
 #include "Application/Components/Weapon/ProjectileComponent.h"
 #include "Application/Components/Weapon/MissileLockComponent.h"
-#include "Application/Components/Boss/BossComponent.h"
-#include "Application/Components/Boid/BoidComponent.h"
+#include "Application/Components/Boss/BossParamsComponent.h"
+#include "Application/Components/Boid/BoidSteeringParamsComponent.h"
 #include "Application/Components/Boid/BoidLeaderComponent.h"
 #include "Application/Components/Boid/PlatoonLeaderComponent.h"
 #include "Application/Components/Boid/BoidSpownerComponent.h"
@@ -150,7 +148,9 @@
 #include "Application/Systems/Physics/CapsuleCollisionSystem.h"
 #include "Application/Systems/Physics/SphereCollisionSystem.h"
 #include "Application/Systems/Input/InputActionSystem.h"
-#include "Application/Systems/Weapon/GunShootSystem.h"
+#include "Application/Systems/Weapon/GunTriggerSystem.h"
+#include "Application/Systems/Weapon/GunProjectileSpawnSystem.h"
+#include "Application/Systems/Weapon/MuzzleFlashSystem.h"
 #include "Application/Systems/Physics/CollisionEventClearSystem.h"
 #include "Application/Systems/Physics/HitDetectSystem.h"
 #include "Application/Systems/Combat/ExplodeOnHitSystem.h"
@@ -202,7 +202,9 @@
 #include "Application/Systems/Effect/DeathEffectSystem.h"
 #include "Application/Systems/Combat/ScoreSystem.h"
 #include "Application/Systems/Effect/ExplosionSystem.h"
-#include "Application/Systems/Boid/BoidSystem.h"
+#include "Application/Systems/Boid/BoidSnapshotSystem.h"
+#include "Application/Systems/Boid/BoidSteeringSystem.h"
+#include "Application/Systems/Boid/PlatoonAxisSystem.h"
 #include "Application/Systems/Boid/FollowLeaderSystem.h"
 #include "Application/Systems/Boid/PlatoonFollowSystem.h"
 #include "Application/Systems/Boid/SwarmLookSystem.h"
@@ -221,6 +223,8 @@
 #include "../../InstanceResource/AdditiveBoneEntry.h"
 #include "Application/InstanceResource/HitEventResource.h"
 #include "Application/InstanceResource/WormWaveResource.h"
+#include "Application/InstanceResource/BoidSnapshotResource.h"
+#include "Application/InstanceResource/PlatoonAxisResource.h"
 #include "Application/InstanceResource/WormGroundEffectResource.h"
 #include "Application/InstanceResource/SwarmContactDamageResource.h"
 
@@ -248,11 +252,11 @@ namespace App::ECS
 		a_world.RegisterComponent<RadialBlurComponent>("RadialBlurComponent");
 		a_world.RegisterComponent<FishEyeComponent>("FishEyeComponent");
 		a_world.RegisterComponent<FollowTargetComponent>("FollowTargetComponent");
-		a_world.RegisterComponent<TPSOffsetComponent>("TPSOffsetComponent");
-		a_world.RegisterComponent<TPSLookAngleComponent>("TPSLookAngleComponent");
-		a_world.RegisterComponent<VelocityComponent>("VelocityComponent");
+		a_world.RegisterComponent<DesiredVelocityComponent>("DesiredVelocityComponent");
 		a_world.RegisterComponent<GravityComponent>("GravityComponent");
-		a_world.RegisterComponent<MovementComponent>("MovementComponent");
+		// 移動の設定(保存)と、加減速を掛けた実速度(設定の必須コンポーネント)
+		a_world.RegisterComponent<MovementParamsComponent>("MovementParamsComponent");
+		a_world.RegisterComponent<ActualVelocityComponent>("ActualVelocityComponent");
 		a_world.RegisterComponent<LookAngleComponent>("LookAngleComponent");
 		a_world.RegisterComponent<ColliderComponent>("ColliderComponent");
 		a_world.RegisterComponent<RayColliderComponent>("RayColliderComponent");
@@ -272,7 +276,10 @@ namespace App::ECS
 		a_world.RegisterComponent<StateMachineComponent>("StateMachineComponent");
 		a_world.RegisterComponent<MoveIntentComponent>("MoveIntentComponent");
 		a_world.RegisterComponent<PreviousWorldMatrixComponent>("PreviousWorldMatrixComponent");
-		a_world.RegisterComponent<BoostComponent>("BoostComponent");
+		// ブーストの設定(保存)と、入力・状態(設定の必須コンポーネント)
+		a_world.RegisterComponent<BoostParamsComponent>("BoostParamsComponent");
+		a_world.RegisterComponent<BoostIntentComponent>("BoostIntentComponent");
+		a_world.RegisterComponent<BoostStateComponent>("BoostStateComponent");
 		a_world.RegisterComponent<AttachmentSlotsComponent>("AttachmentSlotsComponent");
 		a_world.RegisterComponent<ParticlesComponent>("ParticlesComponent");
 		a_world.RegisterComponent<TPSCameraStateComponent>("TPSCameraStateComponent");
@@ -281,6 +288,8 @@ namespace App::ECS
 		a_world.RegisterComponent<SphereColliderComponent>("SphereColliderComponent");
 		a_world.RegisterComponent<ActionIntentComponent>("ActionIntentComponent");
 		a_world.RegisterComponent<GunStateComponent>("GunStateComponent");
+		// このフレームの発射の結果(GunStateComponent の必須コンポーネント)
+		a_world.RegisterComponent<GunFireComponent>("GunFireComponent");
 		// 武器が外から受け取る引き金。持ち主の命令と武器の挙動を分ける受け口
 		a_world.RegisterComponent<WeaponTriggerComponent>("WeaponTriggerComponent");
 		a_world.RegisterComponent<Engine::ECS::CollisionEvent>("CollisionEvent");
@@ -289,7 +298,9 @@ namespace App::ECS
 		// TPSカメラの追従範囲。枠から出たぶんだけカメラを平行移動させる
 		a_world.RegisterComponent<CameraDeadZoneComponent>("CameraDeadZoneComponent");
 		a_world.RegisterComponent<AdditivePoseComponent>("AdditivePoseComponent");
-		a_world.RegisterComponent<AimTargetPosComponent>("AimTargetPosComponent");
+		// 狙点のレイの設定(保存)と、その結果(設定の必須コンポーネント)
+		a_world.RegisterComponent<AimConfigComponent>("AimConfigComponent");
+		a_world.RegisterComponent<AimResultComponent>("AimResultComponent");
 		// 近距離型の敵の「足を止めて撃つ / 撃たずに動き直す」のリズム
 		a_world.RegisterComponent<CloseCombatComponent>("CloseCombatComponent");
 		a_world.RegisterComponent<PatrolComponent>("PatrolComponent");
@@ -299,7 +310,10 @@ namespace App::ECS
 		// ミサイルの溜め撃ち。コンバットレティクル内の敵を溜めて一斉射する
 		a_world.RegisterComponent<MissileLockComponent>("MissileLockComponent");
 		// 人型ボスの戦闘設定と機動状態。シーケンスからの戦闘開始命令もここに立つ
-		a_world.RegisterComponent<BossComponent>("BossComponent");
+		// ボスの設定(保存)と、思考の状態・命令(設定の必須コンポーネント)
+		a_world.RegisterComponent<BossParamsComponent>("BossParamsComponent");
+		a_world.RegisterComponent<BossBrainStateComponent>("BossBrainStateComponent");
+		a_world.RegisterComponent<BossCommandComponent>("BossCommandComponent");
 		a_world.RegisterComponent<SoundComponent>("SoundComponent");
 		a_world.RegisterComponent<HitSoundComponent>("HitSoundComponent");
 		// 始動/継続/終了の音をまとめた AudioBehavior アセットを鳴らす
@@ -310,6 +324,10 @@ namespace App::ECS
 		a_world.RegisterComponent<EffectComponent>("EffectComponent");
 		// パーティクル+メッシュをまとめた EffectAsset を再生する
 		a_world.RegisterComponent<EffectAssetComponent>("EffectAssetComponent");
+		// エフェクトの実行中の値(EffectAssetComponent の必須コンポーネント)
+		a_world.RegisterComponent<EffectRuntimeComponent>("EffectRuntimeComponent");
+		a_world.RegisterComponent<EffectPlayRequestComponent>("EffectPlayRequestComponent");
+		a_world.RegisterComponent<EffectOverrideComponent>("EffectOverrideComponent");
 		a_world.RegisterComponent<LifeTimeComponent>("LifeTimeComponent");
 		a_world.RegisterComponent<DeathEffectComponent>("DeathEffectComponent");
 		a_world.RegisterComponent<ExplosionComponent>("ExplosionComponent");
@@ -324,7 +342,10 @@ namespace App::ECS
 		a_world.RegisterComponent<ScoreTargetComponent>("ScoreTargetComponent");
 		// エンティティの位置を光源にする点光源。実体は LightManager のプールにある
 		a_world.RegisterComponent<PointLightComponent>("PointLightComponent");
-		a_world.RegisterComponent<BoidComponent>("BoidComponent");
+		// 群れの操舵の設定(保存)と、実行中の所属・目標地点(操舵の設定の必須コンポーネント)
+		a_world.RegisterComponent<BoidSteeringParamsComponent>("BoidSteeringParamsComponent");
+		a_world.RegisterComponent<BoidMembershipComponent>("BoidMembershipComponent");
+		a_world.RegisterComponent<BoidTargetComponent>("BoidTargetComponent");
 		// 群れのボスの先頭(SwarmBossController が指示を出す相手)の印
 		a_world.RegisterComponent<BoidLeaderComponent>("BoidLeaderComponent");
 		// リーダーに連なる小隊長。一つ前の相手は SwarmBossController が生成時に書き込む
@@ -474,7 +495,10 @@ namespace App::ECS
 		a_world.RegisterSystem<CapsuleCollisionSystem>();
 		a_world.RegisterSystem<SphereCollisionSystem>();
 		a_world.RegisterSystem<InputActionSystem>();
-		a_world.RegisterSystem<GunShootSystem>();
+		// 銃 : 発射判定(Job) → 弾の生成 → 銃口の光
+		a_world.RegisterSystem<GunTriggerSystem>();
+		a_world.RegisterSystem<GunProjectileSpawnSystem>();
+		a_world.RegisterSystem<MuzzleFlashSystem>();
 		// 動くコライダーのボディを今の姿勢へ合わせる
 		a_world.RegisterSystem<SyncPhysicsBodySystem>();
 		a_world.RegisterSystem<CollisionEventClearSystem>();
@@ -504,7 +528,9 @@ namespace App::ECS
 		// ミサイル等の飛翔音。消えたエンティティのボイス回収もここで行う
 		a_world.RegisterSystem<FlyingSoundSystem>();
 		a_world.RegisterSystem<GunStateStartSystem>();
-		a_world.RegisterSystem<BoidSystem>();
+		// 群れの操舵 : 全員の写しを作ってから、チャンクを分けて操舵する
+		a_world.RegisterSystem<BoidSnapshotSystem>();
+		a_world.RegisterSystem<BoidSteeringSystem>();
 		a_world.RegisterSystem<FollowLeaderSystem>();
 		// 群れのボスの向き(リーダー/小隊長は進行方向、ボイドは小隊長の向きへ)。
 		// 前方を使う PlatoonFollowSystem より前に置く
@@ -514,7 +540,8 @@ namespace App::ECS
 		// 小隊長を一つ前の相手の後ろへ追従させる(目標速度だけ書く)
 		a_world.RegisterSystem<PlatoonFollowSystem>();
 		// 体を走る発光のウェーブをボイドへ塗る(ウェーブを出すのは SwarmBossController)。
-		// 小隊長の向きを使うので SwarmLookSystem より後に置く
+		// 小隊長の軸をまとめてから、ボイドの発光を塗る
+		a_world.RegisterSystem<PlatoonAxisSystem>();
 		a_world.RegisterSystem<BoidWaveSystem>();
 		// 上下にレイを打って地表の高さと地中に居るかを書く(ワームボスのアッパー攻撃が読む)
 		a_world.RegisterSystem<SerchGroundSystem>();
@@ -548,6 +575,9 @@ namespace App::ECS
 		a_world.AddResource<WaveAnnounceResource>();
 		a_world.AddResource<FlyingSoundResource>();
 		a_world.AddResource<WormWaveResource>();
+		// 群れの操舵の写しと、小隊長の軸(前段のシステムが作り、Job が読む)
+		a_world.AddResource<BoidSnapshotResource>();
+		a_world.AddResource<PlatoonAxisResource>();
 		// ワームの体が炊く砂埃の設定(SwarmBossController が書き、BoidGroundEffectSystem が読む)
 		a_world.AddResource<WormGroundEffectResource>();
 		// ワームの体当たりの設定とプレイヤーの形(SwarmBossController が書き、BoidContactDamageSystem が読む)

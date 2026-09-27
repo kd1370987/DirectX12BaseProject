@@ -101,7 +101,7 @@ namespace App::Systems::MissileSalvo
 		//------------------------------------------------------------------
 		// 発射位置 : 銃口ヌルノードが設定されていればそこから
 		// (node.worldTransform はモデルルート基準なので、ポッドのワールド行列で
-		//  変換してワールド座標にする。GunShootSystem と同じ)
+		//  変換してワールド座標にする。GunTriggerSystem と同じ)
 		//------------------------------------------------------------------
 		const Math::Matrix& _podMat = _pPodWorld->worldMat;
 		Math::Vector3 _spawnPos = { _podMat._41, _podMat._42, _podMat._43 };

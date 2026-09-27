@@ -6,7 +6,7 @@
 #include "Application/Components/Camera/FollowTargetComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
-#include "Application/Components/Combat/AimTargetPosComponent.h"
+#include "Application/Components/Combat/AimConfigComponent.h"
 #include "Application/Components/Combat/LockOnTargetComponent.h"
 
 #include "Application/InstanceResource/SingletonEntityResource.h"
@@ -21,8 +21,8 @@
 // AimTargetSystem
 //
 // アクティブカメラの正面へレイを撃ち、その着弾点を
-// 「カメラがフォーカスしている対象」の AimTargetPosComponent へ書き込む。
-// 銃はこの狙点へ向けて弾を飛ばす(GunShootSystem)。
+// 「カメラがフォーカスしている対象」の AimResultComponent へ書き込む。
+// 銃はこの狙点へ向けて弾を飛ばす(GunTriggerSystem)。
 //
 // ・Camera フェーズに置く理由
 //     TPSSystem がカメラ姿勢を確定させた後に撃たないと、1フレーム前の向きで狙うことになる。
@@ -40,7 +40,7 @@
 //   「カメラの姿勢を書く TPSSystem より後ろに並ぶ」ための依存で、
 //   これが無いと1フレーム前の向きで狙うことになる。
 //   TPSCameraState(フォーカス点)と LockOnTarget(ロック相手)も実際に読むので挙げてある。
-// ・書き込むのはフォーカス対象の AimTargetPosComponent。
+// ・書き込むのはフォーカス対象の AimResultComponent。
 //   RefData 越しでも書き込みには違いないので WriteList に挙げる
 //   (挙げないと、同じフェーズに読み手や書き手が来たときに実行順も待ち合わせも付かない)。
 //==========================================================================================
@@ -50,8 +50,8 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 		Engine::ECS::ESystemType::Camera,
 		"AimTargetSystem",
 		Engine::ECS::ReadList<CameraTag, FollowTargetComponent, LocalTransformComponent,
-			TPSCameraStateComponent, LockOnTargetComponent>{},
-		Engine::ECS::WriteList<AimTargetPosComponent>{},
+			TPSCameraStateComponent, LockOnTargetComponent, AimConfigComponent>{},
+		Engine::ECS::WriteList<AimResultComponent>{},
 		[](const Engine::ECS::SystemContext& a_ctx)
 		{
 			if (!a_ctx.pWorld) return;
@@ -81,10 +81,14 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 			//============================================================
 			Engine::ECS::Entity _target = _followComp.target;
 			if (_target == Engine::ECS::Limits::INVALID_ENTITY) return;
-			if (!a_ctx.pWorld->HasComponent<AimTargetPosComponent>(_target)) return;
+			if (!a_ctx.pWorld->HasComponent<AimResultComponent>(_target)) return;
 
-			AimTargetPosComponent* _pAim = a_ctx.pWorld->RefData<AimTargetPosComponent>(_target);
+			AimResultComponent* _pAim = a_ctx.pWorld->RefData<AimResultComponent>(_target);
 			if (!_pAim) return;
+
+			// レイの設定(持っていない相手は既定値で撃つ)
+			const AimConfigComponent* _pConfig = a_ctx.pWorld->RefData<AimConfigComponent>(_target);
+			const AimConfigComponent _config = _pConfig ? *_pConfig : AimConfigComponent{};
 
 			//============================================================
 			// カメラ正面
@@ -124,7 +128,7 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 			// RAW 依存でこのシステムが後になる = 同フレームの値が入っている。
 			// TPS 以外のカメラなど、状態が無い場合はフォーカス点を諦めて
 			// startOffset だけで撃つ(従来通り)。
-			float _startDist = _pAim->startOffset;
+			float _startDist = _config.startOffset;
 			if (a_ctx.pWorld->HasComponent<TPSCameraStateComponent>(_self))
 			{
 				if (const auto* _pState = a_ctx.pWorld->RefData<TPSCameraStateComponent>(_self))
@@ -134,7 +138,7 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 						// カメラ前方軸への射影 = カメラからフォーカス点までの前方距離
 						float _proj =
 							(Math::Vector3(_pState->lookAtWorld) - Math::Vector3(_trsComp.pos)).Dot(_fwd);
-						_startDist = std::max(_proj, 0.0f) + _pAim->startOffset;
+						_startDist = std::max(_proj, 0.0f) + _config.startOffset;
 					}
 				}
 			}
@@ -147,7 +151,7 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 			Math::Ray _info;
 			_info.origin		= Math::Vector3(_trsComp.pos) + _fwd * _startDist;
 			_info.direction		= _fwd;
-			_info.maxDistance	= _pAim->maxDistance;
+			_info.maxDistance	= _config.maxDistance;
 
 			// 静的・動くもの(敵・弾・ボイド)のどれにも当たる。全レイヤー
 			Engine::Physics::RayHit _hit = {};

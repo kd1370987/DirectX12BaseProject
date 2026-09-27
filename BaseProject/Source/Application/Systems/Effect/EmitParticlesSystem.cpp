@@ -9,7 +9,7 @@
 
 #include "Application/Components/Effect/ParticlesComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
 
 //==========================================================================================
 // EmitParticleSystem
@@ -75,14 +75,14 @@ void EmitParticleSystem::Init(App::ECS::APPWorld& a_world)
 					// 進行方向の逆へ吹く(噴射・排気)。
 					// 弾やミサイルは見た目の姿勢が進行方向と一致していないので、
 					// 行列の軸ではなく実際の速度から向きを取る。
-					// VelocityComponent はこのクエリに含めない
+					// DesiredVelocityComponent はこのクエリに含めない
 					// (持たないエンティティのパーティクルまで止まってしまうため)
 					_pos = Math::Vector3::Transform(Math::Vector3(_p.posOffset), _world);
 
 					Engine::ECS::Entity _self = a_pChunk->entityData[_i];
-					if (a_ctx.pWorld->HasComponent<VelocityComponent>(_self))
+					if (a_ctx.pWorld->HasComponent<DesiredVelocityComponent>(_self))
 					{
-						if (const auto* _pVel = a_ctx.pWorld->RefData<VelocityComponent>(_self))
+						if (const auto* _pVel = a_ctx.pWorld->RefData<DesiredVelocityComponent>(_self))
 						{
 							_dir = -Math::Vector3(_pVel->value);
 						}

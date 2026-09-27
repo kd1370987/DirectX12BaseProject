@@ -7,7 +7,7 @@
 //
 // 持ち主(プレイヤー・敵)は「左を撃て / 右を撃て」としか言わない。
 // 撃てるかどうか(連射間隔・バースト・熱)や、何をどう撃つか(弾・弾速・銃口)は
-// 武器側の GunStateComponent が持ち、GunShootSystem が面倒を見る。
+// 武器側の GunStateComponent が持ち、GunTriggerSystem が面倒を見る。
 //
 // 引き金を引くのは
 //   ・持ち主が武器を子として持つ場合 : AttachmentDispatchSystem

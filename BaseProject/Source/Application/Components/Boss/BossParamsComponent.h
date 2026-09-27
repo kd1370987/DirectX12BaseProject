@@ -1,9 +1,17 @@
 #pragma once
 
+#include "BossBrainStateComponent.h"
+#include "BossCommandComponent.h"
+
 //==========================================================================================
-// BossComponent
+// BossParamsComponent
 //
-// 人型ボス(アーマードコア / オメガフェニックス型)の戦闘設定と機動状態を持つ。
+// 人型ボス(アーマードコア / オメガフェニックス型)の戦闘設定。保存される。
+// 実行中の値は次の2つに分けてあり、どちらも必須コンポーネントとして自動で付く。
+//   BossBrainStateComponent … 行動パターン・機動・各タイマー(BossCombatIntentSystem だけが書く)
+//   BossCommandComponent    … 戦闘開始の命令と、ミサイル一斉射の要求(外とのやり取り)
+// 以前は BossComponent に全部入っていて、要求を消すだけの側まで設定と同じ型を書いていた。
+//
 // 中身を進めるのは BossCombatIntentSystem(PreUpdate)と BossMissileSalvoSystem(PostUpdate)。
 //
 // ・ザコ敵(PatrolComponent)との違い
@@ -17,56 +25,22 @@
 //                           ブーストの向きは RobotBoostSystem がこの角度を読む。
 //     MoveIntentComponent … 視点基準の移動入力(x=横 / y=上下 / z=前後)。プレイヤーの
 //                           入力とまったく同じ意味なので CharacterMovementSystem が使える。
-//     BoostComponent      … ブースト入力。RobotBoostSystem がそのまま推力に変える。
+//     BoostParamsComponent      … ブースト入力。RobotBoostSystem がそのまま推力に変える。
 //     ActionIntent / AimTargetPos
 //                         … 銃の発射入力と狙点。AttachmentDispatchSystem が武器の子
-//                           エンティティへ配信し、GunShootSystem が撃つ。
+//                           エンティティへ配信し、GunTriggerSystem が撃つ。
 //   つまりボス用に増やしたのは「入力を作る側」だけで、動かす側は全部既存のもの。
 //
 // ・撃つ相手は TargetEntityComponent(SearchPlayerSystem が解決する)。
 //   戦闘の開始/終了は距離ではなく命令で決めるので、発見距離は広めに取っておくこと
-//   (弾の誘導先を引く GunShootSystem が isFind を見るため)。
+//   (弾の誘導先を引く GunProjectileSpawnSystem が isFind を見るため)。
 //==========================================================================================
 
-// ボスの機動フェーズ(表示用。判断は毎フレーム距離から決め直す)
-enum class EBossManeuver : int
-{
-	Wait = 0,	// 戦闘開始命令を待っている
-	Approach,	// 間合いより遠い : 詰める
-	Keep,		// 間合いの内   : 横に流しながら撃ち合う
-	Back,		// 近すぎる     : 下がる
-	Hold,		// 横の切り返しで足を止めている(撃たれてもよい隙)
-};
-
-//==========================================================================================
-// ボスの行動パターン
-//
-// 一定時間ごとに重み付きの抽選で選び直す「今回はどう戦うか」。
-// パターンが決めるのは “どこに居たいか” だけで、そこへ行く手順(間合いを保つ・横へ流す・
-// 高度を合わせる)はパターンによらず共通。位置取りの目標を差し替えるだけで
-// 「詰めてくる」「上を取る」「下から来る」が出せる。
-//
-// 同じパターンが連続しないように選ぶので、待ち構えていると読みが外れる。
-//==========================================================================================
-enum class EBossPattern : int
-{
-	Standoff = 0,	// 既定の間合いで正面から撃ち合う
-	Rush,			// 懐まで一気に詰める
-	HighGround,		// 大きく上を取って撃ち下ろす
-	LowGround,		// 低く潜り込んで撃ち上げる
-	Orbit,			// 間合いを保ったまま同じ向きへ回り込む
-	Retreat,		// 大きく離れてミサイル主体で削る
-
-	Max				// 抽選で回すための番兵(パターン数)
-};
-
-struct BossComponent
+struct BossParamsComponent
 {
 	// ---- 戦闘開始 ----
-	// isCombatStarted はシーケンスからの命令で立つランタイム値。保存しない
-	// (保存してしまうと、シーンを読み直しただけで戦闘が始まってしまう)。
-	bool isCombatStarted = false;
-	bool startOnSpawn    = false;	// 命令を待たずに開始する(単体で動きを見たいとき用。保存する)
+	// 命令(BossCommandComponent::isCombatStarted)を待たずに開始する(単体で動きを見たいとき用)
+	bool startOnSpawn    = false;
 
 	// ---- 間合い(保存される) ----
 	// 保ちたい距離を1点ではなく幅で持つ。境界ちょうどを狙うと詰める/下がるを
@@ -105,8 +79,8 @@ struct BossComponent
 	float maxPitchDeg   = 60.0f;	// 見上げ/見下ろしの限界(±度)
 
 	// ---- 機動(保存される) ----
-	// スロットルは MoveIntent の大きさ(0..1)。実速度は MovementComponent.moveSpeed と
-	// BoostComponent.boostPower 側で決まる。
+	// スロットルは MoveIntent の大きさ(0..1)。実速度は MovementParamsComponent.moveSpeed と
+	// BoostParamsComponent.boostPower 側で決まる。
 	float strafeInterval     = 1.4f;	// 横移動の向きを切り替える間隔(秒)
 	float strafeIntervalRand = 0.8f;	// その揺らぎ(±秒)。同じ周期で往復すると読まれてしまう
 	float strafeThrottle     = 1.0f;	// 横移動のスロットル(0..1)
@@ -141,28 +115,17 @@ struct BossComponent
 	float missileRange        = 160.0f;	// この距離まで詰めたら一斉射する(m)
 	float missileInterval     = 6.0f;	// 一斉射の間隔(秒)
 	float missileIntervalRand = 2.0f;	// その揺らぎ(±秒)
-
-	// ---- ランタイム(保存しない) ----
-	EBossManeuver maneuver = EBossManeuver::Wait;		// 今の機動フェーズ(表示用)
-	EBossPattern  pattern  = EBossPattern::Standoff;	// 今の行動パターン
-	float patternTimer     = 0.0f;		// 次にパターンを選び直すまでの残り時間(秒)
-	float strafeSign       = 1.0f;		// 横移動の向き(+1 / -1)
-	float strafeTimer      = 0.0f;		// 次に横移動を切り替えるまでの残り時間(秒)
-	float strafeHoldTimer  = 0.0f;		// 足を止めている残り時間(秒)。0 なら動いている
-	float dashTimer        = 0.0f;		// 次のクイックブーストまでの残り時間(秒)
-	float gunTimer         = 0.0f;		// 撃つ/休むの残り時間(秒)
-	bool  isGunActive      = false;		// 今は撃つ番か
-	float missileTimer     = 0.0f;		// 次の一斉射までの残り時間(秒)
-	bool  isMissileRequest = false;		// 一斉射の要求。BossMissileSalvoSystem が消費する
-	float distance         = 0.0f;		// 相手までの距離(m。表示用)
 };
 
 template<>
-struct Engine::ECS::ComponentTraits<BossComponent>
+struct Engine::ECS::ComponentTraits<BossParamsComponent>
 {
+	// 思考の状態と命令は実行中の値なので、プレハブに書かずに自動で付ける
+	using Requires = Engine::ECS::RequireComponents<BossBrainStateComponent, BossCommandComponent>;
+
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		BossComponent& _comp = Engine::Editor::GetValue<BossComponent>(a_pData);
+		BossParamsComponent& _comp = Engine::Editor::GetValue<BossParamsComponent>(a_pData);
 
 		a_ar.Field("startOnSpawn", _comp.startOnSpawn);
 
@@ -220,18 +183,11 @@ struct Engine::ECS::ComponentTraits<BossComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		BossComponent& _comp = Engine::Editor::GetValue<BossComponent>(a_context.pData);
+		BossParamsComponent& _comp = Engine::Editor::GetValue<BossParamsComponent>(a_context.pData);
 
 		Engine::Editor::Header("Combat Start");
 		Engine::Editor::Field("StartOnSpawn", _comp.startOnSpawn);
 		Engine::Editor::Tooltip("no order needed");
-
-		// 命令はランタイム値。動きを確かめたいときのためにエディターからも叩けるようにしておく
-		Engine::Editor::Value("CombatStarted", "%s", _comp.isCombatStarted ? "yes" : "no");
-		if (Engine::Editor::SmallButton(_comp.isCombatStarted ? "Stop" : "Start"))
-		{
-			_comp.isCombatStarted = !_comp.isCombatStarted;
-		}
 
 		Engine::Editor::Header("Range (Standoff)");
 		Engine::Editor::Field("KeepDistance", _comp.keepDistance, 0.5f, 0.0f);
@@ -298,19 +254,5 @@ struct Engine::ECS::ComponentTraits<BossComponent>
 		Engine::Editor::Field("MissileRange", _comp.missileRange, 1.0f, 0.0f);
 		Engine::Editor::Field("MissileInterval", _comp.missileInterval, 0.1f, 0.0f);
 		Engine::Editor::Field("MissileIntervalRand", _comp.missileIntervalRand, 0.1f, 0.0f);
-
-		// ここから下は毎フレーム上書きされるので表示のみ
-		Engine::Editor::Header("Runtime");
-		static const char* _patternName[] = {
-			"Standoff", "Rush", "HighGround", "LowGround", "Orbit", "Retreat" };
-		static const char* _maneuverName[] = { "Wait", "Approach", "Keep", "Back", "Hold" };
-
-		Engine::Editor::Value("Pattern", "%s (next %.2f s)", _patternName[static_cast<int>(_comp.pattern)], _comp.patternTimer);
-		Engine::Editor::Value("Maneuver", "%s", _maneuverName[static_cast<int>(_comp.maneuver)]);
-		Engine::Editor::Value("Distance", "%.2f m", _comp.distance);
-		Engine::Editor::Value("Strafe", "%+.0f (next %.2f s)", _comp.strafeSign, _comp.strafeTimer);
-		Engine::Editor::Value("Hold", "%.2f s", _comp.strafeHoldTimer);
-		Engine::Editor::Value("Gun", "%s (next %.2f s)", _comp.isGunActive ? "fire" : "rest", _comp.gunTimer);
-		Engine::Editor::Value("Missile", "next %.2f s", _comp.missileTimer);
 	}
 };

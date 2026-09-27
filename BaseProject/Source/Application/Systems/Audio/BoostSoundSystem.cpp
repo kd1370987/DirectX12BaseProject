@@ -3,7 +3,9 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Attachment/AttachmentSlotsComponent.h"
-#include "Application/Components/Movement/BoostComponent.h"
+#include "Application/Components/Movement/BoostParamsComponent.h"
+#include "Application/Components/Movement/BoostIntentComponent.h"
+#include "Application/Components/Movement/BoostStateComponent.h"
 #include "Application/Components/Audio/AudioBehaviorComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Engine/Audio/AudioManager.h"
@@ -35,7 +37,7 @@
 //==========================================================================================
 void BoostSoundSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const AttachmentSlotsComponent, const BoostComponent>(
+	a_world.ActiveTask<const AttachmentSlotsComponent, const BoostParamsComponent, const BoostIntentComponent, const BoostStateComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"BoostSoundSystem",
 		[]
@@ -45,7 +47,9 @@ void BoostSoundSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const AttachmentSlotsComponent* a_slotsArray,
-			const BoostComponent* a_boostArray
+			const BoostParamsComponent* a_boostArray,
+			const BoostIntentComponent* a_boostIntentArray,
+			const BoostStateComponent* a_boostStateArray
 			)
 		{
 			auto* _pAudioManager = a_ctx.pServices->pAudioManager;
@@ -107,14 +111,14 @@ void BoostSoundSystem::Init(App::ECS::APPWorld& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const AttachmentSlotsComponent& _slots = a_slotsArray[_i];
-				const BoostComponent& _boost = a_boostArray[_i];
+				const BoostParamsComponent& _boost = a_boostArray[_i];
 
 				// 実際に推力が出る条件。
 				// 燃料切れで飛べないときに音だけ鳴らないよう、
 				// RobotBoostSystem / ThrusterEffectSystem と同じ判定にしている。
 				// 燃料切れで落ちたときも、そのまま終了音まで流れる
-				const bool _hasFuel  = _boost.currentFuel > _boost.boostFuel;
-				const bool _boosting = _boost.isBoostIntent && _hasFuel;
+				const bool _hasFuel  = a_boostStateArray[_i].currentFuel > _boost.boostFuel;
+				const bool _boosting = a_boostIntentArray[_i].isBoostIntent && _hasFuel;
 
 				// ブースターを付けている親自身
 				_driveBehavior(a_pChunk->entityData[_i], _boosting);

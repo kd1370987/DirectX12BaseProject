@@ -13,6 +13,7 @@
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Effect/EffectOverrideComponent.h"
 #include "Application/Utility/EffectSpawnHelper.h"
 
 //==========================================================================================
@@ -339,9 +340,9 @@ namespace App::Object
 
 		// 出現空間の広さ。エフェクト全体の倍率なので、
 		// ばらつき半径と一緒に粒の大きさにも掛かる(EffectDrawSystem)
-		if (a_context.pWorld->HasComponent<EffectAssetComponent>(m_dastEntity))
+		if (a_context.pWorld->HasComponent<EffectOverrideComponent>(m_dastEntity))
 		{
-			if (auto* _pEffect = a_context.pWorld->RefData<EffectAssetComponent>(m_dastEntity))
+			if (auto* _pEffect = a_context.pWorld->RefData<EffectOverrideComponent>(m_dastEntity))
 			{
 				_pEffect->effectScale = std::max(m_dast.scale, 0.01f);
 			}

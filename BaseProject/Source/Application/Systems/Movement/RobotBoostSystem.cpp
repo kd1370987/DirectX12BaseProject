@@ -2,11 +2,11 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Movement/VelocityComponent.h"
-#include "Application/Components/Movement/BoostComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
+#include "Application/Components/Movement/BoostParamsComponent.h"
 #include "Application/Components/Movement/MoveIntentComponent.h"
 #include "Application/Components/Movement/LookAngleComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
+#include "Application/Components/Movement/ActualVelocityComponent.h"
 
 //==============================================================================
 // RobotBoostSystem
@@ -36,8 +36,8 @@
 //   落下ぶんも打ち消されるので、吹かしている間は視線と上昇入力で高度を操れる。
 //   水平ブースト中は Y に触らないので、いつも通り落下する。
 //
-// ・VelocityComponent は目標速度で、実際の移動は MovementIntegrationSystem が
-//   MovementComponent の加速度/減速度で追従させる。ここで差し替えても急にワープはしない。
+// ・DesiredVelocityComponent は目標速度で、実際の移動は MovementIntegrationSystem が
+//   MovementParamsComponent の加速度/減速度で追従させる。ここで差し替えても急にワープはしない。
 //   (水平だけが加減速の対象。上下は目標速度がそのまま出る)
 //
 // ・踏み込み(タップブースト)
@@ -46,7 +46,7 @@
 //   目標が元へ戻ってしまうので、倍率がまるごと均されて消えていた。
 //
 //   直すにあたって2つ入れてある。
-//     (1) 蹴り出した瞬間は実速度(MovementComponent.velocity)へ直接書いて、
+//     (1) 蹴り出した瞬間は実速度(ActualVelocityComponent)へ直接書いて、
 //         その場で最高速へ乗せる(ChargeDashSystem と同じ手)
 //     (2) tapBoostTime のあいだ目標速度を倍率から boostPower まで落としていく。
 //         実速度はそれを追いかけるので、一番速い瞬間から徐々に遅くなる
@@ -56,8 +56,8 @@
 //==============================================================================
 void RobotBoostSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<BoostComponent, VelocityComponent, const MoveIntentComponent,
-		const LookAngleComponent>(
+	a_world.ActiveTask<const BoostParamsComponent, const BoostIntentComponent, BoostStateComponent,
+		DesiredVelocityComponent, const MoveIntentComponent, const LookAngleComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"RobotBoostSystem",
 		[]
@@ -66,21 +66,25 @@ void RobotBoostSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
-			BoostComponent* a_boostArray,
-			VelocityComponent* a_velArray,
+			const BoostParamsComponent* a_boostArray,
+			const BoostIntentComponent* a_intentArray,
+			BoostStateComponent* a_stateArray,
+			DesiredVelocityComponent* a_velArray,
 			const MoveIntentComponent* a_moveIntentArray,
 			const LookAngleComponent* a_lookArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				BoostComponent&              _boostComp  = a_boostArray[_i];
-				VelocityComponent&           _velComp    = a_velArray[_i];
+				const BoostParamsComponent&  _boostComp  = a_boostArray[_i];
+				const BoostIntentComponent&  _intent     = a_intentArray[_i];
+				BoostStateComponent&         _state      = a_stateArray[_i];
+				DesiredVelocityComponent&           _velComp    = a_velArray[_i];
 				const MoveIntentComponent&   _moveIntent = a_moveIntentArray[_i];
 				const LookAngleComponent&    _lookComp   = a_lookArray[_i];
 
 				// 実際に飛べたかどうかは毎フレームここで決め直す
-				_boostComp.isBoosting = false;
+				_state.isBoosting = false;
 
 				//----------------------------------------------------------
 				// 燃料の回復
@@ -93,34 +97,34 @@ void RobotBoostSystem::Init(App::ECS::APPWorld& a_world)
 				// 上限で頭打ちにするのも兼ねる。以前は超えてから止めていたので、
 				// 満タンのフレームに1回ぶん余分に足されて max をわずかに超えていた
 				//----------------------------------------------------------
-				if (!_boostComp.isBoostIntent)
+				if (!_intent.isBoostIntent)
 				{
-					_boostComp.currentFuel = (std::min)(
-						_boostComp.currentFuel + _boostComp.fuelRegeneration * a_ctx.dt,
+					_state.currentFuel = (std::min)(
+						_state.currentFuel + _boostComp.fuelRegeneration * a_ctx.dt,
 						_boostComp.maxFuel);
 				}
 
 				// 踏み込みの残り時間を進める
-				if (_boostComp.tapBoostTimer > 0.0f)
+				if (_state.tapBoostTimer > 0.0f)
 				{
-					_boostComp.tapBoostTimer = (std::max)(0.0f, _boostComp.tapBoostTimer - a_ctx.dt);
+					_state.tapBoostTimer = (std::max)(0.0f, _state.tapBoostTimer - a_ctx.dt);
 				}
 
 				// 押した瞬間と押しっぱなしは同じフレームで両方成立するので、初動を優先する
-				const bool _isTap  = _boostComp.isBoostTriger;
-				const bool _isHold = _boostComp.isBoostIntent;
+				const bool _isTap  = _intent.isBoostTriger;
+				const bool _isHold = _intent.isBoostIntent;
 
 				// 今このフレームで吹かす入力が来ているか
 				const bool _isBoostInput = (_isTap || _isHold);
 
 				// 踏み込みが残っている間は、離していても水平の押し出しだけ続ける
-				const bool _isTapActive = (_boostComp.tapBoostTimer > 0.0f);
+				const bool _isTapActive = (_state.tapBoostTimer > 0.0f);
 
 				if (!_isBoostInput && !_isTapActive) continue;
 
 				// 使用量より燃料が下回っていたらブーストできない。
 				// 踏み込みは蹴り出したときに払い済みなので、残っている間は止めない
-				if (!_isTapActive && _boostComp.currentFuel <= _boostComp.boostFuel) continue;
+				if (!_isTapActive && _state.currentFuel <= _boostComp.boostFuel) continue;
 
 				//----------------------------------------------------------
 				// 進む向きを決める
@@ -173,9 +177,9 @@ void RobotBoostSystem::Init(App::ECS::APPWorld& a_world)
 				//----------------------------------------------------------
 				if (_isTap)
 				{
-					_boostComp.currentFuel -= _boostComp.boostFuel;
-					_boostComp.tapBoostTimer = (std::max)(_boostComp.tapBoostTime, 0.0f);
-					_boostComp.tapBoostDir = { _dir.x, 0.0f, _dir.z };
+					_state.currentFuel -= _boostComp.boostFuel;
+					_state.tapBoostTimer = (std::max)(_boostComp.tapBoostTime, 0.0f);
+					_state.tapBoostDir = { _dir.x, 0.0f, _dir.z };
 				}
 
 				//----------------------------------------------------------
@@ -188,21 +192,21 @@ void RobotBoostSystem::Init(App::ECS::APPWorld& a_world)
 				// 踏み込みが切れていれば、押している間だけ boostPower で押す
 				//----------------------------------------------------------
 				const bool _isTapPush =
-					(_boostComp.tapBoostTimer > 0.0f) &&
+					(_state.tapBoostTimer > 0.0f) &&
 					(_boostComp.tapBoostTime > 0.0f) &&
-					(_boostComp.tapBoostDir.LengthSquared() > 1e-6f);
+					(_state.tapBoostDir.LengthSquared() > 1e-6f);
 
 				if (_isTapPush)
 				{
 					// 1(蹴り出した瞬間) → 0(踏み込み終わり)
 					const float _tapRate =
-						std::clamp(_boostComp.tapBoostTimer / _boostComp.tapBoostTime, 0.0f, 1.0f);
+						std::clamp(_state.tapBoostTimer / _boostComp.tapBoostTime, 0.0f, 1.0f);
 
 					const float _speed = _boostComp.boostPower *
 						(1.0f + (_boostComp.tapBoostScale - 1.0f) * _tapRate);
 
-					_velComp.value.x = _boostComp.tapBoostDir.x * _speed;
-					_velComp.value.z = _boostComp.tapBoostDir.z * _speed;
+					_velComp.value.x = _state.tapBoostDir.x * _speed;
+					_velComp.value.z = _state.tapBoostDir.z * _speed;
 				}
 				else if (_isBoostInput && (_dir.x != 0.0f || _dir.z != 0.0f))
 				{
@@ -213,7 +217,7 @@ void RobotBoostSystem::Init(App::ECS::APPWorld& a_world)
 				// 押しっぱなしの継続ぶん。踏み込み中は蹴り出しで払い済みなので取らない
 				if (_isHold && !_isTap && !_isTapPush)
 				{
-					_boostComp.currentFuel -= _boostComp.boostFuelPerSec * a_ctx.dt;
+					_state.currentFuel -= _boostComp.boostFuelPerSec * a_ctx.dt;
 				}
 
 				//----------------------------------------------------------
@@ -223,20 +227,18 @@ void RobotBoostSystem::Init(App::ECS::APPWorld& a_world)
 				// 踏み込みは「押した瞬間が一番速い」ことに意味があるので、
 				// 加速を飛ばしてその場で最高速へ乗せる(ChargeDashSystem と同じ手)。
 				//
-				// MovementComponent をクエリに入れずに RefData で引くのは依存が輪になるため。
+				// 実速度(ActualVelocityComponent)はクエリに入れずに RefData で引く。
+				// 加減速を持たない機体(実速度を持たない)も対象から外さないため。
 				// RefData は持っていないコンポーネントなら nullptr を返す
 				//----------------------------------------------------------
 				if (_isTap && _isTapPush && a_ctx.pWorld)
 				{
 					const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
-					if (a_ctx.pWorld->HasComponent<MovementComponent>(_self))
+					if (auto* _pActual = a_ctx.pWorld->RefData<ActualVelocityComponent>(_self))
 					{
-						if (auto* _pMovement = a_ctx.pWorld->RefData<MovementComponent>(_self))
-						{
-							_pMovement->velocity.x = _velComp.value.x;
-							_pMovement->velocity.z = _velComp.value.z;
-						}
+						_pActual->value.x = _velComp.value.x;
+						_pActual->value.z = _velComp.value.z;
 					}
 				}
 
@@ -258,12 +260,12 @@ void RobotBoostSystem::Init(App::ECS::APPWorld& a_world)
 
 				// 噴射の演出と音はここを見ている。
 				// 踏み込みの余韻だけのフレームは「吹かしている」ことにしない
-				_boostComp.isBoosting = _isBoostInput;
+				_state.isBoosting = _isBoostInput;
 			}
 		}
 	)
 	// 順序 : 重力が足した落下ぶんを、上下のブーストで打ち消せるよう後に置く
 	.After("GravitySystem")
 	// 絞り込みに使わない書き込み : 蹴り出しで実速度を RefData で書く(持っている機体だけ)
-	.Writes<MovementComponent>();
+	.Writes<ActualVelocityComponent>();
 }

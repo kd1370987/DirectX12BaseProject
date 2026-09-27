@@ -1701,9 +1701,6 @@
     <ClCompile Include="Source\Application\Systems\Movement\FaceTargetSystem.cpp">
       <Filter>Source\Application\Systems\Movement</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Weapon\GunShootSystem.cpp">
-      <Filter>Source\Application\Systems\Weapon</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Movement\LookAroundSystem.cpp">
       <Filter>Source\Application\Systems\Movement</Filter>
     </ClCompile>
@@ -2379,9 +2376,6 @@
     <ClCompile Include="Source\Application\Game\InputActions\InputManager\InputActionManager.cpp">
       <Filter>Source\Application\Game\InputActions\InputManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Boid\BoidSystem.cpp">
-      <Filter>Source\Application\Systems\Boid</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Boid\FollowLeaderSystem.cpp">
       <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
@@ -2447,6 +2441,24 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.cpp">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\BoidSnapshotSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\BoidSteeringSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\PlatoonAxisSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\GunTriggerSystem.cpp">
+      <Filter>Source\Application\Systems\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\GunProjectileSpawnSystem.cpp">
+      <Filter>Source\Application\Systems\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\MuzzleFlashSystem.cpp">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2561,15 +2573,6 @@
     <ClInclude Include="Source\Application\Components\Camera\TPSFollowComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Camera\TPSLookAngleComponent.h">
-      <Filter>Source\Application\Components\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h">
-      <Filter>Source\Application\Components\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Components\Combat\AimTargetPosComponent.h">
-      <Filter>Source\Application\Components\Combat</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Enemy\CloseCombatComponent.h">
       <Filter>Source\Application\Components\Enemy</Filter>
     </ClInclude>
@@ -2597,9 +2600,6 @@
     <ClInclude Include="Source\Application\Components\Combat\TargetEntityComponent.h">
       <Filter>Source\Application\Components\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Boss\BossComponent.h">
-      <Filter>Source\Application\Components\Boss</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Boid\BoidLeaderComponent.h">
       <Filter>Source\Application\Components\Boid</Filter>
     </ClInclude>
@@ -2608,9 +2608,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Attachment\AttachmentSlotsComponent.h">
       <Filter>Source\Application\Components\Attachment</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Components\Movement\BoostComponent.h">
-      <Filter>Source\Application\Components\Movement</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Effect\BoosterEffectComponent.h">
       <Filter>Source\Application\Components\Effect</Filter>
@@ -2664,12 +2661,6 @@
       <Filter>Source\Application\Components\Effect</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Movement\GravityComponent.h">
-      <Filter>Source\Application\Components\Movement</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Components\Movement\MovementComponent.h">
-      <Filter>Source\Application\Components\Movement</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Components\Movement\VelocityComponent.h">
       <Filter>Source\Application\Components\Movement</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Transform\FollowAnimationNodeComponent.h">
@@ -3163,9 +3154,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Movement\FaceTargetSystem.h">
       <Filter>Source\Application\Systems\Movement</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Weapon\GunShootSystem.h">
-      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Movement\LookAroundSystem.h">
       <Filter>Source\Application\Systems\Movement</Filter>
@@ -4139,12 +4127,6 @@
     <ClInclude Include="Source\Application\Game\InputActions\InputManager\InputActionManager.h">
       <Filter>Source\Application\Game\InputActions\InputManager</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Boid\BoidComponent.h">
-      <Filter>Source\Application\Components\Boid</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Boid\BoidSystem.h">
-      <Filter>Source\Application\Systems\Boid</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Boid\FollowLeaderSystem.h">
       <Filter>Source\Application\Systems\Boid</Filter>
     </ClInclude>
@@ -4268,6 +4250,84 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Boid\BoidWaveStateComponent.h">
       <Filter>Source\Application\Components\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Boid\BoidSteeringParamsComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Boid\BoidMembershipComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Boid\BoidTargetComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\BoidSnapshotResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\PlatoonAxisResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Boid\BoidSnapshotSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Boid\BoidSteeringSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Boid\PlatoonAxisSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Movement\DesiredVelocityComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Movement\MovementParamsComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Movement\BoostParamsComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Movement\ActualVelocityComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Movement\BoostIntentComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Movement\BoostStateComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Weapon\GunFireComponent.h">
+      <Filter>Source\Application\Components\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Weapon\GunTriggerSystem.h">
+      <Filter>Source\Application\Systems\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Weapon\GunProjectileSpawnSystem.h">
+      <Filter>Source\Application\Systems\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Weapon\MuzzleFlashSystem.h">
+      <Filter>Source\Application\Systems\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Effect\EffectRuntimeComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Effect\EffectPlayRequestComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Effect\EffectOverrideComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Combat\AimResultComponent.h">
+      <Filter>Source\Application\Components\Combat</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Combat\AimConfigComponent.h">
+      <Filter>Source\Application\Components\Combat</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Boss\BossParamsComponent.h">
+      <Filter>Source\Application\Components\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Boss\BossBrainStateComponent.h">
+      <Filter>Source\Application\Components\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Boss\BossCommandComponent.h">
+      <Filter>Source\Application\Components\Boss</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

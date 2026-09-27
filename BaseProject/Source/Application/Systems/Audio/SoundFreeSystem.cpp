@@ -5,7 +5,7 @@
 #include "Application/Components/Audio/SoundComponent.h"
 #include "Application/Components/Audio/HitSoundComponent.h"
 #include "Application/Components/Audio/AudioBehaviorComponent.h"
-#include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Effect/EffectRuntimeComponent.h"
 #include "Engine/Audio/AudioManager.h"
 
 void SoundFreeSystem::Init(App::ECS::APPWorld& a_world)
@@ -65,7 +65,7 @@ void SoundFreeSystem::Init(App::ECS::APPWorld& a_world)
 	// エフェクトのサウンドパーツぶんの声も返す。
 	// 返さないとプールに鳴りっぱなしの声が残り、
 	// 出しては消える単発エフェクトのぶんだけ溜まっていく
-	a_world.ReleaseTask<EffectAssetComponent>(
+	a_world.ReleaseTask<EffectRuntimeComponent>(
 		Engine::ECS::ESystemType::Release,
 		"EffectSoundFreeSystem",
 		[]
@@ -74,7 +74,7 @@ void SoundFreeSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ReleaseTag* a_releaseTag,
-			EffectAssetComponent* a_effectArray
+			EffectRuntimeComponent* a_effectArray
 			)
 		{
 			auto* _pAudioManager = a_ctx.pServices->pAudioManager;

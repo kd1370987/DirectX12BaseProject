@@ -5,7 +5,7 @@
 #include "Application/Components/Physics/Collider.h"
 #include "Application/Components/Physics/RayCollider.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
 #include "Application/Components/Physics/GroundStateComponent.h"
 
 #include "Engine/MainEngine.h"
@@ -56,7 +56,7 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 	//--------------------------------------------------------------------------
 	// 足元のレイ
 	//--------------------------------------------------------------------------
-	a_world.ActiveTask<const ColliderComponent, const RayColliderComponent, LocalTransformComponent, VelocityComponent, GroundStateComponent>(
+	a_world.ActiveTask<const ColliderComponent, const RayColliderComponent, LocalTransformComponent, DesiredVelocityComponent, GroundStateComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"RayCollisionSystem",
 		[](
@@ -67,7 +67,7 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 			const ColliderComponent* a_collArray,
 			const RayColliderComponent* a_rayArray,
 			LocalTransformComponent* a_transArray,
-			VelocityComponent* a_velArray,
+			DesiredVelocityComponent* a_velArray,
 			GroundStateComponent* a_groundArray
 			)
 		{
@@ -77,7 +77,7 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				LocalTransformComponent& _trans = a_transArray[_i];
-				VelocityComponent& _vel = a_velArray[_i];
+				DesiredVelocityComponent& _vel = a_velArray[_i];
 				GroundStateComponent& _ground = a_groundArray[_i];
 				const RayColliderComponent& _ray = a_rayArray[_i];
 
@@ -127,5 +127,5 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 	.After({ "PositionIntegrationSystem", "MovementIntegrationSystem" })
 	// 速度は書き換えるだけでなく読んでもいる(上昇中はスナップしない)。
 	// 読みを宣言しておくと、速度を書く Gravity / RobotBoost / ChargeDash の後ろに並ぶ
-	.Reads<VelocityComponent>();
+	.Reads<DesiredVelocityComponent>();
 }

@@ -7,7 +7,8 @@
 #include "Application/Components/Input/PlayerControllTag.h"
 #include "Application/Components/Combat/HealthComponent.h"
 #include "Application/Components/Combat/LockOnTargetComponent.h"
-#include "Application/Components/Movement/BoostComponent.h"
+#include "Application/Components/Movement/BoostParamsComponent.h"
+#include "Application/Components/Movement/BoostStateComponent.h"
 #include "Application/Components/Movement/ChargeDashComponent.h"
 #include "Application/Components/Attachment/AttachmentSlotsComponent.h"
 #include "Application/Components/Weapon/GunStateComponent.h"
@@ -166,12 +167,14 @@ namespace App::Object
 
 		case EGaugeSource::BoostFuel:
 		{
-			if (!a_pWorld->HasComponent<BoostComponent>(m_targetEntity)) return false;
+			if (!a_pWorld->HasComponent<BoostParamsComponent>(m_targetEntity)) return false;
 
-			const auto* _pBoost = a_pWorld->RefData<BoostComponent>(m_targetEntity);
+			const auto* _pBoost = a_pWorld->RefData<BoostParamsComponent>(m_targetEntity);
+			const auto* _pBoostState = a_pWorld->RefData<BoostStateComponent>(m_targetEntity);
+			if (!_pBoostState) return false;
 			if (!_pBoost) return false;
 
-			m_current = _pBoost->currentFuel;
+			m_current = _pBoostState->currentFuel;
 			m_max = _pBoost->maxFuel;
 			return true;
 		}

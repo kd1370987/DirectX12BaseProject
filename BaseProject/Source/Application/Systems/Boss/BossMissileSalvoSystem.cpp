@@ -2,7 +2,7 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Boss/BossComponent.h"
+#include "Application/Components/Boss/BossParamsComponent.h"
 #include "Application/Components/Combat/TargetEntityComponent.h"
 #include "Application/Components/Attachment/AttachmentSlotsComponent.h"
 #include "Application/Components/Weapon/MissileLockComponent.h"
@@ -39,7 +39,7 @@
 void BossMissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 {
 	a_world.ActiveTask<
-		BossComponent,
+		BossCommandComponent,
 		MissileLockComponent,
 		const AttachmentSlotsComponent,
 		const TargetEntityComponent,
@@ -51,7 +51,7 @@ void BossMissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t                          a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
-			BossComponent*                    a_bossArray,
+			BossCommandComponent*             a_commandArray,
 			MissileLockComponent*             a_missileArray,
 			const AttachmentSlotsComponent*   a_slotsArray,
 			const TargetEntityComponent*      a_targetArray,
@@ -60,7 +60,7 @@ void BossMissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				BossComponent&                  _boss      = a_bossArray[_i];
+				BossCommandComponent&           _command   = a_commandArray[_i];
 				MissileLockComponent&           _missile   = a_missileArray[_i];
 				const AttachmentSlotsComponent& _slots     = a_slotsArray[_i];
 				const TargetEntityComponent&    _target    = a_targetArray[_i];
@@ -102,9 +102,9 @@ void BossMissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 				// のぶんを溜めておくと、明けた瞬間に立て続けに撃ってしまうため。
 				// 次の間隔でまた要求が立つので取りこぼしにはならない。
 				//==========================================================
-				if (_boss.isMissileRequest)
+				if (_command.isMissileRequest)
 				{
-					_boss.isMissileRequest = false;
+					_command.isMissileRequest = false;
 
 					const int _fireCount = _missile.GetActiveMissileCount();
 					const bool _canFire =

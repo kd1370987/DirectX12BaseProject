@@ -4,8 +4,8 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "Application/Components/Movement/MoveIntentComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
+#include "Application/Components/Movement/MovementParamsComponent.h"
 #include "Application/Components/Movement/LookAngleComponent.h"
 
 #include "Application/Components/Animation/StateMachineComponent.h"
@@ -15,7 +15,7 @@
 //
 // プレイヤーの移動入力(MoveIntent ＝ カメラ相対)を目標速度へ変換する。
 //
-// ・移動速度は MovementComponent.moveSpeed。加速度/減速度で実速度へ均すのは
+// ・移動速度は MovementParamsComponent.moveSpeed。加速度/減速度で実速度へ均すのは
 //   MovementIntegrationSystem(Physics 帯)の担当なので、ここは目標値を作るだけ。
 // ・StateMachineComponent は中身を使わず、対象の絞り込みにだけ使っている
 //   (群れのリーダーのように、視点角と移動入力を持つがステートマシンを持たないものを外すため)。
@@ -23,8 +23,8 @@
 //==============================================================================
 void CharacterMovementSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const LookAngleComponent, const MoveIntentComponent, const MovementComponent,
-		VelocityComponent, const StateMachineComponent>(
+	a_world.ActiveTask<const LookAngleComponent, const MoveIntentComponent, const MovementParamsComponent,
+		DesiredVelocityComponent, const StateMachineComponent>(
 		Engine::ECS::ESystemType::Update,
 		"CharacterMovementSystem",
 		[]
@@ -35,8 +35,8 @@ void CharacterMovementSystem::Init(App::ECS::APPWorld& a_world)
 			ActiveTag* a_tags,
 			const LookAngleComponent* a_lookArray,
 			const MoveIntentComponent* a_intentArray,
-			const MovementComponent* a_movementArray,
-			VelocityComponent* a_velArray,
+			const MovementParamsComponent* a_movementArray,
+			DesiredVelocityComponent* a_velArray,
 			const StateMachineComponent*		// 絞り込みにだけ使う
 			)
 		{
@@ -44,8 +44,8 @@ void CharacterMovementSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				const LookAngleComponent& _lookComp = a_lookArray[_i];
 				const MoveIntentComponent& _moveIntent = a_intentArray[_i];
-				const MovementComponent& _moveComp = a_movementArray[_i];
-				VelocityComponent& _velComp = a_velArray[_i];
+				const MovementParamsComponent& _moveComp = a_movementArray[_i];
+				DesiredVelocityComponent& _velComp = a_velArray[_i];
 
 				float _rad = DirectX::XMConvertToRadians(_lookComp.Yaw);
 				float _sinY = sinf(_rad);

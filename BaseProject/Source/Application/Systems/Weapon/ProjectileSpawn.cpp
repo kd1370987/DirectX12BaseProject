@@ -4,7 +4,7 @@
 
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
 #include "Application/Components/Weapon/HomingComponent.h"
 #include "Application/Components/Weapon/ProjectileComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
@@ -140,7 +140,7 @@ namespace App::Systems::ProjectileSpawn
 		auto _data = std::move(_instanceVec[0].dataMap);	// (型ID -> バイト列)
 
 		auto _ltID  = a_world.GetCompTypeID<LocalTransformComponent>();
-		auto _velID = a_world.GetCompTypeID<VelocityComponent>();
+		auto _velID = a_world.GetCompTypeID<DesiredVelocityComponent>();
 		auto _wmID  = a_world.GetCompTypeID<WorldMatrixComponent>();
 
 		// 弾が動く・描画されるために最低限必要なコンポーネントが無ければ足す
@@ -169,7 +169,7 @@ namespace App::Systems::ProjectileSpawn
 		// 速度の上書き
 		{
 			auto& _buf = _data[_velID];
-			VelocityComponent _v = {};
+			DesiredVelocityComponent _v = {};
 			std::memcpy(&_v, _buf.data(), sizeof(_v));
 			_v.value = a_velocity;
 			std::memcpy(_buf.data(), &_v, sizeof(_v));

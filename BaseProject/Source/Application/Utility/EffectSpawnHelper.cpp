@@ -7,6 +7,7 @@
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Effect/EffectOverrideComponent.h"
 #include "Application/Components/Effect/EffectComponent.h"
 
 namespace App::Utility
@@ -81,10 +82,13 @@ namespace App::Utility
 			_effect.playOnStart = true;			// 出た瞬間から再生する
 			_effect.destroyOnFinish = a_isDestroyOnFinish;	// 出し切ったら自分から消える
 
+			if (!PushComponent(a_world, _sig, _data, _effect)) return false;
+
 			// ---- 出す側からの上書き ----
 			// アセットは共有なので、大きさと向きの違いはここで付ける。
 			// このエンティティは平行移動しか持たないので、渡された向きはそのままワールドの向きになる
-			_effect.effectScale = (a_scale > 0.0f) ? a_scale : 1.0f;
+			EffectOverrideComponent _override = {};
+			_override.effectScale = (a_scale > 0.0f) ? a_scale : 1.0f;
 
 			Math::Vector3 _emitDir = a_emitDir;
 			if (_emitDir.LengthSquared() > 1e-8f)
@@ -92,11 +96,11 @@ namespace App::Utility
 				// 手で入れた値は長さがまちまちなので揃えておく。
 				// 揃えないと受け側(EffectDrawSystem)で行列を掛けたときに長さが効いてしまう
 				_emitDir.Normalize();
-				_effect.isOverrideTransform = true;
-				_effect.overrideEmitDir = _emitDir;
+				_override.isOverrideTransform = true;
+				_override.overrideEmitDir = _emitDir;
 			}
 
-			if (!PushComponent(a_world, _sig, _data, _effect)) return false;
+			if (!PushComponent(a_world, _sig, _data, _override)) return false;
 
 			// ---- エフェクトである印 ----
 			// 一括停止などで絞り込めるように、既存のエフェクトと同じ目印を付けておく

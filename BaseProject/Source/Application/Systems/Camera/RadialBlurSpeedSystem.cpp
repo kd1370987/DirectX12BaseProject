@@ -12,7 +12,7 @@
 //
 // 速さは自前で測らず、TPSSystem が既に作っている正規化済みの値
 // (TPSCameraStateComponent::currentSpeed01)をそのまま使う。
-// あちらは MovementComponent の実速度を上下成分の重み込みで合成し、
+// あちらは MovementParamsComponent の実速度を上下成分の重み込みで合成し、
 // speedReference で 0..1 へ正規化してから指数減衰でなましたもの。
 // 同じ元から引くことで、画角の広がり(fovBoost)とブラーの効きが足並みを揃える。
 //

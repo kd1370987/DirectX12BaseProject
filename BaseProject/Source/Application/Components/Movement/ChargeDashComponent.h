@@ -24,9 +24,9 @@
 //
 // ・止まり方は2つ。時間では止まらない
 //     (1) エネルギーが尽きる
-//         BoostComponent の燃料を dashFuelPerSec で吸い続け、0 になったら終わり。
+//         BoostParamsComponent の燃料を dashFuelPerSec で吸い続け、0 になったら終わり。
 //         ブーストと同じエネルギーを食うので、飛ぶか突っ込むかの選択になる。
-//         ※ BoostComponent を持たない相手は尽きないので (2) でしか止まらない
+//         ※ BoostParamsComponent を持たない相手は尽きないので (2) でしか止まらない
 //     (2) 進んでいる向きと逆へ入力する(既定の操作なら S キー)
 //         判定は「入力の向き」と dashDir の内積が brakeDot 以下か。
 //         視点を回しても『進行方向の逆』で止まる形にしたいので、
@@ -57,7 +57,7 @@ struct ChargeDashComponent
 	float coolTime = 0.5f;			// 止まってから次の溜めを始められるまでの秒数(0 なら即)
 
 	// ---- 消費エネルギー(設定値) ----
-	// BoostComponent の燃料を毎秒この量だけ吸う。0 にすると尽きなくなる。
+	// BoostParamsComponent の燃料を毎秒この量だけ吸う。0 にすると尽きなくなる。
 	// 燃料は毎秒 fuelRegeneration ぶん回復し続けるので、
 	// 実際に減る量はその差ぶん。回復量より小さいと永久に飛べてしまう
 	float dashFuelPerSec = 150.0f;
@@ -158,7 +158,7 @@ struct Engine::ECS::ComponentTraits<ChargeDashComponent>
 			: "上下は急降下(LCtrl)だけ");
 
 		Engine::Editor::Header("Energy");
-		Engine::Editor::HelpText("ブーストと同じ燃料(BoostComponent)を吸う。尽きたら止まる");
+		Engine::Editor::HelpText("ブーストと同じ燃料(BoostParamsComponent)を吸う。尽きたら止まる");
 		Engine::Editor::Field("FuelPerSec", _comp.dashFuelPerSec, 1.0f, 0.0f);
 		if (_comp.dashFuelPerSec <= 0.0f)
 		{

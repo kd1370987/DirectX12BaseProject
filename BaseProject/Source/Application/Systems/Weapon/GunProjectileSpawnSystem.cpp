@@ -1,0 +1,138 @@
+#include "GunProjectileSpawnSystem.h"
+
+#include "Application/ECS/World/APPWorld.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Data/Prefab/Prefab.h"
+
+#include "Application/Components/Weapon/GunStateComponent.h"
+#include "Application/Components/Weapon/GunFireComponent.h"
+#include "Application/Components/Combat/AimResultComponent.h"
+#include "Application/Components/Combat/TargetEntityComponent.h"
+#include "Application/Components/Transform/HierarchyComponent.h"
+#include "Application/Components/Physics/Collider.h"
+#include "Application/Components/Enemy/EnemyTag.h"
+
+#include "ProjectileSpawn.h"
+
+//==========================================================================================
+// GunProjectileSpawnSystem
+//
+// GunTriggerSystem が「撃った」と決めた銃(GunFireComponent::isFired)から、
+// 設定されたプレハブを弾として出す。
+//
+// ・生成はシステムの反復中に即時に行えない(アーキタイプが壊れる)ため、
+//   World の遅延生成コマンドに積み、BeginFrame で生成する(ProjectileSpawn)。
+//   予約はメインスレッドで積むものなので、このシステムはメインスレッドで回す。
+// ・弾のプレハブが引けなかったフレームは isFired を下ろす。
+//   銃口の光(MuzzleFlashSystem)は弾が出たときだけ出すため(この後に読む)。
+// ・プレハブが HomingComponent を持っていた場合は、ここで「追う相手」を埋める。
+//   発射した後から相手を探すのではなく、撃った瞬間に撃った側が捉えている相手を
+//   弾へ渡す形にしている(敵の索敵結果 = TargetEntityComponent がそのまま弾の的になる)。
+//   実際に曲げるのは HomingSystem。
+//==========================================================================================
+namespace
+{
+	//======================================================================================
+	// 撃った側が「今どのエンティティを狙っているか」を解決する
+	//
+	//   1) 自分 → 親 と辿って TargetEntityComponent(索敵結果)を探す。
+	//      銃はアタッチメントの子エンティティになっていることがあるので、
+	//      索敵している本体(敵キャラ)は親側にいる。
+	//   2) 見つからなければ狙点(レティクル)が当たっている相手を使う。
+	//      プレイヤーが誘導弾を撃った時はこちらが拾われる。
+	//
+	// 誰も狙っていなければ無効値を返す(＝誘導せずに直進する弾になる)。
+	//======================================================================================
+	Engine::ECS::Entity ResolveHomingTarget(
+		Engine::ECS::World&          a_world,
+		Engine::ECS::Entity          a_shooter,
+		const AimResultComponent* a_pAim)
+	{
+		// 親を辿る深さの上限。親子が循環していても止まるように付けておく
+		constexpr int _kMaxDepth = 8;
+
+		Engine::ECS::Entity _entity = a_shooter;
+		for (int _d = 0; _d < _kMaxDepth; ++_d)
+		{
+			if (_entity == Engine::ECS::Limits::INVALID_ENTITY) break;
+
+			if (const auto* _pTarget = a_world.RefData<TargetEntityComponent>(_entity))
+			{
+				// 見失っている間の的は信用しない(古い位置を追ってしまうため)
+				if (_pTarget->isFind && _pTarget->targetEntity != Engine::ECS::Limits::INVALID_ENTITY)
+				{
+					return _pTarget->targetEntity;
+				}
+			}
+
+			// 親へ
+			const auto* _pHierarchy = a_world.RefData<HierarchyComponent>(_entity);
+			if (!_pHierarchy) break;
+			_entity = _pHierarchy->parentID;
+		}
+
+		// 狙点が何かに当たっているなら、それを追わせる
+		if (a_pAim && a_pAim->isHit) return a_pAim->hitEntity;
+
+		return Engine::ECS::Limits::INVALID_ENTITY;
+	}
+}
+
+void GunProjectileSpawnSystem::Init(App::ECS::APPWorld& a_world)
+{
+	a_world.ActiveTask<GunStateComponent, GunFireComponent>(
+		Engine::ECS::ESystemType::Update,
+		"GunProjectileSpawnSystem",
+		[]
+		(
+			Engine::ECS::Chunk* a_pChunk,
+			uint32_t a_count,
+			const Engine::ECS::SystemContext& a_ctx,
+			ActiveTag*,
+			GunStateComponent* a_gunArray,
+			GunFireComponent* a_fireArray
+		)
+		{
+			for (uint32_t _i = 0; _i < a_count; ++_i)
+			{
+				GunFireComponent& _fireComp = a_fireArray[_i];
+				if (!_fireComp.isFired) continue;
+
+				GunStateComponent& _gun = a_gunArray[_i];
+
+				// プレハブのハンドルを解決(未ロードならロード)。
+				// 取った参照は銃が消えるときに返す(GunStateComponent の解放フック)
+				auto& _rm = *a_ctx.pServices->pResourceManager;
+				if (!_rm.IsValid(_gun.bulletPrefabHandle))
+				{
+					_rm.AcquireImmediate(_gun.bulletPrefabHandle, _gun.bulletPrefabGUID);
+				}
+				auto* _pPrefab = _rm.Ref(_gun.bulletPrefabHandle);
+				if (!_pPrefab)
+				{
+					// 弾が出ないので、銃口も光らせない
+					_fireComp.isFired = false;
+					continue;
+				}
+
+				// 誘導先は狙点(まだ一度も計算されていなければ使わない)と索敵結果から決める
+				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+				const AimResultComponent* _pAim = a_ctx.pWorld->RefData<AimResultComponent>(_self);
+				if (_pAim && !_pAim->isValid) _pAim = nullptr;
+
+				// 生成はミサイルと共通のヘルパーへ(遅延生成コマンドに積まれる)
+				App::Systems::ProjectileSpawn::Spawn(
+					*a_ctx.pWorld,
+					_pPrefab,
+					_fireComp.spawnPos,
+					_fireComp.shootDir * _gun.speed,
+					App::Systems::ProjectileSpawn::ResolveShooterEntity(*a_ctx.pWorld, _self),
+					ResolveHomingTarget(*a_ctx.pWorld, _self, _pAim));
+			}
+		}
+	)
+	// 順序 : 発射判定の結果を読み、弾が出なければ印を下ろす(どちらも GunState / GunFire を書く)
+	.After("GunTriggerSystem")
+	// 絞り込みに使わない読み : 狙点・親を辿った索敵結果と発射元(ProjectileSpawn)
+	.Reads<AimResultComponent, TargetEntityComponent, HierarchyComponent, ColliderComponent, EnemyTag>();
+}

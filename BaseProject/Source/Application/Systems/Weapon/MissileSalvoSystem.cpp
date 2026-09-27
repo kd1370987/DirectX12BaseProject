@@ -9,7 +9,7 @@
 #include "Application/Components/Enemy/EnemyTag.h"
 #include "Application/Components/Camera/ProjMatComponent.h"
 #include "Application/Components/Combat/ActionIntentComponent.h"
-#include "Application/Components/Combat/AimTargetPosComponent.h"
+#include "Application/Components/Combat/AimResultComponent.h"
 #include "Application/Components/Attachment/AttachmentSlotsComponent.h"
 #include "Application/Components/Weapon/MissileLockComponent.h"
 #include "Application/Components/Weapon/GunStateComponent.h"
@@ -18,7 +18,7 @@
 
 #include "Application/InstanceResource/SingletonEntityResource.h"
 
-#include "Application/Components/Boss/BossComponent.h"
+#include "Application/Components/Boss/BossParamsComponent.h"
 
 #include "ProjectileSpawn.h"
 #include "MissileSalvo.h"
@@ -296,9 +296,9 @@ void MissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 				if (!_missile.IsFiring()) continue;
 
 				Math::Vector3 _aimDir = { _pm._31, _pm._32, _pm._33 };	// 左手系 +Z = 前方
-				if (a_ctx.pWorld->HasComponent<AimTargetPosComponent>(_self))
+				if (a_ctx.pWorld->HasComponent<AimResultComponent>(_self))
 				{
-					if (const auto* _pAim = a_ctx.pWorld->RefData<AimTargetPosComponent>(_self))
+					if (const auto* _pAim = a_ctx.pWorld->RefData<AimResultComponent>(_self))
 					{
 						if (_pAim->isValid)
 						{
@@ -312,10 +312,10 @@ void MissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 					a_ctx, _missile, _slots.missile.id, _aimDir);
 			}
 		},
-		Engine::ECS::Exclude<BossComponent>{}
+		Engine::ECS::Exclude<BossParamsComponent>{}
 	)
 	// 絞り込みに使わない読み書き : カメラ・敵の一覧と位置・狙点、ポッドの銃設定(弾のハンドルを解決して書く)と発射元
-	.Reads<ProjMatComponent, WorldMatrixComponent, EnemyTag, AimTargetPosComponent, ModelComponent, ColliderComponent, HierarchyComponent>()
+	.Reads<ProjMatComponent, WorldMatrixComponent, EnemyTag, AimResultComponent, ModelComponent, ColliderComponent, HierarchyComponent>()
 	.Writes<GunStateComponent>()
 	.ReadsResource<SingletonEntityResource>();
 }

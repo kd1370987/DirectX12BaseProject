@@ -3,7 +3,7 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Weapon/HomingComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
@@ -11,7 +11,7 @@
 // HomingSystem
 //
 // HomingComponent を持つ投射物(誘導弾)を、targetEntity へ向けて曲げる。
-// targetEntity は発射した瞬間に GunShootSystem が埋める(敵なら索敵で見つけた
+// targetEntity は発射した瞬間に GunProjectileSpawnSystem が埋める(敵なら索敵で見つけた
 // エンティティ、プレイヤーなら狙点が当たっている相手)。
 //
 // ・速度ベクトルの「向き」だけを回し、大きさ(弾速)はそのまま保つ。
@@ -38,7 +38,7 @@
 //==============================================================================
 void HomingSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<HomingComponent, VelocityComponent, const LocalTransformComponent>(
+	a_world.ActiveTask<HomingComponent, DesiredVelocityComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"HomingSystem",
 		[](
@@ -47,14 +47,14 @@ void HomingSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
 			HomingComponent*                  a_homingArray,
-			VelocityComponent*                a_velArray,
+			DesiredVelocityComponent*                a_velArray,
 			const LocalTransformComponent*    a_trsArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				HomingComponent&               _homing = a_homingArray[_i];
-				VelocityComponent&             _vel    = a_velArray[_i];
+				DesiredVelocityComponent&             _vel    = a_velArray[_i];
 				const LocalTransformComponent& _trs    = a_trsArray[_i];
 
 				// 曲がれないなら何もしない(直進)

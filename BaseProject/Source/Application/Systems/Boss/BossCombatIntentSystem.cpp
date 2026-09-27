@@ -2,19 +2,20 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Boss/BossComponent.h"
+#include "Application/Components/Boss/BossParamsComponent.h"
 #include "Application/Components/Combat/TargetEntityComponent.h"
 #include "Application/Components/Movement/LookAngleComponent.h"
-#include "Application/Components/Combat/AimTargetPosComponent.h"
-#include "Application/Components/Movement/BoostComponent.h"
+#include "Application/Components/Combat/AimResultComponent.h"
+#include "Application/Components/Movement/BoostParamsComponent.h"
+#include "Application/Components/Movement/BoostStateComponent.h"
 #include "Application/Components/Attachment/AttachmentSlotsComponent.h"
 #include "Application/Components/Weapon/GunStateComponent.h"
 #include "Application/Components/Movement/MoveIntentComponent.h"
 #include "Application/Components/Combat/ActionIntentComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
+#include "Application/Components/Movement/ActualVelocityComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
 #include "Application/Components/Physics/GroundStateComponent.h"
 
 
@@ -29,15 +30,15 @@
 //   LookAngle    → RotationSystem(機体の向き) / AdditivePoseSystem(上体の狙い)
 //                  / RobotBoostSystem(ブーストの向き) / CharacterMovementSystem(移動の基準軸)
 //   MoveIntent   → CharacterMovementSystem(視点基準 → 目標速度)
-//   BoostComponent → RobotBoostSystem(推力)
-//   ActionIntent → AttachmentDispatchSystem 経由で銃(子エンティティ)へ → GunShootSystem
+//   BoostIntentComponent → RobotBoostSystem(推力)
+//   ActionIntent → AttachmentDispatchSystem 経由で銃(子エンティティ)へ → GunTriggerSystem
 //   AimTargetPos → 同上。銃はこの点へ向けて撃つ
 // ボス用に増やしたのはこのシステムと BossMissileSalvoSystem の2つだけ。
 //
 // ・戦闘は距離ではなく命令で始まる
-//     BossComponent::isCombatStarted が立つまで、その場で待機する(入力を全部 0 にする)。
+//     BossParamsComponent::isCombatStarted が立つまで、その場で待機する(入力を全部 0 にする)。
 //     命令を出すのは SceneSequence の BossOrder。単体で動きを見たいときは
-//     BossComponent::startOnSpawn を立てておけば命令なしで始まる。
+//     BossParamsComponent::startOnSpawn を立てておけば命令なしで始まる。
 //
 // ・機動(アーマードコア/オメガフェニックス風)
 //     間合いは keepDistance ± keepMargin の幅で保つ。遠ければ詰め、近すぎれば下がり、
@@ -57,7 +58,7 @@
 //     同じパターンが連続しないように抽選するので、待ち構えても読みが外れる。
 //
 // ・偏差撃ち
-//     狙点は「相手の今の位置」ではなく「弾が届く頃の位置」。相手の実速度(MovementComponent)と
+//     狙点は「相手の今の位置」ではなく「弾が届く頃の位置」。相手の実速度(ActualVelocityComponent)と
 //     銃の弾速から先を読む。撃ち合いとして成立させるための最低限で、aimLeadScale = 0 に
 //     すれば置き撃ちなしに戻せる。
 //
@@ -110,7 +111,7 @@ namespace
 		bool  canHold;				// 横の切り返しで足を止めてよいか
 	};
 
-	PatternProfile MakeProfile(const BossComponent& a_boss, EBossPattern a_pattern)
+	PatternProfile MakeProfile(const BossParamsComponent& a_boss, EBossPattern a_pattern)
 	{
 		switch (a_pattern)
 		{
@@ -154,7 +155,7 @@ namespace
 	// (重みが1つしか立っていない等)全体から引き直す。
 	// 同じパターンが連続すると、詰めてくると分かった状態がそのまま続いてしまうため。
 	//======================================================================================
-	EBossPattern PickPattern(const BossComponent& a_boss, EBossPattern a_current)
+	EBossPattern PickPattern(const BossParamsComponent& a_boss, EBossPattern a_current)
 	{
 		constexpr int _kCount = static_cast<int>(EBossPattern::Max);
 
@@ -206,12 +207,16 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 		const TargetEntityComponent,
 		const LocalTransformComponent,
 		const AttachmentSlotsComponent,
-		BossComponent,
+		const BossParamsComponent,
+		BossBrainStateComponent,
+		BossCommandComponent,
 		LookAngleComponent,
 		MoveIntentComponent,
 		ActionIntentComponent,
-		BoostComponent,
-		AimTargetPosComponent>(
+		BoostIntentComponent,
+		const BoostParamsComponent,
+		const BoostStateComponent,
+		AimResultComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"BossCombatIntentSystem",
 		[](
@@ -222,12 +227,16 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 			const TargetEntityComponent*      a_targetArray,
 			const LocalTransformComponent*    a_trsArray,
 			const AttachmentSlotsComponent*   a_slotsArray,
-			BossComponent*                    a_bossArray,
+			const BossParamsComponent*        a_bossArray,
+			BossBrainStateComponent*          a_brainArray,
+			BossCommandComponent*             a_commandArray,
 			LookAngleComponent*               a_lookArray,
 			MoveIntentComponent*              a_moveIntentArray,
 			ActionIntentComponent*            a_actionIntentArray,
-			BoostComponent*                   a_boostArray,
-			AimTargetPosComponent*            a_aimArray
+			BoostIntentComponent*             a_boostArray,
+			const BoostParamsComponent*       a_boostParamsArray,
+			const BoostStateComponent*        a_boostStateArray,
+			AimResultComponent*            a_aimArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
@@ -235,15 +244,19 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				const TargetEntityComponent&    _target = a_targetArray[_i];
 				const LocalTransformComponent&  _trs    = a_trsArray[_i];
 				const AttachmentSlotsComponent& _slots  = a_slotsArray[_i];
-				BossComponent&                  _boss   = a_bossArray[_i];
+				const BossParamsComponent&      _boss   = a_bossArray[_i];
+				BossBrainStateComponent&        _brain  = a_brainArray[_i];
+				BossCommandComponent&           _command = a_commandArray[_i];
 				LookAngleComponent&             _look   = a_lookArray[_i];
 				MoveIntentComponent&            _intent = a_moveIntentArray[_i];
 				ActionIntentComponent&          _action = a_actionIntentArray[_i];
-				BoostComponent&                 _boost  = a_boostArray[_i];
-				AimTargetPosComponent&          _aim    = a_aimArray[_i];
+				BoostIntentComponent&           _boost  = a_boostArray[_i];
+				const BoostParamsComponent&     _boostParams = a_boostParamsArray[_i];
+				const BoostStateComponent&      _boostState  = a_boostStateArray[_i];
+				AimResultComponent&          _aim    = a_aimArray[_i];
 
 				// 命令を待たない設定なら、そのまま戦闘状態にしておく
-				if (_boss.startOnSpawn) _boss.isCombatStarted = true;
+				if (_boss.startOnSpawn) _command.isCombatStarted = true;
 
 				//==========================================================
 				// 相手の位置と実速度を引く
@@ -267,18 +280,18 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 
 				if (_hasTarget)
 				{
-					// 偏差撃ち用。加減速を通した実速度(MovementComponent)を優先し、
+					// 偏差撃ち用。加減速を通した実速度(ActualVelocityComponent)を優先し、
 					// 持っていなければ目標速度で代用する
-					if (a_ctx.pWorld->HasComponent<MovementComponent>(_targetEntity))
+					if (a_ctx.pWorld->HasComponent<ActualVelocityComponent>(_targetEntity))
 					{
-						if (const auto* _pMove = a_ctx.pWorld->RefData<MovementComponent>(_targetEntity))
+						if (const auto* _pMove = a_ctx.pWorld->RefData<ActualVelocityComponent>(_targetEntity))
 						{
-							_targetVel = _pMove->velocity;
+							_targetVel = _pMove->value;
 						}
 					}
-					else if (a_ctx.pWorld->HasComponent<VelocityComponent>(_targetEntity))
+					else if (a_ctx.pWorld->HasComponent<DesiredVelocityComponent>(_targetEntity))
 					{
-						if (const auto* _pVel = a_ctx.pWorld->RefData<VelocityComponent>(_targetEntity))
+						if (const auto* _pVel = a_ctx.pWorld->RefData<DesiredVelocityComponent>(_targetEntity))
 						{
 							_targetVel = _pVel->value;
 						}
@@ -292,15 +305,15 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				// システムが担当しているので、ここで止めれば何も起きない。
 				// 重力は生きているので、浮いていれば降りて着地する。
 				//==========================================================
-				if (!_boss.isCombatStarted || !_hasTarget)
+				if (!_command.isCombatStarted || !_hasTarget)
 				{
-					_boss.maneuver         = EBossManeuver::Wait;
-					_boss.isMissileRequest = false;
-					_boss.distance         = _hasTarget ? _target.distance : 0.0f;
+					_brain.maneuver         = EBossManeuver::Wait;
+					_command.isMissileRequest = false;
+					_brain.distance         = _hasTarget ? _target.distance : 0.0f;
 
 					// 戦闘に入った最初のフレームでパターンを引き直させる
-					_boss.patternTimer    = 0.0f;
-					_boss.strafeHoldTimer = 0.0f;
+					_brain.patternTimer    = 0.0f;
+					_brain.strafeHoldTimer = 0.0f;
 
 					_intent.value = {};
 
@@ -321,19 +334,19 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				// 一定時間ごとに「今回はどう戦うか」を引き直す。
 				// 切り替えた瞬間は横の向きも選び直して、前のパターンの流れを引きずらせない。
 				//==========================================================
-				_boss.patternTimer -= a_ctx.dt;
-				if (_boss.patternTimer <= 0.0f)
+				_brain.patternTimer -= a_ctx.dt;
+				if (_brain.patternTimer <= 0.0f)
 				{
-					_boss.pattern      = PickPattern(_boss, _boss.pattern);
-					_boss.patternTimer =
+					_brain.pattern      = PickPattern(_boss, _brain.pattern);
+					_brain.patternTimer =
 						NextInterval(_boss.patternDuration, _boss.patternDurationRand);
 
-					_boss.strafeSign      = Math::Random::Sign();
-					_boss.strafeTimer     = 0.0f;
-					_boss.strafeHoldTimer = 0.0f;	// 前のパターンの静止は引きずらない
+					_brain.strafeSign      = Math::Random::Sign();
+					_brain.strafeTimer     = 0.0f;
+					_brain.strafeHoldTimer = 0.0f;	// 前のパターンの静止は引きずらない
 				}
 
-				const PatternProfile _profile = MakeProfile(_boss, _boss.pattern);
+				const PatternProfile _profile = MakeProfile(_boss, _brain.pattern);
 
 				//==========================================================
 				// 狙点(偏差撃ち)
@@ -345,7 +358,7 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				_aimPos.y += _boss.aimOffsetY;
 
 				const float _distance = (_aimPos - _selfPos).Length();
-				_boss.distance = _distance;
+				_brain.distance = _distance;
 
 				float _bulletSpeed = 0.0f;
 				{
@@ -376,7 +389,7 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				else                   _aimDir = { 0.0f, 0.0f, 1.0f };
 
 				// AimTargetSystem(カメラのレイ)の代わりに自分で書く。
-				// これで AttachmentDispatchSystem が銃へ配り、GunShootSystem が狙点へ撃つ
+				// これで AttachmentDispatchSystem が銃へ配り、GunTriggerSystem が狙点へ撃つ
 				_aim.pos       = _aimPos;
 				_aim.dir       = _aimDir;
 				_aim.hitEntity = Engine::ECS::Limits::INVALID_ENTITY;
@@ -417,16 +430,16 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				if (_horizontalDist > _far)
 				{
 					_forward       = _boss.approachThrottle;
-					_boss.maneuver = EBossManeuver::Approach;
+					_brain.maneuver = EBossManeuver::Approach;
 				}
 				else if (_horizontalDist < _near)
 				{
 					_forward       = -_boss.backThrottle;
-					_boss.maneuver = EBossManeuver::Back;
+					_brain.maneuver = EBossManeuver::Back;
 				}
 				else
 				{
-					_boss.maneuver = EBossManeuver::Keep;
+					_brain.maneuver = EBossManeuver::Keep;
 				}
 
 				//==========================================================
@@ -436,16 +449,16 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				// 詰め(Rush)は真っ直ぐ行きたいので実質切り返さない。
 				//==========================================================
 				// 足を止めている残り時間を進める
-				_boss.strafeHoldTimer = std::max(_boss.strafeHoldTimer - a_ctx.dt, 0.0f);
+				_brain.strafeHoldTimer = std::max(_brain.strafeHoldTimer - a_ctx.dt, 0.0f);
 
-				_boss.strafeTimer -= a_ctx.dt;
-				if (_boss.strafeTimer <= 0.0f)
+				_brain.strafeTimer -= a_ctx.dt;
+				if (_brain.strafeTimer <= 0.0f)
 				{
 					// たまに同じ向きへ続けて、切り返しの周期を読ませない
-					if (Math::Random::Bool()) _boss.strafeSign = -_boss.strafeSign;
-					if (_boss.strafeSign == 0.0f) _boss.strafeSign = 1.0f;
+					if (Math::Random::Bool()) _brain.strafeSign = -_brain.strafeSign;
+					if (_brain.strafeSign == 0.0f) _brain.strafeSign = 1.0f;
 
-					_boss.strafeTimer = NextInterval(
+					_brain.strafeTimer = NextInterval(
 						_boss.strafeInterval * _profile.strafeIntervalScale,
 						_boss.strafeIntervalRand);
 
@@ -462,20 +475,20 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 						const float _minTime = std::max(_boss.strafeHoldTimeMin, 0.0f);
 						const float _maxTime = std::max(_boss.strafeHoldTimeMax, _minTime);
 
-						_boss.strafeHoldTimer = Math::Random::Float(_minTime, _maxTime);
+						_brain.strafeHoldTimer = Math::Random::Float(_minTime, _maxTime);
 
 						// 止まっている間に次の切り返しが来ないよう、待ち時間を積んでおく
-						_boss.strafeTimer += _boss.strafeHoldTimer;
+						_brain.strafeTimer += _brain.strafeHoldTimer;
 					}
 				}
 
 				// 止まっている間は横にも前後にも動かない(高度だけは保つ)
-				const bool _isHolding = (_boss.strafeHoldTimer > 0.0f);
-				if (_isHolding) _boss.maneuver = EBossManeuver::Hold;
+				const bool _isHolding = (_brain.strafeHoldTimer > 0.0f);
+				if (_isHolding) _brain.maneuver = EBossManeuver::Hold;
 
 				const float _side = _isHolding
 					? 0.0f
-					: _boss.strafeSign * _boss.strafeThrottle * _profile.strafeScale;
+					: _brain.strafeSign * _boss.strafeThrottle * _profile.strafeScale;
 
 				//==========================================================
 				// 上下 : パターンが決めた高さに居座る
@@ -535,18 +548,18 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				// (水平入力が0のときは視線方向へ飛んでしまうので、切っておく必要がある)
 				const bool _canBoost =
 					!_isHolding &&
-					_boost.currentFuel > (_boost.boostFuel + _boss.boostFuelReserve);
+					_boostState.currentFuel > (_boostParams.boostFuel + _boss.boostFuelReserve);
 
 				_boost.isBoostIntent = _canBoost;
 				_boost.isBoostTriger = false;
 
-				_boss.dashTimer -= a_ctx.dt;
-				if (_boss.dashTimer <= 0.0f)
+				_brain.dashTimer -= a_ctx.dt;
+				if (_brain.dashTimer <= 0.0f)
 				{
 					if (_canBoost) _boost.isBoostTriger = true;
 
 					// 頻度もパターン任せ。詰めや回り込みでは短くして踏み込みを増やす
-					_boss.dashTimer = NextInterval(
+					_brain.dashTimer = NextInterval(
 						_boss.dashInterval * _profile.dashIntervalScale,
 						_boss.dashIntervalRand);
 				}
@@ -554,12 +567,12 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				//==========================================================
 				// 銃 : 撃つ/休むを交互に。正面に入っていない間は撃たない
 				//==========================================================
-				_boss.gunTimer -= a_ctx.dt;
-				if (_boss.gunTimer <= 0.0f)
+				_brain.gunTimer -= a_ctx.dt;
+				if (_brain.gunTimer <= 0.0f)
 				{
-					_boss.isGunActive = !_boss.isGunActive;
-					_boss.gunTimer    = std::max(
-						_boss.isGunActive ? _boss.gunBurstTime : _boss.gunRestTime, 0.05f);
+					_brain.isGunActive = !_brain.isGunActive;
+					_brain.gunTimer    = std::max(
+						_brain.isGunActive ? _boss.gunBurstTime : _boss.gunRestTime, 0.05f);
 				}
 
 				// 旋回が追いついていない間に撃つと明後日へ飛ぶので、正面に入るまで待つ
@@ -570,7 +583,7 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				const float _gunRange = _boss.gunRange * _profile.gunRangeScale;
 
 				// 左右の区別は付けない。ボスは両手ぶんの武器を同じリズムで撃つ
-				const bool _shoot = _boss.isGunActive && _isInCone && (_distance <= _gunRange);
+				const bool _shoot = _brain.isGunActive && _isInCone && (_distance <= _gunRange);
 				_action.isLeftWeaponShoot  = _shoot;
 				_action.isRightWeaponShoot = _shoot;
 				// ミサイルは溜め撃ちではなく間隔で撃つので、この入力は使わない
@@ -583,19 +596,19 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				// ポッドの今フレームのワールド行列が要るため、あちらに任せている。
 				// 射程外の間はタイマーを 0 で止めておき、入った瞬間に撃たせる。
 				//==========================================================
-				if (_boss.missileTimer > 0.0f)
+				if (_brain.missileTimer > 0.0f)
 				{
-					_boss.missileTimer = std::max(_boss.missileTimer - a_ctx.dt, 0.0f);
+					_brain.missileTimer = std::max(_brain.missileTimer - a_ctx.dt, 0.0f);
 				}
 
-				if (_boss.missileTimer <= 0.0f &&
-					!_boss.isMissileRequest &&
+				if (_brain.missileTimer <= 0.0f &&
+					!_command.isMissileRequest &&
 					_distance <= _boss.missileRange)
 				{
-					_boss.isMissileRequest = true;
+					_command.isMissileRequest = true;
 
 					// 上を取ったときや離脱中はミサイル主体にしたいので、間隔もパターン任せ
-					_boss.missileTimer = NextInterval(
+					_brain.missileTimer = NextInterval(
 						_boss.missileInterval * _profile.missileIntervalScale,
 						_boss.missileIntervalRand);
 				}
@@ -605,5 +618,5 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 	// 順序 : 移動入力・発射入力の書き手同士(対象はボスだけで重ならない)。敵の行動決定の後に置く
 	.After({ "EnemyShootIntentSystem", "EnemyMoveIntentSystem", "CloseCombatIntentSystem" })
 	// 絞り込みに使わない読み : 相手の位置と速度、武器の弾速、自分の接地を RefData で読む
-	.Reads<WorldMatrixComponent, MovementComponent, VelocityComponent, GunStateComponent, GroundStateComponent>();
+	.Reads<WorldMatrixComponent, ActualVelocityComponent, DesiredVelocityComponent, GunStateComponent, GroundStateComponent>();
 }

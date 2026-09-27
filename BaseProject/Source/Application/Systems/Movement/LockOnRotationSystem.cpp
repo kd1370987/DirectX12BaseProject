@@ -4,12 +4,12 @@
 
 #include "Application/Components/Input/PlayerControllTag.h"
 #include "Application/Components/Movement/LookAngleComponent.h"
-#include "Application/Components/Combat/AimTargetPosComponent.h"
+#include "Application/Components/Combat/AimResultComponent.h"
 #include "Application/Components/Combat/LockOnTargetComponent.h"
 #include "Application/Components/Combat/HealthComponent.h"
 #include "Application/Components/Combat/ActionIntentComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
 
 //==============================================================================
 // LockOnRotationSystem
@@ -17,7 +17,7 @@
 // プレイヤー専用の旋回システム。
 // 「撃っているか」(ActionIntentComponent)を見て「体をどちらへ向けるか」を切り替える。
 //
-//   ・撃っている   … 狙点(AimTargetPosComponent)の方向を体全体で向く。
+//   ・撃っている   … 狙点(AimResultComponent)の方向を体全体で向く。
 //   ・撃っていない … 進行方向を向く(従来の RotationSystem と同じ挙動)。
 //   ・死亡中       … 旋回しない。
 //
@@ -87,7 +87,7 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 		const PlayerControllTag,
 		const ActionIntentComponent,
 		const LookAngleComponent,
-		const VelocityComponent,
+		const DesiredVelocityComponent,
 		LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,
 		"LockOnRotationSystem",
@@ -100,7 +100,7 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 			const PlayerControllTag* a_playerTagArray,
 			const ActionIntentComponent* a_actionIntentArray,
 			const LookAngleComponent* a_lookArray,
-			const VelocityComponent* a_velocityArray,
+			const DesiredVelocityComponent* a_velocityArray,
 			LocalTransformComponent* a_trsArray
 		)
 		{
@@ -108,7 +108,7 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				const ActionIntentComponent&	_actionIntent	= a_actionIntentArray[_i];
 				const LookAngleComponent&		_lookAng		= a_lookArray[_i];
-				const VelocityComponent&		_velComp		= a_velocityArray[_i];
+				const DesiredVelocityComponent&		_velComp		= a_velocityArray[_i];
 				LocalTransformComponent&		_trs			= a_trsArray[_i];
 
 				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
@@ -152,16 +152,16 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 					//----------------------------------------------------------
 					// 狙っている方向。
 					//
-					// 狙点(AimTargetPosComponent)は AimTargetSystem が Camera フェーズで
+					// 狙点(AimResultComponent)は AimTargetSystem が Camera フェーズで
 					// 書くので 1 フレーム前の値になるが、どのみち Slerp で追従させるので
 					// 体感差は出ない。狙点を持たない構成でも動くよう、
 					// 取れなければ視線角(=カメラの向き)で代用する。
 					//----------------------------------------------------------
 					bool _hasYaw = false;
 
-					if (a_ctx.pWorld->HasComponent<AimTargetPosComponent>(_self))
+					if (a_ctx.pWorld->HasComponent<AimResultComponent>(_self))
 					{
-						if (const auto* _pAim = a_ctx.pWorld->RefData<AimTargetPosComponent>(_self))
+						if (const auto* _pAim = a_ctx.pWorld->RefData<AimResultComponent>(_self))
 						{
 							if (_pAim->isValid)
 							{
@@ -200,7 +200,7 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 	// 読み書きだけでは循環する(対象はプレイヤーと小隊長で重ならない)
 	.After({ "RotationSystem", "PlatoonFollowSystem" })
 	// 絞り込みに使わない読み : 死亡判定・ロック相手・狙点
-	.Reads<HealthComponent, LockOnTargetComponent, AimTargetPosComponent>();
+	.Reads<HealthComponent, LockOnTargetComponent, AimResultComponent>();
 
 	//==========================================================================
 	// 攻撃入力を持たないプレイヤー(従来通り進行方向を向くだけ)
@@ -210,7 +210,7 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 	//==========================================================================
 	a_world.ActiveTask<
 		const PlayerControllTag,
-		const VelocityComponent,
+		const DesiredVelocityComponent,
 		LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,
 		"LockOnRotationSystem_NoActionIntent",
@@ -221,13 +221,13 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const PlayerControllTag* a_playerTagArray,
-			const VelocityComponent* a_velocityArray,
+			const DesiredVelocityComponent* a_velocityArray,
 			LocalTransformComponent* a_trsArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const VelocityComponent&	_velComp	= a_velocityArray[_i];
+				const DesiredVelocityComponent&	_velComp	= a_velocityArray[_i];
 				LocalTransformComponent&	_trs		= a_trsArray[_i];
 
 				// 死んだら向きを変えない

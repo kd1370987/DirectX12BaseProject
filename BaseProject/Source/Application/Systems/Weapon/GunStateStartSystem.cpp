@@ -36,7 +36,7 @@ void GunStateStartSystem::Init(App::ECS::APPWorld& a_world)
 				// 銃自身に枠を1つ持たせ、撃つたびに頭から再生し直す形にする。
 				// 銃に付いて動くようになり、エンティティも増えない。
 				// 連射で前の1発がまだ消えていなくても上書きで出し直す
-				// (GunShootSystem が EffectAsset::Play を直接呼ぶ)。
+				// (MuzzleFlashSystem が EffectAsset::Play を直接呼ぶ)。
 				//
 				// 枠は EffectAssetComponent。進行(EffectUpdateSystem)も
 				// 発生・描画(EffectDrawSystem)もこれを見ているので、付けるだけで動く。
@@ -53,19 +53,13 @@ void GunStateStartSystem::Init(App::ECS::APPWorld& a_world)
 					}
 					else
 					{
+						// 渡すのは設定だけ。付けると初期化から入り直すので、
+						// ハンドル(自分のぶんの参照)は EffectFixupSystem が GUID から取る。
+						// 大きさは撃つたびに MuzzleFlashSystem が入れる
 						EffectAssetComponent _effectComp = {};
 						_effectComp.effectGUID = _gunComp.muzzleEffectGUID;
-
-						// 参照は自分のぶんを取る。
-						// GunStateComponent 側のハンドルと共有すると、
-						// どちらの Release でも返ることになって数が合わなくなる
-						a_ctx.pServices->pResourceManager->AcquireImmediate(
-							_effectComp.effectHandle, _gunComp.muzzleEffectGUID);
-
 						_effectComp.playOnStart = false;		// 撃つまでは出さない
 						_effectComp.destroyOnFinish = false;	// 枠は銃と一緒に消えるまで残す
-						_effectComp.isPlay = false;
-						_effectComp.effectScale = _gunComp.muzzleEffectScale;
 
 						const auto _typeID = a_ctx.pWorld->GetCompTypeID<EffectAssetComponent>();
 						if (_typeID != Engine::ECS::Limits::INVALID_COMPONENTTYPEID)

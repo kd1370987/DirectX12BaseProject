@@ -3,18 +3,16 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Camera/FollowTargetComponent.h"
-#include "Application/Components/Camera/TPSOffsetComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
 #include "Application/Components/Camera/TPSFollowComponent.h"
 #include "Application/Components/Camera/CameraFocusTargetComponent.h"
 #include "Application/Components/Camera/CameraDeadZoneComponent.h"
 #include "Application/Components/Camera/CameraParamComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
+#include "Application/Components/Movement/ActualVelocityComponent.h"
 
 
-#include "Application/Components/Camera/TPSLookAngleComponent.h"
 
 #include "Application/Components/Movement/LookAngleComponent.h"
 
@@ -63,7 +61,7 @@
 // TPSFollowComponent のフィールドは保存データの互換のために残してあるが、
 // デッドゾーンを持つカメラでは読まれない。
 //
-// 速さは「目標速度(VelocityComponent)」ではなく MovementComponent の実速度を使う。
+// 速さは「目標速度(DesiredVelocityComponent)」ではなく MovementParamsComponent の実速度を使う。
 // 目標速度は入力やブーストで 1 フレームで飛ぶので、そのまま使うと画角と引きが
 // 階段状に切り替わる。実速度なら加減速のカーブがそのままスピード感になる。
 //==========================================================================================
@@ -82,9 +80,8 @@ namespace
 void TPSSystem::Init(App::ECS::APPWorld& a_world)
 {
 	// 書くのはカメラ自身の姿勢(LocalTransform)・追従状態(TPSCameraState)・画角(CameraParam)だけ。
-	// FollowTarget / TPSOffset は読むだけなので const。
-	// TPSLookAngle は中身を使っておらず、対象の絞り込みにだけ効いている(外すと対象が変わるので残す)
-	a_world.ActiveTask<const FollowTargetComponent, const TPSOffsetComponent, const TPSLookAngleComponent, const TPSFollowComponent, LocalTransformComponent, TPSCameraStateComponent, CameraParamComponent>(
+	// FollowTarget / TPSFollow(位置と追従の設定)は読むだけなので const
+	a_world.ActiveTask<const FollowTargetComponent, const TPSFollowComponent, LocalTransformComponent, TPSCameraStateComponent, CameraParamComponent>(
 		Engine::ECS::ESystemType::Camera,
 		"TPSSystem",
 		[](
@@ -93,8 +90,6 @@ void TPSSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
 			const FollowTargetComponent* a_targetArray,
-			const TPSOffsetComponent* a_offsetArray,
-			const TPSLookAngleComponent*,		// 絞り込みにだけ使う
 			const TPSFollowComponent* a_followParamArray,
 			LocalTransformComponent* a_trsArray,
 			TPSCameraStateComponent* a_tpsStatArray,
@@ -105,7 +100,6 @@ void TPSSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				// カメラのコンポーネントを取得
 				const FollowTargetComponent&	_followComp		= a_targetArray[_i];
-				const TPSOffsetComponent&		_offsetComp		= a_offsetArray[_i];
 				const TPSFollowComponent&	_followParam	= a_followParamArray[_i];
 				LocalTransformComponent&	_trsComp		= a_trsArray[_i];
 				TPSCameraStateComponent&	_statComp		= a_tpsStatArray[_i];
@@ -151,29 +145,29 @@ void TPSSystem::Init(App::ECS::APPWorld& a_world)
 				// 振られる。カメラ空間で持てば機体がどちらを向いても
 				// 画面内の構図は変わらない。
 				//============================================================
-				Math::Vector3 _goalPivot		= Math::Vector3(_targetTRS->pos) + Math::Vector3::Up() * _offsetComp.y;
+				Math::Vector3 _goalPivot		= Math::Vector3(_targetTRS->pos) + Math::Vector3::Up() * _followParam.offset.y;
 				Math::Vector3 _goalLookAtLocal	= Math::Vector3(_forcusTarget->offsetPos);
 
 				//============================================================
 				// ターゲットの速さ(引き/追従/画角のすべての効きの元)
 				//------------------------------------------------------------
-				// MovementComponent の実速度を優先する。持っていなければ
-				// 目標速度(VelocityComponent)で代用し、それも無ければ 0。
+				// MovementParamsComponent の実速度を優先する。持っていなければ
+				// 目標速度(DesiredVelocityComponent)で代用し、それも無ければ 0。
 				//
 				// 上下成分は verticalSpeedWeight で混ぜる。空中戦の上昇/降下でも
 				// スピード感が出るが、重みを下げればただの落下ではあまり効かない。
 				//============================================================
 				Math::Vector3 _targetVel = {};
-				if (a_ctx.pWorld->HasComponent<MovementComponent>(_target))
+				if (a_ctx.pWorld->HasComponent<ActualVelocityComponent>(_target))
 				{
-					if (const auto* _pMove = a_ctx.pWorld->RefData<MovementComponent>(_target))
+					if (const auto* _pMove = a_ctx.pWorld->RefData<ActualVelocityComponent>(_target))
 					{
-						_targetVel = Math::Vector3(_pMove->velocity);
+						_targetVel = Math::Vector3(_pMove->value);
 					}
 				}
-				else if (a_ctx.pWorld->HasComponent<VelocityComponent>(_target))
+				else if (a_ctx.pWorld->HasComponent<DesiredVelocityComponent>(_target))
 				{
-					if (const auto* _pVel = a_ctx.pWorld->RefData<VelocityComponent>(_target))
+					if (const auto* _pVel = a_ctx.pWorld->RefData<DesiredVelocityComponent>(_target))
 					{
 						_targetVel = Math::Vector3(_pVel->value);
 					}
@@ -219,7 +213,7 @@ void TPSSystem::Init(App::ECS::APPWorld& a_world)
 				// 負の値になっている。引きは符号を合わせて足す(=さらに遠ざける)。
 				// デッドゾーンの判定でも使うので、ピボットより先に求めておく。
 				//============================================================
-				const float _distanceSign = (_offsetComp.z < 0.0f) ? -1.0f : 1.0f;
+				const float _distanceSign = (_followParam.offset.z < 0.0f) ? -1.0f : 1.0f;
 
 				//============================================================
 				// 初回はスナップ
@@ -249,7 +243,7 @@ void TPSSystem::Init(App::ECS::APPWorld& a_world)
 
 				// ピボットからカメラまでの距離(符号付き)。デッドゾーンの判定でも使う
 				const float _distanceToCamera =
-					_offsetComp.z + _distanceSign * _statComp.currentPullBack;
+					_followParam.offset.z + _distanceSign * _statComp.currentPullBack;
 
 				//============================================================
 				// オービット回転の補間(クォータニオンSlerp)
@@ -457,6 +451,6 @@ void TPSSystem::Init(App::ECS::APPWorld& a_world)
 		}
 	)
 	// 絞り込みに使わない読み書き : 追従先の位置・視点角・構図・速さ、自分のデッドゾーン
-	.Reads<LocalTransformComponent, LookAngleComponent, CameraFocusTargetComponent, MovementComponent, VelocityComponent>()
+	.Reads<LocalTransformComponent, LookAngleComponent, CameraFocusTargetComponent, ActualVelocityComponent, DesiredVelocityComponent>()
 	.Writes<CameraDeadZoneComponent>();
 }

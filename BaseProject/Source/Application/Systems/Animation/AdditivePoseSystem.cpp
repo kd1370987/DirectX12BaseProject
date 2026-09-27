@@ -10,8 +10,8 @@
 #include "Application/Components/Movement/LookAngleComponent.h"
 #include "Application/Components/Combat/LockOnTargetComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
+#include "Application/Components/Movement/ActualVelocityComponent.h"
 #include "Application/InstanceResource/AdditiveBoneEntry.h"
 
 namespace
@@ -71,7 +71,7 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 		const AnimatorComponent,
 		const LookAngleComponent,
 		const LocalTransformComponent,
-		const VelocityComponent,
+		const DesiredVelocityComponent,
 		NodePoseComponent,
 		AdditivePoseComponent>(
 		Engine::ECS::ESystemType::Animation,
@@ -85,7 +85,7 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 			const AnimatorComponent* a_animatorArray,
 			const LookAngleComponent* a_lookArray,
 			const LocalTransformComponent* a_trsArray,
-			const VelocityComponent* a_velocityArray,
+			const DesiredVelocityComponent* a_velocityArray,
 			NodePoseComponent* a_nodePoseArray,
 			AdditivePoseComponent* a_additiveArray
 		)
@@ -101,7 +101,7 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 				const AnimatorComponent& _animComp = a_animatorArray[_i];
 				const LookAngleComponent& _lookComp = a_lookArray[_i];
 				const LocalTransformComponent& _trsComp = a_trsArray[_i];
-				const VelocityComponent& _velComp = a_velocityArray[_i];
+				const DesiredVelocityComponent& _velComp = a_velocityArray[_i];
 				NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
 				AdditivePoseComponent& _addComp = a_additiveArray[_i];
 
@@ -213,19 +213,19 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 				// 速度で見れば「動いている方向の逆へ流れる」が常に成り立ち、
 				// 止まれば速度と一緒に自然と戻る。
 				//
-				// 加減速を持つ機体は MovementComponent の実速度を見る。
-				// VelocityComponent は「目標速度」で、入力やブーストで 0 → 30 のように
+				// 加減速を持つ機体は MovementParamsComponent の実速度を見る。
+				// DesiredVelocityComponent は「目標速度」で、入力やブーストで 0 → 30 のように
 				// 1フレームで飛ぶ値なので、そのまま使うと流れ始めが階段状になる。
 				// 実速度は加速度/減速度で滑らかに変化するので、歩き出しは浅く、
 				// ブーストは深く、と速さがそのまま角度に出る。
 				//==========================================================================
 				Math::Vector3 _velocity(_velComp.value);
 
-				if (a_ctx.pWorld->HasComponent<MovementComponent>(_self))
+				if (a_ctx.pWorld->HasComponent<ActualVelocityComponent>(_self))
 				{
-					if (const auto* _pMovement = a_ctx.pWorld->RefData<MovementComponent>(_self))
+					if (const auto* _pMovement = a_ctx.pWorld->RefData<ActualVelocityComponent>(_self))
 					{
-						_velocity = Math::Vector3(_pMovement->velocity);
+						_velocity = Math::Vector3(_pMovement->value);
 					}
 				}
 
@@ -305,5 +305,5 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 		}
 	)
 	// 絞り込みに使わない読み : ロック相手と実速度
-	.Reads<LockOnTargetComponent, MovementComponent>();
+	.Reads<LockOnTargetComponent, ActualVelocityComponent>();
 }

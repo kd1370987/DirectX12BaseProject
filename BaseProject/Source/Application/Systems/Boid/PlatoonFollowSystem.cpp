@@ -4,15 +4,16 @@
 
 #include "Application/Components/Boid/PlatoonLeaderComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
+#include "Application/Components/Movement/MovementParamsComponent.h"
+#include "Application/Components/Movement/ActualVelocityComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
 #include "Application/Components/Movement/LookAngleComponent.h"
 
 //==============================================================================
 // PlatoonFollowSystem
 //
 // 小隊長を一つ前の相手(preLeader)の**後ろ**へ追従させる。
-// 書くのは目標速度(VelocityComponent)だけで、加減速と座標の積分は
+// 書くのは目標速度(DesiredVelocityComponent)だけで、加減速と座標の積分は
 // MovementIntegrationSystem(Physics)に任せる。
 //
 //   目標地点 = 前の相手の位置 - 前の相手の前方 × distance
@@ -23,7 +24,7 @@
 // ・前の相手の実速度を上乗せするのは、ずれが出てから追いかけ始めると
 //   間隔が開いたまま詰まらないため。止まっている相手なら位置のずれだけで動く。
 // ・目標地点の手前でも奥でも同じ式で寄る(追い越したら下がる)。
-// ・速さは MovementComponent.moveSpeed で頭打ちにする。前の相手より遅いと離されていく。
+// ・速さは MovementParamsComponent.moveSpeed で頭打ちにする。前の相手より遅いと離されていく。
 // ・上下も同じ式で追う(地中や空中を潜って追いかけるため)。上下は加減速が掛からず
 //   目標速度がそのまま乗る点に注意(MovementIntegrationSystem の仕様)。
 //
@@ -66,7 +67,7 @@ namespace
 
 void PlatoonFollowSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const PlatoonLeaderComponent, const MovementComponent, VelocityComponent>(
+	a_world.ActiveTask<const PlatoonLeaderComponent, const MovementParamsComponent, DesiredVelocityComponent>(
 		Engine::ECS::ESystemType::Update,
 		"PlatoonFollowSystem",
 		[](
@@ -75,8 +76,8 @@ void PlatoonFollowSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
 			const PlatoonLeaderComponent*     a_platoonArray,
-			const MovementComponent*          a_movementArray,
-			VelocityComponent*                a_velArray
+			const MovementParamsComponent*          a_movementArray,
+			DesiredVelocityComponent*                a_velArray
 		)
 		{
 			auto& _world = *a_ctx.pWorld;
@@ -84,8 +85,8 @@ void PlatoonFollowSystem::Init(App::ECS::APPWorld& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const PlatoonLeaderComponent&  _platoon = a_platoonArray[_i];
-				const MovementComponent&       _move    = a_movementArray[_i];
-				VelocityComponent&             _vel     = a_velArray[_i];
+				const MovementParamsComponent&       _move    = a_movementArray[_i];
+				DesiredVelocityComponent&             _vel     = a_velArray[_i];
 
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 				if (!_world.HasComponent<LocalTransformComponent>(_self)) continue;
@@ -105,15 +106,15 @@ void PlatoonFollowSystem::Init(App::ECS::APPWorld& a_world)
 				const Math::Vector3 _selfPos = _world.RefData<LocalTransformComponent>(_self)->pos;
 				const Math::Vector3 _prePos  = _world.RefData<LocalTransformComponent>(_pre)->pos;
 
-				// 前の相手の実速度。MovementComponent を持たなければ目標速度で代用する
+				// 前の相手の実速度。実速度を持たなければ目標速度で代用する
 				Math::Vector3 _preVel = {};
-				if (_world.HasComponent<MovementComponent>(_pre))
+				if (const auto* _pActual = _world.RefData<ActualVelocityComponent>(_pre))
 				{
-					_preVel = _world.RefData<MovementComponent>(_pre)->velocity;
+					_preVel = _pActual->value;
 				}
-				else if (_world.HasComponent<VelocityComponent>(_pre))
+				else if (_world.HasComponent<DesiredVelocityComponent>(_pre))
 				{
-					_preVel = _world.RefData<VelocityComponent>(_pre)->value;
+					_preVel = _world.RefData<DesiredVelocityComponent>(_pre)->value;
 				}
 
 				const Math::Vector3 _toPre = _prePos - _selfPos;
@@ -166,5 +167,5 @@ void PlatoonFollowSystem::Init(App::ECS::APPWorld& a_world)
 	// 絞り込みに使わない読み : 前の相手の向き・実速度(目標速度)と、自分と前の相手の位置。
 	// LocalTransform の読みは LockOnRotationSystem と読み書きが往復するので、
 	// あちらが After(PlatoonFollowSystem) で向きを決めている
-	.Reads<LookAngleComponent, LocalTransformComponent, MovementComponent, VelocityComponent>();
+	.Reads<LookAngleComponent, LocalTransformComponent, ActualVelocityComponent, DesiredVelocityComponent>();
 }

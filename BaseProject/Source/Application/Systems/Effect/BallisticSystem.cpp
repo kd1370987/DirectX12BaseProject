@@ -4,6 +4,7 @@
 
 #include "Application/Components/Effect/BallisticComponent.h"
 #include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Effect/EffectPlayRequestComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Core/LifeTimeComponent.h"
 #include "Application/Components/Physics/Collider.h"
@@ -145,7 +146,7 @@ void BallisticSystem::Init(App::ECS::APPWorld& a_world)
 				//------------------------------------------------------
 				if (_ballistic.isResting && _ballistic.isStopEffectOnRest && _hasEffect)
 				{
-					if (auto* _pEffect = _world.RefData<EffectAssetComponent>(_self))
+					if (auto* _pEffect = _world.RefData<EffectPlayRequestComponent>(_self))
 					{
 						_pEffect->isPlay = false;
 					}
@@ -171,8 +172,8 @@ void BallisticSystem::Init(App::ECS::APPWorld& a_world)
 	// 物理空間へレイを撃つ
 	.ReadsResource<Engine::Physics::PhysicsWorld>()
 	// 順序 : 姿勢(LocalTransform)とエフェクト(EffectAsset)の書き手同士の並び
-	.After({ "LookAroundSystem", "GunShootSystem" })
+	.After({ "LookAroundSystem", "MuzzleFlashSystem" })
 	// 絞り込みに使わない読み書き : 寿命と軌跡のエフェクトは持っているときだけ RefData で触る
 	.Reads<LifeTimeComponent>()
-	.Writes<EffectAssetComponent>();
+	.Writes<EffectPlayRequestComponent>();
 }

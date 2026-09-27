@@ -3,8 +3,8 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Combat/HealthComponent.h"
-#include "Application/Components/Boss/BossComponent.h"
-#include "Application/Components/Movement/BoostComponent.h"
+#include "Application/Components/Boss/BossParamsComponent.h"
+#include "Application/Components/Movement/BoostIntentComponent.h"
 #include "Application/Components/Movement/MoveIntentComponent.h"
 #include "Application/Components/Combat/ActionIntentComponent.h"
 
@@ -71,7 +71,7 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 	// [PreUpdate] 死んでいるあいだの攻撃入力を消す
 	//
 	// 攻撃入力は同じ PreUpdate 帯で武器の引き金(WeaponTriggerComponent)へ配られ、
-	// 銃(GunShootSystem)はそちらを読む。Update 帯で消していた頃は配った後だったので、
+	// 銃(GunTriggerSystem)はそちらを読む。Update 帯で消していた頃は配った後だったので、
 	// 死んでいる間も銃を撃ち続けていた。
 	// 入力を作る側(敵・ボス・近距離型)の後、配る側(AttachmentDispatch / SelfWeaponTrigger)の前で消す。
 	// 配る側はここが書いた ActionIntent を読むので、読み書きで自動的に後ろへ並ぶ
@@ -108,7 +108,7 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 	// ブーストは移動入力とは別系統(RobotBoostSystem が推力に変える)なので、
 	// MoveIntent を消しただけでは飛び続けてしまう
 	//--------------------------------------------------------------------------
-	a_world.ActiveTask<const HealthComponent, BoostComponent>(
+	a_world.ActiveTask<const HealthComponent, BoostIntentComponent>(
 		Engine::ECS::ESystemType::Update,
 		"DeathBoostGateSystem",
 		[](
@@ -117,14 +117,14 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
 			const HealthComponent*            a_healthArray,
-			BoostComponent*                   a_boostArray
+			BoostIntentComponent*             a_boostArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				if (!a_healthArray[_i].isDead) continue;
 
-				BoostComponent& _boost = a_boostArray[_i];
+				BoostIntentComponent& _boost = a_boostArray[_i];
 				_boost.isBoostTriger = false;
 				_boost.isBoostIntent = false;
 			}
@@ -134,10 +134,10 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 	//--------------------------------------------------------------------------
 	// [Update] 死んでいるあいだのボスの一斉射要求を消す
 	//
-	// ボスのミサイルは ActionIntent ではなく BossComponent 側の要求フラグで飛ぶ。
+	// ボスのミサイルは ActionIntent ではなく BossParamsComponent 側の要求フラグで飛ぶ。
 	// 消費するのは PostUpdate の BossMissileSalvoSystem
 	//--------------------------------------------------------------------------
-	a_world.ActiveTask<const HealthComponent, BossComponent>(
+	a_world.ActiveTask<const HealthComponent, BossBrainStateComponent, BossCommandComponent>(
 		Engine::ECS::ESystemType::Update,
 		"DeathBossOrderGateSystem",
 		[](
@@ -146,16 +146,16 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
 			const HealthComponent*            a_healthArray,
-			BossComponent*                    a_bossArray
+			BossBrainStateComponent*          a_brainArray,
+			BossCommandComponent*             a_commandArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				if (!a_healthArray[_i].isDead) continue;
 
-				BossComponent& _boss = a_bossArray[_i];
-				_boss.isMissileRequest = false;
-				_boss.isGunActive      = false;
+				a_commandArray[_i].isMissileRequest = false;
+				a_brainArray[_i].isGunActive        = false;
 			}
 		}
 	);

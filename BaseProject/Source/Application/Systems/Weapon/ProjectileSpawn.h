@@ -8,7 +8,7 @@ namespace Engine::Resource { class Prefab; }
 // ProjectileSpawn
 //
 // 「プレハブから弾を1発出す」処理をまとめたヘルパー。
-// GunShootSystem(銃)と MissileSalvoSystem(ミサイル)が共有する。
+// GunProjectileSpawnSystem(銃)と MissileSalvoSystem(ミサイル)が共有する。
 //
 // プレハブの実体化・最低限のコンポーネント補完・発射元/誘導相手の埋め込みは
 // どちらの武器でも同じなので、片方だけ直して食い違うことがないようにここへ寄せる。

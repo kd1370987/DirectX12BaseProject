@@ -3,7 +3,8 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Effect/BoosterEffectComponent.h"
-#include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Effect/EffectPlayRequestComponent.h"
+#include "Application/Components/Effect/EffectOverrideComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Utility/EffectSpawnHelper.h"
 
@@ -46,7 +47,7 @@
 //==========================================================================================
 void BoosterEffectSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<BoosterEffectComponent, EffectAssetComponent>(
+	a_world.ActiveTask<BoosterEffectComponent, const EffectPlayRequestComponent, EffectOverrideComponent>(
 		Engine::ECS::ESystemType::Update,
 		"BoosterEffectSystem",
 		[](
@@ -55,13 +56,15 @@ void BoosterEffectSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag*                        a_tags,
 			BoosterEffectComponent*           a_boosterArray,
-			EffectAssetComponent*             a_effectArray
+			const EffectPlayRequestComponent* a_requestArray,
+			EffectOverrideComponent*          a_overrideArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				BoosterEffectComponent& _booster = a_boosterArray[_i];
-				EffectAssetComponent&   _effect  = a_effectArray[_i];
+				const EffectPlayRequestComponent& _request  = a_requestArray[_i];
+				EffectOverrideComponent&          _override = a_overrideArray[_i];
 
 				//--------------------------------------------------------------
 				// 噴射する向き
@@ -81,7 +84,7 @@ void BoosterEffectSystem::Init(App::ECS::APPWorld& a_world)
 				//--------------------------------------------------------------
 				// 点火の立ち上がりで膨らませる
 				//--------------------------------------------------------------
-				const bool _isPlaying = _effect.isPlay;
+				const bool _isPlaying = _request.isPlay;
 
 				if (_isPlaying && !_booster.wasPlaying)
 				{
@@ -160,7 +163,7 @@ void BoosterEffectSystem::Init(App::ECS::APPWorld& a_world)
 				const float _chargeRate = std::clamp(_booster.chargeRate, 0.0f, 1.0f);
 				_scale *= 1.0f + (_booster.chargeScale - 1.0f) * _chargeRate;
 
-				_effect.effectScale = _scale;
+				_override.effectScale = _scale;
 
 				//--------------------------------------------------------------
 				// チャージダッシュの撃ち出し : 束の長さを伸ばす
@@ -189,18 +192,18 @@ void BoosterEffectSystem::Init(App::ECS::APPWorld& a_world)
 					_booster.dashLengthBlend = _lengthTarget;
 				}
 
-				_effect.effectLengthScale =
+				_override.effectLengthScale =
 					1.0f + (_booster.dashLengthScale - 1.0f) * _booster.dashLengthBlend;
 
 				//--------------------------------------------------------------
 				// 置き方 : 噴射口の位置と向きを渡す
 				//--------------------------------------------------------------
-				_effect.isOverrideTransform = true;
-				_effect.overridePosOffset   = _booster.posOffset;
+				_override.isOverrideTransform = true;
+				_override.overridePosOffset   = _booster.posOffset;
 
 				if (_hasDir)
 				{
-					_effect.overrideEmitDir = _dir;
+					_override.overrideEmitDir = _dir;
 				}
 
 				//--------------------------------------------------------------

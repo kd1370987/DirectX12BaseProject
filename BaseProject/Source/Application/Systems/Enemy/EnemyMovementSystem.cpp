@@ -4,8 +4,8 @@
 
 #include "Application/Components/Movement/MoveIntentComponent.h"
 #include "Application/Components/Enemy/PatrolComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
+#include "Application/Components/Movement/MovementParamsComponent.h"
 
 //==============================================================================
 // EnemyMovementSystem
@@ -15,15 +15,15 @@
 // (カメラ相対)なので敵には効かない。その敵版。
 //
 // ・PatrolComponent を持つ = 敵、というクエリで対象を絞る。
-// ・移動速度は MovementComponent.moveSpeed(プレイヤーと同じ置き場)。
+// ・移動速度は MovementParamsComponent.moveSpeed(プレイヤーと同じ置き場)。
 //   加速度/減速度で実速度へ均すのは MovementIntegrationSystem の担当。
 // ・y(重力/ジャンプ)は触らない。GravitySystem に任せる。
 // ・死亡中は DeathStateSystem が移動入力を消すので、ここで水平速度が 0 になる。
 //==============================================================================
 void EnemyMovementSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const MoveIntentComponent, const PatrolComponent, const MovementComponent,
-		VelocityComponent>(
+	a_world.ActiveTask<const MoveIntentComponent, const PatrolComponent, const MovementParamsComponent,
+		DesiredVelocityComponent>(
 		Engine::ECS::ESystemType::Update,
 		"EnemyMovementSystem",
 		[](
@@ -33,15 +33,15 @@ void EnemyMovementSystem::Init(App::ECS::APPWorld& a_world)
 			ActiveTag*                        a_tags,
 			const MoveIntentComponent*        a_intentArray,
 			const PatrolComponent*            a_patrolArray,
-			const MovementComponent*          a_movementArray,
-			VelocityComponent*                a_velArray
+			const MovementParamsComponent*          a_movementArray,
+			DesiredVelocityComponent*                a_velArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const MoveIntentComponent& _intent = a_intentArray[_i];
-				const MovementComponent&   _move   = a_movementArray[_i];
-				VelocityComponent&         _vel    = a_velArray[_i];
+				const MovementParamsComponent&   _move   = a_movementArray[_i];
+				DesiredVelocityComponent&         _vel    = a_velArray[_i];
 
 				// 世界空間の水平方向 × throttle × moveSpeed
 				_vel.value.x = _intent.value.x * _move.moveSpeed;

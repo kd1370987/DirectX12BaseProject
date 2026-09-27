@@ -3,7 +3,7 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Movement/MoveIntentComponent.h"
-#include "Application/Components/Movement/BoostComponent.h"
+#include "Application/Components/Movement/BoostIntentComponent.h"
 #include "Application/Components/Movement/ChargeDashComponent.h"
 
 #include "Application/Components/Input/PlayerControllTag.h"
@@ -14,7 +14,7 @@
 
 void InputMoveSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const PlayerControllTag, MoveIntentComponent, LookAngleComponent,BoostComponent>(
+	a_world.ActiveTask<const PlayerControllTag, MoveIntentComponent, LookAngleComponent, BoostIntentComponent>(
 		Engine::ECS::ESystemType::Input,
 		"InputMoveSystem",
 		[]
@@ -26,7 +26,7 @@ void InputMoveSystem::Init(App::ECS::APPWorld& a_world)
 			const PlayerControllTag* a_tags,
 			MoveIntentComponent* a_moveIntentArray,
 			LookAngleComponent* a_playerLookArray,
-			BoostComponent* a_boostArray
+			BoostIntentComponent* a_boostArray
 		)
 		{
 			Math::Vector3 _move = {};
@@ -72,7 +72,7 @@ void InputMoveSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				LookAngleComponent& _lookComp = a_playerLookArray[_i];
 				MoveIntentComponent& _intentComp = a_moveIntentArray[_i];
-				BoostComponent& _boostComp = a_boostArray[_i];
+				BoostIntentComponent& _boostComp = a_boostArray[_i];
 
 				_lookComp.Yaw += _look.x;
 				_lookComp.Pitch += _look.y;

@@ -9,7 +9,7 @@
 // 爆発で飛び散る岩の破片のような、見た目だけの小物に付ける。
 //
 // ・動かすのは BallisticSystem。重力と着地だけを自前で解くので、
-//   VelocityComponent / MovementIntegrationSystem は使わない(付けないこと)。
+//   DesiredVelocityComponent / MovementIntegrationSystem は使わない(付けないこと)。
 // ・地面として見るのは StaticObject だけ。真下ではなく「進む向き」にレイを打つので、
 //   斜面や壁に当たっても跳ね返る。当たり判定のボディは持たない(何にも当たりに行かない)。
 // ・初速と回転は撒く側(DebrisEmitterSystem)が生成時に書き込む。

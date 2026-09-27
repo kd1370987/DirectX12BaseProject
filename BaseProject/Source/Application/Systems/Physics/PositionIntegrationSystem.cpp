@@ -2,16 +2,16 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Movement/VelocityComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 
-#include "Application/Components/Movement/MovementComponent.h"
+#include "Application/Components/Movement/MovementParamsComponent.h"
 
 void PositionIntegrationSystem::Init(App::ECS::APPWorld& a_world)
 {
 	// 自分のチャンクの配列だけを書くので、チャンクを分けてワーカーで回す。
 	// MovementIntegrationSystem とは対象のアーキタイプが重ならないので、同時に走る
-	a_world.ActiveJobTask<const VelocityComponent, LocalTransformComponent>(
+	a_world.ActiveJobTask<const DesiredVelocityComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"PositionIntegrationSystem",
 		[](
@@ -19,13 +19,13 @@ void PositionIntegrationSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
-			const VelocityComponent* a_velocityArray,
+			const DesiredVelocityComponent* a_velocityArray,
 			LocalTransformComponent* a_trsArray
 		) 
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const VelocityComponent& _velComp = a_velocityArray[_i];
+				const DesiredVelocityComponent& _velComp = a_velocityArray[_i];
 				LocalTransformComponent& _trsComp = a_trsArray[_i];
 
 				if (std::abs(_velComp.value.x) > 0.0001f ||
@@ -44,6 +44,6 @@ void PositionIntegrationSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		},
 		// 加減速を持つ側は MovementIntegrationSystem が実速度で進める
-		Engine::ECS::Exclude<MovementComponent>()
+		Engine::ECS::Exclude<MovementParamsComponent>()
 	);
 }

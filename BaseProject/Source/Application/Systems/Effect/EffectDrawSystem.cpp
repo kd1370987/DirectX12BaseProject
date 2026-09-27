@@ -5,9 +5,10 @@
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Particle/ParticleBufferManager.h"
 
-#include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Effect/EffectRuntimeComponent.h"
+#include "Application/Components/Effect/EffectOverrideComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
-#include "Application/Components/Movement/VelocityComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
 
 //==========================================================================================
 // EffectDrawSystem
@@ -23,7 +24,7 @@
 //==========================================================================================
 void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const EffectAssetComponent, const WorldMatrixComponent>(
+	a_world.ActiveTask<const EffectRuntimeComponent, const EffectOverrideComponent, const WorldMatrixComponent>(
 		Engine::ECS::ESystemType::Draw,
 		"EffectDrawSystem",
 		[]
@@ -32,7 +33,8 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
-			const EffectAssetComponent* a_effectArray,
+			const EffectRuntimeComponent* a_runtimeArray,
+			const EffectOverrideComponent* a_overrideArray,
 			const WorldMatrixComponent* a_worldMatArray
 			)
 		{
@@ -45,10 +47,11 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const EffectAssetComponent& _comp = a_effectArray[_i];
-				if (!_comp.instance.isPlaying) continue;
+				const EffectRuntimeComponent& _runtime = a_runtimeArray[_i];
+				const EffectOverrideComponent& _override = a_overrideArray[_i];
+				if (!_runtime.instance.isPlaying) continue;
 
-				auto* _pEffect = _pResourceManager->Ref(_comp.effectHandle);
+				auto* _pEffect = _pResourceManager->Ref(_runtime.effectHandle);
 				if (!_pEffect) continue;
 
 				const Math::Matrix _ownerWorld(a_worldMatArray[_i].worldMat);
@@ -63,19 +66,19 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 				// の順で掛けると「オーナーのローカル空間で、指定位置を中心に拡縮」になる。
 				// パーティクルの発生位置もメッシュパーツもこの1つで済む
 				//----------------------------------------------------------
-				const float _effectScale = (_comp.effectScale > 0.0f) ? _comp.effectScale : 1.0f;
+				const float _effectScale = (_override.effectScale > 0.0f) ? _override.effectScale : 1.0f;
 
 				// 束の長さの倍率。粒の初速へ掛けるので、寿命が同じなら
 				// 飛ぶ距離＝噴射の長さがそのまま倍率ぶん伸びる。
 				// 太さ(_effectScale)とは別物なので、掛ける先も分けてある
-				const float _lengthScale = (_comp.effectLengthScale > 0.0f) ? _comp.effectLengthScale : 1.0f;
+				const float _lengthScale = (_override.effectLengthScale > 0.0f) ? _override.effectLengthScale : 1.0f;
 
 				Math::Matrix _effectWorld = _ownerWorld;
-				if (_comp.isOverrideTransform || _effectScale != 1.0f)
+				if (_override.isOverrideTransform || _effectScale != 1.0f)
 				{
 					_effectWorld =
 						Math::Matrix::CreateScale(_effectScale) *
-						Math::Matrix::CreateTranslation(_comp.overridePosOffset) *
+						Math::Matrix::CreateTranslation(_override.overridePosOffset) *
 						_ownerWorld;
 				}
 
@@ -92,7 +95,7 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 					{
 						const auto& _part = _particleParts[_p];
 
-						const int _emitCount = _comp.instance.pendingEmit[_p];
+						const int _emitCount = _runtime.instance.pendingEmit[_p];
 						if (_emitCount <= 0) continue;
 
 						// パーティクルアセットが引けなければ出しようがない
@@ -131,11 +134,11 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 							// _effectWorld から発生源の行列を除いたものと同じ組み立て
 							const Math::Matrix _localMat =
 								Math::Matrix::CreateScale(_effectScale) *
-								Math::Matrix::CreateTranslation(_comp.overridePosOffset);
+								Math::Matrix::CreateTranslation(_override.overridePosOffset);
 
 							_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _localMat);
-							_dir = _comp.isOverrideTransform
-								? Math::Vector3(_comp.overrideEmitDir)
+							_dir = _override.isOverrideTransform
+								? Math::Vector3(_override.overrideEmitDir)
 								: Math::Vector3(_part.emitDir);
 						}
 						else
@@ -156,14 +159,14 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 								// 進行方向の逆へ吹く(噴射・排気)。
 								// 弾やミサイルは見た目の姿勢が進行方向と一致しないので、
 								// 行列の軸ではなく実際の速度から向きを取る。
-								// VelocityComponent はこのクエリに含めない
+								// DesiredVelocityComponent はこのクエリに含めない
 								// (持たないエンティティのエフェクトまで止まってしまうため)
 								_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _effectWorld);
 
 								// RefData は持っていないコンポーネントなら nullptr を返す
-								if (a_ctx.pWorld->HasComponent<VelocityComponent>(_self))
+								if (a_ctx.pWorld->HasComponent<DesiredVelocityComponent>(_self))
 								{
-									if (const auto* _pVel = a_ctx.pWorld->RefData<VelocityComponent>(_self))
+									if (const auto* _pVel = a_ctx.pWorld->RefData<DesiredVelocityComponent>(_self))
 									{
 										_dir = -Math::Vector3(_pVel->value);
 									}
@@ -188,10 +191,10 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 							// 向きの上書き : パーツが持っている向きを、出す側の指定で置き換える。
 							// 取り付け角度が個体ごとに違うもの(ブースターなど)向け。
 							// 位置と違って足し合わせても意味を成さないので、こちらは差し替える
-							if (_comp.isOverrideTransform)
+							if (_override.isOverrideTransform)
 							{
 								_dir = Math::Vector3::TransformNormal(
-									Math::Vector3(_comp.overrideEmitDir), _ownerWorld);
+									Math::Vector3(_override.overrideEmitDir), _ownerWorld);
 							}
 						}
 
@@ -253,7 +256,7 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 						Math::Color   _colorScale;
 						Math::Vector3 _emissiveAdd;
 						if (!_pEffect->BuildMeshDraw(
-							_m, _comp.instance, _effectWorld,
+							_m, _runtime.instance, _effectWorld,
 							_meshWorld, _colorScale, _emissiveAdd))
 						{
 							continue;

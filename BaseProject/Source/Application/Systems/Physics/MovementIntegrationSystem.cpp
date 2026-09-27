@@ -2,15 +2,16 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Movement/VelocityComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
+#include "Application/Components/Movement/DesiredVelocityComponent.h"
+#include "Application/Components/Movement/MovementParamsComponent.h"
+#include "Application/Components/Movement/ActualVelocityComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 
 //==============================================================================
 // MovementIntegrationSystem
 //
-// VelocityComponent(目標速度)へ MovementComponent の加速度/減速度で追従させ、
-// その実速度(MovementComponent.velocity)で座標を進める。
+// DesiredVelocityComponent(目標速度)へ MovementParamsComponent の加速度/減速度で追従させ、
+// その実速度(ActualVelocityComponent)で座標を進める。
 // 旧 InertiaIntegrationSystem(時定数による指数追従)の置き換え。
 //
 // ・加減速をかけるのは水平(XZ)だけ。上下は重力/ジャンプ/ブーストが直接作る値なので
@@ -18,14 +19,14 @@
 // ・加速か減速かは「目標速度が今の速さより速いか」で選ぶ。向きを変えるだけで
 //   速さが変わらない旋回中は加速度側になる。
 // ・acceleration / deceleration が 0 以下なら加減速なし(目標速度が即座に乗る)。
-// ・MovementComponent を持たない側は PositionIntegrationSystem が
-//   目標速度をそのまま積分する(あちらは Exclude<MovementComponent>)。
+// ・MovementParamsComponent を持たない側は PositionIntegrationSystem が
+//   目標速度をそのまま積分する(あちらは Exclude<MovementParamsComponent>)。
 //==============================================================================
 void MovementIntegrationSystem::Init(App::ECS::APPWorld& a_world)
 {
 	// 自分のチャンクの配列だけを書くので、チャンクを分けてワーカーで回す。
 	// PositionIntegrationSystem とは対象のアーキタイプが重ならないので、同時に走る
-	a_world.ActiveJobTask<const VelocityComponent, MovementComponent, LocalTransformComponent>(
+	a_world.ActiveJobTask<const DesiredVelocityComponent, const MovementParamsComponent, ActualVelocityComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"MovementIntegrationSystem",
 		[](
@@ -33,21 +34,23 @@ void MovementIntegrationSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
-			const VelocityComponent* a_velocityArray,
-			MovementComponent* a_movementArray,
+			const DesiredVelocityComponent* a_velocityArray,
+			const MovementParamsComponent* a_movementArray,
+			ActualVelocityComponent* a_actualArray,
 			LocalTransformComponent* a_trsArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const VelocityComponent& _velComp = a_velocityArray[_i];
-				MovementComponent& _moveComp = a_movementArray[_i];
+				const DesiredVelocityComponent& _velComp = a_velocityArray[_i];
+				const MovementParamsComponent& _moveComp = a_movementArray[_i];
+				Math::Vector3& _actual = a_actualArray[_i].value;
 				LocalTransformComponent& _trsComp = a_trsArray[_i];
 
 				//----------------------------------------------------------
 				// 水平: 目標速度へ加速度/減速度で寄せる
 				//----------------------------------------------------------
-				Math::Vector2 _current(_moveComp.velocity.x, _moveComp.velocity.z);
+				Math::Vector2 _current(_actual.x, _actual.z);
 				Math::Vector2 _target(_velComp.value.x, _velComp.value.z);
 
 				Math::Vector2 _diff   = _target - _current;
@@ -69,22 +72,22 @@ void MovementIntegrationSystem::Init(App::ECS::APPWorld& a_world)
 						: _current + _diff * (_step / _diffLen);
 				}
 
-				_moveComp.velocity.x = _current.x;
-				_moveComp.velocity.z = _current.y;
+				_actual.x = _current.x;
+				_actual.z = _current.y;
 
 				// 上下は重力/ジャンプ/ブーストの担当。そのまま通す
-				_moveComp.velocity.y = _velComp.value.y;
+				_actual.y = _velComp.value.y;
 
 				//----------------------------------------------------------
 				// 積分
 				//----------------------------------------------------------
-				if (std::abs(_moveComp.velocity.x) > 0.0001f ||
-					std::abs(_moveComp.velocity.y) > 0.0001f ||
-					std::abs(_moveComp.velocity.z) > 0.0001f)
+				if (std::abs(_actual.x) > 0.0001f ||
+					std::abs(_actual.y) > 0.0001f ||
+					std::abs(_actual.z) > 0.0001f)
 				{
-					_trsComp.pos.x += _moveComp.velocity.x * a_ctx.dt;
-					_trsComp.pos.y += _moveComp.velocity.y * a_ctx.dt;
-					_trsComp.pos.z += _moveComp.velocity.z * a_ctx.dt;
+					_trsComp.pos.x += _actual.x * a_ctx.dt;
+					_trsComp.pos.y += _actual.y * a_ctx.dt;
+					_trsComp.pos.z += _actual.z * a_ctx.dt;
 
 					// 座標が変わったのでDirtyフラグを立てる
 					_trsComp.isDirty = true;
@@ -92,7 +95,7 @@ void MovementIntegrationSystem::Init(App::ECS::APPWorld& a_world)
 				else
 				{
 					// 微小な速度は残さずに止める
-					_moveComp.velocity = {};
+					_actual = {};
 				}
 			}
 		}

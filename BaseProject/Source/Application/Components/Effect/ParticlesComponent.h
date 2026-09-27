@@ -12,7 +12,7 @@ enum class EEmitSpace : uint32_t
 	WorldMatrix,		// 付いているオブジェクトの worldMat をそのまま使う(追従)
 	LocalOffset,		// worldMat を基準に posOffset / emitDir を合成する(ノズル位置調整など)
 	FixedWorld,			// コンポーネントの絶対 worldPos / emitDir を使う(行列を使わない単発など)
-	ReverseVelocity,	// 進行方向(VelocityComponent)の逆へ吹く。位置は worldMat 基準 + posOffset。
+	ReverseVelocity,	// 進行方向(DesiredVelocityComponent)の逆へ吹く。位置は worldMat 基準 + posOffset。
 						// 弾やミサイルのように「見た目の姿勢が進行方向と一致しない」ものの
 						// 噴射・排気向け。速度が無いときは行列の +Z の逆を使う
 };

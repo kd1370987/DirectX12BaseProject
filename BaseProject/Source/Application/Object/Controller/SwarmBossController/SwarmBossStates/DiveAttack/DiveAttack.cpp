@@ -15,7 +15,7 @@
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Movement/MoveIntentComponent.h"
-#include "Application/Components/Movement/MovementComponent.h"
+#include "Application/Components/Movement/MovementParamsComponent.h"
 #include "Application/Components/Input/PlayerControllTag.h"
 
 namespace App::Object
@@ -94,8 +94,8 @@ namespace App::Object
 		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(_leader)->pos;
 
 		// 入力 1 で出る速さ。曲線上の目標点をリーダーと同じ速さで進めるのに使う
-		const float _moveSpeed = _world.HasComponent<MovementComponent>(_leader)
-			? _world.RefData<MovementComponent>(_leader)->moveSpeed
+		const float _moveSpeed = _world.HasComponent<MovementParamsComponent>(_leader)
+			? _world.RefData<MovementParamsComponent>(_leader)->moveSpeed
 			: 0.0f;
 
 		// プレイヤーが居ない(倒された / まだ湧いていない)なら狙う先が無い。

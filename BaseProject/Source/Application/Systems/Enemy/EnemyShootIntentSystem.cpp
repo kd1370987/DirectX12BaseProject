@@ -4,7 +4,7 @@
 
 #include "Application/Components/Enemy/EnemyTag.h"
 #include "Application/Components/Combat/TargetEntityComponent.h"
-#include "Application/Components/Boss/BossComponent.h"
+#include "Application/Components/Boss/BossParamsComponent.h"
 #include "Application/Components/Enemy/CloseCombatComponent.h"
 #include "Application/Components/Combat/ActionIntentComponent.h"
 
@@ -63,6 +63,6 @@ void EnemyShootIntentSystem::Init(App::ECS::APPWorld& a_world)
 				_intent.isRightWeaponShoot = _shoot;
 			}
 		},
-		Engine::ECS::Exclude<BossComponent, CloseCombatComponent>{}
+		Engine::ECS::Exclude<BossParamsComponent, CloseCombatComponent>{}
 	);
 }

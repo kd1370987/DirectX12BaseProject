@@ -53,9 +53,10 @@ namespace Engine::Editor
 	struct EffectEditor::EffectRef
 	{
 		ECS::Entity entity = ECS::Limits::INVALID_ENTITY;
-		EffectAssetComponent* pComp = nullptr;
+		EffectRuntimeComponent* pRuntime = nullptr;			// ハンドルと進行状態
+		EffectPlayRequestComponent* pRequest = nullptr;		// 再生の要求
 
-		bool IsValid() const { return pComp != nullptr; }
+		bool IsValid() const { return pRuntime != nullptr && pRequest != nullptr; }
 	};
 
 	EffectEditor::EffectEditor(ECS::EngineServices* a_pServices)
@@ -249,14 +250,15 @@ namespace Engine::Editor
 		EffectRef _ref = {};
 		if (!m_upWorld) return _ref;
 
-		m_upWorld->ForEach<EffectAssetComponent>(
-			[&](ECS::Chunk* a_pChunk, uint32_t a_count, EffectAssetComponent* a_effectArray)
+		m_upWorld->ForEach<EffectRuntimeComponent, EffectPlayRequestComponent>(
+			[&](ECS::Chunk* a_pChunk, uint32_t a_count, EffectRuntimeComponent* a_runtimeArray, EffectPlayRequestComponent* a_requestArray)
 			{
-				if (_ref.pComp) return;		// 先に見つけたものを使う(プレビューは常に1つ)
+				if (_ref.IsValid()) return;		// 先に見つけたものを使う(プレビューは常に1つ)
 				if (a_count == 0) return;
 
 				_ref.entity = a_pChunk->entityData[0];
-				_ref.pComp = &a_effectArray[0];
+				_ref.pRuntime = &a_runtimeArray[0];
+				_ref.pRequest = &a_requestArray[0];
 			}
 		);
 
@@ -336,17 +338,17 @@ namespace Engine::Editor
 		// ---- 再生の指示をコンポーネントへ書いてから回す ----
 		else if (EffectRef _ref = FindEffect(); _ref.IsValid())
 		{
-			auto* _pEffect = m_pServices->pResourceManager->Ref(_ref.pComp->effectHandle);
+			auto* _pEffect = m_pServices->pResourceManager->Ref(_ref.pRuntime->effectHandle);
 
 			// 頭から再生し直す。
 			// isPlay を落として立ち上げ直すと2フレームかかるので、実体を直接叩く
 			if (m_isRestartRequest && _pEffect)
 			{
-				_pEffect->Play(_ref.pComp->instance);
+				_pEffect->Play(_ref.pRuntime->instance);
 				m_isRestartRequest = false;
 			}
 
-			_ref.pComp->isPlay = true;
+			_ref.pRequest->isPlay = true;
 
 			// 出し切ったら頭から。
 			// 出しっぱなしのパーツを含むエフェクトは IsFinished が立たないので、
@@ -355,7 +357,7 @@ namespace Engine::Editor
 			// 音も見るのはゲーム側(EffectUpdateSystem)と揃えるため。
 			// 見ないと、絵が終わった時点で頭出しされて音が毎回途中で切れる
 			if (m_isLoop && _pEffect &&
-				_pEffect->IsFinished(_ref.pComp->instance, &Audio::AudioManager::Instance()))
+				_pEffect->IsFinished(_ref.pRuntime->instance, &Audio::AudioManager::Instance()))
 			{
 				m_isRestartRequest = true;
 			}
@@ -656,14 +658,14 @@ namespace Engine::Editor
 			return;
 		}
 
-		const auto* _pEffect = m_pServices->pResourceManager->Get(_ref.pComp->effectHandle);
+		const auto* _pEffect = m_pServices->pResourceManager->Get(_ref.pRuntime->effectHandle);
 		if (!_pEffect)
 		{
 			Engine::Editor::HelpText("アセットを読み込めませんでした");
 			return;
 		}
 
-		Engine::Editor::Value("Elapsed", "%.2f s", _ref.pComp->instance.elapsed);
+		Engine::Editor::Value("Elapsed", "%.2f s", _ref.pRuntime->instance.elapsed);
 		Engine::Editor::Tooltip("| Particle Parts : %d / Mesh Parts : %d", static_cast<int>(_pEffect->GetParticleParts().size()), static_cast<int>(_pEffect->GetMeshParts().size()));
 	}
 

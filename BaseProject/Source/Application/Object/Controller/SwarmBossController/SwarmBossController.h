@@ -171,9 +171,9 @@ namespace App::Object
 		//
 		// 追従できるかは「後ろほど速いか」で決まるので、1か所で配分を決める。
 		// 生成時に各エンティティへ流し込む(プレハブの値より優先する)。
-		//   リーダー  … MovementComponent.moveSpeed
-		//   小隊長    … MovementComponent.moveSpeed(リーダー × platoonSpeedScale)
-		//   ボイド    … BoidComponent.maxSpeed(リーダー × boidSpeedScale)
+		//   リーダー  … MovementParamsComponent.moveSpeed
+		//   小隊長    … MovementParamsComponent.moveSpeed(リーダー × platoonSpeedScale)
+		//   ボイド    … BoidSteeringParamsComponent.maxSpeed(リーダー × boidSpeedScale)
 		//
 		// 既定値はプレイヤー(歩き 25 / ブースト 50 / チャージダッシュ 90 m/秒)に合わせてある。
 		//   徘徊   … 35 m/秒。歩きよりは速く、ブーストなら振り切れる

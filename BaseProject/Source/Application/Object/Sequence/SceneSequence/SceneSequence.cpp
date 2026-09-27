@@ -8,7 +8,7 @@
 #include "Engine/Common/Color.h"
 
 #include "Application/Components/Core/SpawnerComponent.h"
-#include "Application/Components/Boss/BossComponent.h"
+#include "Application/Components/Boss/BossParamsComponent.h"
 #include "Application/Components/Combat/HealthComponent.h"
 #include "Application/Utility/PrefabSpawnHelper.h"
 #include "Application/InstanceResource/WaveAnnounceResource.h"
@@ -506,7 +506,7 @@ namespace App::Object
 	//======================================================================================
 	// 戦闘開始命令の送信
 	//--------------------------------------------------------------------------------------
-	// BossComponent を持つエンティティの isCombatStarted を立てる。あとは
+	// BossParamsComponent を持つエンティティの isCombatStarted を立てる。あとは
 	// BossCombatIntentSystem が勝手に動き出すので、ここは合図を送るだけでよい。
 	//
 	// targetWaveIndex で相手を絞るときは、ウェーブの全滅判定と同じ SpawnerComponent の
@@ -535,12 +535,12 @@ namespace App::Object
 
 			int _sentCount = 0;
 
-			a_context.pWorld->ForEach<const ActiveTag, BossComponent>(
+			a_context.pWorld->ForEach<const ActiveTag, BossCommandComponent>(
 				[&](
 					Engine::ECS::Chunk* a_pChunk,
 					uint32_t a_count,
 					const ActiveTag* a_activeTagArray,
-					BossComponent* a_bossArray
+					BossCommandComponent* a_bossArray
 				)
 				{
 					for (uint32_t _b = 0; _b < a_count; ++_b)

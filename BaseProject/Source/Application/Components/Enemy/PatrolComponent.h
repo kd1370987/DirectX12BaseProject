@@ -12,8 +12,8 @@
 //     発見済みのプレイヤーを見失ったら、最後に見た地点まで移動し、着いたら周囲を見渡す。
 //     見渡している間に再発見できれば追跡へ戻り、できなければ徘徊へ戻る。
 //
-// 実際の速度は throttle(0..1) × MovementComponent.moveSpeed(EnemyMovementSystem)。
-// 加速度/減速度も MovementComponent 側。
+// 実際の速度は throttle(0..1) × MovementParamsComponent.moveSpeed(EnemyMovementSystem)。
+// 加速度/減速度も MovementParamsComponent 側。
 //==========================================================================================
 
 // 徘徊のフェーズ
@@ -34,7 +34,7 @@ enum class ELostPhase : int
 struct PatrolComponent
 {
 	// ---- 設定(保存される) ----
-	// throttle は MovementComponent.moveSpeed に掛ける倍率(0..1)
+	// throttle は MovementParamsComponent.moveSpeed に掛ける倍率(0..1)
 	float patrolThrottle   = 0.4f;	// 徘徊時のスロットル(0..1)
 	float chaseThrottle    = 1.0f;	// 追跡時のスロットル(0..1)
 	float retargetInterval = 2.5f;	// 徘徊で1つの方向へ歩き続ける時間(秒)

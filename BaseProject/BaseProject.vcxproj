@@ -402,7 +402,6 @@
     <ClCompile Include="Source\Application\Systems\Combat\DeathStateSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Effect\ExplosionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Combat\HealthFixupSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\BoidSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Boid\FollowLeaderSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Boid\PlatoonFollowSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Boid\SwarmLookSystem.cpp" />
@@ -425,7 +424,6 @@
     <ClCompile Include="Source\Application\Systems\Effect\ThrusterEffectSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Transform\UpdateHierarchyDepthSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Movement\GravitySystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Weapon\GunShootSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Movement\LockOnRotationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Physics\SyncPhysicsBodySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Movement\CharacterMovementSystem.cpp" />
@@ -841,6 +839,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Render\ModelReadyGateSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Attachment\AttachmentReadyGateSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Boid\BoidSnapshotSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Boid\BoidSteeringSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Boid\PlatoonAxisSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Weapon\GunTriggerSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Weapon\GunProjectileSpawnSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Weapon\MuzzleFlashSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Engine\Editor\EditorPCH.h" />
@@ -870,8 +874,6 @@
     <ClInclude Include="Source\Application\App.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraFocusTargetComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraDeadZoneComponent.h" />
-    <ClInclude Include="Source\Application\Components\Combat\AimTargetPosComponent.h" />
-    <ClInclude Include="Source\Application\Components\Boid\BoidComponent.h" />
     <ClInclude Include="Source\Application\Components\Boid\BoidSpownerComponent.h" />
     <ClInclude Include="Source\Application\Components\Boid\PlatoonLeaderComponent.h" />
     <ClInclude Include="Source\Application\Components\Boss\SwarmBossWave.h" />
@@ -892,11 +894,8 @@
     <ClInclude Include="Source\Application\Components\Camera\FishEyeComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\TPSCameraStateComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\TPSFollowComponent.h" />
-    <ClInclude Include="Source\Application\Components\Camera\TPSLookAngleComponent.h" />
-    <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h" />
     <ClInclude Include="Source\Application\Components\Movement\LookAngleComponent.h" />
     <ClInclude Include="Source\Application\Components\Animation\AdditivePoseComponent.h" />
-    <ClInclude Include="Source\Application\Components\Movement\BoostComponent.h" />
     <ClInclude Include="Source\Application\Components\Movement\ChargeDashComponent.h" />
     <ClInclude Include="Source\Application\Game\Core\InputSettings.h" />
     <ClInclude Include="Source\Application\Game\InputActions\InputManager\InputActionManager.h" />
@@ -933,8 +932,6 @@
     <ClInclude Include="Source\Application\Components\Physics\GroundStateComponent.h" />
     <ClInclude Include="Source\Application\Components\Physics\SphereCollider.h" />
     <ClInclude Include="Source\Application\Components\Movement\GravityComponent.h" />
-    <ClInclude Include="Source\Application\Components\Movement\MovementComponent.h" />
-    <ClInclude Include="Source\Application\Components\Movement\VelocityComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\FollowAnimationNodeComponent.h" />
     <ClInclude Include="Source\Application\Components\Transform\HierarchyComponent.h" />
     <ClInclude Include="Source\Application\Components\Core\SpawnerComponent.h" />
@@ -1044,7 +1041,6 @@
     <ClInclude Include="Source\Application\Systems\Weapon\MissileSalvo.h" />
     <ClInclude Include="Source\Application\Systems\Boss\BossCombatIntentSystem.h" />
     <ClInclude Include="Source\Application\Systems\Boss\BossMissileSalvoSystem.h" />
-    <ClInclude Include="Source\Application\Components\Boss\BossComponent.h" />
     <ClInclude Include="Source\Application\Components\Boid\BoidLeaderComponent.h" />
     <ClInclude Include="Source\Application\Systems\Combat\ExplodeOnHitSystem.h" />
     <ClInclude Include="Source\Application\Systems\Audio\HitSoundSystem.h" />
@@ -1060,7 +1056,6 @@
     <ClInclude Include="Source\Application\Components\Effect\EffectComponent.h" />
     <ClInclude Include="Source\Application\Components\Effect\ExplosionComponent.h" />
     <ClInclude Include="Source\Application\Systems\Combat\HealthFixupSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Boid\BoidSystem.h" />
     <ClInclude Include="Source\Application\Systems\Boid\FollowLeaderSystem.h" />
     <ClInclude Include="Source\Application\Systems\Boid\PlatoonFollowSystem.h" />
     <ClInclude Include="Source\Application\Systems\Boid\SwarmLookSystem.h" />
@@ -1092,7 +1087,6 @@
     <ClInclude Include="Source\Application\Systems\Effect\ThrusterEffectSystem.h" />
     <ClInclude Include="Source\Application\Systems\Transform\UpdateHierarchyDepthSystem.h" />
     <ClInclude Include="Source\Application\Systems\Movement\GravitySystem.h" />
-    <ClInclude Include="Source\Application\Systems\Weapon\GunShootSystem.h" />
     <ClInclude Include="Source\Application\Systems\Movement\LockOnRotationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Physics\SyncPhysicsBodySystem.h" />
     <ClInclude Include="Source\Application\Systems\Movement\CharacterMovementSystem.h" />
@@ -1450,6 +1444,32 @@
     <ClInclude Include="Source\Application\Systems\Render\ModelReadyGateSystem.h" />
     <ClInclude Include="Source\Application\InstanceResource\ResourceWaitResource.h" />
     <ClInclude Include="Source\Application\Systems\Attachment\AttachmentReadyGateSystem.h" />
+    <ClInclude Include="Source\Application\Components\Boid\BoidSteeringParamsComponent.h" />
+    <ClInclude Include="Source\Application\Components\Boid\BoidMembershipComponent.h" />
+    <ClInclude Include="Source\Application\Components\Boid\BoidTargetComponent.h" />
+    <ClInclude Include="Source\Application\InstanceResource\BoidSnapshotResource.h" />
+    <ClInclude Include="Source\Application\InstanceResource\PlatoonAxisResource.h" />
+    <ClInclude Include="Source\Application\Systems\Boid\BoidSnapshotSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Boid\BoidSteeringSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Boid\PlatoonAxisSystem.h" />
+    <ClInclude Include="Source\Application\Components\Movement\DesiredVelocityComponent.h" />
+    <ClInclude Include="Source\Application\Components\Movement\MovementParamsComponent.h" />
+    <ClInclude Include="Source\Application\Components\Movement\BoostParamsComponent.h" />
+    <ClInclude Include="Source\Application\Components\Movement\ActualVelocityComponent.h" />
+    <ClInclude Include="Source\Application\Components\Movement\BoostIntentComponent.h" />
+    <ClInclude Include="Source\Application\Components\Movement\BoostStateComponent.h" />
+    <ClInclude Include="Source\Application\Components\Weapon\GunFireComponent.h" />
+    <ClInclude Include="Source\Application\Systems\Weapon\GunTriggerSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Weapon\GunProjectileSpawnSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Weapon\MuzzleFlashSystem.h" />
+    <ClInclude Include="Source\Application\Components\Effect\EffectRuntimeComponent.h" />
+    <ClInclude Include="Source\Application\Components\Effect\EffectPlayRequestComponent.h" />
+    <ClInclude Include="Source\Application\Components\Effect\EffectOverrideComponent.h" />
+    <ClInclude Include="Source\Application\Components\Combat\AimResultComponent.h" />
+    <ClInclude Include="Source\Application\Components\Combat\AimConfigComponent.h" />
+    <ClInclude Include="Source\Application\Components\Boss\BossParamsComponent.h" />
+    <ClInclude Include="Source\Application\Components\Boss\BossBrainStateComponent.h" />
+    <ClInclude Include="Source\Application\Components\Boss\BossCommandComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\Source\Lighting\Sky\SkyShader.hlsl" />

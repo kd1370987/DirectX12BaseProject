@@ -5,7 +5,7 @@
 /// </summary>
 struct ProjectileComponent
 {
-	// 撃った本体。発射の瞬間に GunShootSystem が埋める(保存しない)。
+	// 撃った本体。発射の瞬間に GunProjectileSpawnSystem が埋める(保存しない)。
 	// 銃が子エンティティの場合でも、コライダーを持つ本体の方が入る。
 	// HitDetectSystem がこの相手を判定から除外する(自分の弾に当たらないように)
 	Engine::ECS::Entity shooterEntity = Engine::ECS::Limits::INVALID_ENTITY;
