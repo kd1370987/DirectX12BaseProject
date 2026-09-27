@@ -73,9 +73,21 @@ namespace Engine::ECS
 	//   static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData);	// セーブロード
 	//   static void Edit(CompEditContext& a_context);								// エディター
 	//   static void Release(void* a_pData, const EngineServices& a_services);		// 借りたものを返す
+	//   using Requires = RequireComponents<A, B>;									// 必ず一緒に持たせるもの
 	// 何も要らない(タグなど)なら特殊化自体を書かなくてよい
 	//--------------------------------------------------------------------------------------
 	template<typename T>
 	struct ComponentTraits {};
+
+	//--------------------------------------------------------------------------------------
+	// 必ず一緒に持たせるコンポーネントの並び(ComponentTraits<T>::Requires に書く)
+	//
+	// 設定(保存される)と実行時の値(保存しない)を別のコンポーネントに分けたとき、
+	// 実行時の側を保存データやプレハブへ書かずに済ませるためのもの。
+	// 生成時と構成の変更時に、ワールドがシグネチャへ自動で足す(推移的に辿る)。
+	// 外すときは足し直さないので、持ち主を外しても付いてきたものは残る
+	//--------------------------------------------------------------------------------------
+	template<typename... Comps>
+	struct RequireComponents {};
 };
 

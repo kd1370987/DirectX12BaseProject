@@ -7,12 +7,12 @@
 #include "Engine/Editor/Helper/EditorField.h"
 #include "Engine/Common/Color.h"
 
-#include "Application/Components/Hierarchy/SpawnerComponent.h"
-#include "Application/Components/Character/Boss/BossComponent.h"
-#include "Application/Components/Character/HealthComponent.h"
+#include "Application/Components/Core/SpawnerComponent.h"
+#include "Application/Components/Boss/BossComponent.h"
+#include "Application/Components/Combat/HealthComponent.h"
 #include "Application/Utility/PrefabSpawnHelper.h"
 #include "Application/InstanceResource/WaveAnnounceResource.h"
-#include "Application/Components/Tag/PlayerControllTag.h"
+#include "Application/Components/Input/PlayerControllTag.h"
 #include "Application/Game/GameManager/GameManager.h"
 
 #include "Engine/Scene/SceneManager/SceneManager.h"

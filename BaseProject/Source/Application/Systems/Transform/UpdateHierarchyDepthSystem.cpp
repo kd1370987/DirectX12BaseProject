@@ -1,0 +1,41 @@
+﻿#include "UpdateHierarchyDepthSystem.h"
+
+#include "Application/ECS/World/APPWorld.h"
+
+#include "Application/Components/Transform/HierarchyComponent.h"
+#include "Application/InstanceResource/HierarchyResource.h"
+
+void UpdateHierarchyDepthSystem::Init(App::ECS::APPWorld& a_world)
+{
+	a_world.ActiveTask<const HierarchyComponent>(
+		Engine::ECS::ESystemType::PreUpdate,
+		"UpdateHierarchyDepthSystem",
+		[]
+		(
+			Engine::ECS::Chunk* a_pChunk,
+			uint32_t a_count,
+			const Engine::ECS::SystemContext& a_ctx,
+			ActiveTag* a_tags,
+			const HierarchyComponent* a_hierarychyArray
+		)
+		{
+			// 参照
+			auto& _hRes = a_ctx.pWorld->GetResource<HierarchyResource>();
+			if (!_hRes.isDirty) return;
+
+			// 階層変更の可能性があるのなら走査して検出する
+			for (size_t _i = 0; _i < a_count; ++_i)
+			{
+				const auto& _hComp = a_hierarychyArray[_i];
+
+				// 最大深度が更新されていたら変更
+				if (_hComp.depth > _hRes.maxDepth)
+				{
+					ENGINE_LOG("階層に変更がありました : %d -> %d", _hRes.maxDepth, _hComp.depth);
+					_hRes.maxDepth = _hComp.depth;
+				}
+			}
+		}
+	)
+	.WritesResource<HierarchyResource>();
+}

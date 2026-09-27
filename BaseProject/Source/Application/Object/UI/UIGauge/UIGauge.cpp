@@ -4,13 +4,13 @@
 #include "Application/ECS/World/APPWorld.h"
 #include "Engine/Editor/Helper/EditorField.h"
 
-#include "Application/Components/Tag/PlayerControllTag.h"
-#include "Application/Components/Character/HealthComponent.h"
-#include "Application/Components/Character/LockOnTargetComponent.h"
-#include "Application/Components/Character/Robot/BoostComponent.h"
-#include "Application/Components/Character/Robot/ChargeDashComponent.h"
-#include "Application/Components/Character/Robot/AttachmentSlotsComponent.h"
-#include "Application/Components/Character/Weapon/Gun/GunStateComponent.h"
+#include "Application/Components/Input/PlayerControllTag.h"
+#include "Application/Components/Combat/HealthComponent.h"
+#include "Application/Components/Combat/LockOnTargetComponent.h"
+#include "Application/Components/Movement/BoostComponent.h"
+#include "Application/Components/Movement/ChargeDashComponent.h"
+#include "Application/Components/Attachment/AttachmentSlotsComponent.h"
+#include "Application/Components/Weapon/GunStateComponent.h"
 
 //==========================================================================================
 // UIGauge

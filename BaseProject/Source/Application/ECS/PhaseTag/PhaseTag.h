@@ -23,11 +23,11 @@
 //
 //==========================================================================================
 
-#include "../../Components/Tag/SystemPhaseTag/PostDeserializeTag.h"
-#include "../../Components/Tag/SystemPhaseTag/AwakeTag.h"
-#include "../../Components/Tag/SystemPhaseTag/StartTag.h"
-#include "../../Components/Tag/SystemPhaseTag/ActiveTag.h"
-#include "../../Components/Tag/SystemPhaseTag/ReleaseTag.h"
+#include "Application/Components/Core/PhaseTag/PostDeserializeTag.h"
+#include "Application/Components/Core/PhaseTag/AwakeTag.h"
+#include "Application/Components/Core/PhaseTag/StartTag.h"
+#include "Application/Components/Core/PhaseTag/ActiveTag.h"
+#include "Application/Components/Core/PhaseTag/ReleaseTag.h"
 
 namespace Engine::ECS
 {

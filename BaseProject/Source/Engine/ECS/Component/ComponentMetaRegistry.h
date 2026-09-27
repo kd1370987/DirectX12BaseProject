@@ -24,6 +24,7 @@ namespace Engine::ECS
 		std::function<void(CompEditContext&)> edit;						// エディター上から操作する処理
 		std::function<void(Persistence::Archive& a_ar, void*)> archive;	// データとして保存する処理
 		std::function<void(void*, const EngineServices&)> release;		// 借りているものを返す処理
+		std::function<void(Signature&)> addRequired;					// 必ず一緒に持たせるものをシグネチャへ足す処理
 	};
 
 	//==========================================================================================
@@ -95,6 +96,10 @@ namespace Engine::ECS
 		// 全コンポーネントの情報 : 添え字がそのままタイプID
 		const std::vector<ComponentMeta>& GetAllMetaData() const { return m_metaVec; }
 
+		// 必ず一緒に持たせるもの(ComponentTraits<T>::Requires)をシグネチャへ足す。
+		// 足したものがさらに要求するものも、増えなくなるまで辿る
+		void ExpandRequired(Signature& a_sig) const;
+
 	private:
 
 		// 名前からタイプIDへ(保存データの読み込みで使う)
@@ -106,6 +111,25 @@ namespace Engine::ECS
 
 		// 型ごとの置き場所を未登録へ戻す処理(レジストリが消えるときに呼ぶ)
 		std::vector<void(*)()> m_resetSlotFuncVec;
+
+		// RequireComponents の型をシグネチャへ立てる : 未登録の型は立てずに警告する
+		template<typename... Comps>
+		static void AddRequiredTypes(Signature& a_sig, RequireComponents<Comps...>)
+		{
+			(
+				[&a_sig]()
+				{
+					const ComponentTypeID _typeID = GetTypeID<Comps>();
+					if (!IsValidTypeID(_typeID))
+					{
+						ENGINE_WARNING("[ECS] 必須コンポーネントが登録されていません (%s)",
+							std::string(TypeInfo::GetTypeName<Comps>()).c_str());
+						return;
+					}
+					a_sig.set(_typeID);
+				}(), ...
+			);
+		}
 	};
 
 	template<typename Comp>
@@ -200,6 +224,15 @@ namespace Engine::ECS
 			// 解放フックが黙って登録されない = 返し漏れになる。気付けるように止める
 			// (Comp に依存させておかないと、この分岐に来ないときでも評価されて止まる)
 			static_assert(sizeof(Comp) == 0, "ComponentTraits<T>::Release は (void*, const EngineServices&) で書くこと");
+		}
+
+		// 必ず一緒に持たせるもの。番号は足すときに引く(相手の登録がこの型より後でもよい)
+		if constexpr (requires { typename ComponentTraits<Comp>::Requires; })
+		{
+			_func.addRequired = [](Signature& a_sig)
+				{
+					AddRequiredTypes(a_sig, typename ComponentTraits<Comp>::Requires{});
+				};
 		}
 
 		// 登録 : 添え字 = タイプID になるよう末尾に積む

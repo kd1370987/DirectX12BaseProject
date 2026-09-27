@@ -8,8 +8,8 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Tag/PlayerControllTag.h"
-#include "Application/Components/Character/Weapon/Missile/MissileLockComponent.h"
+#include "Application/Components/Input/PlayerControllTag.h"
+#include "Application/Components/Weapon/MissileLockComponent.h"
 
 namespace App::Object
 {

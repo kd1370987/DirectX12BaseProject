@@ -50,6 +50,28 @@ namespace Engine::ECS
 		return s_emptyMeta;
 	}
 
+	void ComponentMetaRegistry::ExpandRequired(Signature& a_sig) const
+	{
+		// 足したものがさらに要求を持つことがあるので、増えなくなるまで回す。
+		// 型の数は有限で、ビットは立つだけなので必ず止まる
+		bool _isChanged = true;
+		while (_isChanged)
+		{
+			_isChanged = false;
+			for (ComponentTypeID _typeID = 0; _typeID < m_funcVec.size(); ++_typeID)
+			{
+				if (!a_sig.test(_typeID)) continue;
+
+				const auto& _addRequired = m_funcVec[_typeID].addRequired;
+				if (!_addRequired) continue;
+
+				const Signature _before = a_sig;
+				_addRequired(a_sig);
+				if (a_sig != _before) _isChanged = true;
+			}
+		}
+	}
+
 	const ComponentFunc& ComponentMetaRegistry::GetFunc(const ComponentTypeID& a_id) const
 	{
 		// タイプIDがそのまま添え字

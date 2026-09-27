@@ -1,8 +1,8 @@
 #include "APPWorld.h"
 
 // エンティティに初めからつけるもの
-#include "../../Components/Persistence/GUIDComponent.h"		// GUID
-#include "../../Components/Hierarchy/HierarchyComponent.h"	// 親子関係(解放を子へ広げるのに使う)
+#include "Application/Components/Core/GUIDComponent.h"		// GUID
+#include "Application/Components/Transform/HierarchyComponent.h"	// 親子関係(解放を子へ広げるのに使う)
 
 // シングルトンリソース
 #include "../../InstanceResource/HierarchyResource.h"		// 階層保持

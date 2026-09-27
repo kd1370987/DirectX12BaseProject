@@ -6,8 +6,8 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Tag/PlayerControllTag.h"
-#include "Application/Components/Character/LockOnTargetComponent.h"
+#include "Application/Components/Input/PlayerControllTag.h"
+#include "Application/Components/Combat/LockOnTargetComponent.h"
 
 namespace App::Object
 {

@@ -10,8 +10,8 @@
 #include "../../../../../ECS/World/APPWorld.h"
 #include "../StateMachine.h"
 
-#include "../../../../../Components/Transform/LocalTransformComponent.h"
-#include "../../../../../Components/Intent/MoveIntentComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
+#include "Application/Components/Movement/MoveIntentComponent.h"
 
 namespace App::Object
 {

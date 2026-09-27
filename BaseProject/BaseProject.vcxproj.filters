@@ -1,6 +1,96 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Source\Application\Components\Animation">
+      <UniqueIdentifier>{115b4bc4-dd1e-4d16-bc09-1da85e66092e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Attachment">
+      <UniqueIdentifier>{c7c174ed-703e-4185-8414-d5a20a048b46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Audio">
+      <UniqueIdentifier>{a5b6bb93-618a-4721-944c-77f779b28539}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Boid">
+      <UniqueIdentifier>{a6c7eaa6-6140-4e8d-ab66-6d698b96f1b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Boss">
+      <UniqueIdentifier>{a79a6593-20f4-47b9-a88b-f4b6d3787eb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Combat">
+      <UniqueIdentifier>{af94e1d5-6a0e-4c55-ad91-c9392e7452f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Core">
+      <UniqueIdentifier>{0cf3e16a-4ed1-4fc5-9c3e-92f06075a611}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Core\PhaseTag">
+      <UniqueIdentifier>{f014fb87-4a3a-4ca4-8adb-9e9eaf1a7035}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Enemy">
+      <UniqueIdentifier>{9af02cea-064c-4af2-b19f-be8bb6d5cd01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Input">
+      <UniqueIdentifier>{71a8814d-2468-40ff-84d2-a0442f27deb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Movement">
+      <UniqueIdentifier>{b1d7d73f-c0c1-4d23-b7a2-f4b3e4b4e217}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Physics">
+      <UniqueIdentifier>{33e5bab8-1cfd-4efe-81dd-a6540a886077}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Render">
+      <UniqueIdentifier>{982cf2ba-86c2-4112-934e-ce6024a57c70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Components\Weapon">
+      <UniqueIdentifier>{0e49cfca-bf08-4dbe-99c5-53b1069e1c23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Animation">
+      <UniqueIdentifier>{d558cbee-cf1b-4a70-a7a7-1d8b1a1c178c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Attachment">
+      <UniqueIdentifier>{bc82d0ce-1cdc-4e49-a1aa-ccdd4065c000}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Audio">
+      <UniqueIdentifier>{0d5a733b-28a8-47e6-84a0-6631ddfc07c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Boid">
+      <UniqueIdentifier>{4bc78b54-9409-43c2-89c6-92033b15e67b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Boss">
+      <UniqueIdentifier>{106753da-c938-4b8b-9b9e-cd3d5506eaf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Camera">
+      <UniqueIdentifier>{06dc85fe-398d-4093-aa1f-4aedbd4a4f7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Combat">
+      <UniqueIdentifier>{00f85c57-eda5-49f7-8979-39f1bd9f624c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Core">
+      <UniqueIdentifier>{0ead3a82-896e-4df6-a692-5502d5ae96d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Effect">
+      <UniqueIdentifier>{1bfffa9b-f345-4d15-8d2a-f87ef4c2969f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Enemy">
+      <UniqueIdentifier>{a03e7652-e327-421f-a124-c00a2ead6280}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Input">
+      <UniqueIdentifier>{79e132dc-eb21-471a-a7f2-6d04efb83362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Movement">
+      <UniqueIdentifier>{02caf418-d8d8-41a2-a16f-3fd46da28df3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Physics">
+      <UniqueIdentifier>{0598e004-4ac8-4e59-92aa-e52b0914b555}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Render">
+      <UniqueIdentifier>{eddfdbbe-d38e-4754-b564-0780f5355188}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Transform">
+      <UniqueIdentifier>{aa2d5add-c56e-4226-8bbd-b6a17f0f9a87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Systems\Weapon">
+      <UniqueIdentifier>{e386e070-d7ea-4f8b-bb64-609fc192059c}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\Device\RenderDevice">
       <UniqueIdentifier>{8681bae2-f567-41a5-b5b9-c8e7e124fdd6}</UniqueIdentifier>
     </Filter>
@@ -60,12 +150,6 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\PipelineState\ShadingPipelineBuilder">
       <UniqueIdentifier>{09c3d7e5-90dc-4cb9-82b2-cf3c8a704160}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Effect\BallisticSystem">
-      <UniqueIdentifier>{235d524e-9d3b-4af9-8022-fe8901e26d7e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem">
-      <UniqueIdentifier>{4096aa8b-62a5-42c5-bfb1-64e79f2e56b1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource\Data\EffectPrefab">
       <UniqueIdentifier>{b77035d4-594a-44b7-b204-475c915e653d}</UniqueIdentifier>
@@ -289,59 +373,8 @@
     <Filter Include="Source\Application\Components\Camera">
       <UniqueIdentifier>{67fb5110-7b83-4489-8018-f162f2d5598b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Components\Character">
-      <UniqueIdentifier>{2101dfbd-ff66-4f2e-a0d4-87591abfee1f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Character\Boss">
-      <UniqueIdentifier>{a1b2c3d4-4e5f-4a60-9b71-0c82d3e4f504}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Character\Robot">
-      <UniqueIdentifier>{6291cffc-5cbb-46ce-abbc-4aa653a1dff1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Character\Weapon">
-      <UniqueIdentifier>{c0de001d-1111-4222-8333-0000c0de001d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Character\Weapon\Gun">
-      <UniqueIdentifier>{e5853aec-2a82-4d9e-9ef7-776b42616acd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Character\Weapon\Missile">
-      <UniqueIdentifier>{8a1b0c03-4f2e-4c3a-9d51-7e6b2f0a9103}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Character\Weapon\Projectile">
-      <UniqueIdentifier>{b4829625-9998-4796-b84e-6c3790cd1f75}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Collision">
-      <UniqueIdentifier>{0879a6c2-78c1-4afc-b60e-93e36c19ebd9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Common">
-      <UniqueIdentifier>{b2da767d-112f-4fc9-8533-c85c7f3e0cc0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Components\Effect">
       <UniqueIdentifier>{2fc9a0c8-127e-4e31-9328-86b924a0df09}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Force">
-      <UniqueIdentifier>{1696e9b0-8137-48ff-9647-72f893e0a96a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Hierarchy">
-      <UniqueIdentifier>{9180b76b-15c4-40da-95fd-1ebd303e22fe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Intent">
-      <UniqueIdentifier>{7b22f186-76d7-4035-91dc-e9f58ab4dd2c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Persistence">
-      <UniqueIdentifier>{7a5619ec-46d6-4578-8209-9d6ac4272ecf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Resource">
-      <UniqueIdentifier>{ced6497b-3356-4a3a-a60a-06f9dd757d55}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Tag">
-      <UniqueIdentifier>{e7384a31-8102-44e5-87cf-f40438673d20}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Tag\RenderTag">
-      <UniqueIdentifier>{5cba0978-4eff-4e23-8ec5-b8bdf27aa766}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Tag\SystemPhaseTag">
-      <UniqueIdentifier>{c5902d69-d370-4672-b396-65beb03b9130}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Components\Transform">
       <UniqueIdentifier>{15c82016-4427-4fe7-a457-4e543116d420}</UniqueIdentifier>
@@ -438,393 +471,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems">
       <UniqueIdentifier>{066ecb91-591e-4b7d-9127-cab942012e27}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw">
-      <UniqueIdentifier>{8a19ad69-35e6-4c78-8dff-7c70b7b793cc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw">
-      <UniqueIdentifier>{9640dfec-4c6c-4cb2-8fc8-17df66ce51c4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw">
-      <UniqueIdentifier>{7efaeed9-0018-4292-91f8-03a3d71ee4b5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem">
-      <UniqueIdentifier>{71ba85ac-ccd3-4aa7-8bcf-9715e7cb75d6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem">
-      <UniqueIdentifier>{c0de0019-1111-4222-8333-0000c0de0019}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem">
-      <UniqueIdentifier>{3bc7d0d3-feee-45e2-84f7-774902bbd308}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem">
-      <UniqueIdentifier>{92e51ad2-0a0f-4c4c-92db-f74ae89c53c2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem">
-      <UniqueIdentifier>{a2da8088-8327-48de-ac3d-e53df54c1277}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem">
-      <UniqueIdentifier>{42b34ae5-8f12-4b9e-a20b-14528524dcf1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem">
-      <UniqueIdentifier>{11bb16fa-99ca-4298-9ce2-c64c576db6d1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\PostDraw">
-      <UniqueIdentifier>{a648d06a-296e-450b-ada4-3803fcf6e6ec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem">
-      <UniqueIdentifier>{6be256d2-5724-4266-a330-be16a91208e4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\PreDraw">
-      <UniqueIdentifier>{c6ebcc9f-8a71-4c63-88bb-e199c2f2168e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem">
-      <UniqueIdentifier>{644a61c0-8983-477a-957e-fd10b32ffe37}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem">
-      <UniqueIdentifier>{3258cbaf-4e1b-4c7a-a85c-854c3c2a6c21}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem">
-      <UniqueIdentifier>{f0c87379-e84d-42cb-9ac1-9bbd8add66a8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem">
-      <UniqueIdentifier>{7f2c1a90-4d63-4a1e-9c05-2b8e6f31d47a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Draw\PreDraw\ApplyEmissiveOverrideSystem">
-      <UniqueIdentifier>{08df75bc-ca2f-49fc-a920-beaf3c56fc51}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Components\Light">
-      <UniqueIdentifier>{c41b8e57-9a20-4f6d-b3e8-5d07a2c9186f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init">
-      <UniqueIdentifier>{8e76d589-19f7-49ba-9c3b-eb65b949f5ce}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Awake">
-      <UniqueIdentifier>{ac9891ca-8b43-444d-9e3d-e779d2558be5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem">
-      <UniqueIdentifier>{897bfa03-643c-4dae-a9dd-5d7a5c2e4e3d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem">
-      <UniqueIdentifier>{43def2de-ebf8-4691-b952-dedf73461961}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem">
-      <UniqueIdentifier>{5a6abe91-0d4a-4fd5-9697-07a17896e94b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem">
-      <UniqueIdentifier>{60245d12-9c89-46d8-9ff5-77703533bb55}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize">
-      <UniqueIdentifier>{ba1325b4-b2d8-41ca-a294-32a33e67d591}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem">
-      <UniqueIdentifier>{c4f81a26-3b57-4e19-9a72-5d1e6f8b02a4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem">
-      <UniqueIdentifier>{c0de0017-1111-4222-8333-0000c0de0017}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem">
-      <UniqueIdentifier>{4ff5ce68-77de-401c-8ca7-ef7d33bd893c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem">
-      <UniqueIdentifier>{938c4e29-3023-4895-b3b1-9e0c45d6049d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem">
-      <UniqueIdentifier>{03cacf88-e424-4e9f-b13e-ec4c83499819}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem">
-      <UniqueIdentifier>{56a92f0c-190f-4f54-a10d-b4bc41efcb15}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize\SoundFixupSystem">
-      <UniqueIdentifier>{28810f8a-9fe6-4cf3-b29e-b08a50e70a46}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem">
-      <UniqueIdentifier>{d4094ff4-6543-49dd-b814-2e5229463f2e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Start">
-      <UniqueIdentifier>{9c8cd101-660c-4930-a795-5c4c94efa140}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Start\AdditivePoseLinkSystem">
-      <UniqueIdentifier>{1c7289a8-8c4c-414c-bb4b-33704f702cf5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem">
-      <UniqueIdentifier>{e6a6f1b5-ddf3-4da5-9c0d-02dcd1e7a333}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem">
-      <UniqueIdentifier>{0d8c3ba0-d37d-4b7f-8723-7eef2d9d7794}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Start\CameraStartSystem">
-      <UniqueIdentifier>{13ae931f-6870-49d9-b99c-8d5ce8a83697}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Start\GunStateStartSystem">
-      <UniqueIdentifier>{51320e8c-b456-46f8-9e90-ae4cbbd4abdf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem">
-      <UniqueIdentifier>{f5695fa2-8a00-4740-969a-af0fc9681517}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Start\SpawnSoundSystem">
-      <UniqueIdentifier>{9a4c7e21-0d63-4b58-8f17-2c95b6ea4d70}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Release">
-      <UniqueIdentifier>{6f1c9799-1264-47c3-9b47-89fe152370c6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Release\AdditivePoseFreeSystem">
-      <UniqueIdentifier>{2e460b76-6473-40ab-bc4a-780f18e45806}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem">
-      <UniqueIdentifier>{94ee3a73-abc3-4bb1-a326-93c20a0ac8f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Release\PhysicsBodyFreeSystem">
-      <UniqueIdentifier>{4175bb82-97cf-4ee8-94a9-126605c9debf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Release\SoundFreeSystem">
-      <UniqueIdentifier>{88a8efb5-3d3f-42fb-975e-19ff52c9302a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Shared">
-      <UniqueIdentifier>{8a1b0c01-4f2e-4c3a-9d51-7e6b2f0a9101}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Shared\HierarchyTransform">
-      <UniqueIdentifier>{8a1b0c04-4f2e-4c3a-9d51-7e6b2f0a9104}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Shared\MissileSalvo">
-      <UniqueIdentifier>{a1b2c3d4-1e5f-4a60-9b71-0c82d3e4f501}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Shared\ProjectileSpawn">
-      <UniqueIdentifier>{8a1b0c02-4f2e-4c3a-9d51-7e6b2f0a9102}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update">
-      <UniqueIdentifier>{b8b91857-15ea-4fda-b358-c147198a9fd1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Animation">
-      <UniqueIdentifier>{32547461-1fdc-4ada-b712-b1f06edb8909}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Animation\AnimationStateSystem">
-      <UniqueIdentifier>{59fcf3de-de21-4684-978e-a99ae6546615}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Camera">
-      <UniqueIdentifier>{2bc460fd-a3a4-48dd-b4c0-01aace9c3929}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Camera\AimTargetSystem">
-      <UniqueIdentifier>{3a7c1b52-9d64-4f18-8c27-5e0b41d7a903}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem">
-      <UniqueIdentifier>{a1c7f2e4-7b41-4d9e-9c62-0e3f5a8d1b77}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Camera\RadialBlurSpeedSystem">
-      <UniqueIdentifier>{74109b56-de4f-42fa-a8cc-ee283b86493b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Camera\TPSSystem">
-      <UniqueIdentifier>{eff4e858-a3a9-4f9f-a51a-3b9ae7f28481}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Input">
-      <UniqueIdentifier>{a7c9d3df-9600-4d35-841f-c08cbb2142bc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Input\InputActionSystem">
-      <UniqueIdentifier>{b7db7634-7c93-4439-8aab-074dbeaebc9b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Input\InputMoveSystem">
-      <UniqueIdentifier>{e9f84f47-835c-44aa-8770-254f2194047d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics">
-      <UniqueIdentifier>{b6e81472-8dc5-4f90-8151-63c41b7b1c91}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem">
-      <UniqueIdentifier>{6a2281ea-cd2f-4161-bcfa-8d33120db163}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\HitDetectSystem">
-      <UniqueIdentifier>{7c583425-e58b-465b-8df5-834a1e8cccd4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\Integral">
-      <UniqueIdentifier>{898bb7b0-5ce6-4e20-8ebd-9434cd7798a7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem">
-      <UniqueIdentifier>{1c4a7f52-6d0b-4a3e-9f5c-8b2d61e7a904}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem">
-      <UniqueIdentifier>{29d208e6-31fb-42f8-8dc2-2f171faa9124}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\RayCollisionSystem">
-      <UniqueIdentifier>{dd3f9846-de26-4539-bf1c-aa5bceea153e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem">
-      <UniqueIdentifier>{4691fe19-0ec0-4da5-a990-509f297c78e3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate">
-      <UniqueIdentifier>{25176aaa-f45b-4f0b-9399-761cc1a72e57}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem">
-      <UniqueIdentifier>{ccd3b324-1653-4ed7-98fa-5629215f589a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem">
-      <UniqueIdentifier>{3025c83e-fc74-49a4-b298-22098ab9184d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem">
-      <UniqueIdentifier>{148a215d-cff2-4780-a9a6-8e6c366e8635}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem">
-      <UniqueIdentifier>{a1b2c3d4-3e5f-4a60-9b71-0c82d3e4f503}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem">
-      <UniqueIdentifier>{c26e8c89-9daa-4733-aa78-de4365361a03}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem">
-      <UniqueIdentifier>{ed98f94f-ea01-4cf6-a162-f1b82099f619}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem">
-      <UniqueIdentifier>{0040f83e-bfab-46de-8dce-75676fefed1d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem">
-      <UniqueIdentifier>{d43aa155-e10e-4438-aa78-74ed50becd24}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\DeathStateSystem">
-      <UniqueIdentifier>{f9cf5446-b23e-4c82-884e-6acbcdefb791}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem">
-      <UniqueIdentifier>{676272b8-f8b0-43d2-a547-f18422fa05e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem">
-      <UniqueIdentifier>{6b1f2c74-3d58-4a0e-9c2b-5e7a1d0f83b6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem">
-      <UniqueIdentifier>{0683327e-eaad-47bd-a8ad-4905db68f2b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem">
-      <UniqueIdentifier>{f761e75d-2768-4759-9df6-aa52bb916d38}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\HealthSystem">
-      <UniqueIdentifier>{62bf4979-55ca-45a7-94aa-966859926464}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem">
-      <UniqueIdentifier>{f6c93a8d-7db4-415a-9469-c082e357b1fa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem">
-      <UniqueIdentifier>{9e979bb1-18ed-42c5-aec4-f0206709b1aa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem">
-      <UniqueIdentifier>{2b7e6d40-91a5-4c18-b3d2-7c5e8a1f4d62}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem">
-      <UniqueIdentifier>{8a1b0c00-4f2e-4c3a-9d51-7e6b2f0a9100}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\ScoreSystem">
-      <UniqueIdentifier>{a2c685fc-c54b-4fc6-a2b5-4d70e8993a2b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem">
-      <UniqueIdentifier>{811e3abc-16d3-410e-86d9-a2dddf791863}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate">
-      <UniqueIdentifier>{92e1804e-1dd1-4801-b8ae-22c3f2e892a5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem">
-      <UniqueIdentifier>{b2e7a1c4-9f3d-4a6b-8c21-7de5f0a4b913}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem">
-      <UniqueIdentifier>{541c9668-05e1-4902-b497-892715a4a70b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem">
-      <UniqueIdentifier>{a1b2c3d4-2e5f-4a60-9b71-0c82d3e4f502}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem">
-      <UniqueIdentifier>{3a2db145-f78c-4e68-99c8-3dd7752580ff}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem">
-      <UniqueIdentifier>{21cd4ed3-b293-4765-8679-8ac9f0b62cfe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem">
-      <UniqueIdentifier>{ff19ea60-9884-4f66-ad0b-a2bdd387e6d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem">
-      <UniqueIdentifier>{c3f69d5a-4a81-4e27-a136-9d5fb024e8c7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem">
-      <UniqueIdentifier>{e5b82f7c-6ca3-4049-c358-bf71d246a0e9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\HitEventClearSystem">
-      <UniqueIdentifier>{6f2a1c04-9d3b-4a17-b58e-2c7d90f4a1b6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\HomingSystem">
-      <UniqueIdentifier>{d4a71e6b-5b92-4f38-b247-ae60c135f9d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\MainCameraSystem">
-      <UniqueIdentifier>{7c1a4f52-3b6d-4a90-9e1f-2d5c8b0a41e7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem">
-      <UniqueIdentifier>{83675496-7da3-472b-b73b-af8dacfaa60e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem">
-      <UniqueIdentifier>{3c6f1a92-8d54-4e11-b7a3-9f2e5c81d640}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem">
-      <UniqueIdentifier>{c0de001e-1111-4222-8333-0000c0de001e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem">
-      <UniqueIdentifier>{d9c8b3a5-1e42-4f7a-b6d0-3c8f5a2e9107}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem">
-      <UniqueIdentifier>{3961adad-837d-4296-bb7f-49b4efbaa876}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update">
-      <UniqueIdentifier>{9c94d8aa-5ad0-4728-bb08-da6840b9b69d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Acceleration">
-      <UniqueIdentifier>{dbc08cb4-901a-4cfc-9c0a-4f046b052d6f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem">
-      <UniqueIdentifier>{92d037be-07d0-497e-b6f0-9845d50682d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Effect">
-      <UniqueIdentifier>{08fe880d-dda2-407a-b38f-12f9b01d0b38}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem">
-      <UniqueIdentifier>{c8a86abd-b451-44dd-afa3-2ef0afebd67f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem">
-      <UniqueIdentifier>{c0de0018-1111-4222-8333-0000c0de0018}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\FaceTargetSystem">
-      <UniqueIdentifier>{b2e58c49-3f70-4d16-9025-8c4eaf13d7b6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\GunShootSystem">
-      <UniqueIdentifier>{8b01a7d1-cc31-4437-a574-99d15551c0f1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\LookAroundSystem">
-      <UniqueIdentifier>{f6c92d83-7d14-4b5a-a469-c082e357b1fa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Move">
-      <UniqueIdentifier>{689c5aa0-1968-4d5b-af86-f3ca8795955c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem">
-      <UniqueIdentifier>{713ac76b-a963-4325-a916-fa77e2656520}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Move\ChargeDashSystem">
-      <UniqueIdentifier>{8c01f798-6cb1-424a-bfb8-848e4b0c0e02}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem">
-      <UniqueIdentifier>{d4a7ae6b-5b92-4f38-b247-ae60c135f9d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem">
-      <UniqueIdentifier>{ca73c634-5fce-4e9d-ada6-0901ab471f24}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Particle">
-      <UniqueIdentifier>{93b33bf0-5bc8-4c76-8963-a17878e78eeb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem">
-      <UniqueIdentifier>{d61d668c-62ab-41bd-83f5-0560398d94ae}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Rotation">
-      <UniqueIdentifier>{4608d3ee-8ce0-49ad-b664-6bcdcb36212a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem">
-      <UniqueIdentifier>{8a69a85f-8d5b-4d75-8c43-677b3f88f09f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem">
-      <UniqueIdentifier>{fe8be2a2-b6c1-4213-af0c-036c649d3451}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem">
-      <UniqueIdentifier>{92bdc9dc-6de6-4b4c-888e-3f25d1edcafd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem">
-      <UniqueIdentifier>{1965eec3-c7ea-4dbd-b6be-c121d853227d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Utility">
       <UniqueIdentifier>{18be77b3-0b87-4b8b-b895-d89ff72571df}</UniqueIdentifier>
@@ -1585,9 +1231,6 @@
     <Filter Include="Source\Application\Game\InputActions\InputManager">
       <UniqueIdentifier>{cd2a8b37-fc10-494e-a304-a675badd8309}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Boid">
-      <UniqueIdentifier>{b593e5e2-5358-4df3-8d95-89f218d80d64}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Object\Controller">
       <UniqueIdentifier>{52065757-3e80-43ec-b7b9-672759c2d848}</UniqueIdentifier>
     </Filter>
@@ -1650,11 +1293,11 @@
     <ClCompile Include="Source\Application\Utility\EffectPrefabSpawnHelper.cpp">
       <Filter>Source\Application\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem\DebrisEmitterSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\DebrisEmitterSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\BallisticSystem\BallisticSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Effect\BallisticSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\BallisticSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\BuiltinCompositeNodes.cpp">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode</Filter>
@@ -1672,34 +1315,34 @@
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
-      <Filter>Library\Include\ImGuizmo-master</Filter>
+      <Filter>..\Library\Include\ImGuizmo-master</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui.cpp">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_demo.cpp">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_draw.cpp">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_dx12.cpp">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_win32.cpp">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_stdlib.cpp">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_tables.cpp">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_widgets.cpp">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imnodes-master\imnodes.cpp">
-      <Filter>Library\Include\imnodes-master</Filter>
+      <Filter>..\Library\Include\imnodes-master</Filter>
     </ClCompile>
     <ClCompile Include="Source\Pch.cpp">
       <Filter>Source</Filter>
@@ -1779,317 +1422,317 @@
     <ClCompile Include="Source\Application\Object\UI\WaveAnnounceHUD\WaveAnnounceHUD.cpp">
       <Filter>Source\Application\Object\UI\WaveAnnounceHUD</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.cpp">
-      <Filter>Source\Application\Systems\Draw\Draw\AnimationOptionalDraw</Filter>
+    <ClCompile Include="Source\Application\Systems\Render\AnimationOptionalDraw.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Render\DynamicObjectDrawSystem.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem\EffectDrawSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\Draw\EffectDrawSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\EffectDrawSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\Draw\EmitParticlesSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\EmitParticlesSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem\RegisterAnimatedRayWorldSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Render\RegisterAnimatedRayWorldSystem.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Render\RegisterRayWorldSystem.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\Draw\SkinningRegisterSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Render\SkinningRegisterSystem.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Render\StaticObjectDrawSystem.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Render\RegisterPrevWorldMatSystem.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Camera\CamSetShaderSystem.cpp">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem\CameraPipelineSubmitSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Camera\CameraPipelineSubmitSystem.cpp">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem\CameraPipelineFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Camera\CameraPipelineFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\PreDraw\PointLightSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Render\PointLightSystem.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\PreDraw\ApplyEmissiveOverrideSystem\ApplyEmissiveOverrideSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\PreDraw\ApplyEmissiveOverrideSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Render\ApplyEmissiveOverrideSystem.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentReadyGateSystem.cpp">
+      <Filter>Source\Application\Systems\Attachment</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Awake\FollowTargetLinkSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Camera\FollowTargetLinkSystem.cpp">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Awake\HierarchyLinkSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Transform\HierarchyLinkSystem.cpp">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Awake\ModelReadyGateSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Render\ModelReadyGateSystem.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem\AttachmentSlotLinkSystem.cpp">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentSlotLinkSystem.cpp">
+      <Filter>Source\Application\Systems\Attachment</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem\EffectFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\EffectFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Core\GUIDFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Combat\HealthFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Render\ModelFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\ParticleFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\SoundFixupSystem\SoundFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\SoundFixupSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Audio\SoundFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem\StateMachineFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\StateMachineFixupSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Start\AdditivePoseLinkSystem\AdditivePoseLinkSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Start\AdditivePoseLinkSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\AdditivePoseLinkSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Start\AnimationModelStartSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\AnimationModelStartSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentNodeLinkSystem.cpp">
+      <Filter>Source\Application\Systems\Attachment</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Start\CameraStartSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Camera\CameraStartSystem.cpp">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Start\GunStateStartSystem\GunStateStartSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Start\GunStateStartSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Weapon\GunStateStartSystem.cpp">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem\RegisterPhysicsBodySystem.cpp">
-      <Filter>Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Physics\RegisterPhysicsBodySystem.cpp">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Start\SpawnSoundSystem\SpawnSoundSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Start\SpawnSoundSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Audio\SpawnSoundSystem.cpp">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.cpp">
-      <Filter>Source\Application\Systems\Release\AdditivePoseFreeSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\AdditivePoseFreeSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.cpp">
-      <Filter>Source\Application\Systems\Release\AnimationMatrixFreeSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\AnimationMatrixFreeSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Release\PhysicsBodyFreeSystem\PhysicsBodyFreeSystem.cpp">
-      <Filter>Source\Application\Systems\Release\PhysicsBodyFreeSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Physics\PhysicsBodyFreeSystem.cpp">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.cpp">
-      <Filter>Source\Application\Systems\Release\SoundFreeSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Audio\SoundFreeSystem.cpp">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Shared\HierarchyTransform\HierarchyTransform.cpp">
-      <Filter>Source\Application\Systems\Shared\HierarchyTransform</Filter>
+    <ClCompile Include="Source\Application\Systems\Transform\HierarchyTransform.cpp">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Shared\MissileSalvo\MissileSalvo.cpp">
-      <Filter>Source\Application\Systems\Shared\MissileSalvo</Filter>
+    <ClCompile Include="Source\Application\Systems\Weapon\MissileSalvo.cpp">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.cpp">
-      <Filter>Source\Application\Systems\Shared\ProjectileSpawn</Filter>
+    <ClCompile Include="Source\Application\Systems\Weapon\ProjectileSpawn.cpp">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Animation\AnimationStateSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\AnimationStateSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Camera\AimTargetSystem\AimTargetSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Camera\AimTargetSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Camera\AimTargetSystem.cpp">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem\CameraProjUpdateSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Camera\CameraProjUpdateSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Camera\CameraProjUpdateSystem.cpp">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Camera\RadialBlurSpeedSystem\RadialBlurSpeedSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Camera\RadialBlurSpeedSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Camera\RadialBlurSpeedSystem.cpp">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Camera\TPSSystem.cpp">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Input\InputActionSystem\InputActionSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Input\InputActionSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Input\InputActionSystem.cpp">
+      <Filter>Source\Application\Systems\Input</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Input\InputMoveSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Input\InputMoveSystem.cpp">
+      <Filter>Source\Application\Systems\Input</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Physics\CapsuleCollisionSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Physics\CapsuleCollisionSystem.cpp">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Physics\HitDetectSystem\HitDetectSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Physics\HitDetectSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Physics\HitDetectSystem.cpp">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem\MovementIntegrationSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Physics\MovementIntegrationSystem.cpp">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Physics\PositionIntegrationSystem.cpp">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Physics\RayCollisionSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Physics\RayCollisionSystem.cpp">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Physics\SphereCollisionSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Physics\SphereCollisionSystem.cpp">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\AdditivePoseSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\AnimationSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\AnimationSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\AudioListenerSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Audio\AudioListenerSystem.cpp">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem\BossMissileSalvoSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Boss\BossMissileSalvoSystem.cpp">
+      <Filter>Source\Application\Systems\Boss</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\CalcNodeSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\CalcNodeSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem\CommitHierarchyWorldMatrixSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Transform\CommitHierarchyWorldMatrixSystem.cpp">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Transform\CalcMatrixSystem.cpp">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\DeathEffectSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\DeathEffectSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\DeathStateSystem\DeathStateSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\DeathStateSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Combat\DeathStateSystem.cpp">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Combat\ExplodeOnHitSystem.cpp">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\ExplosionSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\ExplosionSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem\FlyingSoundSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Audio\FlyingSoundSystem.cpp">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem\FollowAnimationNodeSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Transform\FollowAnimationNodeSystem.cpp">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\HealthSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Combat\HealthSystem.cpp">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\HitSoundSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Audio\HitSoundSystem.cpp">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem\LifeTimeSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\LifeTimeSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Core\LifeTimeSystem.cpp">
+      <Filter>Source\Application\Systems\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem\LockOnTargetSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Combat\LockOnTargetSystem.cpp">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem\MissileSalvoSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Weapon\MissileSalvoSystem.cpp">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\ScoreSystem\ScoreSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\ScoreSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Combat\ScoreSystem.cpp">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PostUpdate\SkinningSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\SkinningSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentDispatchSystem.cpp">
+      <Filter>Source\Application\Systems\Attachment</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem\BoostSoundSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\BoostSoundSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Audio\BoostSoundSystem.cpp">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem\BossCombatIntentSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Boss\BossCombatIntentSystem.cpp">
+      <Filter>Source\Application\Systems\Boss</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem\CloseCombatIntentSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Enemy\CloseCombatIntentSystem.cpp">
+      <Filter>Source\Application\Systems\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem\CollisionEventClearSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Physics\CollisionEventClearSystem.cpp">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem\DeathEventClearSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Combat\DeathEventClearSystem.cpp">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Enemy\EnemyMoveIntentSystem.cpp">
+      <Filter>Source\Application\Systems\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem\EnemyShootIntentSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Enemy\EnemyShootIntentSystem.cpp">
+      <Filter>Source\Application\Systems\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\HitEventClearSystem\HitEventClearSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\HitEventClearSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Combat\HitEventClearSystem.cpp">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\HomingSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Weapon\HomingSystem.cpp">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\MainCameraSystem\MainCameraSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\MainCameraSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Camera\MainCameraSystem.cpp">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\PlayerIntentSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem\SearchPlayerSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Enemy\SearchPlayerSystem.cpp">
+      <Filter>Source\Application\Systems\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem\SelfWeaponTriggerSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Weapon\SelfWeaponTriggerSystem.cpp">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\ThrusterEffectSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.cpp">
-      <Filter>Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Transform\UpdateHierarchyDepthSystem.cpp">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Acceleration\GravitySystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Movement\GravitySystem.cpp">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem\BoosterEffectSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\BoosterEffectSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem\EffectUpdateSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\EffectUpdateSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\FaceTargetSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Movement\FaceTargetSystem.cpp">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\GunShootSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Weapon\GunShootSystem.cpp">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\LookAroundSystem\LookAroundSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\LookAroundSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Movement\LookAroundSystem.cpp">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem\CharacterMovementSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Move\CharacterMovementSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Movement\CharacterMovementSystem.cpp">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Move\ChargeDashSystem\ChargeDashSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Move\ChargeDashSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Movement\ChargeDashSystem.cpp">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Move\EnemyMovementSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Enemy\EnemyMovementSystem.cpp">
+      <Filter>Source\Application\Systems\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Movement\RobotBoostSystem.cpp">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Effect\ParticleEmitSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem\LockOnRotationSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Movement\LockOnRotationSystem.cpp">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Rotation\RotationSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Movement\RotationSystem.cpp">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\StateMachineCommitSystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Animation\StateMachineCommitSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem\SyncPhysicsBodySystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\SyncPhysicsBodySystem</Filter>
+    <ClCompile Include="Source\Application\Systems\Physics\SyncPhysicsBodySystem.cpp">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Utility\EffectSpawnHelper.cpp">
       <Filter>Source\Application\Utility</Filter>
@@ -2736,35 +2379,35 @@
     <ClCompile Include="Source\Application\Game\InputActions\InputManager\InputActionManager.cpp">
       <Filter>Source\Application\Game\InputActions\InputManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClCompile Include="Source\Application\Systems\Boid\BoidSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\FollowLeaderSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClCompile Include="Source\Application\Systems\Boid\FollowLeaderSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.cpp">
       <Filter>Source\Application\Object\Controller\SwarmBossController</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\PlatoonFollowSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClCompile Include="Source\Application\Systems\Boid\PlatoonFollowSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClCompile Include="Source\Application\Systems\Boid\SwarmLookSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidContactDamageSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClCompile Include="Source\Application\Systems\Boid\BoidContactDamageSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidGroundEffectSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClCompile Include="Source\Application\Systems\Boid\BoidGroundEffectSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SerchGroundSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClCompile Include="Source\Application\Systems\Boid\SerchGroundSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\BoidWaveSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClCompile Include="Source\Application\Systems\Boid\BoidWaveSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Boid\SwarmLeaderMoveSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClCompile Include="Source\Application\Systems\Boid\SwarmLeaderMoveSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge\ChargeState.cpp">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge</Filter>
@@ -2834,11 +2477,11 @@
     <ClInclude Include="Source\Application\Utility\EffectPrefabSpawnHelper.h">
       <Filter>Source\Application\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem\DebrisEmitterSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Effect\DebrisEmitterSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\DebrisEmitterSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\BallisticSystem\BallisticSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Effect\BallisticSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\BallisticSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\CompositeNode.h">
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode</Filter>
@@ -2850,37 +2493,37 @@
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\ImGuizmo-master\ImGuizmo.h">
-      <Filter>Library\Include\ImGuizmo-master</Filter>
+      <Filter>..\Library\Include\ImGuizmo-master</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imconfig.h">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imgui.h">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imgui_impl_dx12.h">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imgui_impl_win32.h">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imgui_internal.h">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imgui_stdlib.h">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imstb_rectpack.h">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imstb_textedit.h">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imstb_truetype.h">
-      <Filter>Library\Include\imgui-docking</Filter>
+      <Filter>..\Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imnodes-master\imnodes.h">
-      <Filter>Library\Include\imnodes-master</Filter>
+      <Filter>..\Library\Include\imnodes-master</Filter>
     </ClInclude>
     <ClInclude Include="Source\Pch.h">
       <Filter>Source</Filter>
@@ -2924,92 +2567,92 @@
     <ClInclude Include="Source\Application\Components\Camera\TPSOffsetComponent.h">
       <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\AimTargetPosComponent.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Combat\AimTargetPosComponent.h">
+      <Filter>Source\Application\Components\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\CloseCombatComponent.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Enemy\CloseCombatComponent.h">
+      <Filter>Source\Application\Components\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\DeathEffectComponent.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Combat\DeathEffectComponent.h">
+      <Filter>Source\Application\Components\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\FlyingSound.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Audio\FlyingSound.h">
+      <Filter>Source\Application\Components\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\HealthComponent.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Combat\HealthComponent.h">
+      <Filter>Source\Application\Components\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\LockOnTargetComponent.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Combat\LockOnTargetComponent.h">
+      <Filter>Source\Application\Components\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\LookAngleComponent.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Movement\LookAngleComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\PatrolComponent.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Enemy\PatrolComponent.h">
+      <Filter>Source\Application\Components\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\ScoreTargetComponent.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Combat\ScoreTargetComponent.h">
+      <Filter>Source\Application\Components\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\TargetEntityComponent.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Combat\TargetEntityComponent.h">
+      <Filter>Source\Application\Components\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Boss\BossComponent.h">
-      <Filter>Source\Application\Components\Character\Boss</Filter>
+    <ClInclude Include="Source\Application\Components\Boss\BossComponent.h">
+      <Filter>Source\Application\Components\Boss</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Boss\BoidLeaderComponent.h">
-      <Filter>Source\Application\Components\Character\Boss</Filter>
+    <ClInclude Include="Source\Application\Components\Boid\BoidLeaderComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Robot\AdditivePoseComponent.h">
-      <Filter>Source\Application\Components\Character\Robot</Filter>
+    <ClInclude Include="Source\Application\Components\Animation\AdditivePoseComponent.h">
+      <Filter>Source\Application\Components\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Robot\AttachmentSlotsComponent.h">
-      <Filter>Source\Application\Components\Character\Robot</Filter>
+    <ClInclude Include="Source\Application\Components\Attachment\AttachmentSlotsComponent.h">
+      <Filter>Source\Application\Components\Attachment</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Robot\BoostComponent.h">
-      <Filter>Source\Application\Components\Character\Robot</Filter>
+    <ClInclude Include="Source\Application\Components\Movement\BoostComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Robot\BoosterEffectComponent.h">
-      <Filter>Source\Application\Components\Character\Robot</Filter>
+    <ClInclude Include="Source\Application\Components\Effect\BoosterEffectComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Robot\ChargeDashComponent.h">
-      <Filter>Source\Application\Components\Character\Robot</Filter>
+    <ClInclude Include="Source\Application\Components\Movement\ChargeDashComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Weapon\WeaponTriggerComponent.h">
-      <Filter>Source\Application\Components\Character\Weapon</Filter>
+    <ClInclude Include="Source\Application\Components\Weapon\WeaponTriggerComponent.h">
+      <Filter>Source\Application\Components\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Weapon\Gun\GunStateComponent.h">
-      <Filter>Source\Application\Components\Character\Weapon\Gun</Filter>
+    <ClInclude Include="Source\Application\Components\Weapon\GunStateComponent.h">
+      <Filter>Source\Application\Components\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Weapon\Missile\MissileLockComponent.h">
-      <Filter>Source\Application\Components\Character\Weapon\Missile</Filter>
+    <ClInclude Include="Source\Application\Components\Weapon\MissileLockComponent.h">
+      <Filter>Source\Application\Components\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Weapon\Projectile\HomingComponent.h">
-      <Filter>Source\Application\Components\Character\Weapon\Projectile</Filter>
+    <ClInclude Include="Source\Application\Components\Weapon\HomingComponent.h">
+      <Filter>Source\Application\Components\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Weapon\Projectile\ProjectileComponent.h">
-      <Filter>Source\Application\Components\Character\Weapon\Projectile</Filter>
+    <ClInclude Include="Source\Application\Components\Weapon\ProjectileComponent.h">
+      <Filter>Source\Application\Components\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Collision\CapsuleCollider.h">
-      <Filter>Source\Application\Components\Collision</Filter>
+    <ClInclude Include="Source\Application\Components\Physics\CapsuleCollider.h">
+      <Filter>Source\Application\Components\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Collision\Collider.h">
-      <Filter>Source\Application\Components\Collision</Filter>
+    <ClInclude Include="Source\Application\Components\Physics\Collider.h">
+      <Filter>Source\Application\Components\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Collision\ExplodeOnHitComponent.h">
-      <Filter>Source\Application\Components\Collision</Filter>
+    <ClInclude Include="Source\Application\Components\Combat\ExplodeOnHitComponent.h">
+      <Filter>Source\Application\Components\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Collision\RayCollider.h">
-      <Filter>Source\Application\Components\Collision</Filter>
+    <ClInclude Include="Source\Application\Components\Physics\RayCollider.h">
+      <Filter>Source\Application\Components\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Collision\GroundStateComponent.h">
-      <Filter>Source\Application\Components\Collision</Filter>
+    <ClInclude Include="Source\Application\Components\Physics\GroundStateComponent.h">
+      <Filter>Source\Application\Components\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Collision\SphereCollider.h">
-      <Filter>Source\Application\Components\Collision</Filter>
+    <ClInclude Include="Source\Application\Components\Physics\SphereCollider.h">
+      <Filter>Source\Application\Components\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Common\LifeTimeComponent.h">
-      <Filter>Source\Application\Components\Common</Filter>
+    <ClInclude Include="Source\Application\Components\Core\LifeTimeComponent.h">
+      <Filter>Source\Application\Components\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Effect\EffectAssetComponent.h">
       <Filter>Source\Application\Components\Effect</Filter>
@@ -3020,104 +2663,104 @@
     <ClInclude Include="Source\Application\Components\Effect\ExplosionComponent.h">
       <Filter>Source\Application\Components\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Force\GravityComponent.h">
-      <Filter>Source\Application\Components\Force</Filter>
+    <ClInclude Include="Source\Application\Components\Movement\GravityComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Force\MovementComponent.h">
-      <Filter>Source\Application\Components\Force</Filter>
+    <ClInclude Include="Source\Application\Components\Movement\MovementComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Force\VelocityComponent.h">
-      <Filter>Source\Application\Components\Force</Filter>
+    <ClInclude Include="Source\Application\Components\Movement\VelocityComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Hierarchy\FollowAnimationNodeComponent.h">
-      <Filter>Source\Application\Components\Hierarchy</Filter>
+    <ClInclude Include="Source\Application\Components\Transform\FollowAnimationNodeComponent.h">
+      <Filter>Source\Application\Components\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Hierarchy\HierarchyComponent.h">
-      <Filter>Source\Application\Components\Hierarchy</Filter>
+    <ClInclude Include="Source\Application\Components\Transform\HierarchyComponent.h">
+      <Filter>Source\Application\Components\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Hierarchy\SpawnerComponent.h">
-      <Filter>Source\Application\Components\Hierarchy</Filter>
+    <ClInclude Include="Source\Application\Components\Core\SpawnerComponent.h">
+      <Filter>Source\Application\Components\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Intent\ActionIntentComponent.h">
-      <Filter>Source\Application\Components\Intent</Filter>
+    <ClInclude Include="Source\Application\Components\Combat\ActionIntentComponent.h">
+      <Filter>Source\Application\Components\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Intent\MoveIntentComponent.h">
-      <Filter>Source\Application\Components\Intent</Filter>
+    <ClInclude Include="Source\Application\Components\Movement\MoveIntentComponent.h">
+      <Filter>Source\Application\Components\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Persistence\GUIDComponent.h">
-      <Filter>Source\Application\Components\Persistence</Filter>
+    <ClInclude Include="Source\Application\Components\Core\GUIDComponent.h">
+      <Filter>Source\Application\Components\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Persistence\NameComponent.h">
-      <Filter>Source\Application\Components\Persistence</Filter>
+    <ClInclude Include="Source\Application\Components\Core\NameComponent.h">
+      <Filter>Source\Application\Components\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\AnimatorComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Animation\AnimatorComponent.h">
+      <Filter>Source\Application\Components\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\AudioBehaviorComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Audio\AudioBehaviorComponent.h">
+      <Filter>Source\Application\Components\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\AudioListenerComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Audio\AudioListenerComponent.h">
+      <Filter>Source\Application\Components\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\HitSoundComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Audio\HitSoundComponent.h">
+      <Filter>Source\Application\Components\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\ModelComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Render\ModelComponent.h">
+      <Filter>Source\Application\Components\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\EmissiveOverrideComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Render\EmissiveOverrideComponent.h">
+      <Filter>Source\Application\Components\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\NodePoseComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Animation\NodePoseComponent.h">
+      <Filter>Source\Application\Components\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\ParticlesComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Effect\ParticlesComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\SkeletonPoseComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Animation\SkeletonPoseComponent.h">
+      <Filter>Source\Application\Components\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\SoundComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Audio\SoundComponent.h">
+      <Filter>Source\Application\Components\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\StateMachineComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Animation\StateMachineComponent.h">
+      <Filter>Source\Application\Components\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Resource\UIComponent.h">
-      <Filter>Source\Application\Components\Resource</Filter>
+    <ClInclude Include="Source\Application\Components\Render\UIComponent.h">
+      <Filter>Source\Application\Components\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\CameraControllTag.h">
-      <Filter>Source\Application\Components\Tag</Filter>
+    <ClInclude Include="Source\Application\Components\Camera\CameraControllTag.h">
+      <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\CameraTag.h">
-      <Filter>Source\Application\Components\Tag</Filter>
+    <ClInclude Include="Source\Application\Components\Camera\CameraTag.h">
+      <Filter>Source\Application\Components\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\EnemyTag.h">
-      <Filter>Source\Application\Components\Tag</Filter>
+    <ClInclude Include="Source\Application\Components\Enemy\EnemyTag.h">
+      <Filter>Source\Application\Components\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\MainGunTag.h">
-      <Filter>Source\Application\Components\Tag</Filter>
+    <ClInclude Include="Source\Application\Components\Weapon\MainGunTag.h">
+      <Filter>Source\Application\Components\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\PlayerControllTag.h">
-      <Filter>Source\Application\Components\Tag</Filter>
+    <ClInclude Include="Source\Application\Components\Input\PlayerControllTag.h">
+      <Filter>Source\Application\Components\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\RenderTag\RayTag.h">
-      <Filter>Source\Application\Components\Tag\RenderTag</Filter>
+    <ClInclude Include="Source\Application\Components\Render\RayTag.h">
+      <Filter>Source\Application\Components\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ActiveTag.h">
-      <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
+    <ClInclude Include="Source\Application\Components\Core\PhaseTag\ActiveTag.h">
+      <Filter>Source\Application\Components\Core\PhaseTag</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\AwakeTag.h">
-      <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
+    <ClInclude Include="Source\Application\Components\Core\PhaseTag\AwakeTag.h">
+      <Filter>Source\Application\Components\Core\PhaseTag</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\PostDeserializeTag.h">
-      <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
+    <ClInclude Include="Source\Application\Components\Core\PhaseTag\PostDeserializeTag.h">
+      <Filter>Source\Application\Components\Core\PhaseTag</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\ReleaseTag.h">
-      <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
+    <ClInclude Include="Source\Application\Components\Core\PhaseTag\ReleaseTag.h">
+      <Filter>Source\Application\Components\Core\PhaseTag</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Tag\SystemPhaseTag\StartTag.h">
-      <Filter>Source\Application\Components\Tag\SystemPhaseTag</Filter>
+    <ClInclude Include="Source\Application\Components\Core\PhaseTag\StartTag.h">
+      <Filter>Source\Application\Components\Core\PhaseTag</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Transform\LocalTransformComponent.h">
       <Filter>Source\Application\Components\Transform</Filter>
@@ -3239,320 +2882,320 @@
     <ClInclude Include="Source\Application\Object\UI\WaveAnnounceHUD\WaveAnnounceHUD.h">
       <Filter>Source\Application\Object\UI\WaveAnnounceHUD</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\AnimationOptionalDraw\AnimationOptionalDraw.h">
-      <Filter>Source\Application\Systems\Draw\Draw\AnimationOptionalDraw</Filter>
+    <ClInclude Include="Source\Application\Systems\Render\AnimationOptionalDraw.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem\DynamicObjectDrawSystem.h">
-      <Filter>Source\Application\Systems\Draw\Draw\DynamicObjectDrawSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Render\DynamicObjectDrawSystem.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\EffectDrawSystem\EffectDrawSystem.h">
-      <Filter>Source\Application\Systems\Draw\Draw\EffectDrawSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\EffectDrawSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.h">
-      <Filter>Source\Application\Systems\Draw\Draw\EmitParticlesSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\EmitParticlesSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem\RegisterAnimatedRayWorldSystem.h">
-      <Filter>Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Render\RegisterAnimatedRayWorldSystem.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.h">
-      <Filter>Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Render\RegisterRayWorldSystem.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.h">
-      <Filter>Source\Application\Systems\Draw\Draw\SkinningRegisterSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Render\SkinningRegisterSystem.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.h">
-      <Filter>Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Render\StaticObjectDrawSystem.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.h">
-      <Filter>Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Render\RegisterPrevWorldMatSystem.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem\CamSetShaderSystem.h">
-      <Filter>Source\Application\Systems\Draw\PreDraw\CamSetShaderSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Camera\CamSetShaderSystem.h">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem\CameraPipelineSubmitSystem.h">
-      <Filter>Source\Application\Systems\Draw\PreDraw\CameraPipelineSubmitSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Camera\CameraPipelineSubmitSystem.h">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem\CameraPipelineFixupSystem.h">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\CameraPipelineFixupSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Camera\CameraPipelineFixupSystem.h">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\PreDraw\PointLightSystem\PointLightSystem.h">
-      <Filter>Source\Application\Systems\Draw\PreDraw\PointLightSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Render\PointLightSystem.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\PreDraw\ApplyEmissiveOverrideSystem\ApplyEmissiveOverrideSystem.h">
-      <Filter>Source\Application\Systems\Draw\PreDraw\ApplyEmissiveOverrideSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Render\ApplyEmissiveOverrideSystem.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Light\PointLightComponent.h">
-      <Filter>Source\Application\Components\Light</Filter>
+    <ClInclude Include="Source\Application\Components\Render\PointLightComponent.h">
+      <Filter>Source\Application\Components\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem\AttachmentReadyGateSystem.h">
-      <Filter>Source\Application\Systems\Init\Awake\AttachmentReadyGateSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Attachment\AttachmentReadyGateSystem.h">
+      <Filter>Source\Application\Systems\Attachment</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Awake\FollowTargetLinkSystem\FollowTargetLinkSystem.h">
-      <Filter>Source\Application\Systems\Init\Awake\FollowTargetLinkSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Camera\FollowTargetLinkSystem.h">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Awake\HierarchyLinkSystem\HierarchyLinkSystem.h">
-      <Filter>Source\Application\Systems\Init\Awake\HierarchyLinkSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Transform\HierarchyLinkSystem.h">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Awake\ModelReadyGateSystem\ModelReadyGateSystem.h">
-      <Filter>Source\Application\Systems\Init\Awake\ModelReadyGateSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Render\ModelReadyGateSystem.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem\AttachmentSlotLinkSystem.h">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\AttachmentSlotLinkSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Attachment\AttachmentSlotLinkSystem.h">
+      <Filter>Source\Application\Systems\Attachment</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem\EffectFixupSystem.h">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\EffectFixupSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\EffectFixupSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem\GUIDFixupSystem.h">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\GUIDFixupSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Core\GUIDFixupSystem.h">
+      <Filter>Source\Application\Systems\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem\HealthFixupSystem.h">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\HealthFixupSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Combat\HealthFixupSystem.h">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem\ModelFixupSystem.h">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\ModelFixupSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Render\ModelFixupSystem.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem\ParticleFixupSystem.h">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\ParticleFixupSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\ParticleFixupSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\SoundFixupSystem\SoundFixupSystem.h">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\SoundFixupSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Audio\SoundFixupSystem.h">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem\StateMachineFixupSystem.h">
-      <Filter>Source\Application\Systems\Init\PostDeserialize\StateMachineFixupSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\StateMachineFixupSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Start\AdditivePoseLinkSystem\AdditivePoseLinkSystem.h">
-      <Filter>Source\Application\Systems\Init\Start\AdditivePoseLinkSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\AdditivePoseLinkSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Start\AnimationModelStartSystem\AnimationModelStartSystem.h">
-      <Filter>Source\Application\Systems\Init\Start\AnimationModelStartSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\AnimationModelStartSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem\AttachmentNodeLinkSystem.h">
-      <Filter>Source\Application\Systems\Init\Start\AttachmentNodeLinkSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Attachment\AttachmentNodeLinkSystem.h">
+      <Filter>Source\Application\Systems\Attachment</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.h">
-      <Filter>Source\Application\Systems\Init\Start\CameraStartSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Camera\CameraStartSystem.h">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Start\GunStateStartSystem\GunStateStartSystem.h">
-      <Filter>Source\Application\Systems\Init\Start\GunStateStartSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Weapon\GunStateStartSystem.h">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem\RegisterPhysicsBodySystem.h">
-      <Filter>Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Physics\RegisterPhysicsBodySystem.h">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Start\SpawnSoundSystem\SpawnSoundSystem.h">
-      <Filter>Source\Application\Systems\Init\Start\SpawnSoundSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Audio\SpawnSoundSystem.h">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.h">
-      <Filter>Source\Application\Systems\Release\AdditivePoseFreeSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\AdditivePoseFreeSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.h">
-      <Filter>Source\Application\Systems\Release\AnimationMatrixFreeSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\AnimationMatrixFreeSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Release\PhysicsBodyFreeSystem\PhysicsBodyFreeSystem.h">
-      <Filter>Source\Application\Systems\Release\PhysicsBodyFreeSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Physics\PhysicsBodyFreeSystem.h">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.h">
-      <Filter>Source\Application\Systems\Release\SoundFreeSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Audio\SoundFreeSystem.h">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Shared\HierarchyTransform\HierarchyTransform.h">
-      <Filter>Source\Application\Systems\Shared\HierarchyTransform</Filter>
+    <ClInclude Include="Source\Application\Systems\Transform\HierarchyTransform.h">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Shared\MissileSalvo\MissileSalvo.h">
-      <Filter>Source\Application\Systems\Shared\MissileSalvo</Filter>
+    <ClInclude Include="Source\Application\Systems\Weapon\MissileSalvo.h">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Shared\ProjectileSpawn\ProjectileSpawn.h">
-      <Filter>Source\Application\Systems\Shared\ProjectileSpawn</Filter>
+    <ClInclude Include="Source\Application\Systems\Weapon\ProjectileSpawn.h">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Animation\AnimationStateSystem\AnimationStateSystem.h">
-      <Filter>Source\Application\Systems\Update\Animation\AnimationStateSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\AnimationStateSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Camera\AimTargetSystem\AimTargetSystem.h">
-      <Filter>Source\Application\Systems\Update\Camera\AimTargetSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Camera\AimTargetSystem.h">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Camera\CameraProjUpdateSystem\CameraProjUpdateSystem.h">
-      <Filter>Source\Application\Systems\Update\Camera\CameraProjUpdateSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Camera\CameraProjUpdateSystem.h">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Camera\RadialBlurSpeedSystem\RadialBlurSpeedSystem.h">
-      <Filter>Source\Application\Systems\Update\Camera\RadialBlurSpeedSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Camera\RadialBlurSpeedSystem.h">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Camera\TPSSystem\TPSSystem.h">
-      <Filter>Source\Application\Systems\Update\Camera\TPSSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Camera\TPSSystem.h">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Input\InputActionSystem\InputActionSystem.h">
-      <Filter>Source\Application\Systems\Update\Input\InputActionSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Input\InputActionSystem.h">
+      <Filter>Source\Application\Systems\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Input\InputMoveSystem\InputMoveSystem.h">
-      <Filter>Source\Application\Systems\Update\Input\InputMoveSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Input\InputMoveSystem.h">
+      <Filter>Source\Application\Systems\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Physics\CapsuleCollisionSystem\CapsuleCollisionSystem.h">
-      <Filter>Source\Application\Systems\Update\Physics\CapsuleCollisionSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Physics\CapsuleCollisionSystem.h">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Physics\HitDetectSystem\HitDetectSystem.h">
-      <Filter>Source\Application\Systems\Update\Physics\HitDetectSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Physics\HitDetectSystem.h">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem\MovementIntegrationSystem.h">
-      <Filter>Source\Application\Systems\Update\Physics\Integral\MovementIntegrationSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Physics\MovementIntegrationSystem.h">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem\PositionIntegrationSystem.h">
-      <Filter>Source\Application\Systems\Update\Physics\Integral\PositionIntegrationSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Physics\PositionIntegrationSystem.h">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Physics\RayCollisionSystem\RayCollisionSystem.h">
-      <Filter>Source\Application\Systems\Update\Physics\RayCollisionSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Physics\RayCollisionSystem.h">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Physics\SphereCollisionSystem\SphereCollisionSystem.h">
-      <Filter>Source\Application\Systems\Update\Physics\SphereCollisionSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Physics\SphereCollisionSystem.h">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem\AdditivePoseSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\AdditivePoseSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\AdditivePoseSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AnimationSystem\AnimationSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\AnimationSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\AnimationSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\AudioListenerSystem\AudioListenerSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\AudioListenerSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Audio\AudioListenerSystem.h">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem\BossMissileSalvoSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\BossMissileSalvoSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Boss\BossMissileSalvoSystem.h">
+      <Filter>Source\Application\Systems\Boss</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CalcNodeSystem\CalcNodeSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\CalcNodeSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\CalcNodeSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem\CommitHierarchyWorldMatrixSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\CommitHierarchyWorldMatrixSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Transform\CommitHierarchyWorldMatrixSystem.h">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem\CalcMatrixSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\CommitWorldMatrixSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Transform\CalcMatrixSystem.h">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\DeathEffectSystem\DeathEffectSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\DeathEffectSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\DeathEffectSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\DeathStateSystem\DeathStateSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\DeathStateSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Combat\DeathStateSystem.h">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem\ExplodeOnHitSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\ExplodeOnHitSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Combat\ExplodeOnHitSystem.h">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ExplosionSystem\ExplosionSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\ExplosionSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\ExplosionSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem\FlyingSoundSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\FlyingSoundSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Audio\FlyingSoundSystem.h">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem\FollowAnimationNodeSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\FollowAnimationNodeSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Transform\FollowAnimationNodeSystem.h">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HealthSystem\HealthSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\HealthSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Combat\HealthSystem.h">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\HitSoundSystem\HitSoundSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\HitSoundSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Audio\HitSoundSystem.h">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\LifeTimeSystem\LifeTimeSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\LifeTimeSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Core\LifeTimeSystem.h">
+      <Filter>Source\Application\Systems\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem\LockOnTargetSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\LockOnTargetSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Combat\LockOnTargetSystem.h">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem\MissileSalvoSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\MissileSalvoSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Weapon\MissileSalvoSystem.h">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\ScoreSystem\ScoreSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\ScoreSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Combat\ScoreSystem.h">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PostUpdate\SkinningSystem\SkinningSystem.h">
-      <Filter>Source\Application\Systems\Update\PostUpdate\SkinningSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\SkinningSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem\AttachmentDispatchSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\AttachmentDispatchSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Attachment\AttachmentDispatchSystem.h">
+      <Filter>Source\Application\Systems\Attachment</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\BoostSoundSystem\BoostSoundSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\BoostSoundSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Audio\BoostSoundSystem.h">
+      <Filter>Source\Application\Systems\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem\BossCombatIntentSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\BossCombatIntentSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Boss\BossCombatIntentSystem.h">
+      <Filter>Source\Application\Systems\Boss</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem\CloseCombatIntentSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\CloseCombatIntentSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Enemy\CloseCombatIntentSystem.h">
+      <Filter>Source\Application\Systems\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem\CollisionEventClearSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\CollisionEventClearSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Physics\CollisionEventClearSystem.h">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem\DeathEventClearSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\DeathEventClearSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Combat\DeathEventClearSystem.h">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem\EnemyMoveIntentSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\EnemyMoveIntentSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Enemy\EnemyMoveIntentSystem.h">
+      <Filter>Source\Application\Systems\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem\EnemyShootIntentSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\EnemyShootIntentSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Enemy\EnemyShootIntentSystem.h">
+      <Filter>Source\Application\Systems\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\HitEventClearSystem\HitEventClearSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\HitEventClearSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Combat\HitEventClearSystem.h">
+      <Filter>Source\Application\Systems\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\HomingSystem\HomingSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\HomingSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Weapon\HomingSystem.h">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\MainCameraSystem\MainCameraSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\MainCameraSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Camera\MainCameraSystem.h">
+      <Filter>Source\Application\Systems\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem\PlayerIntentSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\PlayerIntentSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\PlayerIntentSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem\SearchPlayerSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\SearchPlayerSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Enemy\SearchPlayerSystem.h">
+      <Filter>Source\Application\Systems\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem\SelfWeaponTriggerSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\SelfWeaponTriggerSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Weapon\SelfWeaponTriggerSystem.h">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem\ThrusterEffectSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\ThrusterEffectSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\ThrusterEffectSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem\UpdateHierarchyDepthSystem.h">
-      <Filter>Source\Application\Systems\Update\PreUpdate\UpdateHierarchyDepthSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Transform\UpdateHierarchyDepthSystem.h">
+      <Filter>Source\Application\Systems\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Acceleration\GravitySystem\GravitySystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Acceleration\GravitySystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Movement\GravitySystem.h">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem\BoosterEffectSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Effect\BoosterEffectSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\BoosterEffectSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem\EffectUpdateSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Effect\EffectUpdateSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\EffectUpdateSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\FaceTargetSystem\FaceTargetSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\FaceTargetSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Movement\FaceTargetSystem.h">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\GunShootSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Weapon\GunShootSystem.h">
+      <Filter>Source\Application\Systems\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\LookAroundSystem\LookAroundSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\LookAroundSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Movement\LookAroundSystem.h">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem\CharacterMovementSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Move\CharacterMovementSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Movement\CharacterMovementSystem.h">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Move\ChargeDashSystem\ChargeDashSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Move\ChargeDashSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Movement\ChargeDashSystem.h">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Move\EnemyMovementSystem\EnemyMovementSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Move\EnemyMovementSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Enemy\EnemyMovementSystem.h">
+      <Filter>Source\Application\Systems\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Move\RobotBoostSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Movement\RobotBoostSystem.h">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem\ParticleEmitSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Particle\ParticleEmitSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Effect\ParticleEmitSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem\LockOnRotationSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Movement\LockOnRotationSystem.h">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\RotationSystem\RotationSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Rotation\RotationSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Movement\RotationSystem.h">
+      <Filter>Source\Application\Systems\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\StateMachineCommitSystem\StateMachineCommitSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\StateMachineCommitSystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Animation\StateMachineCommitSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem\SyncPhysicsBodySystem.h">
-      <Filter>Source\Application\Systems\Update\Update\SyncPhysicsBodySystem</Filter>
+    <ClInclude Include="Source\Application\Systems\Physics\SyncPhysicsBodySystem.h">
+      <Filter>Source\Application\Systems\Physics</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Utility\EffectSpawnHelper.h">
       <Filter>Source\Application\Utility</Filter>
@@ -4496,53 +4139,53 @@
     <ClInclude Include="Source\Application\Game\InputActions\InputManager\InputActionManager.h">
       <Filter>Source\Application\Game\InputActions\InputManager</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\BoidComponent.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Boid\BoidComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClInclude Include="Source\Application\Systems\Boid\BoidSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\FollowLeaderSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClInclude Include="Source\Application\Systems\Boid\FollowLeaderSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Boss\BoidSpownerComponent.h">
-      <Filter>Source\Application\Components\Character\Boss</Filter>
+    <ClInclude Include="Source\Application\Components\Boid\BoidSpownerComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Boss\PlatoonLeaderComponent.h">
-      <Filter>Source\Application\Components\Character\Boss</Filter>
+    <ClInclude Include="Source\Application\Components\Boid\PlatoonLeaderComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.h">
       <Filter>Source\Application\Object\Controller\SwarmBossController</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\PlatoonFollowSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClInclude Include="Source\Application\Systems\Boid\PlatoonFollowSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SwarmLookSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClInclude Include="Source\Application\Systems\Boid\SwarmLookSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidContactDamageSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClInclude Include="Source\Application\Systems\Boid\BoidContactDamageSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\SwarmContactDamageResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Boss\BoidContactDamageComponent.h">
-      <Filter>Source\Application\Components\Character\Boss</Filter>
+    <ClInclude Include="Source\Application\Components\Boid\BoidContactDamageComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidGroundEffectSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClInclude Include="Source\Application\Systems\Boid\BoidGroundEffectSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\WormGroundEffectResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SerchGroundSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClInclude Include="Source\Application\Systems\Boid\SerchGroundSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\BoidWaveSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClInclude Include="Source\Application\Systems\Boid\BoidWaveSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Boid\SwarmLeaderMoveSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Boid</Filter>
+    <ClInclude Include="Source\Application\Systems\Boid\SwarmLeaderMoveSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\IState.h">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates</Filter>
@@ -4607,21 +4250,24 @@
     <ClInclude Include="Source\Engine\ECS\Archetype\ChunkAllocator.h">
       <Filter>Source\Engine\ECS\Archetype</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Boss\SwarmBossWave.h" />
+    <ClInclude Include="Source\Application\Components\Boss\SwarmBossWave.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack\UperAttack.h">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.h">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\SerchGroundComponent.h">
-      <Filter>Source\Application\Components\Character</Filter>
+    <ClInclude Include="Source\Application\Components\Boid\SwarmBossBoidTag.h">
+      <Filter>Source\Application\Components\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Boss\WarmGroundEffectComponent.h">
-      <Filter>Source\Application\Components\Character\Boss</Filter>
+    <ClInclude Include="Source\Application\Components\Boid\SerchGroundComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Character\Boss\BoidWaveStateComponent.h">
-      <Filter>Source\Application\Components\Character\Boss</Filter>
+    <ClInclude Include="Source\Application\Components\Boid\WarmGroundEffectComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Boid\BoidWaveStateComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

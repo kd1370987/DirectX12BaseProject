@@ -4,10 +4,10 @@
 
 #include "Engine/ECS/World/World.h"
 
-#include "../Components/Transform/LocalTransformComponent.h"
-#include "../Components/Transform/WorldMatrixComponent.h"
-#include "../Components/Effect/EffectAssetComponent.h"
-#include "../Components/Effect/EffectComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
+#include "Application/Components/Transform/WorldMatrixComponent.h"
+#include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Effect/EffectComponent.h"
 
 namespace App::Utility
 {

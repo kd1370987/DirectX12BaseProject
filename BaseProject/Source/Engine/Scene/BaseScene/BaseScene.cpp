@@ -4,7 +4,7 @@
 #include "Engine/Scene/SceneManager/SceneManager.h"					// シーンマネージャー
 
 // コンポーネント
-#include "Application/Components/Persistence/GUIDComponent.h"
+#include "Application/Components/Core/GUIDComponent.h"
 
 // エンジン系
 #include "../../MainEngine.h"

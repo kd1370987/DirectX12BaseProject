@@ -8,14 +8,14 @@
 #include "../../../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../../../Helper/EditorHelper.h"
 
-#include "../../../../../Application/Components/Transform/LocalTransformComponent.h"
-#include "../../../../../Application/Components/Persistence/NameComponent.h"
-#include "../../../../../Application/Components/Hierarchy/HierarchyComponent.h"
-#include "../../../../../Application/Components/Persistence/GUIDComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
+#include "Application/Components/Core/NameComponent.h"
+#include "Application/Components/Transform/HierarchyComponent.h"
+#include "Application/Components/Core/GUIDComponent.h"
 
-#include "../../../../../Application/Components/Resource/AnimatorComponent.h"
-#include "../../../../../Application/Components/Resource/NodePoseComponent.h"
-#include "../../../../../Application/Components/Resource/SkeletonPoseComponent.h"
+#include "Application/Components/Animation/AnimatorComponent.h"
+#include "Application/Components/Animation/NodePoseComponent.h"
+#include "Application/Components/Animation/SkeletonPoseComponent.h"
 
 namespace Engine::Editor::Inspector
 {

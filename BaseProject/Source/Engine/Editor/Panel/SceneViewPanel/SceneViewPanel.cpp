@@ -10,18 +10,18 @@
 #include "../../../ECS/World/World.h"
 #include "../../EditorCamera/EditorCamera.h"
 #include "../../Helper/EditorHelper.h"
-#include "../../../../Application/Components/Transform/LocalTransformComponent.h"
-#include "../../../../Application/Components/Transform/WorldMatrixComponent.h"
-#include "../../../../Application/Components/Hierarchy/HierarchyComponent.h"
-#include "../../../../Application/Components/Persistence/GUIDComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
+#include "Application/Components/Transform/WorldMatrixComponent.h"
+#include "Application/Components/Transform/HierarchyComponent.h"
+#include "Application/Components/Core/GUIDComponent.h"
 
 // HUD表示に使うコンポーネント群(オフセット・パーティクルの発生方向など)
-#include "../../../../Application/Components/Hierarchy/FollowAnimationNodeComponent.h"
-#include "../../../../Application/Components/Resource/ParticlesComponent.h"
-#include "../../../../Application/Components/Camera/CameraFocusTargetComponent.h"
-#include "../../../../Application/Components/Character/LookAngleComponent.h"
-#include "../../../../Application/Components/Camera/TPSOffsetComponent.h"
-#include "../../../../Application/Components/Camera/FollowTargetComponent.h"
+#include "Application/Components/Transform/FollowAnimationNodeComponent.h"
+#include "Application/Components/Effect/ParticlesComponent.h"
+#include "Application/Components/Camera/CameraFocusTargetComponent.h"
+#include "Application/Components/Movement/LookAngleComponent.h"
+#include "Application/Components/Camera/TPSOffsetComponent.h"
+#include "Application/Components/Camera/FollowTargetComponent.h"
 
 // 物理空間(PhysicsWorld)は使わない。エディターでは当たり判定の有無に関わらず、
 // 描画メッシュのAABBに対して直接レイ判定してエンティティを選択する。
@@ -30,7 +30,7 @@
 #include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Resource/Data/Model/Model.h"
 #include "../../../Resource/Data/Mesh/Mesh.h"
-#include "../../../../Application/Components/Resource/ModelComponent.h"
+#include "Application/Components/Render/ModelComponent.h"
 
 #include "../../../Option/OptionManager.h"
 

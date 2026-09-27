@@ -1,0 +1,93 @@
+﻿#include "ParticleEmitSystem.h"
+
+#include "Application/ECS/World/APPWorld.h"
+
+#include "Application/Components/Effect/ParticlesComponent.h"
+
+
+
+//==========================================================================================
+// ParticleEmitSystem
+//
+// isPlay と emitRate から「このフレーム何個発生させるか(pendingEmitCount)」を計算する。
+// 実フレーム時間(a_ctx.dt)を使うため Update フェーズで行う(Draw フェーズは dt=0 のため不可)。
+// 実際の発生命令(RequestEmit)は EmitParticleSystem(Draw) が pendingEmitCount を見て行う。
+//
+//   emitRate > 0 : 連続発生。毎秒 emitRate 回、各回 emitCount 個(小数は time に繰り越し)。
+//   emitRate == 0: バースト。isPlay の立ち上がりで一度だけ emitCount 個。
+//
+// あわせて、isPlay の立ち上がり / 立ち下がりで出す火花(pendingSparkEmitCount)も決める。
+// 立ち下がりは isPlay が false のフレームに出すので、本体が止まった後も1フレームだけ発生する。
+//==========================================================================================
+void ParticleEmitSystem::Init(App::ECS::APPWorld& a_world)
+{
+	a_world.ActiveTask<ParticlesComponent>(
+		Engine::ECS::ESystemType::Update,
+		"ParticleEmitSystem",
+		[]
+		(
+			Engine::ECS::Chunk* a_pChunk,
+			uint32_t a_count,
+			const Engine::ECS::SystemContext& a_ctx,
+			ActiveTag* a_tags,
+			ParticlesComponent* a_particleArray
+			)
+		{
+			for (size_t _i = 0; _i < a_count; ++_i)
+			{
+				ParticlesComponent& _p = a_particleArray[_i];
+
+				// デフォルトは今フレーム発生なし
+				_p.pendingEmitCount = 0;
+				_p.pendingSparkEmitCount = 0;
+
+				// 停止中はリセット
+				if (!_p.isPlay)
+				{
+					// 立ち下がり(再生中→停止)なら、消火の火花を1回だけ
+					if (_p.wasPlaying && _p.emitSparkOnEnd)
+					{
+						_p.pendingSparkEmitCount = _p.sparkEmitCount;
+					}
+
+					_p.time = 0.0f;
+					_p.wasPlaying = false;
+					continue;
+				}
+
+				// 立ち上がり(停止→再生)なら、点火の火花を1回だけ。
+				// 本体のバーストと同じフレームに出るので、2つ同時に発生する
+				if (!_p.wasPlaying && _p.emitSparkOnStart)
+				{
+					_p.pendingSparkEmitCount = _p.sparkEmitCount;
+				}
+
+				if (_p.emitRate > 0.0f)
+				{
+					// ---- 連続発生 : 毎秒 emitRate 回 ----
+					_p.time += a_ctx.dt;
+					const float _interval = 1.0f / _p.emitRate;
+
+					int _bursts = 0;
+					// 溜まった分だけ発生させ、端数は time に残す。暴走防止に上限を設ける
+					while (_p.time >= _interval && _bursts < 64)
+					{
+						_p.time -= _interval;
+						++_bursts;
+					}
+					_p.pendingEmitCount = _bursts * _p.emitCount;
+				}
+				else
+				{
+					// ---- バースト : isPlay の立ち上がりで一度だけ ----
+					if (!_p.wasPlaying)
+					{
+						_p.pendingEmitCount = _p.emitCount;
+					}
+				}
+
+				_p.wasPlaying = true;
+			}
+		}
+	);
+}

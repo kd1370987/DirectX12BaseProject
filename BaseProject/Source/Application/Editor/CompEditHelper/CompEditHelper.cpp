@@ -2,8 +2,8 @@
 
 #include "../../../Engine/ECS/World/World.h"
 
-#include "../../Components/Hierarchy/HierarchyComponent.h"
-#include "../../Components/Resource/ModelComponent.h"
+#include "Application/Components/Transform/HierarchyComponent.h"
+#include "Application/Components/Render/ModelComponent.h"
 
 namespace App::Editor
 {

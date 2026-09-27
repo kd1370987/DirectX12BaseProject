@@ -142,8 +142,11 @@ namespace Engine::ECS
 
 	Entity World::CreateEntity(const Signature& a_sig)
 	{
-		// 生まれた直後に何を載せるかは派生が決める(初期化フェーズのタグなど)
+		// 必ず一緒に持たせるもの(ComponentTraits<T>::Requires)を足す
 		Signature _sig = a_sig;
+		m_pComponentRegistry->ExpandRequired(_sig);
+
+		// 生まれた直後に何を載せるかは派生が決める(初期化フェーズのタグなど)
 		OnCreateEntitySignature(_sig);
 
 		return m_storage.Create(_sig);
@@ -385,10 +388,15 @@ namespace Engine::ECS
 		// 予約した後に消えたエンティティ(古いID)は動かしようがない
 		if (!m_storage.IsAlive(a_cmd.entity)) return;
 
+		// 必ず一緒に持たせるもの(ComponentTraits<T>::Requires)を足す。
+		// 追加で増えたものは既定値で構築される(RestoreComponents)
+		Signature _toSig = a_cmd.toSig;
+		m_pComponentRegistry->ExpandRequired(_toSig);
+
 		// 初期化へ入り直すなら、直後に取り直されるので今持っているものは全部返させる。
 		// 入り直すかどうかの判断は派生が持つ(基盤はフェーズを知らない)
-		const bool _isReenteringInit = IsReenteringInit(m_storage.GetSignature(a_cmd.entity), a_cmd.toSig);
+		const bool _isReenteringInit = IsReenteringInit(m_storage.GetSignature(a_cmd.entity), _toSig);
 
-		m_storage.Move(a_cmd.entity, a_cmd.toSig, a_cmd.dataMap, _isReenteringInit);
+		m_storage.Move(a_cmd.entity, _toSig, a_cmd.dataMap, _isReenteringInit);
 	}
 }

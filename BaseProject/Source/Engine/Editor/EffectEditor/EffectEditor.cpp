@@ -24,7 +24,7 @@
 #include "../../Resource/Data/EffectPrefab/EffectPrefab.h"
 
 #include "Application/Components/Effect/EffectAssetComponent.h"
-#include "Application/Components/Common/LifeTimeComponent.h"
+#include "Application/Components/Core/LifeTimeComponent.h"
 #include "Application/Utility/EffectSpawnHelper.h"
 #include "Application/Utility/EffectPrefabSpawnHelper.h"
 

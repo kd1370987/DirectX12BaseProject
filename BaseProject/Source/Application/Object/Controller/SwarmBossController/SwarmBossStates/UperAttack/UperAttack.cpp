@@ -10,11 +10,11 @@
 #include "../../../../../ECS/World/APPWorld.h"
 #include "../StateMachine.h"
 
-#include "../../../../../Components/Transform/LocalTransformComponent.h"
-#include "../../../../../Components/Transform/WorldMatrixComponent.h"
-#include "../../../../../Components/Intent/MoveIntentComponent.h"
-#include "../../../../../Components/Tag/PlayerControllTag.h"
-#include "../../../../../Components/Character/SerchGroundComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
+#include "Application/Components/Transform/WorldMatrixComponent.h"
+#include "Application/Components/Movement/MoveIntentComponent.h"
+#include "Application/Components/Input/PlayerControllTag.h"
+#include "Application/Components/Boid/SerchGroundComponent.h"
 
 namespace App::Object
 {

@@ -9,7 +9,7 @@
 
 // 実体化のたびにGUIDを振り直すために触る。
 // (World.h がフェーズタグを取り込んでいるのと同じで、ここも土台側のコンポーネント)
-#include "Application/Components/Persistence/GUIDComponent.h"
+#include "Application/Components/Core/GUIDComponent.h"
 
 namespace Engine::Resource
 {

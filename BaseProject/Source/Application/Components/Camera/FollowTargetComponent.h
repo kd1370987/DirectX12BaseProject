@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/Scene/SceneManager/SceneManager.h"
-#include "../../../Engine/ECS/World/World.h"
-#include "../Persistence/GUIDComponent.h"
+#include "Engine/ECS/World/World.h"
+#include "Application/Components/Core/GUIDComponent.h"
 
 struct FollowTargetComponent
 {

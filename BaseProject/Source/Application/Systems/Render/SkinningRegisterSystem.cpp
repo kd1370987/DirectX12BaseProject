@@ -1,0 +1,67 @@
+﻿#include "SkinningRegisterSystem.h"
+
+#include "Application/ECS/World/APPWorld.h"
+
+#include "Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
+
+#include "Application/Components/Render/RayTag.h"
+#include "Application/Components/Render/ModelComponent.h"
+#include "Application/Components/Transform/WorldMatrixComponent.h"
+#include "Application/Components/Animation/SkeletonPoseComponent.h"
+#include "Application/Components/Animation/AnimatorComponent.h"
+#include "Application/Components/Animation/NodePoseComponent.h"
+
+#include "Engine/MainEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
+
+void SkinningRegisterSystem::Init(App::ECS::APPWorld& a_world)
+{
+	a_world.ActiveTask<
+		const ModelComponent, 
+		const WorldMatrixComponent,
+		const AnimatorComponent,
+		const NodePoseComponent,
+		const SkeletonPoseComponent
+		>
+		(
+		Engine::ECS::ESystemType::Draw,
+		"SkinningRegisterSystem",
+		[]
+		(
+			Engine::ECS::Chunk* a_pChunk,
+			uint32_t a_count,
+			const Engine::ECS::SystemContext& a_ctx,
+			ActiveTag* a_pTags,
+			const ModelComponent* a_pModelArray,
+			const WorldMatrixComponent* a_pWorldMatArray,
+			const AnimatorComponent* a_pAnimationArray,
+			const NodePoseComponent* a_nodePoseArray,
+			const SkeletonPoseComponent* a_skeletonArray
+			)
+		{
+			for (size_t _i = 0; _i < a_count; ++_i)
+			{
+				const WorldMatrixComponent& _wMatComp = a_pWorldMatArray[_i];
+				const ModelComponent& _modelComp = a_pModelArray[_i];
+				const AnimatorComponent& _animComp = a_pAnimationArray[_i];
+				const NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
+				const SkeletonPoseComponent& _skePoseComp = a_skeletonArray[_i];
+
+				auto* _pGE = a_ctx.pServices->pMainEngine->RefGraphicsEngine();
+				if (!_pGE) continue;
+
+				auto* _model = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);;
+				if (!_model) continue;
+
+				// GPUスキニング登録
+				_pGE->RefDrawSubmitter()->SubmitSkinning(
+					*a_ctx.pWorld,
+					_model,
+					_animComp.dynamicInstanceHandle,
+					_nodePoseComp.nodePoseHandle,
+					_skePoseComp.skeletonPoseHandle
+				);
+			}
+		}
+	);
+}

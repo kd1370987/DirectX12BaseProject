@@ -4,7 +4,7 @@
 
 #include "SwarmBossStates/StateMachine.h"
 
-#include "../../../Components/Character/Boss/SwarmBossWave.h"
+#include "Application/Components/Boss/SwarmBossWave.h"
 
 namespace App::Object
 {

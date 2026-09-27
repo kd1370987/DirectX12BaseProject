@@ -71,6 +71,15 @@ namespace Engine::ECS
 		DetachFromChunk(_oldLoca);
 		AttachToChunk(a_entity, a_toSig);
 
+		// 新しく増えたものは既定値で構築しておく。引っ越し先のチャンクは使い回しの
+		// メモリなので、構築しないと前の住人の値が残る(初期値を渡されたものは下で上書き)
+		const Signature _addedSig = a_toSig & ~_oldSig;
+		for (ComponentTypeID _compID = 0; _compID < _addedSig.size(); ++_compID)
+		{
+			if (!_addedSig.test(_compID)) continue;
+			m_pRegistry->GetFunc(_compID).construct(RefComponent(a_entity, _compID));
+		}
+
 		RestoreComponents(a_entity, a_toSig, _snapshot);
 		WriteComponentData(a_entity, a_initData);
 	}

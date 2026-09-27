@@ -1,0 +1,50 @@
+﻿#include "AttachmentSlotLinkSystem.h"
+
+#include "Application/ECS/World/APPWorld.h"
+
+#include "Application/Components/Attachment/AttachmentSlotsComponent.h"
+
+void AttachmentSlotLinkSystem::Init(App::ECS::APPWorld& a_world)
+{
+	a_world.AwakeTask<AttachmentSlotsComponent>(
+		// AwakeTag を見るので Awake フェーズで回す
+		Engine::ECS::ESystemType::Awake,
+		"AttachmentSlotLinkSystem",
+		[](
+			Engine::ECS::Chunk* a_pChunk,
+			uint32_t a_count,
+			const Engine::ECS::SystemContext& a_ctx,
+			AwakeTag* a_tag,
+			AttachmentSlotsComponent* a_slotsArray
+			)
+		{
+			// 1スロットの GUID -> id を解決
+			auto _resolve = [&a_ctx](AttachmentSlot& a_slot)
+			{
+				if (a_slot.guid != Engine::DefaultGUID)
+				{
+					a_slot.id = a_ctx.pWorld->GetEntity(a_slot.guid);
+				}
+				else
+				{
+					a_slot.id = Engine::ECS::Limits::INVALID_ENTITY;
+				}
+			};
+
+			for (size_t _i = 0; _i < a_count; ++_i)
+			{
+				AttachmentSlotsComponent& _slots = a_slotsArray[_i];
+
+				_resolve(_slots.rightShoulderBoost);
+				_resolve(_slots.leftShoulderBoost);
+				_resolve(_slots.rightLegBoost);
+				_resolve(_slots.leftLegBoost);
+				_resolve(_slots.leftWeapon);
+				_resolve(_slots.rightWeapon);
+				_resolve(_slots.missile);
+			}
+		}
+	)
+	// 絞り込みに使わない読み : GUID からの解決
+	.Reads<GUIDComponent>();
+}

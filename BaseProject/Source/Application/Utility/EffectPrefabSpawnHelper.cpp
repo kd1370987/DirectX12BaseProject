@@ -9,8 +9,8 @@
 
 #include "PrefabSpawnHelper.h"
 
-#include "../Components/Transform/WorldMatrixComponent.h"
-#include "../Components/Common/LifeTimeComponent.h"
+#include "Application/Components/Transform/WorldMatrixComponent.h"
+#include "Application/Components/Core/LifeTimeComponent.h"
 
 namespace App::Utility
 {

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../Components/Camera/ProjMatComponent.h"
+#include "ProjMatComponent.h"
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPipelineAsset/RenderingPipelineAsset.h"

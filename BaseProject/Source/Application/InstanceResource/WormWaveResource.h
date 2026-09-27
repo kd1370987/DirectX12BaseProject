@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../Components/Character/Boss/SwarmBossWave.h"
+#include "Application/Components/Boss/SwarmBossWave.h"
 
 //==========================================================================================
 //

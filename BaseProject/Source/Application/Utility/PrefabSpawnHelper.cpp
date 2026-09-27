@@ -6,9 +6,9 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/Prefab/Prefab.h"
 
-#include "../Components/Transform/LocalTransformComponent.h"
-#include "../Components/Hierarchy/SpawnerComponent.h"
-#include "../Components/Camera/FollowTargetComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
+#include "Application/Components/Core/SpawnerComponent.h"
+#include "Application/Components/Camera/FollowTargetComponent.h"
 
 namespace App::Utility
 {

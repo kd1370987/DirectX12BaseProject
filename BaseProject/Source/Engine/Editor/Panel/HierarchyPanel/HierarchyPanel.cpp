@@ -9,12 +9,12 @@
 #include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
 #include "../../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 
-#include "../../../../Application/Components/Transform/LocalTransformComponent.h"
-#include "../../../../Application/Components/Transform/WorldMatrixComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
+#include "Application/Components/Transform/WorldMatrixComponent.h"
 
-#include "../../../../Application/Components/Persistence/NameComponent.h"
-#include "../../../../Application/Components/Hierarchy/HierarchyComponent.h"
-#include "../../../../Application/Components/Persistence/GUIDComponent.h"
+#include "Application/Components/Core/NameComponent.h"
+#include "Application/Components/Transform/HierarchyComponent.h"
+#include "Application/Components/Core/GUIDComponent.h"
 
 #include "../../EditorCamera/EditorCamera.h"
 #include "../../Helper/EditorHelper.h"

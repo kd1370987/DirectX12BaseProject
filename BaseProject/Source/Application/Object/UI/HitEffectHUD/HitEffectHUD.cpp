@@ -9,9 +9,9 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Tag/PlayerControllTag.h"
+#include "Application/Components/Input/PlayerControllTag.h"
 #include "Application/InstanceResource/HitEventResource.h"
-#include "Application/Components/Character/HealthComponent.h"
+#include "Application/Components/Combat/HealthComponent.h"
 
 namespace App::Object
 {
