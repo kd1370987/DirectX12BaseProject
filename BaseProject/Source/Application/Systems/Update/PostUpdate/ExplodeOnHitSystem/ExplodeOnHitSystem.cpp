@@ -66,5 +66,6 @@ void ExplodeOnHitSystem::Init(App::ECS::APPWorld& a_world)
 		},
 		// 体力を持つものは HealthSystem が面倒を見る
 		Engine::ECS::Exclude<HealthComponent>()
-	);
+	)
+	.WritesResource<DeathEventResource>();
 }

@@ -67,5 +67,7 @@ void AttachmentNodeLinkSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 親のモデル
+	.Reads<ModelComponent>();
 }

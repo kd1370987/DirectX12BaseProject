@@ -46,5 +46,7 @@ void FollowLeaderSystem::Init(App::ECS::APPWorld& a_world)
 				_boidComp.targetPos = _pTargetTrance->pos;
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 追従先の位置を RefData で読む
+	.Reads<LocalTransformComponent>();
 }

@@ -262,5 +262,7 @@ void RobotBoostSystem::Init(App::ECS::APPWorld& a_world)
 				_boostComp.isBoosting = _isBoostInput;
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない書き込み : 蹴り出しで実速度を RefData で書く(持っている機体だけ)
+	.Writes<MovementComponent>();
 }

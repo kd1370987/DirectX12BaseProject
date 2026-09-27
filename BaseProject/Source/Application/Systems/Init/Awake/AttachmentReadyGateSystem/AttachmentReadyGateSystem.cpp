@@ -56,5 +56,8 @@ void AttachmentReadyGateSystem::Init(App::ECS::APPWorld& a_world)
 				_wait.AddWait(a_pChunk->entityData[_i]);
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み書き : 親のモデル、待ちの登録
+	.Reads<ModelComponent>()
+	.WritesResource<ResourceWaitResource>();
 }

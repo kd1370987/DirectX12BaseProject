@@ -235,5 +235,8 @@ void LockOnTargetSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : カメラの射影と敵の一覧(別の ForEach)
+	.Reads<ProjMatComponent, EnemyTag>()
+	.ReadsResource<SingletonEntityResource>();
 }

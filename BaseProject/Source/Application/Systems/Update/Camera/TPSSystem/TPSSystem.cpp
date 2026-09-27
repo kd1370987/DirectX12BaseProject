@@ -455,5 +455,8 @@ void TPSSystem::Init(App::ECS::APPWorld& a_world)
 				_trsComp.isDirty = true;
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み書き : 追従先の視点角・構図・速さ、自分のデッドゾーン
+	.Reads<LookAngleComponent, CameraFocusTargetComponent, MovementComponent, VelocityComponent>()
+	.Writes<CameraDeadZoneComponent>();
 }

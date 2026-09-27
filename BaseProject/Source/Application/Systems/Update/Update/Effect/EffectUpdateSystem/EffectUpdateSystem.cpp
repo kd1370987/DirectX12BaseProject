@@ -97,5 +97,7 @@ void EffectUpdateSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 3D音の位置
+	.Reads<WorldMatrixComponent>();
 }

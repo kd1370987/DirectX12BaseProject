@@ -117,5 +117,6 @@ void FlyingSoundSystem::Init(App::ECS::APPWorld& a_world)
 				_it = _res.voiceMap.erase(_it);
 			}
 		}
-	);
+	)
+	.WritesResource<FlyingSoundResource>();
 }

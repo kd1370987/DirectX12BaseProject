@@ -225,5 +225,7 @@ void EnemyMoveIntentSystem::Init(App::ECS::APPWorld& a_world)
 				_intent.value.z = _moveDir.z * _throttle;
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : ターゲットの位置を RefData で読む
+	.Reads<WorldMatrixComponent>();
 }

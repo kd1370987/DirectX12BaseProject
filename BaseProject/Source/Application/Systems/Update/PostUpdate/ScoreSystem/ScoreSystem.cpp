@@ -3,8 +3,6 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Character/ScoreTargetComponent.h"
-#include "Application/Components/Character/HealthComponent.h"
-#include "Application/Components/Collision/ExplodeOnHitComponent.h"
 #include "Application/InstanceResource/DeathEventResource.h"
 #include "Application/Game/GameManager/GameManager.h"
 
@@ -30,10 +28,12 @@
 // ・実行帯は PostUpdate。死亡を積むのは HealthSystem / ExplodeOnHitSystem で、
 //   消すのは次フレーム PreUpdate の DeathEventClearSystem。
 //
-//   読み込みにその2つが書くコンポーネント(HealthComponent / ExplodeOnHitComponent)を
-//   挙げているのは、順序を「書く側 → 読む側」の辺で縛るため。
-//   挙げないと依存の無いタスクとして先に走ってしまい、
+//   DeathEventResource を読むと宣言して(ReadsResource)、積む2つ(書くと宣言している)の
+//   後ろへ「書く側 → 読む側」の辺で縛っている。
+//   宣言が無いと依存の無いタスクとして先に走ってしまい、
 //   積まれる前に読んで毎フレーム空振りする。
+//   (以前はリソースの依存を書けなかったので、積む側が書くコンポーネント
+//    HealthComponent / ExplodeOnHitComponent を読みに挙げて代わりにしていた)
 //
 // ・貯め先はワールドのリソースではなく GlobalGameContext(GameManager が持つ)。
 //   リザルトへ持っていく数字なので、シーンを切り替えると作り直される
@@ -45,7 +45,7 @@ void ScoreSystem::Init(App::ECS::APPWorld& a_world)
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,
 		"ScoreSystem",
-		Engine::ECS::ReadList<HealthComponent, ExplodeOnHitComponent>{},
+		Engine::ECS::ReadList<>{},
 		Engine::ECS::WriteList<ScoreTargetComponent>{},
 		[](const Engine::ECS::SystemContext& a_ctx)
 		{
@@ -76,5 +76,7 @@ void ScoreSystem::Init(App::ECS::APPWorld& a_world)
 				_gameData.AddScore(_pTarget->score);
 			}
 		}
-	);
+	)
+	// 死亡の一覧を読む(積むのは HealthSystem / ExplodeOnHitSystem)
+	.ReadsResource<DeathEventResource>();
 }

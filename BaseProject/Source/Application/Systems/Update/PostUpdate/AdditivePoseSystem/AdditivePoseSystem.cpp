@@ -301,5 +301,7 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : ロック相手と実速度
+	.Reads<LockOnTargetComponent, MovementComponent>();
 }

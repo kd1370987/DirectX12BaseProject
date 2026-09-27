@@ -84,5 +84,7 @@ void FaceTargetSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		},
 		Engine::ECS::Exclude<LookAngleComponent>{}
-	);
+	)
+	// 絞り込みに使わない読み : 死亡判定(IsDeadEntity)とターゲットの位置
+	.Reads<HealthComponent, WorldMatrixComponent>();
 }

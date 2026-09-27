@@ -127,5 +127,7 @@ void CommitHierarchyWorldMatrixSystem::Init(App::ECS::APPWorld& a_world)
 				);
 			}
 		}
-	);
+	)
+	// ※ LocalTransform::isDirty も書いているが、CalcMatrixSystem と宣言が循環するので保留(Step4/5)
+	.ReadsResource<HierarchyResource>();
 }

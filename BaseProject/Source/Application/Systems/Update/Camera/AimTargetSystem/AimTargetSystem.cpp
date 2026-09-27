@@ -228,5 +228,6 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 					_isHit ? Engine::Color::BLUE : Engine::Color::WHITE);
 			}
 		}
-	);
+	)
+	.ReadsResource<SingletonEntityResource>();
 }

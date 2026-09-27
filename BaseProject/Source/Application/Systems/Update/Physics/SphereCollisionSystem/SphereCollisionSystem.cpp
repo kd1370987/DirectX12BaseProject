@@ -75,5 +75,7 @@ void SphereCollisionSystem::Init(App::ECS::APPWorld& a_world)
 					_drawSphere, _isHit ? Engine::Color::RED : Engine::Color::GREEN);
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : isPhysical
+	.Reads<ColliderComponent>();
 }

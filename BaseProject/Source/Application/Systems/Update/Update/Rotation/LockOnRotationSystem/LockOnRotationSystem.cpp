@@ -194,7 +194,9 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 				ApplyYawSlerp(_trs, _targetYaw, _turnSpeed, a_ctx.dt);
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 死亡判定・ロック相手・狙点
+	.Reads<HealthComponent, LockOnTargetComponent, AimTargetPosComponent>();
 
 	//==========================================================================
 	// 攻撃入力を持たないプレイヤー(従来通り進行方向を向くだけ)
@@ -234,5 +236,7 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		},
 		Engine::ECS::Exclude<ActionIntentComponent>()
-	);
+	)
+	// 絞り込みに使わない読み : 死亡判定(IsDeadEntity)
+	.Reads<HealthComponent>();
 }

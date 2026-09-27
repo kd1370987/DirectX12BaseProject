@@ -72,5 +72,6 @@ void HitSoundSystem::Init(App::ECS::APPWorld& a_world)
 				_hitSound.coolTime = _hitSound.minInterval;
 			}
 		}
-	);
+	)
+	.ReadsResource<HitEventResource>();
 }

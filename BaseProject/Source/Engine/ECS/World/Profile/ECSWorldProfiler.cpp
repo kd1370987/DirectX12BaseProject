@@ -215,6 +215,8 @@ namespace Engine::ECS
 				_out.name = _pTask->name;
 				_out.readNames = ToComponentNames(_pTask->readSig);
 				_out.writeNames = ToComponentNames(_pTask->writeSig);
+				_out.readResourceNames = ToResourceNames(_pTask->resReadSig);
+				_out.writeResourceNames = ToResourceNames(_pTask->resWriteSig);
 
 				// 実行のされ方
 				_out.isJob = (_pTask->exec == ETaskExec::Job);
@@ -304,6 +306,10 @@ namespace Engine::ECS
 				_outAmb.earlierName = _amb.pEarlier->name;
 				_outAmb.laterName = _amb.pLater->name;
 				_outAmb.conflictNames = ToComponentNames(_amb.conflictSig);
+				for (const std::string& _resName : ToResourceNames(_amb.resConflictSig))
+				{
+					_outAmb.conflictNames.push_back("[Res] " + _resName);
+				}
 			}
 		}
 	}
@@ -356,6 +362,29 @@ namespace Engine::ECS
 		for (size_t _i = 0; _i < a_sig.size() && _i < _metaVec.size(); ++_i)
 		{
 			if (a_sig.test(_i)) _names.push_back(_metaVec[_i].name);
+		}
+		return _names;
+	}
+
+	std::vector<std::string> ECSWorldProfiler::ToResourceNames(const ResourceSignature& a_sig) const
+	{
+		std::vector<std::string> _names = {};
+		if (a_sig.none()) return _names;
+
+		const auto& _resourceMap = m_pOwner->m_resourceStore.GetResourceMap();
+		for (size_t _i = 0; _i < a_sig.size(); ++_i)
+		{
+			if (!a_sig.test(_i)) continue;
+
+			auto _it = _resourceMap.find(static_cast<ResourceTypeID>(_i));
+			if (_it != _resourceMap.end() && _it->second)
+			{
+				_names.push_back(std::string(_it->second->GetTypeName()));
+			}
+			else
+			{
+				_names.push_back("Resource#" + std::to_string(_i));
+			}
 		}
 		return _names;
 	}

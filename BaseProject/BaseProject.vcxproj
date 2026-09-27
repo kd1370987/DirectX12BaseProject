@@ -1235,6 +1235,7 @@
     <ClInclude Include="Source\Engine\ECS\Resource\ResourceTypeManager.h" />
     <ClInclude Include="Source\Engine\ECS\Resource\ResourceWrapper.h" />
     <ClInclude Include="Source\Engine\ECS\System\SystemManager.h" />
+    <ClInclude Include="Source\Engine\ECS\System\TaskAccess.h" />
     <ClInclude Include="Source\Engine\ECS\System\ISystem.h" />
     <ClInclude Include="Source\Engine\ECS\World\World.h" />
     <ClInclude Include="Source\Engine\ECS\World\Profile\ECSWorldProfiler.h" />

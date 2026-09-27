@@ -30,5 +30,6 @@ void DeathEventClearSystem::Init(App::ECS::APPWorld& a_world)
 
 			a_ctx.pWorld->GetResource<DeathEventResource>().Clear();
 		}
-	);
+	)
+	.WritesResource<DeathEventResource>();
 }

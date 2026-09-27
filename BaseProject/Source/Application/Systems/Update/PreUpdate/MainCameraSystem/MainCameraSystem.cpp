@@ -74,5 +74,7 @@ void MainCameraSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			);
 		}
-	);
+	)
+	// 答え(メインカメラ)の置き場
+	.WritesResource<SingletonEntityResource>();
 }

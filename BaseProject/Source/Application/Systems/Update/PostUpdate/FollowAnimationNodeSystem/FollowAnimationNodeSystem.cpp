@@ -63,5 +63,7 @@ void FollowAnimationNodeSystem::Init(App::ECS::APPWorld& a_world)
 				_trsComp.isDirty = true;
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 親のノードポーズ
+	.Reads<NodePoseComponent>();
 }

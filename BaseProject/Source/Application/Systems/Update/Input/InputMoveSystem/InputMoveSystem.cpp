@@ -109,5 +109,7 @@ void InputMoveSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない書き込み : チャージダッシュは持っている機体だけへ RefData で書く
+	.Writes<ChargeDashComponent>();
 }

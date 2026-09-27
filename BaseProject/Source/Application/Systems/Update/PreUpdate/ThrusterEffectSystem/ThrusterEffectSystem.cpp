@@ -160,5 +160,8 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 				_driveBooster(_slots.leftShoulderBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み書き : 自分の溜め具合を読み、子(ブースター)の噴射へ RefData で配る
+	.Reads<ChargeDashComponent>()
+	.Writes<EffectAssetComponent, BoosterEffectComponent>();
 }

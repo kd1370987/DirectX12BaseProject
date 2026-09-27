@@ -3746,6 +3746,9 @@
     <ClInclude Include="Source\Engine\ECS\System\SystemManager.h">
       <Filter>Source\Engine\ECS\System</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\ECS\System\TaskAccess.h">
+      <Filter>Source\Engine\ECS\System</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\ECS\System\ISystem.h">
       <Filter>Source\Engine\ECS\System</Filter>
     </ClInclude>

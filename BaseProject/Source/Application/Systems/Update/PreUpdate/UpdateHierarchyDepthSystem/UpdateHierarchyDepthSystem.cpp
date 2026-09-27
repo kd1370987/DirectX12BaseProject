@@ -36,5 +36,6 @@ void UpdateHierarchyDepthSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	.WritesResource<HierarchyResource>();
 }

@@ -92,5 +92,8 @@ void AttachmentDispatchSystem::Init(App::ECS::APPWorld& a_world)
 				// このスロットが指すポッドの GunStateComponent(弾・弾速・銃口)を読む
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み書き : 自分の狙点を読み、子(武器)の引き金と狙点へ RefData で配る
+	.Reads<AimTargetPosComponent>()
+	.Writes<WeaponTriggerComponent, AimTargetPosComponent>();
 }

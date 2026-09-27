@@ -19,5 +19,6 @@ void HitEventClearSystem::Init(App::ECS::APPWorld& a_world)
 
 			a_ctx.pWorld->GetResource<HitEventResource>().Clear();
 		}
-	);
+	)
+	.WritesResource<HitEventResource>();
 }

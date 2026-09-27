@@ -102,5 +102,8 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 持っているときだけ RefData で読む。
+	// 宣言しないと ActionIntent を書くジョブ(EnemyShootIntentSystem)と同時に走りうる
+	.Reads<ActionIntentComponent, GroundStateComponent>();
 }

@@ -44,5 +44,7 @@ void AttachmentSlotLinkSystem::Init(App::ECS::APPWorld& a_world)
 				_resolve(_slots.missile);
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : GUID からの解決
+	.Reads<GUIDComponent>();
 }

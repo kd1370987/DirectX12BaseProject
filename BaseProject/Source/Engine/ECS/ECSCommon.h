@@ -17,6 +17,9 @@ namespace Engine::ECS
 		constexpr uint32_t MAX_ENTITIES = 100000;
 		constexpr uint32_t MAX_COMPONENT_TYPES = 200;
 
+		// システムの依存に数えられるリソースの型の上限(ResourceTypeID がこれ未満であること)
+		constexpr uint32_t MAX_RESOURCE_TYPES = 128;
+
 		constexpr Entity INVALID_ENTITY = UINT64_MAX;
 
 		constexpr ComponentTypeID INVALID_COMPONENTTYPEID = UINT8_MAX;
@@ -27,6 +30,9 @@ namespace Engine::ECS
 
 	// コンポーネントタイプのビットセット
 	using Signature = std::bitset<ECS::Limits::MAX_COMPONENT_TYPES>;
+
+	// リソースの型のビットセット(システムの依存の宣言に使う。添え字は ResourceTypeID)
+	using ResourceSignature = std::bitset<ECS::Limits::MAX_RESOURCE_TYPES>;
 
 	//--------------------------------------------------------------------------------------
 	// シグネチャの添え字として使えるタイプIDか

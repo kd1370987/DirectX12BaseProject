@@ -142,5 +142,7 @@ void LookAroundSystem::Init(App::ECS::APPWorld& a_world)
 				_trs.isDirty = true;	// 停止中でも行列を再構築させる
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 死亡判定(IsDeadEntity)
+	.Reads<HealthComponent>();
 }

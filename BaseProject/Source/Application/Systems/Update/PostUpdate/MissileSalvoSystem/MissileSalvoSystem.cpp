@@ -22,6 +22,8 @@
 
 #include "../../../Shared/ProjectileSpawn/ProjectileSpawn.h"
 #include "../../../Shared/MissileSalvo/MissileSalvo.h"
+#include "Application/Components/Collision/Collider.h"
+#include "Application/Components/Hierarchy/HierarchyComponent.h"
 
 //==========================================================================================
 // MissileSalvoSystem
@@ -311,5 +313,9 @@ void MissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		},
 		Engine::ECS::Exclude<BossComponent>{}
-	);
+	)
+	// 絞り込みに使わない読み書き : カメラ・敵の一覧・狙点、ポッドの銃設定(弾のハンドルを解決して書く)と発射元
+	.Reads<ProjMatComponent, EnemyTag, AimTargetPosComponent, ModelComponent, ColliderComponent, HierarchyComponent>()
+	.Writes<GunStateComponent>()
+	.ReadsResource<SingletonEntityResource>();
 }

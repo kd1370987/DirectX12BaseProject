@@ -39,5 +39,6 @@ void ModelReadyGateSystem::Init(App::ECS::APPWorld& a_world)
 				_wait.AddWait(a_pChunk->entityData[_i]);
 			}
 		}
-	);
+	)
+	.WritesResource<ResourceWaitResource>();
 }

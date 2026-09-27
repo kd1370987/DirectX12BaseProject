@@ -247,5 +247,7 @@ void BoosterEffectSystem::Init(App::ECS::APPWorld& a_world)
 					_booster.sparkScale);
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : スパークの位置
+	.Reads<WorldMatrixComponent>();
 }

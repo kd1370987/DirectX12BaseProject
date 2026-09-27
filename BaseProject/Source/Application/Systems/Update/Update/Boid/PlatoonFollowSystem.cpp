@@ -160,5 +160,9 @@ void PlatoonFollowSystem::Init(App::ECS::APPWorld& a_world)
 				_vel.value = _target;
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 前の相手の向き。
+	// ※ 自分と前の相手の LocalTransform も読んでいるが、宣言すると LockOnRotationSystem と
+	//   依存が循環する(型単位でしか見ないため)。順序の仕組みを変える(Step4)まで宣言を保留している
+	.Reads<LookAngleComponent>();
 }

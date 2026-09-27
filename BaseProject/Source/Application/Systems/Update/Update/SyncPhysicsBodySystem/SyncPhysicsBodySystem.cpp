@@ -9,6 +9,7 @@
 #include "../../../Shared/HierarchyTransform/HierarchyTransform.h"
 
 #include "Engine/Physics/PhysicsWorld.h"
+#include "Application/Components/Hierarchy/HierarchyComponent.h"
 
 void SyncPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 {
@@ -45,5 +46,7 @@ void SyncPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 				_physicsWorld.SetBodyTransform(_collComp.physicsBody, _entity, _mat);
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 親を辿ってワールド行列を組む(HierarchyTransform)
+	.Reads<HierarchyComponent>();
 }

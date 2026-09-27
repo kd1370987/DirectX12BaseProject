@@ -9,11 +9,20 @@ namespace Engine::ECS
 
 	namespace
 	{
-		// 同時に走らせると壊れる組み合わせ : 向きは問わない
+		// 同時に走らせると壊れる組み合わせ : 向きは問わない。コンポーネントもリソースも同じ見方
 		bool IsConflict(const SystemTask& a_lhs,const SystemTask& a_rhs)
 		{
 			return (a_lhs.writeSig & (a_rhs.readSig | a_rhs.writeSig)).any()	// 書く * 読む / 書く * 書く
-				|| (a_lhs.readSig & a_rhs.writeSig).any();						// 読む * 書く
+				|| (a_lhs.readSig & a_rhs.writeSig).any()						// 読む * 書く
+				|| (a_lhs.resWriteSig & (a_rhs.resReadSig | a_rhs.resWriteSig)).any()
+				|| (a_lhs.resReadSig & a_rhs.resWriteSig).any();
+		}
+
+		// a が読むものを b が書く(RAW) : b の後に a を並べる辺。コンポーネントもリソースも数える
+		bool IsReadAfterWrite(const SystemTask& a_reader, const SystemTask& a_writer)
+		{
+			return (a_reader.readSig & a_writer.writeSig).any()
+				|| (a_reader.resReadSig & a_writer.resWriteSig).any();
 		}
 
 		// 処理を回して、所要時間を a_pOutNs へ足し込む : 同期・ジョブ関係なく
@@ -250,8 +259,8 @@ namespace Engine::ECS
 				_sortedVec,
 				[](const SystemTask* a, const SystemTask* b)
 				{
-					// ビット演算で論理積をとり一つでも立っていたらtrue
-					return (a->readSig & b->writeSig).any();
+					// a が読むものを b が書くなら b の後(コンポーネント・リソースとも)
+					return IsReadAfterWrite(*a, *b);
 				}
 			);
 
@@ -328,8 +337,8 @@ namespace Engine::ECS
 				if (!_pOther || _pOther == _pTask) continue;
 
 				const bool _isMutual =
-					(_pTask->readSig & _pOther->writeSig).any() &&
-					(_pOther->readSig & _pTask->writeSig).any();
+					IsReadAfterWrite(*_pTask, *_pOther) &&
+					IsReadAfterWrite(*_pOther, *_pTask);
 
 				if (_isMutual)
 				{
@@ -392,7 +401,7 @@ namespace Engine::ECS
 					if (_to == _cur || _reach[_from][_to]) continue;
 
 					// _to が読むものを _cur が書く → _cur の後に _to
-					if ((a_allTaskVec[_to]->readSig & a_allTaskVec[_cur]->writeSig).none()) continue;
+					if (!IsReadAfterWrite(*a_allTaskVec[_to], *a_allTaskVec[_cur])) continue;
 
 					_reach[_from][_to] = 1;
 					_stack.push_back(_to);
@@ -432,6 +441,9 @@ namespace Engine::ECS
 				_amb.conflictSig =
 					(_pEarlier->writeSig & (_pLater->readSig | _pLater->writeSig)) |
 					(_pEarlier->readSig & _pLater->writeSig);
+				_amb.resConflictSig =
+					(_pEarlier->resWriteSig & (_pLater->resReadSig | _pLater->resWriteSig)) |
+					(_pEarlier->resReadSig & _pLater->resWriteSig);
 			}
 		}
 
@@ -446,7 +458,7 @@ namespace Engine::ECS
 		}
 	}
 
-	void SystemManager::AddSystemTask(ESystemType a_systemType, const SystemTask & a_systemTask, const std::string& a_taskName)
+	SystemTask* SystemManager::AddSystemTask(ESystemType a_systemType, const SystemTask & a_systemTask, const std::string& a_taskName)
 	{
 		m_isChange = true;
 
@@ -458,7 +470,10 @@ namespace Engine::ECS
 			_upTask->name = a_taskName;
 		}
 
+		// 実体は個別に確保しているので、後からタスクが増えてもアドレスは動かない
+		SystemTask* _pTask = _upTask.get();
 		m_systemTaskMap[a_systemType].push_back(std::move(_upTask));
+		return _pTask;
 	}
 
 	const std::unordered_map<ESystemType, std::vector<SystemTask*>>& SystemManager::GetCompileTaskMap() const

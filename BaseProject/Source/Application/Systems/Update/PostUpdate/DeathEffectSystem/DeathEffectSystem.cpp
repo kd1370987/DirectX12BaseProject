@@ -3,8 +3,6 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Character/DeathEffectComponent.h"
-#include "Application/Components/Character/HealthComponent.h"
-#include "Application/Components/Collision/ExplodeOnHitComponent.h"
 #include "Application/InstanceResource/DeathEventResource.h"
 #include "Application/Utility/EffectSpawnHelper.h"
 
@@ -28,14 +26,13 @@
 //   どちらもこの時点ではコンポーネントを引ける。
 // ・カスタムタスクで登録している。1フレームに1回だけ走らせたいため。
 //
-// ・読み込みに HealthComponent と ExplodeOnHitComponent を挙げている。
-//   このシステム自体はどちらも触らないが、死亡を積むのがその2つを書くシステム
-//   (HealthSystem / ExplodeOnHitSystem)なので、こう書いておくと
+// ・DeathEventResource を読むと宣言している(ReadsResource)。
+//   死亡を積む HealthSystem / ExplodeOnHitSystem がこれを書くと宣言しているので、
 //   「書く側 → 読む側」の辺が張られて必ず後ろに回る。
-//
-//   挙げていないと、依存の無いタスクとして真っ先に実行されてしまう。
-//   同じ PostUpdate 帯でも順序は依存でしか決まらないので、
-//   積まれる前に読んで毎フレーム空振りし、エフェクトが一切出なくなる。
+//   宣言が無いと依存の無いタスクとして真っ先に実行され、積まれる前に読んで
+//   毎フレーム空振りし、エフェクトが一切出なくなる。
+//   (以前はリソースの依存を書けなかったので、積む側が書くコンポーネント
+//    HealthComponent / ExplodeOnHitComponent を読みに挙げて代わりにしていた)
 // ・クリアはしない。スコア加算(ScoreSystem)も同じ死亡を読むようになったので、
 //   HitEventResource と同じく捨てる係を分けてある(DeathEventClearSystem / PreUpdate)。
 //   先に読んだ方が消す形だと、読み手が増えたときに登録順で動いたり動かなかったりする。
@@ -45,7 +42,7 @@ void DeathEffectSystem::Init(App::ECS::APPWorld& a_world)
 	a_world.ActiveCustomTask(
 		Engine::ECS::ESystemType::PostUpdate,
 		"DeathEffectSystem",
-		Engine::ECS::ReadList<DeathEffectComponent, HealthComponent, ExplodeOnHitComponent>{},
+		Engine::ECS::ReadList<DeathEffectComponent>{},
 		Engine::ECS::WriteList<>{},
 		[](const Engine::ECS::SystemContext& a_ctx)
 		{
@@ -78,5 +75,7 @@ void DeathEffectSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 死亡の一覧を読む(積むのは HealthSystem / ExplodeOnHitSystem)
+	.ReadsResource<DeathEventResource>();
 }

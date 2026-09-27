@@ -23,6 +23,8 @@ namespace Engine::ECS
 		std::string name = {};
 		Signature readSig;											// 読み込みのみを行うコンポーネント
 		Signature writeSig;											// 書き込みを行うコンポーネント軍
+		ResourceSignature resReadSig;								// 読み込みのみを行うリソース
+		ResourceSignature resWriteSig;								// 書き込みを行うリソース
 
 		std::function<void(SystemTask&, const SystemContext&)> executeFunc;	// チャンク処理(自身のタスクを受け取る)
 		QueryCache query;											// クエリ結果(RegisterTask のみ使う。カスタムタスクは空のまま)
@@ -57,6 +59,7 @@ namespace Engine::ECS
 		const SystemTask* pEarlier = nullptr;	// 今の並びで先に走る方
 		const SystemTask* pLater = nullptr;		// 今の並びで後に走る方
 		Signature conflictSig;					// ぶつかっているコンポーネント
+		ResourceSignature resConflictSig;		// ぶつかっているリソース
 	};
 
 	// フェーズ1つぶんの診断
@@ -108,8 +111,8 @@ namespace Engine::ECS
 		// 登録されたタスクをフェーズごとにソートする
 		void Sort();
 
-		// タスクの登録
-		void AddSystemTask(
+		// タスクの登録 : 登録したタスクの実体を返す(依存の追加宣言に使う。アドレスは動かない)
+		SystemTask* AddSystemTask(
 			ESystemType a_systemType,const SystemTask& a_systemTask,const std::string& a_taskName
 		);
 

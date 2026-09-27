@@ -127,5 +127,8 @@ void BoostSoundSystem::Init(App::ECS::APPWorld& a_world)
 				_driveBehavior(_slots.leftLegBoost.id, _boosting);
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み書き : 自分と子(ブースター)の音を RefData で鳴らす
+	.Reads<WorldMatrixComponent>()
+	.Writes<AudioBehaviorComponent>();
 }

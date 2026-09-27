@@ -143,5 +143,7 @@ void HomingSystem::Init(App::ECS::APPWorld& a_world)
 				_vel.value = _newDir * _speed;
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 追う相手の位置を RefData で読む
+	.Reads<WorldMatrixComponent>();
 }

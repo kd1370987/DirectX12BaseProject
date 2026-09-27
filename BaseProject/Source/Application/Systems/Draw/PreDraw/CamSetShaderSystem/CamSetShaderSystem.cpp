@@ -117,5 +117,6 @@ void CamSetShaderSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	.ReadsResource<SingletonEntityResource>();
 }

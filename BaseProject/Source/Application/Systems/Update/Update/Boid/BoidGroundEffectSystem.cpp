@@ -120,5 +120,6 @@ void BoidGroundEffectSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	.WritesResource<WormGroundEffectResource>();
 }

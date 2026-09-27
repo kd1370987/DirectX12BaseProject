@@ -104,5 +104,7 @@ void BoidContactDamageSystem::Init(App::ECS::APPWorld& a_world)
 				_contact.cooldownTimer = _res.cooldown;
 			}
 		}
-	);
+	)
+	.ReadsResource<SwarmContactDamageResource>()
+	.WritesResource<HitEventResource>();
 }

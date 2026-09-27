@@ -171,5 +171,8 @@ void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 				_emissive.isOverride        = true;
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 小隊長の軸を別の ForEach で集める
+	.Reads<PlatoonLeaderComponent, LookAngleComponent>()
+	.ReadsResource<WormWaveResource>();
 }

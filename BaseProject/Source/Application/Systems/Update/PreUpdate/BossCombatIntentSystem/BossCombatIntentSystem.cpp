@@ -601,5 +601,7 @@ void BossCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : 相手の位置と速度、武器の弾速、自分の接地を RefData で読む
+	.Reads<WorldMatrixComponent, MovementComponent, VelocityComponent, GunStateComponent, GroundStateComponent>();
 }

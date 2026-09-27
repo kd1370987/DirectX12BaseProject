@@ -96,5 +96,7 @@ void HealthSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	.ReadsResource<HitEventResource>()
+	.WritesResource<DeathEventResource>();
 }

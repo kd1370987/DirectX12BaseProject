@@ -343,5 +343,9 @@ void ChargeDashSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み書き : 実速度とブーストの燃料を RefData で触る(持っている機体だけ)。
+	// 燃料を読むので、回復させる RobotBoostSystem の後ろに並ぶ
+	.Reads<BoostComponent>()
+	.Writes<MovementComponent, BoostComponent>();
 }

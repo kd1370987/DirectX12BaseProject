@@ -43,6 +43,7 @@ namespace App::ECS
 	template<typename... T> using Exclude	= Engine::ECS::Exclude<T...>;
 	template<typename... T> using ReadList	= Engine::ECS::ReadList<T...>;
 	template<typename... T> using WriteList	= Engine::ECS::WriteList<T...>;
+	using TaskAccess		= Engine::ECS::TaskAccess;
 
 	class APPWorld : public Engine::ECS::World
 	{
@@ -77,6 +78,11 @@ namespace App::ECS
 		void ReserveReleaseEntity(const Entity& a_entity) override;
 
 		/// <summary>GUIDからエンティティを探す</summary>
+		/// <remarks>
+		/// 索引(GUID → Entity)を引く。構造変更があったフレームは最初の呼び出しで作り直す。
+		/// 索引が引けない・古いときは全件を舐めて探す(以前と同じ結果になる)。
+		/// 索引を書き換えるので、メインスレッドからだけ呼ぶこと(ジョブタスクの中では呼ばない)
+		/// </remarks>
 		Entity GetEntity(const Engine::GUID& a_guid) override;
 
 		/// <summary>ゲーム固有のコンポーネント / システムを登録する</summary>
@@ -97,34 +103,35 @@ namespace App::ECS
 		// フェーズごとのタスク登録
 		//
 		// 先頭にフェーズタグを足して基盤の RegisterTask を呼ぶだけ。
+		// 戻り値(TaskAccess)で、絞り込みに使わない読み書きを追加で宣言できる。
 		// タグは絞り込みにしか使わないので依存(read/write)には数えられない
 		// (PhaseTag.h の IsQueryOnlyTag 特殊化を参照)。
 		//
 		//==================================================================================
 
 		template<typename ...Components, typename... Excludes, typename Func>
-		void PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
+		TaskAccess PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void AwakeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
+		TaskAccess AwakeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
+		TaskAccess StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void ActiveTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
+		TaskAccess ActiveTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void ReleaseTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
+		TaskAccess ReleaseTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 
 		// カスタムタスク(システム内で何度も ForEach を回すとき)。
 		// こちらはタグを足さないので、フェーズは第1引数だけで決まる
 		template<typename ...Read, typename... Write, typename Func>
-		void PostDeserializeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		TaskAccess PostDeserializeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void AwakeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		TaskAccess AwakeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void StartCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		TaskAccess StartCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void ActiveCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		TaskAccess ActiveCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void ReleaseCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		TaskAccess ReleaseCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 
 		//==================================================================================
 		//
@@ -143,26 +150,26 @@ namespace App::ECS
 		//==================================================================================
 
 		template<typename ...Components, typename... Excludes, typename Func>
-		void PostDeserializeJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
+		TaskAccess PostDeserializeJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void AwakeJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
+		TaskAccess AwakeJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void StartJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
+		TaskAccess StartJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void ActiveJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
+		TaskAccess ActiveJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 		template<typename ...Components, typename... Excludes, typename Func>
-		void ReleaseJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
+		TaskAccess ReleaseJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex = {});
 
 		template<typename ...Read, typename... Write, typename Func>
-		void PostDeserializeCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		TaskAccess PostDeserializeCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void AwakeCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		TaskAccess AwakeCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void StartCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		TaskAccess StartCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void ActiveCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		TaskAccess ActiveCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 		template<typename ...Read, typename... Write, typename Func>
-		void ReleaseCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
+		TaskAccess ReleaseCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func);
 
 	protected:
 
@@ -205,6 +212,22 @@ namespace App::ECS
 
 		/// <summary>ReleaseTag が付いているものを削除予定へ積む</summary>
 		void CollectReleasedEntities();
+
+		/// <summary>GUID の索引を全件から作り直す</summary>
+		void RebuildGuidIndex();
+
+		/// <summary>全件を舐めて GUID を探す(索引が使えないとき)</summary>
+		Entity FindEntityByScan(const Engine::GUID& a_guid);
+
+		/// <summary>索引の答えが今も正しいか(生きていて、同じ GUID を持っている)</summary>
+		bool IsGuidIndexEntryValid(const Entity& a_entity, const Engine::GUID& a_guid);
+
+	private:
+
+		// GUID → Entity の索引。構造変更(生成・削除・引っ越し)で古くなったら作り直す。
+		// GUID は PostDeserialize(GUIDFixupSystem)でしか書き換わらず、その後には必ず構造変更が入る
+		std::unordered_map<Engine::GUID, Entity> m_guidIndexMap = {};
+		bool m_isGuidIndexDirty = true;
 	};
 
 	//======================================================================================
@@ -225,55 +248,55 @@ namespace App::ECS
 	}
 
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void APPWorld::PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline TaskAccess APPWorld::PostDeserializeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<PostDeserializeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
+		return RegisterTask<PostDeserializeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void APPWorld::AwakeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline TaskAccess APPWorld::AwakeTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<AwakeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
+		return RegisterTask<AwakeTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void APPWorld::StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline TaskAccess APPWorld::StartTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<StartTag, Components...>(a_phase, a_taskName, a_func, a_ex);
+		return RegisterTask<StartTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void APPWorld::ActiveTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline TaskAccess APPWorld::ActiveTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<ActiveTag, Components...>(a_phase, a_taskName, a_func, a_ex);
+		return RegisterTask<ActiveTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void APPWorld::ReleaseTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline TaskAccess APPWorld::ReleaseTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<ReleaseTag, Components...>(a_phase, a_taskName, a_func, a_ex);
+		return RegisterTask<ReleaseTag, Components...>(a_phase, a_taskName, a_func, a_ex);
 	}
 
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::PostDeserializeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline TaskAccess APPWorld::PostDeserializeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
+		return RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::AwakeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline TaskAccess APPWorld::AwakeCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
+		return RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::StartCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline TaskAccess APPWorld::StartCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
+		return RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::ActiveCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline TaskAccess APPWorld::ActiveCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
+		return RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::ReleaseCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline TaskAccess APPWorld::ReleaseCustomTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
+		return RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func);
 	}
 
 	//--------------------------------------------------------------------------------------
@@ -281,54 +304,54 @@ namespace App::ECS
 	//--------------------------------------------------------------------------------------
 
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void APPWorld::PostDeserializeJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline TaskAccess APPWorld::PostDeserializeJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<PostDeserializeTag, Components...>(a_phase, a_taskName, a_func, a_ex, ETaskExec::Job);
+		return RegisterTask<PostDeserializeTag, Components...>(a_phase, a_taskName, a_func, a_ex, ETaskExec::Job);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void APPWorld::AwakeJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline TaskAccess APPWorld::AwakeJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<AwakeTag, Components...>(a_phase, a_taskName, a_func, a_ex, ETaskExec::Job);
+		return RegisterTask<AwakeTag, Components...>(a_phase, a_taskName, a_func, a_ex, ETaskExec::Job);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void APPWorld::StartJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline TaskAccess APPWorld::StartJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<StartTag, Components...>(a_phase, a_taskName, a_func, a_ex, ETaskExec::Job);
+		return RegisterTask<StartTag, Components...>(a_phase, a_taskName, a_func, a_ex, ETaskExec::Job);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void APPWorld::ActiveJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline TaskAccess APPWorld::ActiveJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<ActiveTag, Components...>(a_phase, a_taskName, a_func, a_ex, ETaskExec::Job);
+		return RegisterTask<ActiveTag, Components...>(a_phase, a_taskName, a_func, a_ex, ETaskExec::Job);
 	}
 	template<typename ...Components, typename ...Excludes, typename Func>
-	inline void APPWorld::ReleaseJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
+	inline TaskAccess APPWorld::ReleaseJobTask(ESystemType a_phase, const std::string& a_taskName, Func a_func, Exclude<Excludes...> a_ex)
 	{
-		RegisterTask<ReleaseTag, Components...>(a_phase, a_taskName, a_func, a_ex, ETaskExec::Job);
+		return RegisterTask<ReleaseTag, Components...>(a_phase, a_taskName, a_func, a_ex, ETaskExec::Job);
 	}
 
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::PostDeserializeCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline TaskAccess APPWorld::PostDeserializeCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func, ETaskExec::Job);
+		return RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func, ETaskExec::Job);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::AwakeCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline TaskAccess APPWorld::AwakeCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func, ETaskExec::Job);
+		return RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func, ETaskExec::Job);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::StartCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline TaskAccess APPWorld::StartCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func, ETaskExec::Job);
+		return RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func, ETaskExec::Job);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::ActiveCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline TaskAccess APPWorld::ActiveCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func, ETaskExec::Job);
+		return RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func, ETaskExec::Job);
 	}
 	template<typename ...Read, typename ...Write, typename Func>
-	inline void APPWorld::ReleaseCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
+	inline TaskAccess APPWorld::ReleaseCustomJobTask(ESystemType a_phase, const std::string& a_taskName, ReadList<Read...>, WriteList<Write...>, Func a_func)
 	{
-		RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func, ETaskExec::Job);
+		return RegisterCustomTask(a_phase, a_taskName, ReadList<Read...>{}, WriteList<Write...>{}, a_func, ETaskExec::Job);
 	}
 }

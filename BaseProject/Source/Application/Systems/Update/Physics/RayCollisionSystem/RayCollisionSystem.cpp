@@ -120,5 +120,8 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 				_ground.isGround = true;
 			}
 		}
-	);
+	)
+	// 速度は書き換えるだけでなく読んでもいる(上昇中はスナップしない)。
+	// 読みを宣言しておくと、速度を書く Gravity / RobotBoost / ChargeDash の後ろに並ぶ
+	.Reads<VelocityComponent>();
 }

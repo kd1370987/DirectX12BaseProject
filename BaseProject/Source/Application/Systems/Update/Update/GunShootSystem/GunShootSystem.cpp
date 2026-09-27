@@ -19,6 +19,7 @@
 
 #include "../../../Shared/ProjectileSpawn/ProjectileSpawn.h"
 #include "../../../../Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Tag/EnemyTag.h"
 
 //==========================================================================================
 // GunShootSystem
@@ -369,5 +370,8 @@ void GunShootSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み書き : 狙点・親を辿った索敵結果と発射元(ProjectileSpawn)、自分のマズルフラッシュ
+	.Reads<AimTargetPosComponent, TargetEntityComponent, HierarchyComponent, ColliderComponent, EnemyTag>()
+	.Writes<EffectAssetComponent>();
 }

@@ -90,6 +90,8 @@ namespace Engine::ECS
 		std::string					name = {};
 		std::vector<std::string>	readNames = {};			// 読み込みのコンポーネント
 		std::vector<std::string>	writeNames = {};		// 書き込みのコンポーネント
+		std::vector<std::string>	readResourceNames = {};	// 読み込みのリソース
+		std::vector<std::string>	writeResourceNames = {};// 書き込みのリソース
 
 		// 実行のされ方
 		bool						isJob = false;			// ワーカーで走るか
@@ -115,7 +117,7 @@ namespace Engine::ECS
 	{
 		std::string					earlierName = {};		// 今の並びで先に走る方
 		std::string					laterName = {};			// 今の並びで後に走る方
-		std::vector<std::string>	conflictNames = {};		// ぶつかっているコンポーネント
+		std::vector<std::string>	conflictNames = {};		// ぶつかっているコンポーネントとリソース(リソースは [Res] 付き)
 	};
 
 	// フェーズ1つぶんの並びの診断
@@ -228,6 +230,9 @@ namespace Engine::ECS
 
 		// シグネチャに立っているコンポーネントの名前
 		std::vector<std::string> ToComponentNames(const Signature& a_sig) const;
+
+		// 立っているリソースの名前(ワールドに無い型は ID で出す)
+		std::vector<std::string> ToResourceNames(const ResourceSignature& a_sig) const;
 
 	private:
 

@@ -533,12 +533,15 @@ namespace Engine::Editor
 
 						// 依存 : 数だけ出して中身はツールチップ
 						ImGui::TableSetColumnIndex(9);
-						ImGui::Text("%zu / %zu", _task.readNames.size(), _task.writeNames.size());
+						ImGui::Text("%zu / %zu", _task.readNames.size() + _task.readResourceNames.size(),
+							_task.writeNames.size() + _task.writeResourceNames.size());
 						if (ImGui::IsItemHovered())
 						{
 							ImGui::BeginTooltip();
 							Engine::Editor::Value("Read", "%s", _task.readNames.empty() ? "-" : JoinNames(_task.readNames).c_str());
 							Engine::Editor::Value("Write", "%s", _task.writeNames.empty() ? "-" : JoinNames(_task.writeNames).c_str());
+							Engine::Editor::Value("Read Res", "%s", _task.readResourceNames.empty() ? "-" : JoinNames(_task.readResourceNames).c_str());
+							Engine::Editor::Value("Write Res", "%s", _task.writeResourceNames.empty() ? "-" : JoinNames(_task.writeResourceNames).c_str());
 							ImGui::EndTooltip();
 						}
 					}

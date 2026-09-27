@@ -9,6 +9,11 @@
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
 #include "../../../Shared/MissileSalvo/MissileSalvo.h"
+#include "Application/Components/Resource/ModelComponent.h"
+#include "Application/Components/Collision/Collider.h"
+#include "Application/Components/Hierarchy/HierarchyComponent.h"
+#include "Application/Components/Tag/EnemyTag.h"
+#include "Application/Components/Character/Weapon/Gun/GunStateComponent.h"
 
 //==========================================================================================
 // BossMissileSalvoSystem
@@ -138,5 +143,8 @@ void BossMissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 					a_ctx, _missile, _slots.missile.id, _aimDir);
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み書き : ポッドの銃設定(弾のハンドルを解決して書く)と発射元
+	.Reads<ModelComponent, ColliderComponent, HierarchyComponent, EnemyTag>()
+	.Writes<GunStateComponent>();
 }

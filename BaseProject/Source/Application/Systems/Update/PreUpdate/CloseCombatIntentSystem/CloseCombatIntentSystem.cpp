@@ -178,5 +178,7 @@ void CloseCombatIntentSystem::Init(App::ECS::APPWorld& a_world)
 				_move.value.z = _dir.z * _combat.moveThrottle;
 			}
 		}
-	);
+	)
+	// 絞り込みに使わない読み : ターゲットの位置を RefData で読む
+	.Reads<WorldMatrixComponent>();
 }

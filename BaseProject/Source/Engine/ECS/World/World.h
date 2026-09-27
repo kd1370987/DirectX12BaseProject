@@ -6,6 +6,7 @@
 #include "../Component/ComponentMetaRegistry.h"
 #include "../System/SystemManager.h"
 #include "../System/SystemCommon.h"
+#include "../System/TaskAccess.h"
 #include "../Resource/ResourceStore.h"
 
 namespace Engine::ECS
@@ -205,8 +206,10 @@ namespace Engine::ECS
 		//
 		// a_exec に Job を渡すとワーカースレッドで走り、ぶつかるタスクの直前まで待ち合わせない。
 		// その場合、宣言したコンポーネント以外(構造変更の予約・リソース・サービス)には触らないこと
+		//
+		// 戻り値で、絞り込みに使わない読み書き(RefData / GetResource 越し)を追加で宣言できる(TaskAccess)
 		template<typename... Components, typename... Excludes, typename Func>
-		void RegisterTask(
+		TaskAccess RegisterTask(
 			ESystemType a_phase,
 			const std::string& a_taskName,
 			Func a_func,
@@ -216,9 +219,9 @@ namespace Engine::ECS
 
 		// カスタムタスクの登録 : 自動ループせず a_func(const SystemContext&) を1回呼ぶ。
 		// 中で ForEach を何度も回すときに使う。依存は ReadList / WriteList で宣言する
-		// a_exec の扱いは RegisterTask と同じ
+		// a_exec の扱いは RegisterTask と同じ。リソースの読み書きは戻り値(TaskAccess)で宣言する
 		template<typename... Read, typename... Write, typename Func>
-		void RegisterCustomTask(
+		TaskAccess RegisterCustomTask(
 			ESystemType a_phase,
 			const std::string& a_taskName,
 			ReadList<Read...>,
@@ -519,7 +522,7 @@ namespace Engine::ECS
 	//==============================================================================================
 
 	template<typename... Components, typename... Excludes, typename Func>
-	inline void World::RegisterTask(
+	inline TaskAccess World::RegisterTask(
 		ESystemType a_phase,
 		const std::string& a_taskName,
 		Func a_func,
@@ -605,11 +608,11 @@ namespace Engine::ECS
 				}
 			};
 
-		m_systemManager.AddSystemTask(a_phase, _task, a_taskName);
+		return TaskAccess(m_systemManager.AddSystemTask(a_phase, _task, a_taskName));
 	}
 
 	template<typename... Read, typename... Write, typename Func>
-	inline void World::RegisterCustomTask(
+	inline TaskAccess World::RegisterCustomTask(
 		ESystemType a_phase,
 		const std::string& a_taskName,
 		ReadList<Read...>,
@@ -633,7 +636,7 @@ namespace Engine::ECS
 				a_func(a_context);
 			};
 
-		m_systemManager.AddSystemTask(a_phase, _task, a_taskName);
+		return TaskAccess(m_systemManager.AddSystemTask(a_phase, _task, a_taskName));
 	}
 
 	//==============================================================================================

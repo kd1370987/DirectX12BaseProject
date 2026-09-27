@@ -176,31 +176,84 @@ namespace App::ECS
 	//======================================================================================
 	Entity APPWorld::GetEntity(const Engine::GUID& a_guid)
 	{
+		// 未設定の GUID は誰も指していないものとして扱う(呼ぶ側も未設定なら引かない)
+		if (a_guid == Engine::DefaultGUID) return Engine::ECS::Limits::INVALID_ENTITY;
+
+		if (m_isGuidIndexDirty)
+		{
+			RebuildGuidIndex();
+		}
+
+		auto _it = m_guidIndexMap.find(a_guid);
+		if (_it != m_guidIndexMap.end() && IsGuidIndexEntryValid(_it->second, a_guid))
+		{
+			return _it->second;
+		}
+
+		// 索引に無い・古い : 構造変更を通らずに GUID が書き換わった場合に備えて全件で探し直す。
+		// (無いものを探すたびに全件になるのは以前と同じ)
+		const Entity _found = FindEntityByScan(a_guid);
+		if (_found != Engine::ECS::Limits::INVALID_ENTITY)
+		{
+			m_guidIndexMap[a_guid] = _found;
+		}
+		else if (_it != m_guidIndexMap.end())
+		{
+			m_guidIndexMap.erase(_it);
+		}
+		return _found;
+	}
+
+	void APPWorld::RebuildGuidIndex()
+	{
+		m_guidIndexMap.clear();
+
+		ForEach<const GUIDComponent>(
+			[this](Chunk* a_pChunk, uint32_t a_count, const GUIDComponent* a_guidArray)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					const Engine::GUID& _guid = a_guidArray[_i].guid;
+					if (_guid == Engine::DefaultGUID) continue;
+
+					// 同じ GUID が重なっていたら先に見つかったほう(以前の全件検索と同じ)
+					m_guidIndexMap.emplace(_guid, a_pChunk->entityData[_i]);
+				}
+			}
+		);
+
+		m_isGuidIndexDirty = false;
+	}
+
+	Entity APPWorld::FindEntityByScan(const Engine::GUID& a_guid)
+	{
 		Entity _res = Engine::ECS::Limits::INVALID_ENTITY;
 
-		ForEach<GUIDComponent>(
-			[&a_guid, &_res](
-				Chunk* a_chunk,
-				uint32_t a_count,
-				GUIDComponent* a_guidArray
-				)
+		ForEach<const GUIDComponent>(
+			[&a_guid, &_res](Chunk* a_pChunk, uint32_t a_count, const GUIDComponent* a_guidArray)
 			{
 				if (_res != Engine::ECS::Limits::INVALID_ENTITY) return;
 
-				for (size_t _i = 0; _i < a_count; ++_i)
+				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
-					if (_res != Engine::ECS::Limits::INVALID_ENTITY) continue;
+					if (a_guidArray[_i].guid != a_guid) continue;
 
-					GUIDComponent& _comp = a_guidArray[_i];
-					if (_comp.guid == a_guid)
-					{
-						_res = a_chunk->entityData[_i];
-					}
+					_res = a_pChunk->entityData[_i];
+					return;
 				}
 			}
 		);
 
 		return _res;
+	}
+
+	bool APPWorld::IsGuidIndexEntryValid(const Entity& a_entity, const Engine::GUID& a_guid)
+	{
+		if (!IsAliveEntity(a_entity)) return false;
+		if (!HasComponent<GUIDComponent>(a_entity)) return false;
+
+		const GUIDComponent* _pGuid = RefData<GUIDComponent>(a_entity);
+		return _pGuid && _pGuid->guid == a_guid;
 	}
 
 	//======================================================================================
@@ -240,6 +293,9 @@ namespace App::ECS
 	{
 		// エンティティの構成が変わったので階層の作り直しを促す
 		GetResource<HierarchyResource>().isDirty = true;
+
+		// 生成・削除があれば GUID の索引も古くなる(次に引くときに作り直す)
+		m_isGuidIndexDirty = true;
 	}
 
 	//======================================================================================
