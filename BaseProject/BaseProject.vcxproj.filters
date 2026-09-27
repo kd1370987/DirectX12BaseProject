@@ -1084,6 +1084,15 @@
     <Filter Include="Source\Engine\Graphics\RenderingPipeline">
       <UniqueIdentifier>{d4933552-c71b-4be1-9083-2a1c348a797a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapPass">
+      <UniqueIdentifier>{7641ba8d-7a32-4a24-acda-b909be8e87af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapMaskPass">
+      <UniqueIdentifier>{ed69d5f7-ec94-4a89-a298-a23ef2aa82b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\Lighting\Shadow">
+      <UniqueIdentifier>{990c4f4a-da8e-4a4e-900d-8e939f16ce9c}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingShadowPass">
       <UniqueIdentifier>{0ece27d4-0909-4402-b4e8-9da1907e8b5d}</UniqueIdentifier>
     </Filter>
@@ -2237,6 +2246,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\FrameCompute\ParticleSimulation\ParticleSimulation.cpp">
       <Filter>Source\Engine\Graphics\FrameCompute\ParticleSimulation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapPass\ShadowMapPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapMaskPass\ShadowMapMaskPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapMaskPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingShadowPass\RaytracingShadowPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingShadowPass</Filter>
@@ -3974,6 +3989,12 @@
     <ClInclude Include="Source\Engine\Graphics\FrameCompute\ParticleSimulation\ParticleSimulation.h">
       <Filter>Source\Engine\Graphics\FrameCompute\ParticleSimulation</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapPass\ShadowMapPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapMaskPass\ShadowMapMaskPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapMaskPass</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingShadowPass\RaytracingShadowPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingShadowPass</Filter>
     </ClInclude>
@@ -4429,6 +4450,9 @@
     <None Include="Asset\Shader\Common\RootParameters\AmbientData.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
+    <None Include="Asset\Shader\Common\RootParameters\ShadowMapData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
     <None Include="Asset\Shader\Common\RootParameters\LightData.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
@@ -4515,6 +4539,9 @@
     </None>
     <None Include="Asset\Shader\Source\Geometry\Skinning\Skinning.hlsli">
       <Filter>Asset\Shader\Source\Geometry\Skinning</Filter>
+    </None>
+    <None Include="Asset\Shader\Source\Lighting\Shadow\ShadowMapMaskCS.hlsl">
+      <Filter>Asset\Shader\Source\Lighting\Shadow</Filter>
     </None>
     <None Include="Asset\Shader\Source\Lighting\Sky\SkyShader.hlsl">
       <Filter>Asset\Shader\Source\Lighting\Sky</Filter>

@@ -44,6 +44,10 @@
 #include "RenderingPasses/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
 #include "RenderingPasses/Lighting/RaytracingGIPass/RaytracingGIPass.h"
 
+// ---- シャドウマップ ----
+#include "RenderingPasses/Lighting/Shadow/ShadowMapPass/ShadowMapPass.h"
+#include "RenderingPasses/Lighting/Shadow/ShadowMapMaskPass/ShadowMapMaskPass.h"
+
 namespace Engine::Graphics::Pipeline
 {
 	ID<Pass> PassMetaRegistry::GetTypeID(const std::string& a_name) const
@@ -144,6 +148,10 @@ namespace Engine::Graphics::Pipeline
 		// ---- レイトレ ----
 		a_registry.RegisterType<RaytracingShadowPass>("RaytracingShadowPass");
 		a_registry.RegisterType<RaytracingGIPass>("RaytracingGIPass");
+
+		// ---- シャドウマップ(主光源の影をレイトレの代わりに求める) ----
+		a_registry.RegisterType<ShadowMapPass>("ShadowMapPass");
+		a_registry.RegisterType<ShadowMapMaskPass>("ShadowMapMaskPass");
 
 		// 配線が通っているかを画面の色で確かめる用
 		a_registry.RegisterType<TestClearPass>("TestClearPass");

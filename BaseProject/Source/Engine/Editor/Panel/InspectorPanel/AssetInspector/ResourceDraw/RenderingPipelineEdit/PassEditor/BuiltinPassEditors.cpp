@@ -29,6 +29,8 @@
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/DeferredLightingPass/DeferredLightingPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/RaytracingGIPass/RaytracingGIPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/ShadowMapPass/ShadowMapPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/ShadowMapMaskPass/ShadowMapMaskPass.h"
 
 // ---- Denoise ----
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
@@ -188,6 +190,38 @@ namespace Engine::Editor::Inspector
 
 		private:
 			const char* m_pNote = "";
+		};
+
+		// シャドウマップ : 触れるのはアトラスの解像度だけ。
+		// 影の求め方・範囲・バイアスはシーン(SceneAmbientObject)の持ち物
+		class ShadowMapEditor : public PassEditor<ShadowMapPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(ShadowMapPass& a_pass) override
+			{
+				Engine::Editor::HelpText("主光源から見た深度を 2x2 のカスケードアトラスへ描きます");
+				Engine::Editor::HelpText("影の求め方・範囲・バイアスは SceneAmbientObject で設定します");
+
+				auto& _params = a_pass.RefParams();
+
+				// アトラス全体の1辺。タイル(カスケード1枚)はこの半分になる
+				static constexpr const char* kItems[] = { "1024", "2048", "4096", "8192" };
+				static constexpr uint32_t kValues[] = { 1024, 2048, 4096, 8192 };
+
+				int _index = -1;
+				for (int _i = 0; _i < static_cast<int>(std::size(kValues)); ++_i)
+				{
+					if (kValues[_i] == _params.resolution) _index = _i;
+				}
+
+				if (!Engine::Editor::Combo("Resolution", _index, kItems)) return EPassEditResult::None;
+				if (_index < 0) return EPassEditResult::None;
+
+				// テクスチャを作り直すので組み直しが要る
+				_params.resolution = kValues[_index];
+				a_pass.ApplyResolution();
+				return EPassEditResult::Structure;
+			}
 		};
 
 		//==================================================================================
@@ -626,6 +660,8 @@ namespace Engine::Editor::Inspector
 		a_registry.Register<DeferredLightingPass, DeferredLightingEditor>();
 		a_registry.Register<RaytracingGIPass, RaytracingEditor<RaytracingGIPass>>("レイを飛ばして間接光を求めます(ハーフ解像度)");
 		a_registry.Register<RaytracingShadowPass, RaytracingEditor<RaytracingShadowPass>>("主光源へレイを1本飛ばして遮蔽を求めます");
+		a_registry.Register<ShadowMapPass, ShadowMapEditor>();
+		a_registry.Register<ShadowMapMaskPass, NoteOnlyEditor<ShadowMapMaskPass>>(std::initializer_list<const char*>{ "Shadow 入力にレイトレの影(デノイズ後)を繋いでください", "影の求め方が ShadowMap のときだけ上書きします" });
 
 		// ---- Denoise ----
 		a_registry.Register<GISpatialDenoisePass, SpatialDenoiseEditor<GISpatialDenoisePass>>();

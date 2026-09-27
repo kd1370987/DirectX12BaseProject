@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "Core/Light.h"
+#include "Core/Shadow.h"
+#include "../CBData.h"		// シャドウマップを描くカメラ(CameraData)
 
 namespace Engine::D3D12
 {
@@ -86,6 +88,35 @@ namespace Engine::Graphics
 		/// <returns>1つも無ければ enable = 0 のものが返る</returns>
 		SunLightCB GetSunLightCB() const;
 
+		//----------------------------------------------------------------------------------
+		// 主光源の影
+		//----------------------------------------------------------------------------------
+		// 影の設定 : シーン(SceneAmbientObject)が毎フレーム流し込む。
+		// 誰も入れなければ最後に入った値のまま(平行光の無いシーンでは影そのものが出ない)
+		void SetShadowSettings(const DirectionalShadowSettings& a_settings) { m_shadowSettings = a_settings; }
+		const DirectionalShadowSettings& GetShadowSettings() const { return m_shadowSettings; }
+		EDirectionalShadowMode GetShadowMode() const { return m_shadowSettings.mode; }
+
+		/// <summary>
+		/// シャドウマップのカスケードを組む : BuildFrameData() の後、カメラが確定してから毎フレーム1回呼ぶ
+		/// </summary>
+		/// <param name="a_camera">GPUへ送る前のカメラ(転置もジッターもしていないもの)</param>
+		/// <remarks>
+		/// シャドウマップを使わないフレーム・平行光が無いフレームはカスケード数 0 になる。
+		/// 影を描くパス(ShadowMapPass)と読むパス(ShadowMapMaskPass)が同じ行列を使うよう、
+		/// パスの中ではなくここで1回だけ組む
+		/// </remarks>
+		void BuildShadowCascades(const CameraData& a_camera);
+
+		// 今フレームのシャドウマップの定数バッファ(読むパス用)
+		const SunShadowCB& GetSunShadowCB() const { return m_sunShadowCB; }
+
+		// 今フレームのカスケード数 : 0 ならシャドウマップは描かない
+		uint32_t GetShadowCascadeCount() const { return m_sunShadowCB.cascadeCount; }
+
+		// カスケードを描くためのカメラ(描くパス用)。GPUへそのまま送れる形(転置済み)
+		const CameraData& GetShadowCascadeCamera(uint32_t a_index) const { return m_shadowCameraArr[a_index]; }
+
 	private:
 
 		// プールの取得
@@ -115,6 +146,11 @@ namespace Engine::Graphics
 		// 詰め直し用の作業配列 : 毎フレーム走るので確保済みの領域を使い回す
 		std::vector<DirectionalLight> m_dlWorkVec = {};
 		std::vector<PointLight> m_plWorkVec = {};
+
+		// 主光源の影
+		DirectionalShadowSettings m_shadowSettings = {};			// シーンから流し込まれた設定
+		SunShadowCB m_sunShadowCB = {};								// 今フレームのカスケード(読む側)
+		CameraData m_shadowCameraArr[MAX_SHADOW_CASCADES] = {};		// 今フレームのカスケード(描く側)
 	};
 
 	//---------------------------------------------------------------------------------------

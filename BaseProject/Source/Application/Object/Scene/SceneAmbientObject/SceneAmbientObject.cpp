@@ -181,6 +181,14 @@ namespace App::Object
 			// (ポイントライトのように色と明るさを分けたくなったらここへ欄を足す)
 			_pLight->brightness = 1.0f;
 		}
+
+		//----------------------------------------------------------------------------
+		// 平行光の影
+		//
+		// レイトレかシャドウマップかをシーンごとに選ぶ(ホームはレイトレ、ゲーム中はシャドウマップ等)。
+		// パイプラインには両方のパスが置いてあり、ここで選んだ側だけが働く
+		//----------------------------------------------------------------------------
+		_pLightManager->SetShadowSettings(m_shadow);
 	}
 
 	void SceneAmbientObject::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
@@ -219,6 +227,18 @@ namespace App::Object
 		a_ar.Field("DastScale", m_dast.scale);
 		a_ar.Field("DastFollowLength", m_dast.length);
 		a_ar.Field("DastFollowSpeed", m_dast.speed);
+
+		// ---- 平行光の影 ----
+		// 既存のシーンには無いので、読むと既定値(レイトレ)のまま。
+		// バイナリは順番に読むので、後から足したものは末尾に置く
+		a_ar.Field("ShadowMode", m_shadow.mode);
+		a_ar.Field("ShadowDistance", m_shadow.distance);
+		a_ar.Field("ShadowCascadeCount", m_shadow.cascadeCount);
+		a_ar.Field("ShadowSplitLambda", m_shadow.splitLambda);
+		a_ar.Field("ShadowDepthBias", m_shadow.depthBias);
+		a_ar.Field("ShadowNormalBias", m_shadow.normalBias);
+		a_ar.Field("ShadowSoftness", m_shadow.softness);
+		a_ar.Field("ShadowCasterDistance", m_shadow.casterDistance);
 
 		// 読み込み時は復元したGUIDでテクスチャを引き直す。
 		// 実体が届くのを待つ必要はないので要求だけ出して先へ進む。
@@ -375,6 +395,7 @@ namespace App::Object
 		Engine::Editor::Line();
 
 		DrawLightingInspector();
+		DrawShadowInspector();
 		DrawFogInspector();
 		DrawSkyInspector(a_context);
 		DrawDastInspector(a_context);
@@ -394,6 +415,40 @@ namespace App::Object
 		{
 			Engine::Editor::HelpText("(平行光の席が取れていません : 上限かも)");
 		}
+	}
+
+	void SceneAmbientObject::DrawShadowInspector()
+	{
+		Engine::Editor::Header("Shadow");
+
+		// Raytracing : 主光源へレイを飛ばす / ShadowMap : 光源から見た深度と比べる
+		Engine::Editor::Field("ShadowMode", m_shadow.mode);
+
+		// ここから下はシャドウマップのときだけ効く
+		if (m_shadow.mode != Engine::Graphics::EDirectionalShadowMode::ShadowMap) return;
+
+		// 影を落とす奥行き。広げるほど1テクセルが粗くなる
+		Engine::Editor::Field("Distance", m_shadow.distance, 0.5f, 1.0f, 10000.0f);
+
+		int _cascadeCount = static_cast<int>(m_shadow.cascadeCount);
+		if (Engine::Editor::Field("CascadeCount", _cascadeCount, 0.05f, 1,
+			static_cast<int>(Engine::Graphics::MAX_SHADOW_CASCADES)))
+		{
+			m_shadow.cascadeCount = static_cast<uint32_t>(_cascadeCount);
+		}
+
+		// 0 で等間隔、1 で手前に寄せる(足元ほど細かくなる)
+		Engine::Editor::Slider("SplitLambda", m_shadow.splitLambda, 0.0f, 1.0f);
+
+		// 縞(アクネ)が出たら上げる。上げすぎると影が接地面から浮く
+		Engine::Editor::Field("DepthBias", m_shadow.depthBias, 0.001f, 0.0f, 10.0f);
+		Engine::Editor::Field("NormalBias", m_shadow.normalBias, 0.01f, 0.0f, 10.0f);
+
+		// 縁のぼかし幅(テクセル数)
+		Engine::Editor::Field("Softness", m_shadow.softness, 0.01f, 0.0f, 8.0f);
+
+		// 画面の外(光源側)の遮蔽物をどこまで拾うか
+		Engine::Editor::Field("CasterDistance", m_shadow.casterDistance, 1.0f, 0.0f, 10000.0f);
 	}
 
 	void SceneAmbientObject::DrawFogInspector()

@@ -185,6 +185,11 @@ namespace Math
 		return Store(DirectX::XMMatrixPerspectiveFovLH(a_fovY, a_aspect, a_nearZ, a_farZ));
 	}
 
+	Matrix Matrix::CreateOrthographicOffCenter(float a_left, float a_right, float a_bottom, float a_top, float a_nearZ, float a_farZ) noexcept
+	{
+		return Store(DirectX::XMMatrixOrthographicOffCenterLH(a_left, a_right, a_bottom, a_top, a_nearZ, a_farZ));
+	}
+
 	//--------------------------------------------------------------------------------------
 	// TRS
 	//--------------------------------------------------------------------------------------

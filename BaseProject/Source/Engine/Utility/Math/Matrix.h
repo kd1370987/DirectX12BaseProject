@@ -136,6 +136,9 @@ namespace Math
 
 		/// <summary>左手系の透視投影行列(画角はラジアン)</summary>
 		static Matrix CreatePerspectiveFieldOfView(float a_fovY, float a_aspect, float a_nearZ, float a_farZ) noexcept;
+
+		/// <summary>左手系の正射影行列(範囲を左右上下で指定する)</summary>
+		static Matrix CreateOrthographicOffCenter(float a_left, float a_right, float a_bottom, float a_top, float a_nearZ, float a_farZ) noexcept;
 	};
 
 }

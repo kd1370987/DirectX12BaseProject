@@ -410,6 +410,11 @@ namespace Engine::Graphics
 		// レンダーパスが引くのはこの結果なので、必ずレンダーグラフの実行より前に済ませる
 		m_lightManager.BuildFrameData(m_frameLightDataArr[m_currentFrameIndex]);
 
+		// 主光源のシャドウマップのカスケードを組む。
+		// 平行光(上で詰めた先頭)とカメラ(UpdateGPUCameraData で確定)の両方が要るので、この位置。
+		// シャドウマップを使わないフレームはカスケード数 0 になり、描くパスも読むパスも何もしない
+		m_lightManager.BuildShadowCascades(m_upSceneView->GetCPUCameraData());
+
 		// 半透明の並びを決める : カメラ(上書き込み)が確定したここで、カメラからの距離を入れる。
 		// パスが読むのは共有のカメラなので、どのカメラのパスもこの位置を基準に並ぶ
 		const auto& _cameraPos = m_upSceneView->GetCPUCameraData().pos;

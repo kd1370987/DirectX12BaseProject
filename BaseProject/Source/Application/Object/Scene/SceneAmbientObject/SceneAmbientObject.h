@@ -3,6 +3,7 @@
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Graphics/CBData.h"
 #include "Engine/Graphics/LightManager/Core/Light.h"	// 平行光の実体はここの型
+#include "Engine/Graphics/LightManager/Core/Shadow.h"	// 平行光の影の設定
 
 namespace App::Object
 {
@@ -111,6 +112,7 @@ namespace App::Object
 
 		// インスペクターの各セクション
 		void DrawLightingInspector();
+		void DrawShadowInspector();
 		void DrawFogInspector();
 		void DrawSkyInspector(Engine::GameObject::ObjectContext& a_context);
 		void DrawDastInspector(Engine::GameObject::ObjectContext& a_context);
@@ -156,6 +158,10 @@ namespace App::Object
 
 		// LightManager から借りている席。保存しない(添字はシーンごとに振り直される)
 		Engine::Handle<Engine::Graphics::DirectionalLight> m_dlHandle = {};
+
+		// 平行光の影 : レイトレかシャドウマップか、とシャドウマップの調整値。
+		// シーンごとに持つので、ホーム画面はレイトレ・ゲーム中はシャドウマップ、と使い分けられる
+		Engine::Graphics::DirectionalShadowSettings m_shadow = {};
 
 		// カメラに追従するチリ
 		Dast m_dast = {};

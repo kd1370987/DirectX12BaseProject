@@ -102,6 +102,27 @@ namespace Engine::Graphics::Pipeline
 		RenderContext* _pCtx = a_context.pRenderContext;
 		GraphicsEngine* _pGE = a_context.pGraphicsEngine;
 		if (!_pCtx || !_pGE || !a_context.pCmdList || !a_context.pGraph) return;
+
+		//----------------------------------------------------------------------------------
+		// 影をシャドウマップで求めるフレームはレイを飛ばさない
+		//
+		// 出力は「影なし」で埋めておく。
+		// 後ろの ShadowMapMaskPass が上書きするが、置かれていないパイプラインでも
+		// 真っ黒(全部が影)にならないようにするため。
+		// UAV の出力はグラフがクリアしないので、埋めないと前の使い手の中身が残り、
+		// 後ろのデノイズが履歴へ取り込んでしまう
+		//----------------------------------------------------------------------------------
+		if (_pGE->RefLightManager()->GetShadowMode() == EDirectionalShadowMode::ShadowMap)
+		{
+			const Slot* _pOut = FindOutputSlot(MakeSlotID("Shadow"));
+			D3D12::GPUResource* _pOutRes = _pOut ? a_context.GetResource(*_pOut) : nullptr;
+			if (!_pOutRes) return;
+
+			const float _lit[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			_pCtx->ClearUAV(_pOutRes->GetUAV(), _pOutRes->GetResource(), _lit);
+			return;
+		}
+
 		if (!a_context.pRayEngine) return;
 
 		auto* _pCmdList = a_context.pCmdList;

@@ -7,6 +7,8 @@
 #include "../RenderingPasses/Geometry/GBufferPass/GBufferPass.h"
 #include "../RenderingPasses/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
 #include "../RenderingPasses/Lighting/RaytracingGIPass/RaytracingGIPass.h"
+#include "../RenderingPasses/Lighting/Shadow/ShadowMapPass/ShadowMapPass.h"
+#include "../RenderingPasses/Lighting/Shadow/ShadowMapMaskPass/ShadowMapMaskPass.h"
 #include "../RenderingPasses/Utility/CopyPass/CopyPass.h"
 #include "../RenderingPasses/PostEffect/Denoise/Shadow/ShadowTemporalAccumulationPass/ShadowTemporalAccumulationPass.h"
 #include "../RenderingPasses/PostEffect/Denoise/Shadow/ShadowSpatialDenoisePass/ShadowSpatialDenoisePass.h"
@@ -155,6 +157,16 @@ namespace Engine::Graphics::Pipeline
 		if (_pShadowSpatial) _pShadowSpatial->SetResourceName("DenoisedShadow");
 
 		//----------------------------------------------------------------------------------
+		// シャドウマップ
+		//
+		// 主光源の影をレイトレの代わりに求める。どちらで求めるかはシーンの設定で決まり、
+		// 使わない側は何もしないので、両方を置いたままにしておく。
+		// マスクはデノイズ後の影へ描き足す(シャドウマップの影は時間方向にためなくてよい)
+		//----------------------------------------------------------------------------------
+		auto* _pShadowMap = AddPass<ShadowMapPass>(_graph, a_registry, "ShadowMapPass", 4, 2);
+		auto* _pShadowMapMask = AddPass<ShadowMapMaskPass>(_graph, a_registry, "ShadowMapMaskPass", 5, 0);
+
+		//----------------------------------------------------------------------------------
 		// デノイズ(GI)
 		//
 		// 生のGIはノイズが強いので、時間方向にためる前に一度ならしておく。
@@ -287,6 +299,12 @@ namespace Engine::Graphics::Pipeline
 		Link(_graph, _pGBuffer, "Depth", _pShadowSpatial, "Depth");
 		Link(_graph, _pGBuffer, "Normal", _pShadowSpatial, "Normal");
 
+		// ---- シャドウマップ : デノイズ後の影へ描き足す ----
+		Link(_graph, _pShadowSpatial, "Result", _pShadowMapMask, "Shadow");
+		Link(_graph, _pGBuffer, "Depth", _pShadowMapMask, "Depth");
+		Link(_graph, _pGBuffer, "Normal", _pShadowMapMask, "Normal");
+		Link(_graph, _pShadowMap, "ShadowMap", _pShadowMapMask, "ShadowMap");
+
 		// ---- GIのデノイズ ----
 		Link(_graph, _pRayGI, "GI", _pGIPreSpatial, "GI");
 		Link(_graph, _pGBuffer, "Depth", _pGIPreSpatial, "Depth");
@@ -314,7 +332,7 @@ namespace Engine::Graphics::Pipeline
 		Link(_graph, _pGBuffer, "Material", _pLighting, "Material");
 		Link(_graph, _pGBuffer, "Emissive", _pLighting, "Emissive");
 		Link(_graph, _pGBuffer, "Depth", _pLighting, "Depth");
-		Link(_graph, _pShadowSpatial, "Result", _pLighting, "Shadow");
+		Link(_graph, _pShadowMapMask, "Shadow", _pLighting, "Shadow");
 		Link(_graph, _pUpScale, "Result", _pLighting, "GI");
 
 		// ---- 空 : ライティングの結果と速度へ描き足す ----
