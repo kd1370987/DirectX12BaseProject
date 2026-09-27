@@ -17,7 +17,9 @@ namespace Engine::Graphics::Pipeline
 		DeclareInput("Emissive", EAccessType::SRV, EPassSlotType::Texture, true, 2);
 		DeclareInput("Depth", EAccessType::SRV, EPassSlotType::Texture, true, 2);
 		DeclareInput("Shadow", EAccessType::SRV, EPassSlotType::Texture, true, 2);
-		DeclareInput("GI", EAccessType::SRV, EPassSlotType::Texture, true, 2);
+		// GI は無くてもよい(レイトレを抜いたパイプライン)。
+		// 繋がっていなければ番号が無効値で届き、シェーダーはシーンの環境光を代わりに使う
+		DeclareInput("GI", EAccessType::SRV, EPassSlotType::Texture, false, 2);
 
 		Slot& _out = DeclareOutput("Color", "AfterLighting", DXGI_FORMAT_R16G16B16A16_FLOAT,
 			EAccessType::UAV, EPassSlotType::Texture, false, 3);

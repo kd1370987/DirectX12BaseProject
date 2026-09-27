@@ -148,7 +148,13 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	float3 _emissive = g_emiTex.Load(int3(_centerCoord, 0)).rgb; // エミッシブ(自己発光)
 
 	float _shadow = g_shadowMask.Load(int3(_centerCoord, 0)).r; // 影
-	float3 _rayGI = g_rayGI.Load(int3(_centerCoord, 0)).rgb; // GI
+
+	// GI(間接光)。
+	// レイトレを抜いたパイプラインでは GI 入力が繋がっておらず、番号が無効値(0xFFFFFFFF)で届く。
+	// その番号でヒープを引くと落ちるので、引かずにシーンの環境光を一様な間接光として使う
+	float3 _rayGI = (g_rayGIIndex != 0xFFFFFFFFu)
+		? g_rayGI.Load(int3(_centerCoord, 0)).rgb
+		: g_ambient.ambientColor;
 
 	// 3D空間での位置を復元
 	float3 _viewPos = ReconstructViewPos(_uv, _depth);
