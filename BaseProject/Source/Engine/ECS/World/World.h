@@ -3,6 +3,7 @@
 #include "../Entity/EntityStorage.h"
 #include "../Entity/CommandBuffer.h"
 #include "../Archetype/Chunk.h"
+#include "../Archetype/Archetype.h"
 #include "../Component/ComponentMetaRegistry.h"
 #include "../System/SystemManager.h"
 #include "../System/SystemCommon.h"
@@ -337,11 +338,7 @@ namespace Engine::ECS
 		template<typename... Comps>
 		bool BuildSignature(Signature& a_outSig);
 
-		// 条件に一致するチャンクを集める
-		template<typename... Components, typename... Excludes>
-		std::vector<Chunk*> BuildChunkQuery(Exclude<Excludes...> a_ex = {});
-
-		// キャッシュ付きで集める : アーキタイプの世代が変わっていなければ前回の結果を返す
+		// キャッシュ付きで集める : 増えたアーキタイプだけ照合し、チャンクが増減したら並べ直す
 		template<typename... Components, typename... Excludes>
 		const std::vector<Chunk*>& ResolveQuery(QueryCache& a_cache, Exclude<Excludes...> a_ex = {});
 
@@ -459,7 +456,27 @@ namespace Engine::ECS
 	template<typename... Components, typename... Excludes, typename Func>
 	inline void World::ForEachEx(Func a_func, Exclude<Excludes...>)
 	{
-		ForEachChunk<Components...>(BuildChunkQuery<Components...>(Exclude<Excludes...>{}), a_func);
+		// 絞り込み側に未登録の型があれば、それを持つエンティティは居ない
+		Signature _querySig;
+		if (!BuildSignature<Components...>(_querySig)) return;
+
+		// 除外側の未登録の型は誰も持っていないので無視してよい
+		Signature _excludeSig;
+		BuildSignature<Excludes...>(_excludeSig);
+
+		// チャンクの一覧を作らずに、一致するアーキタイプのチャンクを直接たどる。
+		// システムの中(Job を含む)から入れ子で呼ばれるので、共有の置き場は持たない
+		for (const auto& _upArchetype : m_storage.GetArchetypeVec())
+		{
+			const Signature& _sig = _upArchetype->signature;
+			if ((_sig & _querySig) != _querySig || (_sig & _excludeSig).any()) continue;
+
+			for (Chunk* _pChunk : _upArchetype->chunks)
+			{
+				if (!_pChunk || _pChunk->count == 0) continue;
+				a_func(_pChunk, _pChunk->count, GetComponentArray<Components>(_pChunk)...);
+			}
+		}
 	}
 
 	template<typename... Comps>
@@ -484,29 +501,17 @@ namespace Engine::ECS
 	}
 
 	template<typename... Components, typename... Excludes>
-	inline std::vector<Chunk*> World::BuildChunkQuery(Exclude<Excludes...>)
-	{
-		// 絞り込み側に未登録の型があれば、それを持つエンティティは居ない
-		Signature _querySig;
-		if (!BuildSignature<Components...>(_querySig)) return {};
-
-		// 除外側の未登録の型は誰も持っていないので無視してよい
-		Signature _excludeSig;
-		BuildSignature<Excludes...>(_excludeSig);
-
-		return m_storage.MatchingChunkVec(_querySig, _excludeSig);
-	}
-
-	template<typename... Components, typename... Excludes>
 	inline const std::vector<Chunk*>& World::ResolveQuery(QueryCache& a_cache, Exclude<Excludes...>)
 	{
-		const uint64_t _generation = m_storage.GetArchetypeGeneration();
-		if (a_cache.IsStale(_generation))
+		//------------------------------------------------------------------
+		// アーキタイプ : 増えた分だけ照合する(アーキタイプは消えないので前回までの結果はそのまま)
+		//------------------------------------------------------------------
+		bool _isArchetypeAdded = false;
+		const uint32_t _archetypeCount = m_storage.GetArchetypeCount();
+		if (a_cache.checkedArchetypeCount < _archetypeCount)
 		{
-			a_cache.chunkVec.clear();
-			a_cache.archetypeVec.clear();
-
-			// 絞り込み側に未登録の型があれば、それを持つエンティティは居ない(空のまま)
+			// 絞り込み側に未登録の型があれば、それを持つエンティティは居ない。
+			// 照合は進めずに空のままにして、型が登録された後に最初から拾い直す
 			Signature _querySig;
 			if (BuildSignature<Components...>(_querySig))
 			{
@@ -514,8 +519,20 @@ namespace Engine::ECS
 				Signature _excludeSig;
 				BuildSignature<Excludes...>(_excludeSig);
 
-				m_storage.MatchingQuery(_querySig, _excludeSig, a_cache.archetypeVec, a_cache.chunkVec);
+				const size_t _prevCount = a_cache.archetypeVec.size();
+				m_storage.MatchNewArchetypes(_querySig, _excludeSig, a_cache.checkedArchetypeCount, a_cache.archetypeVec);
+				a_cache.checkedArchetypeCount = _archetypeCount;
+				_isArchetypeAdded = (a_cache.archetypeVec.size() != _prevCount);
 			}
+		}
+
+		//------------------------------------------------------------------
+		// チャンク : 増減したら、一致済みのアーキタイプから並べ直すだけ(照合はしない)
+		//------------------------------------------------------------------
+		const uint64_t _generation = m_storage.GetArchetypeGeneration();
+		if (_isArchetypeAdded || a_cache.IsStale(_generation))
+		{
+			EntityStorage::GatherChunks(a_cache.archetypeVec, a_cache.chunkVec);
 			a_cache.generation = _generation;
 		}
 		return a_cache.chunkVec;

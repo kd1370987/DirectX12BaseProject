@@ -34,6 +34,14 @@ namespace Engine::Thread
 		Job* PushJob(std::function<void()>&& a_job, std::span<Job* const> a_dependencies);
 		Job* PushJob(std::function<void()>&& a_job, std::initializer_list<Job*> a_dependencies);
 
+		/// <summary>
+		/// フレーム内で完了を待つ短いジョブを積む(ECS のシステムなど)
+		///
+		/// PushJob と同じだが、WaitFor で待っているスレッドが代わりに回してよい印が付く。
+		/// ロードのように長い処理をここで積まないこと : 待ち側が拾うと長く戻れなくなる
+		/// </summary>
+		Job* PushFrameJob(std::function<void()>&& a_job, std::span<Job* const> a_dependencies);
+
 		// 処理の終了待ち : 全処理が終わるまで待機
 		//
 		// 「システムに積まれた全ジョブ」が対象なので、
@@ -45,7 +53,8 @@ namespace Engine::Thread
 		/// 指定したジョブ1件が終わるまで待機する
 		///
 		/// 依存を1点にまとめたフェンスジョブを待つ用途を想定している。
-		/// 待っている間このスレッドは眠るので、
+		/// 待っている間は、PushFrameJob で積まれた実行可能なジョブを代わりに回す。
+		/// 回せるものが無いときは、どれかのジョブが終わるまで眠る。
 		/// 呼ぶ側は待ちに入る前に積めるものを積みきっておくこと
 		/// </summary>
 		/// <param name="a_pJob">待つジョブ : nullptr なら即座に返る</param>
@@ -59,6 +68,17 @@ namespace Engine::Thread
 		// スレッドごとの稼働時間の計測 : 起動していないときは nullptr
 		// フレームの区切り(EndFrame)と結果の読み出しはメインスレッドから行うこと
 		ThreadProfiler* RefThreadProfiler() { return m_upThreadProfiler.get(); }
+
+	private:
+
+		// 積む処理の本体 : a_isHelpable は Job::isHelpable へそのまま入る
+		Job* PushJobImpl(std::function<void()>&& a_job, std::span<Job* const> a_dependencies, bool a_isHelpable);
+
+		// 待っている間に回せるジョブ(Job::isHelpable)を、どれかのワーカーのキューから取る
+		bool TryTakeHelpableJob(Job*& a_pOutJob);
+
+		// 取ったジョブを呼んだスレッドで回す : 完了の後始末はワーカーと同じ
+		void ExecuteOnCaller(Job* a_pJob);
 
 	private:
 

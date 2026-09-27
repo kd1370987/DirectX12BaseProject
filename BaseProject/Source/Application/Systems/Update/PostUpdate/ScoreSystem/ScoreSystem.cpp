@@ -62,8 +62,7 @@ void ScoreSystem::Init(App::ECS::APPWorld& a_world)
 				if (_event.entity == Engine::ECS::Limits::INVALID_ENTITY) continue;
 
 				// 倒す相手として置かれていないものは数えない。
-				// RefData は持っていないコンポーネントでも非nullを返すので、
-				// 必ず HasComponent で確かめてから引くこと
+				// RefData は持っていないコンポーネントなら nullptr を返す
 				if (!a_ctx.pWorld->HasComponent<ScoreTargetComponent>(_event.entity)) continue;
 
 				auto* _pTarget = a_ctx.pWorld->RefData<ScoreTargetComponent>(_event.entity);

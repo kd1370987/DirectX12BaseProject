@@ -53,16 +53,16 @@ namespace Engine::ECS
 		// アーキタイプの取得 : 無ければ nullptr
 		const Archetype* GetArchetype(const Signature& a_sig) const;
 
-		// AND,NOT検索でマッチするアーキタイプ配列を取得
-		std::vector<Archetype*> MatchingArchetypeVec(const Signature& a_sig, const Signature& a_excludeSig = {});
+		// アーキタイプの数 : 消えないので、クエリのキャッシュが「どこまで照合したか」に使う
+		uint32_t GetArchetypeCount() const { return static_cast<uint32_t>(m_upArchetypeVec.size()); }
 
-		// AND,NOT検索でマッチするアーキタイプに属するチャンクをすべて取得
-		std::vector<Chunk*> MatchingChunkVec(const Signature& a_sig, const Signature& a_excludeSig = {});
-
-		// AND,NOT検索でマッチするアーキタイプ(アドレス順)と、そこに属するチャンクをまとめて取得(クエリのキャッシュ用)
-		void MatchingQuery(
+		// a_fromIndex 番目以降(生成順)のアーキタイプを照合し、一致したものを末尾へ足す(クエリのキャッシュ用)
+		void MatchNewArchetypes(
 			const Signature& a_sig, const Signature& a_excludeSig,
-			std::vector<Archetype*>& a_outArchetypeVec, std::vector<Chunk*>& a_outChunkVec);
+			uint32_t a_fromIndex, std::vector<Archetype*>& a_inoutArchetypeVec) const;
+
+		// アーキタイプに属するチャンクを並べ直す : 照合はしない(チャンクが増減したときの作り直し用)
+		static void GatherChunks(const std::vector<Archetype*>& a_archetypeVec, std::vector<Chunk*>& a_outChunkVec);
 
 		// エンティティを割り当てる : 割り当てられた場所を返す
 		EntityLocation AllocationEntity(const Entity& a_entity, const Signature& a_sig);

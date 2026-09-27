@@ -79,6 +79,11 @@ namespace Engine::Thread
 		// 0 になった時点でキューへ積まれる
 		std::atomic<uint32_t> waitingCount = 0;
 
+		// WaitFor で待っているスレッドが代わりに回してよいか(フレーム内で完了を待つ短い処理)。
+		// ロードのような長いジョブを待ち側が拾うと、そのスレッドが長く戻れなくなるので、
+		// JobSystem::PushFrameJob で積んだものだけに立てる。キューへ積む前に決め、以降は変えない
+		bool isHelpable = false;
+
 	private:
 
 		// 自分の完了で待ち数が減る後続ジョブ

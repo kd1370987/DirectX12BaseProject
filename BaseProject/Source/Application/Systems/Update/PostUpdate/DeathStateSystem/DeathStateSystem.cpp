@@ -126,7 +126,6 @@ void DeathStateSystem::Init(App::ECS::APPWorld& a_world)
 
 				BoostComponent& _boost = a_boostArray[_i];
 				_boost.isBoostTriger = false;
-				_boost.isJustBoosted = false;
 				_boost.isBoostIntent = false;
 			}
 		}

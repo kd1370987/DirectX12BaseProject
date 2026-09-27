@@ -211,8 +211,7 @@ void BoosterEffectSystem::Init(App::ECS::APPWorld& a_world)
 				// クエリに足すと、行列を持たないブースターが丸ごと外れて
 				// 上の置き方・大きさまで書かれなくなるため。
 				//
-				// RefData は持っていないコンポーネントでも非nullを返すので、
-				// 必ず HasComponent で確かめてから引くこと
+				// RefData は持っていないコンポーネントなら nullptr を返す
 				//--------------------------------------------------------------
 				if (!_justBoosted) continue;
 				if (_booster.sparkEffectGUID == Engine::DefaultGUID) continue;

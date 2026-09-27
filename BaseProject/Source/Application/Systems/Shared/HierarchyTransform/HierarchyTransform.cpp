@@ -54,7 +54,7 @@ namespace App::Systems::HierarchyTransform
 		{
 			if (a_entity == Engine::ECS::Limits::INVALID_ENTITY) return Math::Matrix::Identity();
 
-			// RefData は持っていなくても非nullが返るので、必ず HasComponent で見る
+			// 持っていなければ単位行列(RefData も持っていなければ nullptr を返す)
 			if (!a_world.HasComponent<LocalTransformComponent>(a_entity)) return Math::Matrix::Identity();
 			const auto* _pTrs = a_world.RefData<LocalTransformComponent>(a_entity);
 			if (!_pTrs) return Math::Matrix::Identity();

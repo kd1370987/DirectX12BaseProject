@@ -4,7 +4,6 @@ struct BoostComponent
 {
 	// --- 入力・状態 ---
 	bool isBoostTriger = false;		// ブーストボタンが押された瞬間
-	bool isJustBoosted = false;		// ブーストボタンが押された瞬間
 	bool isBoostIntent = false;		// ブーストボタンが押されているか
 	bool isBoosting = false;		// 実際に現在ブースト中か（燃料切れなどで押してても飛べない場合があるため）
 
@@ -69,7 +68,7 @@ struct Engine::ECS::ComponentTraits<BoostComponent>
 		Engine::Editor::Field("Boost Fuel / Sec", _comp.boostFuelPerSec, 0.1f, 0.0f);
 
 		Engine::Editor::Header("Runtime State");
-		Engine::Editor::Field("Boost Triger (Input)", _comp.isJustBoosted);
+		Engine::Editor::Field("Boost Triger (Input)", _comp.isBoostTriger);
 		Engine::Editor::Field("Boost Intent (Input)", _comp.isBoostIntent);
 		Engine::Editor::Field("Is Boosting (Active)", _comp.isBoosting);
 

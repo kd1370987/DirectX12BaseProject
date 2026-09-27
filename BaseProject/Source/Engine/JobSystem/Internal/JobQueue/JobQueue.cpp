@@ -17,6 +17,21 @@ namespace Engine::Thread
 
 		return true;
 	}
+	bool JobQueue::TryStealHelpable(Job*& a_pOutJob)
+	{
+		std::lock_guard _lock(m_mutex);
+
+		// 盗みと同じく前(古いもの)から探す。キューは短いので素直に辿ってよい
+		for (auto _it = m_jobs.begin(); _it != m_jobs.end(); ++_it)
+		{
+			if (!(*_it)->isHelpable) continue;
+
+			a_pOutJob = *_it;
+			m_jobs.erase(_it);
+			return true;
+		}
+		return false;
+	}
 	bool JobQueue::TrySteal(Job*& a_pOutJob)
 	{
 		std::lock_guard _lock(m_mutex);

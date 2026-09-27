@@ -463,9 +463,6 @@
     <Filter Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem">
       <UniqueIdentifier>{a2da8088-8327-48de-ac3d-e53df54c1277}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw">
-      <UniqueIdentifier>{d315c984-99cf-4bc8-aa90-3b388df863ad}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem">
       <UniqueIdentifier>{42b34ae5-8f12-4b9e-a20b-14528524dcf1}</UniqueIdentifier>
     </Filter>
@@ -561,9 +558,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Init\Start\GunStateStartSystem">
       <UniqueIdentifier>{51320e8c-b456-46f8-9e90-ae4cbbd4abdf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem">
-      <UniqueIdentifier>{e4f46424-edbf-4aeb-b936-7a284fe21f52}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem">
       <UniqueIdentifier>{f5695fa2-8a00-4740-969a-af0fc9681517}</UniqueIdentifier>
@@ -792,12 +786,6 @@
     </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\GunShootSystem">
       <UniqueIdentifier>{8b01a7d1-cc31-4437-a574-99d15551c0f1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Integral">
-      <UniqueIdentifier>{04ee34ef-8e37-4fe6-a04c-13ad79f3d5e3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem">
-      <UniqueIdentifier>{d61ed4a8-8f6b-4583-b004-1bf59a92ef2c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Systems\Update\Update\LookAroundSystem">
       <UniqueIdentifier>{f6c92d83-7d14-4b5a-a469-c082e357b1fa}</UniqueIdentifier>
@@ -1809,9 +1797,6 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp">
-      <Filter>Source\Application\Systems\Draw\Draw\ScreenUIDraw</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.cpp">
       <Filter>Source\Application\Systems\Draw\Draw\SkinningRegisterSystem</Filter>
     </ClCompile>
@@ -1886,9 +1871,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Start\GunStateStartSystem\GunStateStartSystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\GunStateStartSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.cpp">
-      <Filter>Source\Application\Systems\Init\Start\RayAnimationModelStartSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem\RegisterPhysicsBodySystem.cpp">
       <Filter>Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem</Filter>
@@ -2078,9 +2060,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\GunShootSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp">
-      <Filter>Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Update\Update\LookAroundSystem\LookAroundSystem.cpp">
       <Filter>Source\Application\Systems\Update\Update\LookAroundSystem</Filter>
@@ -3278,9 +3257,6 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h">
-      <Filter>Source\Application\Systems\Draw\Draw\ScreenUIDraw</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.h">
       <Filter>Source\Application\Systems\Draw\Draw\SkinningRegisterSystem</Filter>
     </ClInclude>
@@ -3358,9 +3334,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Start\GunStateStartSystem\GunStateStartSystem.h">
       <Filter>Source\Application\Systems\Init\Start\GunStateStartSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.h">
-      <Filter>Source\Application\Systems\Init\Start\RayAnimationModelStartSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem\RegisterPhysicsBodySystem.h">
       <Filter>Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem</Filter>
@@ -3550,9 +3523,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.h">
       <Filter>Source\Application\Systems\Update\Update\GunShootSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h">
-      <Filter>Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Update\Update\LookAroundSystem\LookAroundSystem.h">
       <Filter>Source\Application\Systems\Update\Update\LookAroundSystem</Filter>

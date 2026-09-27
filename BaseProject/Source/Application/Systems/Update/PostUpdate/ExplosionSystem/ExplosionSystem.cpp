@@ -20,10 +20,10 @@
 //   1つも設定されていなければ、生まれた次のフレームにそのまま消える。
 // ・emitTime は「生成からの経過秒」であって前のパーツからの間隔ではない。
 //   並び順は見ないので、時間が前後していても書いてある時刻どおりに出る。
-// ・位置に WorldMatrix ではなく LocalTransform を使うのは HealthSystem と同じ理由。
-//   PostUpdate 帯で WorldMatrix を読む ActiveTask を作るとシステムのソートが循環する
-//   (CommitHierarchyWorldMatrixSystem が ActiveTag を読んで WorldMatrix を書いている)。
+// ・位置に WorldMatrix ではなく LocalTransform を使う。
 //   爆発は親を持たない単体エンティティとして出すので、ローカル座標がそのままワールド座標になる。
+//   (以前は WorldMatrix を読むとソートが循環したための選択。フェーズのタグを
+//    依存に数えなくなった(IsQueryOnlyTag)ので、今はその理由は無い)
 // ・PostUpdate 帯。出す側(DeathEffectSystem)や寿命(LifeTimeSystem)と同じ帯に置いてある。
 //
 // ※ EffectAsset に置き換え済み(残してあるのは既存データのため)。

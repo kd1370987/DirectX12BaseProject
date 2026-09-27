@@ -8,6 +8,7 @@ namespace Engine::Thread
 
 		task = nullptr;
 		waitingCount.store(0, std::memory_order_relaxed);
+		isHelpable = false;
 
 		// clear() は確保済みの容量を手放さないので、
 		// プールから取り直すたびに確保し直すことにはならない

@@ -29,11 +29,11 @@
 //   1フレームでも遅れると本人がもう居らず、死亡エフェクトが出せなかった。
 //   死んだ本人のコンポーネントを引く処理(DeathEffectSystem など)のために、
 //   死んでからしばらくは生かしておく。
-// ・爆発の位置に WorldMatrix ではなく LocalTransform を使っているのは、
-//   PostUpdate 帯で WorldMatrix を読む ActiveTask を作るとシステムのソートが循環するため
-//   (CommitHierarchyWorldMatrixSystem が ActiveTag を読んで WorldMatrix を書いている)。
+// ・爆発の位置に WorldMatrix ではなく LocalTransform を使っている。
 //   体力を持つのは敵やプレイヤーのような親を持たないエンティティなので、
 //   ローカル座標がそのままワールド座標になる。
+//   (以前は WorldMatrix を読むとソートが循環したための選択。フェーズのタグを
+//    依存に数えなくなった(IsQueryOnlyTag)ので、今はその理由は無い)
 // ・PostUpdate 帯。ヒットを積むのは Physics 帯の HitDetectSystem、
 //   消すのは次フレーム PreUpdate の HitEventClearSystem なので、その間で読む。
 //==============================================================================

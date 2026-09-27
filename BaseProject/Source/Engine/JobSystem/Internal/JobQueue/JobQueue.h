@@ -10,6 +10,9 @@ namespace Engine::Thread
 		bool TryPop(Job*& a_pOutJob);
 		bool TrySteal(Job*& a_pOutJob);
 
+		// 待っているスレッドが代わりに回してよいもの(Job::isHelpable)だけを前から探して取る
+		bool TryStealHelpable(Job*& a_pOutJob);
+
 		// 待機側の述語から呼ばれる。
 		// 他スレッドが Push/Pop している最中の deque を素で読むと競合するため、
 		// 参照するだけでもロックを取る

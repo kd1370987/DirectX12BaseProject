@@ -57,8 +57,7 @@ void EffectUpdateSystem::Init(App::ECS::APPWorld& a_world)
 				// クエリに足すと、行列を持たないエフェクトが丸ごと対象から外れて
 				// 時間すら進まなくなるため。
 				//
-				// RefData は持っていないコンポーネントでも非nullを返すので、
-				// 必ず HasComponent で確かめてから引くこと
+				// RefData は持っていないコンポーネントなら nullptr を返す
 				//----------------------------------------------------------
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 				if (_pAudioManager && a_ctx.pWorld->HasComponent<WorldMatrixComponent>(_self))

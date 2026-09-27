@@ -190,7 +190,7 @@ namespace Engine::ECS
 					{
 						const uint32_t _e = std::min(_b + _per, _chunkNum);
 
-						Thread::Job* _pBatch = _pJobSystem->PushJob(
+						Thread::Job* _pBatch = _pJobSystem->PushFrameJob(
 							[_pTask, _context = a_context, _b, _e, _pOutNs]()
 							{
 								ExecuteTaskRange(*_pTask, _context, _b, _e, _pOutNs);
@@ -223,7 +223,7 @@ namespace Engine::ECS
 					}
 					else
 					{
-						m_jobScratch[_j] = _pJobSystem->PushJob([] {}, m_batchScratch);
+						m_jobScratch[_j] = _pJobSystem->PushFrameJob([] {}, m_batchScratch);
 
 						// フェンスを積めなかった : 後ろから待てないので、ここで全バッチを待ち切る
 						if (!m_jobScratch[_j])
@@ -238,7 +238,7 @@ namespace Engine::ECS
 				}
 
 				// カスタムタスク : 分けられないので1ジョブで積む
-				m_jobScratch[_j] = _pJobSystem->PushJob(
+				m_jobScratch[_j] = _pJobSystem->PushFrameJob(
 					[_pTask, _context = a_context, _pOutNs]() { ExecuteTask(*_pTask, _context, _pOutNs); },
 					m_depScratch);
 

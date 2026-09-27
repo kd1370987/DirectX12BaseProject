@@ -58,8 +58,7 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 			constexpr float kRiseEps = 0.1f;	// 上昇とみなす速度
 
 			// ブースター子へ噴射の ON/OFF とダッシュ中かを配る。
-			// RefData は持っていないコンポーネントでも非nullを返すので、
-			// 必ず HasComponent で確かめてから引くこと。
+			// RefData は持っていないコンポーネントなら nullptr を返す。
 			// BoosterEffectComponent を付けていないブースターもあり得るので、
 			// 2つは別々に確かめる(付いていない側は黙って飛ばす)
 			auto _driveBooster = [&a_ctx](Engine::ECS::Entity a_e, bool a_on, bool a_isBoosting,
@@ -117,8 +116,7 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 				// クエリに足すと、付けていない機体(敵・ボス)のブースターが
 				// 丸ごとこのシステムの対象から外れて噴射しなくなってしまう。
 				//
-				// RefData は持っていないコンポーネントでも非nullを返すので、
-				// 必ず HasComponent で確かめてから引くこと
+				// RefData は持っていないコンポーネントなら nullptr を返す
 				//--------------------------------------------------------------
 				float _chargeRate = 0.0f;
 				bool  _chargeDashing = false;

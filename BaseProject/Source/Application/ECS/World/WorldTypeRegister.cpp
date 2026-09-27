@@ -127,7 +127,6 @@
 #include "Application/Systems/Draw/Draw/StaticObjectDrawSystem/StaticObjectDrawSystem.h"
 #include "Application/Systems/Draw/Draw/DynamicObjectDrawSystem/DynamicObjectDrawSystem.h"
 #include "Application/Systems/Draw/Draw/AnimationOptionalDraw/AnimationOptionalDraw.h"
-#include "Application/Systems/Draw/Draw/ScreenUIDraw/ScreenUIDrawSystem.h"
 #include "Application/Systems/Draw/Draw/RegisterRayWorldSystem/RegisterRayWorldSystem.h"
 #include "Application/Systems/Release/AnimationMatrixFreeSystem/AnimationMatrixFreeSystem.h"
 #include "Application/Systems/Draw/PostDraw/RegisterPrevWorldMatSystem/RegisterPrevWorldMatSystem.h"
@@ -455,7 +454,6 @@ namespace App::ECS
 		a_world.RegisterSystem<StaticObjectDrawSystem>();
 		a_world.RegisterSystem<DynamicObjectDrawSystem>();
 		a_world.RegisterSystem<AnimationOptionalDrawSystem>();
-		a_world.RegisterSystem<ScreenUIDrawSystem>();
 		a_world.RegisterSystem<RegisterRayWorldSystem>();
 		a_world.RegisterSystem<EmitParticleSystem>();
 		a_world.RegisterSystem<ParticleEmitSystem>();

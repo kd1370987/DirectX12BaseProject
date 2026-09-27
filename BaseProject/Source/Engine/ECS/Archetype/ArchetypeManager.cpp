@@ -30,53 +30,31 @@ namespace Engine::ECS
 		return _it->second;
 	}
 
-	std::vector<Archetype*> ArchetypeManager::MatchingArchetypeVec(const Signature& a_sig, const Signature& a_excludeSig)
+	void ArchetypeManager::MatchNewArchetypes(
+		const Signature& a_sig, const Signature& a_excludeSig,
+		uint32_t a_fromIndex, std::vector<Archetype*>& a_inoutArchetypeVec) const
 	{
-		std::vector<Archetype*> _matches;
-		_matches.reserve(24);
-
-		for (auto& _upArchetype : m_upArchetypeVec)
+		// アーキタイプは消えないので、前回までに見た分は結果が変わらない
+		for (size_t _i = a_fromIndex; _i < m_upArchetypeVec.size(); ++_i)
 		{
-			const Signature& _sig = _upArchetype->signature;
+			Archetype* _pArchetype = m_upArchetypeVec[_i].get();
+			const Signature& _sig = _pArchetype->signature;
 
 			// AND検索 かつ 除外を1つも持っていない
 			if (((_sig & a_sig) == a_sig) && ((_sig & a_excludeSig).none()))
 			{
-				_matches.push_back(_upArchetype.get());
+				a_inoutArchetypeVec.push_back(_pArchetype);
 			}
 		}
-
-		return _matches;
 	}
 
-	std::vector<Chunk*> ArchetypeManager::MatchingChunkVec(const Signature& a_sig, const Signature& a_excludeSig)
+	void ArchetypeManager::GatherChunks(const std::vector<Archetype*>& a_archetypeVec, std::vector<Chunk*>& a_outChunkVec)
 	{
-		std::vector<Chunk*> _matches;
-		_matches.reserve(24);
-
-		for (Archetype* _pArchetype : MatchingArchetypeVec(a_sig, a_excludeSig))
-		{
-			_matches.insert(_matches.end(), _pArchetype->chunks.begin(), _pArchetype->chunks.end());
-		}
-
-		return _matches;
-	}
-
-	void ArchetypeManager::MatchingQuery(
-		const Signature& a_sig, const Signature& a_excludeSig,
-		std::vector<Archetype*>& a_outArchetypeVec, std::vector<Chunk*>& a_outChunkVec)
-	{
-		a_outArchetypeVec = MatchingArchetypeVec(a_sig, a_excludeSig);
-
 		a_outChunkVec.clear();
-		for (Archetype* _pArchetype : a_outArchetypeVec)
+		for (const Archetype* _pArchetype : a_archetypeVec)
 		{
 			a_outChunkVec.insert(a_outChunkVec.end(), _pArchetype->chunks.begin(), _pArchetype->chunks.end());
 		}
-
-		// 重なりの突き合わせ(QueryCache::IsOverlap)用にアドレス順へ並べる。
-		// チャンクは上で生成順に集め終えているので、回る順は変わらない
-		std::sort(a_outArchetypeVec.begin(), a_outArchetypeVec.end(), std::less<Archetype*>{});
 	}
 
 	EntityLocation ArchetypeManager::AllocationEntity(const Entity& a_entity, const Signature& a_sig)
@@ -124,12 +102,10 @@ namespace Engine::ECS
 		if (!_pChunk || !_pChunk->pArchetype) return nullptr;
 
 		// このアーキタイプが持っていないコンポーネントは nullptr
-		const auto& _layoutMap = _pChunk->pArchetype->layoutMap;
-		auto _it = _layoutMap.find(a_typeID);
-		if (_it == _layoutMap.end()) return nullptr;
+		const Layout* _pLayout = _pChunk->pArchetype->FindLayout(a_typeID);
+		if (!_pLayout) return nullptr;
 
-		const Layout& _layout = _it->second;
-		return _pChunk->data + _layout.offset + (_layout.stride * a_loca.chunkIndex);
+		return _pChunk->data + _pLayout->offset + (_pLayout->stride * a_loca.chunkIndex);
 	}
 
 	uint8_t* ArchetypeManager::RefComponentArray(Chunk* a_pChunk, const ComponentTypeID& a_typeID)
@@ -137,11 +113,10 @@ namespace Engine::ECS
 		if (!a_pChunk || !a_pChunk->pArchetype) return nullptr;
 
 		// 持っていないコンポーネントは nullptr(RefComponent と同じ理由)
-		const auto& _layoutMap = a_pChunk->pArchetype->layoutMap;
-		auto _it = _layoutMap.find(a_typeID);
-		if (_it == _layoutMap.end()) return nullptr;
+		const Layout* _pLayout = a_pChunk->pArchetype->FindLayout(a_typeID);
+		if (!_pLayout) return nullptr;
 
-		return a_pChunk->data + _it->second.offset;
+		return a_pChunk->data + _pLayout->offset;
 	}
 
 	std::pair<Entity, uint32_t> ArchetypeManager::RemoveEntity(const EntityLocation& a_location)
@@ -158,7 +133,7 @@ namespace Engine::ECS
 		if (_idx != _lastIdx)
 		{
 			// すべてのコンポーネント配列に対して同じ操作をする
-			for (auto& [_compID, _layout] : _pChunk->pArchetype->layoutMap)
+			for (const auto& [_compID, _layout] : _pChunk->pArchetype->layoutVec)
 			{
 				void* _removeData = _pChunk->data + _layout.offset + (_layout.stride * _idx);	// 削除データ
 				void* _lastData = _pChunk->data + _layout.offset + (_layout.stride * _lastIdx);	// 最後データ
@@ -206,6 +181,7 @@ namespace Engine::ECS
 	{
 		auto _upArchetype = std::make_unique<Archetype>();
 		_upArchetype->signature = a_sig;
+		_upArchetype->index = static_cast<uint32_t>(m_upArchetypeVec.size());
 
 		// レイアウトと容量はアーキタイプ単位で1度だけ計算する
 		CalcChunkLayout(_upArchetype.get(), CHUNK_MEMORY_SIZE);
@@ -339,7 +315,10 @@ namespace Engine::ECS
 			Layout _lay = {};
 			_lay.offset = _offset;
 			_lay.stride = _comp.stride;
-			a_pArchetype->layoutMap.emplace(_comp.typeID, _lay);
+
+			// 並び順(タイプID順)のまま積み、型IDから添え字で引けるよう表にも書く
+			a_pArchetype->layoutIndexTable[_comp.typeID] = static_cast<uint16_t>(a_pArchetype->layoutVec.size());
+			a_pArchetype->layoutVec.push_back({ _comp.typeID, _lay });
 
 			// 要素は stride 間隔で置くので、配列の長さも stride で数える
 			_offset += _comp.stride * _capacity;

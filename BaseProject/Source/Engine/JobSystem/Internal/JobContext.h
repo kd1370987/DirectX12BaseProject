@@ -43,6 +43,10 @@ namespace Engine::Thread
 		std::condition_variable	jobFinishedCondition;	// ジョブ1件の完了通知
 		std::mutex				jobFinishedMutex;
 
+		// 待ち人がいる間に終わったジョブの数(jobFinishedMutex で守る)。
+		// 待ち側は「何か終わったか」で起きて、手伝える仕事が増えていないかを見直す
+		uint64_t				jobFinishedEpoch = 0;
+
 		// ---- ジョブ待ち ----
 		// ワーカーは全員この1つの条件変数で待つ。
 		// ワーカーごとに条件変数を持って自分のキューだけを見ていると、
@@ -119,29 +123,37 @@ namespace Engine::Thread
 			if (jobWaiterCount.load(std::memory_order_seq_cst) == 0) return;
 
 			// 待機側は jobFinishedMutex を握って述語を評価するため、
-			// ロックを一度通してから通知しないと lost wakeup になる
+			// ロックを握ったまま進み具合を書き換えてから通知しないと lost wakeup になる
 			{
 				std::lock_guard _lock(jobFinishedMutex);
+				++jobFinishedEpoch;
 			}
 			jobFinishedCondition.notify_all();
 		}
 
+		// 今の進み具合 : 手伝える仕事を探す前に控えておき、WaitForJobProgress へ渡す
+		uint64_t LoadJobFinishedEpoch()
+		{
+			std::lock_guard _lock(jobFinishedMutex);
+			return jobFinishedEpoch;
+		}
+
 		/// <summary>
-		/// 指定したジョブが終わるまで待機する
+		/// 待っているジョブが終わるか、ほかのジョブが1件でも終わるまで眠る
+		///
+		/// 呼ぶ側は待ちの間ずっと jobWaiterCount を立てておくこと
+		/// (立っていないと完了の通知が飛ばず、進み具合も進まない)。
+		/// ほかのジョブが終わったときに起きるのは、その後続として
+		/// 手伝える仕事がキューへ入っているかもしれないため
 		/// </summary>
 		template<typename FinishedPredicateFnc>
-		void WaitForJobFinished(FinishedPredicateFnc&& a_isFinished)
+		void WaitForJobProgress(uint64_t a_seenEpoch, FinishedPredicateFnc&& a_isFinished)
 		{
-			// 待ち人数は「完了印を見る前」に増やしきる。
-			// 後にすると、その隙間に終わったジョブの通知を取りこぼす
-			jobWaiterCount.fetch_add(1, std::memory_order_seq_cst);
-
-			{
-				std::unique_lock _lock(jobFinishedMutex);
-				jobFinishedCondition.wait(_lock, a_isFinished);
-			}
-
-			jobWaiterCount.fetch_sub(1, std::memory_order_seq_cst);
+			std::unique_lock _lock(jobFinishedMutex);
+			jobFinishedCondition.wait(
+				_lock,
+				[&]() { return a_isFinished() || jobFinishedEpoch != a_seenEpoch; }
+			);
 		}
 
 		/// <summary>

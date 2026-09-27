@@ -70,13 +70,18 @@ namespace Engine::ECS
 		// チャンク内のコンポーネント配列の先頭 : 持っていなければ nullptr
 		uint8_t* RefComponentArray(Chunk* a_pChunk, ComponentTypeID a_typeID) { return m_archetypeManager.RefComponentArray(a_pChunk, a_typeID); }
 
-		// AND,NOT 検索でマッチするチャンクをすべて取得
-		std::vector<Chunk*> MatchingChunkVec(const Signature& a_sig, const Signature& a_excludeSig = {}) { return m_archetypeManager.MatchingChunkVec(a_sig, a_excludeSig); }
+		// アーキタイプ(生成順) : 反復(ForEach)とクエリのキャッシュが直接たどる
+		const std::vector<std::unique_ptr<Archetype>>& GetArchetypeVec() const { return m_archetypeManager.GetArchetypeVec(); }
+		uint32_t GetArchetypeCount() const { return m_archetypeManager.GetArchetypeCount(); }
 
-		// AND,NOT 検索でマッチするアーキタイプ(アドレス順)とチャンクをまとめて取得(クエリのキャッシュ用)
-		void MatchingQuery(const Signature& a_sig, const Signature& a_excludeSig, std::vector<Archetype*>& a_outArchetypeVec, std::vector<Chunk*>& a_outChunkVec)
+		// クエリのキャッシュ用 : 増えたアーキタイプだけ照合する / チャンクを並べ直す
+		void MatchNewArchetypes(const Signature& a_sig, const Signature& a_excludeSig, uint32_t a_fromIndex, std::vector<Archetype*>& a_inoutArchetypeVec) const
 		{
-			m_archetypeManager.MatchingQuery(a_sig, a_excludeSig, a_outArchetypeVec, a_outChunkVec);
+			m_archetypeManager.MatchNewArchetypes(a_sig, a_excludeSig, a_fromIndex, a_inoutArchetypeVec);
+		}
+		static void GatherChunks(const std::vector<Archetype*>& a_archetypeVec, std::vector<Chunk*>& a_outChunkVec)
+		{
+			ArchetypeManager::GatherChunks(a_archetypeVec, a_outChunkVec);
 		}
 
 		// アーキタイプの世代 : チャンクが増減するたびに進む

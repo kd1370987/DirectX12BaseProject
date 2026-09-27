@@ -5,7 +5,6 @@ struct BoidComponent
 	Engine::ECS::Entity platoonID = Engine::ECS::Limits::INVALID_ENTITY;
 
 	Math::Vector3 targetPos;				// 目標地点
-	float pow = 0.0f;						// 目標地点への追従強度
 	float slowRadius = 0.0f;				// 目標地点にどの程度近づいたら減速を入れるか
 	float maxSpeed = 1.0f;					// ムーブメントコンポーネント側に移行予定。テスト用
 	float seekWeight = 0.0f;				// 現在速度との差のウェイト
@@ -14,7 +13,6 @@ struct BoidComponent
 	float separationDistance = 0.0f;		// 反発力を受けなくなる境界
 	float separationWeight = 1.0f;			// 反発力の重さ
 
-	float neighborDistance = 0.0f;			// 周囲のボイドと軍隊行動をする範囲
 	float alignmentWeight = 1.0f;			// 周囲の進行速度の重さ
 	float cohesionWeight = 1.0f;			// 周囲の平均位置へ向かう重さ
 
@@ -36,7 +34,6 @@ struct Engine::ECS::ComponentTraits<BoidComponent>
 		BoidComponent& _comp = Engine::Editor::GetValue<BoidComponent>(a_pData);
 
 		a_ar.Field("targetPos", _comp.targetPos);
-		a_ar.Field("pow", _comp.pow);
 		a_ar.Field("slowRadius", _comp.slowRadius);
 		a_ar.Field("maxSpeed", _comp.maxSpeed);
 		a_ar.Field("seekWeight", _comp.seekWeight);
@@ -45,7 +42,6 @@ struct Engine::ECS::ComponentTraits<BoidComponent>
 		a_ar.Field("separationDistance", _comp.separationDistance);
 		a_ar.Field("separationWeight", _comp.separationWeight);
 
-		a_ar.Field("neighborDistance", _comp.neighborDistance);
 		a_ar.Field("alignmentWeight", _comp.alignmentWeight);
 		a_ar.Field("cohesionWeight", _comp.cohesionWeight);
 
@@ -57,7 +53,6 @@ struct Engine::ECS::ComponentTraits<BoidComponent>
 	{
 		BoidComponent& _comp = Engine::Editor::GetValue<BoidComponent>(a_context.pData);
 		Engine::Editor::Field("targetPos", _comp.targetPos);
-		Engine::Editor::Field("pow", _comp.pow);
 		Engine::Editor::Field("slowRadius", _comp.slowRadius);
 		Engine::Editor::Field("maxSpeed", _comp.maxSpeed);
 		Engine::Editor::Field("seekWeight", _comp.seekWeight);
@@ -66,7 +61,6 @@ struct Engine::ECS::ComponentTraits<BoidComponent>
 		Engine::Editor::Field("separationDistance", _comp.separationDistance);
 		Engine::Editor::Field("separationWeight", _comp.separationWeight);
 		Engine::Editor::Line();
-		Engine::Editor::Field("neighborDistance", _comp.neighborDistance);
 		Engine::Editor::Field("alignmentWeight", _comp.alignmentWeight);
 		Engine::Editor::Field("cohesionWeight", _comp.cohesionWeight);
 		Engine::Editor::Line();

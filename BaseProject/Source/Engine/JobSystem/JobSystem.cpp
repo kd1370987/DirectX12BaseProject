@@ -107,6 +107,16 @@ namespace Engine::Thread
 
 	Job* JobSystem::PushJob(std::function<void()>&& a_job, std::span<Job* const> a_dependencies)
 	{
+		return PushJobImpl(std::move(a_job), a_dependencies, false);
+	}
+
+	Job* JobSystem::PushFrameJob(std::function<void()>&& a_job, std::span<Job* const> a_dependencies)
+	{
+		return PushJobImpl(std::move(a_job), a_dependencies, true);
+	}
+
+	Job* JobSystem::PushJobImpl(std::function<void()>&& a_job, std::span<Job* const> a_dependencies, bool a_isHelpable)
+	{
 		// 停止中や未初期化で積むと、カウンタだけ増えて誰も処理しない。
 		// WaitForAll() が返らなくなるので、カウンタを触る前に弾く
 		if (!m_isRunning.load(std::memory_order_acquire) || m_jobWorkers.empty())
@@ -131,6 +141,9 @@ namespace Engine::Thread
 		auto& _upWorker = m_jobWorkers[_workerIndex];
 
 		Job* _pJob = _upWorker->CreateJob(std::move(a_job));
+
+		// キューへ積む(ほかのスレッドから見える)前に決める
+		_pJob->isHelpable = a_isHelpable;
 
 		//--------------------------------------------------------------------------------------
 		// 依存の登録
@@ -187,11 +200,89 @@ namespace Engine::Thread
 	{
 		if (a_pJob == nullptr || !m_upJobContext) return;
 
-		// 待っている間は「動いていない」: ジョブ待ちとして数える。
-		// ワーカーのジョブの中から待った場合も、そのワーカーの Busy から外れる
-		ThreadStateScope _waitScope(EThreadState::JobWait);
-		m_upJobContext->WaitForJobFinished(
-			[a_pJob]() { return a_pJob->IsFinished(); }
-		);
+		JobContext& _context = *m_upJobContext;
+
+		// 待ち人数は「完了印を見る前」に増やし、待ちの間ずっと立てておく。
+		// 手伝いの合間に終わったジョブの通知(進み具合)を取りこぼさないため
+		_context.jobWaiterCount.fetch_add(1, std::memory_order_seq_cst);
+
+		while (!a_pJob->IsFinished())
+		{
+			// 探す前に進み具合を控える。探した後に後続として積まれたものは、
+			// その先行ジョブの完了で進み具合が変わるので、眠らずに拾い直せる
+			const uint64_t _seenEpoch = _context.LoadJobFinishedEpoch();
+
+			// 回せるものがあれば、眠らずに代わりに回す
+			Job* _pHelpJob = nullptr;
+			if (TryTakeHelpableJob(_pHelpJob))
+			{
+				ExecuteOnCaller(_pHelpJob);
+				continue;
+			}
+
+			// 待っている間は「動いていない」: ジョブ待ちとして数える。
+			// ワーカーのジョブの中から待った場合も、そのワーカーの Busy から外れる
+			ThreadStateScope _waitScope(EThreadState::JobWait);
+			_context.WaitForJobProgress(_seenEpoch, [a_pJob]() { return a_pJob->IsFinished(); });
+		}
+
+		_context.jobWaiterCount.fetch_sub(1, std::memory_order_seq_cst);
+	}
+
+	bool JobSystem::TryTakeHelpableJob(Job*& a_pOutJob)
+	{
+		for (auto& _upWorker : m_jobWorkers)
+		{
+			if (_upWorker->RefQueue().TryStealHelpable(a_pOutJob)) return true;
+		}
+		return false;
+	}
+
+	void JobSystem::ExecuteOnCaller(Job* a_pJob)
+	{
+		JobContext& _context = *m_upJobContext;
+
+		// JobWorker::Execute と同じ流れ。ワーカーのキューから取ったので盗みとしても数える
+		ThreadStateScope _busyScope(EThreadState::Busy);
+		ThreadProfiler::CountJob();
+		ThreadProfiler::CountSteal();
+
+		_context.OnJobDequeued();
+
+		try
+		{
+			if (a_pJob->task) a_pJob->task();
+		}
+		catch (const std::exception& _e)
+		{
+			ENGINE_WARNING("[JobSystem] ジョブが例外で終了しました : %s", _e.what());
+		}
+		catch (...)
+		{
+			ENGINE_WARNING("[JobSystem] ジョブが不明な例外で終了しました");
+		}
+
+		// 後続を流す : 呼んだスレッドはワーカーではないので、割り当ては PushJob と同じく順番に回す。
+		// 受け取り先はスレッドごとに使い回す(待ちの中から入れ子で呼ばれることは無い)
+		thread_local std::vector<Job*> t_continuationBuffer = {};
+		a_pJob->FinishAndTakeContinuations(t_continuationBuffer);
+
+		for (Job* _pNext : t_continuationBuffer)
+		{
+			if (_pNext == nullptr) continue;
+
+			// 待ち数を0にしたスレッドだけがキューへ積む(JobWorker::FinishJob と同じ)
+			if (_pNext->waitingCount.fetch_sub(1, std::memory_order_acq_rel) == 1)
+			{
+				const uint32_t _workerIndex =
+					m_nextWorker.fetch_add(1, std::memory_order_relaxed)
+					% static_cast<uint32_t>(m_jobWorkers.size());
+				m_jobWorkers[_workerIndex]->PushReadyJob(_pNext);
+			}
+		}
+
+		// 完了の通知は後続を流したあと(JobWorker::Execute と同じ理由)
+		_context.NotifyJobFinished();
+		_context.FinishPendingJob();
 	}
 }

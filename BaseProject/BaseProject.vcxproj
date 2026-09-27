@@ -340,7 +340,6 @@
     <ClCompile Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem\RegisterAnimatedRayWorldSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.cpp" />
@@ -363,7 +362,6 @@
     <ClCompile Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\GunStateStartSystem\GunStateStartSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\SpawnSoundSystem\SpawnSoundSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem\RegisterPhysicsBodySystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.cpp" />
@@ -430,7 +428,6 @@
     <ClCompile Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem\LockOnRotationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem\SyncPhysicsBodySystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem\CharacterMovementSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Update\Update\Move\ChargeDashSystem\ChargeDashSystem.cpp" />
@@ -991,7 +988,6 @@
     <ClInclude Include="Source\Application\Systems\Draw\Draw\EmitParticlesSystem\EmitParticlesSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterAnimatedRayWorldSystem\RegisterAnimatedRayWorldSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\RegisterRayWorldSystem\RegisterRayWorldSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Draw\Draw\ScreenUIDraw\ScreenUIDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\SkinningRegisterSystem\SkinningRegisterSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\Draw\StaticObjectDrawSystem\StaticObjectDrawSystem.h" />
     <ClInclude Include="Source\Application\Systems\Draw\PostDraw\RegisterPrevWorldMatSystem\RegisterPrevWorldMatSystem.h" />
@@ -1016,7 +1012,6 @@
     <ClInclude Include="Source\Application\Systems\Init\Start\SpawnSoundSystem\SpawnSoundSystem.h" />
     <ClInclude Include="Source\Application\Systems\Release\AdditivePoseFreeSystem\AdditivePoseFreeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\CameraStartSystem\CameraStartSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Init\Start\RayAnimationModelStartSystem\RayAnimationModelStartSystem.h" />
     <ClInclude Include="Source\Application\Systems\Init\Start\RegisterPhysicsBodySystem\RegisterPhysicsBodySystem.h" />
     <ClInclude Include="Source\Application\Systems\Release\AnimationMatrixFreeSystem\AnimationMatrixFreeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Release\SoundFreeSystem\SoundFreeSystem.h" />
@@ -1099,7 +1094,6 @@
     <ClInclude Include="Source\Application\Systems\Update\Update\GunShootSystem\GunShootSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Rotation\LockOnRotationSystem\LockOnRotationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\SyncPhysicsBodySystem\SyncPhysicsBodySystem.h" />
-    <ClInclude Include="Source\Application\Systems\Update\Update\Integral\VelocityIntegrationSystem\VelocityIntegrationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\CharacterMovementSystem\CharacterMovementSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\RobotBoostSystem\RobotBoostSystem.h" />
     <ClInclude Include="Source\Application\Systems\Update\Update\Move\ChargeDashSystem\ChargeDashSystem.h" />

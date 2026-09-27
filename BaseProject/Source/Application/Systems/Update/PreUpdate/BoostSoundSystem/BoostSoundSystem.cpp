@@ -71,8 +71,7 @@ void BoostSoundSystem::Init(App::ECS::APPWorld& a_world)
 				// 鳴らす前に入れておかないと、原点で鳴ってから移動することになる。
 				// (2D指定しか入っていないビヘイビアでは読み捨てられる)
 				//
-				// RefData は持っていないコンポーネントでも非nullを返すので、
-				// 必ず HasComponent で確かめてから引くこと
+				// RefData は持っていないコンポーネントなら nullptr を返す
 				if (a_ctx.pWorld->HasComponent<WorldMatrixComponent>(a_entity))
 				{
 					if (auto* _pWorldComp = a_ctx.pWorld->RefData<WorldMatrixComponent>(a_entity))

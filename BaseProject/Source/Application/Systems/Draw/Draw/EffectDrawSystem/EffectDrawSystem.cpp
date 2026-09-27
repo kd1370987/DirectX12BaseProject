@@ -160,8 +160,7 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 								// (持たないエンティティのエフェクトまで止まってしまうため)
 								_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _effectWorld);
 
-								// RefData は持っていないコンポーネントでも非nullを返すので、
-								// 必ず HasComponent で確かめてから引くこと
+								// RefData は持っていないコンポーネントなら nullptr を返す
 								if (a_ctx.pWorld->HasComponent<VelocityComponent>(_self))
 								{
 									if (const auto* _pVel = a_ctx.pWorld->RefData<VelocityComponent>(_self))

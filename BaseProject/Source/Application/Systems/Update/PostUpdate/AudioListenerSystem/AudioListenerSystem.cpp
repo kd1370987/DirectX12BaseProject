@@ -18,13 +18,11 @@
 // ・速度は位置の差分から出す(ドップラー用)。テレポートで爆音にならないよう、
 //   1フレーム目や dt が 0 のときは 0 のままにする。
 // ・PostUpdate 帯に置く。ワールド行列が確定した後に読みたいため。
-// ・普通の ActiveTask ではなくカスタムタスクで登録している。
-//   ActiveTask は ActiveTag を「書く」扱いになり、一方 ActiveCustomTask である
-//   CommitHierarchyWorldMatrixSystem は ActiveTag を「読む」うえに WorldMatrix を書く。
-//   そのため PostUpdate 帯で WorldMatrix を読む ActiveTask を作ると、
-//   互いを指してシステムのソートが循環する。読み書きを明示できるカスタムタスクなら
-//   ActiveTag を書かずに済むので、行列確定の後ろに素直に並ぶ。
-//   (同じ理由で FlyingSoundSystem もカスタムタスクにしている)
+// ・カスタムタスクで登録している。WorldMatrix を ReadList で読むので、
+//   行列確定(CommitHierarchyWorldMatrixSystem)の後ろに並ぶ。
+//   (以前は ActiveTask が ActiveTag を書く扱いになり、ソートが循環するのを避けるためだった。
+//    今はフェーズのタグを依存に数えない(IsQueryOnlyTag)ので、その心配は無い。
+//    FlyingSoundSystem も同じ経緯でカスタムタスクになっている)
 //==============================================================================
 void AudioListenerSystem::Init(App::ECS::APPWorld& a_world)
 {

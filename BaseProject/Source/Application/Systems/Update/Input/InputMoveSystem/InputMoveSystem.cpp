@@ -95,8 +95,7 @@ void InputMoveSystem::Init(App::ECS::APPWorld& a_world)
 				// クエリに足すとアーキタイプが狭まり、付けていない機体の
 				// 移動・視点入力まで丸ごと止まってしまうため。
 				//
-				// RefData は持っていないコンポーネントでも非nullを返すので、
-				// 必ず HasComponent で確かめてから引くこと
+				// RefData は持っていないコンポーネントなら nullptr を返す
 				//--------------------------------------------------------------
 				Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 				if (a_ctx.pWorld->HasComponent<ChargeDashComponent>(_self))

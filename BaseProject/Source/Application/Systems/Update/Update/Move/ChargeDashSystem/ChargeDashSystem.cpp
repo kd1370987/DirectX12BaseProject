@@ -109,8 +109,7 @@ void ChargeDashSystem::Init(App::ECS::APPWorld& a_world)
 				//
 				// MovementComponent を持たない相手は目標速度だけで動くので、
 				// 持っているときだけ書く。
-				// RefData は持っていないコンポーネントでも非nullを返すので、
-				// 必ず HasComponent で確かめてから引くこと
+				// RefData は持っていないコンポーネントなら nullptr を返す
 				//----------------------------------------------------------
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 				MovementComponent* _pMovement = nullptr;

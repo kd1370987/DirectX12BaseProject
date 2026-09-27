@@ -107,7 +107,7 @@ namespace Engine::ECS
 			// コンポーネント配列の配置
 			_out.entityStride = sizeof(Entity);
 			_out.layoutBytes = sizeof(Entity) * _archetype.chunkCapacity;	// 先頭のエンティティ配列
-			for (const auto& [_typeID, _layout] : _archetype.layoutMap)
+			for (const auto& [_typeID, _layout] : _archetype.layoutVec)
 			{
 				ECSComponentLayoutProfile& _comp = _out.components.emplace_back();
 				_comp.typeID = _typeID;
@@ -125,9 +125,6 @@ namespace Engine::ECS
 				_out.layoutBytes = std::max(_out.layoutBytes, _layout.offset + _layout.stride * _archetype.chunkCapacity);
 			}
 
-			// layoutMap は順不同なので、チャンク内の並び順にそろえる
-			std::sort(_out.components.begin(), _out.components.end(),
-				[](const ECSComponentLayoutProfile& a_l, const ECSComponentLayoutProfile& a_r) { return a_l.offset < a_r.offset; });
 
 			// チャンク
 			_out.chunks.reserve(_archetype.chunks.size());
