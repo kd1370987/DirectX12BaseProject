@@ -8,8 +8,9 @@
 
 void CalcMatrixSystem::Init(App::ECS::APPWorld& a_world)
 {
-	// ヒエラルキーがついていない単体オブジェクトに対して最終行列を作成する
-	a_world.ActiveTask<const LocalTransformComponent, WorldMatrixComponent>(
+	// ヒエラルキーがついていない単体オブジェクトに対して最終行列を作成する。
+	// 自分のチャンクの配列だけを書く(汚れ印も自分の分だけ)ので、チャンクを分けてワーカーで回す
+	a_world.ActiveJobTask<const LocalTransformComponent, WorldMatrixComponent>(
 		Engine::ECS::ESystemType::PostUpdate,
 		"CalcMatrixSystem",
 		[](

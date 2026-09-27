@@ -18,6 +18,32 @@ namespace Engine::ECS
 				|| (a_lhs.resReadSig & a_rhs.resWriteSig).any();
 		}
 
+		//------------------------------------------------------------------------------------------
+		// 衝突をアーキタイプで見分けてよいか : どちらもクエリの配列越しにしか触っていない
+		//
+		// ・リソースの衝突は対象のエンティティと関係が無い
+		// ・カスタムタスクは中で何を回すか分からない(クエリを持たない)
+		// ・TaskAccess::Reads / Writes の読み書きは別のエンティティに届きうる。
+		//   ただし読み同士はぶつからないので、衝突の組ごとに片方でも配列越しでないかを見る
+		//------------------------------------------------------------------------------------------
+		bool CanJudgeByArchetype(const SystemTask& a_prev, const SystemTask& a_cur)
+		{
+			const bool _isResourceConflict =
+				(a_prev.resWriteSig & (a_cur.resReadSig | a_cur.resWriteSig)).any() ||
+				(a_prev.resReadSig & a_cur.resWriteSig).any();
+			if (_isResourceConflict) return false;
+
+			if (!a_prev.prepareFunc || !a_cur.prepareFunc) return false;
+
+			// 衝突の組(書く * 読む / 書く * 書く)のうち、どちらかが配列越しでないもの
+			auto _nonLocalConflict = [](const SystemTask& a_lhs, const SystemTask& a_rhs)
+				{
+					return (a_lhs.lookupWriteSig & (a_rhs.readSig | a_rhs.writeSig)) |
+						(a_lhs.lookupReadSig & a_rhs.writeSig);
+				};
+			return (_nonLocalConflict(a_prev, a_cur) | _nonLocalConflict(a_cur, a_prev)).none();
+		}
+
 		// a が読むものを b が書く(RAW) : b の後に a を並べる辺。コンポーネントもリソースも数える
 		bool IsReadAfterWrite(const SystemTask& a_reader, const SystemTask& a_writer)
 		{
@@ -107,15 +133,33 @@ namespace Engine::ECS
 
 		for (uint32_t _j = 0; _j < _taskCount; ++_j)
 		{
-			SystemTask* _pTask = _compiledVec[_j].pTask;
+			CompileTask& _compiled = _compiledVec[_j];
+			SystemTask* _pTask = _compiled.pTask;
 			std::atomic<int64_t>* _pOutNs = _isMeasure ? &m_upTaskNsScratch[_j] : nullptr;
+
+			// クエリはこのタスクの番で解決する(待つ相手の見分けとチャンク分割の両方に使う)。
+			// 構造はフェーズの途中で変わらないので、前のタスクのクエリも同じ世代で揃っている
+			const uint32_t _chunkNum = _pTask->prepareFunc ? _pTask->prepareFunc(*_pTask, a_context) : 0;
 
 			// 待つ相手を、今フレームのJob*に引き直す
 			// nullptr == 同期で走った・積めなかった → もう終わっているので待たない
 			m_depScratch.clear();
-			for (uint32_t _i : _compiledVec[_j].waitIndices)
+			_compiled.isSkippedVec.assign(_compiled.waitVec.size(), 0);
+			for (size_t _w = 0; _w < _compiled.waitVec.size(); ++_w)
 			{
-				if (m_jobScratch[_i]) m_depScratch.push_back(m_jobScratch[_i]);
+				const TaskWait& _wait = _compiled.waitVec[_w];
+				Thread::Job* _pJob = m_jobScratch[_wait.index];
+				if (!_pJob) continue;
+
+				// 対象のアーキタイプが重ならなければ、同じ型でも触るエンティティは別
+				if (_wait.isPerArchetype &&
+					!QueryCache::IsOverlap(_compiledVec[_wait.index].pTask->query, _pTask->query))
+				{
+					_compiled.isSkippedVec[_w] = 1;
+					continue;
+				}
+
+				m_depScratch.push_back(_pJob);
 			}
 
 			// 待つ相手が終わるまでメインスレッドで待つ : 同期で回すときに使う
@@ -135,8 +179,7 @@ namespace Engine::ECS
 				// 通常のタスク : チャンクを分けて複数のジョブで回す
 				if (_pTask->executeRangeFunc)
 				{
-					// チャンク一覧はメインスレッドで確定させる
-					const uint32_t _chunkNum = _pTask->prepareFunc(*_pTask, a_context);
+					// チャンク一覧はメインスレッドで確定させてある(上の prepareFunc)
 					if (_chunkNum == 0) continue;
 
 					const uint32_t _batchNum = std::min(_chunkNum, _pJobSystem->GetWorkerCount());
@@ -374,7 +417,9 @@ namespace Engine::ECS
 					// Jobのみ待つのかどうか判断
 					if (IsConflict(*_pPrev, *_compiled.pTask))
 					{
-						_compiled.waitIndices.push_back(_i);
+						TaskWait& _wait = _compiled.waitVec.emplace_back();
+						_wait.index = _i;
+						_wait.isPerArchetype = CanJudgeByArchetype(*_pPrev, *_compiled.pTask);
 					}
 				}
 			}

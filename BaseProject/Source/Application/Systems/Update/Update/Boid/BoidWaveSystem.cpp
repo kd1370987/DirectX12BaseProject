@@ -65,7 +65,8 @@ namespace
 
 void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const BoidComponent, const LocalTransformComponent, BoidWaveStateComponent, EmissiveOverrideComponent>(
+	// 書くのは自分のチャンクの2つだけ(小隊長は読むだけ)なので、チャンクを分けてワーカーで回す
+	a_world.ActiveJobTask<const BoidComponent, const LocalTransformComponent, BoidWaveStateComponent, EmissiveOverrideComponent>(
 		Engine::ECS::ESystemType::Update,
 		"BoidWaveSystem",
 		[](
@@ -93,10 +94,10 @@ void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 			// 数は小隊長の数(数十)なので、ボイドごとの引き直しより線形探索のほうが速い。
 			// チャンクごとに集め直しているが、1回あたりは小隊長の数ぶんなので割に合う。
 			//
-			// 置き場を static にしているのは、確保した領域を使い回すため。
-			// システムはメインスレッドで1つずつ回る(SystemManager)ので共有してよい
+			// 置き場を thread_local にしているのは、確保した領域を使い回すため。
+			// Job でチャンクを分けて同時に回るので、ワーカーごとに別の置き場を持つ
 			//------------------------------------------------------------------
-			static std::vector<PlatoonAxis> _axisVec = {};
+			thread_local std::vector<PlatoonAxis> _axisVec = {};
 			_axisVec.clear();
 
 			a_ctx.pWorld->ForEach<const ActiveTag, const PlatoonLeaderComponent,
@@ -172,7 +173,7 @@ void BoidWaveSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
-	// 絞り込みに使わない読み : 小隊長の軸を別の ForEach で集める
-	.Reads<PlatoonLeaderComponent, LookAngleComponent>()
+	// 絞り込みに使わない読み : 小隊長の軸(位置・向き)を別の ForEach で集める
+	.Reads<PlatoonLeaderComponent, LocalTransformComponent, LookAngleComponent>()
 	.ReadsResource<WormWaveResource>();
 }

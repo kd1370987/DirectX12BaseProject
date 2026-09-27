@@ -314,8 +314,8 @@ void MissileSalvoSystem::Init(App::ECS::APPWorld& a_world)
 		},
 		Engine::ECS::Exclude<BossComponent>{}
 	)
-	// 絞り込みに使わない読み書き : カメラ・敵の一覧・狙点、ポッドの銃設定(弾のハンドルを解決して書く)と発射元
-	.Reads<ProjMatComponent, EnemyTag, AimTargetPosComponent, ModelComponent, ColliderComponent, HierarchyComponent>()
+	// 絞り込みに使わない読み書き : カメラ・敵の一覧と位置・狙点、ポッドの銃設定(弾のハンドルを解決して書く)と発射元
+	.Reads<ProjMatComponent, WorldMatrixComponent, EnemyTag, AimTargetPosComponent, ModelComponent, ColliderComponent, HierarchyComponent>()
 	.Writes<GunStateComponent>()
 	.ReadsResource<SingletonEntityResource>();
 }

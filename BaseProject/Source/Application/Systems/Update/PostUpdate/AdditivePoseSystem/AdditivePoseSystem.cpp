@@ -64,7 +64,9 @@ namespace
 
 void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<
+	// 自分のチャンクとプールの自分の範囲だけを書く(別のエンティティは読むだけ)ので、
+	// チャンクを分けてワーカーで回す
+	a_world.ActiveJobTask<
 		const ModelComponent,
 		const AnimatorComponent,
 		const LookAngleComponent,

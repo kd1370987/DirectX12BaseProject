@@ -6,7 +6,8 @@
 
 void GravitySystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const GravityComponent, VelocityComponent>(
+	// 自分のチャンクの配列だけを書くので、チャンクを分けてワーカーで回す
+	a_world.ActiveJobTask<const GravityComponent, VelocityComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"GravitySystem",
 		[](

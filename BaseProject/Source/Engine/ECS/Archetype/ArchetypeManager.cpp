@@ -62,6 +62,23 @@ namespace Engine::ECS
 		return _matches;
 	}
 
+	void ArchetypeManager::MatchingQuery(
+		const Signature& a_sig, const Signature& a_excludeSig,
+		std::vector<Archetype*>& a_outArchetypeVec, std::vector<Chunk*>& a_outChunkVec)
+	{
+		a_outArchetypeVec = MatchingArchetypeVec(a_sig, a_excludeSig);
+
+		a_outChunkVec.clear();
+		for (Archetype* _pArchetype : a_outArchetypeVec)
+		{
+			a_outChunkVec.insert(a_outChunkVec.end(), _pArchetype->chunks.begin(), _pArchetype->chunks.end());
+		}
+
+		// 重なりの突き合わせ(QueryCache::IsOverlap)用にアドレス順へ並べる。
+		// チャンクは上で生成順に集め終えているので、回る順は変わらない
+		std::sort(a_outArchetypeVec.begin(), a_outArchetypeVec.end(), std::less<Archetype*>{});
+	}
+
 	EntityLocation ArchetypeManager::AllocationEntity(const Entity& a_entity, const Signature& a_sig)
 	{
 		Archetype* _pArchetype = GetOrCreateArchetype(a_sig);

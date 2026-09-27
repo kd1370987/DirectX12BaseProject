@@ -167,5 +167,7 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 		}
 	)
 	// 順序 : ボイドは小隊長の今フレームの向きへ寄せる
-	.After("SwarmLookSystem_Platoon");
+	.After("SwarmLookSystem_Platoon")
+	// 絞り込みに使わない読み : 小隊長の向き(別のエンティティ)
+	.Reads<LookAngleComponent>();
 }

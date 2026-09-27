@@ -224,11 +224,20 @@ namespace Engine::ECS
 				_out.isJob = (_pTask->exec == ETaskExec::Job);
 				if (_pCompiledVec && _index < _pCompiledVec->size())
 				{
-					for (uint32_t _waitIndex : (*_pCompiledVec)[_index].waitIndices)
+					const CompileTask& _compiled = (*_pCompiledVec)[_index];
+					for (size_t _w = 0; _w < _compiled.waitVec.size(); ++_w)
 					{
-						if (_waitIndex >= _pCompiledVec->size()) continue;
-						const SystemTask* _pWait = (*_pCompiledVec)[_waitIndex].pTask;
-						if (_pWait) _out.waitNames.push_back(_pWait->name);
+						const TaskWait& _wait = _compiled.waitVec[_w];
+						if (_wait.index >= _pCompiledVec->size()) continue;
+						const SystemTask* _pWait = (*_pCompiledVec)[_wait.index].pTask;
+						if (!_pWait) continue;
+
+						_out.waitNames.push_back(_pWait->name);
+						if (_wait.isPerArchetype) _out.perArchetypeWaitNames.push_back(_pWait->name);
+						if (_w < _compiled.isSkippedVec.size() && _compiled.isSkippedVec[_w])
+						{
+							_out.skippedWaitNames.push_back(_pWait->name);
+						}
 					}
 				}
 				if (_pReport)

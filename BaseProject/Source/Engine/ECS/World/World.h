@@ -205,7 +205,9 @@ namespace Engine::ECS
 		// a_func は無捕獲のラムダに限る(必要なものは SystemContext から取る)
 		//
 		// a_exec に Job を渡すとワーカースレッドで走り、ぶつかるタスクの直前まで待ち合わせない。
-		// その場合、宣言したコンポーネント以外(構造変更の予約・リソース・サービス)には触らないこと
+		// その場合、宣言したもの以外(構造変更の予約・宣言していないリソース・サービス)には触らないこと。
+		// チャンクを分けて同時に回すので、書き込みは自分のチャンクの配列だけにする
+		// (別のエンティティは RefData で読むだけ。読む型は TaskAccess::Reads で宣言する)
 		//
 		// 戻り値で、絞り込みに使わない読み書き(RefData / GetResource 越し)を追加で宣言できる(TaskAccess)
 		template<typename... Components, typename... Excludes, typename Func>
@@ -501,7 +503,19 @@ namespace Engine::ECS
 		const uint64_t _generation = m_storage.GetArchetypeGeneration();
 		if (a_cache.IsStale(_generation))
 		{
-			a_cache.chunkVec = BuildChunkQuery<Components...>(Exclude<Excludes...>{});
+			a_cache.chunkVec.clear();
+			a_cache.archetypeVec.clear();
+
+			// 絞り込み側に未登録の型があれば、それを持つエンティティは居ない(空のまま)
+			Signature _querySig;
+			if (BuildSignature<Components...>(_querySig))
+			{
+				// 除外側の未登録の型は誰も持っていないので無視してよい
+				Signature _excludeSig;
+				BuildSignature<Excludes...>(_excludeSig);
+
+				m_storage.MatchingQuery(_querySig, _excludeSig, a_cache.archetypeVec, a_cache.chunkVec);
+			}
 			a_cache.generation = _generation;
 		}
 		return a_cache.chunkVec;

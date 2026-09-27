@@ -11,8 +11,9 @@ void SkinningSystem::Init(App::ECS::APPWorld& a_world)
 {
 	// ノードポーズは読むだけなので const。
 	// 書き込み扱いにすると、ワールド行列を組む CalcNodeSystem / AdditivePoseSystem との間に
-	// 依存の辺が張られず、それより先に走って前フレームの行列でボーンを作ってしまう
-	a_world.ActiveTask<const ModelComponent, const NodePoseComponent, SkeletonPoseComponent>(
+	// 依存の辺が張られず、それより先に走って前フレームの行列でボーンを作ってしまう。
+	// 自分のチャンクとプールの自分の範囲だけを書くので、チャンクを分けてワーカーで回す
+	a_world.ActiveJobTask<const ModelComponent, const NodePoseComponent, SkeletonPoseComponent>(
 		Engine::ECS::ESystemType::Animation,
 		"SkinningSystem",
 		[](

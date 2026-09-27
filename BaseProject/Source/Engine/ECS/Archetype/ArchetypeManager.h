@@ -59,6 +59,11 @@ namespace Engine::ECS
 		// AND,NOT検索でマッチするアーキタイプに属するチャンクをすべて取得
 		std::vector<Chunk*> MatchingChunkVec(const Signature& a_sig, const Signature& a_excludeSig = {});
 
+		// AND,NOT検索でマッチするアーキタイプ(アドレス順)と、そこに属するチャンクをまとめて取得(クエリのキャッシュ用)
+		void MatchingQuery(
+			const Signature& a_sig, const Signature& a_excludeSig,
+			std::vector<Archetype*>& a_outArchetypeVec, std::vector<Chunk*>& a_outChunkVec);
+
 		// エンティティを割り当てる : 割り当てられた場所を返す
 		EntityLocation AllocationEntity(const Entity& a_entity, const Signature& a_sig);
 

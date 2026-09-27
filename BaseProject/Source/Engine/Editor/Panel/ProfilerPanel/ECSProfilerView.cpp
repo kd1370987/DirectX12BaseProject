@@ -209,13 +209,19 @@ namespace Engine::Editor
 		}
 
 		size_t _jobTaskCount = 0;
+		size_t _waitCount = 0;
+		size_t _skippedWaitCount = 0;
 		for (const auto& _task : a_snapshot.systemTasks)
 		{
 			if (_task.isJob) _jobTaskCount++;
+			_waitCount += _task.waitNames.size();
+			_skippedWaitCount += _task.skippedWaitNames.size();
 		}
 
 		Engine::Editor::Header("System / Resource");
 		Engine::Editor::Value("Tasks", "%zu (job %zu / last total %.3f ms)", a_snapshot.systemTasks.size(), _jobTaskCount, _totalMs);
+		// アーキタイプが重ならず、待たずに済んだ待ち合わせ(直近の実行)
+		Engine::Editor::Value("Job waits", "%zu (skipped %zu)", _waitCount, _skippedWaitCount);
 		Engine::Editor::Value("Resources", "%zu", a_snapshot.resources.size());
 
 		//------------------------------------------------------------------
@@ -506,11 +512,27 @@ namespace Engine::Editor
 						}
 						else
 						{
-							ImGui::Text("%zu", _task.waitNames.size());
+							// アーキタイプが重ならず待たなかったものは差し引いて出す
+							if (_task.skippedWaitNames.empty())
+							{
+								ImGui::Text("%zu", _task.waitNames.size());
+							}
+							else
+							{
+								ImGui::Text("%zu (-%zu)", _task.waitNames.size(), _task.skippedWaitNames.size());
+							}
 							if (ImGui::IsItemHovered())
 							{
 								ImGui::BeginTooltip();
 								Engine::Editor::Value("Wait for", "%s", JoinNames(_task.waitNames).c_str());
+								if (!_task.perArchetypeWaitNames.empty())
+								{
+									Engine::Editor::Value("Per archetype", "%s", JoinNames(_task.perArchetypeWaitNames).c_str());
+								}
+								if (!_task.skippedWaitNames.empty())
+								{
+									Engine::Editor::Value("Skipped (no shared archetype)", "%s", JoinNames(_task.skippedWaitNames).c_str());
+								}
 								ImGui::EndTooltip();
 							}
 						}

@@ -9,7 +9,8 @@
 
 void CalcNodeSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const ModelComponent,const AnimatorComponent, NodePoseComponent>(
+	// 自分のチャンクとプールの自分の範囲だけを書くので、チャンクを分けてワーカーで回す
+	a_world.ActiveJobTask<const ModelComponent,const AnimatorComponent, NodePoseComponent>(
 		Engine::ECS::ESystemType::Animation,
 		"CalcNodeSystem",
 		[](

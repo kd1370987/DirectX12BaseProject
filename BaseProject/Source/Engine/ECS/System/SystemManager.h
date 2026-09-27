@@ -26,6 +26,11 @@ namespace Engine::ECS
 		ResourceSignature resReadSig;								// 読み込みのみを行うリソース
 		ResourceSignature resWriteSig;								// 書き込みを行うリソース
 
+		// 絞り込み(クエリの配列)を通さずに読み書きするコンポーネント(TaskAccess::Reads / Writes)。
+		// 別のエンティティに届きうるので、これが絡む衝突はアーキタイプでは見分けない
+		Signature lookupReadSig;
+		Signature lookupWriteSig;
+
 		// 明示の順序(同じフェーズのタスク名) : 読み書きの依存より優先する
 		std::vector<std::string> afterNames;						// このタスクより先に走らせるもの
 		std::vector<std::string> beforeNames;						// このタスクより後に走らせるもの
@@ -43,10 +48,20 @@ namespace Engine::ECS
 		std::function<void(SystemTask&, const SystemContext&, uint32_t, uint32_t)>executeRangeFunc;
 	};
 
+	// 待ち合わせの相手1つ
+	struct TaskWait
+	{
+		uint32_t index = 0;				// 同じフェーズでの並び位置(自分より前)
+		bool isPerArchetype = false;	// 衝突がクエリの配列越しだけ : 実行時にアーキタイプが重なるときだけ待つ
+	};
+
 	struct CompileTask
 	{
 		SystemTask* pTask = nullptr;
-		std::vector<uint32_t> waitIndices;		// 同じフェーズで自分より前にあり、衝突するJobタスクの並び位置
+		std::vector<TaskWait> waitVec;			// 同じフェーズで自分より前にあり、衝突するJobタスク
+
+		// 直近の実行で、アーキタイプが重ならず待たずに済んだか(waitVec と同じ並び。診断用)
+		std::vector<uint8_t> isSkippedVec;
 	};
 
 	//------------------------------------------------------------------------------------------
@@ -104,9 +119,16 @@ namespace Engine::ECS
 	// 読み書きシグネチャが衝突するタスク同士は、後ろのタスクの直前(同期)か
 	// 後続として積む(Job)ことで待ち合わせる。フェーズの終わりでは全ジョブを待つ。
 	//
+	// 衝突がどちらもクエリの配列越し(RegisterTask の型)だけで起きている組は、
+	// 実行時にクエリが一致したアーキタイプを突き合わせ、重ならなければ待たない。
+	// 型は同じでも対象のエンティティが別(例 : 加減速の有無で分かれた積分)なら並んで走れる。
+	// フェーズの途中では構造が変わらない(予約は BeginFrame で反映する)ことが前提。
+	// リソース・カスタムタスク・TaskAccess::Reads / Writes が絡む衝突は、型だけで判断する。
+	//
 	// シグネチャに出てこない依存(コリジョンワールドへの submit、デバッグ描画、
-	// オーディオ、構造変更の予約、リソース等)は拾えないので、Job にするタスクは
-	// 宣言したコンポーネント以外に触らないこと(オプトイン)
+	// オーディオ、構造変更の予約等)は拾えないので、Job にするタスクは
+	// 宣言したもの以外に触らないこと(オプトイン)。
+	// またチャンクを分けて同時に回すので、別のエンティティへ書き込むタスクは Job にしないこと
 	//==========================================================================================
 	class SystemManager
 	{

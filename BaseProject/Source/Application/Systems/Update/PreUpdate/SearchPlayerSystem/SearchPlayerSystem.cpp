@@ -188,6 +188,6 @@ void SearchPlayerSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
-	// 絞り込みに使わない読み : GUID からの解決とプレイヤーの自動検索
-	.Reads<GUIDComponent, PlayerControllTag>();
+	// 絞り込みに使わない読み : GUID からの解決とプレイヤーの自動検索、プレイヤーの位置
+	.Reads<GUIDComponent, PlayerControllTag, WorldMatrixComponent>();
 }

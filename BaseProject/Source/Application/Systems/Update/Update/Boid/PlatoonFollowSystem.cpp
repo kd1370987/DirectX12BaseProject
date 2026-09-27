@@ -163,8 +163,8 @@ void PlatoonFollowSystem::Init(App::ECS::APPWorld& a_world)
 	)
 	// 順序 : 目標速度(Velocity)の書き手同士の並び
 	.After("CharacterMovementSystem")
-	// 絞り込みに使わない読み : 前の相手の向きと、自分と前の相手の位置。
+	// 絞り込みに使わない読み : 前の相手の向き・実速度(目標速度)と、自分と前の相手の位置。
 	// LocalTransform の読みは LockOnRotationSystem と読み書きが往復するので、
 	// あちらが After(PlatoonFollowSystem) で向きを決めている
-	.Reads<LookAngleComponent, LocalTransformComponent>();
+	.Reads<LookAngleComponent, LocalTransformComponent, MovementComponent, VelocityComponent>();
 }

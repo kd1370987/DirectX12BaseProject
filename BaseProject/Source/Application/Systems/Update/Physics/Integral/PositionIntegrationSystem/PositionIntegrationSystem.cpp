@@ -9,7 +9,9 @@
 
 void PositionIntegrationSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const VelocityComponent, LocalTransformComponent>(
+	// 自分のチャンクの配列だけを書くので、チャンクを分けてワーカーで回す。
+	// MovementIntegrationSystem とは対象のアーキタイプが重ならないので、同時に走る
+	a_world.ActiveJobTask<const VelocityComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"PositionIntegrationSystem",
 		[](

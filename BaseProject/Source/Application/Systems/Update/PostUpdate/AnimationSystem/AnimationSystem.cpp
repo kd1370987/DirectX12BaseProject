@@ -10,7 +10,8 @@
 
 void AnimationSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const ModelComponent, AnimatorComponent, NodePoseComponent>(
+	// 自分のチャンクとプールの自分の範囲だけを書くので、チャンクを分けてワーカーで回す
+	a_world.ActiveJobTask<const ModelComponent, AnimatorComponent, NodePoseComponent>(
 		Engine::ECS::ESystemType::Animation,
 		"AnimationSystem",
 		[](

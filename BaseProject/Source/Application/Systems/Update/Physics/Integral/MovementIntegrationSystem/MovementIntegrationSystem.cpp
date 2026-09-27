@@ -23,7 +23,9 @@
 //==============================================================================
 void MovementIntegrationSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const VelocityComponent, MovementComponent, LocalTransformComponent>(
+	// 自分のチャンクの配列だけを書くので、チャンクを分けてワーカーで回す。
+	// PositionIntegrationSystem とは対象のアーキタイプが重ならないので、同時に走る
+	a_world.ActiveJobTask<const VelocityComponent, MovementComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Physics,
 		"MovementIntegrationSystem",
 		[](

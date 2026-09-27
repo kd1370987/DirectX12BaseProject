@@ -99,6 +99,8 @@ namespace Engine::ECS
 		bool						isJob = false;			// ワーカーで走るか
 		bool						isCyclic = false;		// 循環に巻き込まれ、登録順で末尾に足されたか
 		std::vector<std::string>	waitNames = {};			// 実行前に完了を待つ Job タスク
+		std::vector<std::string>	perArchetypeWaitNames = {};	// そのうち、アーキタイプが重なるときだけ待つもの
+		std::vector<std::string>	skippedWaitNames = {};	// 直近の実行で、アーキタイプが重ならず待たなかったもの
 		uint32_t					ambiguityCount = 0;		// 前後が依存で決まっていない衝突の数
 
 		// クエリ(RegisterTask のみ。カスタムタスクは持たない)
