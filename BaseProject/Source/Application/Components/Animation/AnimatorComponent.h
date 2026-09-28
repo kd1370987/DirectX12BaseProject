@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
@@ -8,6 +8,7 @@
 #include "NodePoseComponent.h"
 #include "SkeletonPoseComponent.h"
 #include "Application/Components/Render/DynamicRaytracingComponent.h"
+#include "Application/Components/Render/ModelComponent.h"
 
 namespace Engine::Resource
 {
@@ -27,6 +28,9 @@ namespace Engine::Resource
 //==========================================================================================
 struct AnimatorLayer
 {
+	// かけるボーンレイヤー(モデルの BoneMask を名前のハッシュで引く)。0 なら全身
+	UINT boneMaskHash = 0;
+
 	// ---- 設計図(保存するのは GUID だけ) ----
 	Engine::GUID animatorGUID = {};
 	Engine::Handle<Engine::Resource::AnimatorAsset> animatorHandle = {};
@@ -37,30 +41,25 @@ struct AnimatorLayer
 	float stateTime        = 0.0f;	// 現在のステートに入ってからの経過時間(秒)
 
 	// ---- クリップ ----
-	// 再生位置(クリップの時間単位。dt × ステートの speed で進む)。
-	// ステートが変わったら 0 に戻す(StateMachineCommitSystem)
 	float clipTime = 0.0f;
 
 	// ---- 遷移の条件に使うパラメータの実体 ----
-	// プール(ItemPool<StateMachineInstance>)に置く。
-	// 確保は StateMachineFixupSystem、返すのは AnimatorFreeSystem
 	Engine::Handle<Engine::Resource::StateMachineInstance> instanceHandle = {};
 };
 
 //==========================================================================================
 // AnimatorComponent
 //
-// アニメーションするモデルのアニメーター。
-//
-// ・今は土台のレイヤー(baseLayer)1枚だけ。上に重ねるレイヤーは持っていない。
-// ・以前は StateMachineComponent(設計図とステート)と AnimatorComponent(そのステートの
-//   クリップの写しと再生位置)の2つに分かれていた。
-// ・「アニメーションするモデル」の目印も兼ねる(静的な描画系は Exclude<AnimatorComponent> で外す)。
-//   そのため、ポーズの置き場とレイトレ用インスタンスは必須コンポーネントとして一緒に付ける。
+// アニメーションするモデルのアニメーター
 //==========================================================================================
 struct AnimatorComponent
 {
+	// 基本レイヤー : 全身にかかる
 	AnimatorLayer baseLayer = {};
+
+	// 上半身にかかるレイヤー
+	AnimatorLayer upperLayer = {};
+	bool isLayering = false;			// アニメーションレイヤリングをするかどうか
 };
 
 template<>
@@ -71,11 +70,6 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 
 	//----------------------------------------------------------------------------------
 	// 借りているリソースを返す
-	//
-	// コンポーネントはデストラクタが走らないので、参照を返すのはここの仕事。
-	// ECS がエンティティを消すとき・コンポーネントを外すとき・
-	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
-	// (パラメータの実体はワールドのプールにあるので、ここではなく AnimatorFreeSystem が返す)
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
@@ -100,25 +94,38 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 		AnimatorComponent& _comp = Engine::Editor::GetValue<AnimatorComponent>(a_context.pData);
 		AnimatorLayer& _layer = _comp.baseLayer;
 
-		Engine::Editor::HelpText("Base Layer");
+		auto _LayerEditFunc = [&_comp,&a_context](const char* a_label,AnimatorLayer& a_layer) 
+			{
+				Engine::Editor::IDScope _idScope(a_label);
+				Engine::Editor::HelpText(a_label);
 
-		// 設計図の選択
-		Engine::Editor::AssetField<Resource::AnimatorAsset>(
-			*a_context.pWorld->RefEngineServices(),
-			"Animator",
-			"AnimatorAsset",
-			_layer.animatorGUID,
-			_layer.animatorHandle
-		);
+				// 設計図の選択
+				Engine::Editor::AssetField<Resource::AnimatorAsset>(
+					*a_context.pWorld->RefEngineServices(),
+					"Animator",
+					"AnimatorAsset",
+					a_layer.animatorGUID,
+					a_layer.animatorHandle
+				);
 
-		// 現在のステートを表示
-		const auto* _pAnimator = a_context.pWorld->RefEngineServices()->pResourceManager->Get(_layer.animatorHandle);
-		if (_pAnimator)
-		{
-			std::string _nodeNameStr(_pAnimator->GetNodeName(_layer.currentStateHash));
-			Engine::Editor::Value("Current Node", "%s", _nodeNameStr.c_str());
-		}
-		Engine::Editor::Value("State Time", "%.2f s", _layer.stateTime);
-		Engine::Editor::Value("Clip Time", "%.2f", _layer.clipTime);
+				// 現在のステートを表示
+				const auto* _pAnimator = a_context.pWorld->RefEngineServices()->pResourceManager->Get(a_layer.animatorHandle);
+				if (_pAnimator)
+				{
+					std::string _nodeNameStr(_pAnimator->GetNodeName(a_layer.currentStateHash));
+					Engine::Editor::Value("Current Node", "%s", _nodeNameStr.c_str());
+				}
+				// ボーンレイヤー : 自身のモデルが持つものから選ぶ
+				const auto* _pModelComp = a_context.pWorld->RefData<ModelComponent>(a_context.entity);
+				const auto* _pModel = _pModelComp ? a_context.pWorld->RefEngineServices()->pResourceManager->Get(_pModelComp->handle) : nullptr;
+				Engine::Editor::ModelBoneMaskField("Bone Layer", _pModel, a_layer.boneMaskHash);
+
+				Engine::Editor::Value("State Time", "%.2f s", a_layer.stateTime);
+				Engine::Editor::Value("Clip Time", "%.2f", a_layer.clipTime);
+
+			};
+
+		_LayerEditFunc("Base Layer",_comp.baseLayer);
+		_LayerEditFunc("Upper Layer",_comp.upperLayer);
 	}
 };

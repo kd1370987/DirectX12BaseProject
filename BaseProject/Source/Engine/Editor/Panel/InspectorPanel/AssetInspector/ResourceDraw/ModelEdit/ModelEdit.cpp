@@ -1,5 +1,6 @@
 #include "ModelEdit.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Data/Model/IO/ModelConverter/ModelConverter.h"
 
 #include "../../AssetLink.h"
 
@@ -93,6 +94,272 @@ namespace Engine::Editor::Inspector
 
 			ImGui::TreePop();
 		}
+
+		//=========================================================================================
+		// ボーンレイヤー
+		//=========================================================================================
+
+		// 編集してまだ保存していないモデル
+		// (アセットを選び直しても未保存が分かるように、インスペクターの外に置く)
+		std::unordered_set<const Resource::Model*> s_dirtyModelSet;
+
+		//-----------------------------------------------------------------------------------------
+		// レイヤー内のノードの重みを引く。載っていなければ nullptr
+		//-----------------------------------------------------------------------------------------
+		Resource::BoneWeight* FindBoneWeight(Resource::BoneMask& a_mask, int a_nodeIdx)
+		{
+			auto _it = std::lower_bound(a_mask.bones.begin(), a_mask.bones.end(), a_nodeIdx,
+				[](const Resource::BoneWeight& a_bone, int a_idx) { return a_bone.nodeIndex < a_idx; });
+			if (_it == a_mask.bones.end() || _it->nodeIndex != a_nodeIdx) return nullptr;
+			return &(*_it);
+		}
+
+		//-----------------------------------------------------------------------------------------
+		// ノードの重みを設定する(無ければノード番号の昇順を保って足す)
+		//-----------------------------------------------------------------------------------------
+		void SetBoneWeight(Resource::BoneMask& a_mask, int a_nodeIdx, float a_weight)
+		{
+			auto _it = std::lower_bound(a_mask.bones.begin(), a_mask.bones.end(), a_nodeIdx,
+				[](const Resource::BoneWeight& a_bone, int a_idx) { return a_bone.nodeIndex < a_idx; });
+			if (_it != a_mask.bones.end() && _it->nodeIndex == a_nodeIdx)
+			{
+				_it->weight = a_weight;
+				return;
+			}
+			a_mask.bones.insert(_it, Resource::BoneWeight{ static_cast<uint16_t>(a_nodeIdx), a_weight });
+		}
+
+		//-----------------------------------------------------------------------------------------
+		// ノードをレイヤーから外す
+		//-----------------------------------------------------------------------------------------
+		void RemoveBoneWeight(Resource::BoneMask& a_mask, int a_nodeIdx)
+		{
+			std::erase_if(a_mask.bones, [a_nodeIdx](const Resource::BoneWeight& a_bone) { return a_bone.nodeIndex == a_nodeIdx; });
+		}
+
+		//-----------------------------------------------------------------------------------------
+		// 自身と子孫すべてに重みを設定する。a_weight が無ければ外す
+		//-----------------------------------------------------------------------------------------
+		void ApplyToDescendants(const std::vector<Resource::Node>& a_nodeVec, Resource::BoneMask& a_mask, int a_nodeIdx, std::optional<float> a_weight)
+		{
+			if (a_nodeIdx < 0 || a_nodeIdx >= static_cast<int>(a_nodeVec.size())) { return; }
+
+			if (a_weight) { SetBoneWeight(a_mask, a_nodeIdx, *a_weight); }
+			else          { RemoveBoneWeight(a_mask, a_nodeIdx); }
+
+			for (auto _childIdx : a_nodeVec[a_nodeIdx].children)
+			{
+				ApplyToDescendants(a_nodeVec, a_mask, _childIdx, a_weight);
+			}
+		}
+
+		//-----------------------------------------------------------------------------------------
+		// 他と被らないレイヤー名を作る
+		//-----------------------------------------------------------------------------------------
+		std::string MakeUniqueBoneMaskName(const std::vector<Resource::BoneMask>& a_maskVec, const std::string& a_baseName)
+		{
+			auto _isUsed = [&](const std::string& a_name)
+				{
+					return std::any_of(a_maskVec.begin(), a_maskVec.end(),
+						[&](const Resource::BoneMask& a_mask) { return a_mask.name == a_name; });
+				};
+
+			if (!_isUsed(a_baseName)) { return a_baseName; }
+			for (int _i = 1;; ++_i)
+			{
+				std::string _name = a_baseName + std::to_string(_i);
+				if (!_isUsed(_name)) { return _name; }
+			}
+		}
+
+		//-----------------------------------------------------------------------------------------
+		// ノード階層を、レイヤーに含めるかのチェックと重み付きで再帰表示
+		// 右クリックで子孫へまとめて設定できる
+		//-----------------------------------------------------------------------------------------
+		bool DrawBoneMaskTree(const std::vector<Resource::Node>& a_nodeVec, Resource::BoneMask& a_mask, int a_nodeIdx)
+		{
+			if (a_nodeIdx < 0 || a_nodeIdx >= static_cast<int>(a_nodeVec.size())) { return false; }
+
+			const auto& _node = a_nodeVec[a_nodeIdx];
+			bool _isChanged = false;
+
+			ImGui::PushID(a_nodeIdx);
+
+			ImGuiTreeNodeFlags _flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_AllowOverlap;
+			if (_node.children.empty()) { _flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; }
+			const bool _isOpen = ImGui::TreeNodeEx("##BoneMaskNode", _flags);
+
+			// 含めるかどうか
+			ImGui::SameLine();
+			bool _isInclude = (FindBoneWeight(a_mask, a_nodeIdx) != nullptr);
+			std::string _label = _node.name;
+			if (_node.boneIndex >= 0) { _label += " [Bone]"; }
+			if (ImGui::Checkbox(_label.c_str(), &_isInclude))
+			{
+				if (_isInclude) { SetBoneWeight(a_mask, a_nodeIdx, 1.0f); }
+				else            { RemoveBoneWeight(a_mask, a_nodeIdx); }
+				_isChanged = true;
+			}
+
+			// 子孫へまとめて設定
+			if (ImGui::BeginPopupContextItem("BoneMaskNodeMenu"))
+			{
+				const auto* _pBone = FindBoneWeight(a_mask, a_nodeIdx);
+
+				if (ImGui::MenuItem("Include with descendants (weight 1.0)"))
+				{
+					ApplyToDescendants(a_nodeVec, a_mask, a_nodeIdx, 1.0f);
+					_isChanged = true;
+				}
+				if (ImGui::MenuItem("Copy weight to descendants", nullptr, false, _pBone != nullptr))
+				{
+					ApplyToDescendants(a_nodeVec, a_mask, a_nodeIdx, _pBone->weight);
+					_isChanged = true;
+				}
+				if (ImGui::MenuItem("Exclude with descendants"))
+				{
+					ApplyToDescendants(a_nodeVec, a_mask, a_nodeIdx, std::nullopt);
+					_isChanged = true;
+				}
+				ImGui::EndPopup();
+			}
+
+			// 重み : 上の操作で配列が動いているかもしれないので、ここで引き直す
+			if (auto* _pBone = FindBoneWeight(a_mask, a_nodeIdx))
+			{
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(120.0f);
+				if (ImGui::SliderFloat("##Weight", &_pBone->weight, 0.0f, 1.0f, "%.2f"))
+				{
+					_pBone->weight = std::clamp(_pBone->weight, 0.0f, 1.0f);
+					_isChanged = true;
+				}
+			}
+
+			// 子ノード
+			if (_isOpen && !_node.children.empty())
+			{
+				for (auto _childIdx : _node.children)
+				{
+					_isChanged |= DrawBoneMaskTree(a_nodeVec, a_mask, _childIdx);
+				}
+				ImGui::TreePop();
+			}
+
+			ImGui::PopID();
+			return _isChanged;
+		}
+
+		//-----------------------------------------------------------------------------------------
+		// ボーンレイヤーの一覧・追加・削除・保存
+		//-----------------------------------------------------------------------------------------
+		void DrawBoneMasks(EditorContext& a_editContext, Resource::Model& a_model)
+		{
+			auto& _maskVec = a_model.RefBoneMaskVec();
+			const auto& _nodeVec = a_model.GetOriginalNodeVec();
+			bool _isChanged = false;
+
+			Engine::Editor::HelpText("(right click a node to apply to its descendants)");
+
+			// 追加
+			if (Engine::Editor::CreateButton("Add Layer"))
+			{
+				Resource::BoneMask _mask = {};
+				_mask.name = MakeUniqueBoneMaskName(_maskVec, "NewLayer");
+				_mask.nameHash = Engine::String::ToHash(_mask.name);
+				_maskVec.push_back(std::move(_mask));
+				_isChanged = true;
+			}
+
+			// 保存 : .mdl へ書き出す(gltf のままのモデルはコンバートされる)
+			Engine::Editor::SameLine();
+			if (Engine::Editor::Button("Save") && a_editContext.pAssetProp)
+			{
+				if (Resource::Converter::ModelConverter::SaveModelAsset(*a_editContext.pServices->pResourceManager, a_editContext.pAssetProp->guid))
+				{
+					s_dirtyModelSet.erase(&a_model);
+					ENGINE_LOG("ボーンレイヤーを保存 : %s", a_model.GetName().c_str());
+				}
+			}
+			if (s_dirtyModelSet.contains(&a_model))
+			{
+				Engine::Editor::SameLine();
+				Engine::Editor::WarningText("(unsaved)");
+			}
+
+			// レイヤーごと
+			int _deleteIdx = -1;
+			for (size_t _i = 0; _i < _maskVec.size(); ++_i)
+			{
+				auto& _mask = _maskVec[_i];
+				ImGui::PushID(static_cast<int>(_i));
+
+				const bool _isOpen = ImGui::TreeNodeEx("BoneMask", ImGuiTreeNodeFlags_AllowOverlap, "%s (%zu nodes)", _mask.name.c_str(), _mask.bones.size());
+
+				Engine::Editor::SameLine();
+				if (Engine::Editor::DeleteSmallButton("Delete"))
+				{
+					_deleteIdx = static_cast<int>(_i);
+				}
+
+				if (_isOpen)
+				{
+					// 名前 : 参照側はハッシュで引くので一緒に作り直す
+					if (Engine::Editor::Field("Name", _mask.name))
+					{
+						_mask.nameHash = Engine::String::ToHash(_mask.name);
+						_isChanged = true;
+					}
+					const auto _sameNameCount = std::count_if(_maskVec.begin(), _maskVec.end(),
+						[&](const Resource::BoneMask& a_other) { return a_other.name == _mask.name; });
+					if (_sameNameCount > 1)
+					{
+						Engine::Editor::WarningText("Name is duplicated. Only the first one is found.");
+					}
+					if (_mask.name.empty())
+					{
+						Engine::Editor::WarningText("Name is empty.");
+					}
+
+					// まとめて操作
+					if (Engine::Editor::SmallButton("Include All"))
+					{
+						for (auto _rootIdx : a_model.GetRootNodeVec())
+						{
+							ApplyToDescendants(_nodeVec, _mask, _rootIdx, 1.0f);
+						}
+						_isChanged = true;
+					}
+					Engine::Editor::SameLine();
+					if (Engine::Editor::SmallButton("Clear"))
+					{
+						_mask.bones.clear();
+						_isChanged = true;
+					}
+
+					// ノード階層
+					for (auto _rootIdx : a_model.GetRootNodeVec())
+					{
+						_isChanged |= DrawBoneMaskTree(_nodeVec, _mask, _rootIdx);
+					}
+
+					ImGui::TreePop();
+				}
+
+				ImGui::PopID();
+			}
+
+			if (_deleteIdx >= 0)
+			{
+				_maskVec.erase(_maskVec.begin() + _deleteIdx);
+				_isChanged = true;
+			}
+
+			if (_isChanged)
+			{
+				s_dirtyModelSet.insert(&a_model);
+			}
+		}
 	}
 
 	//-----------------------------------------------------------------------------------------
@@ -112,6 +379,7 @@ namespace Engine::Editor::Inspector
 		Engine::Editor::Value("Materials", "%zu", _assetData.materialGUIDs.size());
 		Engine::Editor::Value("Animations", "%zu", _assetData.animationGUIDs.size());
 		Engine::Editor::Value("Bones", "%zu", a_pModel->GetBoneNodeVec().size());
+		Engine::Editor::Value("Bone Layers", "%zu", a_pModel->GetBoneMaskVec().size());
 
 		Engine::Editor::Line();
 
@@ -125,6 +393,13 @@ namespace Engine::Editor::Inspector
 			{
 				DrawNodeTree(_nodeVec, _rootIdx);
 			}
+		}
+
+		// ---- ボーンレイヤー ----
+		// アニメーションレイヤリングで、重ねるアニメーターを効かせるノードのマスク
+		if (ImGui::CollapsingHeader("Bone Layers"))
+		{
+			DrawBoneMasks(a_editContext, *a_pModel);
 		}
 
 		// ---- アニメーション ----

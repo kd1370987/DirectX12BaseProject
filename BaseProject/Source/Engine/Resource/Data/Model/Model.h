@@ -47,26 +47,26 @@ namespace Engine::Resource
 		Engine::Resource::Alpha alphaMode;
 	};
 
-	// アニメーション用のボーンの集まり : 上下で違うアニメーターを起動させる際のマスク
-	enum class ELayerMask : uint32_t
-	{
-		Base,				// 全身
-		UpperBody,			// 上半身
-		LowerBody,			// 下半身
-
-		Count
-	};
-
+	// ボーンレイヤー1つ分の、ノード1つへの効き
 	struct BoneWeight
 	{
-		uint16_t boneIndex;
-		float weight;
+		uint16_t nodeIndex = 0;		// モデル内のノード番号(Node::boneIndex ではない)
+		float weight = 1.0f;		// 0〜1
 	};
 
+	// ボーンレイヤー : アニメーションレイヤリングで、上に重ねるアニメーターを
+	// どのノードへどれだけ効かせるかのマスク(上半身だけ別のアニメーション、など)。
+	// 参照する側は名前のハッシュで引く(並びが変わっても壊れないように)
 	struct BoneMask
 	{
-		std::vector<BoneWeight> bones;
+		std::string name;
+		UINT nameHash = 0;
+		std::vector<BoneWeight> bones;	// ノード番号の昇順。載っていないノードは重み0
 	};
+
+	// ボーンレイヤーの保存・読込(.mdl の末尾)
+	// 読込時は名前のハッシュも作り直す
+	void ArchiveBoneMasks(Persistence::Archive& a_ar, std::vector<BoneMask>& a_masks);
 
 	struct ModelAssetData
 	{
@@ -84,8 +84,8 @@ namespace Engine::Resource
 		std::vector<int> collisionMeshNodeIndices;
 		std::vector<int> drawMeshNodeIndices;
 
-		// アニメーション用マスク
-		std::array<BoneMask, static_cast<size_t>(ELayerMask::Count)> boneMasks;
+		// アニメーション用のボーンレイヤー
+		std::vector<BoneMask> boneMasks;
 	};
 
 	struct ModelRuntimeData
@@ -136,8 +136,12 @@ namespace Engine::Resource
 		const std::vector<int>& GetCollisionMeshNodeVec() const { return m_AssetData.collisionMeshNodeIndices; }
 		const std::vector<int>& GetDrawNodeVec() const { return m_AssetData.drawMeshNodeIndices; }
 
-		// アニメーション用マスクを返す
-		const BoneMask& GetBoneMask(ELayerMask a_laer) const;
+		// アニメーション用のボーンレイヤー
+		const std::vector<BoneMask>& GetBoneMaskVec() const { return m_AssetData.boneMasks; }
+		std::vector<BoneMask>& RefBoneMaskVec() { return m_AssetData.boneMasks; }		// エディターでの編集用
+
+		// 名前のハッシュからボーンレイヤーを引く。無ければ nullptr
+		const BoneMask* FindBoneMask(UINT a_nameHash) const;
 
 		// 描画時用コマンド取得
 		const std::vector<ModelDrawCommand>& GetDrawCommandVec() const { return m_runtimeData.drawCommands; }

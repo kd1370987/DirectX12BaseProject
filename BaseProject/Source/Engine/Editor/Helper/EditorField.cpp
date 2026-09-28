@@ -1186,6 +1186,60 @@ namespace Engine::Editor
 	}
 
 	//--------------------------------------------------------------------------------------
+	// モデルのボーンレイヤー
+	//--------------------------------------------------------------------------------------
+	bool ModelBoneMaskField(
+		const char* a_label,
+		const Resource::Model* a_pModel,
+		UINT& a_inoutNameHash
+	)
+	{
+		if (!a_pModel)
+		{
+			WarningText("Model Resource is null.");
+			return false;
+		}
+
+		// 現在の選択表示 : モデル側で消された・名前が変わったものは分かるようにする
+		const auto* _pCurrent = a_pModel->FindBoneMask(a_inoutNameHash);
+		std::string _preview = "None";
+		if (_pCurrent)                  { _preview = _pCurrent->name; }
+		else if (a_inoutNameHash != 0)  { _preview = "Missing (" + std::to_string(a_inoutNameHash) + ")"; }
+
+		bool _isChanged = false;
+
+		if (ComboScope _combo{ a_label, _preview.c_str() })
+		{
+			if (ImGui::Selectable("None", a_inoutNameHash == 0))
+			{
+				a_inoutNameHash = 0;
+				_isChanged = true;
+			}
+
+			const auto& _maskVec = a_pModel->GetBoneMaskVec();
+			for (size_t _i = 0; _i < _maskVec.size(); ++_i)
+			{
+				const auto& _mask = _maskVec[_i];
+				bool _isSelected = (a_inoutNameHash == _mask.nameHash);
+
+				ImGui::PushID(static_cast<int>(_i));
+				if (ImGui::Selectable(_mask.name.c_str(), _isSelected))
+				{
+					a_inoutNameHash = _mask.nameHash;
+					_isChanged = true;
+				}
+				if (_isSelected)
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+				ImGui::PopID();
+			}
+		}
+
+		return _isChanged;
+	}
+
+	//--------------------------------------------------------------------------------------
 	// モデルのアニメーション
 	//--------------------------------------------------------------------------------------
 	namespace

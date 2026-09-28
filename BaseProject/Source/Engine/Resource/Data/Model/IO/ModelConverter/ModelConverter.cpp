@@ -297,29 +297,64 @@ namespace Engine::Resource::Converter
 		auto _guid = a_resourceManager.GetCache(a_modelHandle.GetRaw());
 		auto _filePath = a_resourceManager.RefAssetDatabase().GetFilePathFromGUID(_guid);
 
-		auto _dir = Engine::File::GetDirFromPath(_filePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(_filePath);
+		WriteModelFile(_filePath, _saveAssetData);
+
+		return true;
+	}
+	bool ModelConverter::SaveModelAsset(ResourceManager& a_resourceManager, const Engine::GUID& a_guid)
+	{
+		auto _handle = a_resourceManager.GetCache<Model>(a_guid);
+		const auto* _pModel = a_resourceManager.Get(_handle);
+		if (!_pModel)
+		{
+			ENGINE_LOG("保存対象のモデル取得に失敗");
+			return false;
+		}
+
+		// gltf から読んだモデルは、サブアセットのGUIDがまだ無い。
+		// .mdl だけを書いても参照先が無いので、丸ごとコンバートする
+		const auto& _assetData = _pModel->GetAssestData();
+		const auto& _runtimeData = _pModel->GetRuntimeData();
+		const bool _isConverted =
+			_assetData.materialGUIDs.size() == _runtimeData.materials.size() &&
+			_assetData.meshGUIDs.size() == _runtimeData.meshes.size() &&
+			_assetData.animationGUIDs.size() == _runtimeData.animations.size();
+		if (!_isConverted)
+		{
+			return ConvertModelDataToBinary(a_resourceManager, a_guid);
+		}
+
+		auto _filePath = a_resourceManager.RefAssetDatabase().GetFilePathFromGUID(a_guid);
+		auto _saveAssetData = _assetData;
+		WriteModelFile(_filePath, _saveAssetData);
+		return true;
+	}
+	void ModelConverter::WriteModelFile(const std::string& a_filePath, ModelAssetData& a_asset)
+	{
+		auto _dir = Engine::File::GetDirFromPath(a_filePath);
+		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
 		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _dir, _fileName, "mdl");
-		_ar.StringField("ModelName", _saveAssetData.name);
+		_ar.StringField("ModelName", a_asset.name);
 
-		_ar.GUIDVectorField("MaterialGUID", _saveAssetData.materialGUIDs);
-		_ar.GUIDVectorField("MeshGUID", _saveAssetData.meshGUIDs);
-		_ar.GUIDVectorField("AnimationGUID", _saveAssetData.animationGUIDs);
+		_ar.GUIDVectorField("MaterialGUID", a_asset.materialGUIDs);
+		_ar.GUIDVectorField("MeshGUID", a_asset.meshGUIDs);
+		_ar.GUIDVectorField("AnimationGUID", a_asset.animationGUIDs);
 
-		UINT _nodeCount = _saveAssetData.originalNodes.size();
+		UINT _nodeCount = a_asset.originalNodes.size();
 		_ar.Field("NodeCount", _nodeCount);
 		for (UINT _i = 0; _i < _nodeCount; ++_i)
 		{
-			_saveAssetData.originalNodes[_i].Archive(_ar, _i);
+			a_asset.originalNodes[_i].Archive(_ar, _i);
 		}
 
-		_ar.VectorField("RootNodeIndices", _saveAssetData.rootNodeIndices);
-		_ar.VectorField("BoneNodeIndices", _saveAssetData.boneNodeIndices);
-		_ar.VectorField("MeshNodeIndices", _saveAssetData.meshNodeIndices);
-		_ar.VectorField("CollisionMeshNodeIndices", _saveAssetData.collisionMeshNodeIndices);
-		_ar.VectorField("DrawMeshNodeIndices", _saveAssetData.drawMeshNodeIndices);
+		_ar.VectorField("RootNodeIndices", a_asset.rootNodeIndices);
+		_ar.VectorField("BoneNodeIndices", a_asset.boneNodeIndices);
+		_ar.VectorField("MeshNodeIndices", a_asset.meshNodeIndices);
+		_ar.VectorField("CollisionMeshNodeIndices", a_asset.collisionMeshNodeIndices);
+		_ar.VectorField("DrawMeshNodeIndices", a_asset.drawMeshNodeIndices);
 
-		return true;
+		// ModelIO::Load と同じ順で、末尾に書く
+		ArchiveBoneMasks(_ar, a_asset.boneMasks);
 	}
 	void ModelConverter::ConvertMaterialToBinary(ResourceManager& a_resourceManager, const std::string& a_basePath, ModelAssetData& a_asset,const ModelRuntimeData& a_runtime)
 	{

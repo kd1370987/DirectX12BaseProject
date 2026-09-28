@@ -79,6 +79,13 @@ namespace Engine::Resource
 		_ar.VectorField("CollisionMeshNodeIndices", _assetData.collisionMeshNodeIndices);
 		_ar.VectorField("DrawMeshNodeIndices", _assetData.drawMeshNodeIndices);
 
+		// ボーンレイヤー : ノードの範囲外を指すものは捨てる
+		ArchiveBoneMasks(_ar, _assetData.boneMasks);
+		for (auto& _mask : _assetData.boneMasks)
+		{
+			std::erase_if(_mask.bones, [&](const BoneWeight& a_bone) { return a_bone.nodeIndex >= _nodeCount; });
+		}
+
 		ModelRuntimeData _runtimeData = {};
 
 		// ---- 参照しているデータの復元 ----

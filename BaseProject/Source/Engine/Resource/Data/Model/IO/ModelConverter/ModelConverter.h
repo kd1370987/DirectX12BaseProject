@@ -36,7 +36,16 @@ namespace Engine::Resource::Converter
 		static bool ConvertModelDataToBinary(ResourceManager& a_resourceManager, const Engine::GUID& a_guid);			// guidから
 		static bool ConvertModelDataToBinary(ResourceManager& a_resourceManager, const ResourceRef<Model>& a_modelHandle);	// ハンドルから
 
+		/// <summary>
+		/// 読み込み済みのモデルの .mdl だけを書き直す(ボーンレイヤーの編集結果など)。
+		/// サブアセットが未コンバート(gltf から読んだまま)なら ConvertModelDataToBinary に任せる
+		/// </summary>
+		static bool SaveModelAsset(ResourceManager& a_resourceManager, const Engine::GUID& a_guid);
+
 	private:
+
+		// .mdl の書き出し : 並びは ModelIO::Load と揃えること
+		static void WriteModelFile(const std::string& a_filePath, ModelAssetData& a_asset);
 
 		// binaryにコンバート
 		static void ConvertMaterialToBinary(ResourceManager& a_resourceManager, const std::string& a_basePath,ModelAssetData& a_asset,const ModelRuntimeData& a_runtime);

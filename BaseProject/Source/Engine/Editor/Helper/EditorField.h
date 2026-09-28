@@ -394,6 +394,13 @@ namespace Engine::Editor
 		UINT& a_inoutNodeNameHash
 	);
 
+	// モデルが持つボーンレイヤーを名前のハッシュで選択する(0 は未選択)
+	bool ModelBoneMaskField(
+		const char* a_label,
+		const Resource::Model* a_pModel,
+		UINT& a_inoutNameHash
+	);
+
 	// モデルが持つアニメーションを選択する
 	bool ModelAnimationField(
 		const ECS::EngineServices& a_services,

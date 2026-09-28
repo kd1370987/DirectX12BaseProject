@@ -93,7 +93,9 @@ namespace Engine::Resource
 		_ar.VectorField("MeshNodeIndices", m_AssetData.meshNodeIndices);
 		_ar.VectorField("CollisionMeshNodeIndices", m_AssetData.collisionMeshNodeIndices);
 		_ar.VectorField("DrawMeshNodeIndices", m_AssetData.drawMeshNodeIndices);
-		
+
+		ArchiveBoneMasks(_ar, m_AssetData.boneMasks);
+
 	}
 	void Model::Release()
 	{
@@ -129,8 +131,50 @@ namespace Engine::Resource
 		// 見つからなかった場合
 		return Handle<AnimationData>();
 	}
-	const BoneMask& Model::GetBoneMask(ELayerMask a_laer) const
+	const BoneMask* Model::FindBoneMask(UINT a_nameHash) const
 	{
-		return m_AssetData.boneMasks[static_cast<size_t>(a_laer)];
+		for (const auto& _mask : m_AssetData.boneMasks)
+		{
+			if (_mask.nameHash == a_nameHash) return &_mask;
+		}
+		return nullptr;
+	}
+
+	void ArchiveBoneMasks(Persistence::Archive& a_ar, std::vector<BoneMask>& a_masks)
+	{
+		// 追加前に書き出された .mdl は末尾にこのデータが無い。
+		// そのときは要素数が読めず 0 のままなので、レイヤー無しとして読まれる
+		size_t _maskCount = a_ar.IsLoading() ? 0 : a_masks.size();
+		if (!a_ar.BeginArray("BoneMasks", _maskCount)) return;
+
+		a_masks.resize(_maskCount);
+		for (size_t _i = 0; _i < _maskCount; ++_i)
+		{
+			if (!a_ar.BeginObject(_i)) continue;
+
+			auto& _mask = a_masks[_i];
+			a_ar.StringField("Name", _mask.name);
+
+			size_t _boneCount = a_ar.IsLoading() ? 0 : _mask.bones.size();
+			if (a_ar.BeginArray("Bones", _boneCount))
+			{
+				_mask.bones.resize(_boneCount);
+				for (size_t _j = 0; _j < _boneCount; ++_j)
+				{
+					if (!a_ar.BeginObject(_j)) continue;
+					a_ar.Field("NodeIndex", _mask.bones[_j].nodeIndex);
+					a_ar.Field("Weight", _mask.bones[_j].weight);
+					a_ar.EndObject();
+				}
+				a_ar.EndArray();
+			}
+
+			if (a_ar.IsLoading())
+			{
+				_mask.nameHash = Engine::String::ToHash(_mask.name);
+			}
+			a_ar.EndObject();
+		}
+		a_ar.EndArray();
 	}
 }
