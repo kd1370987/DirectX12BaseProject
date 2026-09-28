@@ -3,10 +3,9 @@ namespace Math::Random
 {
 	// ランダム数値生成用エンジン
 	//
-	// ※ スレッドセーフではない。プロセスで1つを共有しているので、
-	//   複数スレッドから同時に引くなら別途エンジンを分けること。
-	//   今の呼び出し元(ECSのシステム)はシングルスレッドで回るため問題にならない。
-	inline std::mt19937 s_engine{ std::random_device{}() };
+	// スレッドごとに1つ持つ(初めて引いたときに種を取る)。
+	// ECS のシステムはジョブとしてワーカーでも回るので、共有の1つだと同時に引いたときに壊れる
+	inline thread_local std::mt19937 s_engine{ std::random_device{}() };
 
 	// int , float チェック : bool 除去
 	template<typename T>

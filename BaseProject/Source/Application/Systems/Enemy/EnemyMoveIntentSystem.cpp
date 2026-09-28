@@ -34,7 +34,9 @@
 //==============================================================================
 void EnemyMoveIntentSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const TargetEntityComponent, PatrolComponent, const LocalTransformComponent, MoveIntentComponent>(
+	// 自分のチャンクの値だけを書く(ターゲットは RefData で読むだけ)ので、ワーカーで回す。
+	// 徘徊の向きに使う Math::Random はスレッドごとにエンジンを持つので、ジョブから引いてよい
+	a_world.ActiveJobTask<const TargetEntityComponent, PatrolComponent, const LocalTransformComponent, MoveIntentComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"EnemyMoveIntentSystem",
 		[](

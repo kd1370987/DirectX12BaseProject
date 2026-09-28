@@ -21,7 +21,8 @@
 //==========================================================================================
 void ParticleEmitSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<ParticlesComponent>(
+	// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
+	a_world.ActiveJobTask<ParticlesComponent>(
 		Engine::ECS::ESystemType::Update,
 		"ParticleEmitSystem",
 		[]

@@ -41,7 +41,8 @@ namespace
 
 void RadialBlurSpeedSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const TPSCameraStateComponent, RadialBlurComponent>(
+	// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
+	a_world.ActiveJobTask<const TPSCameraStateComponent, RadialBlurComponent>(
 		Engine::ECS::ESystemType::Camera,
 		"RadialBlurSpeedSystem",
 		[](

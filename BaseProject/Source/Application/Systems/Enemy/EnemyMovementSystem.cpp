@@ -22,7 +22,8 @@
 //==============================================================================
 void EnemyMovementSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const MoveIntentComponent, const PatrolComponent, const MovementParamsComponent,
+	// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
+	a_world.ActiveJobTask<const MoveIntentComponent, const PatrolComponent, const MovementParamsComponent,
 		DesiredVelocityComponent>(
 		Engine::ECS::ESystemType::Update,
 		"EnemyMovementSystem",

@@ -5,7 +5,8 @@
 
 void CollisionEventClearSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<Engine::ECS::CollisionEvent>(
+	// 自分のチャンクの配列を消すだけ(ボイド数千体ぶん)なので、ワーカーで回す
+	a_world.ActiveJobTask<Engine::ECS::CollisionEvent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"CollisionEventClearSystem",
 		[](

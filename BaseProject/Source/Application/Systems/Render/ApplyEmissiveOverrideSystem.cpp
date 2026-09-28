@@ -19,7 +19,8 @@
 //==========================================================================================
 void ApplyEmissiveOverrideSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const EmissiveOverrideComponent, ModelComponent>(
+	// 自分のチャンクの配列だけを書く(ボイド数千体ぶん)ので、チャンクを分けてワーカーで回す
+	a_world.ActiveJobTask<const EmissiveOverrideComponent, ModelComponent>(
 		Engine::ECS::ESystemType::PreDraw,
 		"ApplyEmissiveOverrideSystem",
 		[](

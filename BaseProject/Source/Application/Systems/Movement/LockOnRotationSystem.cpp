@@ -83,7 +83,8 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 	//==========================================================================
 	// 攻撃入力を持つプレイヤー(本命)
 	//==========================================================================
-	a_world.ActiveTask<
+	// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
+	a_world.ActiveJobTask<
 		const PlayerControllTag,
 		const ActionIntentComponent,
 		const LookAngleComponent,
@@ -208,7 +209,7 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 	// RotationSystem が PlayerControllTag を除外している以上、
 	// ここで拾わないと一切旋回しなくなってしまう。
 	//==========================================================================
-	a_world.ActiveTask<
+	a_world.ActiveJobTask<
 		const PlayerControllTag,
 		const DesiredVelocityComponent,
 		LocalTransformComponent>(

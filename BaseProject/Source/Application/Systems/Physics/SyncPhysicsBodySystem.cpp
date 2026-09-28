@@ -13,8 +13,10 @@
 
 void SyncPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 {
-	// 対象は動的レイヤーのコライダー(+ モデル + トランスフォーム)
-	a_world.ActiveTask<const ColliderComponent, const ModelComponent, const LocalTransformComponent>(
+	// 対象は動的レイヤーのコライダー(+ モデル + トランスフォーム)。
+	// ボイドの群れで数千体あり、1体ずつ別々のボディを動かすだけ(PhysicsWorld::SetBodyTransform は
+	// ボディごとにロックを取る)なので、チャンクを分けてワーカーで回す
+	a_world.ActiveJobTask<const ColliderComponent, const ModelComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,
 		"SyncPhysicsBodySystem",
 		[]
@@ -28,7 +30,6 @@ void SyncPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 			const LocalTransformComponent*		// 行列は親を辿って組むのでここでは使わない
 			)
 		{
-			ENGINE_PROFILE_SCOPE("Physics_SyncDynamic");
 			auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)

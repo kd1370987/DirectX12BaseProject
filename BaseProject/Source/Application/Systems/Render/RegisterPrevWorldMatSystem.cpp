@@ -11,7 +11,8 @@
 
 void RegisterPrevWorldMatSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const WorldMatrixComponent, PreviousWorldMatrixComponent>(
+	// 自分のチャンクの行列を写すだけ(ボイド数千体ぶん)なので、ワーカーで回す
+	a_world.ActiveJobTask<const WorldMatrixComponent, PreviousWorldMatrixComponent>(
 		Engine::ECS::ESystemType::PostDraw,
 		"RegisterPrevWorldMatSystem",
 		[]

@@ -79,7 +79,8 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 	//--------------------------------------------------------------------------
 	// リーダー : 進んでいる向きへ
 	//--------------------------------------------------------------------------
-	a_world.ActiveTask<const BoidLeaderComponent, const ActualVelocityComponent, LookAngleComponent>(
+	// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
+	a_world.ActiveJobTask<const BoidLeaderComponent, const ActualVelocityComponent, LookAngleComponent>(
 		Engine::ECS::ESystemType::Update,
 		"SwarmLookSystem_Leader",
 		[](
@@ -104,7 +105,8 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 	//--------------------------------------------------------------------------
 	// 小隊長 : 進んでいる向きへ
 	//--------------------------------------------------------------------------
-	a_world.ActiveTask<const PlatoonLeaderComponent, const ActualVelocityComponent, LookAngleComponent>(
+	// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
+	a_world.ActiveJobTask<const PlatoonLeaderComponent, const ActualVelocityComponent, LookAngleComponent>(
 		Engine::ECS::ESystemType::Update,
 		"SwarmLookSystem_Platoon",
 		[](

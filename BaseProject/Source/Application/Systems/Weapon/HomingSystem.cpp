@@ -38,7 +38,8 @@
 //==============================================================================
 void HomingSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<HomingComponent, DesiredVelocityComponent, const LocalTransformComponent>(
+	// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
+	a_world.ActiveJobTask<HomingComponent, DesiredVelocityComponent, const LocalTransformComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"HomingSystem",
 		[](

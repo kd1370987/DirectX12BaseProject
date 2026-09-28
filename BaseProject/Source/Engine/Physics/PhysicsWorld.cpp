@@ -554,11 +554,13 @@ namespace Engine::Physics
 
 		const JPH::BodyID _id(a_handle.id);
 
-		// 持ち主の照合と、今の拡大率の読み取り
+		// 持ち主の照合と、今の拡大率の読み取り。
+		// SyncPhysicsBodySystem がチャンクを分けて同時に呼ぶので、ここはロックを取る窓口を使う
+		// (ボディごとのロックなので、別々のボディ同士は待ち合わない)
 		JPH::RefConst<JPH::Shape> _innerShape;
 		bool _isScaleChanged = false;
 		{
-			JPH::BodyLockRead _lock(m_upPhysicsSystem->GetBodyLockInterfaceNoLock(), _id);
+			JPH::BodyLockRead _lock(m_upPhysicsSystem->GetBodyLockInterface(), _id);
 			if (!_lock.Succeeded()) return;
 			const JPH::Body& _body = _lock.GetBody();
 			if (_body.GetUserData() != static_cast<JPH::uint64>(a_owner)) return;
@@ -577,7 +579,7 @@ namespace Engine::Physics
 			if (_isScaleChanged) _innerShape = _pShape;
 		}
 
-		JPH::BodyInterface& _bodyInterface = m_upPhysicsSystem->GetBodyInterfaceNoLock();
+		JPH::BodyInterface& _bodyInterface = m_upPhysicsSystem->GetBodyInterface();
 
 		// 拡大率が変わったときだけ形状を被せ直す(ほとんどのフレームは位置と向きだけ)
 		if (_isScaleChanged)
@@ -626,6 +628,9 @@ namespace Engine::Physics
 	bool PhysicsWorld::CastRay(const Math::Ray& a_ray, uint32_t a_queryMask, ECS::Entity a_ignore, RayHit& a_outHit) const
 	{
 		if (!m_upPhysicsSystem) return false;
+		// 当たりに行く相手が1つも無い(ボイドの球のように「当てられる側」だけのもの)。
+		// ブロードフェーズを辿るだけ無駄なので、Jolt へ行く前に抜ける
+		if (a_queryMask == 0) return false;
 
 		// NaN や長さ0の方向で Jolt の中まで行かせない(カメラ行列などから NaN が流れ込むことがある)
 		if (!IsFinite(a_ray.origin) || !IsFinite(a_ray.direction)) return false;
@@ -670,6 +675,9 @@ namespace Engine::Physics
 	{
 		a_outCorrection = {};
 		if (!m_upPhysicsSystem) return false;
+		// 当たりに行く相手が1つも無い(ボイドの球のように「当てられる側」だけのもの)。
+		// ブロードフェーズを辿るだけ無駄なので、Jolt へ行く前に抜ける
+		if (a_queryMask == 0) return false;
 		if (!(a_radius > 0.0f) || !IsFinite(a_pointA) || !IsFinite(a_pointB)) return false;
 
 		// めり込みの許容と、離しきるための余白
@@ -755,6 +763,9 @@ namespace Engine::Physics
 		uint32_t a_queryMask, ECS::Entity a_ignore, ECS::Entity a_ignore2, ShapeHit& a_outHit) const
 	{
 		if (!m_upPhysicsSystem) return false;
+		// 当たりに行く相手が1つも無い(ボイドの球のように「当てられる側」だけのもの)。
+		// ブロードフェーズを辿るだけ無駄なので、Jolt へ行く前に抜ける
+		if (a_queryMask == 0) return false;
 		if (!(a_radius > 0.0f) || !IsFinite(a_from) || !IsFinite(a_to)) return false;
 
 		JPH::SphereShape _sphere(a_radius);
@@ -798,6 +809,9 @@ namespace Engine::Physics
 		uint32_t a_queryMask, ECS::Entity a_ignore, ECS::Entity a_ignore2, ShapeHit& a_outHit) const
 	{
 		if (!m_upPhysicsSystem) return false;
+		// 当たりに行く相手が1つも無い(ボイドの球のように「当てられる側」だけのもの)。
+		// ブロードフェーズを辿るだけ無駄なので、Jolt へ行く前に抜ける
+		if (a_queryMask == 0) return false;
 		if (!(a_radius > 0.0f) || !IsFinite(a_center)) return false;
 
 		JPH::SphereShape _sphere(a_radius);

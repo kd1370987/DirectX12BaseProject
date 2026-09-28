@@ -7,7 +7,8 @@
 
 void StateMachineCommitSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<StateMachineComponent>(
+	// 自分のチャンクのステートだけを書く(定義とインスタンスは読むだけ)ので、ワーカーで回す
+	a_world.ActiveJobTask<StateMachineComponent>(
 		Engine::ECS::ESystemType::Update,
 		"StateMachineCommitSystem",
 		[]
@@ -59,5 +60,7 @@ void StateMachineCommitSystem::Init(App::ECS::APPWorld& a_world)
 				}
 			}
 		}
-	);
+	)
+	// 遷移の条件に使うインスタンスの値を読む
+	.ReadsResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
 }

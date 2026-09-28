@@ -21,7 +21,8 @@
 //==========================================================================================
 void SelfWeaponTriggerSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const ActionIntentComponent, WeaponTriggerComponent>(
+	// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
+	a_world.ActiveJobTask<const ActionIntentComponent, WeaponTriggerComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"SelfWeaponTriggerSystem",
 		[](

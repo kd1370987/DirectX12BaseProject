@@ -30,7 +30,8 @@
 //==============================================================================
 void FaceTargetSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const TargetEntityComponent, LocalTransformComponent>(
+	// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
+	a_world.ActiveJobTask<const TargetEntityComponent, LocalTransformComponent>(
 		Engine::ECS::ESystemType::Update,
 		"FaceTargetSystem",
 		[](
