@@ -8,7 +8,7 @@
 #include "Application/Components/Movement/MovementParamsComponent.h"
 #include "Application/Components/Movement/LookAngleComponent.h"
 
-#include "Application/Components/Animation/StateMachineComponent.h"
+#include "Application/Components/Animation/AnimatorComponent.h"
 
 //==============================================================================
 // CharacterMovementSystem
@@ -17,15 +17,15 @@
 //
 // ・移動速度は MovementParamsComponent.moveSpeed。加速度/減速度で実速度へ均すのは
 //   MovementIntegrationSystem(Physics 帯)の担当なので、ここは目標値を作るだけ。
-// ・StateMachineComponent は中身を使わず、対象の絞り込みにだけ使っている
-//   (群れのリーダーのように、視点角と移動入力を持つがステートマシンを持たないものを外すため)。
+// ・AnimatorComponent は中身を使わず、対象の絞り込みにだけ使っている
+//   (群れのリーダーのように、視点角と移動入力を持つがアニメーターを持たないものを外すため)。
 //   書かないので const。書き込み扱いにすると、使ってもいないのに依存の辺が張られて循環の元になる
 //==============================================================================
 void CharacterMovementSystem::Init(App::ECS::APPWorld& a_world)
 {
 	// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
 	a_world.ActiveJobTask<const LookAngleComponent, const MoveIntentComponent, const MovementParamsComponent,
-		DesiredVelocityComponent, const StateMachineComponent>(
+		DesiredVelocityComponent, const AnimatorComponent>(
 		Engine::ECS::ESystemType::Update,
 		"CharacterMovementSystem",
 		[]
@@ -38,7 +38,7 @@ void CharacterMovementSystem::Init(App::ECS::APPWorld& a_world)
 			const MoveIntentComponent* a_intentArray,
 			const MovementParamsComponent* a_movementArray,
 			DesiredVelocityComponent* a_velArray,
-			const StateMachineComponent*		// 絞り込みにだけ使う
+			const AnimatorComponent*		// 絞り込みにだけ使う
 			)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)

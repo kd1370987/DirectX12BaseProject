@@ -3,13 +3,13 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Core/PhaseTag/PostDeserializeTag.h"
-#include "Application/Components/Animation/StateMachineComponent.h"
+#include "Application/Components/Animation/AnimatorComponent.h"
 
 #include "Engine/Resource/Data/AnimatorAsset/AnimatorAsset.h"
 
 void StateMachineFixupSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.PostDeserializeTask<StateMachineComponent>(
+	a_world.PostDeserializeTask<AnimatorComponent>(
 		Engine::ECS::ESystemType::PostDeserialize,
 		"StateMachineFixupSystem",
 		[]
@@ -18,25 +18,41 @@ void StateMachineFixupSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			PostDeserializeTag* a_tag,
-			StateMachineComponent* a_stateMachinArray
+			AnimatorComponent* a_animatorArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				StateMachineComponent& _smComp = a_stateMachinArray[_i];
+				AnimatorLayer& _layer = a_animatorArray[_i].baseLayer;
 
-				// モデルをGUIDから取得してロードした結果のハンドルを取得
-				if (_smComp.stateMachineGUID != Engine::DefaultGUID)
+				// 入り直し(設計図の差し替えなど)に備えて、ステートは最初からやり直す。
+				// 前の設計図のステートのハッシュが残っていると、新しい設計図では引けない
+				_layer.prevStateHash = 0;
+				_layer.currentStateHash = 0;
+				_layer.stateTime = 0.0f;
+				_layer.clipTime = 0.0f;
+
+				// 設計図をGUIDから取得してロードした結果のハンドルを取得
+				if (_layer.animatorGUID != Engine::DefaultGUID)
 				{
-					// ステートマシンロード
+					// 設計図ロード
 					a_ctx.pServices->pResourceManager->AcquireImmediate(
-						_smComp.stateMachineHandle, _smComp.stateMachineGUID);
+						_layer.animatorHandle, _layer.animatorGUID);
 
-					// インスタンス確保
-					 auto& _stateInstancePool = 
-						 a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
-					 Engine::Resource::StateMachineInstance _instance = {};
-					 _smComp.instanceHandle = _stateInstancePool.Add(std::move(_instance));
+					// パラメータの実体。
+					// 入り直しで前の実体がまだ残っていれば(Release フェーズを通らなかった)、
+					// 作り直さずに中身だけ初期化して使い回す
+					auto& _stateInstancePool =
+						a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
+					if (auto* _pInstance = _stateInstancePool.Ref(_layer.instanceHandle))
+					{
+						*_pInstance = {};
+					}
+					else
+					{
+						Engine::Resource::StateMachineInstance _instance = {};
+						_layer.instanceHandle = _stateInstancePool.Add(std::move(_instance));
+					}
 				}
 			}
 		}

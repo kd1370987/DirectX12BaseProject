@@ -1551,9 +1551,6 @@
     <ClCompile Include="Source\Application\Systems\Weapon\ProjectileSpawn.cpp">
       <Filter>Source\Application\Systems\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Animation\AnimationStateSystem.cpp">
-      <Filter>Source\Application\Systems\Animation</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Camera\AimTargetSystem.cpp">
       <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
@@ -2475,6 +2472,9 @@
     <ClCompile Include="Source\Application\Systems\Weapon\MuzzleFlashSystem.cpp">
       <Filter>Source\Application\Systems\Weapon</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\AnimatorFreeSystem.cpp">
+      <Filter>Source\Application\Systems\Animation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.h">
@@ -2728,9 +2728,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Audio\SoundComponent.h">
       <Filter>Source\Application\Components\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Components\Animation\StateMachineComponent.h">
-      <Filter>Source\Application\Components\Animation</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Render\UIComponent.h">
       <Filter>Source\Application\Components\Render</Filter>
@@ -3010,9 +3007,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Weapon\ProjectileSpawn.h">
       <Filter>Source\Application\Systems\Weapon</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Animation\AnimationStateSystem.h">
-      <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Camera\AimTargetSystem.h">
       <Filter>Source\Application\Systems\Camera</Filter>
@@ -4351,6 +4345,12 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Boss\BossCommandComponent.h">
       <Filter>Source\Application\Components\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Animation\AnimatorFreeSystem.h">
+      <Filter>Source\Application\Systems\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Render\DynamicRaytracingComponent.h">
+      <Filter>Source\Application\Components\Render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

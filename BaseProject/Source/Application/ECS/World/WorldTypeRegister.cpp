@@ -31,13 +31,13 @@
 #include "Application/Components/Physics/RayCollider.h"
 #include "Application/Components/Render/ModelComponent.h"
 #include "Application/Components/Render/EmissiveOverrideComponent.h"
+#include "Application/Components/Render/DynamicRaytracingComponent.h"
 #include "Application/Components/Physics/GroundStateComponent.h"
 #include "Application/Components/Boid/BoidWaveStateComponent.h"
 #include "Application/Components/Animation/AnimatorComponent.h"
 #include "Application/Components/Animation/SkeletonPoseComponent.h"
 #include "Application/Components/Animation/NodePoseComponent.h"
 #include "Application/Components/Render/UIComponent.h"
-#include "Application/Components/Animation/StateMachineComponent.h"
 #include "Application/Components/Core/GUIDComponent.h"
 #include "Application/Components/Core/NameComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
@@ -127,11 +127,11 @@
 #include "Application/Systems/Render/AnimationOptionalDraw.h"
 #include "Application/Systems/Render/RegisterRayWorldSystem.h"
 #include "Application/Systems/Animation/AnimationMatrixFreeSystem.h"
+#include "Application/Systems/Animation/AnimatorFreeSystem.h"
 #include "Application/Systems/Render/RegisterPrevWorldMatSystem.h"
 #include "Application/Systems/Animation/StateMachineFixupSystem.h"
 #include "Application/Systems/Animation/StateMachineCommitSystem.h"
 #include "Application/Systems/Animation/PlayerIntentSystem.h"
-#include "Application/Systems/Animation/AnimationStateSystem.h"
 #include "Application/Systems/Movement/RobotBoostSystem.h"
 #include "Application/Systems/Movement/ChargeDashSystem.h"
 #include "Application/Systems/Effect/EmitParticlesSystem.h"
@@ -273,7 +273,6 @@ namespace App::ECS
 		// 出現させた側(SceneSequence)の印。ウェーブの全滅判定に使う
 		a_world.RegisterComponent<SpawnerComponent>("SpawnerComponent");
 		a_world.RegisterComponent<FollowAnimationNodeComponent>("FollowAnimationNodeComponent");
-		a_world.RegisterComponent<StateMachineComponent>("StateMachineComponent");
 		a_world.RegisterComponent<MoveIntentComponent>("MoveIntentComponent");
 		a_world.RegisterComponent<PreviousWorldMatrixComponent>("PreviousWorldMatrixComponent");
 		// ブーストの設定(保存)と、入力・状態(設定の必須コンポーネント)
@@ -369,6 +368,8 @@ namespace App::ECS
 		a_world.RegisterComponent<BoidWaveStateComponent>("BoidWaveStateComponent");
 		// 実行中の発光の差し替え。ModelComponent へ写すのは ApplyEmissiveOverrideSystem
 		a_world.RegisterComponent<EmissiveOverrideComponent>("EmissiveOverrideComponent");
+		// アニメーションするモデルのレイトレ用インスタンス(AnimatorComponent から分けた)
+		a_world.RegisterComponent<DynamicRaytracingComponent>("DynamicRaytracingComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -436,7 +437,6 @@ namespace App::ECS
 		a_world.RegisterSystem<FaceTargetSystem>();
 		// 見失い探索中の旋回。視認中(FaceTargetSystem)とは条件が排他
 		a_world.RegisterSystem<LookAroundSystem>();
-		a_world.RegisterSystem<AnimationStateSystem>();
 		a_world.RegisterSystem<AnimationSystem>();
 		// AnimationSystem がバインドポーズでリセットした後、
 		// CalcNodeSystem が local→world を組む前に加算する必要がある
@@ -484,6 +484,7 @@ namespace App::ECS
 		a_world.RegisterSystem<BoosterEffectSystem>();
 		a_world.RegisterSystem<EffectDrawSystem>();
 		a_world.RegisterSystem<AnimationMatrixFreeSystem>();
+		a_world.RegisterSystem<AnimatorFreeSystem>();
 		a_world.RegisterSystem<AdditivePoseFreeSystem>();
 		a_world.RegisterSystem<SoundFreeSystem>();
 		a_world.RegisterSystem<PhysicsBodyFreeSystem>();

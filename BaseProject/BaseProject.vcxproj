@@ -367,7 +367,6 @@
     <ClCompile Include="Source\Application\Systems\Animation\AnimationMatrixFreeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Audio\SoundFreeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Physics\PhysicsBodyFreeSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\AnimationStateSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Camera\AimTargetSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Camera\TPSSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Camera\CameraProjUpdateSystem.cpp" />
@@ -847,6 +846,7 @@
     <ClCompile Include="Source\Application\Systems\Weapon\GunTriggerSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Weapon\GunProjectileSpawnSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Weapon\MuzzleFlashSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Animation\AnimatorFreeSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Engine\Editor\EditorPCH.h" />
@@ -947,7 +947,6 @@
     <ClInclude Include="Source\Application\Components\Animation\NodePoseComponent.h" />
     <ClInclude Include="Source\Application\Components\Effect\ParticlesComponent.h" />
     <ClInclude Include="Source\Application\Components\Animation\SkeletonPoseComponent.h" />
-    <ClInclude Include="Source\Application\Components\Animation\StateMachineComponent.h" />
     <ClInclude Include="Source\Application\Components\Render\UIComponent.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraControllTag.h" />
     <ClInclude Include="Source\Application\Components\Camera\CameraTag.h" />
@@ -1016,7 +1015,6 @@
     <ClInclude Include="Source\Application\Systems\Animation\AnimationMatrixFreeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Audio\SoundFreeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Physics\PhysicsBodyFreeSystem.h" />
-    <ClInclude Include="Source\Application\Systems\Animation\AnimationStateSystem.h" />
     <ClInclude Include="Source\Application\Systems\Camera\AimTargetSystem.h" />
     <ClInclude Include="Source\Application\Systems\Camera\TPSSystem.h" />
     <ClInclude Include="Source\Application\Systems\Camera\CameraProjUpdateSystem.h" />
@@ -1474,6 +1472,8 @@
     <ClInclude Include="Source\Application\Components\Boss\BossParamsComponent.h" />
     <ClInclude Include="Source\Application\Components\Boss\BossBrainStateComponent.h" />
     <ClInclude Include="Source\Application\Components\Boss\BossCommandComponent.h" />
+    <ClInclude Include="Source\Application\Systems\Animation\AnimatorFreeSystem.h" />
+    <ClInclude Include="Source\Application\Components\Render\DynamicRaytracingComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Asset\Shader\Source\Lighting\Sky\SkyShader.hlsl" />

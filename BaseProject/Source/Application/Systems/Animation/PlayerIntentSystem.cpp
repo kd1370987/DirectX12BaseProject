@@ -2,7 +2,7 @@
 #include "Application/ECS/World/APPWorld.h"
 #include "Application/Components/Movement/MoveIntentComponent.h"
 #include "Application/Components/Combat/ActionIntentComponent.h"
-#include "Application/Components/Animation/StateMachineComponent.h"
+#include "Application/Components/Animation/AnimatorComponent.h"
 #include "Application/Components/Movement/BoostParamsComponent.h"
 #include "Application/Components/Physics/GroundStateComponent.h"
 
@@ -18,12 +18,12 @@
 // プログラム側から足したパラメータもそのままエディターの一覧に出る。
 // (定義済みならエディターで設定した型/デフォルト値をそのまま使う)
 //
-// StateMachineComponent はハンドルを読むだけなので const。
+// AnimatorComponent はハンドルを読むだけなので const。
 // 値を書き込むのはハンドルの先のインスタンス(プール)で、コンポーネント自体は触らない
 //==========================================================================================
 void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const MoveIntentComponent, const BoostParamsComponent, const StateMachineComponent>(
+	a_world.ActiveTask<const MoveIntentComponent, const BoostParamsComponent, const AnimatorComponent>(
 		Engine::ECS::ESystemType::PreUpdate,
 		"PlayerIntentSystem",
 		[]
@@ -34,7 +34,7 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 			ActiveTag* a_tags,
 			const MoveIntentComponent* a_moveIntentArray,
 			const BoostParamsComponent* a_boostComp,
-			const StateMachineComponent* a_smArray
+			const AnimatorComponent* a_animatorArray
 			)
 		{
 			// 毎フレーム計算するのは無駄なので、パラメータ名のハッシュ値はstaticで保持しておく
@@ -47,16 +47,16 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				const MoveIntentComponent& _intentComp = a_moveIntentArray[_i];
 				const BoostParamsComponent& _boostComp = a_boostComp[_i];
-				const StateMachineComponent& _smComp = a_smArray[_i];
+				const AnimatorComponent& _animComp = a_animatorArray[_i];
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
 				// インスタンスの実体を取得
 				auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
-				auto* _pInstance = _stateInstancePool.Ref(_smComp.instanceHandle);
+				auto* _pInstance = _stateInstancePool.Ref(_animComp.baseLayer.instanceHandle);
 				if (!_pInstance) continue;
 
 				// 設計図(パラメータ定義を足すので Ref で可変参照を取る)
-				auto* _pAnimator = a_ctx.pServices->pResourceManager->Ref(_smComp.stateMachineHandle);
+				auto* _pAnimator = a_ctx.pServices->pResourceManager->Ref(_animComp.baseLayer.animatorHandle);
 				if (!_pAnimator) continue;
 
 				// 移動量から「Speed」パラメータを計算して登録

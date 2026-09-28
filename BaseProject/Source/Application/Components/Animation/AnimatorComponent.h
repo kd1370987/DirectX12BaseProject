@@ -1,72 +1,124 @@
-﻿#pragma once
+#pragma once
 
 #include "Engine/ECS/World/World.h"
-#include "Application/Components/Render/ModelComponent.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
+#include "Engine/Editor/Helper/EditorField.inl"
 
+#include "NodePoseComponent.h"
+#include "SkeletonPoseComponent.h"
+#include "Application/Components/Render/DynamicRaytracingComponent.h"
+
+namespace Engine::Resource
+{
+	class AnimatorAsset;
+}
+
+//==========================================================================================
+// AnimatorLayer
+//
+// アニメーター(設計図 = AnimatorAsset)1枚ぶんの実行中の状態。
+//
+// ・ステートの遷移は StateMachineCommitSystem、クリップの再生は AnimationSystem が進める。
+// ・再生するクリップ・速さ・ループ・加算ポーズの効きは、今のステートのノード
+//   (AnimatorAsset::GetStateNode(currentStateHash))から使う側がその都度引く。
+//   以前は AnimationStateSystem が毎フレーム AnimatorComponent へ写していたが、
+//   ノードを引けば分かる値の写しなので持たない。
+//==========================================================================================
+struct AnimatorLayer
+{
+	// ---- 設計図(保存するのは GUID だけ) ----
+	Engine::GUID animatorGUID = {};
+	Engine::Handle<Engine::Resource::AnimatorAsset> animatorHandle = {};
+
+	// ---- ステート ----
+	UINT  prevStateHash    = 0;		// 前回のステート
+	UINT  currentStateHash = 0;		// 現在のステート
+	float stateTime        = 0.0f;	// 現在のステートに入ってからの経過時間(秒)
+
+	// ---- クリップ ----
+	// 再生位置(クリップの時間単位。dt × ステートの speed で進む)。
+	// ステートが変わったら 0 に戻す(StateMachineCommitSystem)
+	float clipTime = 0.0f;
+
+	// ---- 遷移の条件に使うパラメータの実体 ----
+	// プール(ItemPool<StateMachineInstance>)に置く。
+	// 確保は StateMachineFixupSystem、返すのは AnimatorFreeSystem
+	Engine::Handle<Engine::Resource::StateMachineInstance> instanceHandle = {};
+};
+
+//==========================================================================================
+// AnimatorComponent
+//
+// アニメーションするモデルのアニメーター。
+//
+// ・今は土台のレイヤー(baseLayer)1枚だけ。上に重ねるレイヤーは持っていない。
+// ・以前は StateMachineComponent(設計図とステート)と AnimatorComponent(そのステートの
+//   クリップの写しと再生位置)の2つに分かれていた。
+// ・「アニメーションするモデル」の目印も兼ねる(静的な描画系は Exclude<AnimatorComponent> で外す)。
+//   そのため、ポーズの置き場とレイトレ用インスタンスは必須コンポーネントとして一緒に付ける。
+//==========================================================================================
 struct AnimatorComponent
 {
-	uint32_t clipID = 0;
-
-	// 今流しているアニメーション。
-	//
-	// ここは**借りているだけ**で参照は取らない(解放フックも要らない)。
-	// 実体を持っているのはモデル(ModelRuntimeData が ResourceRef で握っている)で、
-	// ここへ入るのはステートマシンが毎フレーム選んだものだから。
-	// 参照を取る形にすると、切り替わるたびに返して取り直すことになる。
-	Engine::Handle<Engine::Resource::AnimationData> animHandle;
-	float time = 0.0f;
-	float speed = 1.0f;
-
-	// 加算ポーズの効き。現在のステートの値が毎フレーム流し込まれる。
-	float additiveWeight = 1.0f;
-
-	Engine::ECS::Flg isLoop = 0;
-
-	// レイトレをする際にインスタンスを確保する
-	Engine::Handle<Engine::Raytracing::DynamicRaytracingData> dynamicInstanceHandle = {};
+	AnimatorLayer baseLayer = {};
 };
 
 template<>
 struct Engine::ECS::ComponentTraits<AnimatorComponent>
 {
+	// ポーズの置き場・レイトレ用インスタンスは実行中の値なので、プレハブに書かずに自動で付ける
+	using Requires = Engine::ECS::RequireComponents<NodePoseComponent, SkeletonPoseComponent, DynamicRaytracingComponent>;
+
+	//----------------------------------------------------------------------------------
+	// 借りているリソースを返す
+	//
+	// コンポーネントはデストラクタが走らないので、参照を返すのはここの仕事。
+	// ECS がエンティティを消すとき・コンポーネントを外すとき・
+	// PostDeserialize へ入り直すとき(fixup が取り直す)に必ず呼ぶ。
+	// (パラメータの実体はワールドのプールにあるので、ここではなく AnimatorFreeSystem が返す)
+	//----------------------------------------------------------------------------------
+	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
+	{
+		AnimatorComponent& _comp = Engine::Editor::GetValue<AnimatorComponent>(a_pData);
+		a_services.pResourceManager->ReleaseHandle(_comp.baseLayer.animatorHandle);
+	}
+
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
 		AnimatorComponent& _comp = Engine::Editor::GetValue<AnimatorComponent>(a_pData);
-		a_ar.Field("speed", _comp.speed);
-		a_ar.Field("isLoop", _comp.isLoop);
+
+		if (a_ar.BeginGroup("baseLayer"))
+		{
+			a_ar.Field("animatorGUID", _comp.baseLayer.animatorGUID);
+			a_ar.EndGroup();
+		}
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
+		using namespace Engine;
 		AnimatorComponent& _comp = Engine::Editor::GetValue<AnimatorComponent>(a_context.pData);
-		Engine::Editor::Value("Handle", "idx = %d,  gen = %d", (int)_comp.animHandle.GetIndex(), (int)_comp.animHandle.GetGeneration());
-		Engine::Editor::Field("clipID", _comp.clipID);
-		Engine::Editor::Value("Time", "%f", &_comp.time);
+		AnimatorLayer& _layer = _comp.baseLayer;
 
-		Engine::Editor::Field("Speed", _comp.speed);
+		Engine::Editor::HelpText("Base Layer");
 
-		ECS::Flg& _isLoop = _comp.isLoop;
-		bool _value = _isLoop != 0;
-		if (Engine::Editor::Field("IsLoop", _value))
+		// 設計図の選択
+		Engine::Editor::AssetField<Resource::AnimatorAsset>(
+			*a_context.pWorld->RefEngineServices(),
+			"Animator",
+			"AnimatorAsset",
+			_layer.animatorGUID,
+			_layer.animatorHandle
+		);
+
+		// 現在のステートを表示
+		const auto* _pAnimator = a_context.pWorld->RefEngineServices()->pResourceManager->Get(_layer.animatorHandle);
+		if (_pAnimator)
 		{
-			_isLoop = _value ? 1u : 0u;
+			std::string _nodeNameStr(_pAnimator->GetNodeName(_layer.currentStateHash));
+			Engine::Editor::Value("Current Node", "%s", _nodeNameStr.c_str());
 		}
-
-		Engine::Editor::HandleInfo(_comp.dynamicInstanceHandle);
-
-		// プレハブ編集では実体が無い(entity は INVALID)。
-		// 無効IDでエンティティ参照するとレンジ外になるので、実体があるときだけ辿る。
-		if (a_context.entity != Engine::ECS::Limits::INVALID_ENTITY &&
-			a_context.pWorld->HasComponent<ModelComponent>(a_context.entity))
-		{
-			auto* _refData = a_context.pWorld->RefData<ModelComponent>(a_context.entity);
-			if (!_refData) return;
-
-			auto* _pModel = a_context.pWorld->RefEngineServices()->pResourceManager->Get(_refData->handle);
-			if (!_pModel) return;
-
-			// モデル内のアニメーションコンボ
-			Engine::Editor::ModelAnimationField(*a_context.pWorld->RefEngineServices(), "Animation", _pModel, _comp.animHandle);
-		}
+		Engine::Editor::Value("State Time", "%.2f s", _layer.stateTime);
+		Engine::Editor::Value("Clip Time", "%.2f", _layer.clipTime);
 	}
 };

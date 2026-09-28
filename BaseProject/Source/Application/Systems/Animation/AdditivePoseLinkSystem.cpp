@@ -5,13 +5,13 @@
 #include "Engine/Resource/Data/AnimatorAsset/AnimatorAsset.h"
 
 #include "Application/Components/Render/ModelComponent.h"
-#include "Application/Components/Animation/StateMachineComponent.h"
+#include "Application/Components/Animation/AnimatorComponent.h"
 #include "Application/Components/Animation/AdditivePoseComponent.h"
 #include "Application/InstanceResource/AdditiveBoneEntry.h"
 
 void AdditivePoseLinkSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.StartTask<const ModelComponent, const StateMachineComponent, AdditivePoseComponent>(
+	a_world.StartTask<const ModelComponent, const AnimatorComponent, AdditivePoseComponent>(
 		Engine::ECS::ESystemType::Start,
 		"AdditivePoseLinkSystem",
 		[](
@@ -20,7 +20,7 @@ void AdditivePoseLinkSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			StartTag* a_startTag,
 			const ModelComponent* a_modelArray,
-			const StateMachineComponent* a_stateMachineArray,
+			const AnimatorComponent* a_animatorArray,
 			AdditivePoseComponent* a_additiveArray
 		)
 		{
@@ -29,7 +29,7 @@ void AdditivePoseLinkSystem::Init(App::ECS::APPWorld& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const ModelComponent& _modelComp = a_modelArray[_i];
-				const StateMachineComponent& _stateComp = a_stateMachineArray[_i];
+				const AnimatorComponent& _animComp = a_animatorArray[_i];
 				AdditivePoseComponent& _additiveComp = a_additiveArray[_i];
 
 				// モデル取得
@@ -37,7 +37,7 @@ void AdditivePoseLinkSystem::Init(App::ECS::APPWorld& a_world)
 				if (!_pModel) continue;
 
 				// 設計図(アニメーター)取得
-				const auto* _pAnimator = a_ctx.pServices->pResourceManager->Get(_stateComp.stateMachineHandle);
+				const auto* _pAnimator = a_ctx.pServices->pResourceManager->Get(_animComp.baseLayer.animatorHandle);
 				if (!_pAnimator) continue;
 
 				const auto& _defVec = _pAnimator->GetAdditiveBones();

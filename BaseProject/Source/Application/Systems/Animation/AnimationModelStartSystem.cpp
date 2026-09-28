@@ -6,12 +6,13 @@
 
 #include "Application/Components/Render/ModelComponent.h"
 #include "Application/Components/Animation/AnimatorComponent.h"
+#include "Application/Components/Render/DynamicRaytracingComponent.h"
 #include "Application/Components/Animation/NodePoseComponent.h"
 #include "Application/Components/Animation/SkeletonPoseComponent.h"
 
 void AnimationModelStartSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.StartTask<const ModelComponent,AnimatorComponent,NodePoseComponent,SkeletonPoseComponent>(
+	a_world.StartTask<const ModelComponent, const AnimatorComponent, NodePoseComponent, SkeletonPoseComponent, DynamicRaytracingComponent>(
 		// StartTag を見るので Start フェーズで回す。
 		// アニメーターとポーズ領域を確保する側なので、これを使う
 		// AttachmentNodeLinkSystem / AdditivePoseLinkSystem より先に登録しておくこと
@@ -24,28 +25,22 @@ void AnimationModelStartSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			StartTag* a_startTag,
 			const ModelComponent* a_pModelArray, 
-			AnimatorComponent* a_animationArray,
-			NodePoseComponent* a_nodeArray, 
-			SkeletonPoseComponent* a_poseArray
-			
+			const AnimatorComponent*,		// アニメーションするモデルの目印
+			NodePoseComponent* a_nodeArray,
+			SkeletonPoseComponent* a_poseArray,
+			DynamicRaytracingComponent* a_rayArray
 		)
 		{
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const ModelComponent& _modelComp = a_pModelArray[_i];
-				AnimatorComponent& _animationComp = a_animationArray[_i];
+				DynamicRaytracingComponent& _rayComp = a_rayArray[_i];
 				NodePoseComponent& _nodeComp = a_nodeArray[_i];
 				SkeletonPoseComponent& _poseComp = a_poseArray[_i];
 
 				// モデル取得
 				auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 				if (!_pModel) continue;
-
-				// アニメーター初期化
-				_animationComp.clipID = 0;
-				_animationComp.time = 0.0f;
-				_animationComp.speed = 30.0f;
-				_animationComp.isLoop = true;
 
 				// ノードポーズ行列領域確保
 				auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
@@ -84,12 +79,12 @@ void AnimationModelStartSystem::Init(App::ECS::APPWorld& a_world)
 
 				// 空で生成
 				Engine::Raytracing::DynamicRaytracingData _resource = {};
-				_animationComp.dynamicInstanceHandle = _dynamicInstancePool.Add(std::move(_resource));
+				_rayComp.dynamicInstanceHandle = _dynamicInstancePool.Add(std::move(_resource));
 
 				// GPU処理のため遅延生成用命令
 				auto& _initRequestVec = a_ctx.pWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 				Engine::Raytracing::DynamicRaytracingInitRequest _req = {};
-				_req.dynamicInstanceHandle = _animationComp.dynamicInstanceHandle;
+				_req.dynamicInstanceHandle = _rayComp.dynamicInstanceHandle;
 				_req.modelHandle = _modelComp.handle;
 				_initRequestVec.push_back(_req);
 			}

@@ -67,6 +67,7 @@ namespace Engine::Editor::Inspector
 			_cmd.toSig.set(a_pWorld->GetCompTypeID<AnimatorComponent>());
 			_cmd.toSig.set(a_pWorld->GetCompTypeID<NodePoseComponent>());
 			_cmd.toSig.set(a_pWorld->GetCompTypeID<SkeletonPoseComponent>());
+			_cmd.toSig.set(a_pWorld->GetCompTypeID<DynamicRaytracingComponent>());
 			_cmd.toSig.set(a_pWorld->GetCompTypeID<PostDeserializeTag>());
 			if (_cmd.toSig.test(a_pWorld->GetCompTypeID<ActiveTag>()))
 			{

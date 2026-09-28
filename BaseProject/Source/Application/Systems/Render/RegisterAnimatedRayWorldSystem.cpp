@@ -7,7 +7,7 @@
 #include "Application/Components/Render/ModelComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Animation/SkeletonPoseComponent.h"
-#include "Application/Components/Animation/AnimatorComponent.h"
+#include "Application/Components/Render/DynamicRaytracingComponent.h"
 #include "Application/Components/Animation/NodePoseComponent.h"
 
 #include "Engine/MainEngine.h"
@@ -18,7 +18,7 @@ void RegisterAnimatedRayWorldSystem::Init(App::ECS::APPWorld& a_world)
 		const RayTag,
 		const ModelComponent,
 		const WorldMatrixComponent,
-		const AnimatorComponent,
+		const DynamicRaytracingComponent,
 		const NodePoseComponent,
 		const SkeletonPoseComponent
 	>
@@ -34,7 +34,7 @@ void RegisterAnimatedRayWorldSystem::Init(App::ECS::APPWorld& a_world)
 				const RayTag* a_pRayTags,
 				const ModelComponent* a_pModelArray,
 				const WorldMatrixComponent* a_pWorldMatArray,
-				const AnimatorComponent* a_pAnimationArray,
+				const DynamicRaytracingComponent* a_pAnimationArray,
 				const NodePoseComponent* a_nodePoseArray,
 				const SkeletonPoseComponent* a_skeletonArray
 				)
@@ -43,7 +43,7 @@ void RegisterAnimatedRayWorldSystem::Init(App::ECS::APPWorld& a_world)
 				{
 					const WorldMatrixComponent& _wMatComp = a_pWorldMatArray[_i];
 					const ModelComponent& _modelComp = a_pModelArray[_i];
-					const AnimatorComponent& _animComp = a_pAnimationArray[_i];
+					const DynamicRaytracingComponent& _rayComp = a_pAnimationArray[_i];
 					const NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
 					const SkeletonPoseComponent& _skePoseComp = a_skeletonArray[_i];
 
@@ -55,7 +55,7 @@ void RegisterAnimatedRayWorldSystem::Init(App::ECS::APPWorld& a_world)
 						*a_ctx.pWorld,
 						_wMatComp.worldMat,
 						_modelComp.handle,
-						_animComp.dynamicInstanceHandle,
+						_rayComp.dynamicInstanceHandle,
 						_nodePoseComp.nodePoseHandle,
 						_modelComp.colorScale,
 						_modelComp.emissiveScale,

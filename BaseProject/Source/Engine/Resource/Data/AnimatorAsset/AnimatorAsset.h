@@ -8,7 +8,7 @@
 // このクラスは「ステートごとに再生するアニメ」という Animator 固有の意味付けを担当する。
 //
 // ランタイムのパラメータ実体(StateMachineInstance)はエンティティごとに
-// StateMachineComponent 側のプールが持つ(このアセットは共有設計図なので保持しない)。
+// ワールドのプールが持ち、AnimatorComponent がハンドルで指す(このアセットは共有設計図なので保持しない)。
 //
 // 編集UI(ノードエディタ)はエディター側(Inspector::AnimatorEdit)が持つ。
 // ここはデータだけを持ち、ImGui / ImNodes を知らない。

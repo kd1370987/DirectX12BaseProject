@@ -27,15 +27,22 @@ void AnimationSystem::Init(App::ECS::APPWorld& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const ModelComponent& _modelComp = a_modelArray[_i];
-				AnimatorComponent& _aniComp = a_animatorArray[_i];
+				AnimatorLayer& _layer = a_animatorArray[_i].baseLayer;
 				NodePoseComponent& _nodeComp = a_NodePoseArray[_i];
 
 				// モデル取得
 				const auto* _pModel = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
 				if (!_pModel) continue;
 
+				// 今のステートのノード(再生するクリップ・速さ・ループ)。
+				// ステートが決まるのは StateMachineCommitSystem(Update)なので、このフレームの値
+				const auto* _pAnimator = a_ctx.pServices->pResourceManager->Get(_layer.animatorHandle);
+				if (!_pAnimator) continue;
+				const auto* _pNode = _pAnimator->GetStateNode(_layer.currentStateHash);
+				if (!_pNode) continue;
+
 				// アニメーション取得
-				const auto* _pAni = a_ctx.pServices->pResourceManager->Get(_aniComp.animHandle);
+				const auto* _pAni = a_ctx.pServices->pResourceManager->Get(_pNode->playAnimData);
 				if (!_pAni) continue;
 
 				// ノードポーズ行列配列取得
@@ -65,26 +72,25 @@ void AnimationSystem::Init(App::ECS::APPWorld& a_world)
 					// 範囲外のチャンネルは適用せずスキップする
 					if (_idx >= _nodePoseVec.size()) continue;
 
-					Engine::Animation::Interpolate(_pAni->nodes[_j], _aniComp.time, _nodePoseVec[_idx].local);
+					Engine::Animation::Interpolate(_pAni->nodes[_j], _layer.clipTime, _nodePoseVec[_idx].local);
 				}
 
 				// アニメーションタイム進行
-				_aniComp.time += a_ctx.dt * _aniComp.speed;
+				_layer.clipTime += a_ctx.dt * _pNode->speed;
 
-				if (_aniComp.time >= _pAni->maxLength)
+				if (_layer.clipTime >= _pAni->maxLength)
 				{
-					if (_aniComp.isLoop != 0)
+					if (_pNode->isLoop)
 					{
-						_aniComp.time = 0.0f;
+						_layer.clipTime = 0.0f;
 					}
 					else
 					{
-						_aniComp.time = _pAni->maxLength;
+						_layer.clipTime = _pAni->maxLength;
 					}
 				}
 			}
 		}
 	)
-	// 順序 : ステートが決めたクリップを、同じフレームのうちに再生する
-	.After("AnimationStateSystem");
+	;
 }

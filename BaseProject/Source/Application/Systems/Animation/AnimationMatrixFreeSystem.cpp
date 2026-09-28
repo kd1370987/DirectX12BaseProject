@@ -4,7 +4,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "Application/Components/Render/ModelComponent.h"
-#include "Application/Components/Animation/AnimatorComponent.h"
+#include "Application/Components/Render/DynamicRaytracingComponent.h"
 #include "Application/Components/Animation/NodePoseComponent.h"
 #include "Application/Components/Animation/SkeletonPoseComponent.h"
 
@@ -14,7 +14,7 @@
 
 void AnimationMatrixFreeSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ReleaseTask<const ModelComponent, AnimatorComponent, NodePoseComponent, SkeletonPoseComponent>(
+	a_world.ReleaseTask<const ModelComponent, DynamicRaytracingComponent, NodePoseComponent, SkeletonPoseComponent>(
 		Engine::ECS::ESystemType::Release,
 		"AnimationMatrixFreeSystem",
 		[](
@@ -23,7 +23,7 @@ void AnimationMatrixFreeSystem::Init(App::ECS::APPWorld& a_world)
 			const Engine::ECS::SystemContext& a_ctx,
 			ReleaseTag* a_releaseTag,
 			const ModelComponent* a_pModelArray,
-			AnimatorComponent* a_animationArray,
+			DynamicRaytracingComponent* a_rayArray,
 			NodePoseComponent* a_nodeArray,
 			SkeletonPoseComponent* a_poseArray
 		)
@@ -39,7 +39,7 @@ void AnimationMatrixFreeSystem::Init(App::ECS::APPWorld& a_world)
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const ModelComponent& _modelComp = a_pModelArray[_i];
-				AnimatorComponent& _animationComp = a_animationArray[_i];
+				DynamicRaytracingComponent& _rayComp = a_rayArray[_i];
 				NodePoseComponent& _nodeComp = a_nodeArray[_i];
 				SkeletonPoseComponent& _poseComp = a_poseArray[_i];
 
@@ -51,7 +51,7 @@ void AnimationMatrixFreeSystem::Init(App::ECS::APPWorld& a_world)
 
 				// アニメーション用頂点データの解放
 				auto& _dynamicRaytracingData = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
-				auto* _pAnimData = _dynamicRaytracingData.Ref(_animationComp.dynamicInstanceHandle);
+				auto* _pAnimData = _dynamicRaytracingData.Ref(_rayComp.dynamicInstanceHandle);
 				if (!_pAnimData) continue;
 
 				// メッシュデータのハンドル解放
@@ -62,8 +62,8 @@ void AnimationMatrixFreeSystem::Init(App::ECS::APPWorld& a_world)
 				}
 
 				// ダイナミックデータの解放
-				_dynamicRaytracingData.Remove(_animationComp.dynamicInstanceHandle);
-				_animationComp = {};
+				_dynamicRaytracingData.Remove(_rayComp.dynamicInstanceHandle);
+				_rayComp = {};
 				ENGINE_LOG("アニメーションデータの解放");
 			}
 		}

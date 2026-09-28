@@ -6,7 +6,7 @@
 
 #include "Application/Components/Animation/SkeletonPoseComponent.h"
 #include "Application/Components/Render/ModelComponent.h"
-#include "Application/Components/Animation/AnimatorComponent.h"
+#include "Application/Components/Render/DynamicRaytracingComponent.h"
 #include "Application/Components/Animation/NodePoseComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
@@ -18,7 +18,7 @@ void AnimationOptionalDrawSystem::Init(App::ECS::APPWorld& a_world)
 		const WorldMatrixComponent,
 		const ModelComponent, 
 		const SkeletonPoseComponent,
-		const AnimatorComponent, 
+		const DynamicRaytracingComponent, 
 		const NodePoseComponent
 	>(
 		Engine::ECS::ESystemType::Draw,
@@ -32,7 +32,7 @@ void AnimationOptionalDrawSystem::Init(App::ECS::APPWorld& a_world)
 			const WorldMatrixComponent* a_matArray,
 			const ModelComponent* a_modelArray,
 			const SkeletonPoseComponent* a_skeArray,
-			const AnimatorComponent* a_aniArray,
+			const DynamicRaytracingComponent* a_aniArray,
 			const NodePoseComponent* a_nodePoseArray
 			)
 		{
@@ -46,7 +46,7 @@ void AnimationOptionalDrawSystem::Init(App::ECS::APPWorld& a_world)
 				const ModelComponent& _modelComp = a_modelArray[_i];
 				const SkeletonPoseComponent& _skeComp = a_skeArray[_i];
 				const NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
-				const AnimatorComponent& _animComp = a_aniArray[_i];
+				const DynamicRaytracingComponent& _rayComp = a_aniArray[_i];
 
 				// モデル取得
 				auto* _model = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
@@ -60,7 +60,7 @@ void AnimationOptionalDrawSystem::Init(App::ECS::APPWorld& a_world)
 					_matComp.worldMat,
 					_skeComp.skeletonPoseHandle,
 					_nodePoseComp.nodePoseHandle,
-					_animComp.dynamicInstanceHandle,
+					_rayComp.dynamicInstanceHandle,
 					// 静的・動的の描画システムと同じく、コンポーネントの色設定を渡す。
 					// (ここだけ既定値のままで、インスペクタの ColorScale /
 					//  EmissiveScale がアニメーションモデルにだけ効いていなかった)

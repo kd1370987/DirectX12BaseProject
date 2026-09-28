@@ -259,7 +259,16 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 				// 各ボーンへ適用
 				//==========================================================================
 				// 効きが0でも上の状態更新は済ませてある(復帰時に飛ばないようにするため)
-				float _weight = std::clamp(_addComp.masterWeight * _animComp.additiveWeight, 0.0f, 1.0f);
+				// ステートごとの効きは今のステートのノードから引く(引けなければ効かせきる)
+				float _stateWeight = 1.0f;
+				if (const auto* _pAnimator = a_ctx.pServices->pResourceManager->Get(_animComp.baseLayer.animatorHandle))
+				{
+					if (const auto* _pNode = _pAnimator->GetStateNode(_animComp.baseLayer.currentStateHash))
+					{
+						_stateWeight = _pNode->additiveWeight;
+					}
+				}
+				float _weight = std::clamp(_addComp.masterWeight * _stateWeight, 0.0f, 1.0f);
 				if (_weight <= 0.0f) continue;
 
 				for (const AdditiveBoneEntry& _entry : _entryVec)
