@@ -8,6 +8,20 @@ namespace Engine::Resource
 	class AnimatorAsset;
 }
 
+struct AnimatorLayer
+{
+	// 参照アセット
+	Engine::GUID animatorGUID = {};
+	Engine::Handle<Engine::Resource::AnimatorAsset> animatorHandle = {};
+
+	UINT prevStateHash = 0;			// 前回のステート
+	UINT currentStateHash = 0;		// 現在のステート
+	float currentTime = 0.0f;		// 現在のステートからの経過時間
+
+	// インスタンス
+	Engine::Handle<Engine::Resource::StateMachineInstance> instanceHandle = {};
+};
+
 struct StateMachineComponent
 {
 	// 参照する設計図
@@ -18,10 +32,11 @@ struct StateMachineComponent
 	UINT currentStateHash = 0;		// 現在のステート
 	float currentTime = 0.0f;		// 現在のステートからの経過時間
 
-	// ※ 接地判定(旧 isGround)は GroundStateComponent へ移した(書くのは RayCollisionSystem)
-
 	// ステートマシンインスタンス
 	Engine::Handle<Engine::Resource::StateMachineInstance> instanceHandle = {};
+
+	// 上半身のアニメーション
+	AnimatorLayer UpperBodyLayer = {};
 };
 
 template<>

@@ -129,4 +129,8 @@ namespace Engine::Resource
 		// 見つからなかった場合
 		return Handle<AnimationData>();
 	}
+	const BoneMask& Model::GetBoneMask(ELayerMask a_laer) const
+	{
+		return m_AssetData.boneMasks[static_cast<size_t>(a_laer)];
+	}
 }

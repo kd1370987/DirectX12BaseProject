@@ -46,6 +46,28 @@ namespace Engine::Resource
 		uint8_t  subIdx;
 		Engine::Resource::Alpha alphaMode;
 	};
+
+	// アニメーション用のボーンの集まり : 上下で違うアニメーターを起動させる際のマスク
+	enum class ELayerMask : uint32_t
+	{
+		Base,				// 全身
+		UpperBody,			// 上半身
+		LowerBody,			// 下半身
+
+		Count
+	};
+
+	struct BoneWeight
+	{
+		uint16_t boneIndex;
+		float weight;
+	};
+
+	struct BoneMask
+	{
+		std::vector<BoneWeight> bones;
+	};
+
 	struct ModelAssetData
 	{
 		std::string name;
@@ -61,6 +83,9 @@ namespace Engine::Resource
 		std::vector<int> meshNodeIndices;
 		std::vector<int> collisionMeshNodeIndices;
 		std::vector<int> drawMeshNodeIndices;
+
+		// アニメーション用マスク
+		std::array<BoneMask, static_cast<size_t>(ELayerMask::Count)> boneMasks;
 	};
 
 	struct ModelRuntimeData
@@ -110,6 +135,9 @@ namespace Engine::Resource
 		const std::vector<int>& GetMeshNodeVec() const { return m_AssetData.meshNodeIndices; }
 		const std::vector<int>& GetCollisionMeshNodeVec() const { return m_AssetData.collisionMeshNodeIndices; }
 		const std::vector<int>& GetDrawNodeVec() const { return m_AssetData.drawMeshNodeIndices; }
+
+		// アニメーション用マスクを返す
+		const BoneMask& GetBoneMask(ELayerMask a_laer) const;
 
 		// 描画時用コマンド取得
 		const std::vector<ModelDrawCommand>& GetDrawCommandVec() const { return m_runtimeData.drawCommands; }

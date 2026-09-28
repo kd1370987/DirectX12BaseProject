@@ -1324,34 +1324,34 @@
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
-      <Filter>..\Library\Include\ImGuizmo-master</Filter>
+      <Filter>Library\Include\ImGuizmo-master</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui.cpp">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_demo.cpp">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_draw.cpp">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_dx12.cpp">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_win32.cpp">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_stdlib.cpp">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_tables.cpp">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_widgets.cpp">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imnodes-master\imnodes.cpp">
-      <Filter>..\Library\Include\imnodes-master</Filter>
+      <Filter>Library\Include\imnodes-master</Filter>
     </ClCompile>
     <ClCompile Include="Source\Pch.cpp">
       <Filter>Source</Filter>
@@ -2520,37 +2520,37 @@
       <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\ImGuizmo-master\ImGuizmo.h">
-      <Filter>..\Library\Include\ImGuizmo-master</Filter>
+      <Filter>Library\Include\ImGuizmo-master</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imconfig.h">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imgui.h">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imgui_impl_dx12.h">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imgui_impl_win32.h">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imgui_internal.h">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imgui_stdlib.h">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imstb_rectpack.h">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imstb_textedit.h">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imgui-docking\imstb_truetype.h">
-      <Filter>..\Library\Include\imgui-docking</Filter>
+      <Filter>Library\Include\imgui-docking</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\imnodes-master\imnodes.h">
-      <Filter>..\Library\Include\imnodes-master</Filter>
+      <Filter>Library\Include\imnodes-master</Filter>
     </ClInclude>
     <ClInclude Include="Source\Pch.h">
       <Filter>Source</Filter>
@@ -4253,7 +4253,9 @@
     <ClInclude Include="Source\Engine\ECS\Archetype\ChunkAllocator.h">
       <Filter>Source\Engine\ECS\Archetype</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Boss\SwarmBossWave.h" />
+    <ClInclude Include="Source\Application\Components\Boss\SwarmBossWave.h">
+      <Filter>Source\Application\Components\Boss</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack\UperAttack.h">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack</Filter>
     </ClInclude>
