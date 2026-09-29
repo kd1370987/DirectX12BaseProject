@@ -5,6 +5,8 @@
 #include "Application/Components/Animation/AnimatorComponent.h"
 #include "Application/Components/Animation/UpperAnimatorComponent.h"
 #include "Application/Components/Movement/BoostParamsComponent.h"
+#include "Application/Components/Movement/BoostStateComponent.h"
+#include "Application/Components/Movement/ChargeDashComponent.h"
 #include "Application/Components/Physics/GroundStateComponent.h"
 
 #include "Engine/Resource/Data/AnimatorAsset/AnimatorAsset.h"
@@ -46,13 +48,13 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 			static const UINT s_jumpHash = Engine::String::ToHash("Jump");
 			static const UINT s_isGroundHash = Engine::String::ToHash("IsGround");
 			static const UINT s_isShootHash = Engine::String::ToHash("IsShoot");
+			static const UINT s_isBoostHash = Engine::String::ToHash("IsBoost");
 
 			auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const MoveIntentComponent& _intentComp = a_moveIntentArray[_i];
-				const BoostParamsComponent& _boostComp = a_boostComp[_i];
 				const AnimatorComponent& _animComp = a_animatorArray[_i];
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
@@ -93,6 +95,25 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 					_pActionIntent = a_ctx.pWorld->RefData<ActionIntentComponent>(_self);
 				}
 
+				//--------------------------------------------------------------------------
+				// ブースト中か(押し続けている間と、踏み込みの初動が残っている間。チャージダッシュ中も含める)
+				//
+				// 状態(BoostStateComponent)は BoostParamsComponent の必須コンポーネントなので
+				// 必ず付いているが、絞り込みの配列には入れていないのでエンティティ単位で引く
+				//--------------------------------------------------------------------------
+				bool _isBoost = false;
+				if (const auto* _pBoostState = a_ctx.pWorld->RefData<BoostStateComponent>(_self))
+				{
+					_isBoost = _pBoostState->isBoosting || (_pBoostState->tapBoostTimer > 0.0f);
+				}
+				if (a_ctx.pWorld->HasComponent<ChargeDashComponent>(_self))
+				{
+					if (const auto* _pDash = a_ctx.pWorld->RefData<ChargeDashComponent>(_self))
+					{
+						_isBoost |= _pDash->isDashing;
+					}
+				}
+
 				// レイヤー1枚ぶんのインスタンスへ書く
 				auto _WriteParams = [&](const AnimatorLayer& a_layer)
 					{
@@ -107,6 +128,7 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 						_pAnimator->SetFloatParam(*_pInstance, s_speedHash, "Speed", _speed);
 						_pAnimator->SetBoolParam(*_pInstance, s_jumpHash, "Jump", _isJump);
 						_pAnimator->SetBoolParam(*_pInstance, s_isGroundHash, "IsGround", _isGround);
+						_pAnimator->SetBoolParam(*_pInstance, s_isBoostHash, "IsBoost", _isBoost);
 						if (_pActionIntent)
 						{
 							_pAnimator->SetBoolParam(*_pInstance, s_isShootHash, "IsShoot", _pActionIntent->IsAnyWeaponShoot());
@@ -129,5 +151,5 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 	)
 	// 絞り込みに使わない読み : 持っているときだけ RefData で読む。
 	// 宣言しないと ActionIntent を書くジョブ(EnemyShootIntentSystem)と同時に走りうる
-	.Reads<ActionIntentComponent, GroundStateComponent, UpperAnimatorComponent>();
+	.Reads<ActionIntentComponent, GroundStateComponent, UpperAnimatorComponent, BoostStateComponent, ChargeDashComponent>();
 }

@@ -83,13 +83,16 @@ namespace Engine::Editor::Inspector
 			auto& _bones = a_animator.RefAdditiveBones();
 
 			// チャンネルごとの配分合計。1.0から大きく外れていると見た目が破綻するので目安として出す。
-			float _shareSum[3] = { 0.0f, 0.0f, 0.0f };
+			constexpr size_t _channelCount = static_cast<size_t>(Resource::EAdditiveChannel::Count);
+			float _shareSum[_channelCount] = {};
 			for (const auto& _def : _bones)
 			{
 				size_t _chIdx = static_cast<size_t>(_def.channel);
-				if (_chIdx < 3) _shareSum[_chIdx] += _def.share;
+				if (_chIdx < _channelCount) _shareSum[_chIdx] += _def.share;
 			}
 			Engine::Editor::Value("Share sum", "Aim %.2f / LagArm %.2f / LagLeg %.2f", _shareSum[0], _shareSum[1], _shareSum[2]);
+			// 空中用 : AimArm は腕1本ごとに効かせるので、左右で 2.0 が目安
+			Engine::Editor::Value("Share sum (Air)", "AimArm %.2f / LagBody %.2f", _shareSum[3], _shareSum[4]);
 
 			int _removeIdx = -1;
 			for (size_t _i = 0; _i < _bones.size(); ++_i)
@@ -107,7 +110,9 @@ namespace Engine::Editor::Inspector
 					{
 						Resource::EAdditiveChannel::Aim,
 						Resource::EAdditiveChannel::LagArm,
-						Resource::EAdditiveChannel::LagLeg
+						Resource::EAdditiveChannel::LagLeg,
+						Resource::EAdditiveChannel::AimArm,
+						Resource::EAdditiveChannel::LagBody
 					};
 					for (auto _ch : _channelVec)
 					{
@@ -123,7 +128,7 @@ namespace Engine::Editor::Inspector
 				Engine::Editor::Field("Share", _def.share, 0.01f, 0.0f, 1.0f);
 
 				// Lag系のみ軸ごとの効きを使う(符号を反転させると左右対称にできる)
-				if (_def.channel != Resource::EAdditiveChannel::Aim)
+				if (_def.channel != Resource::EAdditiveChannel::Aim && _def.channel != Resource::EAdditiveChannel::AimArm)
 				{
 					Engine::Editor::Field("AxisScale", _def.axisScale, 0.01f);
 				}

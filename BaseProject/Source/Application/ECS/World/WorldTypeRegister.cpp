@@ -36,6 +36,7 @@
 #include "Application/Components/Boid/BoidWaveStateComponent.h"
 #include "Application/Components/Animation/AnimatorComponent.h"
 #include "Application/Components/Animation/UpperAnimatorComponent.h"
+#include "Application/Components/Animation/LowerBodyTurnComponent.h"
 #include "Application/Components/Animation/SkeletonPoseComponent.h"
 #include "Application/Components/Animation/NodePoseComponent.h"
 #include "Application/Components/Render/UIComponent.h"
@@ -163,6 +164,7 @@
 #include "Application/Systems/Physics/SyncPhysicsBodySystem.h"
 #include "Application/Systems/Animation/AdditivePoseLinkSystem.h"
 #include "Application/Systems/Animation/AdditivePoseSystem.h"
+#include "Application/Systems/Animation/LowerBodyTurnSystem.h"
 #include "Application/Systems/Animation/AdditivePoseFreeSystem.h"
 #include "Application/Systems/Enemy/SearchPlayerSystem.h"
 #include "Application/Systems/Movement/FaceTargetSystem.h"
@@ -267,6 +269,8 @@ namespace App::ECS
 		a_world.RegisterComponent<AnimatorComponent>("AnimatorComponent");
 		// 基本レイヤーの上に重ねるアニメーター(アニメーションレイヤリング)
 		a_world.RegisterComponent<UpperAnimatorComponent>("UpperAnimatorComponent");
+		// 腰から下だけを進行方向へ向ける(戦車のような脚)
+		a_world.RegisterComponent<LowerBodyTurnComponent>("LowerBodyTurnComponent");
 		a_world.RegisterComponent<SkeletonPoseComponent>("SkeletonPoseComponent");
 		a_world.RegisterComponent<NodePoseComponent>("NodePoseComponent");
 		a_world.RegisterComponent<UIComponent>("UIComponent");
@@ -444,6 +448,7 @@ namespace App::ECS
 		// AnimationSystem がバインドポーズでリセットした後、
 		// CalcNodeSystem が local→world を組む前に加算する必要がある
 		a_world.RegisterSystem<AdditivePoseSystem>();
+		a_world.RegisterSystem<LowerBodyTurnSystem>();
 		a_world.RegisterSystem<CalcNodeSystem>();
 		a_world.RegisterSystem<SkinningSystem>();
 		a_world.RegisterSystem<PositionIntegrationSystem>();

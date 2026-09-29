@@ -21,6 +21,14 @@ namespace Engine::Resource
 		Aim = 0,	// 照準方向への上半身追従
 		LagArm,		// 加速による腕の遅れ
 		LagLeg,		// 加速による脚の遅れ
+
+		// ---- 空中(接地していない間)だけ効くもの ----
+		// 地上用(Aim / LagArm / LagLeg)とは AdditivePoseComponent::airBlend で切り替える。
+		// 保存値は番号なので、足すときは末尾へ
+		AimArm,		// 照準方向への腕追従(空中では上半身の Aim の代わりに腕だけで狙う)
+		LagBody,	// 速度による体全体の流れ(腰を支点に、進行方向の逆へ脚が流れる)
+
+		Count,
 	};
 
 	// 表示用
@@ -31,6 +39,8 @@ namespace Engine::Resource
 		case EAdditiveChannel::Aim:		return "Aim";
 		case EAdditiveChannel::LagArm:	return "LagArm";
 		case EAdditiveChannel::LagLeg:	return "LagLeg";
+		case EAdditiveChannel::AimArm:	return "AimArm";
+		case EAdditiveChannel::LagBody:	return "LagBody";
 		default:						return "Unknown";
 		}
 	}

@@ -10,6 +10,7 @@
 #include "Application/Components/Combat/ActionIntentComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Movement/DesiredVelocityComponent.h"
+#include "Application/Components/Animation/LowerBodyTurnComponent.h"
 
 //==============================================================================
 // LockOnRotationSystem
@@ -19,6 +20,8 @@
 //
 //   ・撃っている   … 狙点(AimResultComponent)の方向を体全体で向く。
 //   ・撃っていない … 進行方向を向く(従来の RotationSystem と同じ挙動)。
+//                    ただし腰から下を別に回す機体(LowerBodyTurnComponent)は、
+//                    脚が進行方向を向くので、撃っていなくても常に狙点の方向を向く(戦車の砲塔)。
 //   ・死亡中       … 旋回しない。
 //
 // ただしロック対象(LockOnTargetComponent.lockedEntity ＝ HUD で赤枠になっている敵)が
@@ -117,8 +120,10 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 				// 死んだら向きを変えない
 				if (IsDeadEntity(*a_ctx.pWorld, _self)) continue;
 
-				// 撃っている間は狙い方向、それ以外は進行方向
-				const bool	_isAim		= _actionIntent.IsAnyWeaponShoot();
+				// 撃っている間は狙い方向、それ以外は進行方向。
+				// 腰から下を別に回す機体は、進行方向を脚に任せて常に狙い方向を向く
+				const bool	_isLowerBodyTurn = a_ctx.pWorld->HasComponent<LowerBodyTurnComponent>(_self);
+				const bool	_isAim		= _actionIntent.IsAnyWeaponShoot() || _isLowerBodyTurn;
 				const float	_turnSpeed	= _isAim ? kAimTurnSpeed : kDefaultTurnSpeed;
 
 				//==============================================================
@@ -200,8 +205,8 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 	// あちらは LocalTransform を読んで Velocity を書き、こちらは Velocity を読んで LocalTransform を書くので、
 	// 読み書きだけでは循環する(対象はプレイヤーと小隊長で重ならない)
 	.After({ "RotationSystem", "PlatoonFollowSystem" })
-	// 絞り込みに使わない読み : 死亡判定・ロック相手・狙点
-	.Reads<HealthComponent, LockOnTargetComponent, AimResultComponent>();
+	// 絞り込みに使わない読み : 死亡判定・ロック相手・狙点・脚を別に回すか
+	.Reads<HealthComponent, LockOnTargetComponent, AimResultComponent, LowerBodyTurnComponent>();
 
 	//==========================================================================
 	// 攻撃入力を持たないプレイヤー(従来通り進行方向を向くだけ)

@@ -12,6 +12,9 @@
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Movement/DesiredVelocityComponent.h"
 #include "Application/Components/Movement/ActualVelocityComponent.h"
+#include "Application/Components/Physics/GroundStateComponent.h"
+#include "Application/Components/Movement/BoostStateComponent.h"
+#include "Application/Components/Movement/ChargeDashComponent.h"
 #include "Application/InstanceResource/AdditiveBoneEntry.h"
 
 namespace
@@ -256,6 +259,104 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 				_addComp.lagVelocity = _lagVel;
 
 				//==========================================================================
+				// 地上 ⇔ 空中の切り替え
+				//
+				// 空中用のチャンネル(AimArm / LagBody)を持つものだけ、接地していない間は
+				// 地上用の Aim(上半身)を止めて、腕だけで狙い・体全体を流す。
+				// 持たないもの(空を飛ぶ敵など)は今まで通り地上用だけを使う。
+				// 着地・離陸でポーズが飛ばないよう、airBlend を時間で寄せて混ぜる。
+				//==========================================================================
+				const bool _hasAirChannel = std::any_of(_entryVec.begin(), _entryVec.end(),
+					[](const AdditiveBoneEntry& a_entry)
+					{
+						return a_entry.channel == Engine::Resource::EAdditiveChannel::AimArm
+							|| a_entry.channel == Engine::Resource::EAdditiveChannel::LagBody;
+					});
+
+				// 今の動き方 : チャージダッシュ中か・ブースト中か
+				// (どちらもクエリに入れず、持っているときだけ引く)
+				bool _isDashing = false;
+				if (a_ctx.pWorld->HasComponent<ChargeDashComponent>(_self))
+				{
+					if (const auto* _pDash = a_ctx.pWorld->RefData<ChargeDashComponent>(_self))
+					{
+						_isDashing = _pDash->isDashing;
+					}
+				}
+				bool _isBoost = false;
+				if (a_ctx.pWorld->HasComponent<BoostStateComponent>(_self))
+				{
+					if (const auto* _pBoost = a_ctx.pWorld->RefData<BoostStateComponent>(_self))
+					{
+						_isBoost = _pBoost->isBoosting || (_pBoost->tapBoostTimer > 0.0f);
+					}
+				}
+
+				// 接地していない間を空中とする。チャージダッシュは地面すれすれでも
+				// 体ごと倒して突っ込ませたいので、出ている間は空中扱いにする
+				bool _isAir = _isDashing;
+				if (_hasAirChannel && a_ctx.pWorld->HasComponent<GroundStateComponent>(_self))
+				{
+					if (const auto* _pGround = a_ctx.pWorld->RefData<GroundStateComponent>(_self))
+					{
+						_isAir |= !_pGround->isGround;
+					}
+				}
+
+				if (_hasAirChannel)
+				{
+					const float _airTarget = _isAir ? 1.0f : 0.0f;
+					const float _airStep = _addComp.airBlendRate * a_ctx.dt;
+					if (_addComp.airBlend < _airTarget)	_addComp.airBlend = (std::min)(_addComp.airBlend + _airStep, _airTarget);
+					else								_addComp.airBlend = (std::max)(_addComp.airBlend - _airStep, _airTarget);
+				}
+				else
+				{
+					_addComp.airBlend = 0.0f;
+				}
+				const float _airBlend = _addComp.airBlend;
+				const float _groundBlend = 1.0f - _airBlend;
+
+				//==========================================================================
+				// 体全体の前のめり(LagBody)の角度
+				//
+				// 動き方ごとに倒す最大角を変える(通常 < ブースト < チャージダッシュ)。
+				// 向きは水平の速度の向き : 進んでいる側へ頭が出て、脚が逆へ流れる。
+				// 速度の大きさは leanFullSpeed で頭打ちにし、それ以上はその動き方の最大角のまま。
+				// 地上用の Lag(lagAngle)とは別のバネで追わせる(最大角が桁違いなので)。
+				//
+				// X 軸まわり : 前後(前へ進むと正 = 前のめり)
+				// Z 軸まわり : 左右(右へ進むと負 = 右へ倒れる)。地上の Lag と同じ符号
+				//==========================================================================
+				{
+					const float _leanDeg =
+						_isDashing ? _addComp.leanDashDeg :
+						_isBoost   ? _addComp.leanBoostDeg :
+						             _addComp.leanNormalDeg;
+
+					Math::Vector3 _leanTarget = {};
+					const float _horizSpeed = std::sqrt(_velModel.x * _velModel.x + _velModel.z * _velModel.z);
+					if (_airBlend > 0.0f && _horizSpeed > 1e-3f)
+					{
+						const float _speedRate = (_addComp.leanFullSpeed > 0.0f)
+							? std::clamp(_horizSpeed / _addComp.leanFullSpeed, 0.0f, 1.0f)
+							: 1.0f;
+						const float _leanRad = DirectX::XMConvertToRadians(_leanDeg) * _speedRate;
+
+						_leanTarget.x = ( _velModel.z / _horizSpeed) * _leanRad;
+						_leanTarget.z = (-_velModel.x / _horizSpeed) * _leanRad;
+					}
+
+					Math::Vector3 _leanAngle(_addComp.bodyLeanAngle);
+					Math::Vector3 _leanVel(_addComp.bodyLeanVelocity);
+					_leanVel += ((_leanTarget - _leanAngle) * _addComp.leanStiffness - _leanVel * _addComp.leanDamping) * a_ctx.dt;
+					_leanAngle += _leanVel * a_ctx.dt;
+					_addComp.bodyLeanAngle = _leanAngle;
+					_addComp.bodyLeanVelocity = _leanVel;
+				}
+				const Math::Vector3 _bodyLeanAngle(_addComp.bodyLeanAngle);
+
+				//==========================================================================
 				// 各ボーンへ適用
 				//==========================================================================
 				// 効きが0でも上の状態更新は済ませてある(復帰時に飛ばないようにするため)
@@ -271,6 +372,54 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 				float _weight = std::clamp(_addComp.masterWeight * _stateWeight, 0.0f, 1.0f);
 				if (_weight <= 0.0f) continue;
 
+				// Lag 系の回転(モデル空間)。軸ごとの効きと倍率を掛けて作る
+				auto _MakeLagQuat = [&_lagAngle](const AdditiveBoneEntry& a_entry, float a_scale)
+					{
+						Math::Vector3 _axisScale(a_entry.axisScale);
+						return
+							Math::Quaternion::CreateFromAxisAngle(Math::Vector3(1.0f, 0.0f, 0.0f), _lagAngle.x * _axisScale.x * a_scale) *
+							Math::Quaternion::CreateFromAxisAngle(Math::Vector3(0.0f, 1.0f, 0.0f), _lagAngle.y * _axisScale.y * a_scale) *
+							Math::Quaternion::CreateFromAxisAngle(Math::Vector3(0.0f, 0.0f, 1.0f), _lagAngle.z * _axisScale.z * a_scale);
+					};
+
+				//--------------------------------------------------------------------------
+				// 空中用は角度をそのまま出したいので、ステートごとの効き(additiveWeight)は掛けず
+				// エンティティ全体の効きだけを掛ける(腕はレティクルへ向けきる)
+				//--------------------------------------------------------------------------
+				const float _airWeight = std::clamp(_addComp.masterWeight, 0.0f, 1.0f) * _airBlend;
+
+				// 前のめり(LagBody)の回転(モデル空間)。
+				// 90度近くまで倒すので、X と Z を順に掛けず、1本の軸まわりの回転として作る
+				// (順に掛けると斜めへ進むときに向きがねじれる)
+				auto _MakeLeanQuat = [&_bodyLeanAngle](const AdditiveBoneEntry& a_entry, float a_scale)
+					{
+						Math::Vector3 _axisScale(a_entry.axisScale);
+						Math::Vector3 _rot(
+							_bodyLeanAngle.x * _axisScale.x * a_scale,
+							_bodyLeanAngle.y * _axisScale.y * a_scale,
+							_bodyLeanAngle.z * _axisScale.z * a_scale);
+						const float _angle = _rot.Length();
+						if (!(_angle > 1e-6f)) return Math::Quaternion::Identity();
+						return Math::Quaternion::CreateFromAxisAngle(_rot / _angle, _angle);
+					};
+
+				//--------------------------------------------------------------------------
+				// 体全体の前のめり(LagBody)の合計。
+				// 腕は腰の子なので、腰を傾けると腕の狙いも一緒に傾く。
+				// AimArm ではこの分を打ち消してから狙いを足す(腕の加算 → 腰の加算の順に効くので
+				// 腕 = 狙い * 前のめり^-1 にしておけば、合わせて狙いの向きになる)
+				//--------------------------------------------------------------------------
+				Math::Quaternion _bodyLeanQuat = Math::Quaternion::Identity();
+				if (_airWeight > 0.0f)
+				{
+					for (const AdditiveBoneEntry& _entry : _entryVec)
+					{
+						if (_entry.channel != Engine::Resource::EAdditiveChannel::LagBody) continue;
+						_bodyLeanQuat = _bodyLeanQuat * _MakeLeanQuat(_entry, _entry.share * _airWeight);
+					}
+					_bodyLeanQuat.Normalize();
+				}
+
 				for (const AdditiveBoneEntry& _entry : _entryVec)
 				{
 					if (_entry.nodeIdx < 0) continue;
@@ -280,26 +429,44 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 					// モデル空間での加算回転を作る
 					Math::Quaternion _modelQuat = Math::Quaternion::Identity();
 
-					if (_entry.channel == Engine::Resource::EAdditiveChannel::Aim)
+					switch (_entry.channel)
 					{
-						// チェーン内の配分だけ効かせる
-						float _share = std::clamp(_entry.share * _weight, 0.0f, 1.0f);
+					case Engine::Resource::EAdditiveChannel::Aim:
+					{
+						// チェーン内の配分だけ効かせる(空中では腕へ任せて止める)
+						float _share = std::clamp(_entry.share * _weight * _groundBlend, 0.0f, 1.0f);
 						_modelQuat = Math::Quaternion::Slerp(Math::Quaternion::Identity(), _currentAim, _share);
+						break;
 					}
-					else
+					case Engine::Resource::EAdditiveChannel::AimArm:
+					{
+						// 空中だけ、腕で狙う。前のめりで傾いた分を打ち消してから狙いを足す
+						float _share = std::clamp(_entry.share * _airWeight, 0.0f, 1.0f);
+						if (_share <= 0.0f) continue;
+						Math::Quaternion _aimPart = Math::Quaternion::Slerp(Math::Quaternion::Identity(), _currentAim, _share);
+						Math::Quaternion _cancelPart = Math::Quaternion::Slerp(
+							Math::Quaternion::Identity(), _bodyLeanQuat.Conjugate(), std::clamp(_entry.share, 0.0f, 1.0f));
+						_modelQuat = _aimPart * _cancelPart;
+						break;
+					}
+					case Engine::Resource::EAdditiveChannel::LagBody:
+					{
+						// 空中だけ、腰を支点に体全体を前のめりにする(脚が進行方向の逆へ流れる)
+						float _scale = _entry.share * _airWeight;
+						if (_scale == 0.0f) continue;
+						_modelQuat = _MakeLeanQuat(_entry, _scale);
+						break;
+					}
+					default:
 					{
 						float _channelScale =
 							(_entry.channel == Engine::Resource::EAdditiveChannel::LagArm)
 							? _addComp.lagArmScale
 							: _addComp.lagLegScale;
 
-						float _scale = _entry.share * _weight * _channelScale;
-
-						Math::Vector3 _axisScale(_entry.axisScale);
-						_modelQuat =
-							Math::Quaternion::CreateFromAxisAngle(Math::Vector3(1.0f, 0.0f, 0.0f), _lagAngle.x * _axisScale.x * _scale) *
-							Math::Quaternion::CreateFromAxisAngle(Math::Vector3(0.0f, 1.0f, 0.0f), _lagAngle.y * _axisScale.y * _scale) *
-							Math::Quaternion::CreateFromAxisAngle(Math::Vector3(0.0f, 0.0f, 1.0f), _lagAngle.z * _axisScale.z * _scale);
+						_modelQuat = _MakeLagQuat(_entry, _entry.share * _weight * _channelScale);
+						break;
+					}
 					}
 					_modelQuat.Normalize();
 
@@ -316,6 +483,6 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 	// 順序 : クリップ(基本レイヤー・上に重ねるレイヤー)を書き終えた後に足す。
 	// 上に重ねるレイヤーより先に足すと、上書きで狙いが消える
 	.After("UpperAnimationSystem")
-	// 絞り込みに使わない読み : ロック相手と実速度
-	.Reads<LockOnTargetComponent, ActualVelocityComponent>();
+	// 絞り込みに使わない読み : ロック相手・実速度・接地(空中の切り替え)
+	.Reads<LockOnTargetComponent, ActualVelocityComponent, GroundStateComponent, BoostStateComponent, ChargeDashComponent>();
 }

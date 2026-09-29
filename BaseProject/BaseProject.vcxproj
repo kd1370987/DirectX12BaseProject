@@ -381,6 +381,7 @@
     <ClCompile Include="Source\Application\Systems\Physics\RayCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Physics\SphereCollisionSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Animation\AdditivePoseSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Animation\LowerBodyTurnSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Animation\AnimationSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Animation\CalcNodeSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Transform\FollowAnimationNodeSystem.cpp" />
@@ -943,6 +944,7 @@
     <ClInclude Include="Source\Application\Components\Core\NameComponent.h" />
     <ClInclude Include="Source\Application\Components\Animation\AnimatorComponent.h" />
     <ClInclude Include="Source\Application\Components\Animation\UpperAnimatorComponent.h" />
+    <ClInclude Include="Source\Application\Components\Animation\LowerBodyTurnComponent.h" />
     <ClInclude Include="Source\Application\Components\Render\ModelComponent.h" />
     <ClInclude Include="Source\Application\Components\Render\EmissiveOverrideComponent.h" />
     <ClInclude Include="Source\Application\Components\Animation\NodePoseComponent.h" />
@@ -1030,6 +1032,7 @@
     <ClInclude Include="Source\Application\Systems\Physics\RayCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Physics\SphereCollisionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Animation\AdditivePoseSystem.h" />
+    <ClInclude Include="Source\Application\Systems\Animation\LowerBodyTurnSystem.h" />
     <ClInclude Include="Source\Application\Systems\Animation\AnimationSystem.h" />
     <ClInclude Include="Source\Application\Systems\Animation\CalcNodeSystem.h" />
     <ClInclude Include="Source\Application\Systems\Transform\FollowAnimationNodeSystem.h" />

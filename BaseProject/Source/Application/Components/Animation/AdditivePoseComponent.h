@@ -29,6 +29,17 @@ struct AdditivePoseComponent
 	float lagArmScale	= 1.0f;		// LagArm チャンネルの倍率
 	float lagLegScale	= 0.7f;		// LagLeg チャンネルの倍率
 
+	// 空中(接地していない間・チャージダッシュ中)。空中用のチャンネル(AimArm / LagBody)を持つときだけ使う
+	float airBlendRate	= 6.0f;		// 地上 ⇔ 空中の切り替えの速さ(1秒あたり)
+
+	// 体全体の前のめり(LagBody)の最大角。動き方で変える
+	float leanNormalDeg	= 20.0f;	// 通常の空中移動
+	float leanBoostDeg	= 40.0f;	// ブースト中
+	float leanDashDeg	= 85.0f;	// チャージダッシュ中(ほぼ進行方向と水平)
+	float leanFullSpeed	= 3.0f;		// この水平速度(m/秒)で最大角に届く。遅いときは比例して浅くなる
+	float leanStiffness	= 30.0f;	// 前のめりのバネ定数
+	float leanDamping	= 11.0f;	// 前のめりの減衰
+
 	// --- 実行時 ---
 	// currentAimQuat は必ず単位クォータニオンで初期化すること。
 	// ゼロクォータニオンを XMMatrixRotationQuaternion に渡すとスケール0の行列になり、
@@ -36,6 +47,9 @@ struct AdditivePoseComponent
 	Math::Quaternion currentAimQuat	= { 0.0f, 0.0f, 0.0f, 1.0f };	// 現在の上半身回転(補間後)
 	Math::Vector3 lagAngle			= { 0.0f, 0.0f, 0.0f };			// バネの現在値(ラジアン)
 	Math::Vector3 lagVelocity		= { 0.0f, 0.0f, 0.0f };			// バネの速度
+	float airBlend					= 0.0f;							// 0 : 地上用のチャンネル / 1 : 空中用のチャンネル
+	Math::Vector3 bodyLeanAngle		= { 0.0f, 0.0f, 0.0f };			// 前のめりのバネの現在値(ラジアン)
+	Math::Vector3 bodyLeanVelocity	= { 0.0f, 0.0f, 0.0f };			// 前のめりのバネの速度
 };
 
 template<>
@@ -57,6 +71,14 @@ struct Engine::ECS::ComponentTraits<AdditivePoseComponent>
 		a_ar.Field("lagLimitDeg",	_comp.lagLimitDeg);
 		a_ar.Field("lagArmScale",	_comp.lagArmScale);
 		a_ar.Field("lagLegScale",	_comp.lagLegScale);
+		// 以下は後から足したもの(バイナリは順番読みなので末尾へ足す)
+		a_ar.Field("airBlendRate",	_comp.airBlendRate);
+		a_ar.Field("leanNormalDeg",	_comp.leanNormalDeg);
+		a_ar.Field("leanBoostDeg",	_comp.leanBoostDeg);
+		a_ar.Field("leanDashDeg",	_comp.leanDashDeg);
+		a_ar.Field("leanFullSpeed",	_comp.leanFullSpeed);
+		a_ar.Field("leanStiffness",	_comp.leanStiffness);
+		a_ar.Field("leanDamping",	_comp.leanDamping);
 	}
 
 	static void Edit(CompEditContext& a_context)
@@ -78,6 +100,18 @@ struct Engine::ECS::ComponentTraits<AdditivePoseComponent>
 		Engine::Editor::Field("LagLimit(deg)", _comp.lagLimitDeg, 0.5f, 0.0f, 90.0f);
 		Engine::Editor::Field("ArmScale", _comp.lagArmScale, 0.01f, 0.0f);
 		Engine::Editor::Field("LegScale", _comp.lagLegScale, 0.01f, 0.0f);
+
+		Engine::Editor::Header("Air");
+		Engine::Editor::Field("BlendRate", _comp.airBlendRate, 0.1f, 0.0f);
+		Engine::Editor::Field("LeanNormal(deg)", _comp.leanNormalDeg, 0.5f, 0.0f, 90.0f);
+		Engine::Editor::Field("LeanBoost(deg)", _comp.leanBoostDeg, 0.5f, 0.0f, 90.0f);
+		Engine::Editor::Field("LeanDash(deg)", _comp.leanDashDeg, 0.5f, 0.0f, 90.0f);
+		Engine::Editor::Field("LeanFullSpeed", _comp.leanFullSpeed, 0.1f, 0.0f);
+		Engine::Editor::Field("LeanStiffness", _comp.leanStiffness, 0.1f, 0.0f);
+		Engine::Editor::Field("LeanDamping", _comp.leanDamping, 0.1f, 0.0f);
+		Engine::Editor::Value("AirBlend", "%.2f", _comp.airBlend);
+		Engine::Editor::Value("Lean(deg)", "x %.1f / z %.1f",
+			DirectX::XMConvertToDegrees(_comp.bodyLeanAngle.x), DirectX::XMConvertToDegrees(_comp.bodyLeanAngle.z));
 
 		Engine::Editor::Header("Runtime");
 		Engine::Editor::HandleInfo(_comp.handle);
