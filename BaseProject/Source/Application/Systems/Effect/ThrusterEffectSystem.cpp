@@ -11,6 +11,7 @@
 #include "Application/Components/Movement/DesiredVelocityComponent.h"
 #include "Application/Components/Effect/EffectPlayRequestComponent.h"
 #include "Application/Components/Effect/BoosterEffectComponent.h"
+#include "Application/Components/Physics/GroundStateComponent.h"
 
 //==========================================================================================
 // ThrusterEffectSystem
@@ -34,6 +35,11 @@
 // あれがプレイヤー入力でしか立たないため。ボスのように isBoostIntent だけ
 // 立てて噴射に入る相手でも同じ演出が出るよう、BoostSoundSystem と同じく
 // 「実際に推力が出ているか」で見る(立ち上がりは受け取った側が見る)。
+//
+// 接地して歩いている間(水平に動いているだけで、ブースト・上昇・チャージダッシュを
+// していない)は噴射しない。歩きはアニメーションで見せるので、足元から火を吹くと
+// 飛んでいるように見えてしまう。接地判定(GroundStateComponent)を持たない機体は
+// 今まで通り、動いていれば噴射する。
 //
 // 以前はブースターに ParticlesComponent を直に付けていて、
 // それ向けの分岐もここにあったが、ブースターは全て EffectAsset へ移したので消した。
@@ -148,7 +154,24 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 				// 消えたままだと膨らむ様子がそもそも出ない
 				bool _charging = (_chargeRate > 0.0f);
 
-				bool _boostOn = _moving || _rising || _boosting || _charging || _chargeDashing;
+				//--------------------------------------------------------------
+				// 接地しているか
+				//
+				// GroundStateComponent はクエリに入れず、持っている機体からだけ拾う
+				// (持たない機体をこのシステムの対象から外さないため)。
+				// 接地中の水平移動は歩きなので、それだけでは点火しない
+				//--------------------------------------------------------------
+				bool _isGround = false;
+				if (a_ctx.pWorld->HasComponent<GroundStateComponent>(_self))
+				{
+					if (const auto* _pGround = a_ctx.pWorld->RefData<GroundStateComponent>(_self))
+					{
+						_isGround = _pGround->isGround;
+					}
+				}
+				const bool _flyMoving = _moving && !_isGround;
+
+				bool _boostOn = _flyMoving || _rising || _boosting || _charging || _chargeDashing;
 
 				// ダッシュ中はブースト時と同じ太さにもする。
 				// 撃ち出しの長さ(dashLengthScale)だけだと束が細いまま前に伸びて、
@@ -164,6 +187,6 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 		}
 	)
 	// 絞り込みに使わない読み書き : 自分の溜め具合を読み、子(ブースター)の噴射へ RefData で配る
-	.Reads<ChargeDashComponent>()
+	.Reads<ChargeDashComponent, GroundStateComponent>()
 	.Writes<EffectPlayRequestComponent, BoosterEffectComponent>();
 }
