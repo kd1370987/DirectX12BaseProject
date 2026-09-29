@@ -168,6 +168,10 @@ namespace Engine::Graphics
 		);
 		void UpdateUIBuffer(const std::vector<UIData>& a_uiInstanceVec);
 
+		// 描く順のインスタンス番号の表を上げる(DrawLists::GetDrawInstanceIndexVec)。
+		// 並びはソートで決まるので、DrawLists::SortItems() の後で呼ぶこと
+		void UpdateDrawInstanceIndexBuffer(const std::vector<uint32_t>& a_indexVec);
+
 		// バッファバインド
 		void ComputeBindBonePaletteBuffer(UINT a_rootIndex);
 		void BindGraphicsDebugLineBuffer(UINT a_rootIndex);
@@ -260,6 +264,10 @@ namespace Engine::Graphics
 		// メッシュシェーダー用データ
 		D3D12::StaticStructuredBuffer<MeshInstanceData>		m_meshInstanceBuffer;
 		D3D12::StaticStructuredBuffer<MeshMaterial>			m_meshMaterialBuffer;
+
+		// 描く順のインスタンス番号の表(増幅シェーダーが「土台 + SV_GroupID.y」で引く)
+		D3D12::DynamicStructuredBuffer<uint32_t>			m_drawInstanceIndexBuffer;
+		UINT m_drawInstanceIndexCount = 0;	// このフレームに上げ切れた数。これより先のアイテムは描かない
 
 		// UIデータ
 		D3D12::DynamicStructuredBuffer<UIData> m_uiInstanceBuffer;

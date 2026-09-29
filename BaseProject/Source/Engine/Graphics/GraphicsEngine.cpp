@@ -423,6 +423,10 @@ namespace Engine::Graphics
 		// 描画アイテムをソート : パスはこの並びからパス番号で自分のぶんを引く
 		m_drawLists.SortItems();
 
+		// 描く順のインスタンス番号の表を上げる : 並びはソートで決まるので、必ずこの後。
+		// 各パスはこの表を「土台 + SV_GroupID.y」で引いて、同じメッシュをまとめて描く
+		m_upRenderContextVec[m_currentFrameIndex]->UpdateDrawInstanceIndexBuffer(m_drawLists.GetDrawInstanceIndexVec());
+
 		//------------------------------------------------------------------
 		// カメラに依存しない毎フレームの計算
 		//

@@ -537,6 +537,7 @@ namespace Engine::Graphics
 			}
 			else
 			{
+				_item.sortKey.bits.subIndex = a_cmd.subIdx;
 				_item.sortKey.bits.meshID = a_cmd.meshHandle.GetIndex();
 				_item.sortKey.bits.materialID = a_cmd.materialHandle.GetIndex();
 				_item.sortKey.bits.psoID = _psoHandle.GetIndex();

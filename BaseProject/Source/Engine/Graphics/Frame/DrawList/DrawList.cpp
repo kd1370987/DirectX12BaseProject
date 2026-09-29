@@ -19,6 +19,7 @@ namespace Engine::Graphics
 	{
 		// 描画命令
 		ClearAndReserve(m_lightWeightDrawItemVec, 10000);
+		ClearAndReserve(m_drawInstanceIndexVec, 10000);
 		ClearAndReserve(m_uiDrawItemVec, 10000);
 		ClearAndReserve(m_dynamicRayRequestVec, 1000);
 		ClearAndReserve(m_skinningDispatchItemVec, 1000);
@@ -75,9 +76,17 @@ namespace Engine::Graphics
 				return a.sortKey.value < b.sortKey.value;
 			}
 		);
+
+		// 描く順のインスタンス番号の表を、並べ終えた順で作り直す
+		m_drawInstanceIndexVec.clear();
+		m_drawInstanceIndexVec.reserve(m_lightWeightDrawItemVec.size());
+		for (const auto& _item : m_lightWeightDrawItemVec)
+		{
+			m_drawInstanceIndexVec.push_back(_item.meshInstanceIndex);
+		}
 	}
 
-	std::span<const LightWeightDrawItem> DrawLists::GetPassItems(uint8_t a_passIndex) const
+	std::span<const LightWeightDrawItem> DrawLists::GetPassItems(uint8_t a_passIndex, UINT* a_pOutFirstIndex) const
 	{
 		// 探したいパスのキーの最小値と最大値を求める。
 		// パス番号は RenderSortKey の最上位8bit(56〜63)に置いてある
@@ -106,6 +115,11 @@ namespace Engine::Graphics
 				return a_value < a_item.sortKey.value;
 			}
 		);
+
+		if (a_pOutFirstIndex)
+		{
+			*a_pOutFirstIndex = static_cast<UINT>(std::distance(m_lightWeightDrawItemVec.begin(), _itStart));
+		}
 
 		return std::span<const LightWeightDrawItem>(_itStart, _itEnd);
 	}

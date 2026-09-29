@@ -117,7 +117,9 @@ void ASMain(
 	// --------------------------------------------------
 	// ペイロードとカウンターの初期化（スレッド0が行う）
 	// --------------------------------------------------
-	uint _instanceID = g_baseInstanceIndex + a_groupID.y;
+	// Y は同じメッシュをまとめて描いたときの何体目か(インスタンシング)。
+	// インスタンスデータはパス間で共有していて描く順に並んでいないので、表を1枚挟んで引く
+	uint _instanceID = g_drawInstanceIndices[g_baseInstanceIndex + a_groupID.y];
 	
 	if (a_gtid == 0)
 	{

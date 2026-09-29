@@ -19,8 +19,9 @@
 //    6 : SRV(t5)            頂点
 //    7 : SRV(t6)            スキニング済み頂点
 //    8 : SRV(t7)            メッシュレットのカリングデータ
-//    9 : RootConstants(b1)  インスタンス配列のオフセット
+//    9 : RootConstants(b1)  描く順のインスタンス番号の表を引く土台
 //   10 : SRV(t8)            前フレームのスキニング済み頂点(モーションベクター用)
+//   11 : SRV(t9)            描く順のインスタンス番号の表(インスタンシング用)
 //
 // ※ 追加は必ず末尾へ。C++側は添字でバインドしているので
 //    (RenderContext::BindMeshInstance / BindMeshlet、DrawQueueDispathMesh の 9 番など)、
@@ -39,6 +40,7 @@
     "SRV(t7)," \
     "RootConstants(num32BitConstants=1, b1)," \
     "SRV(t8)," \
+    "SRV(t9)," \
     "StaticSampler(s0, " \
     "    filter = FILTER_MIN_MAG_MIP_LINEAR, " \
     "    addressU = TEXTURE_ADDRESS_WRAP, " \
@@ -50,6 +52,10 @@ cbuffer CBCamera : register(b0)
 	CameraData g_camera;
 }
 
+// 描く順のインスタンス番号の表(g_drawInstanceIndices)を引く土台。
+// インスタンスデータの番号そのものではない点に注意 : 1回のディスパッチで
+// 同じメッシュを並べて描くので、増幅シェーダーは「土台 + SV_GroupID.y」で表を引いて
+// そのインスタンスのデータ番号を得る
 cbuffer RootConstants : register(b1)
 {
 	uint g_baseInstanceIndex;
@@ -66,6 +72,7 @@ StructuredBuffer<Vertex>			g_vertices				: register(t5);
 StructuredBuffer<Vertex>			g_animatedVertices		: register(t6);
 StructuredBuffer<MeshletCullData>	g_cullData				: register(t7);
 StructuredBuffer<Vertex>			g_prevAnimatedVertices	: register(t8);
+StructuredBuffer<uint>				g_drawInstanceIndices	: register(t9);	// 描く順 → インスタンスデータの番号
 
 SamplerState smp : register(s0);
 

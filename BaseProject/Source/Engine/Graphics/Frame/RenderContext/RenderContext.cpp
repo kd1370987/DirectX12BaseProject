@@ -23,6 +23,26 @@
 //============================================================================================
 namespace Engine::Graphics
 {
+	namespace
+	{
+		// 描く順のインスタンス番号の表の容量(要素数)。
+		// アイテムはインスタンスデータ(最大 100000)をパスの数だけ指すので、その数倍を見ておく
+		constexpr UINT kDrawInstanceIndexCapacity = 400000;
+
+		//------------------------------------------------------------------------------------------
+		// メッシュシェーダーのルートパラメーター番号(MeshCommon.hlsli の MESHGLOBAL_ROOT_SIG と合わせる)
+		//------------------------------------------------------------------------------------------
+		constexpr UINT kMeshRootBaseInstance = 9;			// RootConstants(b1) : 表を引く土台
+		constexpr UINT kMeshRootDrawInstanceIndex = 11;		// SRV(t9) : 描く順のインスタンス番号の表
+
+		//------------------------------------------------------------------------------------------
+		// DispatchMesh の上限
+		// 1次元あたり 65535 グループ、3次元の積で 2^22 グループまで
+		//------------------------------------------------------------------------------------------
+		constexpr UINT kMaxDispatchMeshDim = 65535;
+		constexpr UINT kMaxDispatchMeshTotal = 1u << 22;
+	}
+
 	void RenderContext::Init(
 		GraphicsEngine* a_pOwner,
 		D3D12::GraphicsCommandList* a_pCmdList,
@@ -59,6 +79,11 @@ namespace Engine::Graphics
 		m_meshInstanceBuffer.Create(a_desc.pDevice, m_pHeapManager, a_pCmdList, 100000, nullptr);
 		m_meshMaterialBuffer.Create(a_desc.pDevice, m_pHeapManager, a_pCmdList, 100000, nullptr);
 
+		// 描く順のインスタンス番号の表。
+		// 1つのインスタンスデータを複数のパス(ZPre・GBuffer・影など)のアイテムが指すので、
+		// インスタンスデータより多めに取っておく
+		m_drawInstanceIndexBuffer.Create(a_desc.pDevice, m_pHeapManager, kDrawInstanceIndexCapacity);
+
 		// UIインスタンス
 		m_uiInstanceBuffer.Create(a_desc.pDevice, m_pHeapManager, 10000);
 
@@ -85,6 +110,7 @@ namespace Engine::Graphics
 		m_debugLineBuffer.Release();
 		m_meshInstanceBuffer.Release();
 		m_meshMaterialBuffer.Release();
+		m_drawInstanceIndexBuffer.Release();
 		m_uiInstanceBuffer.Release();
 	}
 
@@ -266,6 +292,31 @@ namespace Engine::Graphics
 		m_uiInstanceBuffer.AllocateAndWrite(a_uiInstanceVec);
 	}
 
+	void RenderContext::UpdateDrawInstanceIndexBuffer(const std::vector<uint32_t>& a_indexVec)
+	{
+		// 張るのは先頭アドレス固定なので、UI・ボーンと同じく毎フレーム先頭から書き直す
+		m_drawInstanceIndexBuffer.ResetForNewFrame();
+		m_drawInstanceIndexCount = 0;
+		if (a_indexVec.empty()) return;
+
+		// 容量を超えたぶんは上げない。
+		// 丸ごと書き込もうとすると AllocateAndWrite が何も書かずに失敗して全部が描けなくなるので、
+		// 入るところまでは描き、溢れたアイテムだけ描画ループで弾く
+		const UINT _count = (std::min)(static_cast<UINT>(a_indexVec.size()), kDrawInstanceIndexCapacity);
+
+		// 溢れる状態は毎フレーム続くので、知らせるのは最初の1回だけ
+		static bool s_isOverflowReported = false;
+		if (_count < a_indexVec.size() && !s_isOverflowReported)
+		{
+			ENGINE_ERROR("描く順のインスタンス番号の表が容量(%u)を超えました(%zu)。溢れたアイテムは描かれません",
+				kDrawInstanceIndexCapacity, a_indexVec.size());
+			s_isOverflowReported = true;
+		}
+
+		m_drawInstanceIndexBuffer.AllocateAndWrite(a_indexVec.data(), _count);
+		m_drawInstanceIndexCount = _count;
+	}
+
 	// どちらもバインドレス : バッファの番号をルート定数で渡す
 	void RenderContext::ComputeBindBonePaletteBuffer(UINT a_rootIndex)
 	{
@@ -290,6 +341,7 @@ namespace Engine::Graphics
 	{
 		m_pCmdList->SetGraphicsRootShaderResourceView(1, m_meshInstanceBuffer.GetGPUVirtualAddress());
 		m_pCmdList->SetGraphicsRootShaderResourceView(2,m_meshMaterialBuffer.GetGPUVirtualAddress());
+		m_pCmdList->SetGraphicsRootShaderResourceView(kMeshRootDrawInstanceIndex, m_drawInstanceIndexBuffer.GetGPUVirtualAddress());
 	}
 
 	void RenderContext::BindMeshlet()
@@ -392,27 +444,95 @@ namespace Engine::Graphics
 
 		// 指定タイプの命令キューを取得
 		if (!m_pDrawLists || !m_pPipelineStateManager) return;
-		auto _itemVec = m_pDrawLists->GetPassItems(a_passIndex);
+
+		// _firstIndex : この範囲の先頭が、ソート済み配列全体(= 描く順のインスタンス番号の表)の何番目か
+		UINT _firstIndex = 0;
+		auto _itemVec = m_pDrawLists->GetPassItems(a_passIndex, &_firstIndex);
 		if (_itemVec.empty()) return;
 
-		for (auto& _item : _itemVec)
+		// 表に上げ切れなかったアイテムは、増幅シェーダーが引く先が無いので描かない
+		if (_firstIndex >= m_drawInstanceIndexCount) return;
+		const size_t _drawableCount = (std::min)(
+			_itemVec.size(), static_cast<size_t>(m_drawInstanceIndexCount - _firstIndex));
+
+		//------------------------------------------------------------------------------------------
+		// インスタンシング
+		//
+		// 同じメッシュの同じサブセットを同じPSOで描くアイテムが続く区間を、1回の DispatchMesh にまとめる。
+		// X はメッシュレット数から決まるグループ数、Y は区間のアイテム数。
+		// 増幅シェーダーは「土台(ルート定数) + SV_GroupID.y」で描く順のインスタンス番号の表を引き、
+		// そこからアイテムごとのインスタンスデータ(行列・マテリアル・スキニング済み頂点の位置)へ辿る。
+		//
+		// まとめる条件にマテリアルは入れない : マテリアルの値はインスタンスデータごとに持っていて
+		// (バインドレス)、区間の中で違っていても描ける。
+		// メッシュとサブセットを揃えるのは、X(メッシュレット数)を区間の全員で同じにするため。
+		// ソートキーの meshID は切り詰めた値なので、区切りはハンドルそのもので判定する。
+		//
+		// 半透明はまとめない : 奥から手前の順に描く必要があり、1回のディスパッチの中の
+		// インスタンス同士の重なり順は当てにしない
+		//------------------------------------------------------------------------------------------
+		auto _canBatch = [](const LightWeightDrawItem& a_head, const LightWeightDrawItem& a_item)
+			{
+				return !a_head.isTransparent && !a_item.isTransparent
+					&& a_head.GetPSOID() == a_item.GetPSOID()
+					&& a_head.meshHandle == a_item.meshHandle
+					&& a_head.subIndex == a_item.subIndex
+					&& a_head.subsetMeshletCount == a_item.subsetMeshletCount;
+			};
+
+		size_t _runStart = 0;
+		while (_runStart < _drawableCount)
 		{
+			const auto& _head = _itemVec[_runStart];
+
+			// 同じものが続くところまで伸ばす
+			size_t _runEnd = _runStart + 1;
+			while (_runEnd < _drawableCount && _canBatch(_head, _itemVec[_runEnd]))
+			{
+				++_runEnd;
+			}
+
 			// メッシュシェーダー経路はインスタンスデータ側にリソースを寄せてあるため、
 			// ここではメッシュ・マテリアルをバインドしない
-			uint16_t _psoID = _item.GetPSOID();
+			const uint16_t _psoID = _head.GetPSOID();
 			// ----------------------------------------------------
 			// PSOの切り替え
 			// ----------------------------------------------------
 			if (_psoID != _lastPSO)
 			{
 				auto* _pPSO = m_pPipelineStateManager->GetPSO(_psoID);
-				if (!_pPSO) continue;
+				if (!_pPSO)
+				{
+					_runStart = _runEnd;
+					continue;
+				}
 				SetGraphicPSO(_pPSO);
 
 				_lastPSO = _psoID;
 			}
-			m_pCmdList->SetGraphicsRoot32BitConstant(9,_item.meshInstanceIndex,0);
-			m_pCmdList->DispatchMesh((_item.subsetMeshletCount + 31) / 32, 1, 1);
+
+			// ----------------------------------------------------
+			// ディスパッチ
+			// Y は1次元あたりの上限と、X*Y の総数の上限に収まるよう分けて投げる
+			// ----------------------------------------------------
+			const UINT _groupX = (_head.subsetMeshletCount + 31) / 32;
+			if (_groupX > 0)
+			{
+				const UINT _maxY = (std::min)(kMaxDispatchMeshDim, kMaxDispatchMeshTotal / _groupX);
+				size_t _chunkStart = _runStart;
+				while (_chunkStart < _runEnd)
+				{
+					const UINT _groupY = static_cast<UINT>((std::min)(static_cast<size_t>(_maxY), _runEnd - _chunkStart));
+					const UINT _baseIndex = _firstIndex + static_cast<UINT>(_chunkStart);
+
+					m_pCmdList->SetGraphicsRoot32BitConstant(kMeshRootBaseInstance, _baseIndex, 0);
+					m_pCmdList->DispatchMesh(_groupX, _groupY, 1);
+
+					_chunkStart += _groupY;
+				}
+			}
+
+			_runStart = _runEnd;
 		}
 	}
 

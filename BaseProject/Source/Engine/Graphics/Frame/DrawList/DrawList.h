@@ -28,11 +28,27 @@ namespace Engine::Graphics
 		// カメラが確定してから(エディターカメラの上書きも済んでから)、SortItems の前に呼ぶ
 		void ResolveTransparentSortKeys(const Math::Vector3& a_cameraPos);
 
-		// ソートキー順に並べる。GetPassItems() はこの後でしか引けない
+		// ソートキー順に並べる。GetPassItems() はこの後でしか引けない。
+		// 並べたあとで、描く順のインスタンス番号の表(GetDrawInstanceIndexVec)も作り直す
 		void SortItems();
 
-		// 指定したパス番号のアイテムだけを返す(ソート済みであること)
-		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex) const;
+		// 指定したパス番号のアイテムだけを返す(ソート済みであること)。
+		// a_pOutFirstIndex には、返した範囲の先頭がソート済み配列全体の何番目かを入れる
+		// (描く順のインスタンス番号の表を引くときの土台になる)
+		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex, UINT* a_pOutFirstIndex = nullptr) const;
+
+		//--------------------------------------------------------------------------------------------
+		// 描く順のインスタンス番号の表(インスタンシング用)
+		//
+		// ソート済みアイテムの i 番目が使うインスタンスデータの番号を、i 番目に入れたもの。
+		// 増幅シェーダーは「土台 + SV_GroupID.y」でこの表を引いてインスタンスデータへ辿るので、
+		// 同じメッシュを並んだアイテムぶん1回のディスパッチでまとめて描ける。
+		//
+		// インスタンスデータ自体はパスをまたいで共有していて、パスごとに並び順(PSO)が違うため、
+		// データの側を並べ替えても全部のパスで連続にはできない。そこで表を1枚挟んでいる。
+		// 全パスのアイテムが1本のソート済み配列に入っているので、表もフレームに1本で足りる
+		//--------------------------------------------------------------------------------------------
+		const std::vector<uint32_t>& GetDrawInstanceIndexVec() const { return m_drawInstanceIndexVec; }
 
 		//--------------------------------------------------------------------------------------------
 		// メッシュシェーダー用 : 追加した位置(添字)を返す
@@ -79,6 +95,9 @@ namespace Engine::Graphics
 
 		// ソートキー持ち描画コマンドリスト
 		std::vector<LightWeightDrawItem> m_lightWeightDrawItemVec = {};
+
+		// ソート済みアイテムの並び順で引くインスタンス番号の表
+		std::vector<uint32_t> m_drawInstanceIndexVec = {};
 
 		// オブジェクト単位データ
 		std::vector<MeshInstanceData> m_meshInstanceDataVec = {};
