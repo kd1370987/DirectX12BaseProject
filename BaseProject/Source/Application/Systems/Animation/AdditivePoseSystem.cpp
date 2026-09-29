@@ -313,6 +313,9 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 			}
 		}
 	)
+	// 順序 : クリップ(基本レイヤー・上に重ねるレイヤー)を書き終えた後に足す。
+	// 上に重ねるレイヤーより先に足すと、上書きで狙いが消える
+	.After("UpperAnimationSystem")
 	// 絞り込みに使わない読み : ロック相手と実速度
 	.Reads<LockOnTargetComponent, ActualVelocityComponent>();
 }

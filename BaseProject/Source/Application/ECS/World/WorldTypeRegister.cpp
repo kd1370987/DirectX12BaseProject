@@ -35,6 +35,7 @@
 #include "Application/Components/Physics/GroundStateComponent.h"
 #include "Application/Components/Boid/BoidWaveStateComponent.h"
 #include "Application/Components/Animation/AnimatorComponent.h"
+#include "Application/Components/Animation/UpperAnimatorComponent.h"
 #include "Application/Components/Animation/SkeletonPoseComponent.h"
 #include "Application/Components/Animation/NodePoseComponent.h"
 #include "Application/Components/Render/UIComponent.h"
@@ -264,6 +265,8 @@ namespace App::ECS
 		a_world.RegisterComponent<WorldMatrixComponent>("WorldMatrixComponent");
 		a_world.RegisterComponent<ModelComponent>("ModelComponent");
 		a_world.RegisterComponent<AnimatorComponent>("AnimatorComponent");
+		// 基本レイヤーの上に重ねるアニメーター(アニメーションレイヤリング)
+		a_world.RegisterComponent<UpperAnimatorComponent>("UpperAnimatorComponent");
 		a_world.RegisterComponent<SkeletonPoseComponent>("SkeletonPoseComponent");
 		a_world.RegisterComponent<NodePoseComponent>("NodePoseComponent");
 		a_world.RegisterComponent<UIComponent>("UIComponent");

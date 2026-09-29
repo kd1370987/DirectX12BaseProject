@@ -28,7 +28,8 @@ namespace Engine::Resource
 //==========================================================================================
 struct AnimatorLayer
 {
-	// かけるボーンレイヤー(モデルの BoneMask を名前のハッシュで引く)。0 なら全身
+	// かけるボーンレイヤー(モデルの BoneMask を名前のハッシュで引く)。0 なら全身。
+	// 上に重ねるレイヤー(UpperAnimatorComponent)だけが使う。基本レイヤーは常に全身
 	UINT boneMaskHash = 0;
 
 	// ---- 設計図(保存するのは GUID だけ) ----
@@ -47,19 +48,60 @@ struct AnimatorLayer
 	Engine::Handle<Engine::Resource::StateMachineInstance> instanceHandle = {};
 };
 
+//----------------------------------------------------------------------------------
+// レイヤー1枚ぶんのエディター表示(AnimatorComponent / UpperAnimatorComponent で共通)
+// a_isMasked : ボーンレイヤー(かける範囲)を選ばせるか
+//----------------------------------------------------------------------------------
+inline void EditAnimatorLayer(Engine::ECS::CompEditContext& a_context, const char* a_label, AnimatorLayer& a_layer, bool a_isMasked)
+{
+	using namespace Engine;
+	const auto& _services = *a_context.pWorld->RefEngineServices();
+
+	Engine::Editor::IDScope _idScope(a_label);
+	Engine::Editor::HelpText(a_label);
+
+	// 設計図の選択
+	Engine::Editor::AssetField<Resource::AnimatorAsset>(
+		_services,
+		"Animator",
+		"AnimatorAsset",
+		a_layer.animatorGUID,
+		a_layer.animatorHandle
+	);
+
+	// 現在のステートを表示
+	const auto* _pAnimator = _services.pResourceManager->Get(a_layer.animatorHandle);
+	if (_pAnimator)
+	{
+		std::string _nodeNameStr(_pAnimator->GetNodeName(a_layer.currentStateHash));
+		Engine::Editor::Value("Current Node", "%s", _nodeNameStr.c_str());
+	}
+
+	// ボーンレイヤー : 自身のモデルが持つものから選ぶ
+	if (a_isMasked)
+	{
+		const auto* _pModelComp = a_context.pWorld->RefData<ModelComponent>(a_context.entity);
+		const auto* _pModel = _pModelComp ? _services.pResourceManager->Get(_pModelComp->handle) : nullptr;
+		Engine::Editor::ModelBoneMaskField("Bone Layer", _pModel, a_layer.boneMaskHash);
+	}
+
+	Engine::Editor::Value("State Time", "%.2f s", a_layer.stateTime);
+	Engine::Editor::Value("Clip Time", "%.2f", a_layer.clipTime);
+}
+
 //==========================================================================================
 // AnimatorComponent
 //
-// アニメーションするモデルのアニメーター
+// アニメーションするモデルのアニメーター。
+//
+// ・「アニメーションするモデル」の目印も兼ねる(静的な描画系は Exclude<AnimatorComponent> で外す)。
+//   そのため、ポーズの置き場とレイトレ用インスタンスは必須コンポーネントとして一緒に付ける。
+// ・上半身など一部だけ別のアニメーションを重ねるときは UpperAnimatorComponent を足す
 //==========================================================================================
 struct AnimatorComponent
 {
 	// 基本レイヤー : 全身にかかる
 	AnimatorLayer baseLayer = {};
-
-	// 上半身にかかるレイヤー
-	AnimatorLayer upperLayer = {};
-	bool isLayering = false;			// アニメーションレイヤリングをするかどうか
 };
 
 template<>
@@ -90,42 +132,9 @@ struct Engine::ECS::ComponentTraits<AnimatorComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		using namespace Engine;
 		AnimatorComponent& _comp = Engine::Editor::GetValue<AnimatorComponent>(a_context.pData);
-		AnimatorLayer& _layer = _comp.baseLayer;
 
-		auto _LayerEditFunc = [&_comp,&a_context](const char* a_label,AnimatorLayer& a_layer) 
-			{
-				Engine::Editor::IDScope _idScope(a_label);
-				Engine::Editor::HelpText(a_label);
-
-				// 設計図の選択
-				Engine::Editor::AssetField<Resource::AnimatorAsset>(
-					*a_context.pWorld->RefEngineServices(),
-					"Animator",
-					"AnimatorAsset",
-					a_layer.animatorGUID,
-					a_layer.animatorHandle
-				);
-
-				// 現在のステートを表示
-				const auto* _pAnimator = a_context.pWorld->RefEngineServices()->pResourceManager->Get(a_layer.animatorHandle);
-				if (_pAnimator)
-				{
-					std::string _nodeNameStr(_pAnimator->GetNodeName(a_layer.currentStateHash));
-					Engine::Editor::Value("Current Node", "%s", _nodeNameStr.c_str());
-				}
-				// ボーンレイヤー : 自身のモデルが持つものから選ぶ
-				const auto* _pModelComp = a_context.pWorld->RefData<ModelComponent>(a_context.entity);
-				const auto* _pModel = _pModelComp ? a_context.pWorld->RefEngineServices()->pResourceManager->Get(_pModelComp->handle) : nullptr;
-				Engine::Editor::ModelBoneMaskField("Bone Layer", _pModel, a_layer.boneMaskHash);
-
-				Engine::Editor::Value("State Time", "%.2f s", a_layer.stateTime);
-				Engine::Editor::Value("Clip Time", "%.2f", a_layer.clipTime);
-
-			};
-
-		_LayerEditFunc("Base Layer",_comp.baseLayer);
-		_LayerEditFunc("Upper Layer",_comp.upperLayer);
+		// 基本レイヤーは全身にかかるので、ボーンレイヤーは選ばせない
+		EditAnimatorLayer(a_context, "Base Layer", _comp.baseLayer, false);
 	}
 };

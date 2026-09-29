@@ -2702,6 +2702,9 @@
     <ClInclude Include="Source\Application\Components\Animation\AnimatorComponent.h">
       <Filter>Source\Application\Components\Animation</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Components\Animation\UpperAnimatorComponent.h">
+      <Filter>Source\Application\Components\Animation</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Components\Audio\AudioBehaviorComponent.h">
       <Filter>Source\Application\Components\Audio</Filter>
     </ClInclude>

@@ -3,6 +3,7 @@
 #include "Application/Components/Movement/MoveIntentComponent.h"
 #include "Application/Components/Combat/ActionIntentComponent.h"
 #include "Application/Components/Animation/AnimatorComponent.h"
+#include "Application/Components/Animation/UpperAnimatorComponent.h"
 #include "Application/Components/Movement/BoostParamsComponent.h"
 #include "Application/Components/Physics/GroundStateComponent.h"
 
@@ -17,6 +18,9 @@
 // これは「設計図の定義に無ければ定義を追加してから値を入れる」ので、
 // プログラム側から足したパラメータもそのままエディターの一覧に出る。
 // (定義済みならエディターで設定した型/デフォルト値をそのまま使う)
+//
+// 上に重ねるレイヤー(UpperAnimatorComponent)を持っていれば、そちらのインスタンスにも同じ値を書く。
+// (レイヤーごとに設計図もパラメータの実体も別なので、両方へ書かないと上のレイヤーが遷移しない)
 //
 // AnimatorComponent はハンドルを読むだけなので const。
 // 値を書き込むのはハンドルの先のインスタンス(プール)で、コンポーネント自体は触らない
@@ -43,6 +47,8 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 			static const UINT s_isGroundHash = Engine::String::ToHash("IsGround");
 			static const UINT s_isShootHash = Engine::String::ToHash("IsShoot");
 
+			auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
+
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
 				const MoveIntentComponent& _intentComp = a_moveIntentArray[_i];
@@ -50,24 +56,13 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 				const AnimatorComponent& _animComp = a_animatorArray[_i];
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
-				// インスタンスの実体を取得
-				auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
-				auto* _pInstance = _stateInstancePool.Ref(_animComp.baseLayer.instanceHandle);
-				if (!_pInstance) continue;
-
-				// 設計図(パラメータ定義を足すので Ref で可変参照を取る)
-				auto* _pAnimator = a_ctx.pServices->pResourceManager->Ref(_animComp.baseLayer.animatorHandle);
-				if (!_pAnimator) continue;
-
-				// 移動量から「Speed」パラメータを計算して登録
-				// XとZの入力値からベクトルの長さ（速さ）を求める
-				float _speed = std::sqrt((_intentComp.value.x * _intentComp.value.x) +
+				// 入力・状態から値を集める
+				// 移動量から「Speed」: XとZの入力値からベクトルの長さ（速さ）を求める
+				const float _speed = std::sqrt((_intentComp.value.x * _intentComp.value.x) +
 					(_intentComp.value.z * _intentComp.value.z));
-				_pAnimator->SetFloatParam(*_pInstance, s_speedHash, "Speed", _speed);
 
-				// ジャンプ入力を「Jump」パラメータ(TriggerやBool想定)に登録
-				// Y軸にジャンプ入力が入っている場合は true
-				_pAnimator->SetBoolParam(*_pInstance, s_jumpHash, "Jump", _intentComp.value.y > 0.0f);
+				// ジャンプ入力(Y軸にジャンプ入力が入っている場合は true)
+				const bool _isJump = _intentComp.value.y > 0.0f;
 
 				//--------------------------------------------------------------------------
 				// 地面に接しているかの判定
@@ -84,7 +79,6 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 						_isGround = _pGround->isGround;
 					}
 				}
-				_pAnimator->SetBoolParam(*_pInstance, s_isGroundHash, "IsGround", _isGround);
 
 				//--------------------------------------------------------------------------
 				// 銃関係(発射中)
@@ -93,11 +87,41 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 				// アーキタイプを狭めないようにエンティティ単位で参照する。
 				// 左右どちらかを撃っていれば「撃っている」とする。
 				//--------------------------------------------------------------------------
+				const ActionIntentComponent* _pActionIntent = nullptr;
 				if (a_ctx.pWorld->HasComponent<ActionIntentComponent>(_self))
 				{
-					if (const auto* _pActionIntent = a_ctx.pWorld->RefData<ActionIntentComponent>(_self))
+					_pActionIntent = a_ctx.pWorld->RefData<ActionIntentComponent>(_self);
+				}
+
+				// レイヤー1枚ぶんのインスタンスへ書く
+				auto _WriteParams = [&](const AnimatorLayer& a_layer)
 					{
-						_pAnimator->SetBoolParam(*_pInstance, s_isShootHash, "IsShoot", _pActionIntent->IsAnyWeaponShoot());
+						// インスタンスの実体を取得
+						auto* _pInstance = _stateInstancePool.Ref(a_layer.instanceHandle);
+						if (!_pInstance) return;
+
+						// 設計図(パラメータ定義を足すので Ref で可変参照を取る)
+						auto* _pAnimator = a_ctx.pServices->pResourceManager->Ref(a_layer.animatorHandle);
+						if (!_pAnimator) return;
+
+						_pAnimator->SetFloatParam(*_pInstance, s_speedHash, "Speed", _speed);
+						_pAnimator->SetBoolParam(*_pInstance, s_jumpHash, "Jump", _isJump);
+						_pAnimator->SetBoolParam(*_pInstance, s_isGroundHash, "IsGround", _isGround);
+						if (_pActionIntent)
+						{
+							_pAnimator->SetBoolParam(*_pInstance, s_isShootHash, "IsShoot", _pActionIntent->IsAnyWeaponShoot());
+						}
+					};
+
+				// 基本レイヤー
+				_WriteParams(_animComp.baseLayer);
+
+				// 上に重ねるレイヤー
+				if (a_ctx.pWorld->HasComponent<UpperAnimatorComponent>(_self))
+				{
+					if (const auto* _pUpper = a_ctx.pWorld->RefData<UpperAnimatorComponent>(_self))
+					{
+						_WriteParams(_pUpper->layer);
 					}
 				}
 			}
@@ -105,5 +129,5 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 	)
 	// 絞り込みに使わない読み : 持っているときだけ RefData で読む。
 	// 宣言しないと ActionIntent を書くジョブ(EnemyShootIntentSystem)と同時に走りうる
-	.Reads<ActionIntentComponent, GroundStateComponent>();
+	.Reads<ActionIntentComponent, GroundStateComponent, UpperAnimatorComponent>();
 }

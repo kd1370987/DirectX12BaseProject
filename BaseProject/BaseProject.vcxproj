@@ -942,6 +942,7 @@
     <ClInclude Include="Source\Application\Components\Core\GUIDComponent.h" />
     <ClInclude Include="Source\Application\Components\Core\NameComponent.h" />
     <ClInclude Include="Source\Application\Components\Animation\AnimatorComponent.h" />
+    <ClInclude Include="Source\Application\Components\Animation\UpperAnimatorComponent.h" />
     <ClInclude Include="Source\Application\Components\Render\ModelComponent.h" />
     <ClInclude Include="Source\Application\Components\Render\EmissiveOverrideComponent.h" />
     <ClInclude Include="Source\Application\Components\Animation\NodePoseComponent.h" />
