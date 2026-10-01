@@ -39,6 +39,10 @@
 #include "../../../InstanceResource/WormWaveResource.h"
 #include "../../../InstanceResource/WormGroundEffectResource.h"
 #include "Application/Components/Boid/WarmGroundEffectComponent.h"
+#include "Application/Components/Boid/SwarmMissileComponent.h"
+#include "Application/Components/Boid/BoidMembershipComponent.h"
+#include "Application/Components/Camera/FollowTargetComponent.h"
+#include "Application/Components/Combat/DefenseRatioComponent.h"
 
 namespace App::Object
 {
@@ -193,6 +197,9 @@ namespace App::Object
 	{
 		if (!m_isSpown || !a_context.pWorld) return;
 
+		// 体力が区切りを切っていたら、小隊長の整理へ割り込む(切り替わるのはこの後の行動の更新)
+		CheckReorganize();
+
 		// リーダーの行動(入力を作る)
 		UpdateLeaderBrain(a_context);
 
@@ -231,6 +238,188 @@ namespace App::Object
 		m_stateMachine.PreUpdate(_stateContext);
 		m_stateMachine.Update(_stateContext);
 		m_stateMachine.PostUpdate(_stateContext);
+
+		//----------------------------------------------------------------------
+		// 行動からの依頼(体を作り変えるのはこのクラス)
+		//----------------------------------------------------------------------
+		if (_stateContext.isRequestReorganize)
+		{
+			ReorganizePlatoons(a_context);
+		}
+
+		// 防御比率は依頼が変わったときだけ書き換える(依頼しない行動は既定の 1)
+		if (_stateContext.bodyDefenseRatio != m_bodyDefenseRatio)
+		{
+			ApplyBodyDefense(a_context, _stateContext.bodyDefenseRatio);
+		}
+	}
+
+	//======================================================================================
+	// 小隊長の整理 : 体力が区切りを切ったか
+	//--------------------------------------------------------------------------------------
+	// 区切りは「最大体力から m_reorganizeHpInterval 減るごと」。一度に複数の区切りを
+	// 越えていても整理は1回(越えた数はまとめて進める)。
+	// 整理の最中は割り込まない。その間に落ちたぶん(飛んでいるミサイルなど)は、
+	// 整理が終わった後の判定で拾う
+	//======================================================================================
+	void SwarmBossController::CheckReorganize()
+	{
+		if (m_reorganizeHpInterval == 0 || m_maxBoid == 0) return;
+		if (m_currentBoids == 0) return;	// 倒された
+		if (m_stateMachine.GetCurrentState() == ESwarmBossState::Reorganize) return;
+
+		const uint32_t _lost  = m_maxBoid - std::min(m_currentBoids, m_maxBoid);
+		const uint32_t _steps = _lost / m_reorganizeHpInterval;
+		if (_steps <= m_reorganizeCount) return;
+
+		m_reorganizeCount = _steps;
+		m_stateMachine.RequestChangeState(ESwarmBossState::Reorganize);
+	}
+
+	//======================================================================================
+	// 小隊長の整理 : 小隊長を減らして、ボイドを割り当て直す
+	//--------------------------------------------------------------------------------------
+	// 残す数 = 最大数 × 今の体力 / 最大体力(切り上げ。1体以上、今の数以下)。
+	// 減らすのは尾の側から。一つ前の相手(preLeader)の繋がりが切れないようにするため。
+	//
+	// ボイドは「元の小隊長の並び順」で並べてから、残った小隊長へ頭から均等に配る。
+	// 頭の方に居たボイドは頭の方の小隊長へ付くので、体の中を大きく横切らずに済む。
+	// 減らした小隊長に付いていたボイドは尾の小隊長へ寄る。
+	// 切り離したミサイル(群れの部品を外したもの)は対象にしない。
+	//
+	// 1回きりの処理なので、ここで全ボイドを走査する(毎フレームはしない)
+	//======================================================================================
+	void SwarmBossController::ReorganizePlatoons(Engine::GameObject::ObjectContext& a_context)
+	{
+		auto& _world = *a_context.pWorld;
+
+		// 生きている小隊長だけを、頭からの並びのまま残す
+		std::vector<Engine::ECS::Entity> _platoons = {};
+		_platoons.reserve(m_platoonLeaderEntities.size());
+		for (const Engine::ECS::Entity _platoon : m_platoonLeaderEntities)
+		{
+			if (_world.IsAliveEntity(_platoon)) _platoons.push_back(_platoon);
+		}
+		if (_platoons.empty() || m_maxBoid == 0) return;
+
+		// 元の並び順(頭から何番目か)。ボイドを並べるのに使う
+		std::unordered_map<Engine::ECS::Entity, size_t> _oldOrder = {};
+		for (size_t _i = 0; _i < _platoons.size(); ++_i) _oldOrder.emplace(_platoons[_i], _i);
+
+		//----------------------------------------------------------------------
+		// 残す数を決めて、尾から減らす
+		//----------------------------------------------------------------------
+		const uint32_t _alive = CountAliveBoids(a_context);
+		const double _rate = static_cast<double>(_alive) / static_cast<double>(m_maxBoid);
+		size_t _keep = static_cast<size_t>(std::ceil(static_cast<double>(m_maxPlatoonLeader) * _rate));
+		_keep = std::clamp<size_t>(_keep, 1, _platoons.size());
+
+		for (size_t _i = _keep; _i < _platoons.size(); ++_i)
+		{
+			_world.ReserveReleaseEntity(_platoons[_i]);
+		}
+		_platoons.resize(_keep);
+		m_platoonLeaderEntities = _platoons;
+
+		// 体の長さ = 最後尾になった小隊長の位置(ウェーブを捨てる位置に使う)
+		m_tailAlongWorm = 0.0f;
+		if (_world.HasComponent<PlatoonLeaderComponent>(_platoons.back()))
+		{
+			m_tailAlongWorm = _world.RefData<PlatoonLeaderComponent>(_platoons.back())->distanceAlongWorm;
+		}
+
+		//----------------------------------------------------------------------
+		// ボイドを元の並び順で集める(群れの部品を持つもの = ミサイルでないもの)
+		//----------------------------------------------------------------------
+		struct BoidEntry
+		{
+			Engine::ECS::Entity entity = Engine::ECS::Limits::INVALID_ENTITY;
+			size_t order = 0;	// 元の小隊長の並び順(分からなければ最後)
+		};
+		std::vector<BoidEntry> _boids = {};
+		_boids.reserve(m_currentBoids);
+
+		const Engine::GUID _self = m_guid;
+		_world.ForEach<const SwarmBossBoidTag, const SpawnerComponent, const BoidMembershipComponent, const BoidSteeringParamsComponent>(
+			[&](
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const SwarmBossBoidTag*,
+				const SpawnerComponent* a_spawnerArray,
+				const BoidMembershipComponent* a_memberArray,
+				const BoidSteeringParamsComponent*)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					if (a_spawnerArray[_i].spawnerGUID != _self) continue;
+
+					const auto _it = _oldOrder.find(a_memberArray[_i].platoonID);
+					const size_t _order = (_it != _oldOrder.end()) ? _it->second : _oldOrder.size();
+					_boids.push_back({ a_pChunk->entityData[_i], _order });
+				}
+			}
+		);
+		if (_boids.empty()) return;
+
+		std::stable_sort(_boids.begin(), _boids.end(),
+			[](const BoidEntry& a_l, const BoidEntry& a_r) { return a_l.order < a_r.order; });
+
+		//----------------------------------------------------------------------
+		// 残った小隊長へ頭から均等に配る(走査が終わってから書く)
+		//----------------------------------------------------------------------
+		std::vector<Engine::GUID> _platoonGUIDs = {};
+		_platoonGUIDs.reserve(_platoons.size());
+		for (const Engine::ECS::Entity _platoon : _platoons) _platoonGUIDs.push_back(GetEntityGUID(_world, _platoon));
+
+		for (size_t _i = 0; _i < _boids.size(); ++_i)
+		{
+			const size_t _index = _i * _platoons.size() / _boids.size();
+			const Engine::ECS::Entity _boid = _boids[_i].entity;
+
+			_world.RefData<BoidMembershipComponent>(_boid)->platoonID = _platoons[_index];
+
+			if (_world.HasComponent<FollowTargetComponent>(_boid))
+			{
+				auto* _pFollow = _world.RefData<FollowTargetComponent>(_boid);
+				_pFollow->target     = _platoons[_index];
+				_pFollow->targetGUID = _platoonGUIDs[_index];
+			}
+			if (_world.HasComponent<SpawnerComponent>(_boid))
+			{
+				_world.RefData<SpawnerComponent>(_boid)->waveIndex = static_cast<int>(_index);
+			}
+		}
+	}
+
+	//======================================================================================
+	// 体(ボイド)の防御比率を書き換える
+	//--------------------------------------------------------------------------------------
+	// 切り離したミサイルは 1 のまま(0 にすると自爆のダメージも 0 になって落ちられない)
+	//======================================================================================
+	void SwarmBossController::ApplyBodyDefense(Engine::GameObject::ObjectContext& a_context, float a_ratio)
+	{
+		auto& _world = *a_context.pWorld;
+		const Engine::GUID _self = m_guid;
+
+		_world.ForEach<const SwarmBossBoidTag, const SpawnerComponent, DefenseRatioComponent>(
+			[&](
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const SwarmBossBoidTag*,
+				const SpawnerComponent* a_spawnerArray,
+				DefenseRatioComponent* a_defenseArray)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					if (a_spawnerArray[_i].spawnerGUID != _self) continue;
+
+					const bool _isMissile = _world.HasComponent<SwarmMissileComponent>(a_pChunk->entityData[_i]);
+					a_defenseArray[_i].ratio = _isMissile ? 1.0f : a_ratio;
+				}
+			}
+		);
+
+		m_bodyDefenseRatio = a_ratio;
 	}
 
 	//======================================================================================
@@ -483,6 +672,10 @@ namespace App::Object
 		// リーダーが出た時点で「出し済み」にする。
 		// 小隊長やボイドで失敗しても、出したリーダーの上に二重に出さないため
 		m_isSpown = true;
+
+		// 体力の区切りは満タンから数え直す
+		m_reorganizeCount  = 0;
+		m_bodyDefenseRatio = 1.0f;
 
 		// 小隊長 → 各小隊長のボイド
 		return CreatePlatoonLeaders(a_context);
@@ -746,6 +939,14 @@ namespace App::Object
 			// ボスの体である印。Controller はこれを数えて体力にする
 			EnsureRootComponent<SwarmBossBoidTag>(_world, _instanceVec);
 
+			// 防御比率(HealthSystem が受けたダメージに掛ける)。小隊長の整理中だけ 0 にする
+			EditRootComponent<DefenseRatioComponent>(_world, _instanceVec,
+				[this](DefenseRatioComponent& a_comp)
+				{
+					a_comp.ratio = m_bodyDefenseRatio;
+				}
+			);
+
 			// 体当たりのダメージ(BoidContactDamageSystem)。持つのは待ち時間だけ
 			EnsureRootComponent<BoidContactDamageComponent>(_world, _instanceVec);
 
@@ -904,6 +1105,7 @@ namespace App::Object
 		// ---- 行動 ----
 		// 調整値は各ステートが持つ(名前は以前と同じなので既存シーンもそのまま読める)
 		m_stateMachine.Archive(a_ar);
+		a_ar.Field("ReorganizeHpInterval", m_reorganizeHpInterval);
 
 		// ---- ウェーブ ----
 		// 走っている位置は生成後に決まるので保存しない
@@ -979,6 +1181,16 @@ namespace App::Object
 		Engine::Editor::Field("Platoon Scale", m_platoonSpeedScale, 0.05f, 0.0f);
 		Engine::Editor::Field("Boid Scale", m_boidSpeedScale, 0.05f, 0.0f);
 		Engine::Editor::Tooltip("Platoon %.1f / Boid %.1f (written on spawn, overrides prefab)", m_leaderSpeed * m_platoonSpeedScale, m_leaderSpeed * m_boidSpeedScale);
+
+		Engine::Editor::Header("Reorganize");
+		Engine::Editor::Field("Reorganize Hp Interval", m_reorganizeHpInterval);
+		Engine::Editor::Tooltip("Every this many boids lost : gather into a ball, cut platoons to the HP ratio (0 : never)");
+		if (m_reorganizeHpInterval > 0)
+		{
+			const int _next = static_cast<int>(m_maxBoid) - static_cast<int>(m_reorganizeHpInterval * (m_reorganizeCount + 1));
+			Engine::Editor::HelpText("Next : HP %d (done %u)", _next, m_reorganizeCount);
+		}
+		Engine::Editor::Value("Body Defense", "%.2f", m_bodyDefenseRatio);
 
 		Engine::Editor::Header("Leader Action");
 		m_stateMachine.DrawInspector();

@@ -87,6 +87,7 @@
 #include "Application/Components/Effect/BallisticComponent.h"
 #include "Application/Components/Boid/BoidContactDamageComponent.h"
 #include "Application/Components/Boid/SwarmMissileComponent.h"
+#include "Application/Components/Combat/DefenseRatioComponent.h"
 
 // システム関連
 #include "Application/Systems/Render/ModelFixupSystem.h"
@@ -382,6 +383,8 @@ namespace App::ECS
 		a_world.RegisterComponent<DynamicRaytracingComponent>("DynamicRaytracingComponent");
 		// ワームの体から切り離された自爆ミサイル。付けるのは SwarmMissileSystem
 		a_world.RegisterComponent<SwarmMissileComponent>("SwarmMissileComponent");
+		// 受けたダメージに掛ける比率(0 で無敵)。掛けるのは HealthSystem
+		a_world.RegisterComponent<DefenseRatioComponent>("DefenseRatioComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();

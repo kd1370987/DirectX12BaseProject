@@ -315,6 +315,7 @@
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\CoilAttack\CoilAttack.cpp" />
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Reorganize\Reorganize.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge\ChargeState.cpp" />
@@ -908,6 +909,8 @@
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\CoilAttack\CoilAttack.h" />
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Reorganize\Reorganize.h" />
+    <ClInclude Include="Source\Application\Components\Combat\DefenseRatioComponent.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\IState.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.h" />

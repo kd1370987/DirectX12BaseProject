@@ -3,6 +3,7 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Combat/HealthComponent.h"
+#include "Application/Components/Combat/DefenseRatioComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/InstanceResource/HitEventResource.h"
 #include "Application/InstanceResource/DeathEventResource.h"
@@ -34,6 +35,8 @@
 //   ローカル座標がそのままワールド座標になる。
 //   (以前は WorldMatrix を読むとソートが循環したための選択。フェーズのタグを
 //    依存に数えなくなった(IsQueryOnlyTag)ので、今はその理由は無い)
+// ・受けたダメージの合計には DefenseRatioComponent の比率を掛ける(持っていなければそのまま)。
+//   0 なら無敵。ワームボスが小隊長を整理している間などに使う。
 // ・PostUpdate 帯。ヒットを積むのは Physics 帯の HitDetectSystem、
 //   消すのは次フレーム PreUpdate の HitEventClearSystem なので、その間で読む。
 //==============================================================================
@@ -77,6 +80,13 @@ void HealthSystem::Init(App::ECS::APPWorld& a_world)
 
 				if (_damage <= 0.0f) continue;
 
+				// 防御比率(1 : そのまま / 0 : 無敵)。持っていなければそのまま食らう
+				if (a_ctx.pWorld->HasComponent<DefenseRatioComponent>(_self))
+				{
+					_damage *= std::max(a_ctx.pWorld->RefData<DefenseRatioComponent>(_self)->ratio, 0.0f);
+					if (_damage <= 0.0f) continue;
+				}
+
 				_health.currentHealth -= _damage;
 				if (_health.currentHealth > 0.0f) continue;
 
@@ -99,6 +109,8 @@ void HealthSystem::Init(App::ECS::APPWorld& a_world)
 	)
 	// 順序 : 死亡(DeathEventResource)を積む側同士の並び
 	.After("ExplodeOnHitSystem")
+	// 絞り込みに使わない読み : 防御比率を RefData で読む
+	.Reads<DefenseRatioComponent>()
 	.ReadsResource<HitEventResource>()
 	.WritesResource<DeathEventResource>();
 }

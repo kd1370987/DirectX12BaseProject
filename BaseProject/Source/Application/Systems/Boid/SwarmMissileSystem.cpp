@@ -11,6 +11,7 @@
 #include "Application/Components/Camera/FollowTargetComponent.h"
 #include "Application/Components/Render/EmissiveOverrideComponent.h"
 #include "Application/Components/Combat/HealthComponent.h"
+#include "Application/Components/Combat/DefenseRatioComponent.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Movement/DesiredVelocityComponent.h"
 
@@ -196,6 +197,7 @@ void SwarmMissileSystem::Init(App::ECS::APPWorld& a_world)
 			//------------------------------------------------------------------
 			const auto _missileID  = _world.GetCompTypeID<SwarmMissileComponent>();
 			const auto _emissiveID = _world.GetCompTypeID<EmissiveOverrideComponent>();
+			const auto _defenseID  = _world.GetCompTypeID<DefenseRatioComponent>();
 
 			const Engine::ECS::ComponentTypeID _removeIDs[] =
 			{
@@ -233,6 +235,17 @@ void SwarmMissileSystem::Init(App::ECS::APPWorld& a_world)
 
 					const auto* _pBytes = reinterpret_cast<const uint8_t*>(&_emissive);
 					_cmd.dataMap[_emissiveID] = std::vector<uint8_t>(_pBytes, _pBytes + sizeof(_emissive));
+				}
+
+				// 防御比率は 1 に戻す。体が無敵(小隊長の整理中)のまま飛び出すと、
+				// 自爆のダメージも 0 になって落ちられなくなるため
+				if (_cmd.toSig.test(_defenseID))
+				{
+					DefenseRatioComponent _defense = {};
+					_defense.ratio = 1.0f;
+
+					const auto* _pBytes = reinterpret_cast<const uint8_t*>(&_defense);
+					_cmd.dataMap[_defenseID] = std::vector<uint8_t>(_pBytes, _pBytes + sizeof(_defense));
 				}
 
 				_world.ReserveChangeSignature(std::move(_cmd));
