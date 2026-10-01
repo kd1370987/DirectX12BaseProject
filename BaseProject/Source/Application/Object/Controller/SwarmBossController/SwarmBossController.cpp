@@ -12,6 +12,7 @@
 #include "../../../ECS/World/APPWorld.h"
 #include "../../../Utility/PrefabSpawnHelper.h"
 #include "../../../Utility/EffectPrefabSpawnHelper.h"
+#include "../../../Utility/EffectSpawnHelper.h"
 
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Movement/MovementParamsComponent.h"
@@ -43,6 +44,8 @@
 #include "Application/Components/Boid/BoidMembershipComponent.h"
 #include "Application/Components/Camera/FollowTargetComponent.h"
 #include "Application/Components/Combat/DefenseRatioComponent.h"
+#include "Application/Components/Boid/SwarmBurstComponent.h"
+#include "Application/Components/Movement/ActualVelocityComponent.h"
 
 namespace App::Object
 {
@@ -142,6 +145,19 @@ namespace App::Object
 			return _dir * _r;
 		}
 
+		//----------------------------------------------------------------------
+		// シグネチャ変更の予約へ、コンポーネントの初期値を積む(持っている / 足すものだけ)
+		//----------------------------------------------------------------------
+		template<typename T>
+		void SetCommandData(Engine::ECS::World& a_world, Engine::ECS::ChangeEntityCmd& a_cmd, const T& a_value)
+		{
+			const auto _id = a_world.GetCompTypeID<T>();
+			if (!a_cmd.toSig.test(_id)) return;
+
+			const auto* _pBytes = reinterpret_cast<const uint8_t*>(&a_value);
+			a_cmd.dataMap[_id] = std::vector<uint8_t>(_pBytes, _pBytes + sizeof(T));
+		}
+
 		// エンティティのGUID(持っていなければ無効)
 		Engine::GUID GetEntityGUID(Engine::ECS::World& a_world, Engine::ECS::Entity a_entity)
 		{
@@ -197,11 +213,17 @@ namespace App::Object
 	{
 		if (!m_isSpown || !a_context.pWorld) return;
 
-		// 体力が区切りを切っていたら、小隊長の整理へ割り込む(切り替わるのはこの後の行動の更新)
-		CheckReorganize();
+		// 爆散した後はリーダーも小隊長も居ないので、行動は回さない
+		if (!m_isBurst)
+		{
+			// 体力が一定値を切っていたら死亡へ、区切りを切っていたら小隊長の整理へ割り込む
+			// (切り替わるのはこの後の行動の更新。死亡が先で、死亡中は整理しない)
+			CheckDeath(a_context);
+			CheckReorganize();
 
-		// リーダーの行動(入力を作る)
-		UpdateLeaderBrain(a_context);
+			// リーダーの行動(入力を作る)
+			UpdateLeaderBrain(a_context);
+		}
 
 		// 体を走る発光のウェーブ(書き込むのは BoidWaveSystem)
 		UpdateWave(a_context);
@@ -252,6 +274,173 @@ namespace App::Object
 		{
 			ApplyBodyDefense(a_context, _stateContext.bodyDefenseRatio);
 		}
+
+		// ウェーブの倍率(走らせるのは UpdateWave)
+		m_waveSpeedScale = std::max(_stateContext.waveSpeedScale, 1e-3f);
+
+		// 爆散(死亡の最後)。防御比率の書き換えより後に行う
+		if (_stateContext.burst.isRequested)
+		{
+			BurstBody(a_context, _stateContext.burst);
+		}
+	}
+
+	//======================================================================================
+	// 死亡 : 体力が一定値を切ったか
+	//--------------------------------------------------------------------------------------
+	// 死亡の行動は徘徊へ戻らない。小隊長の整理の最中でも割り込む。
+	// 死亡中かどうかは「今のステートが死亡か」で見る。デバッグで死亡へ入れたときも
+	// 死亡中として扱い、デバッグで抜けたときは体力が足りていれば元に戻る
+	//======================================================================================
+	void SwarmBossController::CheckDeath(Engine::GameObject::ObjectContext& a_context)
+	{
+		bool _isDying = (m_stateMachine.GetCurrentState() == ESwarmBossState::Death);
+
+		// 体力が一定値を切ったら死亡へ(まとめる体が無ければ入らない)
+		if (!_isDying && m_deathHp > 0 && m_currentBoids > 0 && m_currentBoids <= m_deathHp)
+		{
+			m_stateMachine.RequestChangeState(ESwarmBossState::Death);
+			_isDying = true;
+		}
+
+		// 爆散までの間に読み込みを済ませておく
+		if (_isDying && !m_isDying) RequestLoadBurstEffect(a_context);
+
+		m_isDying = _isDying;
+	}
+
+	void SwarmBossController::RequestLoadBurstEffect(Engine::GameObject::ObjectContext& a_context)
+	{
+		if (m_burstEffectRef || m_burstEffectGUID == Engine::DefaultGUID) return;
+		if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
+
+		m_burstEffectRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_burstEffectGUID);
+	}
+
+	//======================================================================================
+	// 死亡 : 体を爆散させる
+	//--------------------------------------------------------------------------------------
+	// 体のボイド(群れの部品を持つもの。飛んでいるミサイルは対象外)から群れの部品を外し、
+	// 中心から外向き(少し上寄り)の速度を持つ SwarmBurstComponent を付ける。
+	// 付け外しは1件の変更にまとめて予約する(反映は次の BeginFrame)。
+	//   ・加減速を 0 にし、実速度にも初速を入れておく(爆発なので一気に飛び出させる)
+	//   ・発光は爆散の色へ、防御比率は 1 へ(落とすのは自分へのダメージなので、0 だと落ちられない)
+	// リーダーと小隊長は消す。どちらもモデルを持たないので見た目は変わらない。
+	//======================================================================================
+	void SwarmBossController::BurstBody(Engine::GameObject::ObjectContext& a_context, const SwarmBossBurstRequest& a_request)
+	{
+		auto& _world = *a_context.pWorld;
+
+		struct BoidEntry
+		{
+			Engine::ECS::Entity entity = Engine::ECS::Limits::INVALID_ENTITY;
+			Math::Vector3 pos = {};
+		};
+		std::vector<BoidEntry> _boids = {};
+		_boids.reserve(m_currentBoids);
+
+		const Engine::GUID _self = m_guid;
+		_world.ForEach<const SwarmBossBoidTag, const SpawnerComponent, const LocalTransformComponent, const BoidSteeringParamsComponent>(
+			[&](
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const SwarmBossBoidTag*,
+				const SpawnerComponent* a_spawnerArray,
+				const LocalTransformComponent* a_trsArray,
+				const BoidSteeringParamsComponent*)
+			{
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					if (a_spawnerArray[_i].spawnerGUID != _self) continue;
+					_boids.push_back({ a_pChunk->entityData[_i], a_trsArray[_i].pos });
+				}
+			}
+		);
+
+		const Engine::ECS::ComponentTypeID _removeIDs[] =
+		{
+			_world.GetCompTypeID<BoidSteeringParamsComponent>(),
+			_world.GetCompTypeID<FollowTargetComponent>(),
+			_world.GetCompTypeID<BoidWaveStateComponent>(),
+			_world.GetCompTypeID<BoidContactDamageComponent>(),
+		};
+		const auto _burstID = _world.GetCompTypeID<SwarmBurstComponent>();
+
+		const float _speedMin = std::min(a_request.speedMin, a_request.speedMax);
+		const float _speedMax = std::max(a_request.speedMin, a_request.speedMax);
+		const float _lifeMin  = std::min(a_request.lifeMin, a_request.lifeMax);
+		const float _lifeMax  = std::max(a_request.lifeMin, a_request.lifeMax);
+
+		for (const BoidEntry& _entry : _boids)
+		{
+			// 中心から外へ、少し上寄りに。中心ぴったりなら適当な向きへ
+			Math::Vector3 _dir = _entry.pos - a_request.center;
+			if (_dir.LengthSquared() <= 1e-6f) _dir = RandomInSphere(1.0f);
+			if (_dir.LengthSquared() <= 1e-6f) _dir = Math::Vector3::Up();
+			_dir.Normalize();
+			_dir += Math::Vector3::Up() * std::max(a_request.upBias, 0.0f);
+			_dir.Normalize();
+
+			SwarmBurstComponent _burst = {};
+			_burst.velocity = _dir * Math::Random::Float(_speedMin, _speedMax);
+			_burst.timer    = Math::Random::Float(_lifeMin, _lifeMax);
+			_burst.gravity  = a_request.gravity;
+			_burst.drag     = std::max(a_request.drag, 0.0f);
+
+			Engine::ECS::ChangeEntityCmd _cmd = {};
+			_cmd.entity = _entry.entity;
+			_cmd.toSig  = _world.GetSignature(_entry.entity);
+			for (const auto _id : _removeIDs) _cmd.toSig.reset(_id);
+			_cmd.toSig.set(_burstID);
+
+			SetCommandData(_world, _cmd, _burst);
+
+			EmissiveOverrideComponent _emissive = {};
+			_emissive.emissiveColor     = a_request.color;
+			_emissive.emissiveIntensity = a_request.intensity;
+			_emissive.isOverride        = true;
+			SetCommandData(_world, _cmd, _emissive);
+
+			DefenseRatioComponent _defense = {};
+			_defense.ratio = 1.0f;
+			SetCommandData(_world, _cmd, _defense);
+
+			ActualVelocityComponent _actual = {};
+			_actual.value = _burst.velocity;
+			SetCommandData(_world, _cmd, _actual);
+
+			if (_world.HasComponent<MovementParamsComponent>(_entry.entity))
+			{
+				MovementParamsComponent _move = *_world.RefData<MovementParamsComponent>(_entry.entity);
+				_move.acceleration = 0.0f;
+				_move.deceleration = 0.0f;
+				SetCommandData(_world, _cmd, _move);
+			}
+
+			_world.ReserveChangeSignature(std::move(_cmd));
+		}
+
+		//----------------------------------------------------------------------
+		// 骨組み(リーダー・小隊長)を消す。消した後は ID が使い回されるので握っている値も捨てる
+		//----------------------------------------------------------------------
+		for (const Engine::ECS::Entity _platoon : m_platoonLeaderEntities)
+		{
+			if (_world.IsAliveEntity(_platoon)) _world.ReserveReleaseEntity(_platoon);
+		}
+		m_platoonLeaderEntities.clear();
+
+		if (_world.IsAliveEntity(m_leaderEntity)) _world.ReserveReleaseEntity(m_leaderEntity);
+		m_leaderEntity = Engine::ECS::Limits::INVALID_ENTITY;
+
+		//----------------------------------------------------------------------
+		// 中心に大きな爆発(出し切ったら自分から消える)
+		//----------------------------------------------------------------------
+		if (m_burstEffectGUID != Engine::DefaultGUID && m_burstEffectScale > 0.0f)
+		{
+			App::Utility::SpawnEffectAt(_world, m_burstEffectGUID, a_request.center, true, {}, m_burstEffectScale);
+		}
+
+		m_isBurst = true;
 	}
 
 	//======================================================================================
@@ -266,6 +455,7 @@ namespace App::Object
 	{
 		if (m_reorganizeHpInterval == 0 || m_maxBoid == 0) return;
 		if (m_currentBoids == 0) return;	// 倒された
+		if (m_isDying) return;				// 死亡の行動からは抜けない
 		if (m_stateMachine.GetCurrentState() == ESwarmBossState::Reorganize) return;
 
 		const uint32_t _lost  = m_maxBoid - std::min(m_currentBoids, m_maxBoid);
@@ -464,8 +654,9 @@ namespace App::Object
 		m_waveTimer -= _dt;
 		if (m_waveTimer <= 0.0f)
 		{
-			// 周期が0以下だと毎フレーム出て帯が繋がってしまうので、下限を入れる
-			m_waveTimer = std::max(m_waveInterval, 0.01f);
+			// 周期が0以下だと毎フレーム出て帯が繋がってしまうので、下限を入れる。
+			// 行動から倍率を頼まれていれば、そのぶん間隔を縮める(死亡でどんどん速まる)
+			m_waveTimer = std::max(m_waveInterval / m_waveSpeedScale, 0.01f);
 
 			// 上限は超えない。一番古いものから捨てるので、詰まっても新しい帯は必ず出る
 			if (m_maxWave > 0)
@@ -477,7 +668,7 @@ namespace App::Object
 
 				SwarmBossWave _new = {};
 				_new.position = 0.0f;			// 頭から
-				_new.speed    = m_waveSpeed;
+				_new.speed    = m_waveSpeed * m_waveSpeedScale;
 				m_waveVec.push_back(_new);
 			}
 		}
@@ -676,6 +867,9 @@ namespace App::Object
 		// 体力の区切りは満タンから数え直す
 		m_reorganizeCount  = 0;
 		m_bodyDefenseRatio = 1.0f;
+		m_isDying          = false;
+		m_isBurst          = false;
+		m_waveSpeedScale   = 1.0f;
 
 		// 小隊長 → 各小隊長のボイド
 		return CreatePlatoonLeaders(a_context);
@@ -1106,6 +1300,10 @@ namespace App::Object
 		// 調整値は各ステートが持つ(名前は以前と同じなので既存シーンもそのまま読める)
 		m_stateMachine.Archive(a_ar);
 		a_ar.Field("ReorganizeHpInterval", m_reorganizeHpInterval);
+		a_ar.Field("DeathHp", m_deathHp);
+		a_ar.GUIDField("BurstEffectGUID", m_burstEffectGUID);
+		a_ar.Field("BurstEffectScale", m_burstEffectScale);
+		if (a_ar.IsLoading()) m_burstEffectRef = {};	// GUID が変わっているかもしれないので、死亡に入ったときに読み直す
 
 		// ---- ウェーブ ----
 		// 走っている位置は生成後に決まるので保存しない
@@ -1191,6 +1389,32 @@ namespace App::Object
 			Engine::Editor::HelpText("Next : HP %d (done %u)", _next, m_reorganizeCount);
 		}
 		Engine::Editor::Value("Body Defense", "%.2f", m_bodyDefenseRatio);
+
+		Engine::Editor::Header("Death");
+		Engine::Editor::Field("Death Hp", m_deathHp);
+		Engine::Editor::Tooltip("HP at or below this : gather into a ball high above the ground, speed up the wave, then burst (0 : never)");
+		if (Engine::Editor::AssetField(_services, "Burst Effect", "EffectAsset", m_burstEffectGUID))
+		{
+			// 差し替えたら読み直す
+			m_burstEffectRef = {};
+			RequestLoadBurstEffect(a_context);
+		}
+		if (m_burstEffectGUID == Engine::DefaultGUID)
+		{
+			Engine::Editor::HelpText("(not set : no explosion at the center)");
+		}
+		else if (m_burstEffectRef)
+		{
+			// 出しっぱなしのパーツがあると destroyOnFinish で消えずに残り続ける
+			const auto* _pEffect = _services.pResourceManager->Get(m_burstEffectRef);
+			if (_pEffect && !IsOneShotEffect(*_pEffect))
+			{
+				Engine::Editor::ErrorText("Has a part with Duration 0 (never ends) : stays forever");
+			}
+		}
+		Engine::Editor::Field("Burst Effect Scale", m_burstEffectScale, 0.1f, 0.0f);
+		Engine::Editor::Value("Dying", "%s%s", m_isDying ? "yes" : "no", m_isBurst ? " (burst)" : "");
+		Engine::Editor::Value("Wave Scale", "x %.2f", m_waveSpeedScale);
 
 		Engine::Editor::Header("Leader Action");
 		m_stateMachine.DrawInspector();

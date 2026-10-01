@@ -9,6 +9,7 @@
 #include "Application/Components/Boid/PlatoonLeaderComponent.h"
 #include "Application/Components/Movement/ActualVelocityComponent.h"
 #include "Application/Components/Boid/SwarmMissileComponent.h"
+#include "Application/Components/Boid/SwarmBurstComponent.h"
 
 //==============================================================================
 // SwarmLookSystem
@@ -19,6 +20,7 @@
 //   リーダー・小隊長 … 実際に進んでいる向き(ActualVelocityComponent)へ寄せる
 //   ボイド           … 所属している小隊長(BoidMembershipComponent.platoonID)の向きへ寄せる
 //   ミサイル         … 切り離されたボイド。飛んでいる向き(SwarmMissileComponent.dir)をそのまま向く
+//   爆散             … 死亡で飛び散ったボイド。飛んでいる向き(SwarmBurstComponent.velocity)をそのまま向く
 //
 // ・寄せる速さは各コンポーネントの turnSpeedDeg(度/秒)。Yaw と Pitch に同じ値を使う。
 // ・止まっている間(速度がほぼ 0)は向きを変えない。0 ベクトルから角度を作ると
@@ -208,4 +210,35 @@ void SwarmLookSystem::Init(App::ECS::APPWorld& a_world)
 	)
 	// 順序 : 向き(LookAngle)の書き手同士(対象のアーキタイプは重ならない)
 	.After("SwarmLookSystem_Boid");
+
+	//--------------------------------------------------------------------------
+	// 爆散(死亡で飛び散ったボイド) : 飛んでいる向きへ
+	//--------------------------------------------------------------------------
+	a_world.ActiveJobTask<const SwarmBurstComponent, LookAngleComponent>(
+		Engine::ECS::ESystemType::Update,
+		"SwarmLookSystem_Burst",
+		[](
+			Engine::ECS::Chunk*               a_pChunk,
+			uint32_t                          a_count,
+			const Engine::ECS::SystemContext& a_ctx,
+			ActiveTag*                        a_tags,
+			const SwarmBurstComponent*        a_burstArray,
+			LookAngleComponent*               a_lookArray
+		)
+		{
+			for (size_t _i = 0; _i < a_count; ++_i)
+			{
+				LookAngleComponent& _look = a_lookArray[_i];
+
+				float _yaw = 0.0f;
+				float _pitch = 0.0f;
+				if (!MakeLookAngleFromDir(a_burstArray[_i].velocity, _yaw, _pitch)) continue;
+
+				_look.Yaw   = _yaw;
+				_look.Pitch = std::clamp(_pitch, -_look.maxPitch, _look.maxPitch);
+			}
+		}
+	)
+	// 順序 : 向き(LookAngle)の書き手同士(対象のアーキタイプは重ならない)
+	.After("SwarmLookSystem_Missile");
 }

@@ -6,6 +6,7 @@
 #include "DiveAttack/DiveAttack.h"
 #include "CoilAttack/CoilAttack.h"
 #include "Reorganize/Reorganize.h"
+#include "Death/Death.h"
 
 namespace App::Object
 {
@@ -21,6 +22,7 @@ namespace App::Object
 		m_upStates.emplace(ESwarmBossState::DiveAttack, std::make_unique<SwarmBossDiveAttackState>());
 		m_upStates.emplace(ESwarmBossState::CoilAttack, std::make_unique<SwarmBossCoilAttackState>());
 		m_upStates.emplace(ESwarmBossState::Reorganize, std::make_unique<SwarmBossReorganizeState>());
+		m_upStates.emplace(ESwarmBossState::Death, std::make_unique<SwarmBossDeathState>());
 
 		// 最初の行動。1フレーム目の PreUpdate で入る
 		RequestChangeState(ESwarmBossState::RandomWalk);
@@ -87,6 +89,20 @@ namespace App::Object
 		Engine::Editor::Value("State", "%s", m_pCurrentState
 			? std::string(magic_enum::enum_name(m_currentState)).c_str()
 			: "(not started)");
+
+		//------------------------------------------------------------------
+		// デバッグ : 次のステートを指定する
+		//------------------------------------------------------------------
+		Engine::Editor::Header("Debug");
+		Engine::Editor::Field("Debug State", m_debugState);
+		if (Engine::Editor::Button("Change Now"))
+		{
+			// 切り替わるのは次のフレーム(普段の切り替えと同じ)
+			RequestChangeState(m_debugState);
+		}
+		Engine::Editor::Tooltip("Switch to the selected state on the next frame");
+		Engine::Editor::Field("Fix Next Attack", m_isDebugNextAttack);
+		Engine::Editor::Tooltip("Random walk always goes to the selected state instead of the weighted pick");
 
 		for (auto& [_state, _upState] : m_upStates)
 		{

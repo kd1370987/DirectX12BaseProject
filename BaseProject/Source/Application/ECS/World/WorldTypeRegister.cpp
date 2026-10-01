@@ -88,6 +88,7 @@
 #include "Application/Components/Boid/BoidContactDamageComponent.h"
 #include "Application/Components/Boid/SwarmMissileComponent.h"
 #include "Application/Components/Combat/DefenseRatioComponent.h"
+#include "Application/Components/Boid/SwarmBurstComponent.h"
 
 // システム関連
 #include "Application/Systems/Render/ModelFixupSystem.h"
@@ -221,6 +222,7 @@
 #include "Application/Systems/Effect/BallisticSystem.h"
 #include "Application/Systems/Boid/BoidContactDamageSystem.h"
 #include "Application/Systems/Boid/SwarmMissileSystem.h"
+#include "Application/Systems/Boid/SwarmBurstSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -385,6 +387,8 @@ namespace App::ECS
 		a_world.RegisterComponent<SwarmMissileComponent>("SwarmMissileComponent");
 		// 受けたダメージに掛ける比率(0 で無敵)。掛けるのは HealthSystem
 		a_world.RegisterComponent<DefenseRatioComponent>("DefenseRatioComponent");
+		// ワームボスの死亡で爆散して飛び散っているボイド。付けるのは SwarmBossController
+		a_world.RegisterComponent<SwarmBurstComponent>("SwarmBurstComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -572,6 +576,8 @@ namespace App::ECS
 		a_world.RegisterSystem<BoidContactDamageSystem>();
 		// ワームの体(ボイド)を切り離して自爆ミサイルにする(切り離す小隊長を決めるのはワームボスの巻き付き攻撃)
 		a_world.RegisterSystem<SwarmMissileSystem>();
+		// ワームボスの死亡で爆散したボイドを飛ばし、時間が来たら落とす(爆散させるのは SwarmBossController)
+		a_world.RegisterSystem<SwarmBurstSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();

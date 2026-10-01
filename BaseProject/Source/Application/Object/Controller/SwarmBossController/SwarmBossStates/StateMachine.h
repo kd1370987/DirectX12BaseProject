@@ -14,6 +14,7 @@ namespace App::Object
 		Charge,				// プレイヤーへ向かって一直線に突進する
 		CoilAttack,			// プレイヤーを中心に体を円状に巻き、地面と上を行き来しながら、各小隊長がボイドを切り離して自爆ミサイルにする
 		Reorganize,			// 体力が一定量減るたびに、球体状にぐるぐるまとまって小隊長を整理する(その間は無敵)。抽選には入らない
+		Death,				// 体力が一定値を切ったら、地上の高いところで球体状にまとまり、ウェーブを速めていって最後に爆散する。抜けない
 	};
 
 	class SwarmBossStateMachine
@@ -35,6 +36,14 @@ namespace App::Object
 
 		ESwarmBossState GetCurrentState() const { return m_currentState; }
 
+		// デバッグ : 次の攻撃が固定されていれば a_out に入れて true(徘徊が攻撃へ移るときに見る)
+		bool GetDebugNextAttack(ESwarmBossState& a_out) const
+		{
+			if (!m_isDebugNextAttack) return false;
+			a_out = m_debugState;
+			return true;
+		}
+
 		//------------------------------------------------------------------------------------------
 		// シリアライズ / エディター : 登録済みの全ステートへ流す
 		//------------------------------------------------------------------------------------------
@@ -55,5 +64,13 @@ namespace App::Object
 		ESwarmBossState m_currentState = ESwarmBossState::Idle;		// 現在のステート
 		ESwarmBossState m_changeState  = ESwarmBossState::Idle;		// チェンジ要求
 		bool m_isChangeRequested = false;							// 要求が出ているか
+
+		//------------------------------------------------------------------------------------------
+		// デバッグ用(インスペクターから触る。保存しない)
+		//   ・Change Now        … 選んだステートへ今すぐ切り替える
+		//   ・Fix Next Attack   … 徘徊からの攻撃の抽選を、選んだステートに固定する
+		//------------------------------------------------------------------------------------------
+		ESwarmBossState m_debugState = ESwarmBossState::Charge;	// 指定するステート
+		bool m_isDebugNextAttack = false;							// 次の攻撃を固定するか
 	};
 }

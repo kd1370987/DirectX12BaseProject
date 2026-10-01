@@ -15,6 +15,24 @@ namespace App::Object
 	class SwarmBossStateMachine;
 
 	/// <summary>
+	/// 体を爆散させる依頼(死亡の最後)。ボイドを中心から外へ飛ばし、しばらくして落とす
+	/// </summary>
+	struct SwarmBossBurstRequest
+	{
+		bool isRequested = false;				// 爆散させてほしい(この1フレームだけ立てる)
+		Math::Vector3 center = {};				// 爆散の中心(ワールド)
+		float speedMin = 40.0f;					// 飛び散る速さの下限(m/秒)
+		float speedMax = 120.0f;				// 飛び散る速さの上限(m/秒)
+		float upBias   = 0.3f;					// 上向きへの寄せ(0で中心から真っすぐ外へ)
+		float lifeMin  = 0.3f;					// 飛んでから落ちるまでの時間の下限(秒)
+		float lifeMax  = 1.5f;					// 上限(秒)
+		float gravity  = 20.0f;					// 飛んでいる間の重力(m/秒^2)
+		float drag     = 0.5f;					// 飛んでいる間の減速(1/秒)
+		Math::Vector3 color = { 1.0f, 0.9f, 0.7f };	// 爆散した瞬間の発光色(0〜1)
+		float intensity = 20.0f;					// 発光の強さ
+	};
+
+	/// <summary>
 	/// ステートに渡すもの
 	///
 	/// ステートはコントローラーを直接見ない。要るものはここに載せて毎フレーム組む
@@ -38,6 +56,8 @@ namespace App::Object
 		//------------------------------------------------------------------------------------------
 		bool isRequestReorganize = false;	// 小隊長を体力の比率まで減らし、ボイドを割り当て直してほしい
 		float bodyDefenseRatio   = 1.0f;	// 体(ボイド)の防御比率。1 : そのまま食らう / 0 : 無敵
+		float waveSpeedScale     = 1.0f;	// 発光のウェーブを速める倍率(速さに掛け、出す間隔を割る)
+		SwarmBossBurstRequest burst = {};	// 体を爆散させてほしい(死亡の最後)
 	};
 
 	class IState

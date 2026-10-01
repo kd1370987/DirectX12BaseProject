@@ -107,6 +107,20 @@ namespace App::Object
 		// 整理の行動が頼んできたとき(isRequestReorganize)に呼ぶ
 		void ReorganizePlatoons(Engine::GameObject::ObjectContext& a_context);
 
+		//------------------------------------------------------------------------------------------
+		// 死亡(体力が一定値を切ったら)
+		//------------------------------------------------------------------------------------------
+		// 体力が Death Hp 以下になったら、今の行動を打ち切って死亡の行動(Death)へ切り替える(一度だけ)。
+		// 爆散の瞬間に読み込みが走らないよう、中心の爆発エフェクトの読み込みもここで始める
+		void CheckDeath(Engine::GameObject::ObjectContext& a_context);
+
+		// 中心の爆発エフェクトの読み込みを始める(済んでいれば何もしない)
+		void RequestLoadBurstEffect(Engine::GameObject::ObjectContext& a_context);
+
+		// 体のボイドを中心から外へ飛び散らせる(落とすのは SwarmBurstSystem)。
+		// リーダーと小隊長はもう要らないので消す。死亡の行動が頼んできたとき(burst)に呼ぶ
+		void BurstBody(Engine::GameObject::ObjectContext& a_context, const SwarmBossBurstRequest& a_request);
+
 		// 体(ボイド)の防御比率を書き換える。行動からの依頼が変わったときだけ呼ぶ
 		// (4000体を走査するので毎フレームは呼ばない)。切り離したミサイルは 1 のまま
 		void ApplyBodyDefense(Engine::GameObject::ObjectContext& a_context, float a_ratio);
@@ -219,6 +233,26 @@ namespace App::Object
 		// ---- 実行中の状態(保存しない) ----
 		uint32_t m_reorganizeCount = 0;			// 越えた区切りの数(整理を始めた回数)
 		float m_bodyDefenseRatio = 1.0f;		// 体(ボイド)に今入れてある防御比率
+
+		//------------------------------------------------------------------------------------------
+		// 死亡
+		//
+		// 体力が m_deathHp 以下になったら、地上の高いところで球体状にまとまり、
+		// ウェーブを速めていって最後に全身が爆散する。動きとウェーブの倍率は死亡の行動(Death)、
+		// ウェーブを走らせる・体を爆散させるのはこのクラス
+		//------------------------------------------------------------------------------------------
+		uint32_t m_deathHp = 1000;				// 体力がこれ以下になったら死亡へ(0で死亡の行動に入らない)
+
+		// 爆散の瞬間に球の中心へ炊く大きな爆発(EffectAsset。出し切って消えるもの)。
+		// 既定は Asset/Effect/Explosion/Explosion_Enemy_02(ボイド1体ずつの死亡は 01)
+		Engine::GUID m_burstEffectGUID = Engine::GUID("c4a70b39-8e21-4d6c-95f8-3b0e7a1d24f5");
+		Engine::ResourceRef<Engine::Resource::EffectAsset> m_burstEffectRef = {};	// 読み込んだままにしておく
+		float m_burstEffectScale = 10.0f;		// 爆発の大きさ倍率(アセットのままの大きさに掛ける)
+
+		// ---- 実行中の状態(保存しない) ----
+		bool m_isDying = false;					// 死亡の行動へ入ったか
+		bool m_isBurst = false;					// 爆散したか(以降はリーダーの行動を回さない)
+		float m_waveSpeedScale = 1.0f;			// 行動から頼まれているウェーブの倍率
 
 		//------------------------------------------------------------------------------------------
 		// ウェーブ

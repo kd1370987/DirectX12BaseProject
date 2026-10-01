@@ -37,10 +37,13 @@ namespace App::Object
 
 		m_time += a_context.pObject->dt;
 
-		// 時間が来たら攻撃へ(切り替わるのは次のフレーム。それまでは徘徊を続ける)
+		// 時間が来たら攻撃へ(切り替わるのは次のフレーム。それまでは徘徊を続ける)。
+		// デバッグで次の攻撃が固定されていれば、抽選の結果よりそちらを優先する
 		if (m_time >= m_attackTime && a_context.pMachine)
 		{
-			a_context.pMachine->RequestChangeState(m_nextAttack);
+			ESwarmBossState _next = m_nextAttack;
+			a_context.pMachine->GetDebugNextAttack(_next);
+			a_context.pMachine->RequestChangeState(_next);
 		}
 
 		const auto _leader = a_context.leaderEntity;

@@ -1285,6 +1285,12 @@
     <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Reorganize">
       <UniqueIdentifier>{f239ee07-b5af-4fec-8b95-059800e6042b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Common">
+      <UniqueIdentifier>{6c89760e-064a-4537-89ba-aede324b4bd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Death">
+      <UniqueIdentifier>{e8d4f5b6-d973-4ab9-93b4-f48c14525121}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.cpp">
@@ -2471,6 +2477,15 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Reorganize\Reorganize.cpp">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Reorganize</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Common\BallMotion.cpp">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Death\Death.cpp">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Death</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\SwarmBurstSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Boid\BoidSnapshotSystem.cpp">
       <Filter>Source\Application\Systems\Boid</Filter>
@@ -4297,6 +4312,18 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Reorganize\Reorganize.h">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Reorganize</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Common\BallMotion.h">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Death\Death.h">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Death</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Boid\SwarmBurstSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Boid\SwarmBurstComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Combat\DefenseRatioComponent.h">
       <Filter>Source\Application\Components\Combat</Filter>
