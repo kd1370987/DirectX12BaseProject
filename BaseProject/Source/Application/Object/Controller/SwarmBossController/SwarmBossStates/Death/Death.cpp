@@ -96,28 +96,28 @@ namespace App::Object
 	void SwarmBossDeathState::DrawInspector()
 	{
 		m_ball.DrawInspector();
-		Engine::Editor::Field("Center Height", m_centerHeight, 0.5f, 0.0f);
-		Engine::Editor::Tooltip("Height of the ball center above the ground");
-		Engine::Editor::Field("End Radius Scale", m_endRadiusScale, 0.01f, 0.0f);
-		Engine::Editor::Field("Gather Time", m_gatherTime, 0.1f, 0.0f);
-		Engine::Editor::Field("Wave Speed Scale Max", m_waveSpeedScaleMax, 0.1f, 1.0f);
-		Engine::Editor::Tooltip("Wave speed x this (interval / this) just before the burst. Ramps up by t^2");
-		Engine::Editor::Field("Defense Ratio", m_defenseRatio, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("Body damage ratio while gathering (0 : invincible)");
+		Engine::Editor::Field("球の中心の高さ", m_centerHeight, 0.5f, 0.0f);
+		Engine::Editor::Tooltip("地表から球の中心までの高さ");
+		Engine::Editor::Field("爆散直前の半径の倍率", m_endRadiusScale, 0.01f, 0.0f);
+		Engine::Editor::Field("爆散までの時間", m_gatherTime, 0.1f, 0.0f);
+		Engine::Editor::Field("ウェーブの最大倍率", m_waveSpeedScaleMax, 0.1f, 1.0f);
+		Engine::Editor::Tooltip("爆散直前のウェーブの速さの倍率(間隔はこの分の1)。経過の割合の2乗で上がる");
+		Engine::Editor::Field("体の防御比率", m_defenseRatio, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Tooltip("まとまっている間に体が受けるダメージの比率(0 で無敵)");
 
 		Engine::Editor::Line();
-		Engine::Editor::Field("Burst Speed Min", m_burst.speedMin, 0.5f, 0.0f);
-		Engine::Editor::Field("Burst Speed Max", m_burst.speedMax, 0.5f, 0.0f);
-		Engine::Editor::Field("Burst Up Bias", m_burst.upBias, 0.01f, 0.0f);
-		Engine::Editor::Field("Burst Life Min", m_burst.lifeMin, 0.01f, 0.0f);
-		Engine::Editor::Field("Burst Life Max", m_burst.lifeMax, 0.01f, 0.0f);
-		Engine::Editor::Field("Burst Gravity", m_burst.gravity, 0.5f, 0.0f);
-		Engine::Editor::Field("Burst Drag", m_burst.drag, 0.01f, 0.0f);
-		Engine::Editor::ColorField("Burst Color", m_burst.color);
-		Engine::Editor::Field("Burst Intensity", m_burst.intensity, 0.1f, 0.0f);
+		Engine::Editor::Field("爆散 : 速さの下限", m_burst.speedMin, 0.5f, 0.0f);
+		Engine::Editor::Field("爆散 : 速さの上限", m_burst.speedMax, 0.5f, 0.0f);
+		Engine::Editor::Field("爆散 : 上向きの寄せ", m_burst.upBias, 0.01f, 0.0f);
+		Engine::Editor::Field("爆散 : 落ちるまでの時間の下限", m_burst.lifeMin, 0.01f, 0.0f);
+		Engine::Editor::Field("爆散 : 落ちるまでの時間の上限", m_burst.lifeMax, 0.01f, 0.0f);
+		Engine::Editor::Field("爆散 : 重力", m_burst.gravity, 0.5f, 0.0f);
+		Engine::Editor::Field("爆散 : 減速", m_burst.drag, 0.01f, 0.0f);
+		Engine::Editor::ColorField("爆散 : 発光色", m_burst.color);
+		Engine::Editor::Field("爆散 : 発光の強さ", m_burst.intensity, 0.1f, 0.0f);
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Value("Phase", "%s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		Engine::Editor::Value("Wave Scale", "x %.2f", m_waveSpeedScale);
+		Engine::Editor::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::Editor::Value("ウェーブの倍率", "x %.2f", m_waveSpeedScale);
 	}
 }

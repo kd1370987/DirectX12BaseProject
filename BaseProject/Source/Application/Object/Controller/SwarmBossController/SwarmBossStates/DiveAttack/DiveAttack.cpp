@@ -301,25 +301,25 @@ namespace App::Object
 
 	void SwarmBossDiveAttackState::DrawInspector()
 	{
-		Engine::Editor::Field("Launch Distance", m_launchDistance, 0.5f, 0.0f);
-		Engine::Editor::Field("Launch Height", m_launchHeight, 0.5f);
-		Engine::Editor::Field("Rise Throttle", m_riseThrottle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("Arrive Distance", m_arriveDistance, 0.1f, 0.0f);
-		Engine::Editor::Field("Rise Max Time", m_riseMaxTime, 0.1f, 0.0f);
-		Engine::Editor::Field("Hover Time", m_hoverTime, 0.05f, 0.0f);
-		Engine::Editor::Field("Hover Throttle", m_hoverThrottle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("Arc Height", m_arcHeight, 0.5f);
-		Engine::Editor::Field("Dive Speed Scale", m_diveSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Field("Follow Gain", m_followGain, 0.05f, 0.0f);
-		Engine::Editor::Field("Dive Max Time", m_diveMaxTime, 0.1f, 0.0f);
-		Engine::Editor::Field("Recover Time", m_recoverTime, 0.05f, 0.0f);
-		Engine::Editor::Field("Recover Throttle", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("Speed scale above Platoon Scale tears the line apart");
+		Engine::Editor::Field("離れる距離", m_launchDistance, 0.5f, 0.0f);
+		Engine::Editor::Field("上がる高さ", m_launchHeight, 0.5f);
+		Engine::Editor::Field("離れるときの移動入力の強さ", m_riseThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("到着とみなす距離", m_arriveDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("離れる最長時間", m_riseMaxTime, 0.1f, 0.0f);
+		Engine::Editor::Field("狙う長さ", m_hoverTime, 0.05f, 0.0f);
+		Engine::Editor::Field("狙う間の移動入力の強さ", m_hoverThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("曲線の膨らみ", m_arcHeight, 0.5f);
+		Engine::Editor::Field("急降下の速さの倍率", m_diveSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Field("ずれを詰める強さ", m_followGain, 0.05f, 0.0f);
+		Engine::Editor::Field("急降下の最長時間", m_diveMaxTime, 0.1f, 0.0f);
+		Engine::Editor::Field("余韻の長さ", m_recoverTime, 0.05f, 0.0f);
+		Engine::Editor::Field("余韻中の移動入力の強さ", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Value("Phase", "%s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		Engine::Editor::Value("Player", "%.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
-		Engine::Editor::Value("Launch", "%.1f, %.1f, %.1f", m_launchPos.x, m_launchPos.y, m_launchPos.z);
-		Engine::Editor::Value("Curve t", "%.2f", m_curveT);
+		Engine::Editor::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::Editor::Value("プレイヤーの位置", "%.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
+		Engine::Editor::Value("離れる先", "%.1f, %.1f, %.1f", m_launchPos.x, m_launchPos.y, m_launchPos.z);
+		Engine::Editor::Value("曲線上の位置 t", "%.2f", m_curveT);
 	}
 }

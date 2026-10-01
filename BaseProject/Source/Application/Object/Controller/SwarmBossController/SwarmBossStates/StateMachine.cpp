@@ -10,6 +10,31 @@
 
 namespace App::Object
 {
+	namespace
+	{
+		//----------------------------------------------------------------------
+		// インスペクターに出すステートの名前(日本語 + 列挙子の名前)。
+		// デバッグの選択欄は列挙子の名前で並ぶので、対応が分かるように併記する
+		//----------------------------------------------------------------------
+		std::string GetStateDisplayName(ESwarmBossState a_state)
+		{
+			const char* _name = "";
+			switch (a_state)
+			{
+			case ESwarmBossState::Idle:       _name = "待機";                 break;
+			case ESwarmBossState::RandomWalk: _name = "徘徊";                 break;
+			case ESwarmBossState::UperAttack: _name = "アッパー";             break;
+			case ESwarmBossState::DiveAttack: _name = "ダイブ";               break;
+			case ESwarmBossState::Charge:     _name = "突進";                 break;
+			case ESwarmBossState::CoilAttack: _name = "巻き付き";             break;
+			case ESwarmBossState::Reorganize: _name = "小隊長の整理";         break;
+			case ESwarmBossState::Death:      _name = "死亡";                 break;
+			default:                          break;
+			}
+			return std::string(_name) + " (" + std::string(magic_enum::enum_name(a_state)) + ")";
+		}
+	}
+
 	void SwarmBossStateMachine::Init()
 	{
 		m_upStates.clear();
@@ -86,29 +111,29 @@ namespace App::Object
 
 	void SwarmBossStateMachine::DrawInspector()
 	{
-		Engine::Editor::Value("State", "%s", m_pCurrentState
-			? std::string(magic_enum::enum_name(m_currentState)).c_str()
-			: "(not started)");
+		Engine::Editor::Value("現在のステート", "%s", m_pCurrentState
+			? GetStateDisplayName(m_currentState).c_str()
+			: "(未開始)");
 
 		//------------------------------------------------------------------
 		// デバッグ : 次のステートを指定する
 		//------------------------------------------------------------------
-		Engine::Editor::Header("Debug");
-		Engine::Editor::Field("Debug State", m_debugState);
-		if (Engine::Editor::Button("Change Now"))
+		Engine::Editor::Header("デバッグ");
+		Engine::Editor::Field("指定するステート", m_debugState);
+		if (Engine::Editor::Button("今すぐ切り替える"))
 		{
 			// 切り替わるのは次のフレーム(普段の切り替えと同じ)
 			RequestChangeState(m_debugState);
 		}
-		Engine::Editor::Tooltip("Switch to the selected state on the next frame");
-		Engine::Editor::Field("Fix Next Attack", m_isDebugNextAttack);
-		Engine::Editor::Tooltip("Random walk always goes to the selected state instead of the weighted pick");
+		Engine::Editor::Tooltip("選んだステートへ次のフレームで切り替える");
+		Engine::Editor::Field("次の攻撃を固定", m_isDebugNextAttack);
+		Engine::Editor::Tooltip("徘徊から攻撃へ移るとき、抽選せずに選んだステートへ入る");
 
 		for (auto& [_state, _upState] : m_upStates)
 		{
 			if (!_upState) continue;
 
-			Engine::Editor::Header(std::string(magic_enum::enum_name(_state)).c_str());
+			Engine::Editor::Header(GetStateDisplayName(_state).c_str());
 			Engine::Editor::IDScope _id(static_cast<int>(_state));
 			_upState->DrawInspector();
 		}

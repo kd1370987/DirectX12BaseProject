@@ -1348,52 +1348,52 @@ namespace App::Object
 		if (!a_context.pServices) return;
 		auto& _services = *a_context.pServices;
 
-		Engine::Editor::Header("Leader");
-		Engine::Editor::AssetField(_services, "Leader Prefab", "Prefab", m_leaderPrefabGUID);
-		Engine::Editor::Field("Spawn Pos", m_spawnPos, 0.1f);
+		Engine::Editor::Header("リーダー");
+		Engine::Editor::AssetField(_services, "リーダーのプレハブ", "Prefab", m_leaderPrefabGUID);
+		Engine::Editor::Field("生成位置", m_spawnPos, 0.1f);
 
-		Engine::Editor::Header("Platoon Leader");
-		Engine::Editor::AssetField(_services, "Platoon Prefab", "Prefab", m_platoonPrefabGUID);
-		Engine::Editor::Field("Max Platoon Leader", m_maxPlatoonLeader);
-		Engine::Editor::Tooltip("Line up behind the leader (-Z) by PlatoonLeaderComponent.distance");
+		Engine::Editor::Header("小隊長");
+		Engine::Editor::AssetField(_services, "小隊長のプレハブ", "Prefab", m_platoonPrefabGUID);
+		Engine::Editor::Field("小隊長の最大数", m_maxPlatoonLeader);
+		Engine::Editor::Tooltip("リーダーの後ろ(-Z)へ、PlatoonLeaderComponent.distance の間隔で一列に並ぶ");
 
-		Engine::Editor::Header("Boid");
-		Engine::Editor::Field("Max Boid", m_maxBoid);
+		Engine::Editor::Header("ボイド");
+		Engine::Editor::Field("ボイドの最大数", m_maxBoid);
 		if (m_maxPlatoonLeader > 0)
 		{
-			Engine::Editor::HelpText("Per platoon : %u (+1 for the first %u)", m_maxBoid / m_maxPlatoonLeader, m_maxBoid % m_maxPlatoonLeader);
+			Engine::Editor::HelpText("1小隊あたり %u 体(先頭から %u 小隊は +1)", m_maxBoid / m_maxPlatoonLeader, m_maxBoid % m_maxPlatoonLeader);
 		}
-		Engine::Editor::HelpText("Boid prefab / radius : BoidSpownerComponent on the platoon prefab");
+		Engine::Editor::HelpText("出すボイドのプレハブと広さ : 小隊長プレハブの BoidSpownerComponent");
 
-		Engine::Editor::Field("Boid Collider Radius", m_boidColliderRadius, 0.05f, 0.0f);
-		Engine::Editor::Field("Boid Health", m_boidHealth, 1.0f, 0.0f);
-		Engine::Editor::Field("Boid Release Delay", m_boidReleaseDelay, 0.05f, 0.0f);
-		Engine::Editor::Tooltip("Hit : player attacks only (passes through terrain)");
+		Engine::Editor::Field("ボイドの判定半径", m_boidColliderRadius, 0.05f, 0.0f);
+		Engine::Editor::Field("ボイドの体力", m_boidHealth, 1.0f, 0.0f);
+		Engine::Editor::Field("ボイドが消えるまでの猶予", m_boidReleaseDelay, 0.05f, 0.0f);
+		Engine::Editor::Tooltip("当たるのはプレイヤーの攻撃だけ(地形はすり抜ける)");
 
-		Engine::Editor::Field("Contact Damage", m_contactDamage, 0.5f, 0.0f);
-		Engine::Editor::Field("Contact Cooldown", m_contactDamageCooldown, 0.05f, 0.0f);
-		Engine::Editor::Tooltip("Per boid : touch player -> damage, then no check for cooldown sec");
+		Engine::Editor::Field("体当たりのダメージ", m_contactDamage, 0.5f, 0.0f);
+		Engine::Editor::Field("体当たりの待ち時間", m_contactDamageCooldown, 0.05f, 0.0f);
+		Engine::Editor::Tooltip("ボイドごとに、プレイヤーに触れたらダメージを与え、その後この秒数は判定しない");
 
-		Engine::Editor::Header("Speed");
-		Engine::Editor::Field("Leader Speed", m_leaderSpeed, 0.5f, 0.0f);
-		Engine::Editor::Field("Platoon Scale", m_platoonSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Field("Boid Scale", m_boidSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Tooltip("Platoon %.1f / Boid %.1f (written on spawn, overrides prefab)", m_leaderSpeed * m_platoonSpeedScale, m_leaderSpeed * m_boidSpeedScale);
+		Engine::Editor::Header("速さ");
+		Engine::Editor::Field("リーダーの速さ", m_leaderSpeed, 0.5f, 0.0f);
+		Engine::Editor::Field("小隊長の倍率", m_platoonSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Field("ボイドの倍率", m_boidSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Tooltip("小隊長 %.1f / ボイド %.1f (生成時に書き込み、プレハブの値より優先)", m_leaderSpeed * m_platoonSpeedScale, m_leaderSpeed * m_boidSpeedScale);
 
-		Engine::Editor::Header("Reorganize");
-		Engine::Editor::Field("Reorganize Hp Interval", m_reorganizeHpInterval);
-		Engine::Editor::Tooltip("Every this many boids lost : gather into a ball, cut platoons to the HP ratio (0 : never)");
+		Engine::Editor::Header("小隊長の整理");
+		Engine::Editor::Field("整理する体力の間隔", m_reorganizeHpInterval);
+		Engine::Editor::Tooltip("ボイドがこの数だけ減るたびに球状にまとまり、小隊長を体力の比率まで減らす(0 で整理しない)");
 		if (m_reorganizeHpInterval > 0)
 		{
 			const int _next = static_cast<int>(m_maxBoid) - static_cast<int>(m_reorganizeHpInterval * (m_reorganizeCount + 1));
-			Engine::Editor::HelpText("Next : HP %d (done %u)", _next, m_reorganizeCount);
+			Engine::Editor::HelpText("次 : 体力 %d (整理済み %u 回)", _next, m_reorganizeCount);
 		}
-		Engine::Editor::Value("Body Defense", "%.2f", m_bodyDefenseRatio);
+		Engine::Editor::Value("体の防御比率", "%.2f", m_bodyDefenseRatio);
 
-		Engine::Editor::Header("Death");
-		Engine::Editor::Field("Death Hp", m_deathHp);
-		Engine::Editor::Tooltip("HP at or below this : gather into a ball high above the ground, speed up the wave, then burst (0 : never)");
-		if (Engine::Editor::AssetField(_services, "Burst Effect", "EffectAsset", m_burstEffectGUID))
+		Engine::Editor::Header("死亡");
+		Engine::Editor::Field("死亡する体力", m_deathHp);
+		Engine::Editor::Tooltip("体力がこれ以下になったら、地上の高いところで球状にまとまり、ウェーブを速めて爆散する(0 で死亡しない)");
+		if (Engine::Editor::AssetField(_services, "爆散のエフェクト", "EffectAsset", m_burstEffectGUID))
 		{
 			// 差し替えたら読み直す
 			m_burstEffectRef = {};
@@ -1401,7 +1401,7 @@ namespace App::Object
 		}
 		if (m_burstEffectGUID == Engine::DefaultGUID)
 		{
-			Engine::Editor::HelpText("(not set : no explosion at the center)");
+			Engine::Editor::HelpText("(未設定 : 中心の爆発は出ない)");
 		}
 		else if (m_burstEffectRef)
 		{
@@ -1409,37 +1409,37 @@ namespace App::Object
 			const auto* _pEffect = _services.pResourceManager->Get(m_burstEffectRef);
 			if (_pEffect && !IsOneShotEffect(*_pEffect))
 			{
-				Engine::Editor::ErrorText("Has a part with Duration 0 (never ends) : stays forever");
+				Engine::Editor::ErrorText("長さ0(終わらない)のパーツがあるため、消えずに残り続ける");
 			}
 		}
-		Engine::Editor::Field("Burst Effect Scale", m_burstEffectScale, 0.1f, 0.0f);
-		Engine::Editor::Value("Dying", "%s%s", m_isDying ? "yes" : "no", m_isBurst ? " (burst)" : "");
-		Engine::Editor::Value("Wave Scale", "x %.2f", m_waveSpeedScale);
+		Engine::Editor::Field("爆散のエフェクトの大きさ", m_burstEffectScale, 0.1f, 0.0f);
+		Engine::Editor::Value("死亡中", "%s%s", m_isDying ? "はい" : "いいえ", m_isBurst ? " (爆散済み)" : "");
+		Engine::Editor::Value("ウェーブの倍率", "x %.2f", m_waveSpeedScale);
 
-		Engine::Editor::Header("Leader Action");
+		Engine::Editor::Header("リーダーの行動");
 		m_stateMachine.DrawInspector();
 
-		Engine::Editor::Header("Wave");
-		Engine::Editor::Field("Wave Speed", m_waveSpeed, 1.0f, 0.0f);
-		Engine::Editor::Field("Wave Interval", m_waveInterval, 0.05f, 0.0f);
-		Engine::Editor::Field("Wave Width", m_waveWidth, 0.5f, 0.0f);
-		Engine::Editor::Field("Max Wave", m_maxWave);
-		Engine::Editor::Field("Base Intensity", m_waveBaseIntensity, 0.05f, 0.0f);
-		Engine::Editor::Field("Peak Intensity", m_wavePeakIntensity, 0.05f, 0.0f);
-		Engine::Editor::ColorField("Base Color", m_waveBaseColor);
-		Engine::Editor::ColorField("Peak Color", m_wavePeakColor);
-		Engine::Editor::Tooltip("Bloom picks up pixels over 1.0 : keep the peak above it");
+		Engine::Editor::Header("ウェーブ");
+		Engine::Editor::Field("ウェーブの速さ", m_waveSpeed, 1.0f, 0.0f);
+		Engine::Editor::Field("ウェーブの間隔", m_waveInterval, 0.05f, 0.0f);
+		Engine::Editor::Field("ウェーブの幅", m_waveWidth, 0.5f, 0.0f);
+		Engine::Editor::Field("ウェーブの最大本数", m_maxWave);
+		Engine::Editor::Field("ベースの発光の強さ", m_waveBaseIntensity, 0.05f, 0.0f);
+		Engine::Editor::Field("ピークの発光の強さ", m_wavePeakIntensity, 0.05f, 0.0f);
+		Engine::Editor::ColorField("ベースの色", m_waveBaseColor);
+		Engine::Editor::ColorField("ピークの色", m_wavePeakColor);
+		Engine::Editor::Tooltip("ブルームは 1.0 を超えた画素を拾うので、ピークはそれより上にする");
 
 		// 頭から尾までを流れるので、1本が抜けるまでにかかる時間を出しておく
 		if (m_waveSpeed > 0.0f)
 		{
-			Engine::Editor::HelpText("Worm length %.1f m / travel %.1f s (interval %.1f s)", GetWormLength(), (GetWormLength() + m_waveWidth) / m_waveSpeed, m_waveInterval);
+			Engine::Editor::HelpText("体の長さ %.1f m / 尾まで %.1f 秒(間隔 %.1f 秒)", GetWormLength(), (GetWormLength() + m_waveWidth) / m_waveSpeed, m_waveInterval);
 		}
-		Engine::Editor::Value("Running", "%u", static_cast<uint32_t>(m_waveVec.size()));
+		Engine::Editor::Value("走っている本数", "%u", static_cast<uint32_t>(m_waveVec.size()));
 
-		Engine::Editor::Header("Ground Effect");
+		Engine::Editor::Header("砂埃");
 		if (Engine::Editor::AssetField(
-			_services, "Ground Effect", "EffectAsset", m_groundEffectGUID))
+			_services, "砂埃のエフェクト", "EffectAsset", m_groundEffectGUID))
 		{
 			m_groundEffectRef = (m_groundEffectGUID != Engine::DefaultGUID)
 				? _services.pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_groundEffectGUID)
@@ -1447,56 +1447,56 @@ namespace App::Object
 		}
 		if (m_groundEffectGUID == Engine::DefaultGUID)
 		{
-			Engine::Editor::HelpText("(not set : no dust)");
+			Engine::Editor::HelpText("(未設定 : 砂埃は出ない)");
 		}
 		else if (!m_isGroundEffectOneShot)
 		{
-			Engine::Editor::ErrorText("Loading, or has a part with Duration 0 (never ends) : not spawned");
+			Engine::Editor::ErrorText("読み込み中か、長さ0(終わらない)のパーツがあるため炊かない");
 		}
-		Engine::Editor::Field("Effect Max Height", m_groundEffectMaxHeight, 0.5f, 0.0f);
-		Engine::Editor::Field("Effect Max Depth", m_groundEffectMaxDepth, 1.0f, 0.0f);
-		Engine::Editor::Field("Effect Near Scale", m_groundEffectNearScale, 0.01f, 0.0f);
-		Engine::Editor::Field("Effect Far Scale", m_groundEffectFarScale, 0.01f, 0.0f);
-		Engine::Editor::Field("Effect Under Scale", m_groundEffectUnderScale, 0.01f, 0.0f);
-		Engine::Editor::Field("Effect Interval", m_groundEffectInterval, 0.05f, 0.01f);
-		Engine::Editor::Field("Effect Max Per Frame", m_groundEffectMaxSpawnPerFrame);
+		Engine::Editor::Field("炊く高さの上限", m_groundEffectMaxHeight, 0.5f, 0.0f);
+		Engine::Editor::Field("炊く深さの上限", m_groundEffectMaxDepth, 1.0f, 0.0f);
+		Engine::Editor::Field("地表すれすれでの大きさ", m_groundEffectNearScale, 0.01f, 0.0f);
+		Engine::Editor::Field("上限の高さでの大きさ", m_groundEffectFarScale, 0.01f, 0.0f);
+		Engine::Editor::Field("地中での大きさ", m_groundEffectUnderScale, 0.01f, 0.0f);
+		Engine::Editor::Field("炊く間隔", m_groundEffectInterval, 0.05f, 0.01f);
+		Engine::Editor::Field("1フレームに出す上限", m_groundEffectMaxSpawnPerFrame);
 
-		Engine::Editor::Header("Burrow Effect (leader)");
+		Engine::Editor::Header("潜る/出るときの砂埃(リーダー)");
 		if (Engine::Editor::AssetField(
-			_services, "Burrow Effect", "EffectPrefab", m_burrowEffectGUID))
+			_services, "潜る/出るときのエフェクト", "EffectPrefab", m_burrowEffectGUID))
 		{
 			// 差し替えたら次に炊くときに読み直す
 			m_burrowEffectRef = {};
 		}
-		Engine::Editor::Field("Burrow Cooldown", m_burrowEffectCooldown, 0.05f, 0.0f);
-		Engine::Editor::Value("Leader", "%s", !m_isLeaderGroundKnown ? "(unknown)"
-			: (m_wasLeaderUnderGround ? "under ground" : "above ground"));
+		Engine::Editor::Field("潜る/出るときの砂埃の間隔", m_burrowEffectCooldown, 0.05f, 0.0f);
+		Engine::Editor::Value("リーダーの位置", "%s", !m_isLeaderGroundKnown ? "(不明)"
+			: (m_wasLeaderUnderGround ? "地中" : "地上"));
 
 		// 間隔が来たボイドだけがレイを打つので、1フレームの本数の目安を出しておく
 		if (m_groundEffectInterval > 0.0f)
 		{
-			Engine::Editor::HelpText("Rays : about %.0f boids / s (up to 2 rays each)", static_cast<float>(m_maxBoid) / m_groundEffectInterval);
+			Engine::Editor::HelpText("レイ : 毎秒およそ %.0f 体(1体につき最大2本)", static_cast<float>(m_maxBoid) / m_groundEffectInterval);
 		}
 
 		// ここから下は実行中の状態なので表示のみ
-		Engine::Editor::Header("Runtime");
-		Engine::Editor::Value("Spawned", "%s", m_isSpown ? "yes" : "no");
+		Engine::Editor::Header("実行中");
+		Engine::Editor::Value("生成済み", "%s", m_isSpown ? "はい" : "いいえ");
 		if (!m_isSpown)
 		{
 			// 置いた直後はプレハブ未設定のまま Awake を通っているので、設定してから出せるようにする
 			Engine::Editor::SameLine();
-			if (Engine::Editor::CreateSmallButton("Spawn"))
+			if (Engine::Editor::CreateSmallButton("生成"))
 			{
 				Spawn(a_context);
 			}
 		}
 
-		Engine::Editor::Value("Leader", "%llu", static_cast<unsigned long long>(m_leaderEntity));
-		Engine::Editor::Value("Platoon", "%u / %u", static_cast<uint32_t>(m_platoonLeaderEntities.size()), m_maxPlatoonLeader);
+		Engine::Editor::Value("リーダー", "%llu", static_cast<unsigned long long>(m_leaderEntity));
+		Engine::Editor::Value("小隊長の数", "%u / %u", static_cast<uint32_t>(m_platoonLeaderEntities.size()), m_maxPlatoonLeader);
 		for (size_t _i = 0; _i < m_platoonLeaderEntities.size(); ++_i)
 		{
 			Engine::Editor::BulletText("[%u] %llu", static_cast<uint32_t>(_i), static_cast<unsigned long long>(m_platoonLeaderEntities[_i]));
 		}
-		Engine::Editor::Value("HP", "%u / %u (alive boids)", m_currentBoids, m_maxBoid);
+		Engine::Editor::Value("体力", "%u / %u (生存ボイド数)", m_currentBoids, m_maxBoid);
 	}
 }

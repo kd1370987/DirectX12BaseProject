@@ -113,13 +113,13 @@ namespace App::Object
 	void SwarmBossReorganizeState::DrawInspector()
 	{
 		m_ball.DrawInspector();
-		Engine::Editor::Field("Gather Time", m_gatherTime, 0.05f, 0.0f);
-		Engine::Editor::Field("Settle Time", m_settleTime, 0.05f, 0.0f);
-		Engine::Editor::Field("Defense Ratio", m_defenseRatio, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("Body damage ratio while reorganizing (0 : invincible)");
+		Engine::Editor::Field("まとまる時間", m_gatherTime, 0.05f, 0.0f);
+		Engine::Editor::Field("落ち着く時間", m_settleTime, 0.05f, 0.0f);
+		Engine::Editor::Field("体の防御比率", m_defenseRatio, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Tooltip("整理している間に体が受けるダメージの比率(0 で無敵)");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Value("Phase", "%s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		Engine::Editor::Value("Requested", "%s", m_isRequested ? "yes" : "no");
+		Engine::Editor::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::Editor::Value("整理を依頼済み", "%s", m_isRequested ? "はい" : "いいえ");
 	}
 }

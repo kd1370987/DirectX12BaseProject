@@ -208,16 +208,16 @@ namespace App::Object
 
 	void SwarmBossBallMotion::DrawInspector()
 	{
-		Engine::Editor::Field("Ball Radius", m_ballRadius, 0.5f, 0.0f);
-		Engine::Editor::Field("Clearance", m_clearance, 0.5f, 0.0f);
-		Engine::Editor::Tooltip("Keep the bottom of the ball this high above the ground (when height is not fixed)");
-		Engine::Editor::Field("Speed Scale", m_speedScale, 0.05f, 0.0f);
-		Engine::Editor::Tooltip("Speed scale above Platoon Scale tears the line apart");
-		Engine::Editor::Field("Follow Gain", m_followGain, 0.05f, 0.0f);
-		Engine::Editor::Field("Polar Amplitude", m_polarAmplitudeDeg, 1.0f, 0.0f, 89.0f);
-		Engine::Editor::Field("Polar Period", m_polarPeriod, 0.05f, 0.0f);
+		Engine::Editor::Field("球の半径", m_ballRadius, 0.5f, 0.0f);
+		Engine::Editor::Field("地表との間隔", m_clearance, 0.5f, 0.0f);
+		Engine::Editor::Tooltip("高さを決めないとき、球の下端を地表からこれだけ離す");
+		Engine::Editor::Field("回る速さの倍率", m_speedScale, 0.05f, 0.0f);
+		Engine::Editor::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
+		Engine::Editor::Field("ずれを詰める強さ", m_followGain, 0.05f, 0.0f);
+		Engine::Editor::Field("上下の振れ幅(度)", m_polarAmplitudeDeg, 1.0f, 0.0f, 89.0f);
+		Engine::Editor::Field("上下に1往復する周期", m_polarPeriod, 0.05f, 0.0f);
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Value("Center", "%.1f, %.1f, %.1f (r %.1f)", m_center.x, m_center.y, m_center.z, GetRadius());
+		Engine::Editor::Value("球の中心", "%.1f, %.1f, %.1f (半径 %.1f)", m_center.x, m_center.y, m_center.z, GetRadius());
 	}
 }

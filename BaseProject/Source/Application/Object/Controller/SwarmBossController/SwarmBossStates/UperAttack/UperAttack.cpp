@@ -265,24 +265,24 @@ namespace App::Object
 
 	void SwarmBossUperAttackState::DrawInspector()
 	{
-		Engine::Editor::Field("Burrow Depth", m_burrowDepth, 0.5f, 0.0f);
-		Engine::Editor::Field("Depth Tolerance", m_depthTolerance, 0.1f, 0.0f);
-		Engine::Editor::Field("Burrow Forward", m_burrowForward, 0.5f, 0.0f);
-		Engine::Editor::Field("Burrow Throttle", m_burrowThrottle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("Burrow Max Time", m_burrowMaxTime, 0.1f, 0.0f);
-		Engine::Editor::Field("Approach Speed Scale", m_approachSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Field("Under Distance", m_underDistance, 0.1f, 0.0f);
-		Engine::Editor::Field("Approach Max Time", m_approachMaxTime, 0.1f, 0.0f);
-		Engine::Editor::Field("Uper Speed Scale", m_uperSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Field("Overshoot Height", m_overshootHeight, 0.5f, 0.0f);
-		Engine::Editor::Field("Uper Max Time", m_uperMaxTime, 0.1f, 0.0f);
-		Engine::Editor::Field("Recover Time", m_recoverTime, 0.05f, 0.0f);
-		Engine::Editor::Field("Recover Throttle", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("Speed scale above Platoon Scale tears the line apart");
+		Engine::Editor::Field("潜る深さ", m_burrowDepth, 0.5f, 0.0f);
+		Engine::Editor::Field("深さの許容範囲", m_depthTolerance, 0.1f, 0.0f);
+		Engine::Editor::Field("潜りながら進む量", m_burrowForward, 0.5f, 0.0f);
+		Engine::Editor::Field("潜るときの移動入力の強さ", m_burrowThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("潜る最長時間", m_burrowMaxTime, 0.1f, 0.0f);
+		Engine::Editor::Field("地中移動の速さの倍率", m_approachSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Field("真下とみなす距離", m_underDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("地中移動の最長時間", m_approachMaxTime, 0.1f, 0.0f);
+		Engine::Editor::Field("突き上げの速さの倍率", m_uperSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Field("突き上げをやめる高さ", m_overshootHeight, 0.5f, 0.0f);
+		Engine::Editor::Field("突き上げの最長時間", m_uperMaxTime, 0.1f, 0.0f);
+		Engine::Editor::Field("余韻の長さ", m_recoverTime, 0.05f, 0.0f);
+		Engine::Editor::Field("余韻中の移動入力の強さ", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Value("Phase", "%s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		Engine::Editor::Value("Player", "%.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
-		Engine::Editor::Value("Ground", "%.1f (depth %.1f, %s)", m_groundHeight, m_depth, m_isUnderGround ? "under" : "above");
+		Engine::Editor::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::Editor::Value("プレイヤーの位置", "%.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
+		Engine::Editor::Value("地表の高さ", "%.1f (深さ %.1f, %s)", m_groundHeight, m_depth, m_isUnderGround ? "地中" : "地上");
 	}
 }

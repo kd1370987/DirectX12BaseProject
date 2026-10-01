@@ -155,20 +155,20 @@ namespace App::Object
 
 	void SwarmBossRandomWalkState::DrawInspector()
 	{
-		Engine::Editor::Field("Wander Radius", m_wanderRadius, 0.5f, 0.0f);
-		Engine::Editor::Field("Wander Height", m_wanderHeight, 0.5f, 0.0f);
-		Engine::Editor::Field("Wander Interval", m_wanderInterval, 0.1f, 0.0f);
-		Engine::Editor::Field("Arrive Distance", m_arriveDistance, 0.1f, 0.0f);
-		Engine::Editor::Field("Throttle", m_throttle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("Attack Interval Min", m_minDurationTime, 0.1f, 0.0f);
-		Engine::Editor::Field("Attack Interval Max", m_maxDurationTime, 0.1f, 0.0f);
-		Engine::Editor::Field("Weight Charge", m_chargeWeight, 0.05f, 0.0f);
-		Engine::Editor::Field("Weight Uper Attack", m_uperAttackWeight, 0.05f, 0.0f);
-		Engine::Editor::Field("Weight Dive Attack", m_diveAttackWeight, 0.05f, 0.0f);
-		Engine::Editor::Field("Weight Coil Attack", m_coilAttackWeight, 0.05f, 0.0f);
+		Engine::Editor::Field("徘徊の半径", m_wanderRadius, 0.5f, 0.0f);
+		Engine::Editor::Field("徘徊の高さの振れ幅", m_wanderHeight, 0.5f, 0.0f);
+		Engine::Editor::Field("目標地点を選び直す間隔", m_wanderInterval, 0.1f, 0.0f);
+		Engine::Editor::Field("到着とみなす距離", m_arriveDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("移動入力の強さ", m_throttle, 0.01f, 0.0f, 1.0f);
+		Engine::Editor::Field("攻撃までの時間(最短)", m_minDurationTime, 0.1f, 0.0f);
+		Engine::Editor::Field("攻撃までの時間(最長)", m_maxDurationTime, 0.1f, 0.0f);
+		Engine::Editor::Field("抽選の重み : 突進", m_chargeWeight, 0.05f, 0.0f);
+		Engine::Editor::Field("抽選の重み : アッパー", m_uperAttackWeight, 0.05f, 0.0f);
+		Engine::Editor::Field("抽選の重み : ダイブ", m_diveAttackWeight, 0.05f, 0.0f);
+		Engine::Editor::Field("抽選の重み : 巻き付き", m_coilAttackWeight, 0.05f, 0.0f);
 
 		// 目標地点は毎フレーム上書きされるので表示のみ
-		Engine::Editor::Value("Target", "%.1f, %.1f, %.1f (next %.1f s)", m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
-		Engine::Editor::Value("Attack", "%.1f / %.1f s -> %s", m_time, m_attackTime, std::string(magic_enum::enum_name(m_nextAttack)).c_str());
+		Engine::Editor::Value("目標地点", "%.1f, %.1f, %.1f (選び直しまで %.1f 秒)", m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
+		Engine::Editor::Value("次の攻撃", "%.1f / %.1f 秒 -> %s", m_time, m_attackTime, std::string(magic_enum::enum_name(m_nextAttack)).c_str());
 	}
 }

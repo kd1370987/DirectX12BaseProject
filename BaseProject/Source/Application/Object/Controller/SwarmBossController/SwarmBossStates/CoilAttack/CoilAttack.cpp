@@ -400,45 +400,45 @@ namespace App::Object
 
 	void SwarmBossCoilAttackState::DrawInspector()
 	{
-		Engine::Editor::Field("Radius Scale", m_radiusScale, 0.01f, 0.0f);
-		Engine::Editor::Tooltip("Radius = worm length / 2pi x this (1 : head meets tail)");
-		Engine::Editor::Field("Min Radius", m_minRadius, 0.5f, 0.0f);
-		Engine::Editor::Field("Center Follow Gain", m_centerFollowGain, 0.01f, 0.0f);
-		Engine::Editor::Field("Approach Speed Scale", m_approachSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Field("Arrive Distance", m_arriveDistance, 0.1f, 0.0f);
-		Engine::Editor::Field("Approach Max Time", m_approachMaxTime, 0.1f, 0.0f);
-		Engine::Editor::Field("Coil Speed Scale", m_coilSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Tooltip("Speed scale above Platoon Scale tears the line apart");
-		Engine::Editor::Field("Follow Gain", m_followGain, 0.05f, 0.0f);
-		Engine::Editor::Field("Coil Time", m_coilTime, 0.1f, 0.0f);
-		Engine::Editor::Field("Low Height", m_lowHeight, 0.5f);
-		Engine::Editor::Tooltip("From ground surface. Negative : under ground");
-		Engine::Editor::Field("High Height", m_highHeight, 0.5f);
-		Engine::Editor::Field("Undulation Period", m_undulationPeriod, 0.05f, 0.0f);
-		Engine::Editor::Field("Launch Start Delay", m_launchStartDelay, 0.05f, 0.0f);
-		Engine::Editor::Field("Launch Interval", m_launchInterval, 0.01f, 0.01f);
-		Engine::Editor::Tooltip("One boid per platoon, head to tail in order");
+		Engine::Editor::Field("輪の半径の倍率", m_radiusScale, 0.01f, 0.0f);
+		Engine::Editor::Tooltip("半径 = 体の長さ ÷ (2 × 円周率) × これ(1 で頭と尾がちょうど繋がる)");
+		Engine::Editor::Field("輪の半径の下限", m_minRadius, 0.5f, 0.0f);
+		Engine::Editor::Field("中心をプレイヤーへ寄せる強さ", m_centerFollowGain, 0.01f, 0.0f);
+		Engine::Editor::Field("輪に入るまでの速さの倍率", m_approachSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Field("到着とみなす距離", m_arriveDistance, 0.1f, 0.0f);
+		Engine::Editor::Field("輪に入る最長時間", m_approachMaxTime, 0.1f, 0.0f);
+		Engine::Editor::Field("巻く速さの倍率", m_coilSpeedScale, 0.05f, 0.0f);
+		Engine::Editor::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
+		Engine::Editor::Field("ずれを詰める強さ", m_followGain, 0.05f, 0.0f);
+		Engine::Editor::Field("巻く長さ", m_coilTime, 0.1f, 0.0f);
+		Engine::Editor::Field("一番低いところの高さ", m_lowHeight, 0.5f);
+		Engine::Editor::Tooltip("地表からの高さ。負で地中");
+		Engine::Editor::Field("一番高いところの高さ", m_highHeight, 0.5f);
+		Engine::Editor::Field("地面と上を1往復する周期", m_undulationPeriod, 0.05f, 0.0f);
+		Engine::Editor::Field("切り離しを始めるまでの時間", m_launchStartDelay, 0.05f, 0.0f);
+		Engine::Editor::Field("切り離す間隔", m_launchInterval, 0.01f, 0.01f);
+		Engine::Editor::Tooltip("小隊長ごとに1体ずつ、頭から尾へ順番に切り離す");
 
 		Engine::Editor::Line();
-		Engine::Editor::Field("Missile Launch Speed", m_missileLaunchSpeed, 0.5f, 0.0f);
-		Engine::Editor::Field("Missile Launch Time", m_missileLaunchTime, 0.01f, 0.0f);
-		Engine::Editor::Field("Missile Launch Up", m_missileLaunchUp, 0.01f);
-		Engine::Editor::Field("Missile Launch Out", m_missileLaunchOut, 0.01f);
-		Engine::Editor::Field("Missile Launch Spread", m_missileLaunchSpread, 0.01f, 0.0f);
-		Engine::Editor::Field("Missile Speed", m_missileSpeed, 0.5f, 0.0f);
-		Engine::Editor::Field("Missile Acceleration", m_missileAcceleration, 0.5f, 0.0f);
-		Engine::Editor::Field("Missile Turn Speed", m_missileTurnSpeedDeg, 1.0f, 0.0f);
-		Engine::Editor::Tooltip("deg / s. Smaller : wider turn, easier to dodge");
-		Engine::Editor::Field("Missile Life Time", m_missileLifeTime, 0.1f, 0.0f);
-		Engine::Editor::Field("Missile Explode Radius", m_missileExplodeRadius, 0.1f, 0.0f);
-		Engine::Editor::Field("Missile Damage", m_missileDamage, 0.5f, 0.0f);
-		Engine::Editor::ColorField("Missile Color", m_missileColor);
-		Engine::Editor::Field("Missile Intensity", m_missileIntensity, 0.1f, 0.0f);
+		Engine::Editor::Field("ミサイル : 打ち上げの速さ", m_missileLaunchSpeed, 0.5f, 0.0f);
+		Engine::Editor::Field("ミサイル : 打ち上げの長さ", m_missileLaunchTime, 0.01f, 0.0f);
+		Engine::Editor::Field("ミサイル : 打ち上げの上向きの重み", m_missileLaunchUp, 0.01f);
+		Engine::Editor::Field("ミサイル : 打ち上げの外向きの重み", m_missileLaunchOut, 0.01f);
+		Engine::Editor::Field("ミサイル : 打ち上げのばらつき", m_missileLaunchSpread, 0.01f, 0.0f);
+		Engine::Editor::Field("ミサイル : 最高速", m_missileSpeed, 0.5f, 0.0f);
+		Engine::Editor::Field("ミサイル : 加速度", m_missileAcceleration, 0.5f, 0.0f);
+		Engine::Editor::Field("ミサイル : 曲がる速さ", m_missileTurnSpeedDeg, 1.0f, 0.0f);
+		Engine::Editor::Tooltip("度/秒。小さいほど大回りになり、避けやすい");
+		Engine::Editor::Field("ミサイル : 自爆までの時間", m_missileLifeTime, 0.1f, 0.0f);
+		Engine::Editor::Field("ミサイル : 自爆する距離", m_missileExplodeRadius, 0.1f, 0.0f);
+		Engine::Editor::Field("ミサイル : ダメージ", m_missileDamage, 0.5f, 0.0f);
+		Engine::Editor::ColorField("ミサイル : 発光色", m_missileColor);
+		Engine::Editor::Field("ミサイル : 発光の強さ", m_missileIntensity, 0.1f, 0.0f);
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Value("Phase", "%s (%.1f s)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		Engine::Editor::Value("Ring", "r %.1f m / center %.1f, %.1f", m_radius, m_center.x, m_center.z);
-		Engine::Editor::Value("Angle", "%.1f deg (%s)", DirectX::XMConvertToDegrees(m_angle), m_turnSign > 0.0f ? "+" : "-");
-		Engine::Editor::Value("Launched", "%u (next platoon %u)", m_launchCount, static_cast<uint32_t>(m_launchCursor));
+		Engine::Editor::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::Editor::Value("輪", "半径 %.1f m / 中心 %.1f, %.1f", m_radius, m_center.x, m_center.z);
+		Engine::Editor::Value("角度", "%.1f 度 (%s)", DirectX::XMConvertToDegrees(m_angle), m_turnSign > 0.0f ? "+" : "-");
+		Engine::Editor::Value("切り離した数", "%u (次の小隊長 %u)", m_launchCount, static_cast<uint32_t>(m_launchCursor));
 	}
 }
