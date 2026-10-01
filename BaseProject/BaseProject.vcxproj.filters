@@ -1279,6 +1279,9 @@
     <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack">
       <UniqueIdentifier>{c84ab895-c4e1-476c-ac0b-026cf4016047}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\CoilAttack">
+      <UniqueIdentifier>{fcdbaeb9-8993-4823-ba44-a71339f55336}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.cpp">
@@ -2406,6 +2409,9 @@
     <ClCompile Include="Source\Application\Systems\Boid\BoidContactDamageSystem.cpp">
       <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\SwarmMissileSystem.cpp">
+      <Filter>Source\Application\Systems\Boid</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Boid\BoidGroundEffectSystem.cpp">
       <Filter>Source\Application\Systems\Boid</Filter>
     </ClCompile>
@@ -2456,6 +2462,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.cpp">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\CoilAttack\CoilAttack.cpp">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\CoilAttack</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Boid\BoidSnapshotSystem.cpp">
       <Filter>Source\Application\Systems\Boid</Filter>
@@ -4181,6 +4190,15 @@
     <ClInclude Include="Source\Application\Components\Boid\BoidContactDamageComponent.h">
       <Filter>Source\Application\Components\Boid</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Boid\SwarmMissileSystem.h">
+      <Filter>Source\Application\Systems\Boid</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\SwarmMissileResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Boid\SwarmMissileComponent.h">
+      <Filter>Source\Application\Components\Boid</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Boid\BoidGroundEffectSystem.h">
       <Filter>Source\Application\Systems\Boid</Filter>
     </ClInclude>
@@ -4267,6 +4285,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.h">
       <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\CoilAttack\CoilAttack.h">
+      <Filter>Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\CoilAttack</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Boid\SwarmBossBoidTag.h">
       <Filter>Source\Application\Components\Boid</Filter>

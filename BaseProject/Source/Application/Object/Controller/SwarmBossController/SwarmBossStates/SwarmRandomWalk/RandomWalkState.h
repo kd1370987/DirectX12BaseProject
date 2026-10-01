@@ -49,6 +49,7 @@ namespace App::Object
 		float m_chargeWeight    = 1.0f;		// 突進
 		float m_uperAttackWeight = 1.0f;	// アッパー(地中から突き上げ)
 		float m_diveAttackWeight = 1.0f;	// ダイブ(放物線で急降下)
+		float m_coilAttackWeight = 1.0f;	// 巻き付き(体を巻いてボイドを自爆ミサイルにする)
 
 		//------------------------------------------------------------------------------------------
 		// 実行中の状態(保存しない)

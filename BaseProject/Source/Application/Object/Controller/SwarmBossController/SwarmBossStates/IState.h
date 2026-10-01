@@ -26,6 +26,10 @@ namespace App::Object
 
 		Engine::ECS::Entity leaderEntity = Engine::ECS::Limits::INVALID_ENTITY;	// 入力を書き込む相手
 		Math::Vector3 spawnPos = {};											// 行動範囲の中心(ワールド)
+
+		// 体の並び。頭(リーダーの直後)から尾の順。ボイドを切り離す攻撃が使う
+		const std::vector<Engine::ECS::Entity>* pPlatoonLeaders = nullptr;
+		float wormLength = 0.0f;												// 頭から尾までの長さ(1次元。m)
 	};
 
 	class IState

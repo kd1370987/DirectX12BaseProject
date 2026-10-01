@@ -225,6 +225,8 @@ namespace App::Object
 		_stateContext.pMachine     = &m_stateMachine;
 		_stateContext.leaderEntity = m_leaderEntity;
 		_stateContext.spawnPos     = m_spawnPos;
+		_stateContext.pPlatoonLeaders = &m_platoonLeaderEntities;
+		_stateContext.wormLength      = GetWormLength();
 
 		m_stateMachine.PreUpdate(_stateContext);
 		m_stateMachine.Update(_stateContext);

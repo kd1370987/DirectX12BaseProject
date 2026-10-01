@@ -110,6 +110,7 @@ namespace App::Object
 			{ ESwarmBossState::Charge,     std::max(m_chargeWeight, 0.0f) },
 			{ ESwarmBossState::UperAttack, std::max(m_uperAttackWeight, 0.0f) },
 			{ ESwarmBossState::DiveAttack, std::max(m_diveAttackWeight, 0.0f) },
+			{ ESwarmBossState::CoilAttack, std::max(m_coilAttackWeight, 0.0f) },
 		};
 
 		float _total = 0.0f;
@@ -146,6 +147,7 @@ namespace App::Object
 		a_ar.Field("AttackWeightCharge", m_chargeWeight);
 		a_ar.Field("AttackWeightUperAttack", m_uperAttackWeight);
 		a_ar.Field("AttackWeightDiveAttack", m_diveAttackWeight);
+		a_ar.Field("AttackWeightCoilAttack", m_coilAttackWeight);
 	}
 
 	void SwarmBossRandomWalkState::DrawInspector()
@@ -160,6 +162,7 @@ namespace App::Object
 		Engine::Editor::Field("Weight Charge", m_chargeWeight, 0.05f, 0.0f);
 		Engine::Editor::Field("Weight Uper Attack", m_uperAttackWeight, 0.05f, 0.0f);
 		Engine::Editor::Field("Weight Dive Attack", m_diveAttackWeight, 0.05f, 0.0f);
+		Engine::Editor::Field("Weight Coil Attack", m_coilAttackWeight, 0.05f, 0.0f);
 
 		// 目標地点は毎フレーム上書きされるので表示のみ
 		Engine::Editor::Value("Target", "%.1f, %.1f, %.1f (next %.1f s)", m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);

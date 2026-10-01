@@ -4,6 +4,7 @@
 #include "SwarmCharge/ChargeState.h"
 #include "UperAttack/UperAttack.h"
 #include "DiveAttack/DiveAttack.h"
+#include "CoilAttack/CoilAttack.h"
 
 namespace App::Object
 {
@@ -17,6 +18,7 @@ namespace App::Object
 		m_upStates.emplace(ESwarmBossState::Charge, std::make_unique<SwarmBossChargeState>());
 		m_upStates.emplace(ESwarmBossState::UperAttack, std::make_unique<SwarmBossUperAttackState>());
 		m_upStates.emplace(ESwarmBossState::DiveAttack, std::make_unique<SwarmBossDiveAttackState>());
+		m_upStates.emplace(ESwarmBossState::CoilAttack, std::make_unique<SwarmBossCoilAttackState>());
 
 		// 最初の行動。1フレーム目の PreUpdate で入る
 		RequestChangeState(ESwarmBossState::RandomWalk);

@@ -314,6 +314,7 @@
     <ClCompile Include="Source\Application\Game\UserData\UserData.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.cpp" />
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\CoilAttack\CoilAttack.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.cpp" />
     <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge\ChargeState.cpp" />
@@ -410,6 +411,7 @@
     <ClCompile Include="Source\Application\Systems\Boid\SerchGroundSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Boid\BoidGroundEffectSystem.cpp" />
     <ClCompile Include="Source\Application\Systems\Boid\BoidContactDamageSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Boid\SwarmMissileSystem.cpp" />
     <ClCompile Include="Source\Application\Utility\PrefabSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Utility\EffectSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Systems\Audio\AudioListenerSystem.cpp" />
@@ -905,6 +907,7 @@
     <ClInclude Include="Source\Application\Game\UserData\UserData.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.h" />
+    <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\CoilAttack\CoilAttack.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\IState.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.h" />
     <ClInclude Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.h" />
@@ -1070,6 +1073,9 @@
     <ClInclude Include="Source\Application\Systems\Boid\BoidContactDamageSystem.h" />
     <ClInclude Include="Source\Application\InstanceResource\SwarmContactDamageResource.h" />
     <ClInclude Include="Source\Application\Components\Boid\BoidContactDamageComponent.h" />
+    <ClInclude Include="Source\Application\Systems\Boid\SwarmMissileSystem.h" />
+    <ClInclude Include="Source\Application\InstanceResource\SwarmMissileResource.h" />
+    <ClInclude Include="Source\Application\Components\Boid\SwarmMissileComponent.h" />
     <ClInclude Include="Source\Application\InstanceResource\WormGroundEffectResource.h" />
     <ClInclude Include="Source\Application\Utility\PrefabSpawnHelper.h" />
     <ClInclude Include="Source\Application\Utility\EffectSpawnHelper.h" />

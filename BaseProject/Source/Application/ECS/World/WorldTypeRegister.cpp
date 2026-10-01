@@ -86,6 +86,7 @@
 #include "Application/Components/Effect/DebrisEmitterComponent.h"
 #include "Application/Components/Effect/BallisticComponent.h"
 #include "Application/Components/Boid/BoidContactDamageComponent.h"
+#include "Application/Components/Boid/SwarmMissileComponent.h"
 
 // システム関連
 #include "Application/Systems/Render/ModelFixupSystem.h"
@@ -218,6 +219,7 @@
 #include "Application/Systems/Effect/DebrisEmitterSystem.h"
 #include "Application/Systems/Effect/BallisticSystem.h"
 #include "Application/Systems/Boid/BoidContactDamageSystem.h"
+#include "Application/Systems/Boid/SwarmMissileSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -230,6 +232,7 @@
 #include "Application/InstanceResource/PlatoonAxisResource.h"
 #include "Application/InstanceResource/WormGroundEffectResource.h"
 #include "Application/InstanceResource/SwarmContactDamageResource.h"
+#include "Application/InstanceResource/SwarmMissileResource.h"
 
 namespace App::ECS
 {
@@ -377,6 +380,8 @@ namespace App::ECS
 		a_world.RegisterComponent<EmissiveOverrideComponent>("EmissiveOverrideComponent");
 		// アニメーションするモデルのレイトレ用インスタンス(AnimatorComponent から分けた)
 		a_world.RegisterComponent<DynamicRaytracingComponent>("DynamicRaytracingComponent");
+		// ワームの体から切り離された自爆ミサイル。付けるのは SwarmMissileSystem
+		a_world.RegisterComponent<SwarmMissileComponent>("SwarmMissileComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -562,6 +567,8 @@ namespace App::ECS
 		a_world.RegisterSystem<BallisticSystem>();
 		// ワームの体(ボイド)がプレイヤーに触れたらダメージを積む(減らすのは HealthSystem)
 		a_world.RegisterSystem<BoidContactDamageSystem>();
+		// ワームの体(ボイド)を切り離して自爆ミサイルにする(切り離す小隊長を決めるのはワームボスの巻き付き攻撃)
+		a_world.RegisterSystem<SwarmMissileSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
@@ -591,6 +598,8 @@ namespace App::ECS
 		a_world.AddResource<WormGroundEffectResource>();
 		// ワームの体当たりの設定とプレイヤーの形(SwarmBossController が書き、BoidContactDamageSystem が読む)
 		a_world.AddResource<SwarmContactDamageResource>();
+		// 自爆ミサイルの切り離しの要求と飛び方(巻き付き攻撃が書き、SwarmMissileSystem が読む)
+		a_world.AddResource<SwarmMissileResource>();
 
 		// 初期化
 		a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);
@@ -609,5 +618,7 @@ namespace App::ECS
 
 		// 同時に走るウェーブは数本(SwarmBossController の Max Wave)
 		a_world.GetResource<WormWaveResource>().Reserve(16);
+		// 切り離しの要求は1フレームに数件
+		a_world.GetResource<SwarmMissileResource>().Reserve(16);
 	}
 }

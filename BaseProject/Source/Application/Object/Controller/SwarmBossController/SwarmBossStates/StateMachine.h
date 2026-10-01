@@ -12,6 +12,7 @@ namespace App::Object
 		UperAttack,			// 地面に潜ってプレイヤーの真下へ回り込み、真上へ突き上げる
 		DiveAttack,			// プレイヤーから離れて高く上がり、放物線(二次関数)を描いてプレイヤーへ急降下する
 		Charge,				// プレイヤーへ向かって一直線に突進する
+		CoilAttack,			// プレイヤーを中心に体を円状に巻き、地面と上を行き来しながら、各小隊長がボイドを切り離して自爆ミサイルにする
 	};
 
 	class SwarmBossStateMachine
