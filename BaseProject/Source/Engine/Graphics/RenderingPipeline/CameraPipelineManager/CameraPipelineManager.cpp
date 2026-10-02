@@ -34,8 +34,9 @@ namespace Engine::Graphics
 		m_cameras.clear();
 		m_sortedCameras.clear();
 		m_pMainCamera = nullptr;
-		m_pipelineOpaquePassVec.clear();
-		m_pipelineTransparentPassVec.clear();
+		//m_pipelineOpaquePassVec.clear();
+		//m_pipelineTransparentPassVec.clear();
+		m_pipelinePassMap.clear();
 	}
 
 	//==========================================================================================
@@ -121,8 +122,12 @@ namespace Engine::Graphics
 	//======================================================================================
 	void CameraPipelineManager::RefreshGeometryPassCache()
 	{
-		m_pipelineOpaquePassVec.clear();
-		m_pipelineTransparentPassVec.clear();
+		//m_pipelineOpaquePassVec.clear();
+		//m_pipelineTransparentPassVec.clear();
+		for (auto& [_e, _vec] : m_pipelinePassMap)
+		{
+			_vec.clear();
+		}
 
 		for (const auto& _upCamera : m_cameras)
 		{
@@ -136,12 +141,12 @@ namespace Engine::Graphics
 			{
 				if (!_compiledPass.pPass) continue;
 
-				switch (_compiledPass.pPass->GetGeometryQueue())
-				{
-				case EGeometryQueue::Opaque:		m_pipelineOpaquePassVec.push_back(_compiledPass.pPass);		break;
-				case EGeometryQueue::Transparent:	m_pipelineTransparentPassVec.push_back(_compiledPass.pPass);	break;
-				default: break;
-				}
+				// モデルを受け取らないパスは並べない。
+				// キーは初回に operator[] で作る(find だと空の Map から永遠に見つからない)
+				const EGeometryQueue _queue = _compiledPass.pPass->GetGeometryQueue();
+				if (_queue == EGeometryQueue::None || _queue >= EGeometryQueue::Count) continue;
+
+				m_pipelinePassMap[_queue].push_back(_compiledPass.pPass);
 			}
 		}
 	}
@@ -150,12 +155,12 @@ namespace Engine::Graphics
 	{
 		static const std::vector<Pipeline::Pass*> _empty = {};
 
-		switch (a_queue)
+		auto _it = m_pipelinePassMap.find(a_queue);
+		if (_it != m_pipelinePassMap.end())
 		{
-		case EGeometryQueue::Opaque:		return m_pipelineOpaquePassVec;
-		case EGeometryQueue::Transparent:	return m_pipelineTransparentPassVec;
-		default:							return _empty;
+			return _it->second;
 		}
+		return _empty;
 	}
 
 	void CameraPipelineManager::SubmitCamera(const CameraSubmitDesc& a_desc)

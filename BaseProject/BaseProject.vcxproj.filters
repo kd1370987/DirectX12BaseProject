@@ -1291,6 +1291,9 @@
     <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Death">
       <UniqueIdentifier>{e8d4f5b6-d973-4ab9-93b4-f48c14525121}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\Effect\GroundDust">
+      <UniqueIdentifier>{13f2282b-2f7f-4572-8233-60c24bb85847}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.cpp">
@@ -2507,6 +2510,12 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Animation\AnimatorFreeSystem.cpp">
       <Filter>Source\Application\Systems\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ZPrePass\GroundDepth.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ZPrePass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Render\GroundEffectSetSystem.cpp">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -4423,6 +4432,15 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Render\DynamicRaytracingComponent.h">
       <Filter>Source\Application\Components\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ZPrePass\GroundDepth.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ZPrePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Effect\GroundEffectTag.h">
+      <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Render\GroundEffectSetSystem.h">
+      <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

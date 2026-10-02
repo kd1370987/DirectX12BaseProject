@@ -255,6 +255,56 @@ namespace Engine::Graphics
 		);
 	}
 
+	void DrawSubmitter::SubmitGroundModel(ECS::World& a_world, const Resource::Model* a_pModel, const Math::Matrix& a_worldMatrix)
+	{
+		if (!a_pModel) return;
+
+		// モデルが持っている描画コマンド（サブセット）を展開
+		const auto& _drawCmdVec = a_pModel->GetDrawCommandVec();
+
+		for (const auto& _cmd : _drawCmdVec)
+		{
+			// -----------------------------------------------------
+			// リソースの取得と検証
+			// -----------------------------------------------------
+			const Resource::Mesh* _pMesh = nullptr;
+			const Resource::Material* _pMaterial = nullptr;
+			if (!FetchDrawResources(_cmd, _pMesh, _pMaterial)) continue;
+
+			// -----------------------------------------------------
+			// 行列計算
+			// -----------------------------------------------------
+			Math::Matrix _nodeTransMat(a_pModel->GetOriginalNodeVec()[_cmd.nodeIndex].worldTransform);
+			Math::Matrix _mat = _nodeTransMat * a_worldMatrix;
+			Math::Matrix _prevMat = _nodeTransMat * a_worldMatrix;		// 動くことはない予定
+
+			// -----------------------------------------------------
+			// PermutationFlags の構築
+			// -----------------------------------------------------
+			// この経路は静的モデル専用(アニメーションするモデルはボーンを受け取る方の SubmitModel)
+			constexpr bool _isAnimation = false;
+			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
+			_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::Static;
+
+			if (_cmd.alphaMode == Engine::Resource::Alpha::Mask) {
+				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::AlphaMasked;
+			}
+
+			Engine::Graphics::PSOKey _psoKey = {};
+			_psoKey.permutationFlags = _flags;
+
+			// -----------------------------------------------------
+			// 各パスへの描画アイテム登録(共通処理)
+			// -----------------------------------------------------
+			RegisterDrawCommandToPasses(
+				EGeometryQueue::Ground,
+				_cmd, _pMesh, _pMaterial,
+				_mat, _prevMat,
+				_isAnimation, 0 /*animatedVertexStart*/,
+				{}, {}, {}, _psoKey);
+		}
+	}
+
 	void DrawSubmitter::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, const Math::Vector2& a_screenRect, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, const Math::Vector2& a_uvScale, float a_curveK, float a_curveOffsetX)
 	{
 		auto& _resMgr = (*m_pResourceManager);
@@ -457,6 +507,16 @@ namespace Engine::Graphics
 		const EGeometryQueue _queue = (a_pMaterial->alphaMode == Resource::Alpha::Blend)
 			? EGeometryQueue::Transparent
 			: EGeometryQueue::Opaque;
+		RegisterDrawCommandToPasses(
+			_queue, a_cmd, a_pMesh, a_pMaterial, 
+			a_mat, a_prevMat, a_isAnimation, a_animatedVertexStart, 
+			a_albedoScale, a_emissiveScale, a_emissiveAdd, a_psoKey
+		);
+	}
+
+	void DrawSubmitter::RegisterDrawCommandToPasses(const EGeometryQueue& a_eGeoQue, const Resource::ModelDrawCommand& a_cmd, const Resource::Mesh* a_pMesh, const Resource::Material* a_pMaterial, const Math::Matrix& a_mat, const Math::Matrix& a_prevMat, bool a_isAnimation, uint32_t a_animatedVertexStart, const Math::Color& a_albedoScale, const Math::Vector3& a_emissiveScale, const Math::Vector3& a_emissiveAdd, PSOKey a_psoKey)
+	{
+		const EGeometryQueue _queue = a_eGeoQue;
 
 		const auto& _msData = a_pMesh->GetMeshShaderData();
 		const auto& _subsetMeshlet = _msData.subsetMeshlets[a_cmd.subIdx];

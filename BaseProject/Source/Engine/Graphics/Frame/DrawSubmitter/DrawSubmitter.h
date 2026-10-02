@@ -152,6 +152,17 @@ namespace Engine::Graphics
 			const Math::Vector3& a_emissiveAdd = { 0,0,0 }	// 自己発光(加算)
 		);
 
+		/// <summary>
+		/// グラウンドエフェクト用のグラウンド指定
+		/// </summary>
+		/// <param name="a_world">ワールド</param>
+		/// <param name="a_pModel">モデルのポインタ</param>
+		/// <param name="a_worldMatrix">ワールド行列</param>
+		void SubmitGroundModel(
+			ECS::World& a_world,
+			const Resource::Model* a_pModel,
+			const Math::Matrix& a_worldMatrix
+		);
 		//--------------------------------------------------------------------------------------------
 		// 描画コマンド : UI
 		//--------------------------------------------------------------------------------------------
@@ -251,6 +262,22 @@ namespace Engine::Graphics
 		// 1つの描画コマンドを、モデルを受け取る全パスへ登録する共通処理。
 		// (メッシュシェーダー用データ構築・PSO要求・描画アイテム登録をまとめて行う)
 		void RegisterDrawCommandToPasses(
+			const Resource::ModelDrawCommand& a_cmd,
+			const Resource::Mesh* a_pMesh,
+			const Resource::Material* a_pMaterial,
+			const Math::Matrix& a_mat,
+			const Math::Matrix& a_prevMat,
+			bool a_isAnimation,
+			uint32_t a_animatedVertexStart,
+			const Math::Color& a_albedoScale,
+			const Math::Vector3& a_emissiveScale,
+			const Math::Vector3& a_emissiveAdd,
+			PSOKey a_psoKey);
+
+		// キュー指定 : 1つの描画コマンドを、モデルを受け取る全パスへ登録する共通処理。
+		// (メッシュシェーダー用データ構築・PSO要求・描画アイテム登録をまとめて行う)
+		void RegisterDrawCommandToPasses(
+			const EGeometryQueue& a_eGeoQue,
 			const Resource::ModelDrawCommand& a_cmd,
 			const Resource::Mesh* a_pMesh,
 			const Resource::Material* a_pMaterial,

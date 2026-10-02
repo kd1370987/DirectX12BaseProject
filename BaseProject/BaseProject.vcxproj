@@ -263,6 +263,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Application\Systems\Render\GroundEffectSetSystem.cpp" />
     <ClCompile Include="Source\Engine\Editor\Helper\EditorField.cpp">
       <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
@@ -304,6 +305,7 @@
     </ClCompile>
     <ClCompile Include="Source\Application\App.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Effect\BeamRenderer\BeamRenderer.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ZPrePass\GroundDepth.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.cpp" />
     <ClCompile Include="Source\Application\Utility\EffectPrefabSpawnHelper.cpp" />
     <ClCompile Include="Source\Application\Systems\Effect\DebrisEmitterSystem.cpp" />
@@ -856,6 +858,8 @@
     <ClCompile Include="Source\Application\Systems\Animation\AnimatorFreeSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Application\Components\Effect\GroundEffectTag.h" />
+    <ClInclude Include="Source\Application\Systems\Render\GroundEffectSetSystem.h" />
     <ClInclude Include="Source\Engine\Editor\EditorPCH.h" />
     <ClInclude Include="Source\Engine\Editor\Helper\EditorField.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.h" />
@@ -864,6 +868,7 @@
     <ClInclude Include="Source\Engine\Graphics\Device\RenderDevice\RenderDevice.h" />
     <ClInclude Include="..\Library\Include\imgui-docking\imconfig.h" />
     <ClInclude Include="Source\Engine\Graphics\Effect\BeamRenderer\BeamRenderer.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ZPrePass\GroundDepth.h" />
     <ClInclude Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.h" />
     <ClInclude Include="Source\Application\Components\Effect\DebrisEmitterComponent.h" />
     <ClInclude Include="Source\Application\Components\Effect\BallisticComponent.h" />

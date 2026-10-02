@@ -21,6 +21,9 @@ enum class EGeometryQueue : uint8_t
 {
 	None,			// モデルを受け取らないパス(ポストプロセスなど)
 	Opaque,			// 不透明
-	Transparent		// 半透明
+	Transparent,	// 半透明
+	Ground,			// 地形 : エフェクト用
+
+	Count			// 合計数 : パスではない
 };
 

@@ -29,6 +29,7 @@
 
 // ---- ジオメトリ・提示 ----
 #include "RenderingPasses/Geometry/ZPrePass/ZPrePass.h"
+#include "RenderingPasses/Geometry/ZPrePass/GroundDepth.h"
 #include "RenderingPasses/Sky/SkyPass/SkyPass.h"
 #include "RenderingPasses/PostEffect/ToneMap/ToneMapPass/ToneMapPass.h"
 #include "RenderingPasses/UI/UIPass/UIPass.h"
@@ -128,6 +129,7 @@ namespace Engine::Graphics::Pipeline
 
 		// ---- ジオメトリ・提示 ----
 		a_registry.RegisterType<ZPrePass>("ZPrePass");
+		a_registry.RegisterType<GroundDepthPass>("GroundDepthPass");
 		a_registry.RegisterType<SkyPass>("SkyPass");
 		a_registry.RegisterType<ToneMapPass>("ToneMapPass");
 		a_registry.RegisterType<UIPass>("UIPass");

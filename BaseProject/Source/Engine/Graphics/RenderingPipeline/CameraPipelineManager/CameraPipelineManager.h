@@ -252,8 +252,10 @@ namespace Engine::Graphics
 
 		// モデルを受け取るパスの一覧(フレームの頭で作り直す)。
 		// 実体はカメラのグラフが持っているので、ここは参照を並べるだけ
-		std::vector<Pipeline::Pass*> m_pipelineOpaquePassVec = {};
-		std::vector<Pipeline::Pass*> m_pipelineTransparentPassVec = {};
+		//std::vector<Pipeline::Pass*> m_pipelineOpaquePassVec = {};
+		//std::vector<Pipeline::Pass*> m_pipelineTransparentPassVec = {};
+
+		std::unordered_map<EGeometryQueue, std::vector<Pipeline::Pass*>> m_pipelinePassMap = {};
 
 		// 直近にメインだったカメラの描画構成。
 		// カメラが1台も積まれないフレーム(ゲームを止めているとき)でも、

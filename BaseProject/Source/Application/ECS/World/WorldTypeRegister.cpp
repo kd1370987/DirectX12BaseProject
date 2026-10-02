@@ -89,6 +89,7 @@
 #include "Application/Components/Boid/SwarmMissileComponent.h"
 #include "Application/Components/Combat/DefenseRatioComponent.h"
 #include "Application/Components/Boid/SwarmBurstComponent.h"
+#include "../../Components/Effect/GroundEffectTag.h"
 
 // システム関連
 #include "Application/Systems/Render/ModelFixupSystem.h"
@@ -223,6 +224,7 @@
 #include "Application/Systems/Boid/BoidContactDamageSystem.h"
 #include "Application/Systems/Boid/SwarmMissileSystem.h"
 #include "Application/Systems/Boid/SwarmBurstSystem.h"
+#include "../../Systems/Render/GroundEffectSetSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -389,6 +391,8 @@ namespace App::ECS
 		a_world.RegisterComponent<DefenseRatioComponent>("DefenseRatioComponent");
 		// ワームボスの死亡で爆散して飛び散っているボイド。付けるのは SwarmBossController
 		a_world.RegisterComponent<SwarmBurstComponent>("SwarmBurstComponent");
+		// グラウンドエフェクト用タグ
+		a_world.RegisterComponent<GroundEffectTag>("GroundEffectTag");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -578,6 +582,8 @@ namespace App::ECS
 		a_world.RegisterSystem<SwarmMissileSystem>();
 		// ワームボスの死亡で爆散したボイドを飛ばし、時間が来たら落とす(爆散させるのは SwarmBossController)
 		a_world.RegisterSystem<SwarmBurstSystem>();
+		// グラウンドエフェクトを炊く際の基準となるメッシュを登録
+		a_world.RegisterSystem<GroundEffectSetSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
