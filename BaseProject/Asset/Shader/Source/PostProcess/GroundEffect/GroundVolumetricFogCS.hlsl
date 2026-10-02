@@ -5,12 +5,16 @@
 // カメラから地面までのレイをマーチして、地面付近に立つフォグを積分する。
 //   rgb = フォグの色 / a = フォグの濃さ(0..1)
 //
-// 濃さ = グラウンドフィールド(衝撃) × 高さの減衰 × ノイズ × density
+// 濃さ = 衝撃の波 × 高さの減衰 × ノイズ × density
+//
+// 衝撃の波は、レイの1歩ごとに衝撃の配列から直接求める(式は GroundFieldCS と共通)。
+// 震源からの距離は水平(xz)で測るので、地面の波紋の上に壁のように立ち上がる
 //
 //==========================================================================================
 #include "../../../Common/RootSignatureLayout.hlsli"
 
 #include "../../../Common/RootParameters/CameraData.hlsli"
+#include "../../../Common/RootParameters/GroundFieldData.hlsli"
 #include "../../../Common/RootParameters/GroundFogData.hlsli"
 
 //==========================================================================================
@@ -18,9 +22,10 @@
 //
 //   0 : CBV(b0)            カメラ
 //   1 : CBV(b1)            フォグの調整値
-//   2 : SRVの番号(t0-t1) 地面の深度 + グラウンドフィールド(レンダーグラフが張る)
+//   2 : SRVの番号(t0)    地面の深度(レンダーグラフが張る)
 //   3 : UAVの番号(u0)    フォグ(レンダーグラフが張る)
-//   4 : SRVの番号(t2)    ノイズテクスチャ(パスが張る)
+//   4 : SRVの番号(t1)    ノイズテクスチャ(パスが張る)
+//   5 : SRVの番号(t2)    衝撃の配列(GraphicsEngine が詰めたもの)
 //
 // 追加は必ず末尾へ足すこと。間に挟むと既存の番号が全部ずれる
 //==========================================================================================
@@ -28,9 +33,10 @@
 "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b1, visibility = SHADER_VISIBILITY_ALL)," \
-"RootConstants(num32BitConstants=2, b100), " \
+"RootConstants(num32BitConstants=1, b100), " \
 "RootConstants(num32BitConstants=1, b101), " \
 "RootConstants(num32BitConstants=1, b102), " \
+"RootConstants(num32BitConstants=1, b103), " \
 RS_STATIC_SAMPLER
 
 // ノイズテクスチャが張られていないときの番号(パス側と合わせる)
@@ -55,13 +61,10 @@ cbuffer CBGroundFog : register(b1)
 cbuffer PassDescriptorIndex0 : register(b100)
 {
 	uint g_groundDepthTexIndex;
-	uint g_groundFieldTexIndex;
 }
 
-Texture2D<float> Get_groundDepthTex() { Texture2D<float> _r = ResourceDescriptorHeap[g_groundDepthTexIndex]; return _r; }		// 地面の深度
+Texture2D<float> Get_groundDepthTex() { Texture2D<float> _r = ResourceDescriptorHeap[g_groundDepthTexIndex]; return _r; }	// 地面の深度
 #define g_groundDepthTex Get_groundDepthTex()
-Texture2D<float4> Get_groundFieldTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_groundFieldTexIndex]; return _r; }	// 地面の衝撃計算結果(r)
-#define g_groundFieldTex Get_groundFieldTex()
 
 // 出力
 // UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
@@ -83,6 +86,28 @@ cbuffer PassDescriptorIndex2 : register(b102)
 Texture2D<float4> Get_noiseTex() { Texture2D<float4> _r = ResourceDescriptorHeap[g_noiseTexIndex]; return _r; }	// ノイズ(r)
 #define g_noiseTex Get_noiseTex()
 
+// 衝撃の配列 : GraphicsEngine が毎フレーム詰め直したもの。
+// 要素数は g_fogData.impulseCount
+cbuffer PassDescriptorIndex3 : register(b103)
+{
+	uint g_impulsesIndex;
+}
+
+StructuredBuffer<GroundImpulse> Get_impulses() { StructuredBuffer<GroundImpulse> _r = ResourceDescriptorHeap[g_impulsesIndex]; return _r; }
+#define g_impulses Get_impulses()
+
+// 水平位置(xz)での衝撃の波の合計
+float CalcFieldAt(float2 a_posXZ)
+{
+	float _field = 0.0f;
+	for (uint _i = 0; _i < g_fogData.impulseCount; ++_i)
+	{
+		GroundImpulse _impulse = g_impulses[_i];
+		_field += CalcGroundImpulseWave(_impulse, distance(a_posXZ, _impulse.pos.xz));
+	}
+	return _field;
+}
+
 // サンプラー
 SamplerState g_samp : register(s0);
 
@@ -99,10 +124,10 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 
 	int2 _coord = int2(DTid.xy);
 
-	// 地面が描かれていないピクセルはフォグなし。
+	// 地面が描かれていないピクセルと、衝撃が1つも無いフレームはフォグなし。
 	// 遠平面までマーチすると歩数が跳ね上がるので、ここで抜ける
 	float _depth = g_groundDepthTex.Load(int3(_coord, 0));
-	if (_depth >= 1.0f)
+	if (_depth >= 1.0f || g_fogData.impulseCount == 0)
 	{
 		g_outTex[_coord] = float4(g_fogData.fogColor, 0.0f);
 		return;
@@ -125,7 +150,21 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	float3 _rayStart = g_camera.cameraPos.xyz;
 	float3 _rayEnd = _worldPos.xyz;
 
-	float _distance = length(_rayEnd - _rayStart);
+	// レイをフォグの層(高さ fogHeight より下)だけに切り詰める。
+	// 層の外は濃さが 0 なので、歩数をすべて層の中へ使う
+	float _fogHeight = max(g_fogData.fogHeight, 0.0001f);
+	if (_rayStart.y > _fogHeight && _rayEnd.y > _fogHeight)
+	{
+		g_outTex[_coord] = float4(g_fogData.fogColor, 0.0f);
+		return;
+	}
+
+	float _tStart = 0.0f;
+	float _tEnd = 1.0f;
+	if (_rayStart.y > _fogHeight) _tStart = (_rayStart.y - _fogHeight) / (_rayStart.y - _rayEnd.y);	// 上から層へ入る
+	if (_rayEnd.y > _fogHeight) _tEnd = (_fogHeight - _rayStart.y) / (_rayEnd.y - _rayStart.y);		// 層から上へ抜ける
+
+	float _distance = length(_rayEnd - _rayStart) * (_tEnd - _tStart);
 
 	// 歩数 : 上限で頭打ちにしたぶんは1歩を伸ばして、レイの最後まで届かせる
 	uint _steps = (uint) ceil(_distance / max(g_fogData.stepSize, 0.01f));
@@ -140,7 +179,7 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	// ステップごとに計算
 	for (uint _i = 0; _i < _steps; ++_i)
 	{
-		float _t = (_i + 0.5f) / _steps;
+		float _t = lerp(_tStart, _tEnd, (_i + 0.5f) / _steps);
 
 		float3 _samplePos = lerp(_rayStart, _rayEnd, _t);
 
@@ -148,14 +187,11 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 		float _sampleHeight = _samplePos.y;
 
 		// 地面付近だけフォグを発生させる
-		float _heightMask = 1.0f - saturate(_sampleHeight / max(g_fogData.fogHeight, 0.0001f));
+		float _heightMask = 1.0f - saturate(_sampleHeight / _fogHeight);
 
-		// GroundField をサンプリング
-		// グラウンドフィールドは画面空間なので、サンプル位置を画面へ投影して引く
-		float4 _sampleClip = mul(float4(_samplePos, 1.0f), g_camera.viewProj);
-		float2 _fieldUV = _sampleClip.xy / _sampleClip.w * float2(0.5f, -0.5f) + 0.5f;
-
-		float _field = g_groundFieldTex.SampleLevel(g_samp, _fieldUV, 0).r;
+		// 衝撃の波 : サンプル位置の真下で衝撃の配列から求める
+		float _field = CalcFieldAt(_samplePos.xz);
+		if (_field <= 0.0f) continue;
 
 		// ノイズ : 未設定なら一様(1)
 		float _noise = 1.0f;

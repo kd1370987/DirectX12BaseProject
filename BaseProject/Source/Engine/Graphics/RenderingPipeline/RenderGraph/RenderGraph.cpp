@@ -1063,6 +1063,13 @@ namespace Engine::Graphics::Pipeline
 			if (_compiledPass.pPass) ApplyStaticBindings(a_pRenderContext, _compiledPass, _parity);
 
 			// ---- パス本体 ----
+			// シェーダーの用意に失敗したコンピュートパスは走らせない。
+			// 張られているのは直前のパスのルートシグネチャ/PSOなので、
+			// そのままルート定数を張って Dispatch すると番号も中身も食い違う
+			// (Release はデバッグレイヤーが無く検証されないので、ここでメモリを壊して落ちる)。
+			// 理由は Compile 時に SetupComputeShader が警告で出している
+			if (_compiledPass.pPass && !_compiledPass.pPass->CanExecute()) continue;
+
 			if (_compiledPass.pPass) _compiledPass.pPass->Update(_context);
 		}
 

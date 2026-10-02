@@ -13,6 +13,9 @@ struct GroundFogData
 
 	float3 fogColor;	// フォグの色
 	float stepSize;		// レイマーチの1歩の長さ(m)
+
+	uint impulseCount;	// 今フレームの衝撃の数(StructuredBuffer は要素数を持たないので)
+	float3 pad0;
 };
 
 #endif

@@ -49,6 +49,7 @@
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/DoF/CoCPass/CoCPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/DoF/DoFPass/DoFPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/GroundEffect/GroundVolumetricFogPass/GroundVolumetricFogPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/GroundEffect/GroundFogCompositePass/GroundFogCompositePass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/ToneMap/ToneMapPass/ToneMapPass.h"
 
 // ---- Sky / Present / UI ----
@@ -423,6 +424,23 @@ namespace Engine::Editor::Inspector
 			}
 		};
 
+		class GroundFogCompositeEditor : public PassEditor<GroundFogCompositePass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(GroundFogCompositePass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = DrawEnableCheck(_params.enable);
+
+				_isEdit |= Engine::Editor::Field("Intensity", _params.intensity, 0.01f, 0.0f);
+				Engine::Editor::Tooltip("フォグの濃さに掛ける倍率");
+
+				Engine::Editor::HelpText("トーンマップ前(HDR)に置いてください");
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
 		// CoC と DoF は同じ調整値を持つ(両方を合わせる必要がある)
 		template<class TPass>
 		class DoFParamEditor : public PassEditor<TPass>
@@ -711,6 +729,7 @@ namespace Engine::Editor::Inspector
 		a_registry.Register<CoCPass, DoFParamEditor<CoCPass>>("DoFPass と同じ値にすること");
 		a_registry.Register<DoFPass, DoFParamEditor<DoFPass>>("CoCPass と同じ値にすること");
 		a_registry.Register<GroundVolumetricFogPass, GroundVolumetricFogEditor>();
+		a_registry.Register<GroundFogCompositePass, GroundFogCompositeEditor>();
 		a_registry.Register<ToneMapPass, ToneMapEditor>();
 
 		// ---- Sky / Present / UI ----

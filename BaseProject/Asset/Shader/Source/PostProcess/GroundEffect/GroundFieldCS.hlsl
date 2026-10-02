@@ -112,19 +112,8 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 		// 衝撃データ
 		GroundImpulse _impulse = g_impulses[_i];
 
-		// 衝撃を出してからの経過時間
-		float _age = _impulse.age;
-		if (_age < 0.0f) continue;
-
-		// ピクセル座標と衝撃位置の距離を計算
-		float _distance = distance(_worldPos, _impulse.pos);
-		float _waveRadius = _age * _impulse.speed;					// 衝撃波の出現位置
-		float _waveWidth = _impulse.radius;							// 衝撃波の厚み
-		float _waveDistance = abs(_distance - _waveRadius);			// 波の中心からの距離
-		float _wave = 1.0f - saturate(_waveDistance / _waveWidth);	// 波の付近だけ影響させる
-		float _fade = exp(-_age * 2.0f);							// 経過時間で減衰
-
-		_field += _wave * _impulse.strength * _fade;
+		// ピクセル座標と衝撃位置の距離から波の強さを求める
+		_field += CalcGroundImpulseWave(_impulse, distance(_worldPos, _impulse.pos));
 	}
 	
 	// 出力

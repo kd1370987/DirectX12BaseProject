@@ -9,11 +9,9 @@ namespace Engine::Graphics::Pipeline
 {
 	void GroundVolumetricFogPass::SetupSlots()
 	{
-		// 同じ番号を指定した入力は、宣言した順にルート定数へ並ぶ
-		// 地面だけの深度(GroundDepthPass の出力) : レイの終点を戻す
+		// 地面だけの深度(GroundDepthPass の出力) : レイの終点を戻す。
+		// フォグの濃さは衝撃の配列から1歩ごとに求めるので、GroundFieldPass の出力は使わない
 		DeclareInput("GroundDepth", EAccessType::SRV, EPassSlotType::Texture, true, kRootInputSRV);
-		// グラウンドフィールド(GroundFieldPass の出力) : フォグの濃さの元
-		DeclareInput("GroundField", EAccessType::SRV, EPassSlotType::Texture, true, kRootInputSRV);
 
 		// フォグ。rgb = 色 / a = 濃さ。
 		// 全画素を書き潰すのでクリアは不要
@@ -39,12 +37,17 @@ namespace Engine::Graphics::Pipeline
 		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(
 			_pCmd, kRootCameraCB, _pGE->GetSceneView()->GetCameraData());
 
-		// 調整値 : 経過時間だけはパスが進める
+		// 調整値 : 経過時間と衝撃の数はパスが詰める
 		m_elapsedTime += MainEngine::Instance().GetDeltaTime();
 
 		GroundFogCB _cb = m_params.cb;
 		_cb.time = m_elapsedTime;
+		_cb.impulseCount = _pGE->GetGroundImpulseCount();
 		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, kRootFogCB, _cb);
+
+		// 衝撃の配列 : GraphicsEngine が今フレームぶんを詰め直したもの
+		const UINT _impulseIndex = _pGE->GetGroundImpulseBuffer().GetSRV().GetIndex();
+		_pCtx->ComputeBindDescriptorIndices(kRootImpulseSRV, std::span<const UINT>(&_impulseIndex, 1));
 
 		// ノイズテクスチャ : GUID が変わっていたら読み直す。
 		// 読み込みは待たないので、届くまでのフレームはノイズなしで描く

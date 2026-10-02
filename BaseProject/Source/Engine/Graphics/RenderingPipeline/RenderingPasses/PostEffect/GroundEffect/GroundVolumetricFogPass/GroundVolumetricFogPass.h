@@ -9,11 +9,12 @@ namespace Engine::Graphics::Pipeline
 	// カメラから地面までのレイをマーチして、地面付近に立つフォグを書き出す。
 	//   rgb = フォグの色 / a = フォグの濃さ(0..1)
 	//
-	// 濃さはグラウンドフィールド(GroundFieldPass の出力)で決まるので、
-	// 衝撃が通ったところにだけ土煙のようなフォグが立つ。
+	// 濃さはレイの1歩ごとに衝撃(GroundImpulse)の配列から求めるので、
+	// 衝撃が通ったところにだけ土煙のようなフォグが立つ(式は GroundFieldCS と共通)。
 	//
-	// ノイズテクスチャはグラフのリソースではないので、スロットには乗らない。
-	// アセットのGUIDを持っておき、番号を直接渡す(未設定ならノイズなしで一様に立つ)
+	// 衝撃の配列とノイズテクスチャはグラフのリソースではないので、スロットには乗らない。
+	// 衝撃は GraphicsEngine が詰めたものの番号を、
+	// ノイズはアセットのGUIDを持っておき読み込んだものの番号を直接渡す(未設定ならノイズなし)
 	//======================================================================================
 	class GroundVolumetricFogPass : public Pass
 	{
@@ -33,7 +34,7 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		struct Params
 		{
-			// シェーダーへ送る調整値。time はパスが毎フレーム上書きする
+			// シェーダーへ送る調整値。time と impulseCount はパスが毎フレーム上書きする
 			GroundFogCB cb = {};
 
 			// ノイズテクスチャ : 未設定ならノイズなし
@@ -49,6 +50,7 @@ namespace Engine::Graphics::Pipeline
 		static constexpr int kRootInputSRV = 2;
 		static constexpr int kRootOutputUAV = 3;
 		static constexpr int kRootNoiseSRV = 4;
+		static constexpr int kRootImpulseSRV = 5;
 
 		// ノイズが張られていないときに渡す番号(シェーダーの NOISE_INDEX_NONE と合わせる)
 		static constexpr UINT kNoiseIndexNone = 0xFFFFFFFF;

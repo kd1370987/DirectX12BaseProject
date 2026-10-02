@@ -163,6 +163,15 @@ namespace Engine::Graphics::Pipeline
 		// パイプラインはパスの数だけPSOを作るので、カメラが増えるとすぐ届く
 		const Handle<ID3D12PipelineState>& GetPSOHandle() const { return m_psoHandle; }
 
+		// グラフがこのパスの Update を呼んでよいか。
+		// コンピュートはルートシグネチャとPSOをグラフが張るので、両方揃っていないと走らせられない。
+		// ラスタはパスが自分で張るもの(PSOを描画アイテムごとに選ぶ等)があるので見ない
+		bool CanExecute() const
+		{
+			if (m_pipelineType != EPassPipelineType::Compute) return true;
+			return m_rootSigHandle.IsValid() && m_psoHandle.IsValid();
+		}
+
 		// 描画アイテムのソートキーに入るパス番号。
 		// グラフのコンパイル時に GraphicsEngine から配られる
 		uint8_t GetPassIndex() const { return m_passIndex; }

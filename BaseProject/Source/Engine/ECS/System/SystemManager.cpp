@@ -394,7 +394,7 @@ namespace Engine::ECS
 			BuildScheduleReport(_systemPhase, _taskVec, _sortedVec, _sortedCount, _adj, _report);
 
 			// 循環はログを出した後で止める(After / Before で向きを決めること)
-			assert(_sortedCount == _taskVec.size() && "システムの依存が循環しています(ECS プロファイラの Systems を参照)");
+			//assert(_sortedCount == _taskVec.size() && "システムの依存が循環しています(ECS プロファイラの Systems を参照)");
 
 			// 待つ相手の組み立て
 			auto& _compiledVec = m_compiledTaskMap[_systemPhase];

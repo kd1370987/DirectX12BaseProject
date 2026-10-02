@@ -52,21 +52,10 @@ namespace Engine::D3D12
 		// UPLOADヒープはUAVにはできないため、SRV専用としてフラグはNONE
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
 
-		// 仕様書作成
-		// SRV
-		D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
-		_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-		_srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-		_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		_srvDesc.Buffer.FirstElement = 0;
-		_srvDesc.Buffer.NumElements = a_maxElementCount;
-		_srvDesc.Buffer.StructureByteStride = sizeof(T);
-		_srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		// 親クラスの Create を呼ぶ（中でリソース確保、Map、SRV生成が行われる）。
+		// SRV はここで作らないこと : リソースを作る前なので中身の無いビューになり、
+		// 親が作り直した時点で最初の1枠が解放されないまま残る
 
-		// ハンドルをもらう
-		m_srvHandle = AllocateSRV(a_pDevice, a_pHeapManager, GetResource(), _srvDesc);
-
-		// 親クラスの Create を呼ぶ（中でリソース確保、Map、SRV生成が行われる）
 		return DynamicBuffer::Create(a_pDevice, a_pHeapManager, _desc);
 	}
 	template<typename T>

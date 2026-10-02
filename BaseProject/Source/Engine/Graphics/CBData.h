@@ -207,7 +207,7 @@ namespace Engine::Graphics
 	};
 
 	// 地面付近のボリュメトリックフォグの調整値
-	// GroundVolumetricFogPass が自分の値を詰めて送る(time だけはパスが毎フレーム進める)。
+	// GroundVolumetricFogPass が自分の値を詰めて送る(time と impulseCount はパスが毎フレーム詰める)。
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/GroundFogData.hlsli)と並びを合わせること
 	struct GroundFogCB
 	{
@@ -218,6 +218,9 @@ namespace Engine::Graphics
 
 		Math::Vector3 fogColor = { 0.8f, 0.75f, 0.65f };	// フォグの色
 		float stepSize = 0.5f;		// レイマーチの1歩の長さ(m)
+
+		uint32_t impulseCount = 0;	// 今フレームの衝撃の数。パスが毎フレーム上書きする
+		float pad0[3] = {};
 	};
 
 	// 川瀬式ブルームの調整値

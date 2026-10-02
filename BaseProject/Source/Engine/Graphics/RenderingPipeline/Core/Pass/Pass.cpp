@@ -365,6 +365,20 @@ namespace Engine::Graphics::Pipeline
 		const std::string& a_psoName,
 		EPassHeapMode a_heapMode)
 	{
+		//----------------------------------------------------------------------------------
+		// 種別は先に決め、ハンドルは空から始める
+		//
+		// 途中で失敗したときに「コンピュートなのにルートシグネチャ/PSOが無い」と
+		// グラフから見分けられるようにするため。
+		// 種別が既定の Graphics のまま残ると、グラフは失敗に気づかず Update を呼び、
+		// 直前のパスのルートシグネチャのままルート定数を張って Dispatch してしまう
+		// (デバッグレイヤーが無い Release では検証されずに素通りし、メモリを壊す)
+		//----------------------------------------------------------------------------------
+		m_pipelineType = EPassPipelineType::Compute;
+		m_heapMode = a_heapMode;
+		m_rootSigHandle = {};
+		m_psoHandle = {};
+
 		if (!a_context.pGraphicsEngine || !a_context.pResourceManager || !a_context.pAssetDatabase) return false;
 
 		auto* _pPSOManager = a_context.pGraphicsEngine->RefPipelineStateManager();
@@ -395,9 +409,12 @@ namespace Engine::Graphics::Pipeline
 		_desc.SetRootSignature(_pPSOManager->GetRootSignature(m_rootSigHandle));
 
 		m_psoHandle = _pPSOManager->RequestHandle(_desc);
+		if (!m_psoHandle.IsValid())
+		{
+			ENGINE_WARNING("[Pass] PSOが作れません : %s", a_csPath.c_str());
+			return false;
+		}
 
-		m_pipelineType = EPassPipelineType::Compute;
-		m_heapMode = a_heapMode;
 		return true;
 	}
 
