@@ -210,6 +210,13 @@ namespace Engine::Graphics
 		LightManager* RefLightManager();
 		const FrameLightData& GetFrameLightData() const;
 
+		// グラウンドフィールドの衝撃
+		//
+		// SceneView に積まれた衝撃を Execute() で今フレームぶんの構造体バッファへ詰め直したもの。
+		// ライトと同じく、レンダーパスからのみ引くこと
+		const D3D12::DynamicStructuredBuffer<GroundImpulse>& GetGroundImpulseBuffer() const;
+		uint32_t GetGroundImpulseCount() const { return m_groundImpulseCount; }
+
 		// パスの描画実行
 		void BindPSO(Graphics::RenderContext* a_pCtx, uint8_t a_psoIndex);
 		void BindPSO(Graphics::RenderContext* a_pCtx, const Handle<ID3D12PipelineState>& a_handle);
@@ -320,6 +327,11 @@ namespace Engine::Graphics
 		// UPLOADヒープへ直接書き込むので、GPUがまだ前フレームを読んでいる領域を
 		// 上書きしないようフレームぶん持つ(レンダーコンテキストと同じ数)
 		FrameLightData m_frameLightDataArr[CPU_FRAME_COUNT] = {};
+
+		// GPUへ渡すグラウンドフィールドの衝撃。
+		// ライトと同じ理由(UPLOADヒープへ直接書く)でフレームぶん持つ
+		D3D12::DynamicStructuredBuffer<GroundImpulse> m_groundImpulseBufferArr[CPU_FRAME_COUNT] = {};
+		uint32_t m_groundImpulseCount = 0;	// 今フレームで書き込んだ数
 
 		//--------------------------------------------------------------------------------------------
 		// 描画要求の配列(描画アイテム・メッシュシェーダー用データ・UI・スキニング・ボーンパレット)

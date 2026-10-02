@@ -171,6 +171,41 @@ namespace Engine::Graphics
 		int   enable;					// 0 なら歪ませずそのまま通す
 	};
 
+	//------------------------------------------------------------------------------------------
+	// グラウンドフィールド
+	//
+	// 地面に広がる波紋などの衝撃。アプリ側が SceneView::AddGroundImpulse で毎フレーム積み、
+	// GraphicsEngine がフレームぶんの構造体バッファへ詰めて GroundFieldPass へ渡す。
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/GroundFieldData.hlsli)と並びを合わせること
+	//------------------------------------------------------------------------------------------
+	// グラウンドフィールドに伝える衝撃の最大数
+	inline constexpr uint32_t MAX_GROUND_IMPULSES = 64;
+
+	// グラウンドフィールドに伝える衝撃
+	struct GroundImpulse
+	{
+		Math::Vector3 pos;
+		float radius;
+
+		float strength;
+		float speed;
+		float width;
+		float lifetime;
+
+		float age;			// 衝撃を出してからの経過時間(秒)。積む側が毎フレーム進める
+		float pad0[3];
+	};
+
+	// グラウンドフィールドの定数
+	// StructuredBuffer は要素数を持たないので、衝撃の数もここで渡す
+	struct GroundFieldCB
+	{
+		float time;				// パスが回り始めてからの経過時間(秒)
+		float deltaTime;		// 前フレームからの経過時間(秒)
+		uint32_t impulseCount;	// 今フレームの衝撃の数
+		float pad0;
+	};
+
 	// 川瀬式ブルームの調整値
 	// OptionManager の BloomOption を、抽出パスと合成パスの両方が詰めて送る。
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/BloomOptionData.hlsli)と並びを合わせること

@@ -90,6 +90,7 @@
 #include "Application/Components/Combat/DefenseRatioComponent.h"
 #include "Application/Components/Boid/SwarmBurstComponent.h"
 #include "../../Components/Effect/GroundEffectTag.h"
+#include "Application/Components/Effect/GroundImpulseEmitterComponent.h"
 
 // システム関連
 #include "Application/Systems/Render/ModelFixupSystem.h"
@@ -225,6 +226,7 @@
 #include "Application/Systems/Boid/SwarmMissileSystem.h"
 #include "Application/Systems/Boid/SwarmBurstSystem.h"
 #include "../../Systems/Render/GroundEffectSetSystem.h"
+#include "Application/Systems/Effect/GroundImpulseEmitSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -393,6 +395,8 @@ namespace App::ECS
 		a_world.RegisterComponent<SwarmBurstComponent>("SwarmBurstComponent");
 		// グラウンドエフェクト用タグ
 		a_world.RegisterComponent<GroundEffectTag>("GroundEffectTag");
+		// グラウンドフィールドへ衝撃を出す(テスト用)。出すのは GroundImpulseEmitSystem
+		a_world.RegisterComponent<GroundImpulseEmitterComponent>("GroundImpulseEmitterComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -584,6 +588,8 @@ namespace App::ECS
 		a_world.RegisterSystem<SwarmBurstSystem>();
 		// グラウンドエフェクトを炊く際の基準となるメッシュを登録
 		a_world.RegisterSystem<GroundEffectSetSystem>();
+		// グラウンドフィールドへ衝撃を積む(テスト用)
+		a_world.RegisterSystem<GroundImpulseEmitSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();

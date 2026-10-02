@@ -202,6 +202,12 @@ namespace Engine::Graphics
 			_frameLight.Create(_pDevice, m_upDescriptorHeapManager.get());
 		}
 
+		// グラウンドフィールドの衝撃 : ライトと同じく上限ぶんを固定確保する
+		for (auto& _impulseBuffer : m_groundImpulseBufferArr)
+		{
+			_impulseBuffer.Create(_pDevice, m_upDescriptorHeapManager.get(), MAX_GROUND_IMPULSES);
+		}
+
 		//------------------------------------------------------------------------------------
 		// カメラに依存しない、フレームに1回で足りるGPU処理
 		//
@@ -291,6 +297,13 @@ namespace Engine::Graphics
 			_frameLight.Release();
 		}
 		m_lightManager.Release();
+
+		// グラウンドフィールドの衝撃解放
+		for (auto& _impulseBuffer : m_groundImpulseBufferArr)
+		{
+			_impulseBuffer.Release();
+		}
+		m_groundImpulseCount = 0;
 
 		// 板ポリ解放
 		m_upQuadPolygon.reset();
@@ -410,6 +423,19 @@ namespace Engine::Graphics
 		// レンダーパスが引くのはこの結果なので、必ずレンダーグラフの実行より前に済ませる
 		m_lightManager.BuildFrameData(m_frameLightDataArr[m_currentFrameIndex]);
 
+		// グラウンドフィールドの衝撃をGPUバッファへ詰め直す。ライトと同じくグラフの実行より前に済ませる
+		{
+			auto& _impulseBuffer = m_groundImpulseBufferArr[m_currentFrameIndex];
+			const auto& _impulseVec = m_upSceneView->GetGroundImpulses();
+			_impulseBuffer.ResetForNewFrame();
+			m_groundImpulseCount = 0;
+			if (!_impulseVec.empty())
+			{
+				_impulseBuffer.AllocateAndWrite(_impulseVec);
+				m_groundImpulseCount = static_cast<uint32_t>(_impulseVec.size());
+			}
+		}
+
 		// 主光源のシャドウマップのカスケードを組む。
 		// 平行光(上で詰めた先頭)とカメラ(UpdateGPUCameraData で確定)の両方が要るので、この位置。
 		// シャドウマップを使わないフレームはカスケード数 0 になり、描くパスも読むパスも何もしない
@@ -524,6 +550,11 @@ namespace Engine::Graphics
 	const FrameLightData& GraphicsEngine::GetFrameLightData() const
 	{
 		return m_frameLightDataArr[m_currentFrameIndex];
+	}
+
+	const D3D12::DynamicStructuredBuffer<GroundImpulse>& GraphicsEngine::GetGroundImpulseBuffer() const
+	{
+		return m_groundImpulseBufferArr[m_currentFrameIndex];
 	}
 
 	void GraphicsEngine::BindPSO(Graphics::RenderContext* a_pCtx, const Handle<ID3D12PipelineState>& a_handle)

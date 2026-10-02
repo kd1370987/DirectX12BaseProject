@@ -47,6 +47,15 @@ namespace Engine::Graphics
 
 		m_cbFishEye = {};
 		m_isFishEyeOverride = false;
+
+		m_groundImpulseVec.clear();
+	}
+
+	void SceneView::AddGroundImpulse(const GroundImpulse& a_impulse)
+	{
+		// バッファは上限ぶんしか確保していないので、溢れたぶんは捨てる
+		if (m_groundImpulseVec.size() >= MAX_GROUND_IMPULSES) return;
+		m_groundImpulseVec.push_back(a_impulse);
 	}
 
 	void SceneView::SetCameraMat(const Math::Matrix& a_worldMat)

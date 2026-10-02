@@ -79,6 +79,16 @@ namespace Engine::Graphics
 		bool IsFishEyeOverride() const { return m_isFishEyeOverride; }
 
 		//--------------------------------------------------------------------------------------------
+		// グラウンドフィールドの衝撃
+		//
+		// アプリ側が毎フレーム積む。EndFrame で空になるので、続いている衝撃は毎フレーム積み直すこと。
+		// GraphicsEngine::Execute がフレームぶんの構造体バッファへ詰め、GroundFieldPass が読む。
+		// MAX_GROUND_IMPULSES を超えたぶんは捨てる
+		//--------------------------------------------------------------------------------------------
+		void AddGroundImpulse(const GroundImpulse& a_impulse);
+		const std::vector<GroundImpulse>& GetGroundImpulses() const { return m_groundImpulseVec; }
+
+		//--------------------------------------------------------------------------------------------
 		// 環境光と空
 		//
 		// どちらもシーンに置いた SceneAmbientObject の持ち物で、毎フレーム流し込まれる。
@@ -144,5 +154,8 @@ namespace Engine::Graphics
 		bool m_isDoFOverride = false;
 		bool m_isRadialBlurOverride = false;
 		bool m_isFishEyeOverride = false;
+
+		// 今フレームのグラウンドフィールドの衝撃(EndFrame で空にする)
+		std::vector<GroundImpulse> m_groundImpulseVec = {};
 	};
 }

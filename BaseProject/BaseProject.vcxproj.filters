@@ -1153,6 +1153,15 @@
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Bloom\BloomCompositePass">
       <UniqueIdentifier>{6ef6a875-ef39-4066-be7a-6060874bf3c3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect">
+      <UniqueIdentifier>{c5a37a32-69b5-4b33-b2a2-bf828505cd3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass">
+      <UniqueIdentifier>{5d206d38-3c9a-4663-a1bd-0af60d44b8e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset\Shader\Source\PostProcess\GroundEffect">
+      <UniqueIdentifier>{d8aea3e9-7a22-4efc-9874-77e89c5d3cf7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Blur\RadialBlurPass">
       <UniqueIdentifier>{2e5b1be3-9042-442d-bd12-f36535e605f7}</UniqueIdentifier>
     </Filter>
@@ -1636,6 +1645,9 @@
       <Filter>Source\Application\Systems\Combat</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Effect\ExplosionSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Effect\GroundImpulseEmitSystem.cpp">
       <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Audio\FlyingSoundSystem.cpp">
@@ -2331,6 +2343,9 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Blur\RadialBlurPass\RadialBlurPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Blur\RadialBlurPass</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass\GroundFieldPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass\FishEyePass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass</Filter>
     </ClCompile>
@@ -2715,6 +2730,9 @@
       <Filter>Source\Application\Components\Effect</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Effect\ExplosionComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Components\Effect\GroundImpulseEmitterComponent.h">
       <Filter>Source\Application\Components\Effect</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Movement\GravityComponent.h">
@@ -3126,6 +3144,9 @@
       <Filter>Source\Application\Systems\Combat</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Effect\ExplosionSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Effect\GroundImpulseEmitSystem.h">
       <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Audio\FlyingSoundSystem.h">
@@ -4103,6 +4124,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Blur\RadialBlurPass\RadialBlurPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Blur\RadialBlurPass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass\GroundFieldPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass\FishEyePass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass</Filter>
     </ClInclude>
@@ -4498,6 +4522,9 @@
     <FxCompile Include="Asset\Shader\Source\PostProcess\Blur\RadialBlurCS.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\Blur</Filter>
     </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\GroundEffect\GroundFieldCS.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\GroundEffect</Filter>
+    </FxCompile>
     <FxCompile Include="Asset\Shader\Source\PostProcess\DoF\CoCShader.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\DoF</Filter>
     </FxCompile>
@@ -4567,6 +4594,9 @@
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
     <None Include="Asset\Shader\Common\RootParameters\RadialBlurOptionData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\GroundFieldData.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
     <None Include="Asset\Shader\Common\RootParameters\FishEyeOptionData.hlsli">
