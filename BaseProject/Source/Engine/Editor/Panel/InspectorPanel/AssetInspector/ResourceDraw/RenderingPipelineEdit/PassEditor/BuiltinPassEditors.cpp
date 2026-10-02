@@ -48,6 +48,7 @@
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Distortion/FishEyePass/FishEyePass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/DoF/CoCPass/CoCPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/DoF/DoFPass/DoFPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/GroundEffect/GroundVolumetricFogPass/GroundVolumetricFogPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/ToneMap/ToneMapPass/ToneMapPass.h"
 
 // ---- Sky / Present / UI ----
@@ -392,6 +393,36 @@ namespace Engine::Editor::Inspector
 			}
 		};
 
+		class GroundVolumetricFogEditor : public PassEditor<GroundVolumetricFogPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(GroundVolumetricFogPass& a_pass) override
+			{
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = false;
+
+				_isEdit |= Engine::Editor::Field("FogHeight", _params.cb.fogHeight, 0.05f, 0.0f);
+				Engine::Editor::Tooltip("フォグが立つ高さ(この高さで濃さが 0 になる)");
+				_isEdit |= Engine::Editor::Field("Density", _params.cb.density, 0.01f, 0.0f);
+				_isEdit |= Engine::Editor::ColorField("FogColor", _params.cb.fogColor);
+				_isEdit |= Engine::Editor::Field("StepSize", _params.cb.stepSize, 0.01f, 0.01f);
+				Engine::Editor::Tooltip("レイマーチの1歩の長さ(m)。遠い地面では歩数の上限で伸びる");
+
+				Engine::Editor::Header("Noise");
+				_isEdit |= Engine::Editor::AssetField(
+					MainEngine::Instance().GetEngineServices(), "NoiseTexture", "Texture", _params.noiseTexGUID);
+				_isEdit |= Engine::Editor::Field("NoiseScale", _params.cb.noiseScale, 0.001f, 0.0f);
+				Engine::Editor::Tooltip("ノイズのワールド座標に掛ける倍率(大きいほど細かい)");
+
+				if (!_params.noiseTexGUID.IsValid())
+				{
+					Engine::Editor::HelpText("NoiseTexture 未設定 : ノイズなしで一様に立ちます");
+				}
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
 		// CoC と DoF は同じ調整値を持つ(両方を合わせる必要がある)
 		template<class TPass>
 		class DoFParamEditor : public PassEditor<TPass>
@@ -679,6 +710,7 @@ namespace Engine::Editor::Inspector
 		a_registry.Register<FishEyePass, FishEyeEditor>();
 		a_registry.Register<CoCPass, DoFParamEditor<CoCPass>>("DoFPass と同じ値にすること");
 		a_registry.Register<DoFPass, DoFParamEditor<DoFPass>>("CoCPass と同じ値にすること");
+		a_registry.Register<GroundVolumetricFogPass, GroundVolumetricFogEditor>();
 		a_registry.Register<ToneMapPass, ToneMapEditor>();
 
 		// ---- Sky / Present / UI ----

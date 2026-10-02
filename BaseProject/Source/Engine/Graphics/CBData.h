@@ -206,6 +206,20 @@ namespace Engine::Graphics
 		float pad0;
 	};
 
+	// 地面付近のボリュメトリックフォグの調整値
+	// GroundVolumetricFogPass が自分の値を詰めて送る(time だけはパスが毎フレーム進める)。
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/GroundFogData.hlsli)と並びを合わせること
+	struct GroundFogCB
+	{
+		float fogHeight = 2.0f;		// フォグが立つ高さ(この高さで濃さが 0 になる)
+		float density = 1.0f;		// 濃さ
+		float noiseScale = 0.1f;	// ノイズのワールド座標に掛ける倍率(大きいほど細かい)
+		float time = 0.0f;			// パスが回り始めてからの経過時間(秒)。ノイズを流すのに使う
+
+		Math::Vector3 fogColor = { 0.8f, 0.75f, 0.65f };	// フォグの色
+		float stepSize = 0.5f;		// レイマーチの1歩の長さ(m)
+	};
+
 	// 川瀬式ブルームの調整値
 	// OptionManager の BloomOption を、抽出パスと合成パスの両方が詰めて送る。
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/BloomOptionData.hlsli)と並びを合わせること

@@ -1159,6 +1159,9 @@
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass">
       <UniqueIdentifier>{5d206d38-3c9a-4663-a1bd-0af60d44b8e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundVolumetricFogPass">
+      <UniqueIdentifier>{8633b108-3fc2-4ca2-acc0-1f7f5f8fc42e}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Asset\Shader\Source\PostProcess\GroundEffect">
       <UniqueIdentifier>{d8aea3e9-7a22-4efc-9874-77e89c5d3cf7}</UniqueIdentifier>
     </Filter>
@@ -2345,6 +2348,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass\GroundFieldPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundVolumetricFogPass\GroundVolumetricFogPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundVolumetricFogPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass\FishEyePass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass</Filter>
@@ -4127,6 +4133,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass\GroundFieldPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundVolumetricFogPass\GroundVolumetricFogPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundVolumetricFogPass</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass\FishEyePass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass</Filter>
     </ClInclude>
@@ -4525,6 +4534,9 @@
     <FxCompile Include="Asset\Shader\Source\PostProcess\GroundEffect\GroundFieldCS.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\GroundEffect</Filter>
     </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\GroundEffect\GroundVolumetricFogCS.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\GroundEffect</Filter>
+    </FxCompile>
     <FxCompile Include="Asset\Shader\Source\PostProcess\DoF\CoCShader.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\DoF</Filter>
     </FxCompile>
@@ -4597,6 +4609,9 @@
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
     <None Include="Asset\Shader\Common\RootParameters\GroundFieldData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\GroundFogData.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
     <None Include="Asset\Shader\Common\RootParameters\FishEyeOptionData.hlsli">
