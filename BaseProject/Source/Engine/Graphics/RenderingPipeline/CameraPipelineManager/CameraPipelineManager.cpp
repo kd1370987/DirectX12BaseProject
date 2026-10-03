@@ -188,6 +188,24 @@ namespace Engine::Graphics
 			_pCamera->entity = a_desc.entity;
 		}
 
+		//----------------------------------------------------------------------------------
+		// 描画構成が差し替わったら、次のフレームの頭で組み直す
+		//
+		// 組み直すかどうかは設計図の版番号で見ているが、版番号はアセットごとに 1 から数える。
+		// 別のアセットへ替わっても版番号が同じなら食い違いに気づかず、
+		// 前の描画構成の実行インスタンスを回し続けてしまう。
+		//
+		// シーンの切り替えで必ず起きる :
+		// カメラは「ワールドのアドレス + エンティティ」で見分けているので、
+		// 解放したワールドと同じアドレスに次のワールドが確保されると、
+		// 次のシーンのカメラが前のシーンのカメラとして引き当てられる
+		// (Title の DefaultPipeline のまま Desert を描き、GamePipeline のパスが効かない)
+		//----------------------------------------------------------------------------------
+		if (!(_pCamera->pipelineHandle == a_desc.pipelineHandle))
+		{
+			_pCamera->builtStructureVersion = 0;		// 0 は「まだ組んでいない」印
+		}
+
 		_pCamera->pipelineHandle = a_desc.pipelineHandle;
 		_pCamera->order = a_desc.order;
 		_pCamera->isMain = a_desc.isMain;
@@ -457,6 +475,46 @@ namespace Engine::Graphics
 				_pCamera->upFinalTex->Barrier(_pCmdList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 			}
 		}
+	}
+
+	// ワールドが消えるときに、そのワールドのカメラを捨てる。
+	// 次のシーンのカメラは、そのシーンを直接開いたときと同じく新しく組まれる
+	void CameraPipelineManager::ReleaseWorldCameras(const ECS::World* a_pWorld)
+	{
+		if (!a_pWorld) return;
+
+		bool _isAnyReleased = false;
+		for (auto& _upCamera : m_cameras)
+		{
+			if (!_upCamera || _upCamera->pWorld != a_pWorld) continue;
+
+			if (_upCamera->upPipeline) _upCamera->upPipeline->Release();
+			if (_upCamera->upFinalTex) _upCamera->upFinalTex->Release();
+			_isAnyReleased = true;
+		}
+		if (!_isAnyReleased) return;
+
+		m_cameras.erase(
+			std::remove_if(m_cameras.begin(), m_cameras.end(),
+				[a_pWorld](const std::unique_ptr<CameraPipelineData>& a_upCamera)
+				{ return !a_upCamera || a_upCamera->pWorld == a_pWorld; }),
+			m_cameras.end());
+
+		// 消したカメラを指したままにしない
+		m_sortedCameras.clear();
+
+		bool _isMainAlive = false;
+		for (const auto& _upCamera : m_cameras)
+		{
+			if (_upCamera.get() != m_pMainCamera) continue;
+
+			_isMainAlive = true;
+			break;
+		}
+		if (!_isMainAlive) m_pMainCamera = nullptr;
+
+		// 消えたパスを一覧に残さない(次のフレームの頭でも作り直されるが、それまでに引かれないように)
+		RefreshGeometryPassCache();
 	}
 
 	// 積まれなかったカメラを捨てる。

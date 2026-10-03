@@ -39,6 +39,22 @@ float CalcGroundImpulseWave(GroundImpulse a_impulse, float a_distance)
 	return _wave * a_impulse.strength * _fade;
 }
 
+// 衝撃1つが、震源から a_distance 離れた位置をどれだけ払ったか(0..1)。
+// 波が通り過ぎた内側ほど 1 に近く、波頭より外は 0。
+// 経過時間で減衰するので、時間が経つと払った場所が元へ戻る
+float CalcGroundImpulseSweep(GroundImpulse a_impulse, float a_distance)
+{
+	float _age = a_impulse.age;
+	if (_age < 0.0f) return 0.0f;
+
+	float _waveRadius = _age * a_impulse.speed;						// 衝撃波の出現位置
+	float _waveWidth = max(a_impulse.radius, 0.0001f);				// 衝撃波の厚み
+	float _inside = saturate((_waveRadius - a_distance) / _waveWidth);	// 波頭から内側へ厚みぶんで 0→1
+	float _fade = exp(-_age * 2.0f);								// 経過時間で減衰
+
+	return saturate(_inside * a_impulse.strength * _fade);
+}
+
 // グラウンドフィールドの定数
 struct GroundFieldData
 {

@@ -212,7 +212,7 @@ namespace Engine::Graphics
 	struct GroundFogCB
 	{
 		float fogHeight = 2.0f;		// フォグが立つ高さ(この高さで濃さが 0 になる)
-		float density = 1.0f;		// 濃さ
+		float density = 0.2f;		// 濃さ(1m あたり)。層は常にあるので、大きいと地面が隠れる
 		float noiseScale = 0.1f;	// ノイズのワールド座標に掛ける倍率(大きいほど細かい)
 		float time = 0.0f;			// パスが回り始めてからの経過時間(秒)。ノイズを流すのに使う
 

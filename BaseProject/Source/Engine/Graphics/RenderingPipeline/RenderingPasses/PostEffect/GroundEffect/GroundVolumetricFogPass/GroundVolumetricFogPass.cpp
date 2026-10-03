@@ -9,9 +9,13 @@ namespace Engine::Graphics::Pipeline
 {
 	void GroundVolumetricFogPass::SetupSlots()
 	{
-		// 地面だけの深度(GroundDepthPass の出力) : レイの終点を戻す。
+		// 同じ番号を指定した入力は、宣言した順にルート定数へ並ぶ(シェーダーの b100 と合わせる)。
+		// 地面だけの深度(GroundDepthPass の出力) : チリの層の高さの基準と、レイの終点を戻す。
 		// フォグの濃さは衝撃の配列から1歩ごとに求めるので、GroundFieldPass の出力は使わない
 		DeclareInput("GroundDepth", EAccessType::SRV, EPassSlotType::Texture, true, kRootInputSRV);
+		// シーン全体の深度(任意) : 地面より手前の物体でレイを止める。
+		// 繋がないと、地面の手前にある物体の上にもチリが重なる
+		DeclareInput("SceneDepth", EAccessType::SRV, EPassSlotType::Texture, false, kRootInputSRV);
 
 		// フォグ。rgb = 色 / a = 濃さ。
 		// 全画素を書き潰すのでクリアは不要

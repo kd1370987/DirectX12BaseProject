@@ -269,6 +269,20 @@ namespace Engine::Scene
 		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
 		{
 			_pGE->RefRenderDevice()->WaitForFrame();
+
+			//----------------------------------------------------------------------
+			// 消えるワールドのカメラの実行インスタンスを捨てる
+			//
+			// 残しておくと、次のシーンが同じ描画構成を使うとき
+			// (Desert_00 → Desert_02 など)に前のシーンの実行インスタンスが
+			// 使い回されたり並んだりして、直接開いたときと違う状態で描かれる。
+			// 間に別の描画構成のシーン(Home)を挟むと直るのはこのため。
+			// GPUは上で待ったので、グラフのリソースはここで捨ててよい
+			//----------------------------------------------------------------------
+			if (auto* _pCameraPipelines = _pGE->RefCameraPipelines())
+			{
+				_pCameraPipelines->ReleaseWorldCameras(m_upBaseSceneVec.back()->RefWorld());
+			}
 		}
 
 		// これを外すと1つも残らないか

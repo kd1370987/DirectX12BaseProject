@@ -6,11 +6,12 @@ namespace Engine::Graphics::Pipeline
 	//======================================================================================
 	// GroundVolumetricFogPass
 	//
-	// カメラから地面までのレイをマーチして、地面付近に立つフォグを書き出す。
+	// 地面メッシュから一定の高さ(fogHeight)まで漂うチリを、レイマーチで書き出す。
 	//   rgb = フォグの色 / a = フォグの濃さ(0..1)
 	//
-	// 濃さはレイの1歩ごとに衝撃(GroundImpulse)の配列から求めるので、
-	// 衝撃が通ったところにだけ土煙のようなフォグが立つ(式は GroundFieldCS と共通)。
+	// チリの層は常にあり、高さはその画素で見えている地面から測る(画面空間の近似)。
+	// 衝撃(GroundImpulse)が来ると、波が通り過ぎた内側のチリが払われ、
+	// 波頭に寄せられて巻き上がる。時間が経つと払った場所へ戻る(式は GroundFieldCS と共通)。
 	//
 	// 衝撃の配列とノイズテクスチャはグラフのリソースではないので、スロットには乗らない。
 	// 衝撃は GraphicsEngine が詰めたものの番号を、
@@ -52,7 +53,7 @@ namespace Engine::Graphics::Pipeline
 		static constexpr int kRootNoiseSRV = 4;
 		static constexpr int kRootImpulseSRV = 5;
 
-		// ノイズが張られていないときに渡す番号(シェーダーの NOISE_INDEX_NONE と合わせる)
+		// ノイズが張られていないときに渡す番号(シェーダーの DESCRIPTOR_INDEX_NONE と合わせる)
 		static constexpr UINT kNoiseIndexNone = 0xFFFFFFFF;
 
 		Params m_params = {};
