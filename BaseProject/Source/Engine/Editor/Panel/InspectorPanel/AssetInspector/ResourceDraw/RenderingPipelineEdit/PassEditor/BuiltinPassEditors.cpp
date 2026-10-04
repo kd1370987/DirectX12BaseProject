@@ -48,8 +48,9 @@
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Distortion/FishEyePass/FishEyePass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/DoF/CoCPass/CoCPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/DoF/DoFPass/DoFPass.h"
-#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/GroundEffect/GroundVolumetricFogPass/GroundVolumetricFogPass.h"
-#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/GroundEffect/GroundFogCompositePass/GroundFogCompositePass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/GroundEffect/GroundFieldPass/GroundFieldPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Fog/SceneVolumetricFogPass/SceneVolumetricFogPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Fog/SceneFogCompositePass/SceneFogCompositePass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/ToneMap/ToneMapPass/ToneMapPass.h"
 
 // ---- Sky / Present / UI ----
@@ -394,40 +395,52 @@ namespace Engine::Editor::Inspector
 			}
 		};
 
-		class GroundVolumetricFogEditor : public PassEditor<GroundVolumetricFogPass>
+		class SceneVolumetricFogEditor : public PassEditor<SceneVolumetricFogPass>
 		{
 		protected:
-			EPassEditResult OnDrawDetail(GroundVolumetricFogPass& a_pass) override
+			EPassEditResult OnDrawDetail(SceneVolumetricFogPass& a_pass) override
 			{
 				auto& _params = a_pass.RefParams();
 				bool _isEdit = false;
 
-				_isEdit |= Engine::Editor::Field("FogHeight", _params.cb.fogHeight, 0.05f, 0.0f);
-				Engine::Editor::Tooltip("フォグが立つ高さ(この高さで濃さが 0 になる)");
-				_isEdit |= Engine::Editor::Field("Density", _params.cb.density, 0.01f, 0.0f);
-				_isEdit |= Engine::Editor::ColorField("FogColor", _params.cb.fogColor);
-				_isEdit |= Engine::Editor::Field("StepSize", _params.cb.stepSize, 0.01f, 0.01f);
-				Engine::Editor::Tooltip("レイマーチの1歩の長さ(m)。遠い地面では歩数の上限で伸びる");
+				// シーンのフォグ
+				Engine::Editor::Header("SceneFog");
+				_isEdit |= Engine::Editor::ColorField("FogColor", _params.sceneFog.fogColor);
+				_isEdit |= Engine::Editor::Field("FogDensity", _params.sceneFog.density, 0.0001f, 0.0f);
+				Engine::Editor::Tooltip("濃さ(1m あたり)。0 ならシーンのフォグは掛からない");
+				_isEdit |= Engine::Editor::Field("MaxDistance", _params.sceneFog.maxDistance, 1.0f, 0.0f);
+				Engine::Editor::Tooltip("空(何も描かれていない画素)へ向けて積分する距離(m)");
 
-				Engine::Editor::Header("Noise");
+				// グラウンドダスト
+				Engine::Editor::Header("GroundDust");
+				_isEdit |= Engine::Editor::ColorField("DustColor", _params.groundDust.dustColor);
+				_isEdit |= Engine::Editor::Field("DustDensity", _params.groundDust.density, 0.01f, 0.0f);
+				Engine::Editor::Tooltip("濃さ(1m あたり)。0 ならチリは出ない");
+				_isEdit |= Engine::Editor::Field("DustHeight", _params.groundDust.height, 0.05f, 0.0f);
+				Engine::Editor::Tooltip("チリが立つ高さ(地面から。この高さで濃さが 0 になる)");
+				_isEdit |= Engine::Editor::Field("DustStepSize", _params.groundDust.stepSize, 0.01f, 0.01f);
+				Engine::Editor::Tooltip("チリの層の中をレイマーチする1歩の長さ(m)。層の中が長いと歩数の上限で伸びる");
+
 				_isEdit |= Engine::Editor::AssetField(
 					MainEngine::Instance().GetEngineServices(), "NoiseTexture", "Texture", _params.noiseTexGUID);
-				_isEdit |= Engine::Editor::Field("NoiseScale", _params.cb.noiseScale, 0.001f, 0.0f);
+				_isEdit |= Engine::Editor::Field("NoiseScale", _params.groundDust.noiseScale, 0.001f, 0.0f);
 				Engine::Editor::Tooltip("ノイズのワールド座標に掛ける倍率(大きいほど細かい)");
 
 				if (!_params.noiseTexGUID.IsValid())
 				{
-					Engine::Editor::HelpText("NoiseTexture 未設定 : ノイズなしで一様に立ちます");
+					Engine::Editor::HelpText("NoiseTexture 未設定 : チリはノイズなしで一様に立ちます");
 				}
+				Engine::Editor::HelpText("GroundDepth を繋がないとチリは出ません");
+				Engine::Editor::HelpText("GroundField を繋がないとチリは衝撃で動きません");
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
 		};
 
-		class GroundFogCompositeEditor : public PassEditor<GroundFogCompositePass>
+		class SceneFogCompositeEditor : public PassEditor<SceneFogCompositePass>
 		{
 		protected:
-			EPassEditResult OnDrawDetail(GroundFogCompositePass& a_pass) override
+			EPassEditResult OnDrawDetail(SceneFogCompositePass& a_pass) override
 			{
 				auto& _params = a_pass.RefParams();
 				bool _isEdit = DrawEnableCheck(_params.enable);
@@ -728,8 +741,9 @@ namespace Engine::Editor::Inspector
 		a_registry.Register<FishEyePass, FishEyeEditor>();
 		a_registry.Register<CoCPass, DoFParamEditor<CoCPass>>("DoFPass と同じ値にすること");
 		a_registry.Register<DoFPass, DoFParamEditor<DoFPass>>("CoCPass と同じ値にすること");
-		a_registry.Register<GroundVolumetricFogPass, GroundVolumetricFogEditor>();
-		a_registry.Register<GroundFogCompositePass, GroundFogCompositeEditor>();
+		a_registry.Register<SceneVolumetricFogPass, SceneVolumetricFogEditor>();
+		a_registry.Register<SceneFogCompositePass, SceneFogCompositeEditor>();
+		a_registry.Register<GroundFieldPass, NoteOnlyEditor<GroundFieldPass>>(std::initializer_list<const char*>{ "カメラを中心にした範囲の衝撃を、真上から見たテクスチャへ書きます", "Field を SceneVolumetricFogPass の GroundField へ繋いでください" });
 		a_registry.Register<ToneMapPass, ToneMapEditor>();
 
 		// ---- Sky / Present / UI ----

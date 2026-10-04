@@ -13,8 +13,8 @@
 #include "RenderingPasses/PostEffect/DoF/CoCPass/CoCPass.h"
 #include "RenderingPasses/PostEffect/DoF/DoFPass/DoFPass.h"
 #include "RenderingPasses/PostEffect/GroundEffect/GroundFieldPass/GroundFieldPass.h"
-#include "RenderingPasses/PostEffect/GroundEffect/GroundVolumetricFogPass/GroundVolumetricFogPass.h"
-#include "RenderingPasses/PostEffect/GroundEffect/GroundFogCompositePass/GroundFogCompositePass.h"
+#include "RenderingPasses/PostEffect/Fog/SceneVolumetricFogPass/SceneVolumetricFogPass.h"
+#include "RenderingPasses/PostEffect/Fog/SceneFogCompositePass/SceneFogCompositePass.h"
 #include "RenderingPasses/PostEffect/AntiAliasing/TAAPass/TAAPass.h"
 
 // ---- ブルーム ----
@@ -116,8 +116,8 @@ namespace Engine::Graphics::Pipeline
 		a_registry.RegisterType<CoCPass>("CoCPass");
 		a_registry.RegisterType<DoFPass>("DoFPass");
 		a_registry.RegisterType<GroundFieldPass>("GroundFieldPass");
-		a_registry.RegisterType<GroundVolumetricFogPass>("GroundVolumetricFogPass");
-		a_registry.RegisterType<GroundFogCompositePass>("GroundFogCompositePass");
+		a_registry.RegisterType<SceneVolumetricFogPass>("SceneVolumetricFogPass");
+		a_registry.RegisterType<SceneFogCompositePass>("SceneFogCompositePass");
 		a_registry.RegisterType<TAAPass>("TAAPass");
 
 		// ---- ブルーム ----

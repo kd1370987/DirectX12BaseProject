@@ -1,8 +1,8 @@
 //==========================================================================================
 //
-// GroundFogCompositeCS
+// SceneFogCompositeCS
 //
-// メインカラーへ、GroundVolumetricFogCS が書いたフォグを重ねる。
+// メインカラーへ、SceneVolumetricFogCS が書いたフォグを重ねる。
 //
 //   出力 = lerp(メインカラー, フォグの色, フォグの濃さ * intensity)
 //
@@ -19,7 +19,7 @@
 //   1 : SRVの番号(t0-t1) メインカラー + フォグ
 //   2 : UAVの番号(u0)    合成結果
 //==========================================================================================
-#define GROUND_FOG_COMPOSITE_RS \
+#define SCENE_FOG_COMPOSITE_RS \
 "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL)," \
 "RootConstants(num32BitConstants=2, b100), " \
@@ -27,17 +27,17 @@
 RS_STATIC_SAMPLER_CLAMP
 
 // 合成の設定
-// ※ CPU 側 GroundFogCompositePass::CompositeCB と並びを合わせること
-struct GroundFogCompositeData
+// ※ CPU 側 SceneFogCompositePass::CompositeCB と並びを合わせること
+struct SceneFogCompositeData
 {
 	float intensity;	// フォグの濃さに掛ける倍率
 	int enable;			// 0 なら重ねずにそのまま通す
 	float2 pad0;
 };
 
-cbuffer CBGroundFogComposite : register(b0)
+cbuffer CBSceneFogComposite : register(b0)
 {
-	GroundFogCompositeData g_composite;
+	SceneFogCompositeData g_composite;
 }
 
 // 入力
@@ -66,7 +66,7 @@ RWTexture2D<float4> Get_outTex() { RWTexture2D<float4> _r = ResourceDescriptorHe
 // サンプラー
 SamplerState g_samp : register(s0);
 
-[RootSignature(GROUND_FOG_COMPOSITE_RS)]
+[RootSignature(SCENE_FOG_COMPOSITE_RS)]
 [numthreads(8, 8, 1)]
 void CSMain(uint3 DTid : SV_DispatchThreadID)
 {

@@ -206,21 +206,40 @@ namespace Engine::Graphics
 		float pad0;
 	};
 
-	// 地面付近のボリュメトリックフォグの調整値
-	// GroundVolumetricFogPass が自分の値を詰めて送る(time と impulseCount はパスが毎フレーム詰める)。
-	// ※ HLSL 側(Asset/Shader/Common/RootParameters/GroundFogData.hlsli)と並びを合わせること
-	struct GroundFogCB
+	// グラウンドフィールドのテクスチャ
+	// カメラを中心にした GROUND_FIELD_WORLD_SIZE (m) 四方を、真上から GROUND_FIELD_RESOLUTION 四方のテクセルで並べる。
+	// ※ HLSL 側(GroundFieldData.hlsli の GROUND_FIELD_WORLD_SIZE)と合わせること
+	inline constexpr float GROUND_FIELD_WORLD_SIZE = 256.0f;
+	inline constexpr uint32_t GROUND_FIELD_RESOLUTION = 512;
+
+	//------------------------------------------------------------------------------------------
+	// シーンのボリュメトリックフォグ
+	//
+	// SceneVolumetricFogPass が自分の値を詰めて送る。シーンのフォグとグラウンドダストで CB を分けてある。
+	//------------------------------------------------------------------------------------------
+	// シーン全体に一様に漂うフォグの調整値
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/SceneFogData.hlsli)と並びを合わせること
+	struct SceneFogCB
 	{
-		float fogHeight = 2.0f;		// フォグが立つ高さ(この高さで濃さが 0 になる)
-		float density = 0.2f;		// 濃さ(1m あたり)。層は常にあるので、大きいと地面が隠れる
+		Math::Vector3 fogColor = { 0.6f, 0.7f, 0.8f };	// フォグの色
+		float density = 0.002f;		// 濃さ(1m あたり)。0 ならシーンのフォグは掛からない
+
+		float maxDistance = 1000.0f;	// 空(何も描かれていない画素)へ向けて積分する距離(m)
+		float pad0[3] = {};
+	};
+
+	// 地面から一定の高さまで漂うチリ(グラウンドダスト)の調整値
+	// time はパスが毎フレーム上書きする。
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/GroundDustData.hlsli)と並びを合わせること
+	struct GroundDustCB
+	{
+		Math::Vector3 dustColor = { 0.8f, 0.75f, 0.65f };	// チリの色
+		float density = 0.2f;		// 濃さ(1m あたり)。0 ならチリは出ない
+
+		float height = 2.0f;		// チリが立つ高さ(地面から。この高さで濃さが 0 になる)
 		float noiseScale = 0.1f;	// ノイズのワールド座標に掛ける倍率(大きいほど細かい)
 		float time = 0.0f;			// パスが回り始めてからの経過時間(秒)。ノイズを流すのに使う
-
-		Math::Vector3 fogColor = { 0.8f, 0.75f, 0.65f };	// フォグの色
-		float stepSize = 0.5f;		// レイマーチの1歩の長さ(m)
-
-		uint32_t impulseCount = 0;	// 今フレームの衝撃の数。パスが毎フレーム上書きする
-		float pad0[3] = {};
+		float stepSize = 0.5f;		// チリの層の中をレイマーチする1歩の長さ(m)
 	};
 
 	// 川瀬式ブルームの調整値

@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Asset\Shader\Source\PostProcess\Fog">
+      <UniqueIdentifier>{7514c5d3-608f-4164-8a71-5d4120cdc77b}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Components\Animation">
       <UniqueIdentifier>{115b4bc4-dd1e-4d16-bc09-1da85e66092e}</UniqueIdentifier>
     </Filter>
@@ -1159,10 +1162,13 @@
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass">
       <UniqueIdentifier>{5d206d38-3c9a-4663-a1bd-0af60d44b8e5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFogCompositePass">
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Fog\SceneFogCompositePass">
       <UniqueIdentifier>{4603af0b-80ab-49e0-a899-879f59798c31}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundVolumetricFogPass">
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Fog">
+      <UniqueIdentifier>{a03aa544-ea13-4c43-8d85-6dcba6441894}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Fog\SceneVolumetricFogPass">
       <UniqueIdentifier>{8633b108-3fc2-4ca2-acc0-1f7f5f8fc42e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Asset\Shader\Source\PostProcess\GroundEffect">
@@ -2352,11 +2358,11 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass\GroundFieldPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundVolumetricFogPass\GroundVolumetricFogPass.cpp">
-      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundVolumetricFogPass</Filter>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Fog\SceneVolumetricFogPass\SceneVolumetricFogPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Fog\SceneVolumetricFogPass</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFogCompositePass\GroundFogCompositePass.cpp">
-      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFogCompositePass</Filter>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Fog\SceneFogCompositePass\SceneFogCompositePass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Fog\SceneFogCompositePass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass\FishEyePass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass</Filter>
@@ -4139,11 +4145,11 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass\GroundFieldPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFieldPass</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundVolumetricFogPass\GroundVolumetricFogPass.h">
-      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundVolumetricFogPass</Filter>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Fog\SceneVolumetricFogPass\SceneVolumetricFogPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Fog\SceneVolumetricFogPass</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFogCompositePass\GroundFogCompositePass.h">
-      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\GroundEffect\GroundFogCompositePass</Filter>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Fog\SceneFogCompositePass\SceneFogCompositePass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Fog\SceneFogCompositePass</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass\FishEyePass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Distortion\FishEyePass</Filter>
@@ -4543,11 +4549,11 @@
     <FxCompile Include="Asset\Shader\Source\PostProcess\GroundEffect\GroundFieldCS.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\GroundEffect</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\PostProcess\GroundEffect\GroundVolumetricFogCS.hlsl">
-      <Filter>Asset\Shader\Source\PostProcess\GroundEffect</Filter>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\Fog\SceneVolumetricFogCS.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\Fog</Filter>
     </FxCompile>
-    <FxCompile Include="Asset\Shader\Source\PostProcess\GroundEffect\GroundFogCompositeCS.hlsl">
-      <Filter>Asset\Shader\Source\PostProcess\GroundEffect</Filter>
+    <FxCompile Include="Asset\Shader\Source\PostProcess\Fog\SceneFogCompositeCS.hlsl">
+      <Filter>Asset\Shader\Source\PostProcess\Fog</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\PostProcess\DoF\CoCShader.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\DoF</Filter>
@@ -4623,7 +4629,10 @@
     <None Include="Asset\Shader\Common\RootParameters\GroundFieldData.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
-    <None Include="Asset\Shader\Common\RootParameters\GroundFogData.hlsli">
+    <None Include="Asset\Shader\Common\RootParameters\SceneFogData.hlsli">
+      <Filter>Asset\Shader\Common\RootParameters</Filter>
+    </None>
+    <None Include="Asset\Shader\Common\RootParameters\GroundDustData.hlsli">
       <Filter>Asset\Shader\Common\RootParameters</Filter>
     </None>
     <None Include="Asset\Shader\Common\RootParameters\FishEyeOptionData.hlsli">

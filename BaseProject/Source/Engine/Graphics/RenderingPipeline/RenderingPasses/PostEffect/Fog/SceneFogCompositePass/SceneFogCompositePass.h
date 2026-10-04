@@ -4,18 +4,18 @@
 namespace Engine::Graphics::Pipeline
 {
 	//======================================================================================
-	// GroundFogCompositePass
+	// SceneFogCompositePass
 	//
-	// メインカラーへ、GroundVolumetricFogPass が書いたフォグを重ねる。
+	// メインカラーへ、SceneVolumetricFogPass が書いたフォグを重ねる。
 	//   出力 = lerp(メインカラー, フォグの色, フォグの濃さ * intensity)
 	//
 	// トーンマップ前(HDR)に置くこと。
 	// フォグはUVで引くので、フォグ側だけ縮小解像度で回しても合わせられる
 	//======================================================================================
-	class GroundFogCompositePass final : public Pass
+	class SceneFogCompositePass final : public Pass
 	{
 	public:
-		~GroundFogCompositePass() override = default;
+		~SceneFogCompositePass() override = default;
 
 		void SetupSlots() override;
 
@@ -29,7 +29,7 @@ namespace Engine::Graphics::Pipeline
 		// 編集対象の値 : エディターはここだけを触る
 		//----------------------------------------------------------------------------------
 		// シェーダーへ送る設定
-		// ※ HLSL 側(GroundFogCompositeCS の GroundFogCompositeData)と並びを合わせること
+		// ※ HLSL 側(SceneFogCompositeCS の SceneFogCompositeData)と並びを合わせること
 		struct CompositeCB
 		{
 			float intensity = 1.0f;		// フォグの濃さに掛ける倍率
@@ -42,7 +42,7 @@ namespace Engine::Graphics::Pipeline
 
 	private:
 
-		// ルートパラメータの番号 : シェーダー(GroundFogCompositeCS)の並びと合わせる
+		// ルートパラメータの番号 : シェーダー(SceneFogCompositeCS)の並びと合わせる
 		static constexpr int kRootCompositeCB = 0;
 		static constexpr int kRootInputSRV = 1;
 		static constexpr int kRootOutputUAV = 2;

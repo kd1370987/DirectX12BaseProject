@@ -8,13 +8,13 @@ namespace Engine::Graphics::Pipeline
 {
 	void GroundFieldPass::SetupSlots()
 	{
-		// 地面だけの深度(GroundDepthPass の出力)
-		DeclareInput("GroundDepth", EAccessType::SRV, EPassSlotType::Texture, true, kRootInputSRV);
-
-		// 地面のワールド座標。xyz = 位置 / w = 地面があれば 1、無ければ 0。
-		// 全画素を書き潰すのでクリアは不要
-		DeclareOutput("WorldPos", "GroundWorldPos", DXGI_FORMAT_R32G32B32A32_FLOAT,
-			EAccessType::UAV, EPassSlotType::Texture, false, kRootOutputUAV);
+		// グラウンドフィールド。カメラを中心にした GROUND_FIELD_WORLD_SIZE (m) 四方を真上から並べたもの。
+		//   r = 払われずに残ったチリの量 / g = 波頭に寄せられたチリの量
+		// 画面とは関係のない広さなので、解像度は固定で持つ(描画解像度に追従させない)。
+		// 全テクセルを書き潰すのでクリアは不要
+		DeclareOutput("Field", "GroundField", DXGI_FORMAT_R16G16_FLOAT,
+			EAccessType::UAV, EPassSlotType::Texture, false, kRootOutputUAV,
+			GROUND_FIELD_RESOLUTION, GROUND_FIELD_RESOLUTION);
 	}
 
 	void GroundFieldPass::Compile(const PassContext& a_context)
@@ -30,7 +30,7 @@ namespace Engine::Graphics::Pipeline
 
 		auto* _pCmd = a_context.pCmdList;
 
-		// カメラ : 深度からワールド座標を戻す
+		// カメラ : フィールドの中心を決める
 		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(
 			_pCmd, kRootCameraCB, _pGE->GetSceneView()->GetCameraData());
 
@@ -50,7 +50,9 @@ namespace Engine::Graphics::Pipeline
 		};
 		_pCtx->ComputeBindDescriptorIndices(kRootImpulseSRV, _impulseIndices);
 
-		DispatchFullScreen(a_context);
+		// 画面ではなくフィールドの大きさで回す
+		const Slot* _pOut = FindOutputSlot(MakeSlotID("Field"));
+		if (_pOut) DispatchForSlot(a_context, *_pOut);
 	}
 
 

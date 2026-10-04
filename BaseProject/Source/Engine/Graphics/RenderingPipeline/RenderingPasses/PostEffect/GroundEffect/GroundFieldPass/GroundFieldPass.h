@@ -6,10 +6,13 @@ namespace Engine::Graphics::Pipeline
 	//======================================================================================
 	// GroundFieldPass
 	//
-	// GroundDepthPass が描いた地面だけの深度から、地面のワールド座標を復元して書き出す。
-	// 地面に広がる波紋などのエフェクトの土台になる。
+	// 衝撃(GroundImpulse)が地面のチリをどう動かしたかを、真上から見たテクスチャへ書く。
+	// カメラを中心にした GROUND_FIELD_WORLD_SIZE (m) 四方を xz で並べたもの(解像度固定)。
+	//   r = 払われずに残ったチリの量 / g = 波頭に寄せられたチリの量
 	//
-	// 衝撃(GroundImpulse)と経過時間もシェーダーへ渡している。
+	// 衝撃の数だけ回す計算をここで1テクセル1回に済ませ、
+	// SceneVolumetricFogPass はレイの1歩ごとにこれを1回引くだけにする。
+	//
 	// 衝撃の配列はグラフのリソースではないので、スロットには乗らない。
 	// GraphicsEngine が Execute() で今フレームぶんを詰め直したものの番号を直接渡す
 	// (衝撃を積むのはアプリ側 : SceneView::AddGroundImpulse)
@@ -32,9 +35,8 @@ namespace Engine::Graphics::Pipeline
 		// ルートパラメータの番号 : シェーダー(GroundFieldCS)の並びと合わせる
 		static constexpr int kRootCameraCB = 0;
 		static constexpr int kRootGroundFieldCB = 1;
-		static constexpr int kRootInputSRV = 2;
-		static constexpr int kRootOutputUAV = 3;
-		static constexpr int kRootImpulseSRV = 4;
+		static constexpr int kRootOutputUAV = 2;
+		static constexpr int kRootImpulseSRV = 3;
 
 		// パスが回り始めてからの経過時間(秒)。
 		// 実行インスタンスごとに持つので、パイプラインを組み直すと 0 から数え直す
