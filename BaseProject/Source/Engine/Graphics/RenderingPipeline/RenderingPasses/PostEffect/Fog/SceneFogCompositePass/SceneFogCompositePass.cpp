@@ -1,6 +1,7 @@
 ﻿#include "SceneFogCompositePass.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 
 namespace Engine::Graphics::Pipeline
 {
@@ -23,9 +24,11 @@ namespace Engine::Graphics::Pipeline
 
 	void SceneFogCompositePass::Update(const PassContext& a_context)
 	{
-		if (!a_context.pRenderContext || !a_context.pCmdList) return;
+		if (!a_context.pRenderContext || !a_context.pCmdList || !a_context.pGraphicsEngine) return;
 
-		a_context.pRenderContext->BindCB()->BindAndAttachDataComputeRootCBV(a_context.pCmdList, kRootCompositeCB, m_cb);
+		// 合成の設定はシーンの持ち物。受け取ったものをそのまま送る
+		a_context.pRenderContext->BindCB()->BindAndAttachDataComputeRootCBV(
+			a_context.pCmdList, kRootCompositeCB, a_context.pGraphicsEngine->GetSceneView()->GetSceneFogCompositeData());
 		DispatchFullScreen(a_context);
 	}
 
@@ -33,7 +36,7 @@ namespace Engine::Graphics::Pipeline
 
 	void SceneFogCompositePass::Archive(Engine::Persistence::Archive& a_arch)
 	{
-		a_arch.Field("intensity", m_cb.intensity);
-		a_arch.Field("enable", m_cb.enable);
+		// 値はシーンの持ち物なので、パスとして保存するものは無い
+		(void)a_arch;
 	}
 }

@@ -1,9 +1,6 @@
 ﻿#pragma once
 
 #include "Engine/GameObject/BaseObject/BaseObject.h"
-#include "Engine/Graphics/CBData.h"
-#include "Engine/Graphics/LightManager/Core/Light.h"	// 平行光の実体はここの型
-#include "Engine/Graphics/LightManager/Core/Shadow.h"	// 平行光の影の設定
 
 namespace App::Object
 {
@@ -13,7 +10,6 @@ namespace App::Object
 	// 空気中の細かいゴミを1つのエフェクトで出し、それをカメラに追従させて
 	// 「どこへ行っても空間にチリが漂っている」ように見せるためのもの。
 	//
-	// チリはシーンの空気なので、置き場所はシーン(このオブジェクト)。
 	// 実際に出すのは EffectAsset なので、絵の中身はアセット側で作る。
 	// ここが持つのは「どこに・どれだけの広さで出すか」と「どうカメラに付いていくか」だけ。
 	//
@@ -50,30 +46,17 @@ namespace App::Object
 	};
 
 	/// <summary>
-	/// シーンの環境設定 : シーンに一つ置く
+	/// 空間のチリ : カメラに追従するエフェクトを1つ出し続ける
 	/// </summary>
 	/// <remarks>
-	/// 環境光・平行光・フォグ・空を「シーンの持ち物」として一か所にまとめたもの。
-	///
-	/// もともとこれらはグラフィックス設定(OptionPanel から GraphicsEngine の
-	/// AmbientData を直接いじる形)にあったが、それだとプロジェクトに1組しか持てず、
-	/// 昼のステージと夜のステージを作り分けられなかった。
-	/// シーンと一緒に保存されるオブジェクトへ移すことで、シーンごとに天候を持てる。
-	///
-	/// 空はスカイドームのメッシュを置くのをやめ、ここのスカイテクスチャ(正距円筒)を
-	/// スカイパスが方向から直接引く形にした。ドームの形(地平線の高さ・半径)と
-	/// 方位の回転もここが持つ。
-	///
-	/// このオブジェクトが持っているだけでは絵は変わらない。毎フレーム
-	/// GraphicsEngine へ流し込むところまでが仕事で、実際に使うのは各レンダーパス。
+	/// もとは SceneAmbientObject として環境光・平行光・フォグ・空と一緒に持っていたが、
+	/// それらはシーン(Engine::Scene::SceneAmbient)の持ち物へ移した。
+	/// チリはレンダーパスの設定ではなく ECS のエンティティ(エフェクト)を出すものなので、
+	/// 出したエンティティの始末まで面倒を見るオブジェクトとして残してある。
 	/// </remarks>
-	class SceneAmbientObject : public Engine::GameObject::BaseObject
+	class AmbientDustObject : public Engine::GameObject::BaseObject
 	{
 	public:
-
-		// 置いた直後から絵になるよう、平行光だけ既定値を入れておく
-		// (AmbientData の素の既定値は全部 0 なので、そのままだと真っ暗になる)
-		SceneAmbientObject();
 
 		// 更新処理 : チリをカメラへ追従させる
 		//
@@ -83,13 +66,7 @@ namespace App::Object
 		//  チリの行列はこちらで直接入れる)
 		void Update(Engine::GameObject::ObjectContext& a_context) override;
 
-		// 描画処理 : 保持している設定を GraphicsEngine へ流し込む
-		//
-		// Update ではなく Draw に置いてある。Draw はエディター編集中も毎フレーム
-		// レンダーグラフの直前に走るので、プレイしていなくてもシーンの空と光が出る
-		void Draw(Engine::GameObject::ObjectContext& a_context) override;
-
-		// 解放処理 : スカイテクスチャの貸し出しを取り消す
+		// 解放処理 : 出しているチリを片付ける
 		void Release(Engine::GameObject::ObjectContext& a_context) override;
 
 		// アーカイブ
@@ -100,26 +77,15 @@ namespace App::Object
 		//=======================================================================
 
 		// ヒエラルキー/インスペクター表示名
-		const char* GetEditorName() const override { return "SceneAmbient"; }
+		const char* GetEditorName() const override { return "AmbientDust"; }
 
-		// インスペクター : 環境光・平行光・フォグ・空の設定
+		// インスペクター : チリの設定
 		void DrawInspector(Engine::GameObject::ObjectContext& a_context) override;
 
 	private:
 
-		// 保持している設定を GraphicsEngine へ送る
-		void Apply(Engine::GameObject::ObjectContext& a_context);
-
-		// インスペクターの各セクション
-		void DrawLightingInspector();
-		void DrawShadowInspector();
-		void DrawFogInspector();
-		void DrawSkyInspector(Engine::GameObject::ObjectContext& a_context);
+		// インスペクターのチリの欄
 		void DrawDastInspector(Engine::GameObject::ObjectContext& a_context);
-
-		//-------------------------------------------------------------------
-		// チリ
-		//-------------------------------------------------------------------
 
 		// メインカメラのワールド座標を取る。居なければ false
 		bool TryGetMainCameraPos(
@@ -139,45 +105,12 @@ namespace App::Object
 		//-------------------------------------------------------------------
 		// 設定(保存される)
 		//-------------------------------------------------------------------
-		// 環境光・平行光・フォグ。定数バッファそのままの形で持つ
-		// (シェーダーへ送る単位と分けても、二重に持ち替えるだけなので合わせてある)
-		Engine::Graphics::AmbientData m_ambient = {};
-
-		//---------------------------------------------------------------------------------
-		// 平行光(太陽)
-		//
-		// 値はここが持ち、実体は LightManager の席へ毎フレーム流し込む。
-		//
-		// AmbientData から出したのは、影(RaytracingShadowPass)とGI(RaytracingGIPass)が
-		// レイを飛ばす先と、ディファードが足す光を1か所にまとめるため。
-		// 平行光をシーンに1つだけ置くのはこの3つが同じ1本を前提にしているからで、
-		// 2つ目以降を足しても影を落とすのは先頭の1つだけになる。
-		//---------------------------------------------------------------------------------
-		Math::Vector3 m_dlDir = { 0.5f, -1.0f, 0.5f };		// 向き(光の進む向き)
-		Math::Vector3 m_dlColor = { 4.0f, 4.0f, 4.0f };		// 色(1.0超え可)
-
-		// LightManager から借りている席。保存しない(添字はシーンごとに振り直される)
-		Engine::Handle<Engine::Graphics::DirectionalLight> m_dlHandle = {};
-
-		// 平行光の影 : レイトレかシャドウマップか、とシャドウマップの調整値。
-		// シーンごとに持つので、ホーム画面はレイトレ・ゲーム中はシャドウマップ、と使い分けられる
-		Engine::Graphics::DirectionalShadowSettings m_shadow = {};
-
 		// カメラに追従するチリ
 		Dast m_dast = {};
-
-		// 空の見え方(露出 / 地平線の高さ / 仮想ドームの半径 / 方位の回転)
-		Engine::Graphics::SkyData m_sky = {};
-
-		// スカイテクスチャ(正距円筒。横:縦 = 2:1 のもの)
-		Engine::GUID m_skyTexGUID = {};
 
 		//-------------------------------------------------------------------
 		// 状態(保存しない)
 		//-------------------------------------------------------------------
-		// テクスチャの実体はこちらが握る。GraphicsEngine へはハンドルだけ貸す
-		Engine::ResourceRef<Engine::Resource::Texture> m_skyTexRef = {};
-
 		// 出しているチリのエンティティ。生きていない間は INVALID
 		Engine::ECS::Entity m_dastEntity = Engine::ECS::Limits::INVALID_ENTITY;
 

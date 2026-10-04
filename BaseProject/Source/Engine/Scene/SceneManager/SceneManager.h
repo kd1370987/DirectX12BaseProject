@@ -9,6 +9,7 @@ namespace Engine
 	namespace Graphics
 	{
 		class RenderContext;
+		struct DirectionalLight;
 	}
 	namespace GameObject
 	{
@@ -135,6 +136,15 @@ namespace Engine::Scene
 		/// </summary>
 		GameObject::GameObjectManager* RefGameObjectManager();
 
+		/// <summary>
+		/// 環境設定を GraphicsEngine へ流し込んでいるシーン
+		/// </summary>
+		/// <remarks>
+		/// 積んであるシーンのうち、環境設定を使う(SceneAmbient::IsEnabled)一番上のもの。
+		/// 1つも無ければ nullptr(環境光・フォグ・空・平行光なしで描かれる)
+		/// </remarks>
+		BaseScene* GetAmbientSourceScene();
+
 	private:
 
 		//------------------------------------------------------------------------------------------
@@ -144,6 +154,12 @@ namespace Engine::Scene
 		void ReplaceScene(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid);	// シーンの切り替え
 		bool PushScene(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid);		// シーンを重ねる(読み込めたら true)
 		void PopScene(Resource::ResourceManager& a_resourceManager);									// 最前面のシーンを消去
+
+		//------------------------------------------------------------------------------------------
+		// シーンの環境設定
+		//------------------------------------------------------------------------------------------
+		// 環境設定を使う一番上のシーンのものを GraphicsEngine へ流し込む(無ければ「無し」を流す)
+		void ApplySceneAmbient();
 
 	private:
 
@@ -167,6 +183,10 @@ namespace Engine::Scene
 
 		// ワールドの実体を作る関数(上位層が差し込む)
 		WorldFactory m_worldFactory = nullptr;
+
+		// 環境設定の平行光が借りている LightManager の席。
+		// シーンごとではなくここで1つだけ持つ : 重ねたシーンの数だけ太陽が並ばないように
+		Handle<Graphics::DirectionalLight> m_ambientDLHandle = {};
 
 	private:
 		// シングルトン化

@@ -196,14 +196,14 @@ namespace Engine::Editor::Inspector
 		};
 
 		// シャドウマップ : 触れるのはアトラスの解像度だけ。
-		// 影の求め方・範囲・バイアスはシーン(SceneAmbientObject)の持ち物
+		// 影の求め方・範囲・バイアスはシーンの環境設定(Engine::Scene::SceneAmbient)の持ち物
 		class ShadowMapEditor : public PassEditor<ShadowMapPass>
 		{
 		protected:
 			EPassEditResult OnDrawDetail(ShadowMapPass& a_pass) override
 			{
 				Engine::Editor::HelpText("主光源から見た深度を 2x2 のカスケードアトラスへ描きます");
-				Engine::Editor::HelpText("影の求め方・範囲・バイアスは SceneAmbientObject で設定します");
+				Engine::Editor::HelpText("影の求め方・範囲・バイアスはシーンの環境設定(SceneAmbientPanel)で設定します");
 
 				auto& _params = a_pass.RefParams();
 
@@ -390,65 +390,6 @@ namespace Engine::Editor::Inspector
 				_isEdit |= Engine::Editor::Field("Strength", _params.strength, 0.01f, -2.0f, 2.0f);
 
 				Engine::Editor::HelpText("カメラが FishEyeComponent を持つあいだはそちらの値が優先される");
-
-				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-			}
-		};
-
-		class SceneVolumetricFogEditor : public PassEditor<SceneVolumetricFogPass>
-		{
-		protected:
-			EPassEditResult OnDrawDetail(SceneVolumetricFogPass& a_pass) override
-			{
-				auto& _params = a_pass.RefParams();
-				bool _isEdit = false;
-
-				// シーンのフォグ
-				Engine::Editor::Header("SceneFog");
-				_isEdit |= Engine::Editor::ColorField("FogColor", _params.sceneFog.fogColor);
-				_isEdit |= Engine::Editor::Field("FogDensity", _params.sceneFog.density, 0.0001f, 0.0f);
-				Engine::Editor::Tooltip("濃さ(1m あたり)。0 ならシーンのフォグは掛からない");
-				_isEdit |= Engine::Editor::Field("MaxDistance", _params.sceneFog.maxDistance, 1.0f, 0.0f);
-				Engine::Editor::Tooltip("空(何も描かれていない画素)へ向けて積分する距離(m)");
-
-				// グラウンドダスト
-				Engine::Editor::Header("GroundDust");
-				_isEdit |= Engine::Editor::ColorField("DustColor", _params.groundDust.dustColor);
-				_isEdit |= Engine::Editor::Field("DustDensity", _params.groundDust.density, 0.01f, 0.0f);
-				Engine::Editor::Tooltip("濃さ(1m あたり)。0 ならチリは出ない");
-				_isEdit |= Engine::Editor::Field("DustHeight", _params.groundDust.height, 0.05f, 0.0f);
-				Engine::Editor::Tooltip("チリが立つ高さ(地面から。この高さで濃さが 0 になる)");
-				_isEdit |= Engine::Editor::Field("DustStepSize", _params.groundDust.stepSize, 0.01f, 0.01f);
-				Engine::Editor::Tooltip("チリの層の中をレイマーチする1歩の長さ(m)。層の中が長いと歩数の上限で伸びる");
-
-				_isEdit |= Engine::Editor::AssetField(
-					MainEngine::Instance().GetEngineServices(), "NoiseTexture", "Texture", _params.noiseTexGUID);
-				_isEdit |= Engine::Editor::Field("NoiseScale", _params.groundDust.noiseScale, 0.001f, 0.0f);
-				Engine::Editor::Tooltip("ノイズのワールド座標に掛ける倍率(大きいほど細かい)");
-
-				if (!_params.noiseTexGUID.IsValid())
-				{
-					Engine::Editor::HelpText("NoiseTexture 未設定 : チリはノイズなしで一様に立ちます");
-				}
-				Engine::Editor::HelpText("GroundDepth を繋がないとチリは出ません");
-				Engine::Editor::HelpText("GroundField を繋がないとチリは衝撃で動きません");
-
-				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
-			}
-		};
-
-		class SceneFogCompositeEditor : public PassEditor<SceneFogCompositePass>
-		{
-		protected:
-			EPassEditResult OnDrawDetail(SceneFogCompositePass& a_pass) override
-			{
-				auto& _params = a_pass.RefParams();
-				bool _isEdit = DrawEnableCheck(_params.enable);
-
-				_isEdit |= Engine::Editor::Field("Intensity", _params.intensity, 0.01f, 0.0f);
-				Engine::Editor::Tooltip("フォグの濃さに掛ける倍率");
-
-				Engine::Editor::HelpText("トーンマップ前(HDR)に置いてください");
 
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
@@ -741,13 +682,13 @@ namespace Engine::Editor::Inspector
 		a_registry.Register<FishEyePass, FishEyeEditor>();
 		a_registry.Register<CoCPass, DoFParamEditor<CoCPass>>("DoFPass と同じ値にすること");
 		a_registry.Register<DoFPass, DoFParamEditor<DoFPass>>("CoCPass と同じ値にすること");
-		a_registry.Register<SceneVolumetricFogPass, SceneVolumetricFogEditor>();
-		a_registry.Register<SceneFogCompositePass, SceneFogCompositeEditor>();
+		a_registry.Register<SceneVolumetricFogPass, NoteOnlyEditor<SceneVolumetricFogPass>>(std::initializer_list<const char*>{ "フォグとグラウンドダストの設定はシーンの環境設定(SceneAmbientPanel)の持ち物です", "GroundDepth を繋がないとチリは出ません", "GroundField を繋がないとチリは衝撃で動きません" });
+		a_registry.Register<SceneFogCompositePass, NoteOnlyEditor<SceneFogCompositePass>>(std::initializer_list<const char*>{ "合成の強さと有効/無効はシーンの環境設定(SceneAmbientPanel)の持ち物です", "トーンマップ前(HDR)に置いてください" });
 		a_registry.Register<GroundFieldPass, NoteOnlyEditor<GroundFieldPass>>(std::initializer_list<const char*>{ "カメラを中心にした範囲の衝撃を、真上から見たテクスチャへ書きます", "Field を SceneVolumetricFogPass の GroundField へ繋いでください" });
 		a_registry.Register<ToneMapPass, ToneMapEditor>();
 
 		// ---- Sky / Present / UI ----
-		a_registry.Register<SkyPass, NoteOnlyEditor<SkyPass>>(std::initializer_list<const char*>{ "空の設定は SceneAmbientObject の持ち物です" });
+		a_registry.Register<SkyPass, NoteOnlyEditor<SkyPass>>(std::initializer_list<const char*>{ "空の設定はシーンの環境設定(SceneAmbientPanel)の持ち物です" });
 		a_registry.Register<FinalOutputPass, FinalOutputEditor>();
 		a_registry.Register<UIPass, NoteOnlyEditor<UIPass>>(std::initializer_list<const char*>{ "深度を持たないので、積んだ順がそのまま前後になります" });
 

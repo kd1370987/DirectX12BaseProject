@@ -15,10 +15,10 @@ namespace Engine::Graphics
 	//   ・カメラ(ビュー/射影と、GPUへ送る形 : 転置・TAAのジッター・前フレームの行列)
 	//   ・エディターカメラなどの割り込み
 	//   ・カメラ発の画面効果(被写界深度 / ラジアルブラー / 魚眼レンズ)
-	//   ・環境光と空
+	//   ・シーンの環境設定(環境光 / フォグ / ボリュメトリックフォグ / 空)
 	//
-	// 値を入れるのはアプリ側のシステム(CamSetShaderSystem / SceneAmbientObject など)、
-	// 読むのはレンダーパス。GPUへ送る形を作るのは GraphicsEngine::Execute の中(UpdateGPUCameraData)
+	// 値を入れるのはカメラのシステム(CamSetShaderSystem)とシーン(SceneManager が
+	// Engine::Scene::SceneAmbient から流し込む)、読むのはレンダーパス。GPUへ送る形を作るのは GraphicsEngine::Execute の中(UpdateGPUCameraData)
 	//==========================================================================================
 	class SceneView
 	{
@@ -89,22 +89,40 @@ namespace Engine::Graphics
 		const std::vector<GroundImpulse>& GetGroundImpulses() const { return m_groundImpulseVec; }
 
 		//--------------------------------------------------------------------------------------------
-		// 環境光と空
+		// シーンの環境設定(環境光 / 高さ・距離フォグ / ボリュメトリックフォグ / 空)
 		//
-		// どちらもシーンに置いた SceneAmbientObject の持ち物で、毎フレーム流し込まれる。
-		// 空のテクスチャは所有せずハンドルだけ預かるので、置いた側が消えたら
-		// 空のハンドルへ戻してもらう(空の間はスカイパスが何も描かない)。
+		// どれもシーン(Engine::Scene::SceneAmbient)の持ち物で、SceneManager が毎フレーム流し込む。
+		// パスは受け取るだけで、自分では値を持たない。
+		//
+		// テクスチャ(空 / フォグのノイズ)は所有せずハンドルだけ預かる。
+		// 持ち主のシーンが消えたら ClearAmbient で空のハンドルへ戻してもらう
+		// (空の間、スカイパスは何も描かず、フォグはノイズなしで描く)。
 		//--------------------------------------------------------------------------------------------
 		void SetAmbientData(const AmbientData& a_data);
 		const AmbientData& GetAmbientData() const;
-		AmbientData& RefAmbientData();
 
 		void SetSkyData(const SkyData& a_data);
 		const SkyData& GetSkyData() const;
-		SkyData& RefSkyData();
 
 		void SetSkyTexture(const Handle<Resource::Texture>& a_handle);
 		const Handle<Resource::Texture>& GetSkyTexture() const;
+
+		// ボリュメトリックフォグ : シーンのフォグ / グラウンドダスト / ノイズ / 合成
+		void SetSceneFogData(const SceneFogCB& a_data) { m_cbSceneFog = a_data; }
+		const SceneFogCB& GetSceneFogData() const { return m_cbSceneFog; }
+
+		void SetGroundDustData(const GroundDustCB& a_data) { m_cbGroundDust = a_data; }
+		const GroundDustCB& GetGroundDustData() const { return m_cbGroundDust; }
+
+		void SetFogNoiseTexture(const Handle<Resource::Texture>& a_handle) { m_fogNoiseTexHandle = a_handle; }
+		const Handle<Resource::Texture>& GetFogNoiseTexture() const { return m_fogNoiseTexHandle; }
+
+		void SetSceneFogCompositeData(const SceneFogCompositeCB& a_data) { m_cbSceneFogComposite = a_data; }
+		const SceneFogCompositeCB& GetSceneFogCompositeData() const { return m_cbSceneFogComposite; }
+
+		// 環境設定を「何も無い」状態へ戻す : 環境光なし・フォグなし・空なし。
+		// 環境設定を使うシーンが1つも無いときと、持ち主のシーンが消えたときに通す
+		void ClearAmbient();
 
 	private:
 
@@ -139,6 +157,12 @@ namespace Engine::Graphics
 		// スカイの設定と、引くスカイテクスチャ(所有はしない)
 		SkyData m_cbSky = {};
 		Handle<Resource::Texture> m_skyTexHandle = {};
+
+		// ボリュメトリックフォグの設定と、ダストに掛けるノイズテクスチャ(所有はしない)
+		SceneFogCB m_cbSceneFog = {};
+		GroundDustCB m_cbGroundDust = {};
+		SceneFogCompositeCB m_cbSceneFogComposite = {};
+		Handle<Resource::Texture> m_fogNoiseTexHandle = {};
 
 		// 被写界深度データ(アクティブカメラの FocusParamComponent から毎フレーム設定)
 		DoFOptionCB m_cbDoF = {};

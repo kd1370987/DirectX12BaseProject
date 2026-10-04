@@ -27,7 +27,7 @@
 RS_STATIC_SAMPLER_CLAMP
 
 // 合成の設定
-// ※ CPU 側 SceneFogCompositePass::CompositeCB と並びを合わせること
+// ※ CPU 側 Engine::Graphics::SceneFogCompositeCB と並びを合わせること
 struct SceneFogCompositeData
 {
 	float intensity;	// フォグの濃さに掛ける倍率

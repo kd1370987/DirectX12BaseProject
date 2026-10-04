@@ -64,6 +64,7 @@ namespace Engine::Graphics
 
 	// 環境データ
 	//
+	// シーン(Engine::Scene::SceneAmbient)が持ち、毎フレーム SceneView へ流し込む。
 	// 平行光はここではなく LightManager が持つ。
 	// 影とGIがレイを飛ばす先と、ディファードが足す光を1か所にまとめるため。
 	//
@@ -104,7 +105,7 @@ namespace Engine::Graphics
 	//----------------------------------------------------------------------------------
 	// スカイの設定
 	//
-	// シーンに置いた SceneAmbientObject が持ち、毎フレームここへ流し込む。
+	// シーン(Engine::Scene::SceneAmbient)が持ち、毎フレーム SceneView へ流し込む。
 	// スカイドームのメッシュは置かず、画面の各ピクセルが見ている方向から
 	// 直接スカイテクスチャを引くので、ドームの形はこの2つの値で決まる。
 	//   horizonHeight : ドームの中心の高さ(ワールドY)。ここが地平線になる
@@ -215,7 +216,9 @@ namespace Engine::Graphics
 	//------------------------------------------------------------------------------------------
 	// シーンのボリュメトリックフォグ
 	//
-	// SceneVolumetricFogPass が自分の値を詰めて送る。シーンのフォグとグラウンドダストで CB を分けてある。
+	// 値はシーン(Engine::Scene::SceneAmbient)の持ち物で、毎フレーム SceneView へ流し込まれる。
+	// パス(SceneVolumetricFogPass / SceneFogCompositePass)は受け取って送るだけ。
+	// シーンのフォグとグラウンドダストで CB を分けてある。
 	//------------------------------------------------------------------------------------------
 	// シーン全体に一様に漂うフォグの調整値
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/SceneFogData.hlsli)と並びを合わせること
@@ -240,6 +243,15 @@ namespace Engine::Graphics
 		float noiseScale = 0.1f;	// ノイズのワールド座標に掛ける倍率(大きいほど細かい)
 		float time = 0.0f;			// パスが回り始めてからの経過時間(秒)。ノイズを流すのに使う
 		float stepSize = 0.5f;		// チリの層の中をレイマーチする1歩の長さ(m)
+	};
+
+	// フォグをメインカラーへ重ねるときの調整値(SceneFogCompositePass が送る)
+	// ※ HLSL 側(SceneFogCompositeCS の SceneFogCompositeData)と並びを合わせること
+	struct SceneFogCompositeCB
+	{
+		float intensity = 1.0f;		// フォグの濃さに掛ける倍率
+		int   enable = 1;			// 0 なら重ねずにそのまま通す
+		float pad0[2] = {};
 	};
 
 	// 川瀬式ブルームの調整値

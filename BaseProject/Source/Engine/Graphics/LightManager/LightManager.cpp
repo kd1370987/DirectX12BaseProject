@@ -88,7 +88,7 @@ namespace Engine::Graphics
 		SunLightCB _cb = {};
 
 		// 先頭が主光源。
-		// 平行光を置くのはシーンに1つ(SceneAmbientObject)なので、ここは実質そのライト。
+		// 平行光を置くのはシーンの環境設定(SceneManager が1つだけ借りる)なので、ここは実質そのライト。
 		// 2つ目以降を足した場合、影を落とすのはあくまで先頭の1つだけになる
 		if (m_dlWorkVec.empty()) return _cb;
 

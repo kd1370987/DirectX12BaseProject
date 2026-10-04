@@ -91,7 +91,7 @@ namespace Engine::Graphics
 		//----------------------------------------------------------------------------------
 		// 主光源の影
 		//----------------------------------------------------------------------------------
-		// 影の設定 : シーン(SceneAmbientObject)が毎フレーム流し込む。
+		// 影の設定 : シーン(Engine::Scene::SceneAmbient)の値を SceneManager が毎フレーム流し込む。
 		// 誰も入れなければ最後に入った値のまま(平行光の無いシーンでは影そのものが出ない)
 		void SetShadowSettings(const DirectionalShadowSettings& a_settings) { m_shadowSettings = a_settings; }
 		const DirectionalShadowSettings& GetShadowSettings() const { return m_shadowSettings; }

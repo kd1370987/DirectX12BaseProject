@@ -1,4 +1,4 @@
-// シーン全体に掛かるボリュメトリックフォグの調整値。SceneVolumetricFogPass が送る。
+// シーン全体に掛かるボリュメトリックフォグの調整値。シーンの環境設定(SceneAmbient)の値を SceneVolumetricFogPass が送る。
 //
 // ※ CPU 側 Engine::Graphics::SceneFogCB と並びを合わせること
 #ifndef ROOTPARAM_SCENE_FOG_DATA_HLSLI

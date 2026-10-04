@@ -43,6 +43,9 @@ namespace Engine::Scene
 			m_upBaseSceneVec.back()->Exit();
 			m_upBaseSceneVec.pop_back();
 		}
+
+		// 消えたシーンのテクスチャを指したままにせず、平行光の席も返す
+		ApplySceneAmbient();
 	}
 
 	//======================================================================================
@@ -113,6 +116,10 @@ namespace Engine::Scene
 			_pEffectEditor->DrawScene();
 			return;
 		}
+
+		// シーンの環境設定を流し込む。
+		// 各シーンの描画より前に置くが、レンダーグラフが回るのはこの後なので順番はどちらでもよい
+		ApplySceneAmbient();
 
 		// すべてのシーンを描画
 		for (auto& _scene : m_upBaseSceneVec)
@@ -291,6 +298,16 @@ namespace Engine::Scene
 		m_upBaseSceneVec.back()->Exit();
 		m_upBaseSceneVec.pop_back();
 
+		//----------------------------------------------------------------------
+		// 環境設定を流し込み直す
+		//
+		// 消えたシーンの空やフォグのノイズのテクスチャは、そのシーンが握っていた。
+		// 次の描画まで待つと、下の SweepUnusedAll で捨てられたテクスチャの
+		// ハンドルが SceneView に残ったままになるので、ここで残ったシーンのもの
+		// (無ければ「無し」)へ差し替える
+		//----------------------------------------------------------------------
+		ApplySceneAmbient();
+
 		// 後ろに何も残っていなければ、共有しているものをまとめて片付ける
 		// (当たり判定の空間はワールドの持ち物なので、上の Exit で一緒に消えている)
 		if (_isLastScene)
@@ -366,6 +383,41 @@ namespace Engine::Scene
 		if (m_upBaseSceneVec.empty()) return nullptr;
 
 		return m_upBaseSceneVec.back()->RefGameObjectManager();
+	}
+
+	BaseScene* SceneManager::GetAmbientSourceScene()
+	{
+		// 上から見て、最初に環境設定を使うシーン
+		for (auto _it = m_upBaseSceneVec.rbegin(); _it != m_upBaseSceneVec.rend(); ++_it)
+		{
+			if ((*_it)->GetAmbient().IsEnabled()) return _it->get();
+		}
+		return nullptr;
+	}
+
+	//======================================================================================
+	// シーンの環境設定を流し込む
+	//--------------------------------------------------------------------------------------
+	// 使うのは環境設定を使う一番上のシーンだけ。
+	// ポーズ画面のように後ろの見た目をそのまま使いたいシーンは、環境設定を切っておけば
+	// 後ろのゲームのものが使われ続ける。
+	//
+	// 1つも無ければ「無し」を流す(平行光の席もここで返す)。
+	// 何も流さないと、前のシーンの空や太陽が残り続ける
+	//======================================================================================
+	void SceneManager::ApplySceneAmbient()
+	{
+		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+		if (!_pGE) return;
+
+		if (BaseScene* _pScene = GetAmbientSourceScene())
+		{
+			_pScene->GetAmbient().Apply(*_pGE, m_ambientDLHandle);
+		}
+		else
+		{
+			SceneAmbient::ApplyNone(*_pGE, m_ambientDLHandle);
+		}
 	}
 
 	void SceneManager::SetNextScene(const Engine::GUID& a_guid, const SceneChangeType& a_changeType)

@@ -15,8 +15,10 @@ namespace Engine::Graphics::Pipeline
 	// 衝撃でチリが払われる・波頭へ寄せられる量は GroundFieldPass が書いたテクスチャを引く。
 	// 地面の深度を繋がなければダストは出ず、フィールドを繋がなければチリは衝撃で動かない。
 	//
+	// 値(フォグ・ダストの調整値とノイズテクスチャ)はシーン(Engine::Scene::SceneAmbient)の
+	// 持ち物で、パスは SceneView から受け取って送るだけ。パス自身は設定を持たない。
 	// ノイズテクスチャはグラフのリソースではないので、スロットには乗らない。
-	// アセットのGUIDを持っておき、読み込んだものの番号を直接渡す(未設定ならノイズなし)
+	// シーンが読み込んだものの番号を直接渡す(未設定・読み込み中ならノイズなし)
 	//======================================================================================
 	class SceneVolumetricFogPass : public Pass
 	{
@@ -31,22 +33,6 @@ namespace Engine::Graphics::Pipeline
 
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
-		//----------------------------------------------------------------------------------
-		// 編集対象の値 : エディターはここだけを触る
-		//----------------------------------------------------------------------------------
-		struct Params
-		{
-			// シーンのフォグ
-			SceneFogCB sceneFog = {};
-
-			// グラウンドダスト。time はパスが毎フレーム上書きする
-			GroundDustCB groundDust = {};
-
-			// ノイズテクスチャ(ダストに掛ける) : 未設定ならノイズなし
-			Engine::GUID noiseTexGUID = {};
-		};
-		Params& RefParams() { return m_params; }
-
 	private:
 
 		// ルートパラメータの番号 : シェーダー(SceneVolumetricFogCS)の並びと合わせる
@@ -59,13 +45,6 @@ namespace Engine::Graphics::Pipeline
 
 		// ノイズが張られていないときに渡す番号(シェーダーの DESCRIPTOR_INDEX_NONE と合わせる)
 		static constexpr UINT kNoiseIndexNone = 0xFFFFFFFF;
-
-		Params m_params = {};
-
-		// 読み込んだノイズテクスチャ。
-		// GUID はエディターから差し替わるので、読んだときの GUID を控えて食い違ったら読み直す
-		ResourceRef<Resource::Texture> m_noiseTexRef = {};
-		Engine::GUID m_loadedNoiseGUID = {};
 
 		// パスが回り始めてからの経過時間(秒)。
 		// 実行インスタンスごとに持つので、パイプラインを組み直すと 0 から数え直す

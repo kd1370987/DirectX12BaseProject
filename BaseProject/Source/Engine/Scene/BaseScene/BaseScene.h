@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "../SceneAmbient/SceneAmbient.h"
+
 namespace Engine
 {
 	namespace ECS
@@ -86,6 +88,15 @@ namespace Engine::Scene
 		/// </summary>
 		GameObject::GameObjectManager* RefGameObjectManager() { return m_upGameObjectManager.get(); }
 
+		/// <summary>
+		/// シーンの環境設定(環境光・平行光・影・フォグ・ボリュメトリックフォグ・空)
+		/// </summary>
+		/// <remarks>
+		/// GraphicsEngine へ流し込むのは SceneManager(重なったシーンのどれを使うかを決めるため)。
+		/// </remarks>
+		SceneAmbient& RefAmbient() { return m_ambient; }
+		const SceneAmbient& GetAmbient() const { return m_ambient; }
+
 		void SetGUID(const Engine::GUID& a_guid) { m_guid = a_guid; }
 		const Engine::GUID& GetGUID() const { return m_guid; }
 
@@ -96,6 +107,9 @@ namespace Engine::Scene
 
 		// ECS側で扱いにくいものなどの管理
 		std::unique_ptr<GameObject::GameObjectManager> m_upGameObjectManager = nullptr;
+
+		// シーンの環境設定 : シーンと一緒に保存される
+		SceneAmbient m_ambient = {};
 
 		// 自身のデータの所在
 		Engine::GUID m_guid;

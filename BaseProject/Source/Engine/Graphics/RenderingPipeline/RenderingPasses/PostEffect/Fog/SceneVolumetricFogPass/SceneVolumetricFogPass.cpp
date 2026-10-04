@@ -38,35 +38,29 @@ namespace Engine::Graphics::Pipeline
 
 		auto* _pCmd = a_context.pCmdList;
 		auto& _resManager = *a_context.pResourceManager;
+		const SceneView* _pSceneView = _pGE->GetSceneView();
 
 		// カメラ : 深度からワールド座標を戻す
 		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(
-			_pCmd, kRootCameraCB, _pGE->GetSceneView()->GetCameraData());
+			_pCmd, kRootCameraCB, _pSceneView->GetCameraData());
 
 		// シーンのフォグ
-		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, kRootSceneFogCB, m_params.sceneFog);
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, kRootSceneFogCB, _pSceneView->GetSceneFogData());
 
 		// グラウンドダスト : 経過時間だけはパスが進める
 		m_elapsedTime += MainEngine::Instance().GetDeltaTime();
 
-		GroundDustCB _dustCB = m_params.groundDust;
+		GroundDustCB _dustCB = _pSceneView->GetGroundDustData();
 		_dustCB.time = m_elapsedTime;
 		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, kRootGroundDustCB, _dustCB);
 
-		// ノイズテクスチャ : GUID が変わっていたら読み直す。
-		// 読み込みは待たないので、届くまでのフレームはノイズなしで描く
-		if (m_loadedNoiseGUID != m_params.noiseTexGUID)
-		{
-			m_loadedNoiseGUID = m_params.noiseTexGUID;
-			m_noiseTexRef = m_params.noiseTexGUID.IsValid()
-				? _resManager.RequestLoad<Resource::Texture>(m_params.noiseTexGUID)
-				: ResourceRef<Resource::Texture>{};
-		}
-
+		// ノイズテクスチャ : 読み込みはシーンが始めている。
+		// 届くまでのフレーム(と未設定のとき)はノイズなしで描く
 		UINT _noiseIndex = kNoiseIndexNone;
-		if (m_noiseTexRef && _resManager.IsReady(m_noiseTexRef))
+		const auto& _noiseHandle = _pSceneView->GetFogNoiseTexture();
+		if (_resManager.IsReady(_noiseHandle))
 		{
-			if (const auto* _pNoiseTex = _resManager.Get(m_noiseTexRef))
+			if (const auto* _pNoiseTex = _resManager.Get(_noiseHandle))
 			{
 				_noiseIndex = _pNoiseTex->GetSRV().GetIndex();
 			}
@@ -80,17 +74,7 @@ namespace Engine::Graphics::Pipeline
 
 	void SceneVolumetricFogPass::Archive(Engine::Persistence::Archive& a_arch)
 	{
-		// シーンのフォグ
-		a_arch.Field("sceneFogColor", m_params.sceneFog.fogColor);
-		a_arch.Field("sceneFogDensity", m_params.sceneFog.density);
-		a_arch.Field("sceneFogMaxDistance", m_params.sceneFog.maxDistance);
-
-		// グラウンドダスト
-		a_arch.Field("dustColor", m_params.groundDust.dustColor);
-		a_arch.Field("dustDensity", m_params.groundDust.density);
-		a_arch.Field("dustHeight", m_params.groundDust.height);
-		a_arch.Field("dustNoiseScale", m_params.groundDust.noiseScale);
-		a_arch.Field("dustStepSize", m_params.groundDust.stepSize);
-		a_arch.GUIDField("noiseTexGUID", m_params.noiseTexGUID);
+		// 値はシーンの持ち物なので、パスとして保存するものは無い
+		(void)a_arch;
 	}
 }

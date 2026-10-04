@@ -27,7 +27,7 @@
 #include "Application/Object/Sequence/HomeSequence/HomeSequence.h"
 #include "Application/Object/Sequence/PauseSequence/PauseSequence.h"
 #include "Application/Object/Sequence/MissionSelect/MissionSelect.h"
-#include "../../Object/Scene/SceneAmbientObject/SceneAmbientObject.h"
+#include "../../Object/Scene/AmbientDustObject/AmbientDustObject.h"
 #include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
 #include "Application/Object/Controller/SwarmBossController/SwarmBossController.h"
 
@@ -100,7 +100,8 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::UIButton>("UIButton");						// 押せるUI。押されて何をするかは SetOnClick で外から差し込む
 			_objRegistry.RegisterType<App::Object::UIImage>("UIImage");							// 置くだけの画像(タイトルの背景など)
 			_objRegistry.RegisterType<App::Object::TitleSequence>("TitleSequence");				// タイトル画面の進行役。ボタンへ「押されたらシーンを切り替える」を差し込む
-			_objRegistry.RegisterType<App::Object::SceneAmbientObject>("SceneAmbientObject");	// シーンの環境設定(環境光・平行光・フォグ・空)。シーンに1つ置く。
+			_objRegistry.RegisterType<App::Object::AmbientDustObject>("AmbientDustObject");		// カメラに追従する空間のチリ。環境光・フォグ・空はシーン(SceneAmbient)の持ち物
+			_objRegistry.MigrateName("SceneAmbientObject", "AmbientDustObject");				// 旧名 : 環境設定をシーンへ移す前はチリと一緒にここが持っていた
 			_objRegistry.RegisterType<App::Object::ScoreHUD>("ScoreHUD");						// スコアの表示。数える側(ScoreSystem)とは分かれていて、ここは出すだけ
 			_objRegistry.RegisterType<App::Object::ResultSequence>("ResultSequence");			// リザルト画面の進行役。ホームのボタンへ「押されたらタイトルへ」を差し込む
 			_objRegistry.RegisterType<App::Object::HomeSequence>("HomeSequence");				// ホーム画面の進行役。ステージセレクト(一覧・詳細・出撃)と倉庫のボタンを束ねる

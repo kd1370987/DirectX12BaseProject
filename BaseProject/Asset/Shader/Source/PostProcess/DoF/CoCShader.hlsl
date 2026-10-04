@@ -119,7 +119,7 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	// 絵として欲しいのは「手前の被写体が浮き上がること」であって空の滲みではない。
 	//
 	// どちらが欲しいかはシーン次第なので、シーンのアンビエント設定
-	// (SceneAmbientObject → SkyData)から受け取って切り替える。
+	// (SceneAmbient → SkyData)から受け取って切り替える。
 	//   isSkyDof = 0 … 空だけ CoC を 0 にして素通し
 	//   isSkyDof = 1 … 通常どおり計算したうえで dofScale を掛ける
 	//

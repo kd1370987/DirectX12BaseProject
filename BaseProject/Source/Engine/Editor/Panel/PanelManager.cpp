@@ -8,6 +8,7 @@
 #include "../Panel/GameObjectHierarchyPanel/GameObjectHierarchyPanel.h"
 #include "../Panel/SceneViewPanel/SceneViewPanel.h"
 #include "../Panel/OptionPanel/OptionPanel.h"
+#include "../Panel/SceneAmbientPanel/SceneAmbientPanel.h"
 #include "../Panel/ProfilerPanel/ProfilerPanel.h"
 #include "../Panel/LogPanel/LogPanel.h"
 
@@ -26,6 +27,7 @@ namespace  Engine::Editor
 		RegisterPanel<GameObjectHierarchyPanel>();
 		RegisterPanel<SceneViewPanel>();
 		RegisterPanel<OptionPanel>();
+		RegisterPanel<SceneAmbientPanel>();
 		RegisterPanel<ProfilerPanel>();
 		RegisterPanel<LogPanel>();
 

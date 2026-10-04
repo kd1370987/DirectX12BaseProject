@@ -415,7 +415,7 @@
     <Filter Include="Source\Application\Object\Scene">
       <UniqueIdentifier>{c0de001f-1111-4222-8333-0000c0de001f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Application\Object\Scene\SceneAmbientObject">
+    <Filter Include="Source\Application\Object\Scene\AmbientDustObject">
       <UniqueIdentifier>{c0de0020-1111-4222-8333-0000c0de0020}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Application\Object\Sequence">
@@ -684,6 +684,9 @@
     </Filter>
     <Filter Include="Source\Engine\Editor\Panel\LogPanel">
       <UniqueIdentifier>{1e8eaa4a-e3f0-4c01-85b5-1eb7065a71ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Editor\Panel\SceneAmbientPanel">
+      <UniqueIdentifier>{0974b6c5-9148-4739-92c8-57c1167cacb9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Editor\Panel\OptionPanel">
       <UniqueIdentifier>{f5cc4efa-c1c8-4d8b-9593-527d46f587b5}</UniqueIdentifier>
@@ -1005,6 +1008,9 @@
     </Filter>
     <Filter Include="Source\Engine\Scene\BaseScene">
       <UniqueIdentifier>{0009b5d3-74c5-415c-a54e-d2c2c06d0d4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Scene\SceneAmbient">
+      <UniqueIdentifier>{72309446-869f-4ec8-9cfe-8920cb66af8d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Scene\SceneManager">
       <UniqueIdentifier>{0ecbb309-4990-4945-a4dc-ad988a186a3e}</UniqueIdentifier>
@@ -1413,8 +1419,8 @@
     <ClCompile Include="Source\Application\Object\SequenceBgm.cpp">
       <Filter>Source\Application\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Object\Scene\SceneAmbientObject\SceneAmbientObject.cpp">
-      <Filter>Source\Application\Object\Scene\SceneAmbientObject</Filter>
+    <ClCompile Include="Source\Application\Object\Scene\AmbientDustObject\AmbientDustObject.cpp">
+      <Filter>Source\Application\Object\Scene\AmbientDustObject</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.cpp">
       <Filter>Source\Application\Object\Sequence\HomeSequence</Filter>
@@ -1953,6 +1959,9 @@
     <ClCompile Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.cpp">
       <Filter>Source\Engine\Editor\Panel\LogPanel</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Editor\Panel\SceneAmbientPanel\SceneAmbientPanel.cpp">
+      <Filter>Source\Engine\Editor\Panel\SceneAmbientPanel</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.cpp">
       <Filter>Source\Engine\Editor\Panel\OptionPanel</Filter>
     </ClCompile>
@@ -2228,6 +2237,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Scene\BaseScene\BaseScene.cpp">
       <Filter>Source\Engine\Scene\BaseScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Scene\SceneAmbient\SceneAmbient.cpp">
+      <Filter>Source\Engine\Scene\SceneAmbient</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp">
       <Filter>Source\Engine\Scene\SceneManager</Filter>
@@ -2912,8 +2924,8 @@
     <ClInclude Include="Source\Application\Object\SequenceBgm.h">
       <Filter>Source\Application\Object</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Object\Scene\SceneAmbientObject\SceneAmbientObject.h">
-      <Filter>Source\Application\Object\Scene\SceneAmbientObject</Filter>
+    <ClInclude Include="Source\Application\Object\Scene\AmbientDustObject\AmbientDustObject.h">
+      <Filter>Source\Application\Object\Scene\AmbientDustObject</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.h">
       <Filter>Source\Application\Object\Sequence\HomeSequence</Filter>
@@ -3548,6 +3560,9 @@
     <ClInclude Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.h">
       <Filter>Source\Engine\Editor\Panel\LogPanel</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Editor\Panel\SceneAmbientPanel\SceneAmbientPanel.h">
+      <Filter>Source\Engine\Editor\Panel\SceneAmbientPanel</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.h">
       <Filter>Source\Engine\Editor\Panel\OptionPanel</Filter>
     </ClInclude>
@@ -3925,6 +3940,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Scene\BaseScene\BaseScene.h">
       <Filter>Source\Engine\Scene\BaseScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Scene\SceneAmbient\SceneAmbient.h">
+      <Filter>Source\Engine\Scene\SceneAmbient</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h">
       <Filter>Source\Engine\Scene\SceneManager</Filter>

@@ -268,6 +268,26 @@ namespace Engine::Scene
 		{
 			m_upGameObjectManager->Archive(a_ar);
 		}
+
+		// ---------------------------------------------------------
+		// シーンの環境設定
+		// バイナリは順番に読むので、後から足したこれは末尾に置く。
+		// 読み込み後はテクスチャ(空・フォグのノイズ)の読み込みを始めさせる
+		// (実体が届くのは待たない)
+		// ---------------------------------------------------------
+		if (a_ar.BeginGroup("Ambient"))
+		{
+			m_ambient.Archive(a_ar);
+			a_ar.EndGroup();
+		}
+
+		if (a_ar.IsLoading())
+		{
+			if (auto* _pServices = m_upWorld->RefEngineServices(); _pServices && _pServices->pResourceManager)
+			{
+				m_ambient.RequestLoadAssets(*_pServices->pResourceManager);
+			}
+		}
 	}
 	void BaseScene::PreLoadAsset(Persistence::Archive& a_ar)
 	{

@@ -393,9 +393,9 @@ namespace Engine::Editor
 		// エフェクト単体の見え方を詰めるための画面なので、後ろに空があると
 		// 薄い粒や加算の抜けが空の色に紛れて判断できない。
 		//
-		// ゲームのシーンは止まっていて SceneAmbientObject::Draw が走らないので、
+		// ゲームのシーンは止まっていて SceneManager が環境設定を流し込まないので、
 		// ここで貸し出しを外せば開いているあいだはずっと空無しのまま。
-		// 閉じればシーン側が毎フレーム貸し直すので、そのまま元へ戻る
+		// 閉じれば SceneManager が毎フレーム流し込み直すので、そのまま元へ戻る
 		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
 		{
 			_pGE->RefSceneView()->SetSkyTexture({});

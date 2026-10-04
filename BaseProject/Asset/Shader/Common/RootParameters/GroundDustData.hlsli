@@ -1,4 +1,4 @@
-// 地面から一定の高さまで漂うチリ(グラウンドダスト)の調整値。SceneVolumetricFogPass が送る。
+// 地面から一定の高さまで漂うチリ(グラウンドダスト)の調整値。シーンの環境設定(SceneAmbient)の値を SceneVolumetricFogPass が送る。
 //
 // 衝撃でチリが払われる・寄せられる量は GroundFieldPass がテクスチャへ書いたものを引く。
 //

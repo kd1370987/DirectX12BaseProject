@@ -7,9 +7,34 @@ namespace Engine::Graphics
 		m_renderWidth = a_renderWidth;
 		m_renderHeight = a_renderHeight;
 
-		// 環境光は、シーンが流し込むまで無し
+		// 環境設定は、シーンが流し込むまで無し
+		ClearAmbient();
+	}
+
+	//==========================================================================================
+	// 環境設定を「何も無い」状態へ戻す
+	//
+	// フォグの CB は既定値のままだと濃さが入っている(シーンで使う既定として持たせているため)。
+	// 「無し」はここで明示的に 0 へ落とす
+	//==========================================================================================
+	void SceneView::ClearAmbient()
+	{
 		m_cbAmbient = {};
 		m_cbAmbient.ambientColorScale = { 0,0,0 };
+
+		m_cbSky = {};
+		m_skyTexHandle = {};
+
+		m_cbSceneFog = {};
+		m_cbSceneFog.density = 0.0f;
+
+		m_cbGroundDust = {};
+		m_cbGroundDust.density = 0.0f;
+
+		m_cbSceneFogComposite = {};
+		m_cbSceneFogComposite.enable = 0;
+
+		m_fogNoiseTexHandle = {};
 	}
 
 	//==========================================================================================
@@ -131,19 +156,11 @@ namespace Engine::Graphics
 	{
 		return m_cbAmbient;
 	}
-	AmbientData& SceneView::RefAmbientData()
-	{
-		return m_cbAmbient;
-	}
 	void SceneView::SetSkyData(const SkyData& a_data)
 	{
 		m_cbSky = a_data;
 	}
 	const SkyData& SceneView::GetSkyData() const
-	{
-		return m_cbSky;
-	}
-	SkyData& SceneView::RefSkyData()
 	{
 		return m_cbSky;
 	}
