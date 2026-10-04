@@ -101,7 +101,6 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::UIImage>("UIImage");							// 置くだけの画像(タイトルの背景など)
 			_objRegistry.RegisterType<App::Object::TitleSequence>("TitleSequence");				// タイトル画面の進行役。ボタンへ「押されたらシーンを切り替える」を差し込む
 			_objRegistry.RegisterType<App::Object::AmbientDustObject>("AmbientDustObject");		// カメラに追従する空間のチリ。環境光・フォグ・空はシーン(SceneAmbient)の持ち物
-			_objRegistry.MigrateName("SceneAmbientObject", "AmbientDustObject");				// 旧名 : 環境設定をシーンへ移す前はチリと一緒にここが持っていた
 			_objRegistry.RegisterType<App::Object::ScoreHUD>("ScoreHUD");						// スコアの表示。数える側(ScoreSystem)とは分かれていて、ここは出すだけ
 			_objRegistry.RegisterType<App::Object::ResultSequence>("ResultSequence");			// リザルト画面の進行役。ホームのボタンへ「押されたらタイトルへ」を差し込む
 			_objRegistry.RegisterType<App::Object::HomeSequence>("HomeSequence");				// ホーム画面の進行役。ステージセレクト(一覧・詳細・出撃)と倉庫のボタンを束ねる

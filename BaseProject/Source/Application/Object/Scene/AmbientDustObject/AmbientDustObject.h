@@ -49,10 +49,9 @@ namespace App::Object
 	/// 空間のチリ : カメラに追従するエフェクトを1つ出し続ける
 	/// </summary>
 	/// <remarks>
-	/// もとは SceneAmbientObject として環境光・平行光・フォグ・空と一緒に持っていたが、
-	/// それらはシーン(Engine::Scene::SceneAmbient)の持ち物へ移した。
+	/// 環境光・平行光・フォグ・空はシーン(Engine::Scene::SceneAmbient)の持ち物。
 	/// チリはレンダーパスの設定ではなく ECS のエンティティ(エフェクト)を出すものなので、
-	/// 出したエンティティの始末まで面倒を見るオブジェクトとして残してある。
+	/// 出したエンティティの始末まで面倒を見るオブジェクトとして持つ。
 	/// </remarks>
 	class AmbientDustObject : public Engine::GameObject::BaseObject
 	{
