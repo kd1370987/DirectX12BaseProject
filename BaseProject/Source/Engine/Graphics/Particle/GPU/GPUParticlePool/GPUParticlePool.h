@@ -45,6 +45,11 @@ namespace Engine::Particle
 		const Handle<D3D12::UAV>& GetCounterUAV() const { return m_counterBuffer.GetUAV(); }
 		UINT GetMaxCapacity() const { return m_maxCapacity; }
 
+		// アセットの Capacity から、プールの容量を決める(1 以上)。
+		// エディターでは 0 にもできるので、0 個のバッファを作らないよう下限を付ける。
+		// プールを作るときと「アセットの値と食い違っているか」を比べるときで、必ず同じ丸め方にすること
+		static UINT ToPoolCapacity(int a_assetCapacity) { return static_cast<UINT>((std::max)(a_assetCapacity, 1)); }
+
 		//------------------------------------------------------------------
 		// 間接描画の引数
 		//

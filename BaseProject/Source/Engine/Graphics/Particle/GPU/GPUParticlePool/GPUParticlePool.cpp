@@ -23,8 +23,8 @@ namespace Engine::Particle
 			return false;
 		}
 
-		// パーティクルデータの確保
-		m_maxCapacity = _pParticleAsset->GetCapacity();
+		// パーティクルデータの確保(容量は ToPoolCapacity で丸める。作り直しの判定と同じ丸め方)
+		m_maxCapacity = ToPoolCapacity(_pParticleAsset->GetCapacity());
 		m_assetHandle = a_particleHandle;
 
 		// バッファの作成

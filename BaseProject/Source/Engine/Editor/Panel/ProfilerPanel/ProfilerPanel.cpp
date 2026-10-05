@@ -311,6 +311,7 @@ namespace Engine::Editor
 			bool isReady = false;
 			bool isAwake = false;
 			bool isOverflowed = false;
+			bool isResizePending = false;
 			int sortOrder = 0;
 			double sinceEmit = -1.0;
 			bool isLocal = false;
@@ -337,6 +338,7 @@ namespace Engine::Editor
 			_row.isReady = _pPM->IsReady(_handle);
 			_row.isAwake = _pPM->IsAwake(_handle);
 			_row.isOverflowed = _pPM->HasOverflowed(_handle);
+			_row.isResizePending = _pPM->IsResizePending(_handle);
 			_row.sortOrder = _pAsset ? _pAsset->GetSortOrder() : 0;
 			_row.sinceEmit = _pPM->GetSecondsSinceLastEmit(_handle);
 			_row.isLocal = _pAsset && _pAsset->IsLocalSpace();
@@ -443,6 +445,11 @@ namespace Engine::Editor
 				if (!_row.isReady)
 				{
 					ImGui::TextDisabled("Loading");
+				}
+				else if (_row.isResizePending)
+				{
+					// Capacity が変わり、値が落ち着くのを待ってから作り直す
+					ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Resizing");
 				}
 				else if (!_row.isAwake)
 				{

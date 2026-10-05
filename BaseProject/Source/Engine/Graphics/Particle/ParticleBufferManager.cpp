@@ -86,6 +86,7 @@ namespace Engine::Particle
 		m_readyHandles.clear();
 		m_overflowWarned.clear();
 		m_lastEmitTime.clear();
+		m_capacityMismatch.clear();
 		m_elapsedTime = 0.0;
 
 		// 座席データの解放
@@ -131,6 +132,11 @@ namespace Engine::Particle
 	//   別のプールを作るので、シーンを行き来するたびにプールが増えていく。
 	//   アセットが引けないプールは描くこともできないので捨てる。
 	//
+	// 容量が変わったプール : プールのバッファは作るときのアセットの Capacity で確保している。
+	//   エディターで Capacity を変えても今のプールには効かないので、捨てて作り直す(中の粒は消える)。
+	//   値をドラッグしている間は毎フレーム変わるので、同じ値のまま
+	//   PARTICLE_POOL_REBUILD_DELAY_SECONDS 落ち着いてから作り直す。
+	//
 	// ロード中のプールは捨てない : コピーキューがまだバッファへ書いているかもしれない
 	//======================================================================================
 	void ParticleBufferManager::ReleaseUnusedPools()
@@ -140,14 +146,44 @@ namespace Engine::Particle
 
 		// 回しながら消すとイテレーターが壊れるので、先に集める
 		std::vector<Handle<Resource::ParticlesAsset>> _orphans;
+		std::vector<Handle<Resource::ParticlesAsset>> _resized;
 		{
 			std::lock_guard<std::mutex> _lock(m_mutex);
 			for (const auto& [_handle, _upPool] : m_pools)
 			{
+				if (!_upPool) continue;
 				if (m_loadingHandles.contains(_handle)) continue;
-				if (!_pResourceManager->Get(_handle))
+
+				const auto* _pParticle = _pResourceManager->Get(_handle);
+				if (!_pParticle)
 				{
 					_orphans.push_back(_handle);
+					continue;
+				}
+
+				//----------------------------------------------------------------------
+				// 容量の食い違い
+				//
+				// 食い違いを最初に見つけた時刻と、そのときの値を覚えておく。
+				// 値がまた変わったら待ち直し、同じ値のまま待ちが過ぎたら作り直す
+				//----------------------------------------------------------------------
+				const UINT _assetCapacity = GPUParticlePool::ToPoolCapacity(_pParticle->GetCapacity());
+				if (_assetCapacity == _upPool->GetMaxCapacity())
+				{
+					m_capacityMismatch.erase(_handle);
+					continue;
+				}
+
+				auto _it = m_capacityMismatch.find(_handle);
+				if (_it == m_capacityMismatch.end() || _it->second.capacity != _assetCapacity)
+				{
+					m_capacityMismatch[_handle] = { m_elapsedTime, _assetCapacity };
+					continue;
+				}
+
+				if ((m_elapsedTime - _it->second.since) >= PARTICLE_POOL_REBUILD_DELAY_SECONDS)
+				{
+					_resized.push_back(_handle);
 				}
 			}
 		}
@@ -155,6 +191,15 @@ namespace Engine::Particle
 		for (const auto& _handle : _orphans)
 		{
 			DestroyPool(_handle, "アセットが破棄された");
+		}
+
+		// 作り直しはすぐ依頼しておく。
+		// 出しっぱなしのもの(ブースター等)は次の RequestEmit でも作られるが、
+		// Warmup で先に作っておいたプールは、次に出すまで無いままになってしまうため
+		for (const auto& _handle : _resized)
+		{
+			DestroyPool(_handle, "容量の変更");
+			CreateParticleDataAsync(_handle);
 		}
 	}
 
@@ -178,6 +223,7 @@ namespace Engine::Particle
 		m_readyHandles.erase(a_handle);
 		m_overflowWarned.erase(a_handle);
 		m_lastEmitTime.erase(a_handle);
+		m_capacityMismatch.erase(a_handle);
 
 		// GPU が使い終わってからバッファを返す。
 		// BeginFrame から呼ぶので、引数の印(IsArgsReady)は前のフレームの FinishFrame で下りていて、

@@ -121,6 +121,9 @@ namespace Engine::Particle
 		// (共通の命令バッファの上限 EMIT_BUFFER_MAX_CAPACITY を超えて、命令を捨てたことがあるか)
 		bool HasOverflowed(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_overflowWarned.contains(a_handle); }
 
+		// アセットの Capacity が変わり、作り直しを待っているか(デバッグ表示用)
+		bool IsResizePending(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_capacityMismatch.contains(a_handle); }
+
 		//----------------------------------------------------------------------------------
 		// 起きているか(更新と描画を回す必要があるか)
 		//
@@ -152,7 +155,7 @@ namespace Engine::Particle
 	private:
 
 		// 使われなくなったプールを捨てる(BeginFrame から呼ぶ)。
-		// いまはアセットが破棄されて取り残されたプールだけ
+		// アセットが破棄されて取り残されたプールと、Capacity が変わったプール(後者は作り直す)
 		void ReleaseUnusedPools();
 
 		// プールを登録から外し、GPU が使い終わってからバッファを返す。
@@ -190,6 +193,15 @@ namespace Engine::Particle
 		// 眠っているプールを見分けるための時刻(メインスレッドのみ)
 		double m_elapsedTime = 0.0;
 		std::unordered_map<Handle<Resource::ParticlesAsset>, double> m_lastEmitTime;
+
+		// アセットの Capacity とプールの容量の食い違い(メインスレッドのみ)。
+		// 最初に見つけた時刻と、そのときのアセットの値。同じ値のまま待ちが過ぎたら作り直す
+		struct CapacityMismatch
+		{
+			double since = 0.0;
+			UINT capacity = 0;
+		};
+		std::unordered_map<Handle<Resource::ParticlesAsset>, CapacityMismatch> m_capacityMismatch;
 
 		// フレームで一本の発生命令バッファ。全プールの命令をつなげて送る
 		std::vector<EmitterData> m_frameEmitData;											//CPU側の写し : 毎フレーム作り直す
