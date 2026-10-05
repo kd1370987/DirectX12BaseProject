@@ -2,11 +2,6 @@
 
 #include "../../../Graphics/Particle/Core/ParticleData.h"
 
-namespace Engine::Audio
-{
-	class AudioManager;
-}
-
 namespace Engine::Resource
 {
 	//==========================================================================================
@@ -16,6 +11,10 @@ namespace Engine::Resource
 	inline constexpr size_t EFFECT_MESH_MAX = 4;
 	inline constexpr size_t EFFECT_SOUND_MAX = 4;
 	inline constexpr size_t EFFECT_POINTLIGHT_MAX = 1;
+
+	// 個体ごとのパラメータの数と、その結び付けの上限
+	inline constexpr size_t EFFECT_PARAM_MAX = 4;
+	inline constexpr size_t EFFECT_PARAM_BINDING_MAX = 8;
 
 	//==========================================================================================
 	// 発生源の取り方 : エフェクトがついているものにたいして基準を選ぶ 末尾に追加必須
@@ -31,12 +30,75 @@ namespace Engine::Resource
 	const char* ToString(EEffectSpace a_space);
 
 	//==========================================================================================
+	// パーツがいつ動き出すか : 末尾に追加必須(値は保存される)
+	//==========================================================================================
+	enum class EEffectTrigger : uint32_t
+	{
+		OnPlay,		// 再生を始めてから(既定)。duration 0 なら止めるまで出し続ける(= 継続中)
+		OnStop,		// 止めてから。消火の火花・終了音など。
+					// duration 0 なら一度きり(バースト・単発音)。止めたあと、これが全部出し終わるまでを「止めている最中」とする
+	};
+
+	const char* ToString(EEffectTrigger a_trigger);
+
+	//==========================================================================================
+	// 個体ごとのパラメータが効く先 : 末尾に追加必須(値は保存される)
+	//
+	// どれも倍率として掛かる(1 で変化なし)
+	//==========================================================================================
+	enum class EEffectParamTarget : uint32_t
+	{
+		ParticleEmitCount,	// パーティクルの発生数
+		ParticleSpeed,		// パーティクルの初速(束の長さ)
+		ParticleSize,		// パーティクルの粒の大きさ
+		MeshScale,			// メッシュの大きさ
+		MeshEmissive,		// メッシュの発光の強さ
+		SoundVolume,		// 音量
+	};
+
+	const char* ToString(EEffectParamTarget a_target);
+
+	//==========================================================================================
+	// 個体ごとのパラメータの結び付け
+	//
+	// 出す側(EffectOverrideComponent::params)が書いた値(0〜1 を想定)を、
+	// アセットのどこに、どれだけ効かせるかを決める。
+	//   倍率 = lerp(scaleAtZero, scaleAtOne, params[paramIndex])
+	// 例) ブーストの溜まり具合を params[0] に入れ、ParticleSize を 1 → 1.6 倍にする
+	//
+	// パラメータを書かない(0 のまま)なら scaleAtZero が掛かる。既定は 1 → 1 で何も変わらない
+	//==========================================================================================
+	struct EffectParamBinding
+	{
+		int paramIndex = 0;									// どのパラメータか(0 〜 EFFECT_PARAM_MAX-1)
+		EEffectParamTarget target = EEffectParamTarget::ParticleEmitCount;
+		int partIndex = -1;									// どのパーツに効かせるか(-1 で、その種類のパーツ全部)
+		float scaleAtZero = 1.0f;							// パラメータが 0 のときの倍率
+		float scaleAtOne = 1.0f;							// パラメータが 1 のときの倍率
+
+		// 値から倍率を出す(0〜1 の外も、そのまま延長する)
+		float Evaluate(float a_value) const { return scaleAtZero + (scaleAtOne - scaleAtZero) * a_value; }
+
+		void Archive(Persistence::Archive& a_ar);
+	};
+
+	//==========================================================================================
 	// パーツ共通の時間指定
+	//
+	// 時間を数え始めるのは、trigger が OnPlay なら再生を始めたとき、OnStop なら止めたとき。
+	// 下の関数に渡す経過時間も、それぞれの起点からの秒数
 	//==========================================================================================
 	struct EffectTiming
 	{
-		float startDelay = 0.0f;	// 再生開始からこの秒数だけ待ってから出る
-		float duration = 0.0f;		// 出している長さ(秒)。0 なら止めるまで出しっぱなし
+		float startDelay = 0.0f;	// 起点からこの秒数だけ待ってから出る
+		float duration = 0.0f;		// 出している長さ(秒)。0 なら止めるまで出しっぱなし(OnStop なら一度きり)
+
+		// いつ動き出すか。
+		// ※ 保存は各パーツの Archive の末尾で行う(EffectTiming::Archive はパーツの並びの途中で呼ばれるので、
+		//    ここに足すとバイナリの読み位置がずれる)
+		EEffectTrigger trigger = EEffectTrigger::OnPlay;
+
+		bool IsStopTrigger() const { return trigger == EEffectTrigger::OnStop; }
 
 		// 経過時間から見て、今出している最中か
 		bool IsActiveAt(float a_elapsed) const
@@ -59,6 +121,15 @@ namespace Engine::Resource
 			if (duration <= 0.0f) return 0.0f;
 			const float _t = (a_elapsed - startDelay) / duration;
 			return std::clamp(_t, 0.0f, 1.0f);
+		}
+
+		// 止めている最中のパーツ(OnStop)が、もう出し終わったか。
+		// duration 0 は一度きりなので、出し始めの時間が来れば終わり扱い
+		// (出す処理はその時間が来たフレームに走るので、取りこぼさない)
+		bool IsStopPartDoneAt(float a_stopElapsed) const
+		{
+			if (duration <= 0.0f) return a_stopElapsed >= startDelay;
+			return a_stopElapsed >= (startDelay + duration);
 		}
 
 		void Archive(Persistence::Archive& a_ar);
@@ -168,70 +239,46 @@ namespace Engine::Resource
 		// false: 音の長さを見ない。絵が終わればエフェクトも終わる
 		bool isWaitFinish = true;
 
+		//------------------------------------------------------------------
+		// 鳴らしすぎない(同じ音ごと。AudioManager の関所で数える)
+		//
+		// 一発もの(被弾・爆発など)は鳴らすたびに別のエンティティになるので、
+		// エンティティ側では間引けない。同じ音を、エフェクトをまたいで間引く。
+		// 間引かれた音は鳴らさずに「鳴らした」扱いにする(後から遅れて鳴らない)
+		//------------------------------------------------------------------
+		float minInterval = 0.0f;	// 前回鳴らしてからこの秒数が経つまでは鳴らさない(0 で制限なし)
+		int   maxConcurrent = 0;	// 同時に鳴っている数の上限(0 で制限なし)
+
 		bool IsValid() const { return soundGUID != Engine::DefaultGUID; }
 
 		void Archive(Persistence::Archive& a_ar);
 	};
 
 	//==========================================================================================
-	// 実体側 : 再生するものが1つずつ持つ、コンポーネントに持たせる
+	// ライト : 爆発の閃光・噴射の照り返しなど、まわりを照らすもの
+	//
+	// 出している間だけ LightManager からポイントライトを借りる(EffectDrawSystem)。
+	// 位置はエフェクトの置き場(上書きの位置・向き・大きさ込み)を基準にする
 	//==========================================================================================
-	struct EffectInstance
+	struct EffectLightPart
 	{
-		bool  isPlaying = false;	// 再生中か
-		float elapsed = 0.0f;		// 再生開始からの経過時間(秒)
+		// ---- どこに出すか : 置き場の行列基準のローカル位置 ----
+		Math::Vector3 posOffset = { 0.0f, 0.0f, 0.0f };
 
-		// パーティクルパーツごとの進行状態
-		float rateAccum[EFFECT_PARTICLE_MAX] = {};	// 連続発生の端数繰り越し
-		int   pendingEmit[EFFECT_PARTICLE_MAX] = {};// このフレームの発生数(Update が積み、Draw が消費)
-		bool  wasEmitting[EFFECT_PARTICLE_MAX] = {};// バーストの立ち上がり検出用
+		// ---- 見た目 ----
+		Math::Color color = { 1.0f, 1.0f, 1.0f, 1.0f };	// 色
+		float brightness = 1.0f;							// 色に掛ける強さ
+		float range = 5.0f;									// 光の届く距離(m)。エフェクト全体の大きさ倍率も掛かる
 
-		//------------------------------------------------------------------
-		// サウンドパーツごとの進行状態
-		//
-		// ハンドルは「借りている声」なので Reset() では消さないこと。
-		// 消すと返却先が分からなくなって、鳴りっぱなしの声がプールに残る。
-		// 発行は CreateSoundInstances / 返却は ReleaseSounds の担当
-		//------------------------------------------------------------------
-		Handle<SoundInstance> soundHandles[EFFECT_SOUND_MAX] = {};
-		bool  soundTriggered[EFFECT_SOUND_MAX] = {};	// もう鳴らしたか(単発を1回だけにする)
-		Math::Vector3 soundPos = { 0.0f, 0.0f, 0.0f };	// 3D 指定のパーツを鳴らす位置
+		// ---- いつ出すか ----
+		EffectTiming timing = {};
 
-		// その声を何から発行したか。
-		// アセット側の指定と食い違っていたら作り直す(SyncSoundInstances)。
-		// エディターで音や 3D 指定を差し替えたとき、
-		// すでに出ているエフェクトにも次のフレームから効かせるためのもの
-		Engine::GUID soundSourceGUID[EFFECT_SOUND_MAX] = {};
-		bool         soundSource3D[EFFECT_SOUND_MAX] = {};
+		// ---- 時間で変える終値 ----
+		float endBrightness = 1.0f;		// duration の終わりでの強さ(閃光なら 0 へ落とす)
 
-		// 頭から再生し直す
-		void Reset()
-		{
-			elapsed = 0.0f;
-			for (size_t _i = 0; _i < EFFECT_PARTICLE_MAX; ++_i)
-			{
-				rateAccum[_i] = 0.0f;
-				pendingEmit[_i] = 0;
-				wasEmitting[_i] = false;
-			}
-			for (size_t _i = 0; _i < EFFECT_SOUND_MAX; ++_i)
-			{
-				soundTriggered[_i] = false;
-			}
-		}
+		bool IsValid() const { return range > 0.0f; }
 
-		//------------------------------------------------------------------
-		// 発行済みインスタンスに対しての操作
-		//
-		// どれもアセットの中身を見ないので、
-		// アセットが読めていない・破棄された後でも呼べる(AudioBehaviorInstance と同じ)
-		//------------------------------------------------------------------
-
-		// 3D再生の位置を更新する。鳴っている音にも即時反映される
-		void SetSoundPos(Engine::Audio::AudioManager& a_audioManager, const Math::Vector3& a_pos);
-
-		// 発行済みインスタンスをすべて返却して空にする
-		void ReleaseSounds(Engine::Audio::AudioManager& a_audioManager);
+		void Archive(Persistence::Archive& a_ar);
 	};
 
 	//==========================================================================================
@@ -244,6 +291,10 @@ namespace Engine::Resource
 	// 使う側は「再生する・止める」だけを伝えればよく、
 	// 何個のパーティクルとメッシュと音で出来ているかを知らなくてよい。
 	// (音だけ別に鳴らしに行かなくてよい、というのがサウンドパーツの狙い)
+	//
+	// ここが持つのは設計図(パーツの定義)だけ。
+	// 再生(時間を進める・音を鳴らす・メッシュの置き方を組む)は Engine::Effect::EffectPlayer、
+	// 実行中の値は Engine::Effect::EffectInstance が持つ
 	//==========================================================================================
 	class EffectAsset
 	{
@@ -264,6 +315,28 @@ namespace Engine::Resource
 		std::vector<EffectParticlePart>& RefParticleParts() { return m_particleParts; }
 		std::vector<EffectMeshPart>& RefMeshParts() { return m_meshParts; }
 		std::vector<EffectSoundPart>& RefSoundParts() { return m_soundParts; }
+
+		// ライト
+		const std::vector<EffectLightPart>& GetLightParts() const { return m_lightParts; }
+		std::vector<EffectLightPart>& RefLightParts() { return m_lightParts; }
+		bool AddLightPart();
+		void RemoveLightPart(size_t a_index);
+
+		// 個体ごとのパラメータの結び付け
+		const std::vector<EffectParamBinding>& GetParamBindings() const { return m_paramBindings; }
+		std::vector<EffectParamBinding>& RefParamBindings() { return m_paramBindings; }
+		bool AddParamBinding();
+		void RemoveParamBinding(size_t a_index);
+
+		/// <summary>
+		/// 個体ごとのパラメータから、効く先の倍率を出す(結び付けが無ければ 1)
+		/// </summary>
+		/// <param name="a_partIndex">そのパーツの番号(結び付けの partIndex が -1 なら全部に効く)</param>
+		/// <param name="a_pParams">EFFECT_PARAM_MAX 個の値。null なら全部 0 として扱う</param>
+		float EvaluateParamScale(EEffectParamTarget a_target, size_t a_partIndex, const float* a_pParams) const;
+
+		// その効き先への結び付けを1つでも持っているか
+		bool HasParamBinding(EEffectParamTarget a_target) const;
 
 		// 追加・削除 : 上限を超えないようにここを通す
 		bool AddParticlePart();
@@ -291,87 +364,9 @@ namespace Engine::Resource
 		/// </remarks>
 		void ResolveReferences(ResourceManager& a_resourceManager);
 
-		//--------------------------------------------------------------------
-		// 再生
-		//
-		// 鳴らす対象は使う側が持っている実体(EffectInstance)。
-		//--------------------------------------------------------------------
-
-		/// <summary>
-		/// 定義に沿って再生用のサウンドインスタンスを発行する
-		/// </summary>
-		/// <remarks>
-		/// すでに発行済みなら一度返してから作り直すので、二重発行にはならない。
-		/// 音を設定していないパーツのハンドルは無効のままになる。
-		/// 鳴らす瞬間に読み込みが走らないよう、生成時に呼んでおくこと(EffectFixupSystem)
-		/// </remarks>
-		void CreateSoundInstances(Engine::Audio::AudioManager& a_audioManager, EffectInstance& a_inst) const;
-
-		// 頭から再生する
-		void Play(EffectInstance& a_inst) const;
-
-		/// <summary>
-		/// 止める。出ている途中のパーティクルはそのまま寿命で消える
-		/// </summary>
-		/// <param name="a_pAudioManager">
-		/// 渡すと鳴っている音も止める。null なら音はそのまま鳴り続ける
-		/// (単発音を最後まで鳴らしたい場合)
-		/// </param>
-		void Stop(EffectInstance& a_inst, Engine::Audio::AudioManager* a_pAudioManager = nullptr) const;
-
-		/// <summary>
-		/// 時間を進めて、このフレームの発生数を決める。時間が来たサウンドもここで鳴らす
-		/// </summary>
-		/// <param name="a_pAudioManager">null ならサウンドパーツは鳴らさない</param>
-		/// <remarks>
-		/// 実フレーム時間が要るので Update フェーズで呼ぶこと。
-		/// 実際の発生要求は Draw フェーズ側が pendingEmit を見て行う
-		/// </remarks>
-		void Update(
-			EffectInstance& a_inst,
-			float a_dt,
-			Engine::Audio::AudioManager* a_pAudioManager = nullptr) const;
-
-		/// <summary>
-		/// 全パーツが出し終わったか
-		/// </summary>
-		/// <param name="a_pAudioManager">
-		/// 渡すと isWaitFinish のサウンドが鳴り終わるまで false を返す。
-		/// null ならサウンドは見ない
-		/// </param>
-		/// <remarks>
-		/// 出しっぱなし(duration = 0)のパーツが1つでもあれば、いつまでも false。
-		/// 単発エフェクトの後片付け(自分を消す)の判断に使う
-		/// </remarks>
-		bool IsFinished(
-			const EffectInstance& a_inst,
-			Engine::Audio::AudioManager* a_pAudioManager = nullptr) const;
-
-		/// <summary>
-		/// メッシュパーツの今フレームの描画情報を作る
-		/// </summary>
-		/// <param name="a_ownerWorld">エフェクトが付いている相手のワールド行列</param>
-		/// <returns>今出していないパーツなら false(描画しない)</returns>
-		bool BuildMeshDraw(
-			size_t a_index,
-			const EffectInstance& a_inst,
-			const Math::Matrix& a_ownerWorld,
-			Math::Matrix& a_outWorld,
-			Math::Color& a_outColorScale,
-			Math::Vector3& a_outEmissiveAdd
-		) const;
-
-	private:
-
-		/// <summary>
-		/// 発行済みの声を、今のアセットの指定に合わせ直す
-		/// </summary>
-		/// <remarks>
-		/// 食い違っているスロットだけ発行し直すので、毎フレーム呼んでよい。
-		/// 3D かどうかは声を発行するときにしか決められないため、
-		/// エディターで音や 3D 指定を差し替えたときは、ここが作り直しの受け口になる
-		/// </remarks>
-		void SyncSoundInstances(Engine::Audio::AudioManager& a_audioManager, EffectInstance& a_inst) const;
+		// 止めたあとに動くパーツ(OnStop)を1つでも持っているか。
+		// 持っていれば、止めたあと「止めている最中」を経てから止まりきる
+		bool HasStopParts() const;
 
 	private:
 
@@ -382,5 +377,11 @@ namespace Engine::Resource
 		std::vector<EffectParticlePart> m_particleParts;
 		std::vector<EffectMeshPart> m_meshParts;
 		std::vector<EffectSoundPart> m_soundParts;
+
+		// 個体ごとのパラメータの結び付け
+		std::vector<EffectParamBinding> m_paramBindings;
+
+		// ライト(上限は EFFECT_POINTLIGHT_MAX)
+		std::vector<EffectLightPart> m_lightParts;
 	};
 }

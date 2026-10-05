@@ -86,6 +86,9 @@ namespace Engine::Audio
 			_instance->Stop();
 		}
 		m_soundInstancePool.Release();
+
+		// 関所が覚えている声も、もう無いので忘れる
+		m_playGates.clear();
 	}
 	void AudioManager::Release()
 	{
@@ -95,6 +98,51 @@ namespace Engine::Audio
 
 		m_upAudioEngine = nullptr;
 	}
+	bool AudioManager::CanPlaySound(const Engine::GUID& a_guid, float a_minInterval, uint32_t a_maxConcurrent)
+	{
+		if (a_minInterval <= 0.0f && a_maxConcurrent == 0) return true;
+
+		auto _it = m_playGates.find(a_guid);
+		if (_it == m_playGates.end()) return true;
+
+		SoundPlayGate& _gate = _it->second;
+
+		// 前回から間が空いていない
+		if (a_minInterval > 0.0f && _gate.hasPlayed)
+		{
+			const float _elapsed = std::chrono::duration<float>(std::chrono::steady_clock::now() - _gate.lastPlayTime).count();
+			if (_elapsed < a_minInterval) return false;
+		}
+
+		// 同時に鳴っている数。鳴り終わった・返された声はここで外す
+		if (a_maxConcurrent > 0)
+		{
+			std::erase_if(_gate.playingHandles, [this](const Handle<Resource::SoundInstance>& a_handle)
+				{
+					auto* _pInstance = RefInstance(a_handle);
+					return !_pInstance || !_pInstance->IsPlay();
+				});
+			if (_gate.playingHandles.size() >= a_maxConcurrent) return false;
+		}
+
+		return true;
+	}
+
+	void AudioManager::NotifySoundPlayed(const Engine::GUID& a_guid, const Handle<Resource::SoundInstance>& a_handle)
+	{
+		SoundPlayGate& _gate = m_playGates[a_guid];
+		_gate.lastPlayTime = std::chrono::steady_clock::now();
+		_gate.hasPlayed = true;
+
+		// 鳴り終わった・返された声を外してから足す(数えるときだけ外すと、上限を使わない音では溜まり続ける)
+		std::erase_if(_gate.playingHandles, [this](const Handle<Resource::SoundInstance>& a_h)
+			{
+				auto* _pInstance = RefInstance(a_h);
+				return !_pInstance || !_pInstance->IsPlay();
+			});
+		_gate.playingHandles.push_back(a_handle);
+	}
+
 	void AudioManager::Update()
 	{
 		if (!m_upAudioEngine) return;

@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Source\Engine\Effect">
+      <UniqueIdentifier>{f82f1e36-8fef-4103-81ac-ecee75d75760}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Asset\Shader\Source\PostProcess\Fog">
       <UniqueIdentifier>{7514c5d3-608f-4164-8a71-5d4120cdc77b}</UniqueIdentifier>
     </Filter>
@@ -1326,6 +1329,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Application\Systems\Effect\EffectEventSystem.cpp">
+      <Filter>Source\Application\Systems\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Effect\EffectInstance.cpp">
+      <Filter>Source\Engine\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Effect\EffectPlayer.cpp">
+      <Filter>Source\Engine\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager</Filter>
     </ClCompile>
@@ -2570,6 +2582,18 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Application\Components\Effect\EffectEventsComponent.h">
+      <Filter>Source\Application\Components\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\Effect\EffectEventSystem.h">
+      <Filter>Source\Application\Systems\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Effect\EffectInstance.h">
+      <Filter>Source\Engine\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Effect\EffectPlayer.h">
+      <Filter>Source\Engine\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager</Filter>
     </ClInclude>

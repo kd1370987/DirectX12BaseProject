@@ -4,6 +4,8 @@
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Particle/ParticleBufferManager.h"
+#include "Engine/Graphics/LightManager/LightManager.h"
+#include "Engine/Effect/EffectPlayer.h"
 #include "Engine/Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
 
 #include "Application/Components/Effect/EffectRuntimeComponent.h"
@@ -90,7 +92,16 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 					_pSlotPool->SetTransform(_runtime.emitterSlot, _ownerWorld);
 				}
 
-				if (!_runtime.instance.isPlaying) continue;
+				// 再生中か、止めている最中(OnStop の火花などを出している)なら出す。
+				// 止まりきったものが借りたままのライトは、ここで返す(点きっぱなしにしない)
+				if (!_runtime.instance.IsActive())
+				{
+					if (_pGE && _pGE->RefLightManager())
+					{
+						_runtime.instance.ReleaseLights(*_pGE->RefLightManager());
+					}
+					continue;
+				}
 
 				//----------------------------------------------------------
 				// 出す側からの上書きを、行列1つにまとめておく(置き場)
@@ -153,7 +164,12 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 					{
 						const auto& _part = _particleParts[_p];
 
-						const int _emitCount = _runtime.instance.pendingEmit[_p];
+						// このフレームの発生数に、個体ごとのパラメータの倍率を掛ける(結び付けが無ければ 1)
+						const float* _pParams = _override.params;
+						const float _countScale = _pEffect->EvaluateParamScale(
+							Engine::Resource::EEffectParamTarget::ParticleEmitCount, _p, _pParams);
+						const int _emitCount = static_cast<int>(
+							std::lround(static_cast<float>(_runtime.instance.pendingEmit[_p]) * (std::max)(_countScale, 0.0f)));
 						if (_emitCount <= 0) continue;
 
 						// パーティクルアセットが引けなければ出しようがない
@@ -267,7 +283,8 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 
 						// 大きさとばらつき半径も一緒に拡縮する。
 						// 粒だけ大きくして散らばりが元のままだと、束が太らずに粒が重なるだけになる
-						_emitData.baseScale      = _part.baseScale * _effectScale;
+						_emitData.baseScale      = _part.baseScale * _effectScale *
+							_pEffect->EvaluateParamScale(Engine::Resource::EEffectParamTarget::ParticleSize, _p, _pParams);
 						_emitData.positionRadius = _part.positionRadius * _effectScale;
 						_emitData.directionAngle = DirectX::XMConvertToRadians(_part.directionAngle);
 						_emitData.emitShape      = static_cast<UINT>(_part.emitShape);
@@ -277,8 +294,11 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 
 						// 初速だけ長さの倍率で伸ばす。寿命は触らないので、
 						// 束は同じ濃さのまま前へ伸びる(寿命側を伸ばすと尾を引いて残る)
-						_emitData.minSpeed    = _pParticle->GetInitalSpeedMin() * _lengthScale;
-						_emitData.maxSpeed    = _pParticle->GetInitalSpeedMax() * _lengthScale;
+						// 個体ごとのパラメータの倍率(ParticleSpeed)も初速に掛ける
+						const float _speedScale = _lengthScale *
+							_pEffect->EvaluateParamScale(Engine::Resource::EEffectParamTarget::ParticleSpeed, _p, _pParams);
+						_emitData.minSpeed    = _pParticle->GetInitalSpeedMin() * _speedScale;
+						_emitData.maxSpeed    = _pParticle->GetInitalSpeedMax() * _speedScale;
 						_emitData.minLifeTime = _pParticle->GetLifeTimeMin();
 						_emitData.maxLifeTime = _pParticle->GetLifeTimeMax();
 
@@ -308,12 +328,23 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 						Math::Matrix  _meshWorld;
 						Math::Color   _colorScale;
 						Math::Vector3 _emissiveAdd;
-						if (!_pEffect->BuildMeshDraw(
-							_m, _runtime.instance, _effectWorld,
+						if (!Engine::Effect::EffectPlayer::BuildMeshDraw(
+							*_pEffect, _m, _runtime.instance, _effectWorld,
 							_meshWorld, _colorScale, _emissiveAdd))
 						{
 							continue;
 						}
+
+						// 個体ごとのパラメータの倍率(結び付けが無ければ 1)。
+						// 大きさはメッシュ自身の原点を中心に掛ける
+						const float _meshScale = _pEffect->EvaluateParamScale(
+							Engine::Resource::EEffectParamTarget::MeshScale, _m, _override.params);
+						if (_meshScale != 1.0f)
+						{
+							_meshWorld = Math::Matrix::CreateScale(_meshScale) * _meshWorld;
+						}
+						_emissiveAdd *= _pEffect->EvaluateParamScale(
+							Engine::Resource::EEffectParamTarget::MeshEmissive, _m, _override.params);
 
 						_pGE->RefDrawSubmitter()->SubmitModel(
 							*a_ctx.pWorld,
@@ -323,6 +354,48 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 							{ 1.0f, 1.0f, 1.0f },	// エミッシブテクスチャの倍率は素通し
 							_emissiveAdd
 						);
+					}
+				}
+
+				//----------------------------------------------------------
+				// ライト
+				//
+				// 出している間だけポイントライトを借りて、毎フレーム値を書く。
+				// 出す時間帯から外れたら返す(点きっぱなしにしない)。
+				// 返し損ねたものはエンティティが消えるとき(EffectRuntimeComponent の Release)に返る
+				//----------------------------------------------------------
+				if (_pGE && _pGE->RefLightManager())
+				{
+					auto* _pLightManager = _pGE->RefLightManager();
+
+					for (size_t _l = 0; _l < Engine::Resource::EFFECT_POINTLIGHT_MAX; ++_l)
+					{
+						auto& _lightHandle = _runtime.instance.lightHandles[_l];
+
+						Engine::Graphics::PointLight _light = {};
+						const bool _isShow = Engine::Effect::EffectPlayer::BuildLightDraw(
+							*_pEffect, _l, _runtime.instance, _effectWorld, _effectScale, _light);
+
+						if (!_isShow)
+						{
+							if (_lightHandle.IsValid())
+							{
+								_pLightManager->RemoveLight(_lightHandle);
+								_lightHandle = {};
+							}
+							continue;
+						}
+
+						if (!_lightHandle.IsValid())
+						{
+							_lightHandle = _pLightManager->AllocatePL();
+							if (!_lightHandle.IsValid()) continue;	// 上限まで点いている
+						}
+
+						if (auto* _pLight = _pLightManager->RefLight(_lightHandle))
+						{
+							*_pLight = _light;
+						}
 					}
 				}
 			}

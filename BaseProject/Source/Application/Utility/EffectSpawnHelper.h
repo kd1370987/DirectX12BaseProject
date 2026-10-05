@@ -20,6 +20,7 @@ namespace Engine
 {
 	namespace ECS { class APPWorld; }
 	namespace Particle { struct EmitterTransform; }
+	namespace Effect { struct EffectInstance; }
 }
 
 namespace App::Utility
@@ -102,5 +103,17 @@ namespace App::Utility
 		const Engine::ECS::EngineServices& a_services,
 		Engine::Handle<Engine::Resource::EffectAsset> a_effectHandle,
 		Engine::Handle<Engine::Particle::EmitterTransform>& a_emitterSlot
+	);
+
+	/// <summary>
+	/// エフェクトが借りているポイントライト(ライトパーツ)を返す
+	/// </summary>
+	/// <remarks>
+	/// 出している間だけ EffectDrawSystem が借りているので、エンティティが消えるときに返し損ねがあればここで返す
+	/// (EffectRuntimeComponent の Release から呼ぶ)
+	/// </remarks>
+	void ReleaseEffectLights(
+		const Engine::ECS::EngineServices& a_services,
+		Engine::Effect::EffectInstance& a_instance
 	);
 }

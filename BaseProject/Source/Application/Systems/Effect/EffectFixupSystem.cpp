@@ -4,6 +4,7 @@
 
 #include "Application/Components/Core/PhaseTag/PostDeserializeTag.h"
 #include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Engine/Effect/EffectPlayer.h"
 #include "Application/Components/Combat/DeathEffectComponent.h"
 #include "Application/Components/Effect/BoosterEffectComponent.h"
 #include "Application/Components/Weapon/GunStateComponent.h"
@@ -84,13 +85,13 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 				_pResourceManager->AcquireImmediate(_runtime.effectHandle, _effectComp.effectGUID);
 				App::Utility::WarmupEffectParticles(*a_ctx.pServices, _runtime.effectHandle);
 
-				// 鳴らす瞬間に読み込みが走らないよう、声はここで確保しておく。
-				// (爆発のように「出た瞬間に鳴ってほしい」ものが1フレーム遅れないように)
+				// 声は空の状態から始める(借りるのは鳴らす直前、返すのは鳴り終わったとき)。
+				// 波形はアセットの解決(ResolveReferences)で読んであるので、鳴らす瞬間に読み込みは走らない
 				if (_pAudioManager)
 				{
 					if (auto* _pEffect = _pResourceManager->Ref(_runtime.effectHandle))
 					{
-						_pEffect->CreateSoundInstances(*_pAudioManager, _runtime.instance);
+						Engine::Effect::EffectPlayer::PrepareSounds(*_pEffect, *_pAudioManager, _runtime.instance);
 					}
 				}
 			}

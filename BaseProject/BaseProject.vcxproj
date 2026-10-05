@@ -263,6 +263,9 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Application\Systems\Effect\EffectEventSystem.cpp" />
+    <ClCompile Include="Source\Engine\Effect\EffectInstance.cpp" />
+    <ClCompile Include="Source\Engine\Effect\EffectPlayer.cpp" />
     <ClCompile Include="Source\Application\Systems\Render\GroundEffectSetSystem.cpp" />
     <ClCompile Include="Source\Engine\Editor\Helper\EditorField.cpp">
       <PrecompiledHeaderFile>Engine/Editor/EditorPCH.h</PrecompiledHeaderFile>
@@ -869,6 +872,10 @@
     <ClCompile Include="Source\Application\Systems\Animation\AnimatorFreeSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Application\Components\Effect\EffectEventsComponent.h" />
+    <ClInclude Include="Source\Application\Systems\Effect\EffectEventSystem.h" />
+    <ClInclude Include="Source\Engine\Effect\EffectInstance.h" />
+    <ClInclude Include="Source\Engine\Effect\EffectPlayer.h" />
     <ClInclude Include="Source\Application\Components\Effect\GroundEffectTag.h" />
     <ClInclude Include="Source\Application\Systems\Render\GroundEffectSetSystem.h" />
     <ClInclude Include="Source\Engine\Editor\EditorPCH.h" />

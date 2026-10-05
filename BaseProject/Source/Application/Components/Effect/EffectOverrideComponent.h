@@ -1,4 +1,6 @@
-#pragma once
+﻿#pragma once
+
+#include "Engine/Resource/Data/EffectAsset/EffectAsset.h"	// EFFECT_PARAM_MAX
 
 //==========================================================================================
 // EffectOverrideComponent
@@ -16,6 +18,15 @@
 //==========================================================================================
 struct EffectOverrideComponent
 {
+	//------------------------------------------------------------------
+	// 個体ごとのパラメータ(0〜1 を想定)
+	//
+	// 制御側のシステムが毎フレーム書く(ブーストの溜まり具合・速さなど)。
+	// どこにどれだけ効くかはアセット側の結び付け(EffectAsset::GetParamBindings)が決めるので、
+	// 書く側はアセットの中身を知らなくてよい。結び付けが無ければ何も変わらない
+	//------------------------------------------------------------------
+	float params[Engine::Resource::EFFECT_PARAM_MAX] = {};
+
 	// エフェクト全体のスケール倍率。1 で等倍。
 	// パーティクルの粒の大きさ・ばらつき半径・パーツの配置とメッシュにまとめて掛かる
 	float effectScale = 1.0f;
@@ -59,6 +70,13 @@ struct Engine::ECS::ComponentTraits<EffectOverrideComponent>
 		else
 		{
 			Engine::Editor::HelpText("(置き方はアセットのパーツ側)");
+		}
+
+		// 個体ごとのパラメータ(制御側が書く。効き先はアセットの結び付け)
+		for (size_t _i = 0; _i < Engine::Resource::EFFECT_PARAM_MAX; ++_i)
+		{
+			const std::string _label = "Param " + std::to_string(_i);
+			Engine::Editor::Value(_label.c_str(), "%.2f", _comp.params[_i]);
 		}
 	}
 };

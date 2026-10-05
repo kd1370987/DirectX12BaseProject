@@ -1,4 +1,4 @@
-#include "MuzzleFlashSystem.h"
+﻿#include "MuzzleFlashSystem.h"
 
 #include "Application/ECS/World/APPWorld.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
@@ -8,6 +8,7 @@
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Effect/EffectAssetComponent.h"
 #include "Application/Components/Effect/EffectRuntimeComponent.h"
+#include "Engine/Effect/EffectPlayer.h"
 #include "Application/Components/Effect/EffectPlayRequestComponent.h"
 #include "Application/Components/Effect/EffectOverrideComponent.h"
 
@@ -78,7 +79,7 @@ void MuzzleFlashSystem::Init(App::ECS::APPWorld& a_world)
 				// 出し切った後はどのパーツも出す時間帯から外れるだけなので、
 				// 再生中のまま置いておいても何も出ない
 				a_requestArray[_i].isPlay = true;
-				_pMuzzleEffect->Play(_runtime.instance);
+				Engine::Effect::EffectPlayer::Play(*_pMuzzleEffect, _runtime.instance);
 			}
 		}
 	)

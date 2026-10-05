@@ -1,4 +1,4 @@
-# エフェクト リファクタリング手順
+﻿# エフェクト リファクタリング手順
 
 GPUパーティクルとエフェクト(EffectAsset / ParticlesComponent / 音のコンポーネント群)を
 どの順番で直していくかの計画と、その進み具合。
@@ -90,8 +90,8 @@ Phase1 即効のバグ修正 ─┐
 | 1 | 即効のバグ修正(B1・B3・B4、P4 の警告) | 小 | **実装済み・動作確認待ち**(2026-10-05) |
 | 2 | 発生源テーブルを全体共通・動的にする(EmitterSlotPool) | 中 | **実装済み・動作確認待ち**(2026-10-05)。デバッグ表示は Profiler パネル(Engine)の「Particles」 |
 | 3 | ローカルで形状を作り、最後に行列を掛ける。粒の回転 | 中 | **3-A〜3-D 実装済み・動作確認待ち**(2026-10-05)。向きは EmitterAxis / EmitterFacing の2つを追加。3-D に合わせて Booster_Jett / BoostSpark / MazleFlash / Worm_GroundDust のパーツの向きを +Y → +Z に変更。Local のオフセットに持ち主のスケールを掛けるかは保留 |
-| 4 | GPU の回し方(prefix sum・alive list・間接描画) | 中〜大 | **4-A・4-B 実装済み・動作確認待ち**(2026-10-05)。4-C は1段目(ExecuteIndirect)・2段目(生存リスト。描画は生きている粒の数ぶんだけ)まで実装済み・動作確認待ち。4-D は1段目(命令バッファを全プール共通の1本に)・2段目(1スレッド = 1粒)まで実装済み・動作確認待ち。4-E は1段目(取り残されたプールの解放・遅延解放での Release 漏れの修正)・2段目(Capacity が変わったら 0.5 秒落ち着いてから作り直す)まで実装済み・動作確認待ち。4-E の3段目と 4-F は未着手 |
-| 5 | EffectAsset の拡張(統一の前提条件) | 大 | 未着手 |
+| 4 | GPU の回し方(prefix sum・alive list・間接描画) | 中〜大 | **完了・動作確認待ち**(2026-10-05)。4-A〜4-D と 4-E の1・2段目を実装。4-E の3段目と 4-F は「重くなったらやること」として [EFFECT_DEFERRED_TASKS.md](EFFECT_DEFERRED_TASKS.md) へ |
+| 5 | EffectAsset の拡張(統一の前提条件) | 大 | 実装済み・動作確認待ち (2026-10-05) |
 | 6 | ParticlesComponent・音のコンポーネント群を移行して削除 | 中 | 未着手 |
 
 Phase 2 と 3 は、どちらも EmitterData・ParticleData・シェーダーを触る。
@@ -203,8 +203,8 @@ Phase 2 以降なら、いつやってもよい。上から順に進める(2026-
 | 4-B | アセットに `sortOrder` を持たせて安定ソートする | E2 | 小 |
 | 4-C | Update で生きている粒を alive list に積み、間接引数を作って ExecuteIndirect で描く(コマンドシグネチャの仕組みから作る) | P1 | 中 |
 | 4-D | 命令バッファをフレームで 1 本にまとめ(足りなければ伸ばす)、プールには `[offset, count]` を渡す。あわせて CPU 側で命令ごとの開始位置(prefix sum)を作り、Emit を 1 スレッド = 1 粒にする | P3・P4 | 中 |
-| 4-E | 眠ったまま一定時間経ったプールを解放し、Capacity が変わったら作り直す(4-A の判定を流用) | P5 | 小〜中 |
-| 4-F | 更新も alive list の数で間接 Dispatch にする(alive list を2本で回す。余力があれば) | P2 | 大 |
+| 4-E | 眠ったまま一定時間経ったプールを解放し、Capacity が変わったら作り直す(4-A の判定を流用)。**3段目(長く眠っているプールの解放)は保留** → [EFFECT_DEFERRED_TASKS.md](EFFECT_DEFERRED_TASKS.md) | P5 | 小〜中 |
+| 4-F | 更新も alive list の数で間接 Dispatch にする(alive list を2本で回す)。**保留** → [EFFECT_DEFERRED_TASKS.md](EFFECT_DEFERRED_TASKS.md) | P2 | 大 |
 
 計測は PIX で取る(エンジンに GPU 時間の計測はまだ無い)。4-A の前後で取っておくと、以降の効き目が比べられる。
 
@@ -258,6 +258,24 @@ Phase 2 以降なら、いつやってもよい。上から順に進める(2026-
 | 5-6 | ライトのパーツを実装する(実装しないなら `EFFECT_POINTLIGHT_MAX` を消す) | S6 |
 
 パーツ数の上限(`EFFECT_PARTICLE_MAX` などの固定長配列)は、コンポーネントに入れる都合で固定長のまま残す。上限が足りなくなったら値を上げる。
+
+### Phase 5 の進め方(2026-10-05 に並べ直し)
+
+Phase 6(移行と削除)に要る順に並べる。5-E・5-F は無くても Phase 6 は進められる。
+
+| 順 | 内容 | 見た目 | Phase 6 で吸収できるもの |
+|---|---|---|---|
+| 5-A | **データと実行を分ける**。`Play/Stop/Update/IsFinished/BuildMeshDraw/音の発行` と `EffectInstance` を EffectAsset(Resource 層)から `Engine/Effect/EffectPlayer` へ移す。中身は変えない | 変わらない | (土台) |
+| 5-B | **パーツのトリガー**(OnPlay / OnStop)。止めたあとに OnStop のパーツを鳴らす・出す「止めている最中」の状態を足す | 変わらない(既定 OnPlay) | ParticlesComponent の火花(点火・消火)、AudioBehavior の Start/Loop/End |
+| 5-C | **`EffectEventsComponent`**(OnSpawn / OnDeath / OnHit → EffectAsset)。一発ものをイベントで出す | 変わらない(新規) | DeathEffectComponent、HitSoundComponent、SoundComponent の isPlayOnSpawn |
+| 5-D | **声は鳴らす直前に借りる** + AudioManager に「同じ音の最短間隔・同時発音数」 | 変わらない | HitSound の minInterval、出しては消える一発ものの声の握りっぱなし |
+| 5-E | 個体ごとのパラメータ(名前付きの float と、効く先の結び付け) | 変わらない | (ブーストの太さなどの決め打ちの欄を、後で置き換える) |
+| 5-F | ライトのパーツ(LightManager のハンドルをエフェクトごとに借りる。返すのは Release フック) | 変わらない(新規) | (無ければ `EFFECT_POINTLIGHT_MAX` を消す) |
+
+- 調べて分かったこと : 再生まわりを呼んでいるのは EffectUpdateSystem・EffectDrawSystem・EffectFixupSystem・MuzzleFlashSystem・EffectEditor(プレビュー)。
+  音の声は Fixup で `RequestSoundInstance` してエンティティの寿命いっぱい握っている。ライトは LightManager のハンドル制(PointLightSystem)。
+- Booster_Jett にはもうループ音のサウンドパーツが入っている。AudioBehavior(ブーストの始動・継続・終了)は 5-B のトリガーで同じエフェクトへ寄せられる。
+- ブースターのスパークは「ブーストダッシュの踏み込み」に出すもので、ジェットの再生とは別の出来事。SpawnEffectAt で出す今の形のままでよい。
 
 ---
 

@@ -2,6 +2,7 @@
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
+#include "Engine/Effect/EffectInstance.h"
 #include "Engine/Editor/Helper/EditorField.h"
 #include "Engine/Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
 
@@ -25,7 +26,7 @@ struct EffectRuntimeComponent
 	Engine::Handle<Engine::Resource::EffectAsset> effectHandle = {};
 
 	// このエンティティ専用の進行状態
-	Engine::Resource::EffectInstance instance = {};
+	Engine::Effect::EffectInstance instance = {};
 
 	//------------------------------------------------------------------
 	// 発生源の席(ローカル空間のパーティクル用)
@@ -57,6 +58,9 @@ struct Engine::ECS::ComponentTraits<EffectRuntimeComponent>
 		// 席の返却予約が先。猶予(粒の最大寿命)をエフェクトアセットから引くので、
 		// アセットのハンドルを返した後では間に合わない
 		App::Utility::ReserveReturnEffectEmitterSlot(a_services, _comp.effectHandle, _comp.emitterSlot);
+
+		// 出している途中のライトパーツが借りているポイントライトも返す
+		App::Utility::ReleaseEffectLights(a_services, _comp.instance);
 
 		a_services.pResourceManager->ReleaseHandle(_comp.effectHandle);
 	}

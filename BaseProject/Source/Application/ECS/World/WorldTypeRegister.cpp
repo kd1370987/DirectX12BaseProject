@@ -208,6 +208,8 @@
 #include "../../InstanceResource/DeathEventResource.h"
 #include "../../InstanceResource/WaveAnnounceResource.h"
 #include "Application/Systems/Effect/DeathEffectSystem.h"
+#include "Application/Components/Effect/EffectEventsComponent.h"
+#include "Application/Systems/Effect/EffectEventSystem.h"
 #include "Application/Systems/Combat/ScoreSystem.h"
 #include "Application/Systems/Effect/ExplosionSystem.h"
 #include "Application/Systems/Boid/BoidSnapshotSystem.h"
@@ -397,6 +399,8 @@ namespace App::ECS
 		a_world.RegisterComponent<GroundEffectTag>("GroundEffectTag");
 		// グラウンドフィールドへ衝撃を出す(テスト用)。出すのは GroundImpulseEmitSystem
 		a_world.RegisterComponent<GroundImpulseEmitterComponent>("GroundImpulseEmitterComponent");
+		// 出来事(生まれた・死んだ・攻撃を受けた)→ エフェクトの対応表。出すのは EffectEventSystem
+		a_world.RegisterComponent<EffectEventsComponent>("EffectEventsComponent");
 
 		// システム登録
 		a_world.RegisterSystem<ModelFixupSystem>();
@@ -546,6 +550,8 @@ namespace App::ECS
 		a_world.RegisterSystem<LifeTimeSystem>();
 		// 死亡したものの DeathEffect プレハブを出す(死亡を積む側より後ろで回る)
 		a_world.RegisterSystem<DeathEffectSystem>();
+		// 出来事の対応表(EffectEventsComponent)からエフェクトを出す(Fixup も含む)
+		a_world.RegisterSystem<EffectEventSystem>();
 		// 倒した相手ぶんのスコアを足す(死亡を積む側より後ろで回る)
 		a_world.RegisterSystem<ScoreSystem>();
 		// 時間差で複数のエフェクトを炊き、出し切ったら自分で消える

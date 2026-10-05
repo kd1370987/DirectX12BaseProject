@@ -8,6 +8,7 @@
 #include "../Panel/InspectorPanel/AssetInspector/ResourceDraw/ParticleEdit/ParticleEdit.h"
 
 #include "../../MainEngine.h"
+#include "../../Effect/EffectPlayer.h"
 #include "../../ECS/World/World.h"
 #include "../../Scene/BaseScene/BaseScene.h"
 #include "../../Physics/PhysicsWorld.h"
@@ -344,7 +345,7 @@ namespace Engine::Editor
 			// isPlay を落として立ち上げ直すと2フレームかかるので、実体を直接叩く
 			if (m_isRestartRequest && _pEffect)
 			{
-				_pEffect->Play(_ref.pRuntime->instance);
+				Effect::EffectPlayer::Play(*_pEffect, _ref.pRuntime->instance);
 				m_isRestartRequest = false;
 			}
 
@@ -357,7 +358,7 @@ namespace Engine::Editor
 			// 音も見るのはゲーム側(EffectUpdateSystem)と揃えるため。
 			// 見ないと、絵が終わった時点で頭出しされて音が毎回途中で切れる
 			if (m_isLoop && _pEffect &&
-				_pEffect->IsFinished(_ref.pRuntime->instance, &Audio::AudioManager::Instance()))
+				Effect::EffectPlayer::IsFinished(*_pEffect, _ref.pRuntime->instance, &Audio::AudioManager::Instance()))
 			{
 				m_isRestartRequest = true;
 			}

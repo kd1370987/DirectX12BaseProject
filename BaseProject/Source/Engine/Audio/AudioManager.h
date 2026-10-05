@@ -117,6 +117,23 @@ namespace Engine::Audio
 		/// <param name="a_handle">RequestSoundInstance が返したハンドル : 無効なら何もしない</param>
 		void ReleaseSoundInstance(const Handle<Resource::SoundInstance>& a_handle);
 
+		//----------------------------------------------------------------------------------
+		// 同じ音を鳴らしすぎないための関所
+		//
+		// 一発もののエフェクト(被弾・爆発など)は鳴らすたびに別のエンティティになるので、
+		// エンティティ側の待ち時間では間引けない。同じ音(GUID)ごとに、最後に鳴らした時刻と
+		// いま鳴っている声をここで覚えて間引く。
+		// 使い方 : CanPlaySound が true なら鳴らし、鳴らしたら NotifySoundPlayed で知らせる
+		//----------------------------------------------------------------------------------
+
+		/// <param name=a_minInterval>前回鳴らしてからこの秒数が経つまでは鳴らさない(0 で制限なし)</param>
+		/// <param name=a_maxConcurrent>同時に鳴っている数の上限(0 で制限なし)</param>
+		/// <returns>鳴らしてよいか</returns>
+		bool CanPlaySound(const Engine::GUID& a_guid, float a_minInterval, uint32_t a_maxConcurrent);
+
+		// 鳴らしたことを記録する(最後に鳴らした時刻と、鳴っている声)
+		void NotifySoundPlayed(const Engine::GUID& a_guid, const Handle<Resource::SoundInstance>& a_handle);
+
 	private:
 
 		// 鳴っているものすべてへ音量を送り直す
@@ -148,6 +165,15 @@ namespace Engine::Audio
 
 		// サウンドの実体を引く先(借り物) : 持ち主は MainEngine
 		Resource::ResourceManager* m_pResourceManager = nullptr;
+
+		// 同じ音ごとの関所(CanPlaySound / NotifySoundPlayed)
+		struct SoundPlayGate
+		{
+			std::chrono::steady_clock::time_point lastPlayTime = {};
+			bool hasPlayed = false;
+			std::vector<Handle<Resource::SoundInstance>> playingHandles;	// 鳴らした声(鳴り終わったものは見るときに外す)
+		};
+		std::unordered_map<Engine::GUID, SoundPlayGate> m_playGates;
 
 	// シングルトン
 	private:

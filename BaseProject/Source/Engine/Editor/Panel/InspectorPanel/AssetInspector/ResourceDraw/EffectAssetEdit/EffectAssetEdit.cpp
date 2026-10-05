@@ -32,16 +32,29 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		// 時間指定 : いつ出て、どれだけ続くか
 		//-----------------------------------------------------------------------------------------
+		// いつ動き出すか(再生したとき / 止めたとき)
+		bool TriggerEdit(Resource::EffectTiming& a_timing)
+		{
+			const bool _isChanged = Engine::Editor::Field("Trigger", a_timing.trigger);
+			Engine::Editor::Tooltip(a_timing.IsStopTrigger()
+				? "止めたときに動く(消火の火花・終了音など)。StartDelay / Duration は止めてからの時間"
+				: "再生したときに動く。StartDelay / Duration は再生してからの時間");
+			return _isChanged;
+		}
+
 		bool TimingEdit(Resource::EffectTiming& a_timing)
 		{
 			bool _isChanged = false;
 
+			if (TriggerEdit(a_timing)) _isChanged = true;
 			if (Engine::Editor::Field("StartDelay (s)", a_timing.startDelay, 0.01f, 0.0f)) _isChanged = true;
 			if (Engine::Editor::Field("Duration (s, 0=infinite)", a_timing.duration, 0.01f, 0.0f)) _isChanged = true;
 
 			if (a_timing.duration <= 0.0f)
 			{
-				Engine::Editor::HelpText("止めるまで出し続ける");
+				Engine::Editor::HelpText(a_timing.IsStopTrigger()
+					? "一度きり(止めたときにバーストで出す)"
+					: "止めるまで出し続ける");
 			}
 
 			return _isChanged;
@@ -221,7 +234,10 @@ namespace Engine::Editor::Inspector
 			}
 
 			Engine::Editor::Header("Timing");
-			Engine::Editor::HelpText("StartDelay : 再生から何秒後に鳴らすか");
+			TriggerEdit(a_part.timing);
+			Engine::Editor::HelpText(a_part.timing.IsStopTrigger()
+				? "StartDelay : 止めてから何秒後に鳴らすか"
+				: "StartDelay : 再生から何秒後に鳴らすか");
 			Engine::Editor::Field("StartDelay (s)", a_part.timing.startDelay, 0.01f, 0.0f);
 
 			// Duration はループ音を止めるための長さ。単発音では使わない
@@ -263,6 +279,44 @@ namespace Engine::Editor::Inspector
 				? "この音が鳴り終わるまでエフェクトを終わらせない"
 				: "音の長さを見ない(絵が終わればエフェクトも終わる)");
 			Engine::Editor::HelpText("DestroyOnFinish のエフェクトで音が途切れるのを防ぐ設定");
+
+			// 同じ音を鳴らしすぎない(エフェクトをまたいで、同じ音ごとに数える)
+			Engine::Editor::Header("Limit");
+			Engine::Editor::Field("MinInterval (s)", a_part.minInterval, 0.01f, 0.0f);
+			Engine::Editor::Tooltip("前回この音を鳴らしてから、この秒数が経つまでは鳴らさない(0 で制限なし)。被弾音の連打を間引く");
+			Engine::Editor::Field("MaxConcurrent", a_part.maxConcurrent, 1.0f, 0);
+			Engine::Editor::Tooltip("この音が同時に鳴っている数の上限(0 で制限なし)。間引かれた音は鳴らさない");
+
+			return _isChanged;
+		}
+
+		//-----------------------------------------------------------------------------------------
+		// ライト1件
+		//-----------------------------------------------------------------------------------------
+		bool LightPartEdit(Resource::EffectLightPart& a_part)
+		{
+			bool _isChanged = false;
+
+			Engine::Editor::Header("Place");
+			if (Engine::Editor::Field("PosOffset", a_part.posOffset, 0.05f)) _isChanged = true;
+			Engine::Editor::Tooltip("エフェクトの置き場(上書きの位置・向き・大きさ込み)を基準にした位置");
+
+			Engine::Editor::Header("Light");
+			if (Engine::Editor::ColorField("Color", a_part.color)) _isChanged = true;
+			if (Engine::Editor::Field("Brightness", a_part.brightness, 0.05f, 0.0f)) _isChanged = true;
+			if (Engine::Editor::Field("Range (m)", a_part.range, 0.05f, 0.0f)) _isChanged = true;
+			Engine::Editor::Tooltip("光の届く距離。エフェクト全体の大きさ倍率も掛かる。0 でこのパーツは出ない");
+
+			Engine::Editor::Header("Timing");
+			if (TimingEdit(a_part.timing)) _isChanged = true;
+
+			Engine::Editor::Header("End (Duration の終わりでの値)");
+			if (a_part.timing.duration <= 0.0f)
+			{
+				Engine::Editor::HelpText("Duration が 0 の間は変化しない");
+			}
+			if (Engine::Editor::Field("EndBrightness", a_part.endBrightness, 0.05f, 0.0f)) _isChanged = true;
+			Engine::Editor::Tooltip("閃光なら 0 へ落とす");
 
 			return _isChanged;
 		}
@@ -443,6 +497,106 @@ namespace Engine::Editor::Inspector
 		if (_removeSoundIndex >= 0)
 		{
 			a_pEffect->RemoveSoundPart(static_cast<size_t>(_removeSoundIndex));
+		}
+
+		//------------------------------------------------------------------
+		// ライトパーツ
+		//
+		// 爆発の閃光・噴射の照り返しなど。出している間だけポイントライトを借りる
+		//------------------------------------------------------------------
+		auto& _lightParts = a_pEffect->RefLightParts();
+
+		Engine::Editor::Header("Light Parts");
+		Engine::Editor::Text("%d / %d", static_cast<int>(_lightParts.size()), static_cast<int>(Resource::EFFECT_POINTLIGHT_MAX));
+
+		// 上限まで来たら足せない(実体側のライトの席が固定長のため)
+		ImGui::BeginDisabled(_lightParts.size() >= Resource::EFFECT_POINTLIGHT_MAX);
+		if (CreateButton("Add Light Part"))
+		{
+			a_pEffect->AddLightPart();
+		}
+		ImGui::EndDisabled();
+
+		int _removeLightIndex = -1;
+
+		for (size_t _i = 0; _i < _lightParts.size(); ++_i)
+		{
+			// 上のパーツと番号が被らないように、IDの土台をずらしておく
+			ImGui::PushID(static_cast<int>(_i + 1000));
+
+			const std::string _label = "Light " + std::to_string(_i);
+			if (ImGui::TreeNodeEx(_label.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+			{
+				if (DeleteButton("Remove Part"))
+				{
+					_removeLightIndex = static_cast<int>(_i);
+				}
+
+				LightPartEdit(_lightParts[_i]);
+
+				ImGui::TreePop();
+			}
+
+			ImGui::PopID();
+		}
+
+		if (_removeLightIndex >= 0)
+		{
+			a_pEffect->RemoveLightPart(static_cast<size_t>(_removeLightIndex));
+		}
+
+		//------------------------------------------------------------------
+		// 個体ごとのパラメータの結び付け
+		//
+		// 出す側(EffectOverrideComponent::params)が書いた値を、どこにどれだけ効かせるか。
+		// 倍率 = lerp(ScaleAtZero, ScaleAtOne, params[Param])。同じ先へ複数あれば掛け合わせる
+		//------------------------------------------------------------------
+		auto& _bindings = a_pEffect->RefParamBindings();
+
+		Engine::Editor::Header("Parameters");
+		Engine::Editor::HelpText("出す側が書いた値(0〜1)で、パーツの量や大きさを変える");
+		Engine::Editor::Text("%d / %d", static_cast<int>(_bindings.size()), static_cast<int>(Resource::EFFECT_PARAM_BINDING_MAX));
+
+		ImGui::BeginDisabled(_bindings.size() >= Resource::EFFECT_PARAM_BINDING_MAX);
+		if (CreateButton("Add Binding"))
+		{
+			a_pEffect->AddParamBinding();
+		}
+		ImGui::EndDisabled();
+
+		int _removeBindingIndex = -1;
+
+		for (size_t _i = 0; _i < _bindings.size(); ++_i)
+		{
+			// 上のパーツと番号が被らないように、IDの土台をずらしておく
+			ImGui::PushID(static_cast<int>(_i + Resource::EFFECT_PARTICLE_MAX + Resource::EFFECT_MESH_MAX + Resource::EFFECT_SOUND_MAX));
+
+			Resource::EffectParamBinding& _binding = _bindings[_i];
+			const std::string _label = "Binding " + std::to_string(_i) + " : Param " + std::to_string(_binding.paramIndex) + " -> " + Resource::ToString(_binding.target);
+			if (ImGui::TreeNodeEx(_label.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
+			{
+				if (DeleteButton("Remove Binding"))
+				{
+					_removeBindingIndex = static_cast<int>(_i);
+				}
+
+				Engine::Editor::Field("Param", _binding.paramIndex, 1.0f, 0, static_cast<int>(Resource::EFFECT_PARAM_MAX) - 1);
+				Engine::Editor::Tooltip("EffectOverrideComponent::params の何番を使うか");
+				Engine::Editor::Field("Target", _binding.target);
+				Engine::Editor::Field("PartIndex (-1=all)", _binding.partIndex, 1.0f, -1, 15);
+				Engine::Editor::Tooltip("効かせるパーツの番号。-1 でその種類のパーツ全部");
+				Engine::Editor::Field("ScaleAtZero", _binding.scaleAtZero, 0.01f);
+				Engine::Editor::Field("ScaleAtOne", _binding.scaleAtOne, 0.01f);
+
+				ImGui::TreePop();
+			}
+
+			ImGui::PopID();
+		}
+
+		if (_removeBindingIndex >= 0)
+		{
+			a_pEffect->RemoveParamBinding(static_cast<size_t>(_removeBindingIndex));
 		}
 
 		// 参照を差し替えたらハンドルを引き直す。

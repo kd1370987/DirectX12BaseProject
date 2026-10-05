@@ -3,6 +3,8 @@
 #include "Application/ECS/World/APPWorld.h"
 
 #include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Effect/EffectOverrideComponent.h"
+#include "Engine/Effect/EffectPlayer.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 
 //==========================================================================================
@@ -23,7 +25,8 @@
 //==========================================================================================
 void EffectUpdateSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const EffectAssetComponent, EffectRuntimeComponent, const EffectPlayRequestComponent>(
+	// EffectOverrideComponent は個体ごとのパラメータ(音量の倍率)を読む。EffectAssetComponent の必須なので対象は変わらない
+	a_world.ActiveTask<const EffectAssetComponent, EffectRuntimeComponent, const EffectPlayRequestComponent, const EffectOverrideComponent>(
 		Engine::ECS::ESystemType::Update,
 		"EffectUpdateSystem",
 		[]
@@ -34,7 +37,8 @@ void EffectUpdateSystem::Init(App::ECS::APPWorld& a_world)
 			ActiveTag* a_tags,
 			const EffectAssetComponent* a_effectArray,
 			EffectRuntimeComponent* a_runtimeArray,
-			const EffectPlayRequestComponent* a_requestArray
+			const EffectPlayRequestComponent* a_requestArray,
+			const EffectOverrideComponent* a_overrideArray
 			)
 		{
 			auto* _pResourceManager = a_ctx.pServices->pResourceManager;
@@ -78,23 +82,23 @@ void EffectUpdateSystem::Init(App::ECS::APPWorld& a_world)
 				// 要求(EffectPlayRequestComponent)との差を見れば立ち上がり・立ち下がりが分かる
 				if (_request.isPlay && !_runtime.instance.isPlaying)
 				{
-					_pEffect->Play(_runtime.instance);
+					Engine::Effect::EffectPlayer::Play(*_pEffect, _runtime.instance);
 				}
 				else if (!_request.isPlay && _runtime.instance.isPlaying)
 				{
 					// 音も一緒に止める(止めるのはループを掛けたものだけ)
-					_pEffect->Stop(_runtime.instance, _pAudioManager);
+					Engine::Effect::EffectPlayer::Stop(*_pEffect, _runtime.instance, _pAudioManager);
 				}
 
 				// ---- 時間を進めて、このフレームの発生数を決める ----
 				// 時間が来たサウンドパーツを鳴らすのもこの中
-				_pEffect->Update(_runtime.instance, a_ctx.dt, _pAudioManager);
+				Engine::Effect::EffectPlayer::Update(*_pEffect, _runtime.instance, a_ctx.dt, _pAudioManager, a_overrideArray[_i].params);
 
 				// ---- 出し切ったら自分ごと消す ----
 				// 解放予約だけしておく。実際に消えるのは次の BeginFrame で、
 				// その前に Release フェーズが走るので借りているものは返ってから消える
 				// (音が鳴り終わるまで待つかはサウンドパーツの isWaitFinish 次第)
-				if (_comp.destroyOnFinish && _pEffect->IsFinished(_runtime.instance, _pAudioManager))
+				if (_comp.destroyOnFinish && Engine::Effect::EffectPlayer::IsFinished(*_pEffect, _runtime.instance, _pAudioManager))
 				{
 					a_ctx.pWorld->ReserveReleaseEntity(a_pChunk->entityData[_i]);
 				}
