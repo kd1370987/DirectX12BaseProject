@@ -96,9 +96,26 @@ namespace Engine::Particle
 			m_maxCapacity * sizeof(ParticleData)
 		);
 
-		// 解放処理を登録
-		MainEngine::Instance().RegisterDeferredResource([_spDeadListUpload,_spCounterUpload,_spParticleUpload](){});
+		// 解放処理を登録。
+		// 壊すだけではディスクリプタが返らない(DynamicBuffer::Create はアップロードバッファにも SRV を取る)。
+		// Release() を呼ばないと、プールを1つ作るたびにヒープの席が3つ漏れる
+		MainEngine::Instance().RegisterDeferredResource([_spDeadListUpload,_spCounterUpload,_spParticleUpload]()
+			{
+				_spDeadListUpload->Release();
+				_spCounterUpload->Release();
+				_spParticleUpload->Release();
+			});
 
 		return true;
+	}
+
+	void GPUParticlePool::Release()
+	{
+		m_particlePool.Release();
+		m_deadList.Release();
+		m_counterBuffer.Release();
+		m_drawArgs.Release();
+		m_aliveList.Release();
+		m_isArgsReady = false;
 	}
 }

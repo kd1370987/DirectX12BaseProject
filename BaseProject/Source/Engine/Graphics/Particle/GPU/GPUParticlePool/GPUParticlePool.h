@@ -28,6 +28,16 @@ namespace Engine::Particle
 			const Resource::ResourceManager& a_resourceManager
 		);
 
+		/// <summary>
+		/// 持っているバッファをすべて返す(ディスクリプタヒープの席も返す)
+		/// </summary>
+		/// <remarks>
+		/// バッファは壊すだけではディスクリプタを返さないので、捨てる前に必ず呼ぶこと。
+		/// GPU がまだ読んでいるかもしれないときは、呼ぶ側が遅延させる
+		/// (ParticleBufferManager::DestroyPool が RegisterDeferredResource で呼ぶ)
+		/// </remarks>
+		void Release();
+
 		// ---- アクセサ ----
 		const Handle<D3D12::UAV>& GetParticlePoolUAV() const { return m_particlePool.GetUAV(); }
 		const Handle<D3D12::SRV>& GetParticlePoolSRV() const { return m_particlePool.GetSRV(); }

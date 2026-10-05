@@ -150,6 +150,17 @@ namespace Engine::Particle
 		uint32_t GetFrameEmitCount() const { return static_cast<uint32_t>(m_frameEmitData.size()); }
 
 	private:
+
+		// 使われなくなったプールを捨てる(BeginFrame から呼ぶ)。
+		// いまはアセットが破棄されて取り残されたプールだけ
+		void ReleaseUnusedPools();
+
+		// プールを登録から外し、GPU が使い終わってからバッファを返す。
+		// 外した後は誰も参照しないので、次に必要になれば RequestEmit / Warmup が作り直す。
+		// ロード中のプールには呼ばないこと(コピーキューがまだ書いているかもしれない)
+		void DestroyPool(const Handle<Resource::ParticlesAsset>& a_handle, const char* a_reason);
+
+	private:
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
 		// プールは非同期に作られるので、Init で受け取ったものを持ち続ける
 		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;

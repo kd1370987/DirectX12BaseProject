@@ -6,7 +6,28 @@
 
 #include "GPU/EmitterSlotPool/EmitterSlotPool.h"
 
-#include "Engine/MainEngine.h"	// 作り直した命令バッファの遅延解放(RegisterDeferredResource)
+#include "Engine/MainEngine.h"	// GPU が使い終わってからの解放(RegisterDeferredResource)
+
+namespace
+{
+	//======================================================================================
+	// GPU が使い終わってから Release() を呼んで捨てる
+	//
+	// ・前のフレームのコマンドがまだ読んでいるかもしれないので、その場では捨てない。
+	//   遅延解放のキューは、そのフレームの GPU 完了を待ってから流れる
+	//   (終了時は MainEngine が WaitForGPUIdle の後にまとめて流す)。
+	// ・バッファは壊すだけではディスクリプタヒープの席が返らない(返すのは Release())。
+	//   Release() を呼ばずに shared_ptr を手放すだけだと、そのたびに席が漏れる
+	//======================================================================================
+	template<typename T>
+	void ReleaseAfterGPU(std::unique_ptr<T>& a_upTarget)
+	{
+		if (!a_upTarget) return;
+
+		std::shared_ptr<T> _spTarget(std::move(a_upTarget));
+		Engine::MainEngine::Instance().RegisterDeferredResource([_spTarget]() { _spTarget->Release(); });
+	}
+}
 
 namespace Engine::Particle
 {
@@ -40,12 +61,21 @@ namespace Engine::Particle
 		// ここで一括で破棄する(シャットダウン時なので新規リクエストは来ない)。
 		std::lock_guard<std::mutex> _lock(m_mutex);
 
-		// GPUプール(パーティクル本体/デッドリスト/カウンタ/エミッタの各バッファを保持)を破棄。
-		// unique_ptr の破棄で各バッファの ComPtr が解放され、デバイス参照が落ちる。
+		//----------------------------------------------------------------------
+		// GPU のバッファを返す
+		//
+		// 終了時は GPU の完了待ちより前に呼ばれる(MainEngine::Release → GraphicsEngine::Release)。
+		// 最後のフレームがまだ読んでいるかもしれないので、完了待ちの後に流れる遅延解放へ回す。
+		// 遅延解放は DescriptorHeapManager の解放より前に流れるので、ディスクリプタも返せる
+		//----------------------------------------------------------------------
+		for (auto& [_handle, _upPool] : m_pools)
+		{
+			ReleaseAfterGPU(_upPool);
+		}
 		m_pools.clear();
 
-		// 発生命令のバッファ(全プール共通の1本)。終了時(GPUの完了待ちの後)なので、遅延させずにその場で返す
-		m_upEmitterBuffer.reset();
+		// 発生命令のバッファ(全プール共通の1本)
+		ReleaseAfterGPU(m_upEmitterBuffer);
 		m_emitBufferCapacity = 0;
 
 		// CPU側データ
@@ -65,6 +95,11 @@ namespace Engine::Particle
 	{
 		// 眠っているプールを見分けるための時刻を進める(更新シェーダーと同じフレーム時間)
 		m_elapsedTime += static_cast<double>((std::max)(a_dt, 0.0f));
+
+		// 使われなくなったプールを捨てる。
+		// 下の準備完了の判定(m_mutex を関数の終わりまで持つ)より前に済ませておく
+		// (DestroyPool も m_mutex を取るので、ロックの中で呼ぶとデッドロックする)
+		ReleaseUnusedPools();
 
 		// 前のフレームで送った命令だけを消す、準備中に積まれたものは使えるようになるまで持ち越す
 		for (auto& [_handle, _emitDataVec] : m_emitRequests)
@@ -87,6 +122,71 @@ namespace Engine::Particle
 		// 返却待ちの席の残り時間を進め、粒が消えきったものを空きへ戻す
 		if (m_upEmitterSlotPool) m_upEmitterSlotPool->BeginFrame(a_dt);
 	}
+	//======================================================================================
+	// 使われなくなったプールを捨てる
+	//
+	// 取り残されたプール : シーンの切れ目で ResourceManager::SweepUnusedAll が
+	//   参照の切れた ParticlesAsset を捨てると、そのハンドルは無効になる。
+	//   プールはそのハンドルをキーにしたまま残り、次に読み直したアセットは別のハンドルで
+	//   別のプールを作るので、シーンを行き来するたびにプールが増えていく。
+	//   アセットが引けないプールは描くこともできないので捨てる。
+	//
+	// ロード中のプールは捨てない : コピーキューがまだバッファへ書いているかもしれない
+	//======================================================================================
+	void ParticleBufferManager::ReleaseUnusedPools()
+	{
+		const auto* _pResourceManager = m_pGraphicsEngine ? m_pGraphicsEngine->RefResourceManager() : nullptr;
+		if (!_pResourceManager) return;
+
+		// 回しながら消すとイテレーターが壊れるので、先に集める
+		std::vector<Handle<Resource::ParticlesAsset>> _orphans;
+		{
+			std::lock_guard<std::mutex> _lock(m_mutex);
+			for (const auto& [_handle, _upPool] : m_pools)
+			{
+				if (m_loadingHandles.contains(_handle)) continue;
+				if (!_pResourceManager->Get(_handle))
+				{
+					_orphans.push_back(_handle);
+				}
+			}
+		}
+
+		for (const auto& _handle : _orphans)
+		{
+			DestroyPool(_handle, "アセットが破棄された");
+		}
+	}
+
+	void ParticleBufferManager::DestroyPool(const Handle<Resource::ParticlesAsset>& a_handle, const char* a_reason)
+	{
+		// 登録から外す(作成の登録と同じく m_mutex の中で)
+		std::unique_ptr<GPUParticlePool> _upPool;
+		{
+			std::lock_guard<std::mutex> _lock(m_mutex);
+			auto _it = m_pools.find(a_handle);
+			if (_it == m_pools.end()) return;
+
+			_upPool = std::move(_it->second);
+			m_pools.erase(_it);
+		}
+
+		// このプールに紐づく CPU 側の記録も消す。
+		// 次に必要になれば RequestEmit / Warmup が作り直す(命令は作り直しのあいだ持ち越される)
+		m_emitRequests.erase(a_handle);
+		m_emitRanges.erase(a_handle);
+		m_readyHandles.erase(a_handle);
+		m_overflowWarned.erase(a_handle);
+		m_lastEmitTime.erase(a_handle);
+
+		// GPU が使い終わってからバッファを返す。
+		// BeginFrame から呼ぶので、引数の印(IsArgsReady)は前のフレームの FinishFrame で下りていて、
+		// バッファの状態は COMMON に戻っている
+		ReleaseAfterGPU(_upPool);
+
+		ENGINE_LOG("[Particle] プールを解放しました : id=%u (%s)", a_handle.id, a_reason ? a_reason : "");
+	}
+
 	void ParticleBufferManager::FinishFrame(D3D12::GraphicsCommandList* a_pCmdList)
 	{
 		if (!a_pCmdList) return;
@@ -232,11 +332,8 @@ namespace Engine::Particle
 			}
 			_newCapacity = (std::min)(_newCapacity, EMIT_BUFFER_MAX_CAPACITY);
 
-			if (m_upEmitterBuffer)
-			{
-				std::shared_ptr<D3D12::StaticStructuredBuffer<EmitterData>> _spOld(std::move(m_upEmitterBuffer));
-				MainEngine::Instance().RegisterDeferredResource([_spOld]() {});
-			}
+			// 壊すだけではディスクリプタ(SRV)が返らないので、Release() を呼んでから手放す
+			ReleaseAfterGPU(m_upEmitterBuffer);
 
 			m_upEmitterBuffer = std::make_unique<D3D12::StaticStructuredBuffer<EmitterData>>();
 			m_upEmitterBuffer->Create(
@@ -262,10 +359,12 @@ namespace Engine::Particle
 		auto _it = m_lastEmitTime.find(a_handle);
 		if (_it == m_lastEmitTime.end()) return false;
 
-		// 寿命が分からないときは起こしておく(止めて粒が固まるより、回して無駄になる方が害が小さい)
+		// アセットが引けなければ眠っている扱い。
+		// 描画側もアセットを引けずに飛ばすので、起こしておいても更新が空回りするだけになる
+		// (アセットが捨てられて取り残されたプールは、次の BeginFrame で ReleaseUnusedPools が捨てる)
 		const auto* _pResourceManager = m_pGraphicsEngine ? m_pGraphicsEngine->RefResourceManager() : nullptr;
 		const auto* _pParticle = _pResourceManager ? _pResourceManager->Get(a_handle) : nullptr;
-		if (!_pParticle) return true;
+		if (!_pParticle) return false;
 
 		// 粒の寿命は [LifeTimeMin, LifeTimeMax] の乱数なので、Max が経てば全部消えている。
 		// 寿命の下限は発生シェーダーが 0.0001 秒に丸めるので、0 でも余裕のぶんは起きている

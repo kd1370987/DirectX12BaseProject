@@ -33,8 +33,14 @@ namespace Engine::Particle
 		m_pendingCount = 0;
 		m_identitySlot = {};
 
-		// 終了時(GPUの完了待ちの後)に呼ばれるので、遅延させずにその場で返す
-		m_upGPUBuffer.reset();
+		// 終了時は GPU の完了待ちより前に呼ばれる(MainEngine::Release → GraphicsEngine::Release)。
+		// 最後のフレームがまだ読んでいるかもしれないので、完了待ちの後に流れる遅延解放へ回す。
+		// 壊すだけではディスクリプタ(SRV)が返らないので Release() を呼ぶ
+		if (m_upGPUBuffer)
+		{
+			std::shared_ptr<D3D12::StaticStructuredBuffer<EmitterTransform>> _spOld(std::move(m_upGPUBuffer));
+			MainEngine::Instance().RegisterDeferredResource([_spOld]() { _spOld->Release(); });
+		}
 		m_gpuCapacity = 0;
 	}
 	Handle<EmitterTransform> EmitterSlotPool::Acquire()
@@ -137,7 +143,8 @@ namespace Engine::Particle
 			if (m_upGPUBuffer)
 			{
 				std::shared_ptr<D3D12::StaticStructuredBuffer<EmitterTransform>> _spOld(std::move(m_upGPUBuffer));
-				MainEngine::Instance().RegisterDeferredResource([_spOld]() {});
+				// 壊すだけではディスクリプタ(SRV)が返らないので、Release() を呼んでから手放す
+				MainEngine::Instance().RegisterDeferredResource([_spOld]() { _spOld->Release(); });
 			}
 
 			m_upGPUBuffer = std::make_unique<D3D12::StaticStructuredBuffer<EmitterTransform>>();
