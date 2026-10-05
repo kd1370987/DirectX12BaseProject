@@ -4558,6 +4558,9 @@
     <FxCompile Include="Asset\Shader\Source\Particle\Update\UpdateParticleShader.hlsl">
       <Filter>Asset\Shader\Source\Particle\Update</Filter>
     </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Particle\Update\ResetDrawArgs.hlsl">
+      <Filter>Asset\Shader\Source\Particle\Update</Filter>
+    </FxCompile>
     <FxCompile Include="Asset\Shader\Source\PostProcess\Bloom\BloomCompositeShader.hlsl">
       <Filter>Asset\Shader\Source\PostProcess\Bloom</Filter>
     </FxCompile>

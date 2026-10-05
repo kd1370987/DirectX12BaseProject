@@ -32,6 +32,15 @@ namespace Engine::Particle
 		m_deadList.Create(a_pDevice, a_pHeapManager, m_maxCapacity);
 		m_counterBuffer.Create(a_pDevice, a_pHeapManager, 1);
 
+		// 間接描画の引数(D3D12_DRAW_INDEXED_ARGUMENTS = uint ×5)。
+		// 中身は毎フレーム、使う前にリセット用の CS が書くので初期値は要らない
+		m_drawArgs.Create(a_pDevice, a_pHeapManager, DRAW_ARGS_ELEMENT_NUM);
+		if (m_drawArgs.GetResource())
+		{
+			m_drawArgs.GetResource()->SetName(L"ParticleDrawArgs");	// PIX で見分けやすいように
+		}
+		m_isArgsReady = false;
+
 		// バッファの初期化用データの作成
 		std::vector<uint32_t> _initDeadList(m_maxCapacity);
 		std::iota(_initDeadList.begin(),_initDeadList.end(),0); // すべての配列を0から連番で埋めてくれる

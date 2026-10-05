@@ -11,6 +11,7 @@
 
 #include "Engine/Resource/Data/Shader/IO/ShaderIO.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"
 
 namespace
 {
@@ -25,14 +26,15 @@ namespace
 		Engine::Graphics::PipelineStateManager* pPSOManager = nullptr;
 		Engine::Resource::ResourceManager* pResourceManager = nullptr;	// アセットの値を引く(借り物)
 
-		// PSOはハンドルで持つ。
-		// 8bitの添字へ落として持つと、PSOが256個を超えたところで
-		// 黙って別のPSOを引いてしまう(ソートキー用の添字とは別物)
+		// 各シェーダーに対応する組み合わせ
 		Engine::Handle<ID3D12RootSignature> emitRootSig = {};
 		Engine::Handle<ID3D12PipelineState> emitPSO = {};
 
 		Engine::Handle<ID3D12RootSignature> updateRootSig = {};
 		Engine::Handle<ID3D12PipelineState> updatePSO = {};
+
+		Engine::Handle<ID3D12RootSignature> resetRootSig = {};
+		Engine::Handle<ID3D12PipelineState> resetPSO = {};
 
 		// このフレームの乱数の種
 		uint32_t frameCounter = 0;
@@ -89,6 +91,13 @@ namespace Engine::Graphics
 			"Asset/Shader/Source/Particle/Update/UpdateParticleShader.cso",
 			"UpdateParticleShader",
 			g_particle.updateRootSig, g_particle.updatePSO);
+
+		SetupComputeShader(
+			a_pPSOManager,
+			a_resourceManager,
+			"Asset/Shader/Source/Particle/Update/ResetDrawArgs.cso",
+			"ResetDrawArgsShader",
+			g_particle.resetRootSig, g_particle.resetPSO);
 	}
 
 	void ExecuteParticleSimulation(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
@@ -192,6 +201,13 @@ namespace Engine::Graphics
 		const UINT _slotSRVIndex = _pSlotPool->GetSRVIndex();
 		if (_slotSRVIndex == (std::numeric_limits<UINT>::max)()) return;
 
+		// 間接描画の引数をリセットできるか。
+		// リセット用シェーダーが読めていないときは引数を用意しない(= 印が立たず、描画もされない)
+		const bool _isResetReady = g_particle.resetRootSig.IsValid() && g_particle.resetPSO.IsValid();
+
+		// 描く板ポリのインデックス数。ParticlePass が張るもの(平らな1枚板)と合わせる
+		const UINT _quadIndexCount = a_pGE->RefQuadPolygon() ? a_pGE->RefQuadPolygon()->GetIndexCount() : 0u;
+
 		for (auto& [_handle, _pool] : _pParticleManager->GetPoolMap())
 		{
 			if (!_pool) continue;
@@ -201,8 +217,37 @@ namespace Engine::Graphics
 			// 更新は容量ぶん走るので、回さずに飛ばす
 			if (!_pParticleManager->IsAwake(_handle)) continue;
 
-			// ヒープとルートシグネチャ、PSOをセット
+			// ヒープを先に張る。
+			// ルートシグネチャが CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED のときは、
+			// SetComputeRootSignature より前に SetDescriptorHeaps を済ませておく決まり
+			// (このフレームに発生命令が無いと、上の発生ループで張られていない)
 			a_pCtx->BindBindlessHeaps();
+
+			//------------------------------------------------------------------
+			// 間接描画の引数をリセットする
+			//
+			// フレームの頭は COMMON(前のフレームの終わりで FinishFrame が戻す)なので、書く前に UAV へ。
+			// 1段目はインスタンス数 = 容量(今までの DrawIndexedInstanced と同じ数)。
+			// インデックス数は描く板ポリ(ParticlePass が張るもの)と合わせる
+			//------------------------------------------------------------------
+			const bool _isIndirect = _isResetReady && _pool->GetDrawArgsResource();
+			if (_isIndirect)
+			{
+				_pool->RefDrawArgs().Barrier(_pCmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+				a_pCtx->SetComputeRootSignature(g_particle.resetRootSig);
+				a_pCtx->SetComputePSO(g_particle.resetPSO);
+				const UINT _resetParam[] = {
+					_pool->RefDrawArgs().GetUAV().GetIndex(),	// 引数バッファの UAV 番号
+					_quadIndexCount,							// 板ポリのインデックス数(1枚板なら 6)
+					_pool->GetMaxCapacity(),					// インスタンス数(1段目 : 容量)
+				};
+				a_pCtx->ComputeBindDescriptorIndices(0, _resetParam);
+				a_pCtx->Dispatch(1, 1, 1);
+				D3D12::UAVBarrier(_pCmd, { _pool->RefDrawArgs().GetResource() });
+			}
+
+			// ルートシグネチャ、PSOをセット
 			a_pCtx->SetComputeRootSignature(g_particle.updateRootSig);
 			a_pCtx->SetComputePSO(g_particle.pPSOManager->GetPSO(g_particle.updatePSO));
 
@@ -277,6 +322,14 @@ namespace Engine::Graphics
 					_pool->GetCounterResource()
 				}
 			);
+
+			// 描画で読むので、間接引数の状態へ。
+			// 印を立てたプールだけが描かれ、フレームの終わりで COMMON へ戻される
+			if (_isIndirect)
+			{
+				_pool->RefDrawArgs().Barrier(_pCmd, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
+				_pool->SetArgsReady(true);
+			}
 		}
 	}
 }

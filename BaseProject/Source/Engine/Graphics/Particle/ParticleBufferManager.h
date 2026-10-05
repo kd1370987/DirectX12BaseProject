@@ -50,6 +50,18 @@ namespace Engine::Particle
 		void BeginFrame(float a_dt);
 
 		/// <summary>
+		/// フレームの描画が全部終わった後、コマンドリストを流す前に呼ぶ
+		/// </summary>
+		/// <remarks>
+		/// 間接描画の引数を COMMON へ戻して、「このフレームの引数を用意した」印を下ろす。
+		/// バッファは ExecuteCommandLists が終わると COMMON に戻る(decay)が、
+		/// GPUResource は CPU 側で状態を覚えているだけなので、明示して戻しておかないと
+		/// 次のフレームの遷移で「遷移前の状態」が食い違う。
+		/// カメラごとに何度描いても引数は同じなので、戻すのはフレームに1回でよい
+		/// </remarks>
+		void FinishFrame(D3D12::GraphicsCommandList* a_pCmdList);
+
+		/// <summary>
 		/// パーティクルを指定して、個数やデータを代入
 		/// </summary>
 		/// <param name="a_handle">パーティクルハンドル</param>

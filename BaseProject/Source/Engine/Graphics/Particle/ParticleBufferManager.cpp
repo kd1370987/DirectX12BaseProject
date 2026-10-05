@@ -82,6 +82,19 @@ namespace Engine::Particle
 		// 返却待ちの席の残り時間を進め、粒が消えきったものを空きへ戻す
 		if (m_upEmitterSlotPool) m_upEmitterSlotPool->BeginFrame(a_dt);
 	}
+	void ParticleBufferManager::FinishFrame(D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		if (!a_pCmdList) return;
+
+		for (auto& [_handle, _upPool] : m_pools)
+		{
+			if (!_upPool || !_upPool->IsArgsReady()) continue;
+
+			// INDIRECT_ARGUMENT → COMMON。次のフレームの頭は COMMON から始まる約束
+			_upPool->RefDrawArgs().Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
+			_upPool->SetArgsReady(false);
+		}
+	}
 	void ParticleBufferManager::RequestEmit(const Handle<Resource::ParticlesAsset>&a_handle, const EmitterData & a_emitterData)
 	{
 		if (!a_handle.IsValid()) return;

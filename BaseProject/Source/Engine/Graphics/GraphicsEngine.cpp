@@ -244,9 +244,7 @@ namespace Engine::Graphics
 		//------------------------------------------------------------------------------------
 		// カメラに依存しない、フレームに1回で足りるGPU処理
 		//
-		// スキニング・BLAS更新・パーティクルの発生と更新は、どのカメラの描画でも
-		// 同じ結果を読む。パイプラインのパスにすると、カメラの数だけ同じ計算を回すことになる。
-		// ここで用意して Execute() から直接呼ぶ
+		// スキニング・BLAS更新・パーティクルの発生と更新は、どのカメラの描画でも同じ結果を読む
 		//------------------------------------------------------------------------------------
 		SetupSkinning(m_upPipelineStateManager.get(), *m_pResourceManager);
 		SetupParticleSimulation(m_upPipelineStateManager.get(), *m_pResourceManager);
@@ -515,6 +513,14 @@ namespace Engine::Graphics
 
 		// メインカメラが描いた絵をバックバッファへ載せる
 		m_upCameraPipelines->PresentTo(_pCmdList);
+
+		// パーティクルの間接描画の引数を COMMON へ戻す。
+		// カメラごとの描画(上の Execute)がすべて読み終わった後、コマンドリストを流す前にやる
+		// (流したあとは COMMON に戻るが、CPU 側の覚えている状態は戻らないため)
+		if (m_upParticleManager)
+		{
+			m_upParticleManager->FinishFrame(_pCmdList);
+		}
 
 		m_upRenderDevice->SubmitDirectCommandList(_pCmdList);
 		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(nullptr);

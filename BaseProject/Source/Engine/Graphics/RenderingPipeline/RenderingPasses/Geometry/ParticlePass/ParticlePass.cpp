@@ -129,6 +129,10 @@ namespace Engine::Graphics::Pipeline
 		const UINT _slotSRVIndex = _pSlotPool->GetSRVIndex();
 		if (_slotSRVIndex == (std::numeric_limits<UINT>::max)()) return;
 
+		// 間接描画のコマンドシグネチャ(DrawIndexed 1件)。作れていなければ描きようがない
+		ID3D12CommandSignature* _pDrawSignature = _pGE->GetDrawIndexedSignature();
+		if (!_pDrawSignature) return;
+
 		//----------------------------------------------------------
 		// 1アセット分を描く
 		//----------------------------------------------------------
@@ -171,8 +175,10 @@ namespace Engine::Graphics::Pipeline
 
 				_pCtx->GraphicsBindRootCBV(3, _cbDraw);
 
-				// 描画
-				_pCtx->DrawPolygonInstancing(a_upPool->GetMaxCapacity());
+				// 描画 : 引数(インスタンス数など)はシミュレーションが GPU 上に用意したものを読む。
+				// 引数は INDIRECT_ARGUMENT 状態になっている(シミュレーションが遷移させ、印を立てた)。
+				// カメラが何台あっても、同じ引数を読んで描くだけでよい
+				_pCtx->DrawPolygonIndirect(_pDrawSignature, a_upPool->GetDrawArgsResource());
 			};
 
 		//----------------------------------------------------------
@@ -221,6 +227,11 @@ namespace Engine::Graphics::Pipeline
 				// 眠っているプール(最後に出してから最大寿命が経った)には生きている粒が無い。
 				// 描画は容量ぶん走るので、描かずに飛ばす
 				if (!_particleManager->IsAwake(_handle)) continue;
+
+				// このフレームの間接描画の引数が用意されているものだけ描く。
+				// 用意していない(シミュレーションが回らなかった)プールの引数は COMMON のままで、
+				// 中身も前のフレームのもの。それを ExecuteIndirect で読むと状態が食い違う
+				if (!_upPool->IsArgsReady()) continue;
 
 				auto* _pParticle = _resManager.Get(_handle);
 				if (!_pParticle) continue;
