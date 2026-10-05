@@ -79,6 +79,7 @@ namespace Engine::Resource
 		float GetRotationMax() const { return m_rotationMax; }					// 板の初期角の上限(度)
 		float GetAngularVelocityMin() const { return m_angularVelocityMin; }	// 板の回転速度の下限(度/秒)
 		float GetAngularVelocityMax() const { return m_angularVelocityMax; }	// 板の回転速度の上限(度/秒)
+		int GetSortOrder() const { return m_sortOrder; }						// 同じ重ね方どうしの描く順(小さいほど先 = 下)
 
 		// ---- 編集用アクセサ : エディターから直接書き換えるためのもの ----
 		std::string& RefName() { return m_name; }
@@ -103,6 +104,7 @@ namespace Engine::Resource
 		float& RefRotationMax() { return m_rotationMax; }
 		float& RefAngularVelocityMin() { return m_angularVelocityMin; }
 		float& RefAngularVelocityMax() { return m_angularVelocityMax; }
+		int& RefSortOrder() { return m_sortOrder; }
 
 		// テクスチャの差し替え : GUIDとハンドルを同時に更新する
 		void SetTexture(const Engine::GUID& a_guid, const ResourceRef<Texture>& a_handle)
@@ -195,6 +197,11 @@ namespace Engine::Resource
 		float m_rotationMax = 0.0f;			// 度
 		float m_angularVelocityMin = 0.0f;	// 度/秒
 		float m_angularVelocityMax = 0.0f;	// 度/秒
+
+		// 同じ重ね方(加算/半透明)どうしで描く順。小さいほど先に描く(= 下になる)。
+		// 粒は深度を書かないので、後から描いたものが上に乗る。
+		// 同じ値なら名前順。重ね方そのものの順(半透明 → 加算)はこれより優先される
+		int m_sortOrder = 0;
 
 		// ---- ランタイム用データ ----
 		ResourceRef<Texture> m_texHandle;

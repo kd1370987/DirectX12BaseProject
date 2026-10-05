@@ -50,12 +50,17 @@ namespace Engine::Particle
 		m_loadingHandles.clear();
 		m_readyHandles.clear();
 		m_overflowWarned.clear();
+		m_lastEmitTime.clear();
+		m_elapsedTime = 0.0;
 
 		// 座席データの解放
 		if (m_upEmitterSlotPool) m_upEmitterSlotPool->Release();
 	}
 	void ParticleBufferManager::BeginFrame(float a_dt)
 	{
+		// 眠っているプールを見分けるための時刻を進める(更新シェーダーと同じフレーム時間)
+		m_elapsedTime += static_cast<double>((std::max)(a_dt, 0.0f));
+
 		// 前のフレームで送った命令だけを消す、準備中に積まれたものは使えるようになるまで持ち越す
 		for (auto& [_handle, _emitDataVec] : m_emitRequests)
 		{
@@ -152,8 +157,35 @@ namespace Engine::Particle
 
 				// 毎フレーム書き換えるので、フレームごとの区画を経由してGPUへ送る
 				_it->second.UploadFrame(a_pCmdList, _emitDataVec.data(), sizeof(EmitterData) * _uploadNum, a_frameIndex);
+
+				// このフレームに粒が出る : ここから最大寿命ぶんは起こしておく
+				m_lastEmitTime[_handle] = m_elapsedTime;
 			}
 		}
+	}
+
+	bool ParticleBufferManager::IsAwake(const Handle<Resource::ParticlesAsset>& a_handle) const
+	{
+		// 一度も出していなければ、生きている粒は無い
+		auto _it = m_lastEmitTime.find(a_handle);
+		if (_it == m_lastEmitTime.end()) return false;
+
+		// 寿命が分からないときは起こしておく(止めて粒が固まるより、回して無駄になる方が害が小さい)
+		const auto* _pResourceManager = m_pGraphicsEngine ? m_pGraphicsEngine->RefResourceManager() : nullptr;
+		const auto* _pParticle = _pResourceManager ? _pResourceManager->Get(a_handle) : nullptr;
+		if (!_pParticle) return true;
+
+		// 粒の寿命は [LifeTimeMin, LifeTimeMax] の乱数なので、Max が経てば全部消えている。
+		// 寿命の下限は発生シェーダーが 0.0001 秒に丸めるので、0 でも余裕のぶんは起きている
+		const double _lifeMax = static_cast<double>((std::max)(_pParticle->GetLifeTimeMax(), _pParticle->GetLifeTimeMin()));
+		return (m_elapsedTime - _it->second) <= (_lifeMax + PARTICLE_POOL_SLEEP_MARGIN_SECONDS);
+	}
+
+	double ParticleBufferManager::GetSecondsSinceLastEmit(const Handle<Resource::ParticlesAsset>& a_handle) const
+	{
+		auto _it = m_lastEmitTime.find(a_handle);
+		if (_it == m_lastEmitTime.end()) return -1.0;
+		return m_elapsedTime - _it->second;
 	}
 	std::span <const EmitterData> ParticleBufferManager::GetRequests(const Handle<Resource::ParticlesAsset>& a_assetHandle) const
 	{

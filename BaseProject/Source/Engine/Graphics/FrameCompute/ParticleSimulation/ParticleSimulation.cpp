@@ -197,6 +197,10 @@ namespace Engine::Graphics
 			if (!_pool) continue;
 			if (!_pParticleManager->IsReady(_handle)) continue;
 
+			// 眠っているプール(最後に出してから最大寿命が経った)には生きている粒が無い。
+			// 更新は容量ぶん走るので、回さずに飛ばす
+			if (!_pParticleManager->IsAwake(_handle)) continue;
+
 			// ヒープとルートシグネチャ、PSOをセット
 			a_pCtx->BindBindlessHeaps();
 			a_pCtx->SetComputeRootSignature(g_particle.updateRootSig);

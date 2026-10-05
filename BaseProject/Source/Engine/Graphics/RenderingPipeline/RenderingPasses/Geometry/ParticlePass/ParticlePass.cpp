@@ -181,7 +181,11 @@ namespace Engine::Graphics::Pipeline
 		// どちらも深度を書かないので、後から描いたものが上に乗る。
 		// 煙(半透明)を先に置いてから炎(加算)を足すと、爆発の芯が煙の手前で光る。
 		// 逆にすると煙が炎を覆い隠してしまう。
-		// (同じ重ね方どうしの前後は並べ替えていないので、そこまでは面倒を見ない)
+		//
+		// 同じ重ね方どうしは、アセットの SortOrder が小さい順に描く(後に描いたものが上に乗る)。
+		// プールの一覧は unordered_map なので、並べ替えないとアセットを足しただけで前後が入れ替わる。
+		// SortOrder が同じなら名前順にして、毎回同じ並びになるようにしておく。
+		// (粒どうしの前後までは並べ替えていない)
 		//----------------------------------------------------------
 		const Particle::EParticleBlendMode _drawOrder[] =
 		{
@@ -197,16 +201,52 @@ namespace Engine::Graphics::Pipeline
 
 			if (!_psoHandle.IsValid()) continue;
 
-			for (auto& [_handle, _pool] : _particleManager->GetPoolMap())
+			// この重ね方で描くプールを集める
+			struct DrawEntry
 			{
+				Handle<Resource::ParticlesAsset> handle = {};
+				const Particle::GPUParticlePool* pPool = nullptr;
+				const Resource::ParticlesAsset* pParticle = nullptr;
+			};
+			std::vector<DrawEntry> _entries;
+			_entries.reserve(_particleManager->GetPoolMap().size());
+
+			for (auto& [_handle, _upPool] : _particleManager->GetPoolMap())
+			{
+				if (!_upPool) continue;
+
 				// プールが読み込み済みかチェック
 				if (!_particleManager->IsReady(_handle)) continue;
+
+				// 眠っているプール(最後に出してから最大寿命が経った)には生きている粒が無い。
+				// 描画は容量ぶん走るので、描かずに飛ばす
+				if (!_particleManager->IsAwake(_handle)) continue;
 
 				auto* _pParticle = _resManager.Get(_handle);
 				if (!_pParticle) continue;
 				if (_pParticle->GetBlendMode() != _mode) continue;
 
-				_drawPool(_handle, _pool, *_pParticle, _psoHandle);
+				_entries.push_back({ _handle, _upPool.get(), _pParticle });
+			}
+
+			// SortOrder の小さい順(同じなら名前順、それも同じならハンドル順)
+			std::stable_sort(_entries.begin(), _entries.end(),
+				[](const DrawEntry& a_l, const DrawEntry& a_r)
+				{
+					if (a_l.pParticle->GetSortOrder() != a_r.pParticle->GetSortOrder())
+					{
+						return a_l.pParticle->GetSortOrder() < a_r.pParticle->GetSortOrder();
+					}
+					if (a_l.pParticle->GetName() != a_r.pParticle->GetName())
+					{
+						return a_l.pParticle->GetName() < a_r.pParticle->GetName();
+					}
+					return a_l.handle.id < a_r.handle.id;
+				});
+
+			for (const auto& _entry : _entries)
+			{
+				_drawPool(_entry.handle, _entry.pPool, *_entry.pParticle, _psoHandle);
 			}
 		}
 	}

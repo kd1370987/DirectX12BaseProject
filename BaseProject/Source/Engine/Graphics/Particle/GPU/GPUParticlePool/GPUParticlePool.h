@@ -61,12 +61,4 @@ namespace Engine::Particle
 		// 最大容量 (アセットから取得したキャパシティ) 
 		UINT m_maxCapacity = 10000;
 	};
-
-	class ParticlePool
-	{
-	public:
-
-	private:
-
-	};
 }

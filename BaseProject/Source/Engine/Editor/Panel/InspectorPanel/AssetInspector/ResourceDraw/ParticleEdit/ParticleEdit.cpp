@@ -125,6 +125,10 @@ namespace Engine::Editor::Inspector
 			Engine::Editor::HelpText("※ 粒の前後は並べ替えていないので、重なりが入れ替わって見えることがあります");
 		}
 
+		// 同じ重ね方どうしで描く順。小さいほど先(下)に描かれ、大きいものが上に乗る
+		Engine::Editor::Field("SortOrder", a_pParticles->RefSortOrder(), 1.0f);
+		Engine::Editor::Tooltip("同じ重ね方どうしの描く順。小さいほど先(下)。同じなら名前順");
+
 		Engine::Editor::Line();
 
 		// ---- 板ポリの向き ----

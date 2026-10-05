@@ -52,6 +52,9 @@ namespace Engine::Resource
 		a_ar.Field("m_rotationMax", m_rotationMax);
 		a_ar.Field("m_angularVelocityMin", m_angularVelocityMin);
 		a_ar.Field("m_angularVelocityMax", m_angularVelocityMax);
+
+		// ---- 描く順 ----
+		a_ar.Field("m_sortOrder", m_sortOrder);
 	}
 
 	//======================================================================================

@@ -103,6 +103,21 @@ namespace Engine::Particle
 		// 命令バッファがあふれたことがあるか(デバッグ表示用。警告を出したアセット)
 		bool HasOverflowed(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_overflowWarned.contains(a_handle); }
 
+		//----------------------------------------------------------------------------------
+		// 起きているか(更新と描画を回す必要があるか)
+		//
+		// 最後に粒を出してから、そのアセットの最大寿命(+ 少しの余裕)が経ったプールには
+		// 生きている粒が1つも残っていない。そういうプールは更新も描画も丸ごと飛ばす。
+		// 更新と描画は粒の数ではなく容量ぶん走るので、出していないプールほど無駄が大きい。
+		// 判定は CPU 側だけで済む(GPU から生存数を読み戻さない)。
+		//
+		// 一度も出していないプールは眠っている。アセットが引けないときは安全側(起きている)
+		//----------------------------------------------------------------------------------
+		bool IsAwake(const Handle<Resource::ParticlesAsset>& a_handle) const;
+
+		// 最後に粒を出してからの秒数(デバッグ表示用)。一度も出していなければ負
+		double GetSecondsSinceLastEmit(const Handle<Resource::ParticlesAsset>& a_handle) const;
+
 	private:
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
 		// プールは非同期に作られるので、Init で受け取ったものを持ち続ける
@@ -131,5 +146,16 @@ namespace Engine::Particle
 
 		// エミット用の座席プール : すべてのパーティクルアセットのワールド座標と生存時間を管理
 		std::unique_ptr<EmitterSlotPool> m_upEmitterSlotPool = nullptr;
+
+		//------------------------------------------------------------------
+		// 眠っているプールを見分けるための時刻(メインスレッドのみ)
+		//
+		// 時刻は BeginFrame で積む経過時間。更新シェーダーと同じフレーム時間で進むので、
+		// 粒の寿命の減り方と食い違わない。
+		// 「最後に出した時刻」は命令を実際に GPU へ送ったとき(UploadEmitData)に記録する。
+		// 準備中に積まれた命令は数フレーム遅れて出るので、積んだ時刻では早すぎる
+		//------------------------------------------------------------------
+		double m_elapsedTime = 0.0;
+		std::unordered_map<Handle<Resource::ParticlesAsset>, double> m_lastEmitTime;
 	};
 }

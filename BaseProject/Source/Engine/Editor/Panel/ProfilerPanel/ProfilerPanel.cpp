@@ -309,7 +309,10 @@ namespace Engine::Editor
 			UINT capacity = 0;
 			size_t requests = 0;
 			bool isReady = false;
+			bool isAwake = false;
 			bool isOverflowed = false;
+			int sortOrder = 0;
+			double sinceEmit = -1.0;
 			bool isLocal = false;
 			bool isAlphaBlend = false;
 		};
@@ -321,6 +324,8 @@ namespace Engine::Editor
 
 		size_t _totalCapacity = 0;
 		size_t _readyCount = 0;
+		size_t _awakeCount = 0;		// 更新と描画を回しているプール
+		size_t _awakeCapacity = 0;	// そのぶんの容量(更新と描画が実際に走る粒の数)
 		for (const auto& [_handle, _upPool] : _pPM->GetPoolMap())
 		{
 			PoolRow _row = {};
@@ -330,12 +335,20 @@ namespace Engine::Editor
 			_row.capacity = _upPool ? _upPool->GetMaxCapacity() : 0;
 			_row.requests = _pPM->GetRequests(_handle).size();
 			_row.isReady = _pPM->IsReady(_handle);
+			_row.isAwake = _pPM->IsAwake(_handle);
 			_row.isOverflowed = _pPM->HasOverflowed(_handle);
+			_row.sortOrder = _pAsset ? _pAsset->GetSortOrder() : 0;
+			_row.sinceEmit = _pPM->GetSecondsSinceLastEmit(_handle);
 			_row.isLocal = _pAsset && _pAsset->IsLocalSpace();
 			_row.isAlphaBlend = _pAsset && (_pAsset->GetBlendMode() == Particle::EParticleBlendMode::AlphaBlend);
 
 			_totalCapacity += _row.capacity;
 			if (_row.isReady) ++_readyCount;
+			if (_row.isReady && _row.isAwake)
+			{
+				++_awakeCount;
+				_awakeCapacity += _row.capacity;
+			}
 
 			_rows.push_back(std::move(_row));
 		}
@@ -353,20 +366,27 @@ namespace Engine::Editor
 		Engine::Editor::Value("Total Capacity", "%u particles  (%.1f MB)",
 			static_cast<unsigned>(_totalCapacity),
 			static_cast<double>(_totalCapacity * _bytesPerParticle) / (1024.0 * 1024.0));
-		Engine::Editor::Tooltip("描画と更新は今、粒の数ではなくこの容量ぶん走っている");
+		Engine::Editor::Value("Awake", "%u pools  (%u particles)",
+			static_cast<unsigned>(_awakeCount),
+			static_cast<unsigned>(_awakeCapacity));
+		Engine::Editor::Tooltip(
+			"更新と描画を回しているプール。描画と更新は粒の数ではなく、この容量ぶん走っている。"
+			"最後に出してから最大寿命が経ったプールは眠って(飛ばされて)いる");
 
 		if (_rows.empty()) return;
 
 		constexpr ImGuiTableFlags _tableFlags =
 			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp;
 
-		if (ImGui::BeginTable("ParticlePoolTable", 6, _tableFlags))
+		if (ImGui::BeginTable("ParticlePoolTable", 8, _tableFlags))
 		{
 			ImGui::TableSetupColumn("Asset");
 			ImGui::TableSetupColumn("Capacity");
 			ImGui::TableSetupColumn("Space");
 			ImGui::TableSetupColumn("Blend");
+			ImGui::TableSetupColumn("Order");
 			ImGui::TableSetupColumn("Requests");
+			ImGui::TableSetupColumn("Last Emit");
 			ImGui::TableSetupColumn("State");
 			ImGui::TableHeadersRow();
 
@@ -386,9 +406,12 @@ namespace Engine::Editor
 				ImGui::TableSetColumnIndex(3);
 				ImGui::Text("%s", _row.isAlphaBlend ? "Alpha" : "Add");
 
+				ImGui::TableSetColumnIndex(4);
+				ImGui::Text("%d", _row.sortOrder);
+
 				// 表示した時点で積まれている命令の数(フレームのどこで描くかで 0 にもなる)。
 				// 上限に届いていたら、あふれている可能性がある
-				ImGui::TableSetColumnIndex(4);
+				ImGui::TableSetColumnIndex(5);
 				if (_row.requests >= Particle::EMIT_REQUEST_MAX)
 				{
 					ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), "%u", static_cast<unsigned>(_row.requests));
@@ -398,10 +421,25 @@ namespace Engine::Editor
 					ImGui::Text("%u", static_cast<unsigned>(_row.requests));
 				}
 
-				ImGui::TableSetColumnIndex(5);
+				// 最後に粒を出してからの秒数
+				ImGui::TableSetColumnIndex(6);
+				if (_row.sinceEmit < 0.0)
+				{
+					ImGui::TextDisabled("-");
+				}
+				else
+				{
+					ImGui::Text("%.1f s", _row.sinceEmit);
+				}
+
+				ImGui::TableSetColumnIndex(7);
 				if (!_row.isReady)
 				{
 					ImGui::TextDisabled("Loading");
+				}
+				else if (!_row.isAwake)
+				{
+					ImGui::TextDisabled("Sleep");
 				}
 				else if (_row.isOverflowed)
 				{
