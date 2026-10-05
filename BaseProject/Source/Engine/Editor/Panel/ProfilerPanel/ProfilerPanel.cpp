@@ -6,6 +6,10 @@
 #include "../../../Graphics/GraphicsEngine.h"
 #include "../../../Graphics/Device/GraphicsDevice/GraphicsDevice.h"
 #include "../../../Window/NativeWindow.h"
+#include "../../../Graphics/Particle/ParticleBufferManager.h"
+#include "../../../Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
+#include "../../../Graphics/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
+#include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Editor
 {
@@ -62,6 +66,12 @@ namespace Engine::Editor
 			Engine::Editor::Line();
 
 			DrawRenderStats();			// DrawCall & Primitive
+		}
+
+		// GPUパーティクル
+		if (ImGui::CollapsingHeader("Particles"))
+		{
+			DrawParticleStats();
 		}
 
 		Engine::Editor::Line();
@@ -235,4 +245,178 @@ namespace Engine::Editor
 	//======================================================================================
 	void ProfilerPanel::DrawDescriptorHeapUsage()
 	{}
+
+	//======================================================================================
+	// GPUパーティクル
+	//
+	// 発生源の席 : 使用中・返却待ちが増え続けていないか(シーンを読み直しても一定か)を見る。
+	//              増え続けるなら、どこかで席を返し忘れている。
+	// プール     : アセットごとの容量と、準備が済んでいるか、命令があふれたことがあるか
+	//======================================================================================
+	void ProfilerPanel::DrawParticleStats()
+	{
+		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+		auto* _pPM = _pGE ? _pGE->RefParticleManager() : nullptr;
+		if (!_pPM)
+		{
+			Engine::Editor::HelpText("(パーティクルマネージャーがありません)");
+			return;
+		}
+
+		//----------------------------------------------------------------------------------
+		// 発生源の席
+		//----------------------------------------------------------------------------------
+		if (const auto* _pSlots = _pPM->GetEmitterSlotPool())
+		{
+			Engine::Editor::Text("Emitter Slots");
+
+			// 席 0(単位行列)は予約で常に1つ使っているので、持ち主の数からは外す
+			const uint32_t _live = _pSlots->GetLiveCount();
+			const uint32_t _pending = _pSlots->GetPendingCount();
+			const uint32_t _owned = (_live > _pending + 1) ? (_live - _pending - 1) : 0;
+
+			Engine::Editor::Value("In Use", "%u", _owned);
+			Engine::Editor::Tooltip("持ち主のエフェクトがいる席(席0を除く)");
+
+			Engine::Editor::Value("Pending Return", "%u", _pending);
+			Engine::Editor::Tooltip("持ち主は消えたが、出した粒が消えきるまで待っている席");
+
+			Engine::Editor::Value("Transfer Range", "%u", _pSlots->GetUsedCount());
+			Engine::Editor::Tooltip("毎フレームGPUへ送っている席の数(配ったことのある最大の席番号 + 1)");
+
+			Engine::Editor::Value("Capacity CPU / GPU", "%u / %u  (block %u)",
+				_pSlots->GetCPUCapacity(), _pSlots->GetGPUCapacity(), _pSlots->GetBlockSize());
+			Engine::Editor::Tooltip("足りなくなると block 単位で伸びる。GPU側はそのとき作り直す");
+
+			Engine::Editor::Value("GPU Size", "%.1f KB",
+				static_cast<double>(_pSlots->GetGPUCapacity()) * sizeof(Particle::EmitterTransform) / 1024.0);
+		}
+		else
+		{
+			Engine::Editor::HelpText("(発生源の席がまだ作られていません)");
+		}
+
+		Engine::Editor::Line();
+
+		//----------------------------------------------------------------------------------
+		// プール一覧
+		//
+		// マップの並びは毎回変わりうるので、名前で並べてから出す
+		//----------------------------------------------------------------------------------
+		struct PoolRow
+		{
+			std::string name;
+			UINT capacity = 0;
+			size_t requests = 0;
+			bool isReady = false;
+			bool isOverflowed = false;
+			bool isLocal = false;
+			bool isAlphaBlend = false;
+		};
+
+		const auto* _pRM = _pGE->RefResourceManager();
+
+		std::vector<PoolRow> _rows;
+		_rows.reserve(_pPM->GetPoolMap().size());
+
+		size_t _totalCapacity = 0;
+		size_t _readyCount = 0;
+		for (const auto& [_handle, _upPool] : _pPM->GetPoolMap())
+		{
+			PoolRow _row = {};
+
+			const auto* _pAsset = _pRM ? _pRM->Get(_handle) : nullptr;
+			_row.name = _pAsset ? _pAsset->GetName() : "(不明)";
+			_row.capacity = _upPool ? _upPool->GetMaxCapacity() : 0;
+			_row.requests = _pPM->GetRequests(_handle).size();
+			_row.isReady = _pPM->IsReady(_handle);
+			_row.isOverflowed = _pPM->HasOverflowed(_handle);
+			_row.isLocal = _pAsset && _pAsset->IsLocalSpace();
+			_row.isAlphaBlend = _pAsset && (_pAsset->GetBlendMode() == Particle::EParticleBlendMode::AlphaBlend);
+
+			_totalCapacity += _row.capacity;
+			if (_row.isReady) ++_readyCount;
+
+			_rows.push_back(std::move(_row));
+		}
+
+		std::sort(_rows.begin(), _rows.end(),
+			[](const PoolRow& a_l, const PoolRow& a_r) { return a_l.name < a_r.name; });
+
+		// 粒本体 + デッドリスト。命令バッファとカウンターは小さいので数えない
+		constexpr size_t _bytesPerParticle = sizeof(Particle::ParticleData) + sizeof(uint32_t);
+
+		Engine::Editor::Value("Pools", "%u  (Ready %u / Loading %u)",
+			static_cast<unsigned>(_rows.size()),
+			static_cast<unsigned>(_readyCount),
+			static_cast<unsigned>(_rows.size() - _readyCount));
+		Engine::Editor::Value("Total Capacity", "%u particles  (%.1f MB)",
+			static_cast<unsigned>(_totalCapacity),
+			static_cast<double>(_totalCapacity * _bytesPerParticle) / (1024.0 * 1024.0));
+		Engine::Editor::Tooltip("描画と更新は今、粒の数ではなくこの容量ぶん走っている");
+
+		if (_rows.empty()) return;
+
+		constexpr ImGuiTableFlags _tableFlags =
+			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp;
+
+		if (ImGui::BeginTable("ParticlePoolTable", 6, _tableFlags))
+		{
+			ImGui::TableSetupColumn("Asset");
+			ImGui::TableSetupColumn("Capacity");
+			ImGui::TableSetupColumn("Space");
+			ImGui::TableSetupColumn("Blend");
+			ImGui::TableSetupColumn("Requests");
+			ImGui::TableSetupColumn("State");
+			ImGui::TableHeadersRow();
+
+			for (const auto& _row : _rows)
+			{
+				ImGui::TableNextRow();
+
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("%s", _row.name.c_str());
+
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%u", _row.capacity);
+
+				ImGui::TableSetColumnIndex(2);
+				ImGui::Text("%s", _row.isLocal ? "Local" : "World");
+
+				ImGui::TableSetColumnIndex(3);
+				ImGui::Text("%s", _row.isAlphaBlend ? "Alpha" : "Add");
+
+				// 表示した時点で積まれている命令の数(フレームのどこで描くかで 0 にもなる)。
+				// 上限に届いていたら、あふれている可能性がある
+				ImGui::TableSetColumnIndex(4);
+				if (_row.requests >= Particle::EMIT_REQUEST_MAX)
+				{
+					ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), "%u", static_cast<unsigned>(_row.requests));
+				}
+				else
+				{
+					ImGui::Text("%u", static_cast<unsigned>(_row.requests));
+				}
+
+				ImGui::TableSetColumnIndex(5);
+				if (!_row.isReady)
+				{
+					ImGui::TextDisabled("Loading");
+				}
+				else if (_row.isOverflowed)
+				{
+					ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), "Overflowed");
+					if (ImGui::IsItemHovered())
+					{
+						ImGui::SetTooltip("命令バッファ(上限 %u 件)があふれたことがある", static_cast<unsigned>(Particle::EMIT_REQUEST_MAX));
+					}
+				}
+				else
+				{
+					ImGui::Text("Ready");
+				}
+			}
+			ImGui::EndTable();
+		}
+	}
 }

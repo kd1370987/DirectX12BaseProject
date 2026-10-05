@@ -100,6 +100,9 @@ namespace Engine::Particle
 		// 準備完了かどうか : BeginFrameで確定させる、メインスレッドでのみ触る
 		bool IsReady(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_readyHandles.contains(a_handle); }
 
+		// 命令バッファがあふれたことがあるか(デバッグ表示用。警告を出したアセット)
+		bool HasOverflowed(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_overflowWarned.contains(a_handle); }
+
 	private:
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
 		// プールは非同期に作られるので、Init で受け取ったものを持ち続ける

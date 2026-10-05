@@ -73,7 +73,10 @@ namespace Engine::Particle
 		// デバッグ表示用
 		uint32_t GetLiveCount() const { return m_liveCount; }			// 使用中(返却待ちを含む。席 0 も含む)
 		uint32_t GetPendingCount() const { return m_pendingCount; }		// 返却待ち
+		uint32_t GetUsedCount() const { return m_usedCount; }			// 配ったことのある最大の席番号 + 1(毎フレーム転送する範囲)
+		uint32_t GetCPUCapacity() const { return static_cast<uint32_t>(m_transforms.size()); }	// blockSize 単位で伸びる
 		uint32_t GetGPUCapacity() const { return m_gpuCapacity; }
+		uint32_t GetBlockSize() const { return m_blockSize; }
 
 	private:
 

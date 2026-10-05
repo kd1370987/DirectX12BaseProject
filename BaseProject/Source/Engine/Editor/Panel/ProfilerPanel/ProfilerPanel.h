@@ -62,6 +62,9 @@ namespace Engine::Editor
 		// ディスクリプタヒープ使用率
 		void DrawDescriptorHeapUsage();
 
+		// GPUパーティクル : 発生源の席の使用状況とプールの一覧
+		void DrawParticleStats();
+
 		// スコープごとの計測結果(ENGINE_PROFILE_SCOPE / Profilerが並べ替え済み)
 		void DrawTimerTable(Profiler* a_pProfiler);
 
