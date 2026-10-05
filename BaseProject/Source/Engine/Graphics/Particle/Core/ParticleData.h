@@ -53,9 +53,17 @@ namespace Engine::Particle
 		// 0 は単位行列で予約してあるので、ワールド空間で回す粒はここが 0 のまま
 		uint32_t emitterIndex;
 
-		float pad0;
-		float pad1;
+		// 板ポリを面の中で回す角度(ラジアン)と、その速さ(ラジアン/秒)。
+		// Billboard / EmitterAxis / EmitterFacing のときに効く(進行方向に合わせる向きでは使わない)
+		float rotation;
+		float angularVelocity;
+
+		// 発生したときの発生源の向き(クォータニオン xyzw)。
+		// ワールド空間の粒ならワールドの向き、ローカル空間の粒なら席から見た向き。
+		// EmitterAxis / EmitterFacing は板の軸をここから取る
+		Math::Quaternion orientation;
 	};
+	static_assert(sizeof(ParticleData) == 64, "HLSL 側 ParticleData と大きさを合わせること");
 
 	//======================================================================================
 	// パーティクルをどの座標系で回すか
@@ -91,6 +99,8 @@ namespace Engine::Particle
 		Billboard,			// 常にカメラ正面(従来)
 		VelocityBillboard,	// カメラ正面のまま、画面上で進行方向へ回す(火花・破片向き)
 		VelocityAxis,		// 進行方向をワールドの縦軸にする(手前へ向かうと縮む。弾道向き)
+		EmitterAxis,		// 画像の上を発生源の噴き出す向き(+Z)へ。板は発生源の X-Z 面(炎の舌・噴射の芯向き)
+		EmitterFacing,		// 板を発生源の噴き出す向きへ向けて立てる。画像の上は発生源の +Y(衝撃波の輪向き)
 	};
 
 	/// <summary>

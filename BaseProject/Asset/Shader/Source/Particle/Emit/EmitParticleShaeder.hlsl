@@ -86,7 +86,6 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 			// ★構造体の全メンバーを埋めること。1つでも未初期化のまま UAV へ書くと
 			//   DXC の検証が "Assignment of undefined values to UAV" で落ちる
 			ParticleData _p;
-			_p.pad = float2(0.0f, 0.0f);
 
 			// どの発生源の座標系で回るか。ワールド空間なら 0(単位行列)
 			_p.emitterIndex = _emitInfo.emitterIndex;
@@ -164,6 +163,11 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 
 			// スケール
 			_p.size = _emitInfo.baseScale * ValueFloat(_emitInfo.minScale, _emitInfo.maxScale, _seed++);
+
+			// 板の向き : 発生源の向きを覚えておき、初期角と回転の速さは区間の乱数
+			_p.orientation = _emitInfo.emitRotation;
+			_p.rotation = ValueFloat(_emitInfo.minRotation, _emitInfo.maxRotation, _seed++);
+			_p.angularVelocity = ValueFloat(_emitInfo.minAngularVelocity, _emitInfo.maxAngularVelocity, _seed++);
 
 			g_particleBuffer[_newIndex] = _p;
 		}

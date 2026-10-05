@@ -127,14 +127,7 @@ namespace Engine::Graphics
 			const auto* _pEmitBuff = _pParticleManager->GetEmitBuffer(_handle);
 			if (!_pEmitBuff) continue;
 			const UINT _emitIndex = _pEmitBuff->GetSRVHandle().GetIndex();
-			auto* _pEmitterSlotPool = _pParticleManager->GetEmitterSlotPool();
-			
-			// スロット１に送信するデータ
-			const UINT _emitIndices[] = {
-				_emitIndex,
-				_pEmitterSlotPool->GetSRVIndex()
-			};
-			a_pCtx->ComputeBindDescriptorIndices(1, _emitIndices);
+			a_pCtx->ComputeBindDescriptorIndices(1, std::span<const UINT>(&_emitIndex, 1));
 
 			struct EmitCB
 			{
@@ -189,7 +182,16 @@ namespace Engine::Graphics
 
 		//----------------------------------------------------------------------------------
 		// 更新
+		//
+		// 発生源の席は全プール共通の1本。まだ一度も転送されていなければ
+		// 引けない番号で読ませないよう、更新ごと見送る
+		// (席 0 は初期化で取っているので、最初のフレームの転送で必ずできる)
 		//----------------------------------------------------------------------------------
+		const auto* _pSlotPool = _pParticleManager->GetEmitterSlotPool();
+		if (!_pSlotPool) return;
+		const UINT _slotSRVIndex = _pSlotPool->GetSRVIndex();
+		if (_slotSRVIndex == (std::numeric_limits<UINT>::max)()) return;
+
 		for (auto& [_handle, _pool] : _pParticleManager->GetPoolMap())
 		{
 			if (!_pool) continue;
@@ -228,12 +230,16 @@ namespace Engine::Graphics
 
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<UpdateCB>(_pCmd, 0, _cbData);
 
-			// 命令バインド。
-			// 更新シェーダーは発生命令を読まないが、ルートシグネチャの席は埋めておく
+			// 命令と発生源の席のバインド。並びはシェーダーの PassDescriptorIndex0(命令 → 席)と同じ。
+			// 更新シェーダーは発生命令を読まないが、ルートシグネチャの席は埋めておく。
+			// 発生源の席はローカル空間の粒に重力を掛けるときに読む(席の回転で重力をローカルへ回す)
 			{
 				const auto* _pEmitBuff = _pParticleManager->GetEmitBuffer(_handle);
-				const UINT _emitIndex = _pEmitBuff ? static_cast<UINT>(_pEmitBuff->GetSRVHandle().GetIndex()) : 0xFFFFFFFFu;
-				a_pCtx->ComputeBindDescriptorIndices(1, std::span<const UINT>(&_emitIndex, 1));
+				const UINT _updateIndices[] = {
+					_pEmitBuff ? static_cast<UINT>(_pEmitBuff->GetSRVHandle().GetIndex()) : 0xFFFFFFFFu,
+					_slotSRVIndex,
+				};
+				a_pCtx->ComputeBindDescriptorIndices(1, _updateIndices);
 			}
 
 			// GPUパーティクルプールバインド : 本体 / デッドリスト / カウンターの順(シェーダーの u0-u2 と同じ)

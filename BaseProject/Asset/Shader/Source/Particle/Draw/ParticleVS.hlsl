@@ -45,13 +45,49 @@ VSOutput VSMain(VSInput a_input)
 	// 板ポリの軸を決める
 	// 既定はカメラ正面のビルボード。進行方向に合わせる指定なら、
 	// 板の縦軸(+Y = テクスチャの上)を速度ベクトルへ向ける。
+	// 発生源に合わせる指定なら、発生したときの発生源の向きから軸を取る。
 	// 板ポリの頂点は y=+1 が v=0 なので、+Y = 画像の上端になる。
 	// ---------------------------------------------------------------
 	float3 _axisX = _camRight;
 	float3 _axisY = _camUp;
 	float _stretch = 1.0f;
+	bool _isRotate = false;		// 面の中で回してよい向きか(進行方向に合わせる向きでは回さない)
 
-	if (g_draw.orientation != PARTICLE_ORIENT_BILLBOARD)
+	if (g_draw.orientation == PARTICLE_ORIENT_BILLBOARD)
+	{
+		_isRotate = true;
+	}
+	else if (g_draw.orientation == PARTICLE_ORIENT_EMITTER_AXIS ||
+		g_draw.orientation == PARTICLE_ORIENT_EMITTER_FACING)
+	{
+		//------------------------------------------------------------
+		// 発生源に合わせる
+		//
+		// orientation は発生したときの発生源の向き。ローカル空間の粒なら席から見た向きなので、
+		// 席の回転(w = 0 で位置は無視)も掛けて今のワールドの向きにする。
+		// ワールド空間の粒は席 0(単位行列)なので、発生したときの向きのまま残る。
+		//
+		//   EmitterAxis   : 画像の上 = 噴き出す向き(+Z)、横 = 発生源の +X(炎の舌・噴射の芯)
+		//   EmitterFacing : 板の面が噴き出す向きを向く。画像の上 = 発生源の +Y(衝撃波の輪)
+		//------------------------------------------------------------
+		const float4 _q = _particleData.orientation;
+		const float3 _emitX = normalize(mul(float4(ParticleQuatRotate(_q, float3(1.0f, 0.0f, 0.0f)), 0.0f), _emitterMat).xyz);
+		const float3 _emitY = normalize(mul(float4(ParticleQuatRotate(_q, float3(0.0f, 1.0f, 0.0f)), 0.0f), _emitterMat).xyz);
+		const float3 _emitZ = normalize(mul(float4(ParticleQuatRotate(_q, float3(0.0f, 0.0f, 1.0f)), 0.0f), _emitterMat).xyz);
+
+		_axisX = _emitX;
+		if (g_draw.orientation == PARTICLE_ORIENT_EMITTER_AXIS)
+		{
+			_axisY = _emitZ;
+			_stretch = g_draw.stretch;
+		}
+		else
+		{
+			_axisY = _emitY;
+		}
+		_isRotate = true;
+	}
+	else
 	{
 		float3 _velocity = _simVelocity;
 		float _speedSq = dot(_velocity, _velocity);
@@ -89,6 +125,21 @@ VSOutput VSMain(VSInput a_input)
 				}
 			}
 		}
+	}
+
+	// ---------------------------------------------------------------
+	// 板を面の中で回す
+	// 初期角と回転の速さは粒ごと(アセットの区間の乱数)。既定は 0 で回らない
+	// ---------------------------------------------------------------
+	if (_isRotate)
+	{
+		float _sin, _cos;
+		sincos(_particleData.rotation, _sin, _cos);
+
+		const float3 _rotX = (_axisX * _cos) + (_axisY * _sin);
+		const float3 _rotY = (_axisY * _cos) - (_axisX * _sin);
+		_axisX = _rotX;
+		_axisY = _rotY;
 	}
 
 	// ---------------------------------------------------------------

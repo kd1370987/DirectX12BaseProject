@@ -75,6 +75,10 @@ namespace Engine::Resource
 		Particle::EParticleBlendMode GetBlendMode() const { return m_blendMode; }	// 色の重ね方
 		Particle::EParticleSimulationSpace GetSimulationSpace() const { return m_simulationSpace; }	// どの座標系で回すか
 		bool IsLocalSpace() const { return m_simulationSpace == Particle::EParticleSimulationSpace::Local; }
+		float GetRotationMin() const { return m_rotationMin; }					// 板の初期角の下限(度)
+		float GetRotationMax() const { return m_rotationMax; }					// 板の初期角の上限(度)
+		float GetAngularVelocityMin() const { return m_angularVelocityMin; }	// 板の回転速度の下限(度/秒)
+		float GetAngularVelocityMax() const { return m_angularVelocityMax; }	// 板の回転速度の上限(度/秒)
 
 		// ---- 編集用アクセサ : エディターから直接書き換えるためのもの ----
 		std::string& RefName() { return m_name; }
@@ -95,6 +99,10 @@ namespace Engine::Resource
 		float& RefFadeOutRatio() { return m_fadeOutRatio; }
 		Particle::EParticleBlendMode& RefBlendMode() { return m_blendMode; }
 		Particle::EParticleSimulationSpace& RefSimulationSpace() { return m_simulationSpace; }
+		float& RefRotationMin() { return m_rotationMin; }
+		float& RefRotationMax() { return m_rotationMax; }
+		float& RefAngularVelocityMin() { return m_angularVelocityMin; }
+		float& RefAngularVelocityMax() { return m_angularVelocityMax; }
 
 		// テクスチャの差し替え : GUIDとハンドルを同時に更新する
 		void SetTexture(const Engine::GUID& a_guid, const ResourceRef<Texture>& a_handle)
@@ -175,6 +183,18 @@ namespace Engine::Resource
 		// (既存のアセットの見え方を変えない)。
 		// ブースターの噴射のように発生源へくっついてほしいものは Local にする
 		Particle::EParticleSimulationSpace m_simulationSpace = Particle::EParticleSimulationSpace::World;
+
+		//----------------------------------------------------------------------------------
+		// 板を面の中で回す
+		//
+		// 初期角は粒ごとに区間の乱数。回転速度も区間の乱数で、負なら逆回り。
+		// どちらも既定は 0(回さない)なので、これを入れる前のアセットの見え方は変わらない。
+		// Billboard / EmitterAxis / EmitterFacing のときに効く(進行方向に合わせる向きでは使わない)
+		//----------------------------------------------------------------------------------
+		float m_rotationMin = 0.0f;			// 度
+		float m_rotationMax = 0.0f;			// 度
+		float m_angularVelocityMin = 0.0f;	// 度/秒
+		float m_angularVelocityMax = 0.0f;	// 度/秒
 
 		// ---- ランタイム用データ ----
 		ResourceRef<Texture> m_texHandle;

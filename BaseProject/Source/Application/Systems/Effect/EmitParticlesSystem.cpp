@@ -144,7 +144,8 @@ void EmitParticleSystem::Init(App::ECS::APPWorld& a_world)
 						? Math::Vector3(0.0f, 1.0f, 0.0f)
 						: Math::Vector3::TransformNormal(Math::Vector3(0.0f, 1.0f, 0.0f), _world);
 
-					_emitData.emitMatrix    = Engine::Particle::MakeEmitMatrix(_pos, _dir, _upHint);
+					// 発生行列と、その回転(粒の板の向きに使う)を一緒に入れる
+					Engine::Particle::SetEmitTransform(_emitData, _pos, _dir, _upHint);
 					_emitData.emitCount     = static_cast<UINT>(a_count);
 
 					// 形状(スケール/拡散)はコンポーネントから
@@ -160,6 +161,12 @@ void EmitParticleSystem::Init(App::ECS::APPWorld& a_world)
 					_emitData.maxSpeed    = _pParticle->GetInitalSpeedMax();
 					_emitData.minLifeTime = _pParticle->GetLifeTimeMin();
 					_emitData.maxLifeTime = _pParticle->GetLifeTimeMax();
+
+					// 板の回転もアセットから(アセットは度で持っている)
+					_emitData.minRotation        = DirectX::XMConvertToRadians(_pParticle->GetRotationMin());
+					_emitData.maxRotation        = DirectX::XMConvertToRadians(_pParticle->GetRotationMax());
+					_emitData.minAngularVelocity = DirectX::XMConvertToRadians(_pParticle->GetAngularVelocityMin());
+					_emitData.maxAngularVelocity = DirectX::XMConvertToRadians(_pParticle->GetAngularVelocityMax());
 
 					// 登録
 					_pParticleManager->RequestEmit(a_handle, _emitData);

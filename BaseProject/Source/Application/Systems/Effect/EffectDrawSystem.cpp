@@ -93,12 +93,13 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 				if (!_runtime.instance.isPlaying) continue;
 
 				//----------------------------------------------------------
-				// 出す側からの上書きを、行列1つにまとめておく
+				// 出す側からの上書きを、行列1つにまとめておく(置き場)
 				//
-				// アセットは共有なので、取り付け位置や大きさの個体差は
-				// コンポーネント側(EffectAssetComponent)から受け取る。
-				//   v * Scale * Translate * ownerWorld
-				// の順で掛けると「オーナーのローカル空間で、指定位置を中心に拡縮」になる。
+				// アセットは共有なので、取り付け位置・向き・大きさの個体差は
+				// コンポーネント側(EffectOverrideComponent)から受け取る。
+				//   v * Scale * PlaceRot * Translate * ownerWorld
+				// の順で掛けると「オーナーのローカル空間で、指定位置に指定の向きで置き、そこを中心に拡縮」になる。
+				// パーツの位置と向きは、この置き場から見た相対になる。
 				// パーティクルの発生位置もメッシュパーツもこの1つで済む
 				//----------------------------------------------------------
 				const float _effectScale = (_override.effectScale > 0.0f) ? _override.effectScale : 1.0f;
@@ -108,14 +109,36 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 				// 太さ(_effectScale)とは別物なので、掛ける先も分けてある
 				const float _lengthScale = (_override.effectLengthScale > 0.0f) ? _override.effectLengthScale : 1.0f;
 
+				//----------------------------------------------------------
+				// 置き場の回転 : 上書きの向き(持ち主の座標系)を +Z にした回転
+				//
+				// 以前は上書きの向きでパーツの向きを丸ごと差し替えていたので、
+				// 向きの違うパーツを並べたエフェクトに上書きを掛けると、全部が同じ向きになっていた。
+				// 今は置き場ごと回すので、パーツ同士の向きの関係は崩れない
+				// (パーツの向きが +Z なら、上書きの向きにそのまま一致する)。
+				// 上書きが無ければ回さない
+				//----------------------------------------------------------
+				Math::Matrix _placeRot = {};
+				if (_override.isOverrideTransform)
+				{
+					_placeRot = Engine::Particle::MakeEmitMatrix(
+						Math::Vector3(0.0f, 0.0f, 0.0f),
+						Math::Vector3(_override.overrideEmitDir),
+						Math::Vector3(0.0f, 1.0f, 0.0f));
+				}
+
 				Math::Matrix _effectWorld = _ownerWorld;
 				if (_override.isOverrideTransform || _effectScale != 1.0f)
 				{
 					_effectWorld =
 						Math::Matrix::CreateScale(_effectScale) *
+						_placeRot *
 						Math::Matrix::CreateTranslation(_override.overridePosOffset) *
 						_ownerWorld;
 				}
+
+				// 置き場の向き → ワールド(向きを回すだけに使う。長さは MakeEmitMatrix が揃える)
+				const Math::Matrix _placeToWorld = _placeRot * _ownerWorld;
 
 				//----------------------------------------------------------
 				// パーティクル
@@ -138,18 +161,22 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 						if (!_pParticle) continue;
 
 						//--------------------------------------------------
-						// 発生源(位置・方向)を決める
+						// 発生源(位置・噴き出す向き・上の手がかり)を決める
 						//
 						// ローカル空間で回すパーティクルは、発生源にくっついて動いてほしいので
-						// ワールドではなくその座標系のまま出す。ワールドへ戻すのは描画時。
+						// ワールドではなく席(発生源)の座標系のまま出す。ワールドへ戻すのは描画時。
 						// 戻すのに使う行列の席は上で確保・更新してある。
 						//
 						// このときパーツの space(WorldMatrix / ReverseVelocity)は使わない。
 						// どれも「ワールドのどこに出すか」を決めるものなので、
 						// ローカルで回す粒には意味を成さない。
+						//
+						// 上の手がかりは、噴き出す向きを軸にした回転(ロール)を決める。
+						// 板を発生源に合わせる向き(EmitterAxis / EmitterFacing)で効く
 						//--------------------------------------------------
 						Math::Vector3 _pos;
 						Math::Vector3 _dir;
+						Math::Vector3 _up;
 
 						// 席が取れていなければ 0(単位行列)になり、ワールド空間として出る
 						UINT _emitterIndex = 0;
@@ -163,35 +190,39 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 							//----------------------------------------------
 							// ローカル空間 : 発生源の行列を掛けずに出す
 							//----------------------------------------------
-							// 取り付け位置とパーツのオフセットだけを合成する。
+							// 置き場とパーツのオフセットだけを合成する。
 							// _effectWorld から発生源の行列を除いたものと同じ組み立て
+							// (席の行列は拡縮を落としてあるので、持ち主のスケールはオフセットに掛からない)
 							const Math::Matrix _localMat =
 								Math::Matrix::CreateScale(_effectScale) *
+								_placeRot *
 								Math::Matrix::CreateTranslation(_override.overridePosOffset);
 
 							_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _localMat);
-							_dir = _override.isOverrideTransform
-								? Math::Vector3(_override.overrideEmitDir)
-								: Math::Vector3(_part.emitDir);
+							_dir = Math::Vector3::TransformNormal(Math::Vector3(_part.emitDir), _placeRot);
+							_up  = Math::Vector3::TransformNormal(Math::Vector3(0.0f, 1.0f, 0.0f), _placeRot);
 						}
 						else
 						{
 							//----------------------------------------------
 							// ワールド空間 : 出した場所にそのまま残る
 							//----------------------------------------------
+							// 上の手がかりは置き場の +Y(機体が傾けば一緒に傾く)
+							_up = Math::Vector3::TransformNormal(Math::Vector3(0.0f, 1.0f, 0.0f), _placeToWorld);
+
 							switch (_part.space)
 							{
 							case Engine::Resource::EEffectSpace::WorldMatrix:
-								// 相手のワールド位置と前方向(+Z)
+								// 置き場のワールド位置と前方向(+Z)
 								_pos = _effectWorld.Translation();
-								_dir = Math::Vector3(_ownerWorld._31, _ownerWorld._32, _ownerWorld._33);
+								_dir = Math::Vector3::TransformNormal(Math::Vector3(0.0f, 0.0f, 1.0f), _placeToWorld);
 								break;
 
 							case Engine::Resource::EEffectSpace::ReverseVelocity:
 							{
 								// 進行方向の逆へ吹く(噴射・排気)。
 								// 弾やミサイルは見た目の姿勢が進行方向と一致しないので、
-								// 行列の軸ではなく実際の速度から向きを取る。
+								// 行列の軸ではなく実際の速度から向きを取る(置き場の回転も使わない)。
 								// DesiredVelocityComponent はこのクエリに含めない
 								// (持たないエンティティのエフェクトまで止まってしまうため)
 								_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _effectWorld);
@@ -215,44 +246,23 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 
 							case Engine::Resource::EEffectSpace::LocalOffset:
 							default:
-								// 相手の行列を基準に、ローカルのオフセット位置・方向を合成
+								// 置き場を基準に、パーツのオフセット位置・向きを合成
 								_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _effectWorld);
-								_dir = Math::Vector3::TransformNormal(Math::Vector3(_part.emitDir), _ownerWorld);
+								_dir = Math::Vector3::TransformNormal(Math::Vector3(_part.emitDir), _placeToWorld);
 								break;
-							}
-
-							// 向きの上書き : パーツが持っている向きを、出す側の指定で置き換える。
-							// 取り付け角度が個体ごとに違うもの(ブースターなど)向け。
-							// 位置と違って足し合わせても意味を成さないので、こちらは差し替える
-							if (_override.isOverrideTransform)
-							{
-								_dir = Math::Vector3::TransformNormal(
-									Math::Vector3(_override.overrideEmitDir), _ownerWorld);
 							}
 						}
 
 						//--------------------------------------------------
-						// 発生行列にまとめる
-						//
-						// 形状はシェーダーがローカル(+Z が噴き出す向き)で作って、この行列を掛ける。
-						// 噴き出す向きを軸にした回転(ロール)は上の手がかりで決める。
-						//   ローカル空間 : 席の座標系の +Y(席自体が持ち主の回転を持っている)
-						//   ワールド空間 : 持ち主の +Y(機体が傾けば一緒に傾く)
-						// いまの形状(円錐・球・半球と球状のばらつき)は噴き出す向きのまわりで対称なので、
-						// ロールの決め方で見た目は変わらない。粒に向きを持たせる 3-C から効いてくる。
-						// 方向の正規化と 0 ベクトルの安全策も MakeEmitMatrix が持つ
-						//--------------------------------------------------
-						const Math::Vector3 _upHint = (_emitterIndex != 0)
-							? Math::Vector3(0.0f, 1.0f, 0.0f)
-							: Math::Vector3::TransformNormal(Math::Vector3(0.0f, 1.0f, 0.0f), _ownerWorld);
-
-						//--------------------------------------------------
 						// エミットデータ構築
-						// 散らばり方はエフェクト側、速度と寿命はパーティクルアセット側
+						// 散らばり方はエフェクト側、速度と寿命と板の回転はパーティクルアセット側
 						//--------------------------------------------------
 						Engine::Particle::EmitterData _emitData = {};
 
-						_emitData.emitMatrix    = Engine::Particle::MakeEmitMatrix(_pos, _dir, _upHint);
+						// 発生行列と、その回転(粒の板の向きに使う)を一緒に入れる。
+						// 形状はシェーダーがローカル(+Z が噴き出す向き)で作って、この行列を掛ける。
+						// 方向の正規化と 0 ベクトルの安全策もここが持つ
+						Engine::Particle::SetEmitTransform(_emitData, _pos, _dir, _up);
 						_emitData.emitCount     = static_cast<UINT>(_emitCount);
 
 						// 大きさとばらつき半径も一緒に拡縮する。
@@ -271,6 +281,12 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 						_emitData.maxSpeed    = _pParticle->GetInitalSpeedMax() * _lengthScale;
 						_emitData.minLifeTime = _pParticle->GetLifeTimeMin();
 						_emitData.maxLifeTime = _pParticle->GetLifeTimeMax();
+
+						// 板の回転(アセットは度で持っている)
+						_emitData.minRotation        = DirectX::XMConvertToRadians(_pParticle->GetRotationMin());
+						_emitData.maxRotation        = DirectX::XMConvertToRadians(_pParticle->GetRotationMax());
+						_emitData.minAngularVelocity = DirectX::XMConvertToRadians(_pParticle->GetAngularVelocityMin());
+						_emitData.maxAngularVelocity = DirectX::XMConvertToRadians(_pParticle->GetAngularVelocityMax());
 
 						_pParticleManager->RequestEmit(_part.particleHandle, _emitData);
 					}

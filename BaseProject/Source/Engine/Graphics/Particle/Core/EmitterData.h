@@ -48,7 +48,18 @@ namespace Engine::Particle
 		// 出した粒に持たせる発生源の番号。
 		// ローカル空間で回すときだけ 1 以上になる(0 は単位行列 = ワールド空間)
 		UINT emitterIndex;
+
+		// emitMatrix の回転部分(クォータニオン xyzw)。粒の orientation にそのまま入る。
+		// シェーダーで行列から作り直さずに済むよう、CPU 側で作って渡す(SetEmitTransform)
+		Math::Quaternion emitRotation;
+
+		// 板を面の中で回す角度と速さの区間(ラジアン、ラジアン/秒)
+		float minRotation;
+		float maxRotation;
+		float minAngularVelocity;
+		float maxAngularVelocity;
 	};
+	static_assert(sizeof(EmitterData) == 144, "HLSL 側 EmitData と大きさを合わせること");
 
 	/// <summary>
 	/// 発生行列を作る : +Z が噴き出す向き、+Y が上、第4行が位置
@@ -87,5 +98,22 @@ namespace Engine::Particle
 		}
 
 		return Math::Matrix::CreateWorld(a_pos, _forward, _up);
+	}
+
+	/// <summary>
+	/// 発生行列とその回転(クォータニオン)を一緒に入れる
+	/// </summary>
+	/// <remarks>
+	/// 2つは必ず同じものから作ること(食い違うと、粒の位置と板の向きがずれる)。
+	/// 引数は MakeEmitMatrix と同じ
+	/// </remarks>
+	inline void SetEmitTransform(
+		EmitterData& a_out,
+		const Math::Vector3& a_pos,
+		const Math::Vector3& a_forward,
+		const Math::Vector3& a_upHint)
+	{
+		a_out.emitMatrix = MakeEmitMatrix(a_pos, a_forward, a_upHint);
+		a_out.emitRotation = Math::Quaternion::CreateFromRotationMatrix(a_out.emitMatrix);
 	}
 }

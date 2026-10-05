@@ -130,14 +130,46 @@ namespace Engine::Editor::Inspector
 		// ---- 板ポリの向き ----
 		// 進行方向に画像を回すかどうか。Billboard 以外のとき Stretch が効く
 		Field("Orientation", a_pParticles->RefOrientation());
-		if (a_pParticles->GetOrientation() == Particle::EParticleOrientation::Billboard)
+
+		// 向きごとの説明と、効く項目だけを出す
+		bool _isStretch = false;	// 縦(画像の上)へ伸ばせるか
+		bool _isRotate = false;		// 板を面の中で回せるか
+		switch (a_pParticles->GetOrientation())
 		{
+		case Particle::EParticleOrientation::Billboard:
 			Engine::Editor::HelpText("Always faces camera (texture up = screen up)");
-		}
-		else
-		{
+			_isRotate = true;
+			break;
+		case Particle::EParticleOrientation::VelocityBillboard:
+		case Particle::EParticleOrientation::VelocityAxis:
 			Engine::Editor::HelpText("Texture up (V=0) points along velocity");
+			_isStretch = true;
+			break;
+		case Particle::EParticleOrientation::EmitterAxis:
+			Engine::Editor::HelpText("Texture up (V=0) points along emit direction (emitter +Z)");
+			_isStretch = true;
+			_isRotate = true;
+			break;
+		case Particle::EParticleOrientation::EmitterFacing:
+			Engine::Editor::HelpText("Faces emit direction (texture up = emitter +Y)");
+			_isRotate = true;
+			break;
+		default:
+			break;
+		}
+
+		if (_isStretch)
+		{
 			Engine::Editor::Field("Stretch", a_pParticles->RefStretch(), 0.05f, 0.01f);
+		}
+
+		// 板を面の中で回す : 初期角は粒ごとの乱数、回転速度も乱数(負で逆回り)
+		if (_isRotate)
+		{
+			Engine::Editor::Field("RotationMin (deg)", a_pParticles->RefRotationMin(), 1.0f);
+			Engine::Editor::Field("RotationMax (deg)", a_pParticles->RefRotationMax(), 1.0f);
+			Engine::Editor::Field("AngularVelocityMin (deg/s)", a_pParticles->RefAngularVelocityMin(), 1.0f);
+			Engine::Editor::Field("AngularVelocityMax (deg/s)", a_pParticles->RefAngularVelocityMax(), 1.0f);
 		}
 
 		Engine::Editor::Line();

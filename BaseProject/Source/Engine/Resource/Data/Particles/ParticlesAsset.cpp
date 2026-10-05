@@ -46,6 +46,12 @@ namespace Engine::Resource
 
 		a_ar.Field("m_blendMode", m_blendMode);
 		a_ar.Field("m_simulationSpace", m_simulationSpace);
+
+		// ---- 板の回転 ----
+		a_ar.Field("m_rotationMin", m_rotationMin);
+		a_ar.Field("m_rotationMax", m_rotationMax);
+		a_ar.Field("m_angularVelocityMin", m_angularVelocityMin);
+		a_ar.Field("m_angularVelocityMax", m_angularVelocityMax);
 	}
 
 	//======================================================================================

@@ -8,6 +8,8 @@
 #define PARTICLE_ORIENT_BILLBOARD			0	// 常にカメラ正面
 #define PARTICLE_ORIENT_VELOCITY_BILLBOARD	1	// カメラ正面のまま、画面上で進行方向へ回す
 #define PARTICLE_ORIENT_VELOCITY_AXIS		2	// 進行方向をワールドの縦軸にする(手前へ向かうと縮む)
+#define PARTICLE_ORIENT_EMITTER_AXIS		3	// 画像の上を発生源の噴き出す向き(+Z)へ。板は発生源の X-Z 面
+#define PARTICLE_ORIENT_EMITTER_FACING		4	// 板を発生源の噴き出す向きへ向けて立てる。画像の上は発生源の +Y
 
 // 発生方向の決め方
 // ※ CPU 側 Engine::Particle::EParticleEmitShape と数値を合わせること
@@ -31,7 +33,13 @@ struct ParticleData
 	// 0 は単位行列で予約してあるので、ワールド空間で回す粒は 0 のまま
 	uint emitterIndex;
 
-	float2 pad;
+	// 板を面の中で回す角度(ラジアン)と速さ(ラジアン/秒)
+	float rotation;
+	float angularVelocity;
+
+	// 発生したときの発生源の向き(クォータニオン xyzw)。
+	// ワールド空間の粒ならワールド、ローカル空間の粒なら席から見た向き
+	float4 orientation;
 };
 
 // アセット単位の描画設定。
@@ -84,7 +92,24 @@ struct EmitData
 
 	uint	emitShape;		// 上の PARTICLE_EMIT_SHAPE_*
 	uint	emitterIndex;	// 出した粒に持たせる発生源の番号(ワールド空間なら 0)
+
+	float4	emitRotation;	// emitMatrix の回転部分(クォータニオン xyzw)。粒の orientation に入る
+
+	// 板を面の中で回す角度と速さの区間(ラジアン、ラジアン/秒)
+	float	minRotation;
+	float	maxRotation;
+	float	minAngularVelocity;
+	float	maxAngularVelocity;
 };
+
+// クォータニオン(xyzw)でベクトルを回す。
+// CPU 側の Math::Quaternion(DirectXMath)と同じ向きに回る
+// (行ベクトルの v * M と、M から作ったクォータニオンで回した結果が一致する)
+float3 ParticleQuatRotate(float4 a_q, float3 a_v)
+{
+	float3 _t = 2.0f * cross(a_q.xyz, a_v);
+	return a_v + a_q.w * _t + cross(a_q.xyz, _t);
+}
 
 // 発生ディスパッチ1回ぶんの設定
 struct ParticleEmitSetting

@@ -4,7 +4,7 @@
 // ルートパラメーター
 //
 //   0 : CBV(b0)            更新ディスパッチの設定
-//   1 : SRVの番号(t0)    発生命令の一覧
+//   1 : SRVの番号        発生命令の一覧 + 発生源の席
 //   2 : UAVの番号(u0-u2) 粒 + デッドリスト + カウンター
 //==========================================================================================
 #define UPDATEPARTICLE_ROOT_SIG \
@@ -72,9 +72,20 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	// パーティクルの更新ロジック
 	_p.life -= g_update.deltaTime;								// 寿命を減らす
 
-	// 重力を減らす
-	float3x3 _rot = (float3x3) g_emitterSlots[_p.emitterIndex].worldMat;
-	_p.velocity += mul(g_update.gravity, transpose(_rot)) * g_update.deltaTime;
+	//----------------------------------------------------------------
+	// 重力を加える
+	//
+	// 重力はワールドの下向き。ローカル空間で回している粒は席(発生源)の座標系で
+	// 速度を持っているので、ワールドの重力を席の回転の逆で戻してから足す。
+	// 席の行列は拡縮を落としてあるので、回転の逆は転置で済む。
+	// 席 0 は単位行列なので、ワールド空間の粒はそのまま素通りする
+	//----------------------------------------------------------------
+	uint _slotCount, _slotStride;
+	g_emitterSlots.GetDimensions(_slotCount, _slotStride);
+	const uint _slotIndex = min(_p.emitterIndex, _slotCount - 1);		// 範囲外は読まない(ふつうは起きない)
+
+	const float3x3 _slotRot = (float3x3) g_emitterSlots[_slotIndex].worldMat;
+	_p.velocity += mul(g_update.gravity, transpose(_slotRot)) * g_update.deltaTime;
 
 	// 空気抵抗 : 勢いよく飛び出して失速する動きを作る。
 	// 爆発の破片や煙は「初速だけ速い」ので、これが無いと最後まで等速で飛んでいってしまう。
@@ -86,6 +97,7 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	}
 
 	_p.pos += _p.velocity * g_update.deltaTime;		// 座標を更新
+	_p.rotation += _p.angularVelocity * g_update.deltaTime;	// 板を面の中で回す
 
 	// NaN/Inf 対策。
 	// NaN はあらゆる比較が false になるため、上の life<=0 も下の返却判定もすり抜け、

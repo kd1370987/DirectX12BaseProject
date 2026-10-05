@@ -44,6 +44,10 @@ namespace Engine::Graphics::Pipeline
 			{
 				a_pso.desc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
+				// 裏も描く。カメラ正面のビルボードは常に表を向くが、
+				// 発生源に合わせる向き(EmitterAxis / EmitterFacing)の板は裏から見ることがある
+				a_pso.CullMode(D3D12_CULL_MODE_NONE);
+
 				if (_isDepth)
 				{
 					a_pso.DepthEnable(true);
