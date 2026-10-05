@@ -8,12 +8,19 @@
 
 namespace Engine::Particle
 {
-	void Engine::Particle::GPUParticlePool::Init(D3D12::Device* a_pDevice, D3D12::DescriptorHeapManager* a_pHeapManager, D3D12::GraphicsCommandList* a_pCmdList,Engine::Handle<Resource::ParticlesAsset> a_particleHandle, const Resource::ResourceManager& a_resourceManager)
+	bool Engine::Particle::GPUParticlePool::Init(
+		D3D12::Device* a_pDevice,
+		D3D12::DescriptorHeapManager* a_pHeapManager,
+		D3D12::GraphicsCommandList* a_pCmdList,
+		Engine::Handle<Resource::ParticlesAsset> a_particleHandle,
+		const Resource::ResourceManager& a_resourceManager
+	)
 	{
 		auto* _pParticleAsset = a_resourceManager.Get(a_particleHandle);
 		if (!_pParticleAsset)
 		{
 			ENGINE_WARNING("パーティクルプールの作成に失敗 : パーティクルアセットが読み込めませんでした");
+			return false;
 		}
 
 		// パーティクルデータの確保
@@ -74,5 +81,7 @@ namespace Engine::Particle
 
 		// 解放処理を登録
 		MainEngine::Instance().RegisterDeferredResource([_spDeadListUpload,_spCounterUpload,_spParticleUpload](){});
+
+		return true;
 	}
 }

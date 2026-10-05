@@ -20,7 +20,7 @@ namespace Engine::Particle
 		/// <param name="a_pCmdList">コマンドリストポインタ</param>
 		/// <param name="a_particleHandle">パーティクルアセットのハンドル</param>
 		/// <param name="a_resourceManager">アセットの値を引く先</param>
-		void Init(
+		bool Init(
 			D3D12::Device* a_pDevice,
 			D3D12::DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList,
@@ -60,5 +60,13 @@ namespace Engine::Particle
 
 		// 最大容量 (アセットから取得したキャパシティ) 
 		UINT m_maxCapacity = 10000;
+	};
+
+	class ParticlePool
+	{
+	public:
+
+	private:
+
 	};
 }
