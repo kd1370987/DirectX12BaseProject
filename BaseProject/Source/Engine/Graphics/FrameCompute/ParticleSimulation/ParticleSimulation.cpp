@@ -202,8 +202,11 @@ namespace Engine::Graphics
 		if (_slotSRVIndex == (std::numeric_limits<UINT>::max)()) return;
 
 		// 間接描画の引数をリセットできるか。
-		// リセット用シェーダーが読めていないときは引数を用意しない(= 印が立たず、描画もされない)
+		// 更新シェーダーは生き残った粒を数えて引数へ足すので、リセットできないと
+		// 前のフレームの数に足し続けることになる。リセット用シェーダーが読めていないときは
+		// 更新ごと見送る(印が立たないので描画もされない)
 		const bool _isResetReady = g_particle.resetRootSig.IsValid() && g_particle.resetPSO.IsValid();
+		if (!_isResetReady) return;
 
 		// 描く板ポリのインデックス数。ParticlePass が張るもの(平らな1枚板)と合わせる
 		const UINT _quadIndexCount = a_pGE->RefQuadPolygon() ? a_pGE->RefQuadPolygon()->GetIndexCount() : 0u;
@@ -223,29 +226,30 @@ namespace Engine::Graphics
 			// (このフレームに発生命令が無いと、上の発生ループで張られていない)
 			a_pCtx->BindBindlessHeaps();
 
+			// 引数バッファと生存リストが無ければ、更新シェーダーの書き先が無い
+			if (!_pool->GetDrawArgsResource() || !_pool->RefAliveList().GetResource()) continue;
+
 			//------------------------------------------------------------------
 			// 間接描画の引数をリセットする
 			//
 			// フレームの頭は COMMON(前のフレームの終わりで FinishFrame が戻す)なので、書く前に UAV へ。
-			// 1段目はインスタンス数 = 容量(今までの DrawIndexedInstanced と同じ数)。
+			// 生存リストも Update が書くので一緒に UAV へ。
+			// インスタンス数は 0 から始め、Update が生き残った粒を数えて足す。
 			// インデックス数は描く板ポリ(ParticlePass が張るもの)と合わせる
 			//------------------------------------------------------------------
-			const bool _isIndirect = _isResetReady && _pool->GetDrawArgsResource();
-			if (_isIndirect)
-			{
-				_pool->RefDrawArgs().Barrier(_pCmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+			_pool->RefDrawArgs().Barrier(_pCmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+			_pool->RefAliveList().Barrier(_pCmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-				a_pCtx->SetComputeRootSignature(g_particle.resetRootSig);
-				a_pCtx->SetComputePSO(g_particle.resetPSO);
-				const UINT _resetParam[] = {
-					_pool->RefDrawArgs().GetUAV().GetIndex(),	// 引数バッファの UAV 番号
-					_quadIndexCount,							// 板ポリのインデックス数(1枚板なら 6)
-					_pool->GetMaxCapacity(),					// インスタンス数(1段目 : 容量)
-				};
-				a_pCtx->ComputeBindDescriptorIndices(0, _resetParam);
-				a_pCtx->Dispatch(1, 1, 1);
-				D3D12::UAVBarrier(_pCmd, { _pool->RefDrawArgs().GetResource() });
-			}
+			a_pCtx->SetComputeRootSignature(g_particle.resetRootSig);
+			a_pCtx->SetComputePSO(g_particle.resetPSO);
+			const UINT _resetParam[] = {
+				_pool->RefDrawArgs().GetUAV().GetIndex(),	// 引数バッファの UAV 番号
+				_quadIndexCount,							// 板ポリのインデックス数(1枚板なら 6)
+				0u,											// インスタンス数(Update が数えて足す)
+			};
+			a_pCtx->ComputeBindDescriptorIndices(0, _resetParam);
+			a_pCtx->Dispatch(1, 1, 1);
+			D3D12::UAVBarrier(_pCmd, { _pool->RefDrawArgs().GetResource() });
 
 			// ルートシグネチャ、PSOをセット
 			a_pCtx->SetComputeRootSignature(g_particle.updateRootSig);
@@ -291,11 +295,15 @@ namespace Engine::Graphics
 				a_pCtx->ComputeBindDescriptorIndices(1, _updateIndices);
 			}
 
-			// GPUパーティクルプールバインド : 本体 / デッドリスト / カウンターの順(シェーダーの u0-u2 と同じ)
+			// GPUパーティクルプールバインド。並びはシェーダーの PassDescriptorIndex1 と同じ :
+			// 本体 / デッドリスト / カウンター / 生存リスト / 間接描画の引数
+			// (発生シェーダーは前の3つだけ。こちらは生き残りを積む先と数える先も渡す)
 			const UINT _poolIndices[] = {
 				_pool->GetParticlePoolUAV().GetIndex(),
 				_pool->GetDeadListUAV().GetIndex(),
 				_pool->GetCounterUAV().GetIndex(),
+				_pool->GetAliveListUAV().GetIndex(),
+				_pool->RefDrawArgs().GetUAV().GetIndex(),
 			};
 			a_pCtx->ComputeBindDescriptorIndices(2, _poolIndices);
 
@@ -323,13 +331,12 @@ namespace Engine::Graphics
 				}
 			);
 
-			// 描画で読むので、間接引数の状態へ。
+			// 描画で読むので、引数は間接引数の状態へ、生存リストは VS が SRV で読む状態へ。
+			// 遷移のバリアが Update の書き込みの完了待ちも兼ねる。
 			// 印を立てたプールだけが描かれ、フレームの終わりで COMMON へ戻される
-			if (_isIndirect)
-			{
-				_pool->RefDrawArgs().Barrier(_pCmd, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
-				_pool->SetArgsReady(true);
-			}
+			_pool->RefDrawArgs().Barrier(_pCmd, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
+			_pool->RefAliveList().Barrier(_pCmd, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+			_pool->SetArgsReady(true);
 		}
 	}
 }

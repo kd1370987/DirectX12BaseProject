@@ -41,6 +41,14 @@ namespace Engine::Particle
 		}
 		m_isArgsReady = false;
 
+		// 生存リスト(生きている粒の番号の一覧)。
+		// Update が数えたぶんしか読まないので、初期値は要らない
+		m_aliveList.Create(a_pDevice, a_pHeapManager, m_maxCapacity);
+		if (m_aliveList.GetResource())
+		{
+			m_aliveList.GetResource()->SetName(L"ParticleAliveList");
+		}
+
 		// バッファの初期化用データの作成
 		std::vector<uint32_t> _initDeadList(m_maxCapacity);
 		std::iota(_initDeadList.begin(),_initDeadList.end(),0); // すべての配列を0から連番で埋めてくれる

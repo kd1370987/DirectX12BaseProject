@@ -5,13 +5,13 @@
 //
 //   0 : CBV(b0)            更新ディスパッチの設定
 //   1 : SRVの番号        発生命令の一覧 + 発生源の席
-//   2 : UAVの番号(u0-u2) 粒 + デッドリスト + カウンター
+//   2 : UAVの番号        粒 + デッドリスト + カウンター + 生存リスト + 間接描画の引数
 //==========================================================================================
 #define UPDATEPARTICLE_ROOT_SIG \
 	"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 	"CBV(b0)," \
 	"RootConstants(num32BitConstants=2, b100),"\
-	"RootConstants(num32BitConstants=3, b101)"
+	"RootConstants(num32BitConstants=5, b101)"
 
 cbuffer CBParticleUpdate : register(b0)
 {
@@ -39,6 +39,8 @@ cbuffer PassDescriptorIndex1 : register(b101)
 	uint g_particleBufferIndex;
 	uint g_deadListIndex;
 	uint g_counterBufferIndex;
+	uint g_aliveListIndex;		// 生き残った粒の番号を積む先(生存リスト)
+	uint g_drawArgsIndex;		// 間接描画の引数。[1](InstanceCount)で生き残りを数える
 }
 
 RWStructuredBuffer<ParticleData> Get_particleBuffer() { RWStructuredBuffer<ParticleData> _r = ResourceDescriptorHeap[g_particleBufferIndex]; return _r; }
@@ -47,6 +49,10 @@ RWStructuredBuffer<uint> Get_deadList() { RWStructuredBuffer<uint> _r = Resource
 #define g_deadList Get_deadList()
 RWStructuredBuffer<uint> Get_counterBuffer() { RWStructuredBuffer<uint> _r = ResourceDescriptorHeap[g_counterBufferIndex]; return _r; }
 #define g_counterBuffer Get_counterBuffer()
+RWStructuredBuffer<uint> Get_aliveList() { RWStructuredBuffer<uint> _r = ResourceDescriptorHeap[g_aliveListIndex]; return _r; }
+#define g_aliveList Get_aliveList()
+RWStructuredBuffer<uint> Get_drawArgs() { RWStructuredBuffer<uint> _r = ResourceDescriptorHeap[g_drawArgsIndex]; return _r; }
+#define g_drawArgs Get_drawArgs()
 
 // ルートシグネチャセット
 [RootSignature(UPDATEPARTICLE_ROOT_SIG)]
@@ -128,6 +134,26 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 		else
 		{
 			InterlockedAdd(g_counterBuffer[0], (uint) - 1);
+		}
+	}
+
+	//----------------------------------------------------------------
+	// 生き残った粒を描く一覧(生存リスト)へ積む
+	//
+	// 描画は生きている粒の数ぶんだけ走る(ExecuteIndirect)。その数を GPU のここで数える。
+	// InstanceCount(引数の[1])を1つ進めて自分の枠を取る(戻り値は進める前の値 = 自分の枠の番号)。
+	// このフレームで寿命が尽きた粒は上で life = 0 にしてあるので積まれない。
+	// InstanceCount はフレームの頭でリセット用の CS が 0 にしている
+	//----------------------------------------------------------------
+	if (_p.life > 0.0f)
+	{
+		uint _slot;
+		InterlockedAdd(g_drawArgs[1], 1, _slot);
+
+		// 生きている粒は容量を超えないが、壊れていても範囲外は書かない
+		if (_slot < _maxCapacity)
+		{
+			g_aliveList[_slot] = _particleIndex;
 		}
 	}
 

@@ -48,6 +48,18 @@ namespace Engine::Particle
 		bool IsArgsReady() const { return m_isArgsReady; }
 		void SetArgsReady(bool a_isReady) { m_isArgsReady = a_isReady; }
 
+		//------------------------------------------------------------------
+		// 生存リスト : 生きている粒の番号を詰めて並べたもの
+		//
+		// Update が生き残った粒を積み(数は間接引数のインスタンス数へ足す)、
+		// VS が SV_InstanceID で引く。描画は生きている粒の数ぶんだけ走る。
+		// 状態の約束は引数と同じ : フレームの頭は COMMON。Update の前に UAV、後に NON_PIXEL_SHADER_RESOURCE、
+		// フレームの終わり(FinishFrame)で COMMON へ戻す
+		//------------------------------------------------------------------
+		D3D12::RWStructuredBuffer<uint32_t>& RefAliveList() { return m_aliveList; }
+		const Handle<D3D12::UAV>& GetAliveListUAV() const { return m_aliveList.GetUAV(); }
+		const Handle<D3D12::SRV>& GetAliveListSRV() const { return m_aliveList.GetSRV(); }
+
 		// UAVバリア用の生リソース。
 		// Emit(取り出し)と Update(返却)は同じデッドリスト/カウンターを触るため、
 		// Dispatch の間で同期を取る必要がある。
@@ -74,6 +86,9 @@ namespace Engine::Particle
 		static constexpr UINT DRAW_ARGS_ELEMENT_NUM = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS) / sizeof(uint32_t);
 		D3D12::RWStructuredBuffer<uint32_t> m_drawArgs;
 		bool m_isArgsReady = false;				// このフレームの引数を用意したか
+
+		// 生存リスト : 容量ぶん(生きている粒は容量を超えない)
+		D3D12::RWStructuredBuffer<uint32_t> m_aliveList;
 
 		// 最大容量 (アセットから取得したキャパシティ) 
 		UINT m_maxCapacity = 10000;

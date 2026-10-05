@@ -90,8 +90,10 @@ namespace Engine::Particle
 		{
 			if (!_upPool || !_upPool->IsArgsReady()) continue;
 
-			// INDIRECT_ARGUMENT → COMMON。次のフレームの頭は COMMON から始まる約束
+			// 引数(INDIRECT_ARGUMENT)と生存リスト(NON_PIXEL_SHADER_RESOURCE)を COMMON へ。
+			// 次のフレームの頭は COMMON から始まる約束
 			_upPool->RefDrawArgs().Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
+			_upPool->RefAliveList().Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
 			_upPool->SetArgsReady(false);
 		}
 	}

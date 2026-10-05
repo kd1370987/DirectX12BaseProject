@@ -5,8 +5,13 @@ VSOutput VSMain(VSInput a_input)
 {
 	VSOutput _out;
 
-	// パーティクルデータを取得
-	ParticleData _particleData = g_particleBuffer[a_input.instID];
+	// パーティクルデータを取得。
+	// 生きている粒だけが生存リストに詰めて並んでいて、SV_InstanceID はその何番目か
+	// (インスタンス数は Update が数えた生存数。範囲外は読まないよう表の長さで丸める)
+	uint _aliveCount, _aliveStride;
+	g_aliveList.GetDimensions(_aliveCount, _aliveStride);
+	const uint _particleIndex = g_aliveList[min(a_input.instID, _aliveCount - 1)];
+	ParticleData _particleData = g_particleBuffer[_particleIndex];
 
 	// パーティクルの寿命判定
 	if (_particleData.life <= 0.0f)

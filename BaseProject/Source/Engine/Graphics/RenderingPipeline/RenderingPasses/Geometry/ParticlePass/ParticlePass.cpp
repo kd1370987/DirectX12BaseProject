@@ -149,11 +149,13 @@ namespace Engine::Graphics::Pipeline
 				CameraData _cbCam = _pGE->GetSceneView()->GetCameraData();
 				_pCtx->GraphicsBindRootCBV(0, _cbCam);
 
-				// パーティクルデータと発生源の席(バインドレス : 番号をルート定数で渡す)。
-				// 並びはシェーダーの PassDescriptorIndex0(粒 → 席)と同じ
+				// パーティクルデータと発生源の席と生存リスト(バインドレス : 番号をルート定数で渡す)。
+				// 並びはシェーダーの PassDescriptorIndex0(粒 → 席 → 生存リスト)と同じ。
+				// 生存リストはシミュレーションが NON_PIXEL_SHADER_RESOURCE にしてある(印が立っているプールだけ描く)
 				const UINT _vsIndices[] = {
 					a_upPool->GetParticlePoolSRV().GetIndex(),
 					_slotSRVIndex,
+					a_upPool->GetAliveListSRV().GetIndex(),
 				};
 				_pCtx->GraphicsBindDescriptorIndices(1, _vsIndices);
 

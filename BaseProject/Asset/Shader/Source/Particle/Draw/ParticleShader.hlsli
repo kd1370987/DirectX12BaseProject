@@ -8,14 +8,14 @@
 // ルートパラメーター
 //
 //   0 : CBV(b0)         カメラ
-//   1 : SRVの番号     粒バッファ(更新パスの出力をそのまま読む) + 発生源の席
+//   1 : SRVの番号     粒バッファ(更新パスの出力をそのまま読む) + 発生源の席 + 生存リスト
 //   2 : SRVの番号(t1) 絵
 //   3 : CBV(b1)         アセット単位の描画設定
 //==========================================================================================
 #define PARTICLE_ROOT_SIG \
 RS_FLAGS","\
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL),"\
-"RootConstants(num32BitConstants=2, b100, visibility = SHADER_VISIBILITY_VERTEX),"\
+"RootConstants(num32BitConstants=3, b100, visibility = SHADER_VISIBILITY_VERTEX),"\
 "RootConstants(num32BitConstants=1, b101, visibility = SHADER_VISIBILITY_PIXEL),"\
 "CBV(b1, visibility = SHADER_VISIBILITY_VERTEX),"\
 RS_STATIC_SAMPLER
@@ -35,12 +35,15 @@ cbuffer PassDescriptorIndex0 : register(b100)
 {
 	uint g_particleBufferIndex;
 	uint g_emitterSlotIndex;		// 発生源の席(全アセット共通の1本)
+	uint g_aliveListIndex;			// 生きている粒の番号の一覧(SV_InstanceID で引く)
 }
 
 StructuredBuffer<ParticleData> Get_particleBuffer() { StructuredBuffer<ParticleData> _r = ResourceDescriptorHeap[g_particleBufferIndex]; return _r; }
 #define g_particleBuffer Get_particleBuffer()
 StructuredBuffer<EmitterTransform> Get_emitterSlots() { StructuredBuffer<EmitterTransform> _r = ResourceDescriptorHeap[g_emitterSlotIndex]; return _r; }
 #define g_emitterSlots Get_emitterSlots()
+StructuredBuffer<uint> Get_aliveList() { StructuredBuffer<uint> _r = ResourceDescriptorHeap[g_aliveListIndex]; return _r; }
+#define g_aliveList Get_aliveList()
 // SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
 cbuffer PassDescriptorIndex1 : register(b101)
 {
