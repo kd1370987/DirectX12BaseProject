@@ -10,7 +10,7 @@
 #define UPDATEPARTICLE_ROOT_SIG \
 	"RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 	"CBV(b0)," \
-	"RootConstants(num32BitConstants=1, b100),"\
+	"RootConstants(num32BitConstants=2, b100),"\
 	"RootConstants(num32BitConstants=3, b101)"
 
 cbuffer CBParticleUpdate : register(b0)
@@ -23,10 +23,14 @@ cbuffer CBParticleUpdate : register(b0)
 cbuffer PassDescriptorIndex0 : register(b100)
 {
 	uint g_emitDataIndex;
+	uint g_emitterSlotIndex;
 }
 
 StructuredBuffer<EmitData> Get_emitData() { StructuredBuffer<EmitData> _r = ResourceDescriptorHeap[g_emitDataIndex]; return _r; }
 #define g_emitData Get_emitData()
+
+StructuredBuffer<EmitterTransform> Get_emitterSlots() { StructuredBuffer<EmitterTransform> _r = ResourceDescriptorHeap[g_emitterSlotIndex]; return _r; }
+#define g_emitterSlots Get_emitterSlots()
 
 // 入出力
 // UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
@@ -66,8 +70,11 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	if (_p.life <= 0.0f) return;
 
 	// パーティクルの更新ロジック
-	_p.life -= g_update.deltaTime;					// 寿命を減らす
-	_p.velocity += g_update.gravity * g_update.deltaTime;		// 重力を減らす
+	_p.life -= g_update.deltaTime;								// 寿命を減らす
+
+	// 重力を減らす
+	float3x3 _rot = (float3x3) g_emitterSlots[_p.emitterIndex].worldMat;
+	_p.velocity += mul(g_update.gravity, transpose(_rot)) * g_update.deltaTime;
 
 	// 空気抵抗 : 勢いよく飛び出して失速する動きを作る。
 	// 爆発の破片や煙は「初速だけ速い」ので、これが無いと最後まで等速で飛んでいってしまう。
@@ -80,7 +87,7 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 
 	_p.pos += _p.velocity * g_update.deltaTime;		// 座標を更新
 
-	// ★NaN/Inf 対策。
+	// NaN/Inf 対策。
 	// NaN はあらゆる比較が false になるため、上の life<=0 も下の返却判定もすり抜け、
 	// 永久に生き続けてスロットを占有し続ける(デッドリストへ返却されない)。
 	// 一度でも混入すると空きが減りっぱなしになるので、ここで死亡扱いにして回収する。

@@ -4,6 +4,7 @@
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/Particle/ParticleBufferManager.h"
 #include "Engine/Graphics/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
+#include "../../../Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
@@ -126,7 +127,14 @@ namespace Engine::Graphics
 			const auto* _pEmitBuff = _pParticleManager->GetEmitBuffer(_handle);
 			if (!_pEmitBuff) continue;
 			const UINT _emitIndex = _pEmitBuff->GetSRVHandle().GetIndex();
-			a_pCtx->ComputeBindDescriptorIndices(1, std::span<const UINT>(&_emitIndex, 1));
+			auto* _pEmitterSlotPool = _pParticleManager->GetEmitterSlotPool();
+			
+			// スロット１に送信するデータ
+			const UINT _emitIndices[] = {
+				_emitIndex,
+				_pEmitterSlotPool->GetSRVIndex()
+			};
+			a_pCtx->ComputeBindDescriptorIndices(1, _emitIndices);
 
 			struct EmitCB
 			{
