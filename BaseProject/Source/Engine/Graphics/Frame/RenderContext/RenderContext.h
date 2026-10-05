@@ -226,6 +226,19 @@ namespace Engine::Graphics
 		void DrawPolygonInstancing(UINT a_count);
 		void DrawPolygonInstancing(Resource::QuadPolygon* a_pPolygon, UINT a_count);
 
+		//--------------------------------------------------------------------------------------------
+		// 板ポリの間接描画
+		//
+		// インスタンス数などの描画引数を、CPU ではなく GPU 上のバッファから読んで描く。
+		// GPU が数えた数(生きているパーティクルの数など)で描けるので、CPU へ読み戻さずに済む。
+		//
+		// a_pArgs は D3D12_DRAW_INDEXED_ARGUMENTS(uint ×5 = 20バイト)が a_argsOffset から並んだバッファ。
+		// 描く時点で D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT にしておくこと(遷移は呼ぶ側の仕事)。
+		// 引数のインデックス数は、張る板ポリの GetIndexCount() と合わせること
+		//--------------------------------------------------------------------------------------------
+		void DrawPolygonIndirect(ID3D12CommandSignature* a_pSignature, ID3D12Resource* a_pArgs, UINT64 a_argsOffset = 0);
+		void DrawPolygonIndirect(Resource::QuadPolygon* a_pPolygon, ID3D12CommandSignature* a_pSignature, ID3D12Resource* a_pArgs, UINT64 a_argsOffset = 0);
+
 		// 形状描画用
 		void DrawShape();
 
@@ -236,6 +249,11 @@ namespace Engine::Graphics
 			D3D12_RESOURCE_STATES a_before,
 			D3D12_RESOURCE_STATES a_after
 		);
+
+	private:
+
+		// 板ポリの頂点・インデックスバッファを張る(直接描画と間接描画で共通)
+		void BindPolygonBuffers(Resource::QuadPolygon* a_pPolygon);
 
 	private:
 		//--------------------------------------------------------------------------------------------

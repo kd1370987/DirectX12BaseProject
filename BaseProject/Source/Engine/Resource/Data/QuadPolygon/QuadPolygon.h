@@ -28,6 +28,15 @@ namespace Engine::Resource
 			return m_indexBuffer.GetView();
 		}
 
+		// インデックス数(4頂点の1枚板なら6、分割板ならその分だけ増える)。
+		// 間接描画の引数(IndexCountPerInstance)を GPU 側で書くときにも使う
+		UINT GetIndexCount()
+		{
+			const D3D12_INDEX_BUFFER_VIEW& _ibView = GetIBView();
+			const UINT _indexByteSize = (_ibView.Format == DXGI_FORMAT_R16_UINT) ? 2u : 4u;
+			return _ibView.SizeInBytes / _indexByteSize;
+		}
+
 	private:
 
 		D3D12::DynamicVertexBuffer<SimpleVertex> m_vertexBuffer;

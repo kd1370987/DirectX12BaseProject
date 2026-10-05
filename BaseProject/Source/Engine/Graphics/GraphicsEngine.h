@@ -242,6 +242,16 @@ namespace Engine::Graphics
 		Resource::QuadPolygon* RefCurvedQuadPolygon()	{ return m_upCurvedQuadPolygon.get(); }
 
 		//--------------------------------------------------------------------------------------------
+		// 間接描画のコマンドシグネチャ
+		//
+		// 「GPU 上の引数バッファを、どういう描画命令として読むか」の型。
+		// DrawIndexed 1件(D3D12_DRAW_INDEXED_ARGUMENTS = 20バイト)だけを読み、ルート引数は変えない。
+		// パーティクルの生存数ぶんだけ描く(ExecuteIndirect)のに使う。
+		// 型だけのものなので、使う側の数に関係なくエンジンが1つ持って配る
+		//--------------------------------------------------------------------------------------------
+		ID3D12CommandSignature* GetDrawIndexedSignature() const { return m_cpDrawIndexedSignature.Get(); }
+
+		//--------------------------------------------------------------------------------------------
 		// デバッグ用ワイヤー
 		//
 		// 積む場所はエンジン側(DebugDraw)。エディターは表示のオンオフを持つだけで、
@@ -308,6 +318,10 @@ namespace Engine::Graphics
 		// フラットは4頂点の1枚板、湾曲用は横に kCurveDivision 分割したもの
 		std::unique_ptr<Resource::QuadPolygon> m_upQuadPolygon = nullptr;
 		std::unique_ptr<Resource::QuadPolygon> m_upCurvedQuadPolygon = nullptr;
+
+		// 間接描画のコマンドシグネチャ(DrawIndexed 1件)。
+		// 実行中のコマンドリストから参照されるので、GPUの完了を待った後(ReleaseDevice)で捨てる
+		ComPtr<ID3D12CommandSignature> m_cpDrawIndexedSignature = nullptr;
 
 		// デバッグ用ワイヤーの置き場。
 		// 積む側(システム・GameObject・エンジン内部)はここへ入れ、

@@ -90,7 +90,7 @@ Phase1 即効のバグ修正 ─┐
 | 1 | 即効のバグ修正(B1・B3・B4、P4 の警告) | 小 | **実装済み・動作確認待ち**(2026-10-05) |
 | 2 | 発生源テーブルを全体共通・動的にする(EmitterSlotPool) | 中 | **実装済み・動作確認待ち**(2026-10-05)。デバッグ表示は Profiler パネル(Engine)の「Particles」 |
 | 3 | ローカルで形状を作り、最後に行列を掛ける。粒の回転 | 中 | **3-A〜3-D 実装済み・動作確認待ち**(2026-10-05)。向きは EmitterAxis / EmitterFacing の2つを追加。3-D に合わせて Booster_Jett / BoostSpark / MazleFlash / Worm_GroundDust のパーツの向きを +Y → +Z に変更。Local のオフセットに持ち主のスケールを掛けるかは保留 |
-| 4 | GPU の回し方(prefix sum・alive list・間接描画) | 中〜大 | **4-A・4-B 実装済み・動作確認待ち**(2026-10-05)。4-C 以降は未着手 |
+| 4 | GPU の回し方(prefix sum・alive list・間接描画) | 中〜大 | **4-A・4-B 実装済み・動作確認待ち**(2026-10-05)。4-C は 1-1(コマンドシグネチャ)・1-2(`RenderContext::DrawPolygonIndirect`)まで実装済み(まだどこからも呼んでいない) |
 | 5 | EffectAsset の拡張(統一の前提条件) | 大 | 未着手 |
 | 6 | ParticlesComponent・音のコンポーネント群を移行して削除 | 中 | 未着手 |
 
@@ -207,6 +207,16 @@ Phase 2 以降なら、いつやってもよい。上から順に進める(2026-
 | 4-F | 更新も alive list の数で間接 Dispatch にする(alive list を2本で回す。余力があれば) | P2 | 大 |
 
 計測は PIX で取る(エンジンに GPU 時間の計測はまだ無い)。4-A の前後で取っておくと、以降の効き目が比べられる。
+
+### 4-C の進め方(2段)
+
+- **状態の約束** : バッファは ExecuteCommandLists が終わると COMMON に戻る(decay)。`GPUResource` は CPU 側で状態を覚えるだけで、戻ったことは知らない。
+  そこで「フレームの頭は COMMON、使う前に明示で遷移、フレームの終わり(Submit の前)に明示で COMMON へ戻す」を守る(`StaticBuffer::UploadFrame` と同じ考え方)。
+  暗黙の昇格(COMMON → UAV)に頼ったまま `Barrier(INDIRECT_ARGUMENT)` を呼ぶと、遷移前の状態が食い違う。
+- **1段目(枠組み)** : 間接引数バッファ・コマンドシグネチャ・リセット用 CS・`RenderContext` の間接描画を作り、
+  インスタンス数は今と同じ「容量」のまま ExecuteIndirect で描く。見た目は変わらないので、状態遷移と仕組みだけを確かめられる。
+- **2段目(生存リスト)** : リセットでインスタンス数を 0 にし、Update が生き残った粒を alive list に積んで数える。VS は alive list 経由で粒を引く。
+- 半透明の粒は描く順が毎フレーム入れ替わるようになる(アトミックで積むため)。ちらつくなら後で奥行きで並べ替える。
 
 ---
 

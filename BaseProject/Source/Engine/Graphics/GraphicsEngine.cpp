@@ -51,6 +51,11 @@ namespace Engine::Graphics
 
 	void GraphicsEngine::ReleaseDevice()
 	{
+		// 間接描画のコマンドシグネチャ。
+		// 実行中のコマンドリストから参照されるので Release() では捨てず、
+		// GPUの完了を待ち終えたここで、デバイスより先に手放す
+		m_cpDrawIndexedSignature.Reset();
+
 		if (!m_upRenderDevice) return;
 
 		m_upRenderDevice->Release();
@@ -192,6 +197,34 @@ namespace Engine::Graphics
 
 		m_upCurvedQuadPolygon = std::make_unique<Resource::QuadPolygon>();
 		m_upCurvedQuadPolygon->Init(m_upDescriptorHeapManager.get(), kCurveDivision + 1, 2);
+
+		//------------------------------------------------------------------
+		// 間接描画のコマンドシグネチャ
+		//
+		// 引数バッファの1件 = D3D12_DRAW_INDEXED_ARGUMENTS(DrawIndexedInstanced の5引数)。
+		// 描く引数だけでルート引数(定数・ビュー)は変えないので、ルートシグネチャは渡さない
+		// (D3D12 の決まりで、引数が描画/Dispatch だけのときは nullptr でよい)
+		//------------------------------------------------------------------
+		if (_pDevice)
+		{
+			D3D12_INDIRECT_ARGUMENT_DESC _argDesc = {};
+			_argDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+
+			D3D12_COMMAND_SIGNATURE_DESC _sigDesc = {};
+			_sigDesc.ByteStride = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);	// 20バイト
+			_sigDesc.NumArgumentDescs = 1;
+			_sigDesc.pArgumentDescs = &_argDesc;
+			_sigDesc.NodeMask = 0;
+
+			if (FAILED(_pDevice->CreateCommandSignature(&_sigDesc, nullptr, IID_PPV_ARGS(m_cpDrawIndexedSignature.ReleaseAndGetAddressOf()))))
+			{
+				ENGINE_WARNING("[GraphicsEngine] 間接描画のコマンドシグネチャを作れませんでした");
+			}
+			else
+			{
+				m_cpDrawIndexedSignature->SetName(L"DrawIndexedSignature");
+			}
+		}
 
 		// ライト
 		// バッファは上限ぶんを固定確保する(FrameLightData::Create の中)。

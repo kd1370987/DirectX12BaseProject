@@ -618,22 +618,52 @@ namespace Engine::Graphics
 		if (!a_pPolygon) return;
 
 		// ポリゴンの頂点、インデックスバッファをバインド
-		const D3D12_VERTEX_BUFFER_VIEW& _vbView = a_pPolygon->GetVBView();
-		const D3D12_INDEX_BUFFER_VIEW& _ibView = a_pPolygon->GetIBView();
-		m_pCmdList->IASetVertexBuffers(0,1,&_vbView);
-		m_pCmdList->IASetIndexBuffer(&_ibView);
-
-		const UINT _indexByteSize = (_ibView.Format == DXGI_FORMAT_R16_UINT) ? 2u : 4u;
-		const UINT _indexCount = _ibView.SizeInBytes / _indexByteSize;
+		BindPolygonBuffers(a_pPolygon);
 
 		// GPUインスタンシング
 		m_pCmdList->DrawIndexedInstanced(
-			_indexCount,	// インデックス数(4頂点の1枚板なら6、分割板ならその分だけ増える)
-			a_count,		// 描画するオブジェクト数(インスタンス数)
+			a_pPolygon->GetIndexCount(),	// インデックス数(4頂点の1枚板なら6、分割板ならその分だけ増える)
+			a_count,						// 描画するオブジェクト数(インスタンス数)
 			0,
 			0,
 			0
 		);
+	}
+
+	void RenderContext::DrawPolygonIndirect(ID3D12CommandSignature* a_pSignature, ID3D12Resource* a_pArgs, UINT64 a_argsOffset)
+	{
+		DrawPolygonIndirect(m_pGraphicsEngine->RefQuadPolygon(), a_pSignature, a_pArgs, a_argsOffset);
+	}
+
+	void RenderContext::DrawPolygonIndirect(
+		Resource::QuadPolygon* a_pPolygon,
+		ID3D12CommandSignature* a_pSignature,
+		ID3D12Resource* a_pArgs,
+		UINT64 a_argsOffset)
+	{
+		if (!a_pPolygon || !a_pSignature || !a_pArgs) return;
+
+		// ポリゴンの頂点、インデックスバッファをバインド(直接描画と同じ)
+		BindPolygonBuffers(a_pPolygon);
+
+		// 描画引数(インデックス数・インスタンス数など)は GPU 上のバッファから読む。
+		// 1回の描画につき引数1件。数のバッファは使わない(件数は CPU 側で 1 と決めてある)
+		m_pCmdList->ExecuteIndirect(
+			a_pSignature,
+			1,				// 描画の回数(引数の件数)
+			a_pArgs,
+			a_argsOffset,
+			nullptr,		// 件数を GPU から読むバッファ(使わない)
+			0
+		);
+	}
+
+	void RenderContext::BindPolygonBuffers(Resource::QuadPolygon* a_pPolygon)
+	{
+		const D3D12_VERTEX_BUFFER_VIEW& _vbView = a_pPolygon->GetVBView();
+		const D3D12_INDEX_BUFFER_VIEW& _ibView = a_pPolygon->GetIBView();
+		m_pCmdList->IASetVertexBuffers(0, 1, &_vbView);
+		m_pCmdList->IASetIndexBuffer(&_ibView);
 	}
 
 	void RenderContext::Transition(
