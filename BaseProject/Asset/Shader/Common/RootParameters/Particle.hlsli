@@ -114,8 +114,10 @@ float3 ParticleQuatRotate(float4 a_q, float3 a_v)
 // 発生ディスパッチ1回ぶんの設定
 struct ParticleEmitSetting
 {
+	uint requestOffset;		// 発生命令のバッファ(全プール共通の1本)の中で、このプールの命令が始まる位置
 	uint requestCount;		// 今回処理する発生命令の数
 	uint frameSeed;			// フレームごとに変わる乱数の種
+	uint pad;
 };
 
 // 更新ディスパッチ1回ぶんの設定

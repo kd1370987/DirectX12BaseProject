@@ -24,6 +24,10 @@ namespace Engine::Particle
 		~ParticleBufferManager();
 		NON_COPYABLE_NON_MOVABLE(ParticleBufferManager);
 
+		// このフレームの発生命令のうち、あるプールのぶんが共通の1本のどこからどこまでか。
+		// 発生の Dispatch は offset から count 件だけを読む(count = 0 なら出す命令が無い)
+		struct EmitRange { uint32_t offset = 0; uint32_t count = 0; };
+
 		/// <summary>
 		/// 初期化
 		/// </summary>
@@ -100,11 +104,6 @@ namespace Engine::Particle
 		std::span <const EmitterData> GetRequests(const Handle<Resource::ParticlesAsset>& a_assetHandle) const;
 
 		/// <summary>
-		/// エミットバッファー取得
-		/// </summary>
-		const D3D12::StaticStructuredBuffer<EmitterData>* GetEmitBuffer(const Handle<Resource::ParticlesAsset>& a_handle) const;
-
-		/// <summary>
 		/// ランタイム時に非同期で読み込む関数
 		/// </summary>
 		void CreateParticleDataAsync(const Handle<Resource::ParticlesAsset>& a_handle);
@@ -113,6 +112,7 @@ namespace Engine::Particle
 		bool IsReady(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_readyHandles.contains(a_handle); }
 
 		// 命令バッファがあふれたことがあるか(デバッグ表示用。警告を出したアセット)
+		// (共通の命令バッファの上限 EMIT_BUFFER_MAX_CAPACITY を超えて、命令を捨てたことがあるか)
 		bool HasOverflowed(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_overflowWarned.contains(a_handle); }
 
 		//----------------------------------------------------------------------------------
@@ -130,6 +130,19 @@ namespace Engine::Particle
 		// 最後に粒を出してからの秒数(デバッグ表示用)。一度も出していなければ負
 		double GetSecondsSinceLastEmit(const Handle<Resource::ParticlesAsset>& a_handle) const;
 
+		//----------------------------------------------------------------------------------
+		// 発生命令のバッファ(全プール共通の1本)
+		//
+		// UploadEmitData が全プールの命令をつなげて送る。プールごとの範囲は GetEmitRange で引く。
+		// まだ一度も送っていなければ GetEmitterBuffer は nullptr
+		//----------------------------------------------------------------------------------
+		const D3D12::StaticStructuredBuffer<EmitterData>* GetEmitterBuffer() const;		// 共通の一本を返す
+		EmitRange GetEmitRange(const Handle<Resource::ParticlesAsset>& a_handle) const;	// なければ count = 0
+
+		// デバッグ表示用 : 命令バッファの容量と、このフレームに送った命令の数
+		uint32_t GetEmitBufferCapacity() const { return m_emitBufferCapacity; }
+		uint32_t GetFrameEmitCount() const { return static_cast<uint32_t>(m_frameEmitData.size()); }
+
 	private:
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
 		// プールは非同期に作られるので、Init で受け取ったものを持ち続ける
@@ -145,8 +158,6 @@ namespace Engine::Particle
 		std::unordered_map<Handle<Resource::ParticlesAsset>, std::vector<EmitterData>> m_emitRequests;
 
 
-		std::unordered_map<Handle<Resource::ParticlesAsset>, D3D12::StaticStructuredBuffer<EmitterData>> m_emitBuffer;
-
 		std::mutex m_mutex;
 		std::unordered_set<Handle<Resource::ParticlesAsset>> m_loadingHandles;
 
@@ -159,15 +170,17 @@ namespace Engine::Particle
 		// エミット用の座席プール : すべてのパーティクルアセットのワールド座標と生存時間を管理
 		std::unique_ptr<EmitterSlotPool> m_upEmitterSlotPool = nullptr;
 
-		//------------------------------------------------------------------
 		// 眠っているプールを見分けるための時刻(メインスレッドのみ)
-		//
-		// 時刻は BeginFrame で積む経過時間。更新シェーダーと同じフレーム時間で進むので、
-		// 粒の寿命の減り方と食い違わない。
-		// 「最後に出した時刻」は命令を実際に GPU へ送ったとき(UploadEmitData)に記録する。
-		// 準備中に積まれた命令は数フレーム遅れて出るので、積んだ時刻では早すぎる
-		//------------------------------------------------------------------
 		double m_elapsedTime = 0.0;
 		std::unordered_map<Handle<Resource::ParticlesAsset>, double> m_lastEmitTime;
+
+		// フレームで一本の発生命令バッファ。全プールの命令をつなげて送る
+		std::vector<EmitterData> m_frameEmitData;											//CPU側の写し : 毎フレーム作り直す
+		std::unique_ptr<D3D12::StaticStructuredBuffer<EmitterData>> m_upEmitterBuffer;		// GPU側 : 足りなければ作り直す
+		uint32_t m_emitBufferCapacity = 0;
+
+		// プールごとの、このフレームの命令の範囲
+		std::unordered_map<Handle<Resource::ParticlesAsset>, EmitRange> m_emitRanges;
+
 	};
 }

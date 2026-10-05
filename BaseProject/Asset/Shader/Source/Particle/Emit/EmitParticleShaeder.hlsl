@@ -59,7 +59,9 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	
 	// エミッター総数がDTid.xより小さければ return
 	uint _emitterIndex = DTid.x;
-	EmitData _emitInfo = g_emitData[_emitterIndex];
+	// 命令のバッファは全プール共通の1本。このプールの命令は requestOffset から並んでいる。
+	// _emitterIndex(プールの中での番号)は乱数の種にも使うので、ずらさずにそのまま残す
+	EmitData _emitInfo = g_emitData[g_emit.requestOffset + _emitterIndex];
 
 	// エミッターが要求する個数分だけパーティクルを発生させる
 	for (uint _i = 0; _i < _emitInfo.emitCount; ++_i)

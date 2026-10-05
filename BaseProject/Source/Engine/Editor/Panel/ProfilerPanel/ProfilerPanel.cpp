@@ -370,8 +370,15 @@ namespace Engine::Editor
 			static_cast<unsigned>(_awakeCount),
 			static_cast<unsigned>(_awakeCapacity));
 		Engine::Editor::Tooltip(
-			"更新と描画を回しているプール。描画と更新は粒の数ではなく、この容量ぶん走っている。"
-			"最後に出してから最大寿命が経ったプールは眠って(飛ばされて)いる");
+			"更新と描画を回しているプール。更新はまだ粒の数ではなく、この容量ぶん走っている"
+			"(描画は生きている粒の数ぶんだけ)。最後に出してから最大寿命が経ったプールは眠って(飛ばされて)いる");
+
+		// 発生命令のバッファ(全プール共通の1本)。足りなくなると2のべき乗で伸びる
+		Engine::Editor::Value("Emit Buffer", "%u / %u requests  (max %u)",
+			static_cast<unsigned>(_pPM->GetFrameEmitCount()),
+			static_cast<unsigned>(_pPM->GetEmitBufferCapacity()),
+			static_cast<unsigned>(Particle::EMIT_BUFFER_MAX_CAPACITY));
+		Engine::Editor::Tooltip("このフレームに送った発生命令の数 / 命令バッファの容量。全プール共通の1本");
 
 		if (_rows.empty()) return;
 
@@ -410,9 +417,9 @@ namespace Engine::Editor
 				ImGui::Text("%d", _row.sortOrder);
 
 				// 表示した時点で積まれている命令の数(フレームのどこで描くかで 0 にもなる)。
-				// 上限に届いていたら、あふれている可能性がある
+				// 準備中のプールで上限に届いていたら、溜めきれずに捨てている
 				ImGui::TableSetColumnIndex(5);
-				if (_row.requests >= Particle::EMIT_REQUEST_MAX)
+				if (!_row.isReady && _row.requests >= Particle::EMIT_PENDING_REQUEST_MAX)
 				{
 					ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), "%u", static_cast<unsigned>(_row.requests));
 				}
@@ -446,7 +453,7 @@ namespace Engine::Editor
 					ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), "Overflowed");
 					if (ImGui::IsItemHovered())
 					{
-						ImGui::SetTooltip("命令バッファ(上限 %u 件)があふれたことがある", static_cast<unsigned>(Particle::EMIT_REQUEST_MAX));
+						ImGui::SetTooltip("1フレームの発生命令が全体の上限(%u 件)を超えて、捨てたことがある", static_cast<unsigned>(Particle::EMIT_BUFFER_MAX_CAPACITY));
 					}
 				}
 				else

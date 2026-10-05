@@ -117,15 +117,23 @@ namespace Engine::Graphics
 		// このフレームの乱数の種を進める
 		++g_particle.frameCounter;
 
+		//----------------------------------------------------------------------------------
+		// 発生命令は全プール共通の1本(UploadEmitData がつなげて送ったもの)。
+		// プールごとに「どこからどこまでか」を引いて、そこだけを読ませる。
+		// まだ一度も送っていなければ、出す命令はどこにも無い
+		//----------------------------------------------------------------------------------
+		const auto* _pEmitBuff = _pParticleManager->GetEmitterBuffer();
+		const UINT _emitIndex = _pEmitBuff ? static_cast<UINT>(_pEmitBuff->GetSRVHandle().GetIndex()) : 0xFFFFFFFFu;
+
 		for (auto& [_handle, _pool] : _pParticleManager->GetPoolMap())
 		{
-			if (!_pool) continue;
+			if (!_pool || !_pEmitBuff) continue;
 			// プールが読み込み済みかチェック
 			if (!_pParticleManager->IsReady(_handle)) continue;
 
 			// このフレームに発生命令が無いなら何もしない
-			auto _requests = _pParticleManager->GetRequests(_handle);
-			if (_requests.empty()) continue;
+			const auto _range = _pParticleManager->GetEmitRange(_handle);
+			if (_range.count == 0) continue;
 
 			// ヒープとルートシグネチャ、PSOをセット
 			a_pCtx->BindBindlessHeaps();
@@ -133,25 +141,21 @@ namespace Engine::Graphics
 			a_pCtx->SetComputePSO(g_particle.pPSOManager->GetPSO(g_particle.emitPSO));
 
 			// 命令バインド(バインドレス : 番号をルート定数で渡す)
-			const auto* _pEmitBuff = _pParticleManager->GetEmitBuffer(_handle);
-			if (!_pEmitBuff) continue;
-			const UINT _emitIndex = _pEmitBuff->GetSRVHandle().GetIndex();
 			a_pCtx->ComputeBindDescriptorIndices(1, std::span<const UINT>(&_emitIndex, 1));
 
+			// ※ HLSL 側 ParticleEmitSetting(Common/RootParameters/Particle.hlsli)と並びを合わせること
 			struct EmitCB
 			{
-				uint32_t requestCount;
-				uint32_t frameSeed;
+				uint32_t requestOffset;	// 共通の1本の中で、このプールの命令が始まる位置
+				uint32_t requestCount;	// このプールの命令の数
+				uint32_t frameSeed;		// フレームごとに変わる乱数の種
+				uint32_t pad;
 			};
 			EmitCB _cbEmit = {};
 
-			// 命令バッファの要素数を超えた分は転送されていない。
-			// そのまま渡すとシェーダーが未初期化領域を EmitData として読み、
-			// でたらめな emitCount でプールを食いつぶすので必ず切り詰める
-			_cbEmit.requestCount = static_cast<uint32_t>(
-				(std::min)(_requests.size(), _pEmitBuff->GetElementNum())
-			);
-			if (_cbEmit.requestCount == 0) continue;
+			// 範囲は UploadEmitData が実際に送ったぶんだけなので、そのまま渡してよい
+			_cbEmit.requestOffset = _range.offset;
+			_cbEmit.requestCount = _range.count;
 
 			// プールごとにも種をずらす(同一フレームに複数プールが出しても被らないように)
 			_cbEmit.frameSeed = g_particle.frameCounter * 2654435761u + _handle.id;
@@ -284,12 +288,11 @@ namespace Engine::Graphics
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<UpdateCB>(_pCmd, 0, _cbData);
 
 			// 命令と発生源の席のバインド。並びはシェーダーの PassDescriptorIndex0(命令 → 席)と同じ。
-			// 更新シェーダーは発生命令を読まないが、ルートシグネチャの席は埋めておく。
+			// 更新シェーダーは発生命令を読まないが、ルートシグネチャの席は埋めておく(共通の1本の番号)。
 			// 発生源の席はローカル空間の粒に重力を掛けるときに読む(席の回転で重力をローカルへ回す)
 			{
-				const auto* _pEmitBuff = _pParticleManager->GetEmitBuffer(_handle);
 				const UINT _updateIndices[] = {
-					_pEmitBuff ? static_cast<UINT>(_pEmitBuff->GetSRVHandle().GetIndex()) : 0xFFFFFFFFu,
+					_emitIndex,
 					_slotSRVIndex,
 				};
 				a_pCtx->ComputeBindDescriptorIndices(1, _updateIndices);

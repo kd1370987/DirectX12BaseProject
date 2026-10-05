@@ -6,6 +6,8 @@
 
 #include "GPU/EmitterSlotPool/EmitterSlotPool.h"
 
+#include "Engine/MainEngine.h"	// 作り直した命令バッファの遅延解放(RegisterDeferredResource)
+
 namespace Engine::Particle
 {
 	ParticleBufferManager::ParticleBufferManager()
@@ -42,11 +44,14 @@ namespace Engine::Particle
 		// unique_ptr の破棄で各バッファの ComPtr が解放され、デバイス参照が落ちる。
 		m_pools.clear();
 
-		// いまフレームのエミット命令バッファを破棄
-		m_emitBuffer.clear();
+		// 発生命令のバッファ(全プール共通の1本)。終了時(GPUの完了待ちの後)なので、遅延させずにその場で返す
+		m_upEmitterBuffer.reset();
+		m_emitBufferCapacity = 0;
 
 		// CPU側データ
 		m_emitRequests.clear();
+		m_frameEmitData.clear();
+		m_emitRanges.clear();
 		m_loadingHandles.clear();
 		m_readyHandles.clear();
 		m_overflowWarned.clear();
@@ -110,8 +115,8 @@ namespace Engine::Particle
 
 		auto& _requests = m_emitRequests[a_handle];
 
-		// 準備中はフレームをまたいでたまるので命令バッファの長さで頭打ちにする
-		if (!IsReady(a_handle) && _requests.size() >= EMIT_REQUEST_MAX) return;
+		// 準備中はフレームをまたいでたまるので頭打ちにする(使えるようになった瞬間に塊で出ないように)
+		if (!IsReady(a_handle) && _requests.size() >= EMIT_PENDING_REQUEST_MAX) return;
 
 		// 発生を予約
 		_requests.push_back(a_emitterData);
@@ -134,6 +139,15 @@ namespace Engine::Particle
 				a_frameIndex);
 		}
 
+		//----------------------------------------------------------------------
+		// 全プールの命令を1本につなげる
+		//
+		// プールごとに「共通の1本の中のどこからどこまでか」を覚えておき、
+		// 発生の Dispatch はそこだけを読む。準備中のプールの命令はつなげずに持ち越す
+		//----------------------------------------------------------------------
+		m_frameEmitData.clear();
+		m_emitRanges.clear();
+
 		for (auto& [_handle, _emitDataVec] : m_emitRequests)
 		{
 			// リクエストがない、またはまだGPUバッファが生成中ならスキップ
@@ -142,41 +156,84 @@ namespace Engine::Particle
 				continue;
 			}
 
-			auto _it = m_emitBuffer.find(_handle);
-			if (_it != m_emitBuffer.end())
+			// 全体の上限を超えるぶんは、このフレームでは出さない
+			const size_t _room = static_cast<size_t>(EMIT_BUFFER_MAX_CAPACITY) - m_frameEmitData.size();
+			const size_t _num = (std::min)(_emitDataVec.size(), _room);
+
+			//----------------------------------------------------------------------
+			// あふれたことを知らせる
+			//
+			// 黙って捨てると、欠けているのか元からそういう絵なのかが見分けられない。
+			// 毎フレーム出すとログが埋まるので、アセットごとに1回だけ
+			//----------------------------------------------------------------------
+			if (_num < _emitDataVec.size() && !m_overflowWarned.contains(_handle))
 			{
-				// バッファは固定長。要素数を超えて書くとマップ領域を踏み越えるので切り詰める。
-				// (パス側も同じ数で requestCount を丸めるので、あふれた命令はこのフレームでは捨てる)
-				const size_t _uploadNum = (std::min)(_emitDataVec.size(), _it->second.GetElementNum());
+				m_overflowWarned.insert(_handle);
 
-				//----------------------------------------------------------------------
-				// あふれたことを知らせる
-				//
-				// 黙って捨てると「群れの着地で一部だけ砂煙が出ない」のように、
-				// 欠けているのか元からそういう絵なのかが見分けられない。
-				// 毎フレーム出すとログが埋まるので、アセットごとに1回だけ
-				//----------------------------------------------------------------------
-				if (_emitDataVec.size() > _uploadNum && !m_overflowWarned.contains(_handle))
-				{
-					m_overflowWarned.insert(_handle);
+				const auto* _pResourceManager = m_pGraphicsEngine ? m_pGraphicsEngine->RefResourceManager() : nullptr;
+				const auto* _pParticle = _pResourceManager ? _pResourceManager->Get(_handle) : nullptr;
 
-					const auto* _pResourceManager = m_pGraphicsEngine ? m_pGraphicsEngine->RefResourceManager() : nullptr;
-					const auto* _pParticle = _pResourceManager ? _pResourceManager->Get(_handle) : nullptr;
-
-					ENGINE_WARNING(
-						"[Particle] 発生命令があふれました : %s (%d 件 / 上限 %d 件)。あふれた分はこのフレームでは出ません",
-						_pParticle ? _pParticle->GetName().c_str() : "(不明)",
-						static_cast<int>(_emitDataVec.size()),
-						static_cast<int>(_uploadNum));
-				}
-
-				// 毎フレーム書き換えるので、フレームごとの区画を経由してGPUへ送る
-				_it->second.UploadFrame(a_pCmdList, _emitDataVec.data(), sizeof(EmitterData) * _uploadNum, a_frameIndex);
-
-				// このフレームに粒が出る : ここから最大寿命ぶんは起こしておく
-				m_lastEmitTime[_handle] = m_elapsedTime;
+				ENGINE_WARNING(
+					"[Particle] 発生命令が1フレームの上限(全体で %u 件)を超えました : %s。あふれた分はこのフレームでは出ません",
+					EMIT_BUFFER_MAX_CAPACITY,
+					_pParticle ? _pParticle->GetName().c_str() : "(不明)");
 			}
+
+			if (_num == 0) continue;
+
+			EmitRange _range = {};
+			_range.offset = static_cast<uint32_t>(m_frameEmitData.size());
+			_range.count = static_cast<uint32_t>(_num);
+			m_emitRanges[_handle] = _range;
+
+			m_frameEmitData.insert(m_frameEmitData.end(), _emitDataVec.begin(), _emitDataVec.begin() + _num);
+
+			// このフレームに粒が出る : ここから最大寿命ぶんは起こしておく
+			m_lastEmitTime[_handle] = m_elapsedTime;
 		}
+
+		if (m_frameEmitData.empty() || !m_pGraphicsEngine) return;
+
+		//----------------------------------------------------------------------
+		// 足りなければ作り直す
+		//
+		// 2のべき乗で伸ばすので、作り直しはめったに起きない。
+		// 中身は毎フレーム全部送り直すので、古いバッファから写す必要はない。
+		// 古いバッファは前のフレームの発生がまだ読んでいるかもしれないので、
+		// GPU が使い終わるまで遅延させて捨てる(EmitterSlotPool と同じ)
+		//----------------------------------------------------------------------
+		const uint32_t _need = static_cast<uint32_t>(m_frameEmitData.size());
+		if (!m_upEmitterBuffer || m_emitBufferCapacity < _need)
+		{
+			uint32_t _newCapacity = (std::max)(m_emitBufferCapacity, EMIT_BUFFER_MIN_CAPACITY);
+			while (_newCapacity < _need)
+			{
+				_newCapacity *= 2;
+			}
+			_newCapacity = (std::min)(_newCapacity, EMIT_BUFFER_MAX_CAPACITY);
+
+			if (m_upEmitterBuffer)
+			{
+				std::shared_ptr<D3D12::StaticStructuredBuffer<EmitterData>> _spOld(std::move(m_upEmitterBuffer));
+				MainEngine::Instance().RegisterDeferredResource([_spOld]() {});
+			}
+
+			m_upEmitterBuffer = std::make_unique<D3D12::StaticStructuredBuffer<EmitterData>>();
+			m_upEmitterBuffer->Create(
+				m_pGraphicsEngine->RefRenderDevice()->RefDevice(),
+				m_pHeapManager,
+				a_pCmdList,
+				_newCapacity,
+				nullptr);
+			m_emitBufferCapacity = _newCapacity;
+		}
+
+		// 毎フレーム書き換えるので、フレームごとの区画を経由してGPUへ送る
+		m_upEmitterBuffer->UploadFrame(
+			a_pCmdList,
+			m_frameEmitData.data(),
+			sizeof(EmitterData) * m_frameEmitData.size(),
+			a_frameIndex);
 	}
 
 	bool ParticleBufferManager::IsAwake(const Handle<Resource::ParticlesAsset>& a_handle) const
@@ -211,14 +268,18 @@ namespace Engine::Particle
 		}
 		return {};
 	}
-	const D3D12::StaticStructuredBuffer<EmitterData>* ParticleBufferManager::GetEmitBuffer(const Handle<Resource::ParticlesAsset>& a_handle) const
+	const D3D12::StaticStructuredBuffer<EmitterData>* ParticleBufferManager::GetEmitterBuffer() const
 	{
-		auto _it = m_emitBuffer.find(a_handle);
-		if (_it != m_emitBuffer.end())
+		return m_upEmitterBuffer.get();
+	}
+	ParticleBufferManager::EmitRange ParticleBufferManager::GetEmitRange(const Handle<Resource::ParticlesAsset>& a_handle) const
+	{
+		auto _it = m_emitRanges.find(a_handle);
+		if (_it != m_emitRanges.end())
 		{
-			return &_it->second;
+			return _it->second;
 		}
-		return nullptr;
+		return {};
 	}
 	void ParticleBufferManager::CreateParticleDataAsync(const Handle<Resource::ParticlesAsset>& a_handle)
 	{
@@ -262,11 +323,11 @@ namespace Engine::Particle
 			// ロード処理
 			[this,_pDevice,a_handle,&_isCreated](D3D12::GraphicsCommandList* a_pCmdList)
 			{
+				// 発生命令のバッファは全プール共通の1本(UploadEmitData が持つ)なので、ここではプール本体だけ作る
 				if (!m_pools[a_handle]->Init(_pDevice, m_pHeapManager, a_pCmdList, a_handle, *m_pGraphicsEngine->RefResourceManager()))
 				{
 					return;
 				}
-				m_emitBuffer[a_handle].Create(_pDevice, m_pHeapManager, a_pCmdList, static_cast<UINT>(EMIT_REQUEST_MAX), nullptr);
 				_isCreated = true;
 			},
 			// コールバック処理
@@ -288,7 +349,6 @@ namespace Engine::Particle
 			std::lock_guard<std::mutex> _lock(m_mutex);
 			m_pools.erase(a_handle);
 			m_emitRequests.erase(a_handle);
-			m_emitBuffer.erase(a_handle);
 		}
 	}
 }
