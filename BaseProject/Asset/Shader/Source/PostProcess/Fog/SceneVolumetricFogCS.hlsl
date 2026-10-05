@@ -11,11 +11,11 @@
 // シーンのフォグは一様なので、ダストの層の外は式で一度に求める。
 // レイマーチするのはダストの層の中だけ(歩数を層の中へ集めるため)。
 //
-// ・ダストの高さは、レイの終点の真下の地面から測る
-//     地面の画素 : 見えている地面そのもの
-//     物体の画素 : 物体の点の真下の地面を、地面だけの深度から探して使う
-//   (レイ上の各点の真下の地面は画面に映っているとは限らないので、画面空間で近似する。
-//    レイが段差や崖の上を通るところでは、層の高さが少しずれる)
+// ・ダストは見えている地面の画素にだけ置く
+//     シーンの深度と地面だけの深度を比べ、見えている面が地面そのものの画素だけにダストを積分する。
+//     高さの基準はその地面の点。
+//     手前に物体がある画素・空の画素にはダストを置かない(シーンのフォグだけ)。
+//     物体の真下の地面などは推測しないので、物体の後ろに何が映っているかでダストが変わることはない
 // ・衝撃でチリが払われる・波頭へ寄せられる量は、GroundFieldPass が書いた
 //   真上からのテクスチャを引く。波頭では寄せられたぶんだけ層が高くなる(巻き上がり)
 //
@@ -33,7 +33,7 @@
 //   0 : CBV(b0)            カメラ
 //   1 : CBV(b1)            シーンのフォグの調整値
 //   2 : CBV(b2)            グラウンドダストの調整値
-//   3 : SRVの番号(t0-t2) シーンの深度 + 地面の深度(任意) + グラウンドフィールド(任意)
+//   3 : SRVの番号(t0-t2) シーンの深度 + 地面だけの深度(任意) + グラウンドフィールド(任意)
 //                          (レンダーグラフが張る)
 //   4 : UAVの番号(u0)    フォグ(レンダーグラフが張る)
 //   5 : SRVの番号(t3)    ノイズテクスチャ(パスが張る)
@@ -60,6 +60,12 @@ RS_STATIC_SAMPLER
 // 波頭でチリが巻き上がる高さの上限(height の何倍まで)。
 // レイはこの高さで切るので、上げすぎると歩数が層の外で無駄になる
 #define GROUND_DUST_MAX_LIFT 2.0f
+
+// 見えている面が地面そのものかを判定するときの許容差。
+// シーンの深度と地面だけの深度は別のパスで描くので、同じ地面でもわずかにずれることがある。
+// 地面までの距離に対する割合と、近いところ用の下限(m)のうち大きいほうを使う
+#define GROUND_PIXEL_TOLERANCE_RATE 0.002f
+#define GROUND_PIXEL_TOLERANCE_MIN  0.05f
 
 cbuffer CBCamera : register(b0)
 {
@@ -121,46 +127,6 @@ float3 ReconstructWorldPos(float2 a_uv, float a_depth)
 	float4 _ndc = float4(a_uv.x * 2.0f - 1.0f, 1.0f - a_uv.y * 2.0f, a_depth, 1.0f);
 	float4 _worldPos = mul(_ndc, g_camera.invViewProj);
 	return _worldPos.xyz / _worldPos.w;
-}
-
-// 物体の点の真下にある地面の高さを、地面だけの深度から探す。
-//
-// 物体の画素の奥に見えている地面は、物体とは関係のない遠くの地面(または空)なので、
-// ダストの層の基準にすると物体の上に「奥が地面か空か」の境目がそのまま出てしまう。
-//
-// 点の真下の候補(x, 推定高さ, z)を画面へ投影し、そこに見えている地面を復元して
-// 推定高さを置き換える、を繰り返す。平らな地面なら1回、起伏があっても数回で収まる。
-// 地面だけの深度には物体が描かれていないので、物体の足元に隠れた地面も引ける。
-// 画面の外へ出た・その先が空だったときは、それまでに求まった値で打ち切る
-//   戻り値 : 1回でも地面を引けたか
-bool EstimateGroundYBelow(float3 a_pos, float a_initY, float2 a_size, out float a_outY)
-{
-	float _groundY = a_initY;
-	bool _isFound = false;
-
-	[unroll]
-	for (uint _i = 0; _i < 4; ++_i)
-	{
-		float4 _clip = mul(float4(a_pos.x, _groundY, a_pos.z, 1.0f), g_camera.viewProj);
-		if (_clip.w <= 0.0f) break;		// カメラの後ろ
-
-		float2 _uv = float2(_clip.x / _clip.w * 0.5f + 0.5f, 0.5f - _clip.y / _clip.w * 0.5f);
-		if (any(_uv < 0.0f) || any(_uv > 1.0f)) break;	// 画面の外
-
-		int2 _pixel = min(int2(_uv * a_size), int2(a_size) - 1);
-		float _depth = g_groundDepthTex.Load(int3(_pixel, 0));
-		if (_depth >= 1.0f) break;		// その先に地面が無い
-
-		float _newY = ReconstructWorldPos((float2(_pixel) + 0.5f) / a_size, _depth).y;
-		const bool _isConverged = _isFound && abs(_newY - _groundY) < 0.01f;
-
-		_groundY = _newY;
-		_isFound = true;
-		if (_isConverged) break;
-	}
-
-	a_outY = _groundY;
-	return _isFound;
 }
 
 // 水平位置(xz)のグラウンドフィールドを引く。
@@ -232,37 +198,28 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	const float3 _rayDir = _rayVector / _rayLength;
 
 	//------------------------------------------------------------------------------
-	// ダストの高さの基準になる地面
+	// ダストを置くのは、見えている面が地面そのものの画素だけ
 	//
-	// 空の画素は基準が無いのでダストを置かない(シーンのフォグだけ)
+	// 地面だけの深度(物体を描いていない)に映っている地面と、シーンの深度で見えている面が
+	// 同じ距離なら地面の画素。手前に物体がある画素・空の画素はシーンのフォグだけ
 	//------------------------------------------------------------------------------
 	float _groundY = 0.0f;
 	bool _hasGround = false;
 
-	const bool _isUseDust =
-		(g_groundDust.density > 0.0f) && (g_groundDepthTexIndex != DESCRIPTOR_INDEX_NONE);
+	const bool _isUseDust = (g_groundDust.density > 0.0f) && (g_groundDepthTexIndex != DESCRIPTOR_INDEX_NONE);
 
 	if (_isUseDust && _sceneDepth < 1.0f)
 	{
 		const float _groundDepth = g_groundDepthTex.Load(int3(_coord, 0));
-		const bool _hasGroundBehind = (_groundDepth < 1.0f);
-
-		if (_hasGroundBehind && _sceneDepth >= _groundDepth)
+		if (_groundDepth < 1.0f)
 		{
-			// この画素は地面そのもの
-			_groundY = ReconstructWorldPos(_uv, _groundDepth).y;
-			_hasGround = true;
-		}
-		else
-		{
-			// 手前に物体がある -> その物体の真下の地面を探す
-			const float _initY = _hasGroundBehind ? ReconstructWorldPos(_uv, _groundDepth).y : _rayEnd.y;
-			_hasGround = EstimateGroundYBelow(_rayEnd, _initY, _size, _groundY);
+			const float3 _groundPos = ReconstructWorldPos(_uv, _groundDepth);
+			const float _groundDistance = length(_groundPos - _rayStart);
+			const float _tolerance = max(_groundDistance * GROUND_PIXEL_TOLERANCE_RATE, GROUND_PIXEL_TOLERANCE_MIN);
 
-			// 真下の地面が画面から引けない : 奥の地面で代用する(それも無ければダストなし)
-			if (!_hasGround && _hasGroundBehind)
+			if (_rayLength >= _groundDistance - _tolerance)
 			{
-				_groundY = _initY;
+				_groundY = _groundPos.y;
 				_hasGround = true;
 			}
 		}
