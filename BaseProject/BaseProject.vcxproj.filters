@@ -823,6 +823,9 @@
     <Filter Include="Source\Engine\Graphics\Particle\GPU">
       <UniqueIdentifier>{27047641-4735-42ca-9c95-d82d476b2e60}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\Particle\GPU\EmitterSlotPool">
+      <UniqueIdentifier>{6b1f3c2e-8d4a-4e7b-9c51-2f0a7d3e9b14}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\Particle\GPU\GPUParticlePool">
       <UniqueIdentifier>{229201f6-2891-4b39-9ee9-fcd39d23ca33}</UniqueIdentifier>
     </Filter>
@@ -2087,6 +2090,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Particle\ParticleBufferManager.cpp">
       <Filter>Source\Engine\Graphics\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\Particle\GPU\EmitterSlotPool\EmitterSlotPool.cpp">
+      <Filter>Source\Engine\Graphics\Particle\GPU\EmitterSlotPool</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp">
       <Filter>Source\Engine\Graphics\Particle\GPU\GPUParticlePool</Filter>
@@ -3751,6 +3757,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Particle\Core\ParticleData.h">
       <Filter>Source\Engine\Graphics\Particle\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Particle\GPU\EmitterSlotPool\EmitterSlotPool.h">
+      <Filter>Source\Engine\Graphics\Particle\GPU\EmitterSlotPool</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Particle\GPU\GPUParticlePool\GPUParticlePool.h">
       <Filter>Source\Engine\Graphics\Particle\GPU\GPUParticlePool</Filter>

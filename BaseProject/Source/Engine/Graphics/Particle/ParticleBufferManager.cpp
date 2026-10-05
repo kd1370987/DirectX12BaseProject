@@ -4,8 +4,15 @@
 #include "../GraphicsEngine.h"
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 
+#include "GPU/EmitterSlotPool/EmitterSlotPool.h"
+
 namespace Engine::Particle
 {
+	ParticleBufferManager::ParticleBufferManager()
+	{}
+	ParticleBufferManager::~ParticleBufferManager()
+	{}
+
 	void Engine::Particle::ParticleBufferManager::Init(
 		Graphics::GraphicsEngine* a_pGraphicsEngine,
 		D3D12::DescriptorHeapManager* a_pHeapManager,
@@ -15,6 +22,14 @@ namespace Engine::Particle
 		// ビューの置き場と転送の依頼先を控える : プールは非同期に作られるので、そこまで持ち回る
 		m_pHeapManager = a_pHeapManager;
 		m_pGraphicsEngine = a_pGraphicsEngine;
+
+		// パーティクルアセット座席管理クラスの初期化
+		// (Release の後にもう一度 Init されても席 0 を取り直せるよう、Init は毎回通す)
+		if (!m_upEmitterSlotPool)
+		{
+			m_upEmitterSlotPool = std::make_unique<EmitterSlotPool>();
+		}
+		m_upEmitterSlotPool->Init(EMITTER_SLOT_BLOCK_SIZE);
 	}
 	void ParticleBufferManager::Release()
 	{
@@ -32,17 +47,15 @@ namespace Engine::Particle
 
 		// CPU側データ
 		m_emitRequests.clear();
-		m_emitterSlots.clear();
 		m_loadingHandles.clear();
 		m_readyHandles.clear();
 		m_overflowWarned.clear();
-	}
-	void ParticleBufferManager::BeginFrame()
-	{
-		// 席の使用状況を測るためのフレーム番号。
-		// 「しばらく使われていない席」を見分けるのに使う
-		++m_frameCount;
 
+		// 座席データの解放
+		if (m_upEmitterSlotPool) m_upEmitterSlotPool->Release();
+	}
+	void ParticleBufferManager::BeginFrame(float a_dt)
+	{
 		// 前のフレームで送った命令だけを消す、準備中に積まれたものは使えるようになるまで持ち越す
 		for (auto& [_handle, _emitDataVec] : m_emitRequests)
 		{
@@ -60,6 +73,9 @@ namespace Engine::Particle
 				m_readyHandles.insert(_handle);
 			}
 		}
+
+		// 返却待ちの席の残り時間を進め、粒が消えきったものを空きへ戻す
+		if (m_upEmitterSlotPool) m_upEmitterSlotPool->BeginFrame(a_dt);
 	}
 	void ParticleBufferManager::RequestEmit(const Handle<Resource::ParticlesAsset>&a_handle, const EmitterData & a_emitterData)
 	{
@@ -80,108 +96,6 @@ namespace Engine::Particle
 		// 発生を予約
 		_requests.push_back(a_emitterData);
 	}
-	//======================================================================================
-	// 発生源の席
-	//======================================================================================
-	uint32_t ParticleBufferManager::AcquireEmitterSlot(
-		const Handle<Resource::ParticlesAsset>& a_handle,
-		uint64_t a_ownerKey,
-		const Math::Matrix& a_ownerWorld)
-	{
-		EmitterSlotTable& _table = m_emitterSlots[a_handle];
-
-		// 席 0 は単位行列で予約。ワールド空間の粒がここを指す
-		if (_table.matrices.empty())
-		{
-			_table.matrices.push_back(Math::Matrix{});
-			_table.slotOwners.push_back(0);
-			_table.slotUsedFrame.push_back(0);
-		}
-
-		const Math::Matrix _mat = StripScale(a_ownerWorld);
-
-		// すでに席を持っているなら行列だけ更新する
-		auto _it = _table.slotMap.find(a_ownerKey);
-		if (_it != _table.slotMap.end())
-		{
-			_table.matrices[_it->second]     = _mat;
-			_table.slotUsedFrame[_it->second] = m_frameCount;
-			return _it->second;
-		}
-
-		//----------------------------------------------------------------------
-		// 空いている席があれば、そこへ座る
-		//----------------------------------------------------------------------
-		if (_table.matrices.size() < PARTICLE_EMITTER_MAX)
-		{
-			const uint32_t _slot = static_cast<uint32_t>(_table.matrices.size());
-			_table.matrices.push_back(_mat);
-			_table.slotOwners.push_back(a_ownerKey);
-			_table.slotUsedFrame.push_back(m_frameCount);
-			_table.slotMap.emplace(a_ownerKey, _slot);
-
-			return _slot;
-		}
-
-		//----------------------------------------------------------------------
-		// 席が尽きた : しばらく使われていない席を回す
-		//
-		// 鍵はエンティティなので、シーンを読み直すたびに作り直されるもの
-		// (ブースターなど)は毎回ちがう鍵で席を取る。返す仕組みが無いと
-		// 数回の読み直しで席が尽き、そこから先はワールド空間で出てしまう。
-		//
-		// 回してよいのは EMITTER_SLOT_KEEP_FRAMES のあいだ一度も使われていない席だけ。
-		// 出し終わった粒が消えるまでの猶予をここで取っているので、
-		// まだ生きている粒の行列を奪うことにはならない。
-		//----------------------------------------------------------------------
-		uint32_t _oldestSlot = 0;
-		uint64_t _oldestFrame = m_frameCount;
-
-		for (uint32_t _i = 1; _i < static_cast<uint32_t>(_table.slotUsedFrame.size()); ++_i)
-		{
-			if (_table.slotUsedFrame[_i] < _oldestFrame)
-			{
-				_oldestFrame = _table.slotUsedFrame[_i];
-				_oldestSlot  = _i;
-			}
-		}
-
-		const bool _isStale =
-			(_oldestSlot != 0) &&
-			((m_frameCount - _oldestFrame) >= EMITTER_SLOT_KEEP_FRAMES);
-
-		if (!_isStale)
-		{
-			// 全部が現役 : 奪うと生きている粒が化けるので、ワールド空間で出す
-			ENGINE_WARNING(
-				"[Particle] 発生源の席が足りません(上限 %d)。ワールド空間で出します",
-				static_cast<int>(PARTICLE_EMITTER_MAX));
-			return 0;
-		}
-
-		// 前の持ち主を忘れて、席を引き継ぐ
-		const uint64_t _prevOwner = _table.slotOwners[_oldestSlot];
-		if (_prevOwner != 0)
-		{
-			_table.slotMap.erase(_prevOwner);
-		}
-
-		_table.matrices[_oldestSlot]     = _mat;
-		_table.slotOwners[_oldestSlot]   = a_ownerKey;
-		_table.slotUsedFrame[_oldestSlot] = m_frameCount;
-		_table.slotMap.emplace(a_ownerKey, _oldestSlot);
-
-		return _oldestSlot;
-	}
-
-	std::span<const Math::Matrix> ParticleBufferManager::GetEmitterMatrices(
-		const Handle<Resource::ParticlesAsset>& a_handle) const
-	{
-		auto _it = m_emitterSlots.find(a_handle);
-		if (_it == m_emitterSlots.end()) return {};
-
-		return std::span<const Math::Matrix>(_it->second.matrices);
-	}
 
 	const std::unordered_map<Handle<Resource::ParticlesAsset>, std::unique_ptr<GPUParticlePool>>& ParticleBufferManager::GetPoolMap() const
 	{
@@ -189,6 +103,17 @@ namespace Engine::Particle
 	}
 	void ParticleBufferManager::UploadEmitData(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex)
 	{
+		// 発生源の席の行列を送る。
+		// 描画とシミュレーションはこのフレームの行列を読むので、命令より先に済ませておく
+		if (m_upEmitterSlotPool && m_pGraphicsEngine)
+		{
+			m_upEmitterSlotPool->Upload(
+				m_pGraphicsEngine->RefRenderDevice()->RefDevice(),
+				m_pHeapManager,
+				a_pCmdList,
+				a_frameIndex);
+		}
+
 		for (auto& [_handle, _emitDataVec] : m_emitRequests)
 		{
 			// リクエストがない、またはまだGPUバッファが生成中ならスキップ
@@ -318,53 +243,5 @@ namespace Engine::Particle
 			m_emitRequests.erase(a_handle);
 			m_emitBuffer.erase(a_handle);
 		}
-	}
-	void ParticleBufferManager::RefreshEmitterSlot(
-		const Handle<Resource::ParticlesAsset>& a_handle,
-		uint64_t a_ownerKey,
-		const Math::Matrix& a_ownerWorld
-	)
-	{
-		auto _tableIt = m_emitterSlots.find(a_handle);
-		if (_tableIt == m_emitterSlots.end()) return;
-
-		EmitterSlotTable& _table = _tableIt->second;
-
-		// 席を持っていなければ何もしない(取るのは AcquireEmitterSlot だけ)。
-		// 回された席は前の持ち主の鍵ごと slotMap から消えているので、
-		// 席を奪われた側がここで新しい持ち主の行列を書き潰すことはない
-		auto _it = _table.slotMap.find(a_ownerKey);
-		if (_it == _table.slotMap.end()) return;
-
-		// 使用フレームは進めない。
-		// 進めると「出していないが生きている」発生源(待機中のブースターなど)が
-		// 席を握り続け、出し終わった席を回すという今の回収の決まりが崩れる
-		_table.matrices[_it->second] = StripScale(a_ownerWorld);
-	}
-
-	//----------------------------------------------------------------------
-	// 拡縮を落として、位置と回転だけを残す
-	//
-	// 取り付け側のスケール(ブースターは 0.1 倍など)を残したまま戻すと、
-	// ローカルで進めた飛距離までそのスケールで縮んでしまう。
-	// 粒は最初からワールドの尺で飛ばしたいので、軸の長さを 1 に揃える
-	//----------------------------------------------------------------------
-	Math::Matrix ParticleBufferManager::StripScale(const Math::Matrix& a_world)
-	{
-		Math::Matrix _mat = a_world;
-
-		Math::Vector3 _axisX(_mat._11, _mat._12, _mat._13);
-		Math::Vector3 _axisY(_mat._21, _mat._22, _mat._23);
-		Math::Vector3 _axisZ(_mat._31, _mat._32, _mat._33);
-
-		if (_axisX.LengthSquared() > 1e-12f) _axisX.Normalize();
-		if (_axisY.LengthSquared() > 1e-12f) _axisY.Normalize();
-		if (_axisZ.LengthSquared() > 1e-12f) _axisZ.Normalize();
-
-		_mat._11 = _axisX.x; _mat._12 = _axisX.y; _mat._13 = _axisX.z;
-		_mat._21 = _axisY.x; _mat._22 = _axisY.y; _mat._23 = _axisY.z;
-		_mat._31 = _axisZ.x; _mat._32 = _axisZ.y; _mat._33 = _axisZ.z;
-
-		return _mat;
 	}
 }

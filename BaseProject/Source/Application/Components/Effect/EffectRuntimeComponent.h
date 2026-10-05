@@ -1,8 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
 #include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
+
+#include "Application/Utility/EffectSpawnHelper.h"
 
 //==========================================================================================
 // EffectRuntimeComponent
@@ -13,6 +16,8 @@
 // ・解決は EffectFixupSystem、進行は EffectUpdateSystem、発生・描画は EffectDrawSystem。
 // ・アセットは全員で共有する設計図なので、進行状態は instance が持つ。
 // ・EffectAssetComponent の必須コンポーネントなので、プレハブに書かなくても付く。保存しない。
+// ・ローカル空間で回すパーティクルを出すなら、発生源の席(emitterSlot)も持つ。
+//   取るのと毎フレームの行列の更新は EffectDrawSystem、返す予約は下の Release。
 //==========================================================================================
 struct EffectRuntimeComponent
 {
@@ -21,6 +26,18 @@ struct EffectRuntimeComponent
 
 	// このエンティティ専用の進行状態
 	Engine::Resource::EffectInstance instance = {};
+
+	//------------------------------------------------------------------
+	// 発生源の席(ローカル空間のパーティクル用)
+	//
+	// エフェクト1つにつき1席。Local のパーツが1つでもあるときだけ取る。
+	// 止めても返さない : 出し終わった粒も、持ち主が生きている間は持ち主について動く。
+	// 返すのはエンティティごと消えるとき(Release)で、粒が消えきるまで待ってから空きへ戻る。
+	//
+	// ※ プレハブから実体化すると値がそのまま写ってくるので、EffectFixupSystem で必ず空にする
+	//    (空にしないと、他人の席の行列を書き換えてしまう)
+	//------------------------------------------------------------------
+	Engine::Handle<Engine::Particle::EmitterTransform> emitterSlot = {};
 };
 
 template<>
@@ -36,6 +53,11 @@ struct Engine::ECS::ComponentTraits<EffectRuntimeComponent>
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
 		EffectRuntimeComponent& _comp = Engine::Editor::GetValue<EffectRuntimeComponent>(a_pData);
+
+		// 席の返却予約が先。猶予(粒の最大寿命)をエフェクトアセットから引くので、
+		// アセットのハンドルを返した後では間に合わない
+		App::Utility::ReserveReturnEffectEmitterSlot(a_services, _comp.effectHandle, _comp.emitterSlot);
+
 		a_services.pResourceManager->ReleaseHandle(_comp.effectHandle);
 	}
 

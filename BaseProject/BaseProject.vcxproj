@@ -758,6 +758,7 @@
     <ClCompile Include="Source\Engine\Option\ProjectOptions\AudioOption.cpp" />
     <ClCompile Include="Source\Engine\Graphics\DebugDraw\DebugDraw.cpp" />
     <ClCompile Include="Source\Application\Game\MouseCursor\MouseCursor.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Particle\GPU\EmitterSlotPool\EmitterSlotPool.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Particle\ParticleBufferManager.cpp" />
     <ClCompile Include="Source\Engine\Persistence\Archive\Archive.cpp" />
@@ -1375,6 +1376,7 @@
     <ClInclude Include="Source\Application\Game\MouseCursor\MouseCursor.h" />
     <ClInclude Include="Source\Engine\Graphics\Particle\Core\EmitterData.h" />
     <ClInclude Include="Source\Engine\Graphics\Particle\Core\ParticleData.h" />
+    <ClInclude Include="Source\Engine\Graphics\Particle\GPU\EmitterSlotPool\EmitterSlotPool.h" />
     <ClInclude Include="Source\Engine\Graphics\Particle\GPU\GPUParticlePool\GPUParticlePool.h" />
     <ClInclude Include="Source\Engine\Graphics\Particle\ParticleBufferManager.h" />
     <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h" />

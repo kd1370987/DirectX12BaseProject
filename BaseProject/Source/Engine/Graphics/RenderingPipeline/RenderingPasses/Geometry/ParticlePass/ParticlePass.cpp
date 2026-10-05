@@ -5,6 +5,7 @@
 
 #include "Engine/Graphics/Particle/ParticleBufferManager.h"
 #include "Engine/Graphics/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
+#include "Engine/Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Graphics::Pipeline
@@ -112,6 +113,19 @@ namespace Engine::Graphics::Pipeline
 		auto& _resManager = *a_context.pResourceManager;
 
 		//----------------------------------------------------------
+		// 発生源の席(全アセット共通の1本)
+		//
+		// ローカル空間で回した粒は、ここから自分の席の行列を引いてワールドへ戻す。
+		// 席 0 は単位行列なので、ワールド空間の粒も同じ経路を素通りする。
+		// まだ一度も転送されていなければ、引けない番号で読ませないよう描画ごと見送る
+		// (席 0 は初期化で取っているので、最初のフレームの転送で必ずできる)
+		//----------------------------------------------------------
+		const auto* _pSlotPool = _particleManager->GetEmitterSlotPool();
+		if (!_pSlotPool) return;
+		const UINT _slotSRVIndex = _pSlotPool->GetSRVIndex();
+		if (_slotSRVIndex == (std::numeric_limits<UINT>::max)()) return;
+
+		//----------------------------------------------------------
 		// 1アセット分を描く
 		//----------------------------------------------------------
 		auto _drawPool = [&](
@@ -127,9 +141,13 @@ namespace Engine::Graphics::Pipeline
 				CameraData _cbCam = _pGE->GetSceneView()->GetCameraData();
 				_pCtx->GraphicsBindRootCBV(0, _cbCam);
 
-				// パーティクルデータ(バインドレス : 番号をルート定数で渡す)
-				const UINT _particleIndex = a_upPool->GetParticlePoolSRV().GetIndex();
-				_pCtx->GraphicsBindDescriptorIndices(1, std::span<const UINT>(&_particleIndex, 1));
+				// パーティクルデータと発生源の席(バインドレス : 番号をルート定数で渡す)。
+				// 並びはシェーダーの PassDescriptorIndex0(粒 → 席)と同じ
+				const UINT _vsIndices[] = {
+					a_upPool->GetParticlePoolSRV().GetIndex(),
+					_slotSRVIndex,
+				};
+				_pCtx->GraphicsBindDescriptorIndices(1, _vsIndices);
 
 				// パーティクル画像
 				auto* _pTex = _resManager.Get(a_particle.GetTexHandle());
@@ -146,16 +164,6 @@ namespace Engine::Graphics::Pipeline
 				_cbDraw.fadeOutRatio = a_particle.GetFadeOutRatio();
 				_cbDraw.startColor   = a_particle.GetStartColor();
 				_cbDraw.endColor     = a_particle.GetEndColor();
-
-				// ローカル空間で回した粒を戻すための行列。
-				// 席 0 は単位行列なので、ワールド空間の粒は素通りする
-				const auto _emitterMatrices = _particleManager->GetEmitterMatrices(a_handle);
-				const size_t _matCount =
-					(std::min)(_emitterMatrices.size(), Particle::PARTICLE_EMITTER_MAX);
-				for (size_t _m = 0; _m < _matCount; ++_m)
-				{
-					_cbDraw.emitterMatrices[_m] = _emitterMatrices[_m];
-				}
 
 				_pCtx->GraphicsBindRootCBV(3, _cbDraw);
 

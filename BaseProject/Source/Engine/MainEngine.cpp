@@ -348,7 +348,7 @@ namespace Engine
 		// 音を鳴らしていなくても毎フレーム呼ぶ必要がある
 		Audio::AudioManager::Instance().Update();
 
-		m_upGraphicsEngine->RefParticleManager()->BeginFrame();	// パーティクルデータの更新
+		m_upGraphicsEngine->RefParticleManager()->BeginFrame(m_upTimeManager->GetDeltaTime());	// パーティクルデータの更新
 
 		m_upResourceManager->RefAssetDatabase().Update();
 

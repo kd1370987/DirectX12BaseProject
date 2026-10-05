@@ -7,6 +7,7 @@
 #include "../../Engine/MainEngine.h"
 #include "../../Engine/Graphics/GraphicsEngine.h"
 #include "../../Engine/Graphics/Particle/ParticleBufferManager.h"
+#include "../../Engine/Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
 
 
 #include "Application/Components/Transform/LocalTransformComponent.h"
@@ -201,5 +202,59 @@ namespace App::Utility
 			if (!_part.IsValid()) continue;
 			_pPM->CreateParticleDataAsync(_part.particleHandle);
 		}
+	}
+	void ReserveReturnEffectEmitterSlot(
+		const Engine::ECS::EngineServices& a_services,
+		Engine::Handle<Engine::Resource::EffectAsset> a_effectHandle,
+		Engine::Handle<Engine::Particle::EmitterTransform>& a_emitterSlot)
+	{
+		if (!a_emitterSlot.IsValid()) return;
+
+		// 手元は先に空にしておく(どこで抜けても二重に返さない)
+		const auto _slot = a_emitterSlot;
+		a_emitterSlot = {};
+
+		if (!a_services.pMainEngine) return;
+		auto* _pGE = a_services.pMainEngine->RefGraphicsEngine();
+		if (!_pGE) return;
+		auto* _pPM = _pGE->RefParticleManager();
+		if (!_pPM) return;
+		auto* _pSlotPool = _pPM->RefEmitterSlotPool();
+		if (!_pSlotPool) return;
+
+		//----------------------------------------------------------------------
+		// 待つ時間 : このエフェクトが使うローカル空間パーティクルの最大寿命
+		//
+		// 粒の寿命は [LifeTimeMin, LifeTimeMax] の乱数なので、Max だけ待てば全部消えている。
+		// エフェクトやパーティクルが引けず寿命が分からないときは長めの代わりの値で待つ
+		//----------------------------------------------------------------------
+		float _holdSeconds = 0.0f;
+		bool _isKnown = false;
+
+		const auto* _pEffect = a_services.pResourceManager ? a_services.pResourceManager->Get(a_effectHandle) : nullptr;
+		if (_pEffect)
+		{
+			_isKnown = true;
+			for (const auto& _part : _pEffect->GetParticleParts())
+			{
+				if (!_part.IsValid()) continue;
+
+				const auto* _pParticle = a_services.pResourceManager->Get(_part.particleHandle);
+				if (!_pParticle)
+				{
+					_isKnown = false;
+					continue;
+				}
+				if (!_pParticle->IsLocalSpace()) continue;
+
+				_holdSeconds = (std::max)(_holdSeconds, _pParticle->GetLifeTimeMax());
+			}
+		}
+		if (!_isKnown)
+		{
+			_holdSeconds = (std::max)(_holdSeconds, Engine::Particle::EMITTER_SLOT_FALLBACK_HOLD_SECONDS);
+		}
+
+		_pSlotPool->ReserveReturn(_slot, _holdSeconds);
 	}
 }

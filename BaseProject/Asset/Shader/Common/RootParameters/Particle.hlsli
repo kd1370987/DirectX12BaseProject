@@ -3,10 +3,6 @@
 #ifndef ROOTPARAM_PARTICLE_HLSLI
 #define ROOTPARAM_PARTICLE_HLSLI
 
-// 1つのパーティクルアセットが同時に持てる発生源の数
-// ※ CPU 側 Engine::Particle::PARTICLE_EMITTER_MAX と合わせること
-#define PARTICLE_EMITTER_MAX 8
-
 // 板ポリの向きの決め方
 // ※ CPU 側 Engine::Particle::EParticleOrientation と数値を合わせること
 #define PARTICLE_ORIENT_BILLBOARD			0	// 常にカメラ正面
@@ -31,7 +27,7 @@ struct ParticleData
 	// 進行度(0〜1)を出すには割る相手を粒自身が覚えているしかない
 	float startLife;
 
-	// ParticleDrawData.emitterMatrices の添字。
+	// 発生源の席番号(EmitterTransform の StructuredBuffer の添字)。
 	// 0 は単位行列で予約してあるので、ワールド空間で回す粒は 0 のまま
 	uint emitterIndex;
 
@@ -52,10 +48,15 @@ struct ParticleDrawData
 
 	float4	startColor;		// RGBは1を超えてよい(超えたぶんにブルームが乗る)
 	float4	endColor;
+};
 
-	// ローカル空間で回している粒を描画時にワールドへ戻す。
-	// 添字0を単位行列で予約してあるので、ワールド空間の粒も分岐なしで同じ経路を通る
-	row_major float4x4 emitterMatrices[PARTICLE_EMITTER_MAX];
+// 発生源の席1つぶん。全アセット共通の StructuredBuffer に並ぶ。
+// ローカル空間で回している粒は、描画時にここの行列でワールドへ戻す。
+// 添字0を単位行列で予約してあるので、ワールド空間の粒も分岐なしで同じ経路を通る
+// ※ CPU 側 Engine::Particle::EmitterTransform と並びを合わせること
+struct EmitterTransform
+{
+	row_major float4x4 worldMat;	// 拡縮を落とした位置と回転
 };
 
 // 発生命令1件ぶん

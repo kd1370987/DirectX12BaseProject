@@ -14,9 +14,15 @@ namespace Engine::Graphics
 
 namespace Engine::Particle
 {
+	class EmitterSlotPool;
+
 	class ParticleBufferManager
 	{
 	public:
+
+		ParticleBufferManager();
+		~ParticleBufferManager();
+		NON_COPYABLE_NON_MOVABLE(ParticleBufferManager);
 
 		/// <summary>
 		/// 初期化
@@ -41,7 +47,7 @@ namespace Engine::Particle
 		/// フレームの開始に呼ぶ
 		/// リクエストのクリアなど
 		/// </summary>
-		void BeginFrame();
+		void BeginFrame(float a_dt);
 
 		/// <summary>
 		/// パーティクルを指定して、個数やデータを代入
@@ -57,31 +63,10 @@ namespace Engine::Particle
 		// 粒が1つのプールに混ざる。「どの発生源にくっついているか」を粒ごとに
 		// 持たせないと、描くときに戻す行列を選べない。
 		// そこで発生源ごとに席(番号)を配り、粒にはその番号だけを持たせている。
-		//
-		// 席 0 は単位行列で予約。ワールド空間で回す粒はここを指すので、
-		// 描画側は分岐なしで同じ掛け算を通せる。
+		// 席は全アセット共通の1つの表(EmitterSlotPool)。持ち主はエフェクト側が握る
 		//----------------------------------------------------------------------------------
-
-		/// <summary>
-		/// 発生源の席を確保して番号を返す。すでに配ってあれば行列だけ更新する
-		/// </summary>
-		/// <param name="a_ownerKey">発生源を見分ける鍵(エンティティIDなど)</param>
-		/// <param name="a_ownerWorld">発生源のワールド行列</param>
-		/// <returns>席の番号。席が尽きたら 0(=ワールド空間として出る)</returns>
-		/// <remarks>
-		/// 渡された行列からは拡縮を落として、位置と回転だけを覚える。
-		/// 落とさないと、取り付け側のスケール(ブースターは 0.1 倍など)が
-		/// そのまま粒の飛距離に掛かってしまう。
-		/// </remarks>
-		uint32_t AcquireEmitterSlot(
-			const Handle<Resource::ParticlesAsset>& a_handle,
-			uint64_t a_ownerKey,
-			const Math::Matrix& a_ownerWorld);
-
-		/// <summary>
-		/// 席の行列一覧。描画時に定数バッファへ積む
-		/// </summary>
-		std::span<const Math::Matrix> GetEmitterMatrices(const Handle<Resource::ParticlesAsset>& a_handle) const;
+		EmitterSlotPool* RefEmitterSlotPool() { return m_upEmitterSlotPool.get(); }
+		const EmitterSlotPool* GetEmitterSlotPool() const { return m_upEmitterSlotPool.get(); }
 
 		/// <summary>
 		/// パーティクルのバッファを取得
@@ -115,14 +100,6 @@ namespace Engine::Particle
 		// 準備完了かどうか : BeginFrameで確定させる、メインスレッドでのみ触る
 		bool IsReady(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_readyHandles.contains(a_handle); }
 
-		// 席を持っていれば行列だけ更新する : 新しくとらない、使用フレームも進めない
-		void RefreshEmitterSlot(const Handle<Resource::ParticlesAsset>& a_handle, uint64_t a_ownerKey, const Math::Matrix& a_ownerWorld);
-
-	private:
-
-		// 拡縮を落として位置と回転だけを残す(席に入れる行列はすべてこれを通す)
-		static Math::Matrix StripScale(const Math::Matrix& a_world);
-
 	private:
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
 		// プールは非同期に作られるので、Init で受け取ったものを持ち続ける
@@ -140,34 +117,6 @@ namespace Engine::Particle
 
 		std::unordered_map<Handle<Resource::ParticlesAsset>, D3D12::StaticStructuredBuffer<EmitterData>> m_emitBuffer;
 
-		//------------------------------------------------------------------
-		// アセットごとの発生源の席
-		//
-		// フレームを跨いで保つ(粒より先に席が消えると、まだ生きている粒の行列が引けない)。
-		//
-		// ただし持ちっぱなしにはしない。席は1アセットあたり
-		// PARTICLE_EMITTER_MAX 個しか無く、鍵はエンティティなので、
-		// 出しては消えるもの(シーンを読み直すたびに作り直されるブースター等)が
-		// 席を取ったまま居なくなると、そのうち席が尽きて
-		// 後から来たものが全部ワールド空間で出てしまう。
-		//
-		// そこで最後に使われたフレームを覚えておき、席が尽きたときは
-		// 「しばらく使われていない席」を回して使う。
-		// 十分に間を空けてから回すので、生きている粒の行列を奪うことにはならない。
-		//------------------------------------------------------------------
-		struct EmitterSlotTable
-		{
-			std::unordered_map<uint64_t, uint32_t> slotMap = {};	// 鍵 → 席番号
-			std::vector<Math::Matrix> matrices = {};				// 席番号 → 行列([0] は単位行列)
-			std::vector<uint64_t> slotOwners = {};				// 席番号 → 鍵([0] は未使用)
-			std::vector<uint64_t> slotUsedFrame = {};			// 席番号 → 最後に使われたフレーム
-		};
-		std::unordered_map<Handle<Resource::ParticlesAsset>, EmitterSlotTable> m_emitterSlots;
-
-		// 席の使用状況を測るためのフレーム番号(BeginFrame で進める)
-		uint64_t m_frameCount = 0;
-
-
 		std::mutex m_mutex;
 		std::unordered_set<Handle<Resource::ParticlesAsset>> m_loadingHandles;
 
@@ -176,5 +125,8 @@ namespace Engine::Particle
 
 		// 命令バッファのあふれを警告済みのアセット(毎フレーム出すとログが埋まるので1回だけ)
 		std::unordered_set<Handle<Resource::ParticlesAsset>> m_overflowWarned;
+
+		// エミット用の座席プール : すべてのパーティクルアセットのワールド座標と生存時間を管理
+		std::unique_ptr<EmitterSlotPool> m_upEmitterSlotPool = nullptr;
 	};
 }

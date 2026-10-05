@@ -88,7 +88,7 @@ Phase1 即効のバグ修正 ─┐
 | Phase | 内容 | 規模 | 進捗 |
 |---|---|---|---|
 | 1 | 即効のバグ修正(B1・B3・B4、P4 の警告) | 小 | **実装済み・動作確認待ち**(2026-10-05) |
-| 2 | 発生源テーブルを全体共通・動的にする(EmitterSlotPool) | 中 | **作成中** |
+| 2 | 発生源テーブルを全体共通・動的にする(EmitterSlotPool) | 中 | **2-1〜2-3 実装済み・動作確認待ち**(2026-10-05)。2-4(デバッグ表示)は未着手 |
 | 3 | ローカルで形状を作り、最後に行列を掛ける。粒の回転 | 中 | 未着手 |
 | 4 | GPU の回し方(prefix sum・alive list・間接描画) | 中〜大 | 未着手 |
 | 5 | EffectAsset の拡張(統一の前提条件) | 大 | 未着手 |
@@ -179,10 +179,14 @@ public:
 | 3-1 | EmitterData の `emitPos`/`emitDirection` をやめて `float3x4 emitMatrix` を持たせる。形状(Cone/Sphere/Hemisphere)は**常にローカル(+Z 前方)**で作り、`emitMatrix` を掛ける |
 | 3-2 | `emitMatrix` の中身は CPU 側で切り替える。<br>World 空間 = 置き場の行列 × パーツのローカル行列(結果をワールドで保存し、emitterIndex は 0)<br>Local 空間 = パーツのローカル行列だけ(席の座標系で保存し、描画時に席の行列で戻す)<br>**GPU 側のコードは 1 本**になる |
 | 3-3 | `EEffectSpace` の WorldMatrix / ReverseVelocity は、「置き場の回転の作り方」として CPU 側で吸収する(ReverseVelocity = 速度の逆を +Z にした回転) |
-| 3-4 | ParticleData の `pad0/pad1` を `rotation` と `angularVelocity` にする(VRAM は増えない)。アセットに初期角・回転速度の範囲を足す(Archive は末尾に追加) |
-| 3-5 | `EParticleOrientation` に `EmitterAxis`(板の上方向を発生源の軸に合わせる)を末尾に足す。Billboard にも回転を掛ける |
+| 3-4 | ParticleData の `pad0/pad1` を `rotation` と `angularVelocity` にし、発生時の向き `float4 orientation`(クォータニオン)を足す。48 → 64 バイト(容量 10000 で +160KB/プール)。アセットに初期角・回転速度の範囲を足す(Archive は末尾に追加) |
+| 3-5 | `EParticleOrientation` に `EmitterAxis`(板の軸を `orientation` から取る。Local なら席の回転も掛ける)を末尾に足す。Billboard にも回転を掛ける |
 | 3-6 | Update にも席の SRV を渡し、Local の粒には重力を回転の転置でローカルへ回してから掛ける(E1) |
 | 3-7 | EffectOverride の `overridePosOffset`/`overrideEmitDir` を「置き場の位置・回転」に変える。パーツは相対配置のまま(B5) |
+
+**決めること**: いまの Local 空間はパーツのオフセットに持ち主のスケールを掛けていない(World 空間とメッシュパーツは掛けている)。
+「常にワールドの発生行列を作り、Local なら席の逆行列を掛ける」形に寄せると Local も掛かる側に揃う。
+揃えるなら、Local のアセットを使っているもの(ブースター)のオフセットを見直す。
 
 **完了条件**: ブースターの噴射テクスチャが機体のロールに追従する。横向きのパーツを含むエフェクトに上書きを掛けても構成が崩れない。
 EffectDrawSystem のローカル/ワールドの分岐が、行列を組み立てるだけになっている。

@@ -25,8 +25,11 @@ VSOutput VSMain(VSInput a_input)
 	// シミュレーションはローカルのまま進めて、描くときにここで戻す。
 	// 添字 0 は単位行列で予約してあるので、ワールド空間の粒は素通りする(分岐が要らない)。
 	//----------------------------------------------------------------
-	uint _emitterIndex = min(_particleData.emitterIndex, (uint) (PARTICLE_EMITTER_MAX - 1));
-	float4x4 _emitterMat = g_draw.emitterMatrices[_emitterIndex];
+	// 範囲外を読まないよう、表の長さで丸める(はみ出したら最後の席。ふつうは起きない)
+	uint _slotCount, _slotStride;
+	g_emitterSlots.GetDimensions(_slotCount, _slotStride);
+	uint _emitterIndex = min(_particleData.emitterIndex, _slotCount - 1);
+	float4x4 _emitterMat = g_emitterSlots[_emitterIndex].worldMat;
 
 	float3 _simPos = mul(float4(_particleData.pos, 1.0f), _emitterMat).xyz;
 	float3 _simVelocity = mul(float4(_particleData.velocity, 0.0f), _emitterMat).xyz;

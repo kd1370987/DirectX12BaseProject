@@ -4,6 +4,7 @@
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Particle/ParticleBufferManager.h"
+#include "Engine/Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
 
 #include "Application/Components/Effect/EffectRuntimeComponent.h"
 #include "Application/Components/Effect/EffectOverrideComponent.h"
@@ -24,7 +25,8 @@
 //==========================================================================================
 void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 {
-	a_world.ActiveTask<const EffectRuntimeComponent, const EffectOverrideComponent, const WorldMatrixComponent>(
+	// 発生源の席を取って持つので、EffectRuntimeComponent は書き込み
+	a_world.ActiveTask<EffectRuntimeComponent, const EffectOverrideComponent, const WorldMatrixComponent>(
 		Engine::ECS::ESystemType::Draw,
 		"EffectDrawSystem",
 		[]
@@ -33,7 +35,7 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 			uint32_t a_count,
 			const Engine::ECS::SystemContext& a_ctx,
 			ActiveTag* a_tags,
-			const EffectRuntimeComponent* a_runtimeArray,
+			EffectRuntimeComponent* a_runtimeArray,
 			const EffectOverrideComponent* a_overrideArray,
 			const WorldMatrixComponent* a_worldMatArray
 			)
@@ -44,10 +46,11 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 
 			auto* _pGE = _pMainEngine->RefGraphicsEngine();
 			auto* _pParticleManager = _pGE->RefParticleManager();
+			auto* _pSlotPool = _pParticleManager ? _pParticleManager->RefEmitterSlotPool() : nullptr;
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
-				const EffectRuntimeComponent& _runtime = a_runtimeArray[_i];
+				EffectRuntimeComponent& _runtime = a_runtimeArray[_i];
 				const EffectOverrideComponent& _override = a_overrideArray[_i];
 
 				auto* _pEffect = _pResourceManager->Ref(_runtime.effectHandle);
@@ -57,26 +60,34 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
 				//----------------------------------------------------------
-				// ローカル空間の席の行列は、毎フレーム持ち主に追わせる
+				// 発生源の席(ローカル空間のパーティクル用)
 				//
-				// 席の行列を書き換えるのが「粒を出したフレーム」だけだと、
+				// エフェクト1つにつき1席。Local のパーツが1つでもあれば取る。
+				// 行列は再生中かどうか・今フレーム出すかどうかに関係なく毎フレーム書く。
+				// 出したフレームだけ書くと、
 				//   ・発生レートが fps より低いと、出さないフレームに行列が古いまま描かれてガタつく
 				//   ・止めた後の残り粒が、最後に出した位置に置き去りになる
-				// ので、再生中かどうか・今フレーム出すかどうかに関係なくここで更新する。
-				// 席を新しく取るのは下の発生のときだけ(Refresh は持っている席を書くだけ)
+				// 返すのはエンティティが消えるとき(EffectRuntimeComponent の Release)
 				//----------------------------------------------------------
-				if (_pParticleManager)
+				if (_pSlotPool)
 				{
+					bool _hasLocalPart = false;
 					for (const auto& _part : _pEffect->GetParticleParts())
 					{
 						const auto* _pParticle = _pResourceManager->Get(_part.particleHandle);
-						if (!_pParticle || !_pParticle->IsLocalSpace()) continue;
-
-						_pParticleManager->RefreshEmitterSlot(
-							_part.particleHandle,
-							static_cast<uint64_t>(_self),
-							_ownerWorld);
+						if (_pParticle && _pParticle->IsLocalSpace())
+						{
+							_hasLocalPart = true;
+							break;
+						}
 					}
+
+					if (_hasLocalPart && !_pSlotPool->IsValid(_runtime.emitterSlot))
+					{
+						_runtime.emitterSlot = _pSlotPool->Acquire();
+					}
+
+					_pSlotPool->SetTransform(_runtime.emitterSlot, _ownerWorld);
 				}
 
 				if (!_runtime.instance.isPlaying) continue;
@@ -131,7 +142,7 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 						//
 						// ローカル空間で回すパーティクルは、発生源にくっついて動いてほしいので
 						// ワールドではなくその座標系のまま出す。ワールドへ戻すのは描画時。
-						// 戻すのに使う行列の席をここで確保しておく。
+						// 戻すのに使う行列の席は上で確保・更新してある。
 						//
 						// このときパーツの space(WorldMatrix / ReverseVelocity)は使わない。
 						// どれも「ワールドのどこに出すか」を決めるものなので、
@@ -140,13 +151,11 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 						Math::Vector3 _pos;
 						Math::Vector3 _dir;
 
+						// 席が取れていなければ 0(単位行列)になり、ワールド空間として出る
 						UINT _emitterIndex = 0;
 						if (_pParticle->IsLocalSpace())
 						{
-							_emitterIndex = _pParticleManager->AcquireEmitterSlot(
-								_part.particleHandle,
-								static_cast<uint64_t>(_self),
-								_ownerWorld);
+							_emitterIndex = Engine::Particle::EmitterSlotPool::ToGPUIndex(_runtime.emitterSlot);
 						}
 
 						if (_emitterIndex != 0)

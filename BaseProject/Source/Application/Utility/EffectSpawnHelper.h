@@ -19,6 +19,7 @@
 namespace Engine
 {
 	namespace ECS { class APPWorld; }
+	namespace Particle { struct EmitterTransform; }
 }
 
 namespace App::Utility
@@ -86,5 +87,20 @@ namespace App::Utility
 	void WarmupEffectParticles(
 		const Engine::ECS::EngineServices& a_services,
 		Engine::Handle<Engine::Resource::EffectAsset> a_effectHandle
+	);
+
+	/// <summary>
+	/// エフェクトが持っている発生源の席を返す予約をして、手元のハンドルを空にする
+	/// </summary>
+	/// <remarks>
+	/// 持ち主が消えても、出した粒は寿命まで残って席の行列を読み続ける。
+	/// そこで「このエフェクトが使うローカル空間パーティクルの最大寿命」だけ待ってから空きへ戻す。
+	/// 寿命はエフェクトアセットから引くので、エフェクトのハンドルを返す前に呼ぶこと。
+	/// 席を持っていなければ何もしない
+	/// </remarks>
+	void ReserveReturnEffectEmitterSlot(
+		const Engine::ECS::EngineServices& a_services,
+		Engine::Handle<Engine::Resource::EffectAsset> a_effectHandle,
+		Engine::Handle<Engine::Particle::EmitterTransform>& a_emitterSlot
 	);
 }

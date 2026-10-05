@@ -65,6 +65,12 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 				// これをしないと、差し替え前の再生位置から続きが出てしまう
 				_runtime.instance = {};
 
+				// 発生源の席も空にする(返さない)。
+				// 入り直しのときは Release フックが返却を予約し終えている。
+				// 新しく実体化したものは、プレハブや複製元の値が写っているだけで自分の席ではないので、
+				// 返すと他人の席を手放してしまう。どちらにしても、ここでは忘れるだけでよい
+				_runtime.emitterSlot = {};
+
 				// 出っぱなしの指定なら、ここで再生状態にしておく。
 				// isPlay は保存されないので、誰かが立てないと何も出ない
 				_request.isPlay = _effectComp.playOnStart;
