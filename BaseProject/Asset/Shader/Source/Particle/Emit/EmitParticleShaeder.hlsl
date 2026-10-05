@@ -6,7 +6,7 @@
 // ルートパラメーター
 //
 //   0 : CBV(b0)            発生ディスパッチの設定
-//   1 : SRVの番号(t0)    発生命令の一覧
+//   1 : SRVの番号(t0)    発生命令の一覧(全プール共通の1本。このプールのぶんは requestOffset から)
 //   2 : UAVの番号(u0-u2) 粒 + デッドリスト + カウンター
 //==========================================================================================
 #define EMITPARTICLE_ROOT_SIG \
@@ -49,22 +49,55 @@ RWStructuredBuffer<uint> Get_counterBuffer() { RWStructuredBuffer<uint> _r = Res
 // ルートシグネチャセット
 [RootSignature(EMITPARTICLE_ROOT_SIG)]
 
-// １スレッド当たり
-[numthreads(32, 1, 1)]
+//==========================================================================================
+// 1スレッド = 1粒
+//
+// 以前は 1スレッド = 1命令で、命令の emitCount 個を順番に作っていた。
+// 1命令で数百粒出す爆発だと1スレッドだけが長く回り、他のスレッドは待つだけになる。
+// 今は出す粒の合計ぶんスレッドを立て、各スレッドが「どの命令の何個目か」を引いて1粒だけ作る。
+//
+//   どの命令か : 命令ごとの emitStart(このプールの中で何粒目から始まるか)を二分探索
+//   何個目か   : スレッド番号 - その命令の emitStart
+//
+// ※ C++ 側の Dispatch(ParticleSimulation.cpp)のスレッド数 64 と合わせること
+//==========================================================================================
+[numthreads(64, 1, 1)]
 void CSMain( uint3 DTid : SV_DispatchThreadID )
 {
-	// リクエスト以上のスレッドは落とす
-	if (DTid.x >= g_emit.requestCount)
+	// このプールで今回出す粒の通し番号。合計(容量で頭打ち)以上のスレッドは落とす
+	const uint _particleNo = DTid.x;
+	if (_particleNo >= g_emit.emitTotal)
 		return;
-	
-	// エミッター総数がDTid.xより小さければ return
-	uint _emitterIndex = DTid.x;
-	// 命令のバッファは全プール共通の1本。このプールの命令は requestOffset から並んでいる。
-	// _emitterIndex(プールの中での番号)は乱数の種にも使うので、ずらさずにそのまま残す
-	EmitData _emitInfo = g_emitData[g_emit.requestOffset + _emitterIndex];
 
-	// エミッターが要求する個数分だけパーティクルを発生させる
-	for (uint _i = 0; _i < _emitInfo.emitCount; ++_i)
+	//------------------------------------------------------------------
+	// どの命令の粒か : emitStart <= _particleNo を満たす最後の命令(二分探索)
+	//
+	// emitCount = 0 の命令は次の命令と同じ emitStart を持つが、
+	// 「満たす最後の命令」を選べば正しく飛ばせる
+	//------------------------------------------------------------------
+	uint _lo = 0;
+	uint _hi = g_emit.requestCount;		// [lo, hi)
+	while (_hi - _lo > 1)
+	{
+		const uint _mid = (_lo + _hi) / 2;
+		if (g_emitData[g_emit.requestOffset + _mid].emitStart <= _particleNo)
+		{
+			_lo = _mid;
+		}
+		else
+		{
+			_hi = _mid;
+		}
+	}
+
+	// 命令のバッファは全プール共通の1本。このプールの命令は requestOffset から並んでいる。
+	// _emitterIndex(プールの中での命令の番号)は乱数の種にも使うので、ずらさずにそのまま残す
+	const uint _emitterIndex = _lo;
+	const EmitData _emitInfo = g_emitData[g_emit.requestOffset + _emitterIndex];
+
+	// その命令の何個目か(以前のループの _i と同じ)
+	const uint _i = _particleNo - _emitInfo.emitStart;
+
 	{
 		uint _origCount;
 
@@ -95,7 +128,7 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 			// シード値取得
 			// ・frameSeed を混ぜないと毎フレーム完全に同じパーティクルが生成され、
 			//   すべて同じ位置に重なって「1個しか出ていない」ように見える。
-			// ・単純な足し算だと (スレッド0,_i=1) と (スレッド1,_i=0) が同じ種になるので
+			// ・単純な足し算だと (命令0,_i=1) と (命令1,_i=0) が同じ種になるので
 			//   ハッシュを噛ませてから組み合わせる。
 			uint _seed = PCGHash(PCGHash(g_emit.frameSeed + _emitterIndex * 9781u) + _i);
 
@@ -176,12 +209,9 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 		// 空きがなかった場合 : 最大容量に達している場合
 		else
 		{
-			// カウンターのマイナスを戻す
+			// カウンターのマイナスを戻す(この粒は出さない)。
+			// 引きすぎたスレッドがそれぞれ戻すので、カウンターは最終的に 0 へ収束する
 			InterlockedAdd(g_counterBuffer[0], 1, _origCount);
-
-			// これ以上は出せないためプールから抜ける
-			break;
 		}
 	}
-
 }

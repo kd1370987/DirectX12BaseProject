@@ -100,6 +100,10 @@ struct EmitData
 	float	maxRotation;
 	float	minAngularVelocity;
 	float	maxAngularVelocity;
+
+	// このプールの命令の中で、この命令の粒が何番目から始まるか(前の命令までの emitCount の合計)。
+	// 1スレッド = 1粒 で回すときに、どの命令の何個目かを二分探索で引くのに使う
+	uint	emitStart;
 };
 
 // クォータニオン(xyzw)でベクトルを回す。
@@ -116,8 +120,8 @@ struct ParticleEmitSetting
 {
 	uint requestOffset;		// 発生命令のバッファ(全プール共通の1本)の中で、このプールの命令が始まる位置
 	uint requestCount;		// 今回処理する発生命令の数
+	uint emitTotal;			// 今回出す粒の合計(= スレッド数。プールの容量で頭打ちにしてある)
 	uint frameSeed;			// フレームごとに変わる乱数の種
-	uint pad;
 };
 
 // 更新ディスパッチ1回ぶんの設定

@@ -131,9 +131,9 @@ namespace Engine::Graphics
 			// プールが読み込み済みかチェック
 			if (!_pParticleManager->IsReady(_handle)) continue;
 
-			// このフレームに発生命令が無いなら何もしない
+			// このフレームに出す粒が無いなら何もしない
 			const auto _range = _pParticleManager->GetEmitRange(_handle);
-			if (_range.count == 0) continue;
+			if (_range.count == 0 || _range.emitTotal == 0) continue;
 
 			// ヒープとルートシグネチャ、PSOをセット
 			a_pCtx->BindBindlessHeaps();
@@ -148,14 +148,15 @@ namespace Engine::Graphics
 			{
 				uint32_t requestOffset;	// 共通の1本の中で、このプールの命令が始まる位置
 				uint32_t requestCount;	// このプールの命令の数
+				uint32_t emitTotal;		// 今回出す粒の合計(= スレッド数。容量で頭打ち)
 				uint32_t frameSeed;		// フレームごとに変わる乱数の種
-				uint32_t pad;
 			};
 			EmitCB _cbEmit = {};
 
 			// 範囲は UploadEmitData が実際に送ったぶんだけなので、そのまま渡してよい
 			_cbEmit.requestOffset = _range.offset;
 			_cbEmit.requestCount = _range.count;
+			_cbEmit.emitTotal = _range.emitTotal;
 
 			// プールごとにも種をずらす(同一フレームに複数プールが出しても被らないように)
 			_cbEmit.frameSeed = g_particle.frameCounter * 2654435761u + _handle.id;
@@ -170,8 +171,10 @@ namespace Engine::Graphics
 			a_pCtx->ComputeBindDescriptorIndices(2, _poolIndices);
 
 			// 実行
-			// 1スレッド = エミット命令1つ なので、必要なのは命令数分だけ
-			const UINT _dispatchNum = (_cbEmit.requestCount + 31u) / 32u;
+			// 1スレッド = 1粒。シェーダーの numthreads(64) と合わせる。
+			// 大きなバースト(1命令で数百粒)を1スレッドで順番に作らずに済む
+			constexpr UINT _kEmitThreadGroupSize = 64u;
+			const UINT _dispatchNum = (_cbEmit.emitTotal + _kEmitThreadGroupSize - 1u) / _kEmitThreadGroupSize;
 			a_pCtx->Dispatch(_dispatchNum, 1, 1);
 
 			// ★UAVバリア必須。

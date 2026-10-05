@@ -58,8 +58,13 @@ namespace Engine::Particle
 		float maxRotation;
 		float minAngularVelocity;
 		float maxAngularVelocity;
+
+		// このプールの命令の中で、この命令の粒が何番目から始まるか(前の命令までの emitCount の合計)。
+		// 発生シェーダーは 1スレッド = 1粒 で回り、「このスレッドはどの命令の何個目か」を
+		// これで二分探索して引く。入れるのは ParticleBufferManager::UploadEmitData(呼ぶ側は触らない)
+		UINT emitStart;
 	};
-	static_assert(sizeof(EmitterData) == 144, "HLSL 側 EmitData と大きさを合わせること");
+	static_assert(sizeof(EmitterData) == 148, "HLSL 側 EmitData と大きさを合わせること");
 
 	/// <summary>
 	/// 発生行列を作る : +Z が噴き出す向き、+Y が上、第4行が位置

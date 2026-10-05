@@ -25,8 +25,14 @@ namespace Engine::Particle
 		NON_COPYABLE_NON_MOVABLE(ParticleBufferManager);
 
 		// このフレームの発生命令のうち、あるプールのぶんが共通の1本のどこからどこまでか。
-		// 発生の Dispatch は offset から count 件だけを読む(count = 0 なら出す命令が無い)
-		struct EmitRange { uint32_t offset = 0; uint32_t count = 0; };
+		// 発生の Dispatch は offset から count 件だけを読む(count = 0 なら出す命令が無い)。
+		// emitTotal はその命令で出す粒の合計(= 発生のスレッド数)。プールの容量で頭打ちにしてある
+		struct EmitRange
+		{
+			uint32_t offset = 0;
+			uint32_t count = 0;
+			uint32_t emitTotal = 0;
+		};
 
 		/// <summary>
 		/// 初期化

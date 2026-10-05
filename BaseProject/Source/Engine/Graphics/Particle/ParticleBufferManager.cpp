@@ -184,9 +184,29 @@ namespace Engine::Particle
 			EmitRange _range = {};
 			_range.offset = static_cast<uint32_t>(m_frameEmitData.size());
 			_range.count = static_cast<uint32_t>(_num);
-			m_emitRanges[_handle] = _range;
 
 			m_frameEmitData.insert(m_frameEmitData.end(), _emitDataVec.begin(), _emitDataVec.begin() + _num);
+
+			//----------------------------------------------------------------------
+			// 粒ごとの開始位置を入れる(発生シェーダーは 1スレッド = 1粒)
+			//
+			// 各命令に「このプールの中で何粒目から始まるか」を持たせ、合計を数える。
+			// シェーダーはスレッド番号からこれを二分探索して「どの命令の何個目か」を引く。
+			// 合計はプールの容量で頭打ちにする。容量を超えた粒は空き番号が無くて出せないので、
+			// スレッドを立てるだけ無駄になる(後ろの命令の粒から出なくなる)
+			//----------------------------------------------------------------------
+			uint64_t _emitTotal = 0;
+			for (size_t _r = _range.offset; _r < m_frameEmitData.size(); ++_r)
+			{
+				m_frameEmitData[_r].emitStart = static_cast<UINT>((std::min)(_emitTotal, static_cast<uint64_t>(UINT32_MAX)));
+				_emitTotal += m_frameEmitData[_r].emitCount;
+			}
+
+			const auto _poolIt = m_pools.find(_handle);
+			const uint64_t _capacity = (_poolIt != m_pools.end() && _poolIt->second) ? _poolIt->second->GetMaxCapacity() : 0;
+			_range.emitTotal = static_cast<uint32_t>((std::min)(_emitTotal, _capacity));
+
+			m_emitRanges[_handle] = _range;
 
 			// このフレームに粒が出る : ここから最大寿命ぶんは起こしておく
 			m_lastEmitTime[_handle] = m_elapsedTime;
