@@ -79,7 +79,7 @@ namespace App::Utility
 
 	/// <summary>
 	/// エフェクトが使うパーティクルのGPUプールを先に作らせる
-	/// 出す瞬間に作り始めると数フレーム送れるため
+	/// 出す瞬間に作り始めると数フレーム遅れるため
 	/// </summary>
 	/// <param name="a_services"></param>
 	/// <param name="a_effectHandle"></param>

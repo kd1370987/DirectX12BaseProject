@@ -115,6 +115,14 @@ namespace Engine::Particle
 		// 準備完了かどうか : BeginFrameで確定させる、メインスレッドでのみ触る
 		bool IsReady(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_readyHandles.contains(a_handle); }
 
+		// 席を持っていれば行列だけ更新する : 新しくとらない、使用フレームも進めない
+		void RefreshEmitterSlot(const Handle<Resource::ParticlesAsset>& a_handle, uint64_t a_ownerKey, const Math::Matrix& a_ownerWorld);
+
+	private:
+
+		// 拡縮を落として位置と回転だけを残す(席に入れる行列はすべてこれを通す)
+		static Math::Matrix StripScale(const Math::Matrix& a_world);
+
 	private:
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
 		// プールは非同期に作られるので、Init で受け取ったものを持ち続ける
@@ -166,5 +174,7 @@ namespace Engine::Particle
 		// メインスレッドだけが触る確定済みの集合
 		std::unordered_set<Handle<Resource::ParticlesAsset>> m_readyHandles;	// 準備中パーティクルアセット達
 
+		// 命令バッファのあふれを警告済みのアセット(毎フレーム出すとログが埋まるので1回だけ)
+		std::unordered_set<Handle<Resource::ParticlesAsset>> m_overflowWarned;
 	};
 }

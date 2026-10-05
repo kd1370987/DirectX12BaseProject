@@ -2,6 +2,7 @@
 
 #include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "../GraphicsEngine.h"
+#include "../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Particle
 {
@@ -33,6 +34,8 @@ namespace Engine::Particle
 		m_emitRequests.clear();
 		m_emitterSlots.clear();
 		m_loadingHandles.clear();
+		m_readyHandles.clear();
+		m_overflowWarned.clear();
 	}
 	void ParticleBufferManager::BeginFrame()
 	{
@@ -95,27 +98,7 @@ namespace Engine::Particle
 			_table.slotUsedFrame.push_back(0);
 		}
 
-		//----------------------------------------------------------------------
-		// 拡縮を落として、位置と回転だけを覚える
-		//
-		// 取り付け側のスケール(ブースターは 0.1 倍など)を残したまま戻すと、
-		// ローカルで進めた飛距離までそのスケールで縮んでしまう。
-		// 粒は最初からワールドの尺で飛ばしたいので、軸の長さを 1 に揃える
-		//----------------------------------------------------------------------
-		Math::Matrix _mat = a_ownerWorld;
-		{
-			Math::Vector3 _axisX(_mat._11, _mat._12, _mat._13);
-			Math::Vector3 _axisY(_mat._21, _mat._22, _mat._23);
-			Math::Vector3 _axisZ(_mat._31, _mat._32, _mat._33);
-
-			if (_axisX.LengthSquared() > 1e-12f) _axisX.Normalize();
-			if (_axisY.LengthSquared() > 1e-12f) _axisY.Normalize();
-			if (_axisZ.LengthSquared() > 1e-12f) _axisZ.Normalize();
-
-			_mat._11 = _axisX.x; _mat._12 = _axisX.y; _mat._13 = _axisX.z;
-			_mat._21 = _axisY.x; _mat._22 = _axisY.y; _mat._23 = _axisY.z;
-			_mat._31 = _axisZ.x; _mat._32 = _axisZ.y; _mat._33 = _axisZ.z;
-		}
+		const Math::Matrix _mat = StripScale(a_ownerWorld);
 
 		// すでに席を持っているなら行列だけ更新する
 		auto _it = _table.slotMap.find(a_ownerKey);
@@ -209,7 +192,7 @@ namespace Engine::Particle
 		for (auto& [_handle, _emitDataVec] : m_emitRequests)
 		{
 			// リクエストがない、またはまだGPUバッファが生成中ならスキップ
-			if (_emitDataVec.empty() || IsReady(_handle))
+			if (_emitDataVec.empty() || !IsReady(_handle))
 			{
 				continue;
 			}
@@ -220,6 +203,27 @@ namespace Engine::Particle
 				// バッファは固定長。要素数を超えて書くとマップ領域を踏み越えるので切り詰める。
 				// (パス側も同じ数で requestCount を丸めるので、あふれた命令はこのフレームでは捨てる)
 				const size_t _uploadNum = (std::min)(_emitDataVec.size(), _it->second.GetElementNum());
+
+				//----------------------------------------------------------------------
+				// あふれたことを知らせる
+				//
+				// 黙って捨てると「群れの着地で一部だけ砂煙が出ない」のように、
+				// 欠けているのか元からそういう絵なのかが見分けられない。
+				// 毎フレーム出すとログが埋まるので、アセットごとに1回だけ
+				//----------------------------------------------------------------------
+				if (_emitDataVec.size() > _uploadNum && !m_overflowWarned.contains(_handle))
+				{
+					m_overflowWarned.insert(_handle);
+
+					const auto* _pResourceManager = m_pGraphicsEngine ? m_pGraphicsEngine->RefResourceManager() : nullptr;
+					const auto* _pParticle = _pResourceManager ? _pResourceManager->Get(_handle) : nullptr;
+
+					ENGINE_WARNING(
+						"[Particle] 発生命令があふれました : %s (%d 件 / 上限 %d 件)。あふれた分はこのフレームでは出ません",
+						_pParticle ? _pParticle->GetName().c_str() : "(不明)",
+						static_cast<int>(_emitDataVec.size()),
+						static_cast<int>(_uploadNum));
+				}
 
 				// 毎フレーム書き換えるので、フレームごとの区画を経由してGPUへ送る
 				_it->second.UploadFrame(a_pCmdList, _emitDataVec.data(), sizeof(EmitterData) * _uploadNum, a_frameIndex);
@@ -250,6 +254,19 @@ namespace Engine::Particle
 		if (!m_pGraphicsEngine) return;
 		auto* _pDevice = m_pGraphicsEngine->RefRenderDevice()->RefDevice();
 
+		//----------------------------------------------------------------------
+		// アセットが読めていなければ、まだ作らない
+		//
+		// 容量はアセットから引くので、読めていないと作りようがない。
+		// ここで弾かずに進めると「中身の無いプール」が m_pools に残り、
+		// BeginFrame がそれを準備完了にして、更新の Dispatch が
+		// 作られていないバッファの番号で走ってしまう。
+		// 弾いておけば、次の RequestEmit(または Warmup)で作り直しに来る
+		//----------------------------------------------------------------------
+		if (!a_handle.IsValid()) return;
+		const auto* _pResourceManager = m_pGraphicsEngine->RefResourceManager();
+		if (!_pResourceManager || !_pResourceManager->Get(a_handle)) return;
+
 		// メインスレッド側でマップ作成
 		{
 			std::lock_guard<std::mutex> _lock(m_mutex);
@@ -267,12 +284,18 @@ namespace Engine::Particle
 		}
 
 		// コンピュート用の計算を非同期マネージャーへ流す
+		// ※ 記録(1つ目のラムダ)は ExecuteAsyncCopy の中でその場で走る。非同期なのは GPU 側のコピーだけ
+		bool _isCreated = false;
 		m_pGraphicsEngine->RefRenderDevice()->ExecuteAsyncCopy(
 			// ロード処理
-			[this,_pDevice,a_handle](D3D12::GraphicsCommandList* a_pCmdList)
+			[this,_pDevice,a_handle,&_isCreated](D3D12::GraphicsCommandList* a_pCmdList)
 			{
-				m_pools[a_handle]->Init(_pDevice, m_pHeapManager, a_pCmdList, a_handle, *m_pGraphicsEngine->RefResourceManager());
-				m_emitBuffer[a_handle].Create(_pDevice, m_pHeapManager, a_pCmdList, 100, nullptr);
+				if (!m_pools[a_handle]->Init(_pDevice, m_pHeapManager, a_pCmdList, a_handle, *m_pGraphicsEngine->RefResourceManager()))
+				{
+					return;
+				}
+				m_emitBuffer[a_handle].Create(_pDevice, m_pHeapManager, a_pCmdList, static_cast<UINT>(EMIT_REQUEST_MAX), nullptr);
+				_isCreated = true;
 			},
 			// コールバック処理
 			[this,a_handle]()
@@ -283,5 +306,65 @@ namespace Engine::Particle
 				ENGINE_LOG("パーティクルGPUデータ作成完了");
 			}
 		);
+
+		// 作れなかったら登録を取り消す。
+		// 残すと BeginFrame が中身の無いプールを準備完了にしてしまう。
+		// ロード中の印はコールバックが外すので、ここでは触らない
+		// (外すまでの間に来た作成依頼は「ロード中」で弾かれ、次のフレーム以降に作り直される)
+		if (!_isCreated)
+		{
+			std::lock_guard<std::mutex> _lock(m_mutex);
+			m_pools.erase(a_handle);
+			m_emitRequests.erase(a_handle);
+			m_emitBuffer.erase(a_handle);
+		}
+	}
+	void ParticleBufferManager::RefreshEmitterSlot(
+		const Handle<Resource::ParticlesAsset>& a_handle,
+		uint64_t a_ownerKey,
+		const Math::Matrix& a_ownerWorld
+	)
+	{
+		auto _tableIt = m_emitterSlots.find(a_handle);
+		if (_tableIt == m_emitterSlots.end()) return;
+
+		EmitterSlotTable& _table = _tableIt->second;
+
+		// 席を持っていなければ何もしない(取るのは AcquireEmitterSlot だけ)。
+		// 回された席は前の持ち主の鍵ごと slotMap から消えているので、
+		// 席を奪われた側がここで新しい持ち主の行列を書き潰すことはない
+		auto _it = _table.slotMap.find(a_ownerKey);
+		if (_it == _table.slotMap.end()) return;
+
+		// 使用フレームは進めない。
+		// 進めると「出していないが生きている」発生源(待機中のブースターなど)が
+		// 席を握り続け、出し終わった席を回すという今の回収の決まりが崩れる
+		_table.matrices[_it->second] = StripScale(a_ownerWorld);
+	}
+
+	//----------------------------------------------------------------------
+	// 拡縮を落として、位置と回転だけを残す
+	//
+	// 取り付け側のスケール(ブースターは 0.1 倍など)を残したまま戻すと、
+	// ローカルで進めた飛距離までそのスケールで縮んでしまう。
+	// 粒は最初からワールドの尺で飛ばしたいので、軸の長さを 1 に揃える
+	//----------------------------------------------------------------------
+	Math::Matrix ParticleBufferManager::StripScale(const Math::Matrix& a_world)
+	{
+		Math::Matrix _mat = a_world;
+
+		Math::Vector3 _axisX(_mat._11, _mat._12, _mat._13);
+		Math::Vector3 _axisY(_mat._21, _mat._22, _mat._23);
+		Math::Vector3 _axisZ(_mat._31, _mat._32, _mat._33);
+
+		if (_axisX.LengthSquared() > 1e-12f) _axisX.Normalize();
+		if (_axisY.LengthSquared() > 1e-12f) _axisY.Normalize();
+		if (_axisZ.LengthSquared() > 1e-12f) _axisZ.Normalize();
+
+		_mat._11 = _axisX.x; _mat._12 = _axisX.y; _mat._13 = _axisX.z;
+		_mat._21 = _axisY.x; _mat._22 = _axisY.y; _mat._23 = _axisY.z;
+		_mat._31 = _axisZ.x; _mat._32 = _axisZ.y; _mat._33 = _axisZ.z;
+
+		return _mat;
 	}
 }

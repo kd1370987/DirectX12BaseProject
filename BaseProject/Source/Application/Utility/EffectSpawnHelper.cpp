@@ -181,7 +181,7 @@ namespace App::Utility
 	}
 	void WarmupEffectParticles(const Engine::ECS::EngineServices& a_services, Engine::Handle<Engine::Resource::EffectAsset> a_effectHandle)
 	{
-		if (!a_services.pResourceManager)  return;
+		if (!a_services.pResourceManager || !a_services.pMainEngine)  return;
 
 		auto* _pGE = a_services.pMainEngine->RefGraphicsEngine();
 		if (!_pGE) return;
@@ -193,9 +193,12 @@ namespace App::Utility
 		auto* _pEffect = a_services.pResourceManager->Get(a_effectHandle);
 		if (!_pEffect) return;
 
-		// エフェクトからとれるパーツのプールを柵瀬宇する
+		// エフェクトからとれるパーツのプールを作成する。
+		// パーティクル未設定のパーツや、アセットがまだ読めていないものは
+		// CreateParticleDataAsync の側で弾かれる(後で RequestEmit が作り直しに来る)
 		for (auto& _part : _pEffect->GetParticleParts())
 		{
+			if (!_part.IsValid()) continue;
 			_pPM->CreateParticleDataAsync(_part.particleHandle);
 		}
 	}

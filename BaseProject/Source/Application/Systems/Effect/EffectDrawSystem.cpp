@@ -49,13 +49,37 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				const EffectRuntimeComponent& _runtime = a_runtimeArray[_i];
 				const EffectOverrideComponent& _override = a_overrideArray[_i];
-				if (!_runtime.instance.isPlaying) continue;
 
 				auto* _pEffect = _pResourceManager->Ref(_runtime.effectHandle);
 				if (!_pEffect) continue;
 
 				const Math::Matrix _ownerWorld(a_worldMatArray[_i].worldMat);
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+
+				//----------------------------------------------------------
+				// ローカル空間の席の行列は、毎フレーム持ち主に追わせる
+				//
+				// 席の行列を書き換えるのが「粒を出したフレーム」だけだと、
+				//   ・発生レートが fps より低いと、出さないフレームに行列が古いまま描かれてガタつく
+				//   ・止めた後の残り粒が、最後に出した位置に置き去りになる
+				// ので、再生中かどうか・今フレーム出すかどうかに関係なくここで更新する。
+				// 席を新しく取るのは下の発生のときだけ(Refresh は持っている席を書くだけ)
+				//----------------------------------------------------------
+				if (_pParticleManager)
+				{
+					for (const auto& _part : _pEffect->GetParticleParts())
+					{
+						const auto* _pParticle = _pResourceManager->Get(_part.particleHandle);
+						if (!_pParticle || !_pParticle->IsLocalSpace()) continue;
+
+						_pParticleManager->RefreshEmitterSlot(
+							_part.particleHandle,
+							static_cast<uint64_t>(_self),
+							_ownerWorld);
+					}
+				}
+
+				if (!_runtime.instance.isPlaying) continue;
 
 				//----------------------------------------------------------
 				// 出す側からの上書きを、行列1つにまとめておく
