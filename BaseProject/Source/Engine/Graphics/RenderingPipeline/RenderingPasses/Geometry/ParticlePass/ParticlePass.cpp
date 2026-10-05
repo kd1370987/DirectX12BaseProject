@@ -188,7 +188,7 @@ namespace Engine::Graphics::Pipeline
 			for (auto& [_handle, _pool] : _particleManager->GetPoolMap())
 			{
 				// プールが読み込み済みかチェック
-				if (!_particleManager->IsLoaded(_handle)) continue;
+				if (!_particleManager->IsReady(_handle)) continue;
 
 				auto* _pParticle = _resManager.Get(_handle);
 				if (!_pParticle) continue;

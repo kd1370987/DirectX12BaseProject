@@ -76,4 +76,15 @@ namespace App::Utility
 		bool a_isDestroyOnFinish = true,
 		const Math::Vector3& a_emitDir = {},
 		float a_scale = 1.0f);
+
+	/// <summary>
+	/// エフェクトが使うパーティクルのGPUプールを先に作らせる
+	/// 出す瞬間に作り始めると数フレーム送れるため
+	/// </summary>
+	/// <param name="a_services"></param>
+	/// <param name="a_effectHandle"></param>
+	void WarmupEffectParticles(
+		const Engine::ECS::EngineServices& a_services,
+		Engine::Handle<Engine::Resource::EffectAsset> a_effectHandle
+	);
 }

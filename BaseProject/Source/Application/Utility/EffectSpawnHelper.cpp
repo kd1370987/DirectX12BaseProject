@@ -4,6 +4,11 @@
 
 #include "Engine/ECS/World/World.h"
 
+#include "../../Engine/MainEngine.h"
+#include "../../Engine/Graphics/GraphicsEngine.h"
+#include "../../Engine/Graphics/Particle/ParticleBufferManager.h"
+
+
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Effect/EffectAssetComponent.h"
@@ -173,5 +178,25 @@ namespace App::Utility
 		}
 
 		return _entity;
+	}
+	void WarmupEffectParticles(const Engine::ECS::EngineServices& a_services, Engine::Handle<Engine::Resource::EffectAsset> a_effectHandle)
+	{
+		if (!a_services.pResourceManager)  return;
+
+		auto* _pGE = a_services.pMainEngine->RefGraphicsEngine();
+		if (!_pGE) return;
+
+		auto* _pPM = _pGE->RefParticleManager();
+		if (!_pPM) return;
+
+		// エフェクト取得
+		auto* _pEffect = a_services.pResourceManager->Get(a_effectHandle);
+		if (!_pEffect) return;
+
+		// エフェクトからとれるパーツのプールを柵瀬宇する
+		for (auto& _part : _pEffect->GetParticleParts())
+		{
+			_pPM->CreateParticleDataAsync(_part.particleHandle);
+		}
 	}
 }

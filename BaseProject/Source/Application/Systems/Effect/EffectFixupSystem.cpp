@@ -8,6 +8,8 @@
 #include "Application/Components/Effect/BoosterEffectComponent.h"
 #include "Application/Components/Weapon/GunStateComponent.h"
 
+#include "../../Utility/EffectSpawnHelper.h"
+
 //==========================================================================================
 // EffectFixupSystem
 //
@@ -74,6 +76,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 				}
 
 				_pResourceManager->AcquireImmediate(_runtime.effectHandle, _effectComp.effectGUID);
+				App::Utility::WarmupEffectParticles(*a_ctx.pServices, _runtime.effectHandle);
 
 				// 鳴らす瞬間に読み込みが走らないよう、声はここで確保しておく。
 				// (爆発のように「出た瞬間に鳴ってほしい」ものが1フレーム遅れないように)
@@ -117,6 +120,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 				}
 
 				_pResourceManager->AcquireImmediate(_deathComp.effectHandle, _deathComp.effectGUID);
+				App::Utility::WarmupEffectParticles(*a_ctx.pServices, _deathComp.effectHandle);
 			}
 		}
 	);
@@ -158,6 +162,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 				}
 
 				_pResourceManager->AcquireImmediate(_boosterComp.sparkHandle, _boosterComp.sparkEffectGUID);
+				App::Utility::WarmupEffectParticles(*a_ctx.pServices, _boosterComp.sparkHandle);
 			}
 		}
 	);
@@ -191,6 +196,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 				}
 
 				_pResourceManager->AcquireImmediate(_gunComp.muzzleEffectHandle, _gunComp.muzzleEffectGUID);
+				App::Utility::WarmupEffectParticles(*a_ctx.pServices, _gunComp.muzzleEffectHandle);
 			}
 		}
 	);

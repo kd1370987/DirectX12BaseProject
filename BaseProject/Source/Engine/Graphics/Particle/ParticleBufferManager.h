@@ -112,15 +112,8 @@ namespace Engine::Particle
 		/// </summary>
 		void CreateParticleDataAsync(const Handle<Resource::ParticlesAsset>& a_handle);
 
-		/// <summary>
-		/// 指定したアセットが現在ロード中かどうか
-		/// </summary>
-		bool IsLoading(const Handle<Resource::ParticlesAsset>& a_handle);
-
-		/// <summary>
-		/// 指定したパーティクルのロード処理が終わっているかどうか
-		/// </summary>
-		bool IsLoaded(const Handle<Resource::ParticlesAsset>& a_handle);
+		// 準備完了かどうか : BeginFrameで確定させる、メインスレッドでのみ触る
+		bool IsReady(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_readyHandles.contains(a_handle); }
 
 	private:
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
@@ -169,5 +162,9 @@ namespace Engine::Particle
 
 		std::mutex m_mutex;
 		std::unordered_set<Handle<Resource::ParticlesAsset>> m_loadingHandles;
+
+		// メインスレッドだけが触る確定済みの集合
+		std::unordered_set<Handle<Resource::ParticlesAsset>> m_readyHandles;	// 準備中パーティクルアセット達
+
 	};
 }

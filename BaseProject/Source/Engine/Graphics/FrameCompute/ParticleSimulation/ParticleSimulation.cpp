@@ -1,4 +1,4 @@
-#include "ParticleSimulation.h"
+﻿#include "ParticleSimulation.h"
 
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/MainEngine.h"
@@ -111,7 +111,7 @@ namespace Engine::Graphics
 		{
 			if (!_pool) continue;
 			// プールが読み込み済みかチェック
-			if (!_pParticleManager->IsLoaded(_handle)) continue;
+			if (!_pParticleManager->IsReady(_handle)) continue;
 
 			// このフレームに発生命令が無いなら何もしない
 			auto _requests = _pParticleManager->GetRequests(_handle);
@@ -185,7 +185,7 @@ namespace Engine::Graphics
 		for (auto& [_handle, _pool] : _pParticleManager->GetPoolMap())
 		{
 			if (!_pool) continue;
-			if (!_pParticleManager->IsLoaded(_handle)) continue;
+			if (!_pParticleManager->IsReady(_handle)) continue;
 
 			// ヒープとルートシグネチャ、PSOをセット
 			a_pCtx->BindBindlessHeaps();

@@ -40,37 +40,42 @@ namespace Engine::Particle
 		// 「しばらく使われていない席」を見分けるのに使う
 		++m_frameCount;
 
-		// リクエストのクリア
+		// 前のフレームで送った命令だけを消す、準備中に積まれたものは使えるようになるまで持ち越す
 		for (auto& [_handle, _emitDataVec] : m_emitRequests)
 		{
-			_emitDataVec.clear();
+			if (IsReady(_handle))_emitDataVec.clear();
+		}
+
+		// ロードが終わったものをこのフレームから使えるようにする : ここでしか m_readyHandles を判定しない
+		std::lock_guard<std::mutex> _lock(m_mutex);
+		for (const auto& [_handle, _pool] : m_pools)
+		{
+			// ロード中の配列になければ
+			if (!m_loadingHandles.contains(_handle))
+			{
+				// 準備完了
+				m_readyHandles.insert(_handle);
+			}
 		}
 	}
 	void ParticleBufferManager::RequestEmit(const Handle<Resource::ParticlesAsset>&a_handle, const EmitterData & a_emitterData)
 	{
-		if (a_handle.id == 0) return;
-		if (a_handle == Handle<Resource::ParticlesAsset>()) { return; }
+		if (!a_handle.IsValid()) return;
 
+		// まだプールがなければ作らせる
+		if (!m_pools.contains(a_handle))
 		{
-			std::lock_guard<std::mutex> _lock(m_mutex);
-			if (m_loadingHandles.find(a_handle) != m_loadingHandles.end())
-			{
-				// まだバッファが出来上がっていないのでリクエストを破棄
-				return;
-			}
-		}
-
-		auto _it = m_emitRequests.find(a_handle);
-		if (_it != m_emitRequests.end())
-		{
-			// すでに読み込まれたことのあるパーティクルなら
-			_it->second.push_back(a_emitterData);
-		}
-		else
-		{
-			// 新規作成
 			CreateParticleDataAsync(a_handle);
+			if (!m_pools.contains(a_handle)) return;
 		}
+
+		auto& _requests = m_emitRequests[a_handle];
+
+		// 準備中はフレームをまたいでたまるので命令バッファの長さで頭打ちにする
+		if (!IsReady(a_handle) && _requests.size() >= EMIT_REQUEST_MAX) return;
+
+		// 発生を予約
+		_requests.push_back(a_emitterData);
 	}
 	//======================================================================================
 	// 発生源の席
@@ -204,7 +209,7 @@ namespace Engine::Particle
 		for (auto& [_handle, _emitDataVec] : m_emitRequests)
 		{
 			// リクエストがない、またはまだGPUバッファが生成中ならスキップ
-			if (_emitDataVec.empty() || IsLoading(_handle))
+			if (_emitDataVec.empty() || IsReady(_handle))
 			{
 				continue;
 			}
@@ -278,16 +283,5 @@ namespace Engine::Particle
 				ENGINE_LOG("パーティクルGPUデータ作成完了");
 			}
 		);
-	}
-	bool ParticleBufferManager::IsLoading(const Handle<Resource::ParticlesAsset>& a_handle)
-	{
-		// 別スレッドが書き換えている可能性があるのでロックをかける
-		std::lock_guard<std::mutex> _lock(m_mutex);
-		return m_loadingHandles.find(a_handle) != m_loadingHandles.end();
-	}
-	bool ParticleBufferManager::IsLoaded(const Handle<Resource::ParticlesAsset>& a_handle)
-	{
-		std::lock_guard<std::mutex> _lock(m_mutex);
-		return m_loadingHandles.find(a_handle) == m_loadingHandles.end();
 	}
 }
