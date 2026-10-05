@@ -18,7 +18,7 @@
 //   「そのフレームに起きたヒット全部」が残るこちらを受け手側が読む。
 //   1フレームに複数発当たった場合もすべて食らう(CollisionEvent は1件しか持てない)。
 // ・撃破時はエフェクトを出さず、死亡を DeathEventResource へ積むだけにする。
-//   何を出すかは DeathEffectComponent、出すのは DeathEffectSystem の仕事で、
+//   何を出すかは EffectEventsComponent の OnDeath、出すのは EffectEventSystem の仕事で、
 //   弾が着弾で消えるときと同じ入口にそろえてある。
 // ・体力を持つものは ExplodeOnHitSystem の対象から外してある(Exclude<HealthComponent>)。
 //   即死させる役目とここが二重に効かないようにするためで、
@@ -28,7 +28,7 @@
 //
 //   以前はここで ReserveReleaseEntity まで済ませていたが、それだと死亡を読む側が
 //   1フレームでも遅れると本人がもう居らず、死亡エフェクトが出せなかった。
-//   死んだ本人のコンポーネントを引く処理(DeathEffectSystem など)のために、
+//   死んだ本人のコンポーネントを引く処理(EffectEventSystem など)のために、
 //   死んでからしばらくは生かしておく。
 // ・爆発の位置に WorldMatrix ではなく LocalTransform を使っている。
 //   体力を持つのは敵やプレイヤーのような親を持たないエンティティなので、
@@ -95,7 +95,7 @@ void HealthSystem::Init(App::ECS::APPWorld& a_world)
 				_health.isDead        = true;
 				_health.deathTimer    = 0.0f;
 
-				// 死亡を積む(エフェクトは DeathEffectSystem が出す)
+				// 死亡を積む(エフェクトは EffectEventSystem が出す)
 				if (a_ctx.pWorld->HasResource<DeathEventResource>())
 				{
 					DeathEvent _death = {};

@@ -3,7 +3,7 @@
 #include "Application/ECS/ISystem/APPISystem.h"
 
 /// <summary>
-/// SoundComponent が握っているサウンドインスタンスを AudioManager へ返却するシステム
+/// エフェクト(EffectRuntimeComponent)が借りているサウンドインスタンスを AudioManager へ返却するシステム
 /// AudioManager のプールはアプリ寿命なので、返さないとエンティティを消しても
 /// インスタンスが残り続ける(シーンを跨ぐたびに増えていく)
 /// </summary>

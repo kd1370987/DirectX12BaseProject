@@ -5,7 +5,6 @@
 #include "Application/Components/Core/PhaseTag/PostDeserializeTag.h"
 #include "Application/Components/Effect/EffectAssetComponent.h"
 #include "Engine/Effect/EffectPlayer.h"
-#include "Application/Components/Combat/DeathEffectComponent.h"
 #include "Application/Components/Effect/BoosterEffectComponent.h"
 #include "Application/Components/Weapon/GunStateComponent.h"
 
@@ -20,10 +19,11 @@
 // エフェクトにサウンドパーツが入っていれば、再生用の声もここで確保する。
 // 鳴らす瞬間にインスタンスを作ると、その1フレームだけ音が遅れるため。
 //
-// 死亡エフェクト(DeathEffectComponent)・ブーストのスパーク(BoosterEffectComponent)・
-// 銃のマズルフラッシュ(GunStateComponent)も同じ EffectAsset を指すので、ここで一緒に解決する。
-// どれも「その瞬間が来たら出すもの」なので進行状態は持たず、ハンドルを引くだけ。
-// 死んだ瞬間・踏み込んだ瞬間・撃った瞬間に読み込みが走らないよう、生成時に解決しておく。
+// ブーストのスパーク(BoosterEffectComponent)・銃のマズルフラッシュ(GunStateComponent)も
+// 同じ EffectAsset を指すので、ここで一緒に解決する。
+// どちらも「その瞬間が来たら出すもの」なので進行状態は持たず、ハンドルを引くだけ。
+// 踏み込んだ瞬間・撃った瞬間に読み込みが走らないよう、生成時に解決しておく。
+// (出来事で出すもの(EffectEventsComponent)の解決は EffectEventSystem が持つ)
 //==========================================================================================
 void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 {
@@ -94,40 +94,6 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 						Engine::Effect::EffectPlayer::PrepareSounds(*_pEffect, *_pAudioManager, _runtime.instance);
 					}
 				}
-			}
-		}
-	);
-
-	//--------------------------------------------------------------------------
-	// 死亡エフェクト : ハンドルを解決するだけ
-	//--------------------------------------------------------------------------
-	a_world.PostDeserializeTask<DeathEffectComponent>(
-		Engine::ECS::ESystemType::PostDeserialize,
-		"DeathEffectFixupSystem",
-		[]
-		(
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			PostDeserializeTag* a_tag,
-			DeathEffectComponent* a_deathArray
-			)
-		{
-			auto* _pResourceManager = a_ctx.pServices->pResourceManager;
-			if (!_pResourceManager) return;
-
-			for (size_t _i = 0; _i < a_count; ++_i)
-			{
-				DeathEffectComponent& _deathComp = a_deathArray[_i];
-
-				if (_deathComp.effectGUID == Engine::DefaultGUID)
-				{
-					_deathComp.effectHandle = {};
-					continue;
-				}
-
-				_pResourceManager->AcquireImmediate(_deathComp.effectHandle, _deathComp.effectGUID);
-				App::Utility::WarmupEffectParticles(*a_ctx.pServices, _deathComp.effectHandle);
 			}
 		}
 	);

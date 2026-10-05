@@ -1497,9 +1497,6 @@
     <ClCompile Include="Source\Application\Systems\Effect\EffectDrawSystem.cpp">
       <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Effect\EmitParticlesSystem.cpp">
-      <Filter>Source\Application\Systems\Effect</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Render\RegisterAnimatedRayWorldSystem.cpp">
       <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
@@ -1557,12 +1554,6 @@
     <ClCompile Include="Source\Application\Systems\Render\ModelFixupSystem.cpp">
       <Filter>Source\Application\Systems\Render</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Effect\ParticleFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Effect</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Audio\SoundFixupSystem.cpp">
-      <Filter>Source\Application\Systems\Audio</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Animation\StateMachineFixupSystem.cpp">
       <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
@@ -1583,9 +1574,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Physics\RegisterPhysicsBodySystem.cpp">
       <Filter>Source\Application\Systems\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Audio\SpawnSoundSystem.cpp">
-      <Filter>Source\Application\Systems\Audio</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Animation\AdditivePoseFreeSystem.cpp">
       <Filter>Source\Application\Systems\Animation</Filter>
@@ -1668,32 +1656,20 @@
     <ClCompile Include="Source\Application\Systems\Transform\CalcMatrixSystem.cpp">
       <Filter>Source\Application\Systems\Transform</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Effect\DeathEffectSystem.cpp">
-      <Filter>Source\Application\Systems\Effect</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Combat\DeathStateSystem.cpp">
       <Filter>Source\Application\Systems\Combat</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Combat\ExplodeOnHitSystem.cpp">
       <Filter>Source\Application\Systems\Combat</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Effect\ExplosionSystem.cpp">
-      <Filter>Source\Application\Systems\Effect</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Effect\GroundImpulseEmitSystem.cpp">
       <Filter>Source\Application\Systems\Effect</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Audio\FlyingSoundSystem.cpp">
-      <Filter>Source\Application\Systems\Audio</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Transform\FollowAnimationNodeSystem.cpp">
       <Filter>Source\Application\Systems\Transform</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Combat\HealthSystem.cpp">
       <Filter>Source\Application\Systems\Combat</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Audio\HitSoundSystem.cpp">
-      <Filter>Source\Application\Systems\Audio</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Core\LifeTimeSystem.cpp">
       <Filter>Source\Application\Systems\Core</Filter>
@@ -1784,9 +1760,6 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Movement\RobotBoostSystem.cpp">
       <Filter>Source\Application\Systems\Movement</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Effect\ParticleEmitSystem.cpp">
-      <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Systems\Movement\LockOnRotationSystem.cpp">
       <Filter>Source\Application\Systems\Movement</Filter>
@@ -2708,12 +2681,6 @@
     <ClInclude Include="Source\Application\Components\Enemy\CloseCombatComponent.h">
       <Filter>Source\Application\Components\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Combat\DeathEffectComponent.h">
-      <Filter>Source\Application\Components\Combat</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Components\Audio\FlyingSound.h">
-      <Filter>Source\Application\Components\Audio</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Combat\HealthComponent.h">
       <Filter>Source\Application\Components\Combat</Filter>
     </ClInclude>
@@ -2789,9 +2756,6 @@
     <ClInclude Include="Source\Application\Components\Effect\EffectComponent.h">
       <Filter>Source\Application\Components\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Effect\ExplosionComponent.h">
-      <Filter>Source\Application\Components\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Effect\GroundImpulseEmitterComponent.h">
       <Filter>Source\Application\Components\Effect</Filter>
     </ClInclude>
@@ -2828,13 +2792,7 @@
     <ClInclude Include="Source\Application\Components\Animation\LowerBodyTurnComponent.h">
       <Filter>Source\Application\Components\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Audio\AudioBehaviorComponent.h">
-      <Filter>Source\Application\Components\Audio</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Audio\AudioListenerComponent.h">
-      <Filter>Source\Application\Components\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Components\Audio\HitSoundComponent.h">
       <Filter>Source\Application\Components\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Render\ModelComponent.h">
@@ -2846,14 +2804,8 @@
     <ClInclude Include="Source\Application\Components\Animation\NodePoseComponent.h">
       <Filter>Source\Application\Components\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Effect\ParticlesComponent.h">
-      <Filter>Source\Application\Components\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Components\Animation\SkeletonPoseComponent.h">
       <Filter>Source\Application\Components\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Components\Audio\SoundComponent.h">
-      <Filter>Source\Application\Components\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Render\UIComponent.h">
       <Filter>Source\Application\Components\Render</Filter>
@@ -2925,9 +2877,6 @@
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\DeathEventResource.h">
-      <Filter>Source\Application\InstanceResource</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\InstanceResource\FlyingSoundResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h">
@@ -3020,9 +2969,6 @@
     <ClInclude Include="Source\Application\Systems\Effect\EffectDrawSystem.h">
       <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Effect\EmitParticlesSystem.h">
-      <Filter>Source\Application\Systems\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Render\RegisterAnimatedRayWorldSystem.h">
       <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
@@ -3083,12 +3029,6 @@
     <ClInclude Include="Source\Application\Systems\Render\ModelFixupSystem.h">
       <Filter>Source\Application\Systems\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Effect\ParticleFixupSystem.h">
-      <Filter>Source\Application\Systems\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Audio\SoundFixupSystem.h">
-      <Filter>Source\Application\Systems\Audio</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Animation\StateMachineFixupSystem.h">
       <Filter>Source\Application\Systems\Animation</Filter>
     </ClInclude>
@@ -3109,9 +3049,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Physics\RegisterPhysicsBodySystem.h">
       <Filter>Source\Application\Systems\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Audio\SpawnSoundSystem.h">
-      <Filter>Source\Application\Systems\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Animation\AdditivePoseFreeSystem.h">
       <Filter>Source\Application\Systems\Animation</Filter>
@@ -3194,32 +3131,20 @@
     <ClInclude Include="Source\Application\Systems\Transform\CalcMatrixSystem.h">
       <Filter>Source\Application\Systems\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Effect\DeathEffectSystem.h">
-      <Filter>Source\Application\Systems\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Combat\DeathStateSystem.h">
       <Filter>Source\Application\Systems\Combat</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Combat\ExplodeOnHitSystem.h">
       <Filter>Source\Application\Systems\Combat</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Effect\ExplosionSystem.h">
-      <Filter>Source\Application\Systems\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application\Systems\Effect\GroundImpulseEmitSystem.h">
       <Filter>Source\Application\Systems\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Audio\FlyingSoundSystem.h">
-      <Filter>Source\Application\Systems\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Transform\FollowAnimationNodeSystem.h">
       <Filter>Source\Application\Systems\Transform</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Combat\HealthSystem.h">
       <Filter>Source\Application\Systems\Combat</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Audio\HitSoundSystem.h">
-      <Filter>Source\Application\Systems\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Core\LifeTimeSystem.h">
       <Filter>Source\Application\Systems\Core</Filter>
@@ -3310,9 +3235,6 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Movement\RobotBoostSystem.h">
       <Filter>Source\Application\Systems\Movement</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Systems\Effect\ParticleEmitSystem.h">
-      <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Movement\LockOnRotationSystem.h">
       <Filter>Source\Application\Systems\Movement</Filter>

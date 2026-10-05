@@ -92,7 +92,7 @@ Phase1 即効のバグ修正 ─┐
 | 3 | ローカルで形状を作り、最後に行列を掛ける。粒の回転 | 中 | **3-A〜3-D 実装済み・動作確認待ち**(2026-10-05)。向きは EmitterAxis / EmitterFacing の2つを追加。3-D に合わせて Booster_Jett / BoostSpark / MazleFlash / Worm_GroundDust のパーツの向きを +Y → +Z に変更。Local のオフセットに持ち主のスケールを掛けるかは保留 |
 | 4 | GPU の回し方(prefix sum・alive list・間接描画) | 中〜大 | **完了・動作確認待ち**(2026-10-05)。4-A〜4-D と 4-E の1・2段目を実装。4-E の3段目と 4-F は「重くなったらやること」として [EFFECT_DEFERRED_TASKS.md](EFFECT_DEFERRED_TASKS.md) へ |
 | 5 | EffectAsset の拡張(統一の前提条件) | 大 | 実装済み・動作確認待ち (2026-10-05) |
-| 6 | ParticlesComponent・音のコンポーネント群を移行して削除 | 中 | 未着手 |
+| 6 | ParticlesComponent・音のコンポーネント群を移行して削除 | 中 | **実装済み・動作確認待ち**(2026-10-05)。データ移行とコードの登録解除まで。古いソースファイルの削除とバイナリの作り直しは手作業で残っている(下の「Phase 6 の結果」) |
 
 Phase 2 と 3 は、どちらも EmitterData・ParticleData・シェーダーを触る。
 **続けて(できれば同じブランチで)やる**と、シェーダーとの並び合わせを 1 回で済ませられる。
@@ -301,6 +301,44 @@ Phase 6(移行と削除)に要る順に並べる。5-E・5-F は無くても Pha
 - テキスト形式(`.oj*`)は未登録のコンポーネントを読み飛ばす(`Prefab.cpp:379`)ので、型を消しても読める
 - バイナリ形式(`.ob*`)は登録順のタイプ ID に依存している可能性がある(ExplosionComponent のコメント)。
   消す前に、全アセットをテキストから保存し直してバイナリを作り直すこと
+  → 調べた結果 : バイナリにもコンポーネント名の一覧(ComponentNames)は入っている。
+    ただし中身は名前つきのグループを順番に並べただけなので、知らない名前のグループは読み飛ばせずずれる。
+    開発ビルドは `.oj*` を優先して読むので影響しない。Shipping 用に作り直しは要る
+
+### Phase 6 の結果(2026-10-05)
+
+順番 : 6-0 バックアップ → 6-A DeathEffect → 6-B HitSound → 6-C SoundComponent → 6-D AudioBehavior →
+6-E Missile → 6-F Boss_01 のブースター → 6-G 使われていないプレハブ → 6-H ParticlesComponent の経路 → 6-I 後片付け。
+
+| # | 移したもの | 移し先 |
+|---|---|---|
+| 6-A | DeathEffectComponent(BoidTest / Boss_01 / Bullet / RazerBullet / Enemy_01 / Enemy_02 / Missile) | `EffectEventsComponent` の OnDeath(同じエフェクト) |
+| 6-B | HitSoundComponent(Player 系・Boss_01・シーン内の Player) | OnHit + 新しいエフェクト `Effect/Hit/HitSound_Player`(音量1.0)・`HitSound_Player_Desert`(0.2、Desert_00/02)・`HitSound_Boss`(0.15)。MinInterval 0.1、2D |
+| 6-C | SoundComponent(34 個) | **移さず削除**。全部 isPlayOnSpawn=false で、鳴らしているシステムが無かった |
+| 6-D | AudioBehaviorComponent(肩ブースター)+ BoosterAudio | 新しいエフェクト `Effect/Booster/BoostAudio`(始動 OnPlay・継続 OnPlay ループ・終了 OnStop)を**機体自身**に付ける。BoostSoundSystem はブースト中かを `EffectPlayRequestComponent.isPlay` に書くだけにした |
+| 6-E | Missile の ParticlesComponent + FlyingSoundComponent | 新しいエフェクト `Effect/Missile/Missile_Trail`(Smoke・ReverseVelocity + ループ3D音・距離10)、playOnStart |
+| 6-F | Boss_01 のブースター 4 つ(ParticlesComponent) | 肩 `Booster_Jet_Arm`・脚 `Booster_Jet_Foot` + `BoosterEffectComponent`(元の posOffset と正規化した emitDir)。Booster_01 を移したときと同じ形 |
+| 6-G | Player / Player_01 のブースター、RazerBullet の軌跡 | ブースターは 6-F と同じ。軌跡は新しいエフェクト `Effect/Bullet/RazerBullet_Trail` |
+
+- 6-D で機体自身に付けた理由 : 肩のブースターは移動・上昇でも点火する(ThrusterEffectSystem の `_boostOn`)。
+  ブーストの間だけ鳴らす音を Booster_Jett に入れると鳴り方が変わるため。Home の Player は BoostParams を持たないので付けていない
+- 6-F で分かったこと : 移行前の Boss_01 のブースターは、ThrusterEffectSystem が EffectPlayRequest しか見なくなっていたため**点火していなかった**
+- 被弾音の間引きは「同じ音(GUID)ごとに全体で」になった(以前はエンティティごと)。プレイヤーとボスが同じ音なので互いに間引き合う
+- 残したもの : Explosion_Enemy / Ex_Fier のデータ(ExplosionComponent・ParticlesComponent)。
+  ExplosionComponent からしか使われない残骸なので移していない。読むと「未登録のコンポーネントを読み飛ばしました」の警告が出る。
+  AudioBehavior のリソース型(`Engine/Resource/Data/AudioBehavior`)と BoosterAudio アセットも残っている(もう誰も使わない)
+- SoundFreeSystem はエフェクトの声を返す役目だけ残った。SceneView の発生源のギズモは BoosterEffectComponent(posOffset / emitDir)を描くように変えた
+
+**手作業で残っていること**
+
+1. ソースファイルの削除(プロジェクトからは外してある。`git rm` で消す)
+   `Components/Combat/DeathEffectComponent.h`、`Components/Audio/{SoundComponent, HitSoundComponent, AudioBehaviorComponent, FlyingSound}.h`、
+   `Components/Effect/{ParticlesComponent, ExplosionComponent}.h`、`InstanceResource/FlyingSoundResource.h`、
+   `Systems/Effect/{DeathEffectSystem, ParticleEmitSystem, EmitParticlesSystem, ParticleFixupSystem, ExplosionSystem}.{h,cpp}`、
+   `Systems/Audio/{HitSoundSystem, SpawnSoundSystem, SoundFixupSystem, FlyingSoundSystem}.{h,cpp}`
+2. バイナリの作り直し : 書き換えたプレハブ 14・シーン 4、新しいエフェクト 6 をエディターで保存し直す(`.ob*` が出来る)
+3. 要らなければ削除 : Explosion_Enemy / Ex_Fier プレハブ、AudioBehavior のリソース型と BoosterAudio、
+   どこからも GUID で参照されていないプレハブ(Player / Player_01 / RazerBullet / Booster_01 / Booster_02 / FootBooster)
 
 ---
 

@@ -17,7 +17,7 @@
 
 // HUD表示に使うコンポーネント群(オフセット・パーティクルの発生方向など)
 #include "Application/Components/Transform/FollowAnimationNodeComponent.h"
-#include "Application/Components/Effect/ParticlesComponent.h"
+#include "Application/Components/Effect/BoosterEffectComponent.h"
 #include "Application/Components/Camera/CameraFocusTargetComponent.h"
 #include "Application/Components/Movement/LookAngleComponent.h"
 #include "Application/Components/Camera/TPSFollowComponent.h"
@@ -681,55 +681,30 @@ namespace Engine::Editor
 		}
 
 		//==================================================================================
-		// パーティクルの発生源と発生方向
-		// EmitParticleSystem と同じ式で位置・方向を求めるので、
-		// ここで見えているものがそのまま実際の発生位置・方向になる。
+		// ブースターの噴射口と噴射の向き
+		// BoosterEffectSystem はエフェクトの置き場を posOffset / emitDir へ置く
+		// (パーツの位置・向きはその置き場から見た相対)。
+		// ここで見えている矢印が、パーツの +Z が向く先になる。
 		//==================================================================================
-		if (a_pWorld->HasComponent<ParticlesComponent>(a_entity))
+		if (a_pWorld->HasComponent<BoosterEffectComponent>(a_entity))
 		{
-			if (auto* _pParticles = a_pWorld->RefData<ParticlesComponent>(a_entity))
+			if (auto* _pBooster = a_pWorld->RefData<BoosterEffectComponent>(a_entity))
 			{
-				Math::Vector3 _emitPos;
-				Math::Vector3 _emitDir;
+				const Math::Vector3 _emitPos = Math::Vector3::Transform(Math::Vector3(_pBooster->posOffset), _world);
+				Math::Vector3 _emitDir = Math::Vector3::TransformNormal(Math::Vector3(_pBooster->emitDir), _world);
 
-				switch (_pParticles->emitSpace)
-				{
-				case EEmitSpace::WorldMatrix:
-					_emitPos = _originPos;
-					_emitDir = Math::Vector3(_world._31, _world._32, _world._33);
-					break;
-
-				case EEmitSpace::LocalOffset:
-					_emitPos = Math::Vector3::Transform(Math::Vector3(_pParticles->posOffset), _world);
-					_emitDir = Math::Vector3::TransformNormal(Math::Vector3(_pParticles->emitDir), _world);
-					break;
-
-				case EEmitSpace::FixedWorld:
-				default:
-					_emitPos = Math::Vector3(_pParticles->worldPos);
-					_emitDir = Math::Vector3(_pParticles->emitDir);
-					break;
-				}
-
+				// 0 ベクトルなら置き場の向きは変えない(持ち主の +Z のまま出る)
+				if (_emitDir.LengthSquared() <= 1e-8f) _emitDir = Math::Vector3(_world._31, _world._32, _world._33);
 				if (_emitDir.LengthSquared() > 1e-8f) _emitDir.Normalize();
 				else                                  _emitDir = Math::Vector3(0.0f, 0.0f, 1.0f);
 
-				// 矢印の長さは見やすさ優先の固定値。拡散コーンもこの長さを基準に描く。
+				// 矢印の長さは見やすさ優先の固定値
 				constexpr float _arrowLength = 1.5f;
-				const ImU32 _weakCol = IM_COL32(120, 255, 160, 140);
 
 				// オブジェクト本体からどれだけずれた位置で出るのかを線で見せる
-				if (_pParticles->emitSpace != EEmitSpace::WorldMatrix)
-				{
-					_hud.Line(_originPos, _emitPos, HUD_COL_OFFSET, 1.0f);
-				}
-
+				_hud.Line(_originPos, _emitPos, HUD_COL_OFFSET, 1.0f);
 				_hud.Marker(_emitPos, HUD_COL_PARTICLE, "Emit", 5.0f);
 				_hud.Arrow(_emitPos, _emitDir, _arrowLength, HUD_COL_PARTICLE, "EmitDir");
-
-				// 発生位置のばらつき(半径)と方向のばらつき(角度)
-				_hud.Circle(_emitPos, _emitDir, _pParticles->positionRadius, _weakCol);
-				_hud.Cone(_emitPos, _emitDir, _arrowLength, _pParticles->directionAngle, _weakCol);
 			}
 		}
 

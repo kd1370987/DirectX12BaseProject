@@ -22,7 +22,7 @@
 //   行列確定(CommitHierarchyWorldMatrixSystem)の後ろに並ぶ。
 //   (以前は ActiveTask が ActiveTag を書く扱いになり、ソートが循環するのを避けるためだった。
 //    今はフェーズのタグを依存に数えない(IsQueryOnlyTag)ので、その心配は無い。
-//    FlyingSoundSystem も同じ経緯でカスタムタスクになっている)
+//    以前あった FlyingSoundSystem も同じ経緯でカスタムタスクになっていた)
 //==============================================================================
 void AudioListenerSystem::Init(App::ECS::APPWorld& a_world)
 {

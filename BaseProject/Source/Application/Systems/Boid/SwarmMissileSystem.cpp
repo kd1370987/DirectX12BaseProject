@@ -44,7 +44,7 @@
 //   自爆(Update / メインスレッド)
 //     プレイヤーのカプセルに explodeRadius まで近づいたら、プレイヤーへダメージを積み、
 //     自分にも体力ぶんのダメージを積んで落とす。lifeTime を過ぎた(外れた)ものも落とす。
-//     落とすのは HealthSystem で、死亡エフェクトもボイドの DeathEffectComponent のまま出る。
+//     落とすのは HealthSystem で、死亡エフェクトもボイドの EffectEventsComponent(OnDeath)のまま出る。
 //     ヒットを積むのは PreUpdate のクリアより後・HealthSystem(PostUpdate)より前なので
 //     Update 帯(BoidContactDamageSystem と同じ)。
 //==============================================================================

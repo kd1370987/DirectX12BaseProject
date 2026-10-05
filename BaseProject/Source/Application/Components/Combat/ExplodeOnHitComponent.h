@@ -4,7 +4,7 @@
 
 // CollisionEvent がヒットしたときの反応を設定するコンポーネント。
 //
-// 出すエフェクトはここでは持たない。死亡時のエフェクトは DeathEffectComponent に
+// 出すエフェクトはここでは持たない。死亡時のエフェクトは EffectEventsComponent の OnDeath に
 // 登録しておけば、着弾で消えるときも体力が尽きて消えるときも同じように出る。
 struct ExplodeOnHitComponent
 {
@@ -25,6 +25,6 @@ struct Engine::ECS::ComponentTraits<ExplodeOnHitComponent>
 		ExplodeOnHitComponent& _comp = Engine::Editor::GetValue<ExplodeOnHitComponent>(a_context.pData);
 
 		Engine::Editor::Field("DestroySelf", _comp.destroySelf);
-		Engine::Editor::Tooltip("Effect is DeathEffectComponent.");
+		Engine::Editor::Tooltip("Effect is EffectEventsComponent (OnDeath).");
 	}
 };

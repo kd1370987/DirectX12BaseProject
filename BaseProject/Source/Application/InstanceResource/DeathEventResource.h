@@ -10,7 +10,8 @@
 // HitEventResource と同じ考え方。
 //
 // 積む : 死亡を決めるシステム(HealthSystem / ExplodeOnHitSystem など)
-// 読む : DeathEffectSystem(読み終わったら自分でクリアする)
+// 読む : EffectEventSystem(死亡エフェクト) / ScoreSystem など
+// 消す : DeathEventClearSystem
 //
 // 死亡したエンティティは ReserveReleaseEntity で解放予約された状態で、
 // 実際に消えるのは次フレームの BeginFrame。読む側が動くのは同じフレームの後半なので、

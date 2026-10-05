@@ -15,7 +15,7 @@
 //   解放予約する。
 //
 //   即座に消さないのは、消えたエンティティからは何も引けないため。
-//   死亡エフェクト(DeathEffectComponent)を出す DeathEffectSystem は
+//   死亡エフェクト(EffectEventsComponent の OnDeath)を出す EffectEventSystem は
 //   「死んだ本人のコンポーネント」を引くので、本人が生きているうちに
 //   出し切れるだけの猶予がいる。演出中に死体が残るのは意図した挙動でもある。
 //

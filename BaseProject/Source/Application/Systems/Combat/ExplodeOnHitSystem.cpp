@@ -14,7 +14,7 @@
 // 何かに当たった瞬間に消えるもの(弾・ミサイルなど)を処理する。
 //
 // エフェクトはここでは出さない。当たった位置を「死亡」として積むだけで、
-// 何を出すかは DeathEffectComponent、出すのは DeathEffectSystem が持つ
+// 何を出すかは EffectEventsComponent の OnDeath、出すのは EffectEventSystem が持つ
 // (体力切れの死と同じ入口にそろえてある)。
 //
 // 体力を持つもの(HealthComponent)はここでは扱わない。
@@ -52,7 +52,7 @@ void ExplodeOnHitSystem::Init(App::ECS::APPWorld& a_world)
 				// 解放処理を通してから消す(飛翔音のボイスなど借りているものを返すため)
 				a_ctx.pWorld->ReserveReleaseEntity(_self);
 
-				// ---- 死亡を積む(エフェクトは DeathEffectSystem が出す) ----
+				// ---- 死亡を積む(エフェクトは EffectEventSystem が出す) ----
 				// 弾の場合は自分の位置ではなく当たった位置に出したいので hitPos を渡す
 				if (a_ctx.pWorld->HasResource<DeathEventResource>())
 				{

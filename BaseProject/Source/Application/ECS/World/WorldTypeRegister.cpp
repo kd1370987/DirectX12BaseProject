@@ -52,7 +52,6 @@
 #include "Application/Components/Combat/ScoreTargetComponent.h"
 #include "Application/Components/Render/PointLightComponent.h"
 #include "Application/Components/Attachment/AttachmentSlotsComponent.h"
-#include "Application/Components/Effect/ParticlesComponent.h"
 #include "Application/Components/Camera/TPSCameraStateComponent.h"
 #include "Application/Components/Camera/TPSFollowComponent.h"
 #include "Application/Components/Physics/SphereCollider.h"
@@ -69,7 +68,6 @@
 #include "Application/Components/Combat/AimConfigComponent.h"
 #include "Application/Components/Combat/TargetEntityComponent.h"
 #include "Application/Components/Combat/LockOnTargetComponent.h"
-#include "Application/Components/Audio/SoundComponent.h"
 #include "Application/Components/Enemy/PatrolComponent.h"
 #include "Application/Components/Enemy/CloseCombatComponent.h"
 #include "Application/Components/Weapon/HomingComponent.h"
@@ -141,9 +139,6 @@
 #include "Application/Systems/Animation/PlayerIntentSystem.h"
 #include "Application/Systems/Movement/RobotBoostSystem.h"
 #include "Application/Systems/Movement/ChargeDashSystem.h"
-#include "Application/Systems/Effect/EmitParticlesSystem.h"
-#include "Application/Systems/Effect/ParticleEmitSystem.h"
-#include "Application/Systems/Effect/ParticleFixupSystem.h"
 #include "Application/Systems/Effect/EffectFixupSystem.h"
 #include "Application/Systems/Effect/EffectUpdateSystem.h"
 #include "Application/Systems/Effect/BoosterEffectSystem.h"
@@ -176,9 +171,7 @@
 #include "Application/Systems/Enemy/EnemyMoveIntentSystem.h"
 #include "Application/Systems/Movement/LookAroundSystem.h"
 #include "Application/Systems/Enemy/EnemyMovementSystem.h"
-#include "Application/Systems/Audio/SoundFixupSystem.h"
 #include "Application/Systems/Audio/BoostSoundSystem.h"
-#include "Application/Systems/Audio/SpawnSoundSystem.h"
 #include "Application/Systems/Audio/SoundFreeSystem.h"
 #include "Application/Systems/Physics/PhysicsBodyFreeSystem.h"
 #include "Application/Systems/Weapon/GunStateStartSystem.h"
@@ -188,14 +181,8 @@
 #include "Application/Systems/Enemy/CloseCombatIntentSystem.h"
 #include "Application/Systems/Boss/BossCombatIntentSystem.h"
 #include "Application/Systems/Weapon/HomingSystem.h"
-#include "Application/Systems/Audio/HitSoundSystem.h"
-#include "Application/Components/Audio/HitSoundComponent.h"
-#include "Application/Components/Audio/AudioBehaviorComponent.h"
 #include "Application/Systems/Audio/AudioListenerSystem.h"
-#include "Application/Systems/Audio/FlyingSoundSystem.h"
 #include "Application/Components/Audio/AudioListenerComponent.h"
-#include "Application/Components/Audio/FlyingSound.h"
-#include "../../InstanceResource/FlyingSoundResource.h"
 #include "Application/Components/Combat/HealthComponent.h"
 #include "Application/Systems/Combat/HealthFixupSystem.h"
 #include "Application/Systems/Combat/HealthSystem.h"
@@ -203,15 +190,11 @@
 #include "Application/Components/Effect/EffectComponent.h"
 #include "Application/Components/Effect/EffectAssetComponent.h"
 #include "Application/Components/Core/LifeTimeComponent.h"
-#include "Application/Components/Combat/DeathEffectComponent.h"
-#include "Application/Components/Effect/ExplosionComponent.h"
 #include "../../InstanceResource/DeathEventResource.h"
 #include "../../InstanceResource/WaveAnnounceResource.h"
-#include "Application/Systems/Effect/DeathEffectSystem.h"
 #include "Application/Components/Effect/EffectEventsComponent.h"
 #include "Application/Systems/Effect/EffectEventSystem.h"
 #include "Application/Systems/Combat/ScoreSystem.h"
-#include "Application/Systems/Effect/ExplosionSystem.h"
 #include "Application/Systems/Boid/BoidSnapshotSystem.h"
 #include "Application/Systems/Boid/BoidSteeringSystem.h"
 #include "Application/Systems/Boid/PlatoonAxisSystem.h"
@@ -299,7 +282,6 @@ namespace App::ECS
 		a_world.RegisterComponent<BoostIntentComponent>("BoostIntentComponent");
 		a_world.RegisterComponent<BoostStateComponent>("BoostStateComponent");
 		a_world.RegisterComponent<AttachmentSlotsComponent>("AttachmentSlotsComponent");
-		a_world.RegisterComponent<ParticlesComponent>("ParticlesComponent");
 		a_world.RegisterComponent<TPSCameraStateComponent>("TPSCameraStateComponent");
 		a_world.RegisterComponent<TPSFollowComponent>("TPSFollowComponent");
 		a_world.RegisterComponent<CapsuleColliderComponent>("CapsuleColliderComponent");
@@ -332,12 +314,8 @@ namespace App::ECS
 		a_world.RegisterComponent<BossParamsComponent>("BossParamsComponent");
 		a_world.RegisterComponent<BossBrainStateComponent>("BossBrainStateComponent");
 		a_world.RegisterComponent<BossCommandComponent>("BossCommandComponent");
-		a_world.RegisterComponent<SoundComponent>("SoundComponent");
-		a_world.RegisterComponent<HitSoundComponent>("HitSoundComponent");
 		// 始動/継続/終了の音をまとめた AudioBehavior アセットを鳴らす
-		a_world.RegisterComponent<AudioBehaviorComponent>("AudioBehaviorComponent");
 		a_world.RegisterComponent<AudioListenerComponent>("AudioListenerComponent");
-		a_world.RegisterComponent<FlyingSoundComponent>("FlyingSoundComponent");
 		a_world.RegisterComponent<HealthComponent>("HealthComponent");
 		a_world.RegisterComponent<EffectComponent>("EffectComponent");
 		// パーティクル+メッシュをまとめた EffectAsset を再生する
@@ -347,8 +325,6 @@ namespace App::ECS
 		a_world.RegisterComponent<EffectPlayRequestComponent>("EffectPlayRequestComponent");
 		a_world.RegisterComponent<EffectOverrideComponent>("EffectOverrideComponent");
 		a_world.RegisterComponent<LifeTimeComponent>("LifeTimeComponent");
-		a_world.RegisterComponent<DeathEffectComponent>("DeathEffectComponent");
-		a_world.RegisterComponent<ExplosionComponent>("ExplosionComponent");
 		a_world.RegisterComponent<HomingComponent>("HomingComponent");
 		a_world.RegisterComponent<ProjectileComponent>("ProjectileComponent");
 		// ※ 追加はここから下(末尾)へ。途中に挿すとコンポーネントのタイプIDがずれて
@@ -406,9 +382,7 @@ namespace App::ECS
 		a_world.RegisterSystem<ModelFixupSystem>();
 		a_world.RegisterSystem<GUIDFixupSystem>();
 		a_world.RegisterSystem<StateMachineFixupSystem>();
-		a_world.RegisterSystem<ParticleFixupSystem>();
 		a_world.RegisterSystem<EffectFixupSystem>();
-		a_world.RegisterSystem<SoundFixupSystem>();
 		// 現在体力を最大体力で満たす
 		a_world.RegisterSystem<HealthFixupSystem>();
 		// リソースの到着待ちゲート。
@@ -448,8 +422,6 @@ namespace App::ECS
 		a_world.RegisterSystem<AnimationModelStartSystem>();
 		a_world.RegisterSystem<AttachmentNodeLinkSystem>();
 		a_world.RegisterSystem<AdditivePoseLinkSystem>();
-		// 湧いた瞬間に鳴らす音(エフェクト用)。インスタンスは SoundFixupSystem が先に用意する
-		a_world.RegisterSystem<SpawnSoundSystem>();
 		a_world.RegisterSystem<CamSetShaderSystem>();
 		// 描画構成を持つカメラを全部 GraphicsEngine へ送る(新レンダーグラフ)。
 		// メインカメラ1台ぶんを送る CamSetShaderSystem とは別で、こちらは並走する経路
@@ -508,8 +480,6 @@ namespace App::ECS
 		a_world.RegisterSystem<DynamicObjectDrawSystem>();
 		a_world.RegisterSystem<AnimationOptionalDrawSystem>();
 		a_world.RegisterSystem<RegisterRayWorldSystem>();
-		a_world.RegisterSystem<EmitParticleSystem>();
-		a_world.RegisterSystem<ParticleEmitSystem>();
 		// エフェクト : 時間を進めるのは Update、出すのは Draw
 		a_world.RegisterSystem<EffectUpdateSystem>();
 		// ブースターの噴射の置き方と、吹かした瞬間の膨らみをエフェクトへ渡す
@@ -548,20 +518,12 @@ namespace App::ECS
 		a_world.RegisterSystem<DeathStateSystem>();
 		// 寿命持ち(弾・エフェクトなど)の共通処理。尽きたら自分で消える
 		a_world.RegisterSystem<LifeTimeSystem>();
-		// 死亡したものの DeathEffect プレハブを出す(死亡を積む側より後ろで回る)
-		a_world.RegisterSystem<DeathEffectSystem>();
 		// 出来事の対応表(EffectEventsComponent)からエフェクトを出す(Fixup も含む)
 		a_world.RegisterSystem<EffectEventSystem>();
 		// 倒した相手ぶんのスコアを足す(死亡を積む側より後ろで回る)
 		a_world.RegisterSystem<ScoreSystem>();
-		// 時間差で複数のエフェクトを炊き、出し切ったら自分で消える
-		a_world.RegisterSystem<ExplosionSystem>();
 		// 3Dサウンドの聞き手。鳴らす側より先に登録して、先にリスナーを更新させる
 		a_world.RegisterSystem<AudioListenerSystem>();
-		// 被弾音。HitEventResource を読むので Physics より後・クリアより前
-		a_world.RegisterSystem<HitSoundSystem>();
-		// ミサイル等の飛翔音。消えたエンティティのボイス回収もここで行う
-		a_world.RegisterSystem<FlyingSoundSystem>();
 		a_world.RegisterSystem<GunStateStartSystem>();
 		// 群れの操舵 : 全員の写しを作ってから、チャンクを分けて操舵する
 		a_world.RegisterSystem<BoidSnapshotSystem>();
@@ -616,7 +578,6 @@ namespace App::ECS
 		a_world.AddResource<HitEventResource>();
 		a_world.AddResource<DeathEventResource>();
 		a_world.AddResource<WaveAnnounceResource>();
-		a_world.AddResource<FlyingSoundResource>();
 		a_world.AddResource<WormWaveResource>();
 		// 群れの操舵の写しと、小隊長の軸(前段のシステムが作り、Job が読む)
 		a_world.AddResource<BoidSnapshotResource>();

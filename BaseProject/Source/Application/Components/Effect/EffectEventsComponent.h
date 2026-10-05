@@ -17,11 +17,11 @@
 // ・出すのは EffectAsset だけ。出したエンティティは destroyOnFinish で自分から消える(SpawnEffectAt)。
 //   音もエフェクトのサウンドパーツで鳴らすので、ここで音を別に持たない。
 // ・1エンティティに同じ型のコンポーネントは1つしか付けられないので、表にして複数持たせる。
-//   (被弾音を SoundComponent と別の HitSoundComponent にしていたのは、この制約のため)
+//   (以前、被弾音を SoundComponent と別の HitSoundComponent にしていたのは、この制約のため)
 // ・付いて出し続けるもの(ブースターの噴射など)は、今まで通り EffectAssetComponent を
 //   子エンティティに付ける。こちらは一発ものだけを受け持つ。
-// ・置き換え先 : DeathEffectComponent(OnDeath) / HitSoundComponent(OnHit) /
-//   SoundComponent の isPlayOnSpawn(OnSpawn)。古い方は移行(Phase 6)が済むまで残す。
+// ・以前の DeathEffectComponent(OnDeath) / HitSoundComponent(OnHit) /
+//   SoundComponent の isPlayOnSpawn(OnSpawn)を置き換えたもの(Phase 6 で移行して削除)。
 // ・解決と先読み(Warmup)は EffectEventSystem の Fixup、出すのも EffectEventSystem。
 //==========================================================================================
 
