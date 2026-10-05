@@ -231,15 +231,20 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 							}
 						}
 
-						// 方向の正規化(スケール成分や 0 ベクトルへの安全策)
-						if (_dir.LengthSquared() > 1e-8f)
-						{
-							_dir.Normalize();
-						}
-						else
-						{
-							_dir = Math::Vector3(0.0f, 0.0f, 1.0f);
-						}
+						//--------------------------------------------------
+						// 発生行列にまとめる
+						//
+						// 形状はシェーダーがローカル(+Z が噴き出す向き)で作って、この行列を掛ける。
+						// 噴き出す向きを軸にした回転(ロール)は上の手がかりで決める。
+						//   ローカル空間 : 席の座標系の +Y(席自体が持ち主の回転を持っている)
+						//   ワールド空間 : 持ち主の +Y(機体が傾けば一緒に傾く)
+						// いまの形状(円錐・球・半球と球状のばらつき)は噴き出す向きのまわりで対称なので、
+						// ロールの決め方で見た目は変わらない。粒に向きを持たせる 3-C から効いてくる。
+						// 方向の正規化と 0 ベクトルの安全策も MakeEmitMatrix が持つ
+						//--------------------------------------------------
+						const Math::Vector3 _upHint = (_emitterIndex != 0)
+							? Math::Vector3(0.0f, 1.0f, 0.0f)
+							: Math::Vector3::TransformNormal(Math::Vector3(0.0f, 1.0f, 0.0f), _ownerWorld);
 
 						//--------------------------------------------------
 						// エミットデータ構築
@@ -247,8 +252,7 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 						//--------------------------------------------------
 						Engine::Particle::EmitterData _emitData = {};
 
-						_emitData.emitPos       = _pos;
-						_emitData.emitDirection = _dir;
+						_emitData.emitMatrix    = Engine::Particle::MakeEmitMatrix(_pos, _dir, _upHint);
 						_emitData.emitCount     = static_cast<UINT>(_emitCount);
 
 						// 大きさとばらつき半径も一緒に拡縮する。

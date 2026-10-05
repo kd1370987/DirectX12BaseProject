@@ -137,8 +137,14 @@ void EmitParticleSystem::Init(App::ECS::APPWorld& a_world)
 
 					Engine::Particle::EmitterData _emitData = {};
 
-					_emitData.emitPos       = _pos;
-					_emitData.emitDirection = _dir;
+					// 形状はシェーダーがローカル(+Z が噴き出す向き)で作って、この行列を掛ける。
+					// こちらの経路はワールド空間でしか出さないので、ロールの手がかりは持ち主の +Y
+					// (FixedWorld は行列を使わないので、MakeEmitMatrix の既定の軸になる)
+					const Math::Vector3 _upHint = (_p.emitSpace == EEmitSpace::FixedWorld)
+						? Math::Vector3(0.0f, 1.0f, 0.0f)
+						: Math::Vector3::TransformNormal(Math::Vector3(0.0f, 1.0f, 0.0f), _world);
+
+					_emitData.emitMatrix    = Engine::Particle::MakeEmitMatrix(_pos, _dir, _upHint);
 					_emitData.emitCount     = static_cast<UINT>(a_count);
 
 					// 形状(スケール/拡散)はコンポーネントから

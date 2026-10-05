@@ -62,9 +62,11 @@ struct EmitterTransform
 // 発生命令1件ぶん
 struct EmitData
 {
-	float3	pos;			// 発生源のワールド座標
+	// 発生行列 : 形状のローカル空間(+Z が噴き出す向き) → 粒を保存する空間。
+	// ワールド空間の粒ならワールド、ローカル空間の粒なら席の座標系。拡縮は入っていない。
+	// ※ CPU 側は行ベクトル(v * M)で組んでいるので row_major にすること
+	row_major float4x4 emitMatrix;
 	uint	emitCount;
-	float3	emitDirection;
 	float	baseScale;
 
 	// ---- ばらつき ----
@@ -82,8 +84,6 @@ struct EmitData
 
 	uint	emitShape;		// 上の PARTICLE_EMIT_SHAPE_*
 	uint	emitterIndex;	// 出した粒に持たせる発生源の番号(ワールド空間なら 0)
-
-	float2	shapePad;
 };
 
 // 発生ディスパッチ1回ぶんの設定

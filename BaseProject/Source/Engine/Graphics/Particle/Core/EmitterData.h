@@ -6,15 +6,24 @@ namespace Engine::Particle
 	/// いまフレーム、どこから何個出すかの命令
 	/// </summary>
 	/// <remarks>
-	/// HLSL 側 EmitData(Common/RootParameters/Particle.hlsli)と並びを合わせること
+	/// HLSL 側 EmitData(Common/RootParameters/Particle.hlsli)と並びを合わせること。
+	/// StructuredBuffer なので float4 の境界に揃える必要はない(並びと大きさが一致していればよい)
 	/// </remarks>
 	struct EmitterData
 	{
-		Math::Vector3 emitPos;		// 発生源のワールド座標
+		//------------------------------------------------------------------
+		// 発生行列 : 形状のローカル空間 → 粒を保存する空間
+		//
+		// 形状(Cone / Sphere / Hemisphere とばらつき半径)はシェーダーが
+		// 常にローカル空間(+Z が噴き出す向き、+Y が上)で作り、最後にこれを掛ける。
+		//   ワールド空間の粒 : 発生源のワールドの位置と回転
+		//   ローカル空間の粒 : 席(発生源)の座標系から見た位置と回転
+		// 拡縮は入れないこと(大きさは baseScale / positionRadius が持つ)。
+		// 作るときは MakeEmitMatrix を通す
+		//------------------------------------------------------------------
+		Math::Matrix emitMatrix;
 		UINT emitCount;					// 発生させる数
-
-		Math::Vector3 emitDirection;	// 発生させたい方向
-		float baseScale;					// エミッター専用のスケール
+		float baseScale;				// エミッター専用のスケール
 
 		// ---- ランダム要素 ----
 		float positionRadius;		// 発生位置の半径
@@ -39,8 +48,44 @@ namespace Engine::Particle
 		// 出した粒に持たせる発生源の番号。
 		// ローカル空間で回すときだけ 1 以上になる(0 は単位行列 = ワールド空間)
 		UINT emitterIndex;
-
-		float pad0;
-		float pad1;
 	};
+
+	/// <summary>
+	/// 発生行列を作る : +Z が噴き出す向き、+Y が上、第4行が位置
+	/// </summary>
+	/// <param name="a_pos">発生位置</param>
+	/// <param name="a_forward">噴き出す向き(正規化していなくてよい。0 なら +Z)</param>
+	/// <param name="a_upHint">
+	/// 上の手がかり。噴き出す向きを軸にした回転(ロール)がこれで決まる。
+	/// ふつうは持ち主の +Y を渡す(機体が傾けば粒の向きも一緒に傾く)
+	/// </param>
+	/// <remarks>
+	/// 上の手がかりが噴き出す向きとほぼ平行だと横の軸が決まらないので、
+	/// そのときはワールドの +Y(真上・真下へ噴くなら +X)で代用する
+	/// </remarks>
+	inline Math::Matrix MakeEmitMatrix(
+		const Math::Vector3& a_pos,
+		const Math::Vector3& a_forward,
+		const Math::Vector3& a_upHint)
+	{
+		Math::Vector3 _forward = a_forward;
+		if (_forward.LengthSquared() <= 1e-8f)
+		{
+			_forward = Math::Vector3(0.0f, 0.0f, 1.0f);
+		}
+		_forward.Normalize();
+
+		Math::Vector3 _up = a_upHint;
+		const bool _isUsable =
+			(_up.LengthSquared() > 1e-8f) &&
+			(std::abs(_up.Normalized().Dot(_forward)) < 0.999f);
+		if (!_isUsable)
+		{
+			_up = (std::abs(_forward.y) < 0.999f)
+				? Math::Vector3(0.0f, 1.0f, 0.0f)
+				: Math::Vector3(1.0f, 0.0f, 0.0f);
+		}
+
+		return Math::Matrix::CreateWorld(a_pos, _forward, _up);
+	}
 }

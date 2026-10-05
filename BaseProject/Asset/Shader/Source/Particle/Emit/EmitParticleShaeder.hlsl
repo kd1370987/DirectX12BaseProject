@@ -98,13 +98,20 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 			//   ハッシュを噛ませてから組み合わせる。
 			uint _seed = PCGHash(PCGHash(g_emit.frameSeed + _emitterIndex * 9781u) + _i);
 
+			//------------------------------------------------------------------
+			// 形状はローカル空間(+Z が噴き出す向き、+Y が上)で作り、最後に発生行列を掛ける。
+			// 発生行列は「ローカル → 粒を保存する空間」(ワールド空間ならワールド、
+			// ローカル空間なら席の座標系)。拡縮は入っていない
+			//------------------------------------------------------------------
+			const float4x4 _emitMat = _emitInfo.emitMatrix;
+
 			// 発射位置計算
 			// ※ 要素ごとに種を進めること。同じ種を使い回すと
 			//    寿命・速度・スケールがすべて同じ乱数値になる。
 			float _radius = Random(_seed++) * _emitInfo.positionRadius;
-			float3 _offset = RandomDirection(_seed) * _radius;
+			float3 _localOffset = RandomDirection(_seed) * _radius;
 			_seed += 2;		// RandomDirection は内部で種を2つ消費する
-			_p.pos = _emitInfo.pos + _offset;
+			_p.pos = mul(float4(_localOffset, 1.0f), _emitMat).xyz;
 
 			// 生存時間
 			_p.life = ValueFloat(_emitInfo.minLifeTime, _emitInfo.maxLifeTime, _seed++);
@@ -129,12 +136,12 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 			// ※ Cone の角度を 360 度にしても全方向にはならない。
 			//    円錐の「半頂角」なので全方向にしたければ 180 度で、
 			//    しかもその極限は分布が偏る。全方向は専用の分岐で出すこと。
-			float3 _forward = normalize(_emitInfo.emitDirection);
-			float3 _emitDir;
+			const float3 _forward = float3(0.0f, 0.0f, 1.0f);	// ローカルでは噴き出す向きは常に +Z
+			float3 _localDir;
 
 			if (_emitInfo.emitShape == PARTICLE_EMIT_SHAPE_SPHERE)
 			{
-				_emitDir = RandomDirection(_seed);
+				_localDir = RandomDirection(_seed);
 				_seed += 2;		// RandomDirection は内部で種を2つ消費する
 			}
 			else if (_emitInfo.emitShape == PARTICLE_EMIT_SHAPE_HEMISPHERE)
@@ -143,14 +150,16 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 				// コーンの角度を90度にするより分布が素直になる
 				float3 _randomDir = RandomDirection(_seed);
 				_seed += 2;
-				_emitDir = (dot(_randomDir, _forward) < 0.0f) ? -_randomDir : _randomDir;
+				_localDir = (dot(_randomDir, _forward) < 0.0f) ? -_randomDir : _randomDir;
 			}
 			else
 			{
-				_emitDir = RandomConeDirection(_forward, _emitInfo.directionAngle, _seed);
+				_localDir = RandomConeDirection(_forward, _emitInfo.directionAngle, _seed);
 				_seed += 2;		// RandomConeDirection も内部で種を2つ消費する
 			}
 
+			// 向きだけ回す(w = 0)。行列に拡縮は無いが、念のため長さを 1 に戻してから速さを掛ける
+			const float3 _emitDir = normalize(mul(float4(_localDir, 0.0f), _emitMat).xyz);
 			_p.velocity = _emitDir * ValueFloat(_emitInfo.minSpeed, _emitInfo.maxSpeed, _seed++);
 
 			// スケール
