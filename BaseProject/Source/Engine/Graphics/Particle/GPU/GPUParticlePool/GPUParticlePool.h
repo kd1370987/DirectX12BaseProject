@@ -132,8 +132,5 @@ namespace Engine::Particle
 
 		// 直近の BeginGrow の前の容量(増えた範囲を埋める CS が使う)
 		UINT m_growFromCapacity = 0;
- 
-
-
 	};
 }

@@ -1,0 +1,627 @@
+# Coding Rules
+
+このドキュメントでは、本プロジェクトにおけるコーディング規則、命名規則、設計上の制約、ディレクトリ構成などを定義する。
+
+---
+
+# 1. Naming Convention
+
+## 1.1 基本ルール
+
+* 変数名・関数名は `camelCase` を基本とする。
+* 変数の種類に応じて Prefix を付ける。
+* Prefix の後ろは `camelCase` とする。
+* 定数は基本的に大文字のみを使用し、Prefix は付けない。
+* 定数の単語区切りには `_` を使用する。
+* `enum` は使用せず、`enum class` のみを使用する。
+* `enum class` の型名は `E` から始める。
+* 一般的に定着している省略語は使用してよい。
+* 頭文字のみを使用した独自の省略は使用しない。
+
+### 例
+
+```cpp
+// OK
+_textureManager
+_renderContext
+_rayTracing
+_vertexBuffer
+_renderGraph
+
+// 一般的な省略語は許可
+_gpu
+_cpu
+_d3d
+_dxgi
+```
+
+```cpp
+// NG
+_texMgr
+_rndCtx
+_rt
+_vtxBuf
+_rg
+```
+
+ただし、`RT`、`GPU`、`CPU`、`DXGI` など、一般的に広く使用されている技術用語・略語については使用してよい。
+
+---
+
+## 1.2 Prefix
+
+| 種類          | Prefix | 例                |
+| ----------- | ------ | ---------------- |
+| 引数          | `a_`   | `a_textureDesc`  |
+| ローカル変数      | `_`    | `_textureDesc`   |
+| メンバ変数       | `m_`   | `m_textureDesc`  |
+| staticメンバ変数 | `s_`   | `s_textureCount` |
+
+---
+
+## 1.3 Enum
+
+`enum` は使用せず、必ず `enum class` を使用する。
+
+Enum の型名は `E` を Prefix とする。
+
+```cpp
+enum class ERenderPhase
+{
+    Shadow,
+    Geometry,
+    Lighting
+};
+```
+
+Enum の値は `PascalCase` を使用する。
+
+---
+
+## 1.4 Namespace
+
+Namespace はディレクトリ構成と対応させる。
+
+`Engine` と `App` はトップレベル Namespace とする。
+
+自身が所属するディレクトリの役割を Namespace に反映する。
+
+```cpp
+namespace Engine::Graphics
+{
+}
+
+namespace Engine::ECS
+{
+}
+
+namespace App::Game
+{
+}
+```
+
+Utility 系の Namespace は、所属する機能・役割を示す Namespace を使用する。
+
+---
+
+## 1.5 Function Naming
+
+関数名は、その関数が行う操作を明確に表す名前にする。
+
+### 基本的な操作
+
+| 操作    | Prefix / 命名     | 例                       |
+| ----- | --------------- | ----------------------- |
+| 追加    | `Add`           | `AddEntity()`           |
+| 削除    | `Remove`        | `RemoveEntity()`        |
+| 提出・登録 | `Submit`        | `SubmitCommand()`       |
+| 予約追加  | `ReserveAdd`    | `ReserveAddEntity()`    |
+| 予約削除  | `ReserveRemove` | `ReserveRemoveEntity()` |
+
+即時に実行される操作と、後で実行される操作は名前から区別できるようにする。
+
+```cpp
+AddEntity();
+RemoveEntity();
+
+ReserveAddEntity();
+ReserveRemoveEntity();
+
+SubmitCommand();
+```
+
+---
+
+## 1.6 Accessor Naming
+
+アクセサは `Ref` と `Get` を使い分ける。
+
+### Ref
+
+`Ref` は内部データへの参照を返し、呼び出し側から内部データを直接変更できる。
+
+```cpp
+TextureDesc& RefTextureDesc();
+```
+
+### Get
+
+`Get` は読み取り専用のアクセスを提供する。
+
+戻り値は、データサイズや用途に応じて `const` Reference または Value を使用する。
+
+```cpp
+const TextureDesc& GetTextureDesc() const;
+
+UINT GetWidth() const;
+```
+
+`Get` から返したデータを通じて内部状態を変更できるようにしてはいけない。
+
+---
+
+## 1.7 Public / Private Function
+
+予約系の機能など、外部から直接呼び出す必要がない関数は `private` にする。
+
+例えば、外部には `ReserveAdd()` だけを公開し、実際の `Add()` は予約処理内部からのみ呼び出す必要がある場合、
+
+```cpp
+class EntityManager
+{
+public:
+
+    void ReserveAdd(const EntityDesc& a_desc);
+
+private:
+
+    void Add(const EntityDesc& a_desc);
+};
+```
+
+のようにする。
+
+**外部から使用する必要のない操作を、公開インターフェースに含めない。**
+
+---
+
+# 2. General Rules
+
+## 2.1 Namespace
+
+プロジェクト内で定義する型・関数・変数・定数などは、マクロを除き、必ず何らかの Namespace に属するものとする。
+
+グローバル Namespace に直接定義を配置してはいけない。
+
+```cpp
+// NG
+class RenderGraph
+{
+};
+
+void Initialize();
+```
+
+```cpp
+// OK
+namespace Engine::Graphics
+{
+    class RenderGraph
+    {
+    };
+}
+```
+
+マクロは Namespace によるスコープ管理ができないため、このルールの対象外とする。
+
+---
+
+## 2.2 Global Variables
+
+グローバル変数は原則として使用しない。
+
+Namespace 内のグローバル変数も原則として使用しない。
+
+状態を共有する必要がある場合は、以下の方法を検討する。
+
+* クラスのメンバ変数として管理する
+* 必要なコンテキストを引数として渡す
+* 適切な Manager / Context に状態を所有させる
+* ECS の場合は Component として管理する
+
+```cpp
+// NG
+namespace Engine::Graphics
+{
+    RenderContext* g_renderContext;
+    UINT g_frameIndex;
+}
+```
+
+---
+
+## 2.3 Ownership
+
+所有権を持つオブジェクトは、原則として `std::unique_ptr` で管理する。
+
+所有権を明確にすることを優先し、`std::shared_ptr` は原則として使用しない。
+
+`std::shared_ptr` は、遅延開放など、共有所有権が必要となる明確な理由がある場合に限って使用する。
+
+単に「複数箇所からアクセスしたい」という理由だけで `std::shared_ptr` を使用してはいけない。
+
+```cpp
+// 基本
+std::unique_ptr<Texture> m_texture;
+```
+
+```cpp
+// 原則禁止
+std::shared_ptr<Texture> m_texture;
+```
+
+`shared_ptr` を使用する場合は、共有所有権が必要となる理由を明確にする。
+
+---
+
+## 2.4 Non-owning Pointer
+
+所有権を持たないオブジェクトへのアクセスには、Reference または Raw Pointer を使用する。
+
+Raw Pointer を所有権管理の目的で使用してはいけない。
+
+```cpp
+class Renderer
+{
+private:
+
+    // 非所有
+    Device* m_device = nullptr;
+
+    // 所有
+    std::unique_ptr<RenderContext> m_context;
+};
+```
+
+---
+
+## 2.5 Forward Declaration
+
+`.h` 側で Include が不要で、前方宣言によって対応できる場合は、可能な限り前方宣言を使用する。
+
+```cpp
+class Texture;
+class RenderContext;
+```
+
+ただし、値型としてメンバに保持する場合など、完全型が必要な場合は Include する。
+
+---
+
+## 2.6 Const Correctness
+
+変更しない値には、可能な限り `const` を付ける。
+
+* 変更しない引数には `const` を付ける。
+* 変更しないメンバ関数には `const` を付ける。
+* コンパイル時に確定する値には `constexpr` を使用する。
+* 読み取り専用のアクセサには `Get` を使用する。
+
+---
+
+## 2.7 RTTI
+
+RTTI には依存しない。
+
+Visual Studio 側の設定で RTTI を無効化しているため、以下の機能には依存しない。
+
+* `dynamic_cast`
+* `typeid`
+
+型判別が必要な場合は、本プロジェクトで定義している Type ID 等の仕組みを使用する。
+
+---
+
+## 2.8 Error Handling
+
+デバッグ・エラー処理は、原則としてプロジェクト共通の Debug 機能を使用する。
+
+```text
+Source/Engine/Utility/Debug/DebugLog.h
+```
+
+通常のエラー処理では `assert` を使用せず、`ENGINE_ERRLOG` 系の機能を使用する。
+
+ただし、以下は使用してよい。
+
+* `static_assert`
+* 型判別など、コンパイル時に検証するための `assert_v` 系
+
+---
+
+# 3. Include Rules
+
+* `.h` は自身が直接使用する型に必要な Include を自分で持つ。
+* 他のヘッダが Include していることを前提にしない。
+* 前方宣言で済む場合は前方宣言を使用する。
+* `.cpp` でのみ必要な Include は `.cpp` に置く。
+* 不要な Include は追加しない。
+* 間接 Include に依存したコードを書かない。
+
+---
+
+# 4. Dependency Rules
+
+## 4.1 Layer Dependency
+
+依存関係は基本的にトップダウンとする。
+
+```text
+Editor
+  ↓
+App
+  ↓
+Engine
+  ↓
+Core / Utility
+```
+
+### 許可
+
+```text
+App    → Engine
+Editor → App
+Editor → Engine
+```
+
+### 禁止
+
+```text
+Engine → App
+Engine → Editor
+App    → Editor
+```
+
+---
+
+## 4.2 Data Passing
+
+クラス間の依存を直接増やすのではなく、可能な限り Context / 引数を使用して必要なデータを上位から下位へ渡す。
+
+```text
+上位
+ ↓
+Context
+ ↓
+下位
+```
+
+下位レイヤーから上位レイヤーへアクセスするための参照を持たせない。
+
+---
+
+# 5. PCH
+
+`Pch.h / Pch.cpp` を各分類のトップとして使用する。
+
+## 5.1 Common PCH
+
+トップレベルの PCH には、プロジェクト全体で頻繁に使用する基本的なヘッダのみを登録する。
+
+## 5.2 Category PCH
+
+各分類では、トップの PCH を Include した上で、その分類で頻繁に使用するヘッダを分類別 PCH に登録する。
+
+特定のクラスでしか使用しないヘッダは、各 `.h / .cpp` 側で直接 Include する。
+
+---
+
+# 6. Build Configuration
+
+## 6.1 DebugMode
+
+* デバッグ機能を最大限有効化する。
+* DirectX 12 Debug Layer を有効化する。
+* GPU Validation を有効化する。
+* 重いモデル・テクスチャ等を除き、可能なものは JSON から読み込む。
+
+## 6.2 Development
+
+* Editor を有効化する。
+* Profiler 等の開発ツールを有効化する。
+* 重いモデル・テクスチャ等を除き、可能なものは JSON から読み込む。
+
+## 6.3 Shipping
+
+※ 現在未実装。
+
+* リリース用 Build とする。
+* すべてのデバッグ機能を除外する。
+* Editor 機能を除外する。
+* すべてのリソースをバイナリ形式で読み込む。
+
+---
+
+# 7. Comments
+
+## 7.1 基本方針
+
+コメントは、コードを見れば分かる内容ではなく、以下を中心に記述する。
+
+* 役割
+* 意図
+* 設計上重要な情報
+* なぜその実装になっているのか
+
+コメントは長くなりすぎないようにする。
+
+---
+
+## 7.2 Class / Struct
+
+クラス・構造体には役割を説明するコメントを付ける。
+
+```cpp
+//===========================================
+// RenderGraph の実行単位を管理する。
+//===========================================
+class RenderGraph
+{
+};
+```
+
+---
+
+## 7.3 Class / Struct Internal
+
+クラス・構造体内部は、役割ごとに段落を分ける。
+
+```cpp
+//-------------------------------------------
+// Pass管理
+//-------------------------------------------
+
+std::vector<RenderPass> m_passes;
+
+//-------------------------------------------
+// リソース管理
+//-------------------------------------------
+
+std::vector<GraphResource> m_resources;
+```
+
+段落分けが不要な場合は無理に追加しない。
+
+---
+
+## 7.4 Function
+
+関数には何をする関数なのかを簡潔に記述する。
+
+```cpp
+// テクスチャを作成する。
+void CreateTexture();
+```
+
+コードそのものを説明するコメントは避ける。
+
+---
+
+## 7.5 Member Variables
+
+メンバ変数には、その変数が何を表すのかを必要に応じて記述する。
+
+変数名から明らかな場合は、無理にコメントを付けない。
+
+---
+
+## 7.6 Static Functions
+
+Static 関数も通常の関数と同様に、何をする関数なのかを `//` で簡潔に記述する。
+
+---
+
+## 7.7 Global Functions
+
+Namespace 内のクラス・構造体に属さず、ヘッダを Include するだけで外部から利用できる関数は `///` を使用してドキュメント形式で記述する。
+
+```cpp
+/// テクスチャを読み込む。
+///
+/// @param a_path テクスチャのパス。
+/// @return 読み込んだテクスチャ。
+Texture LoadTexture(const std::string& a_path);
+```
+
+---
+
+# 8. Class Layout
+
+クラスの宣言は、原則として以下の順序で記述する。
+
+```cpp
+class Hoge
+{
+public:
+
+    // 公開関数群
+
+private:
+
+    // 内部関数群
+
+private:
+
+    // メンバ変数
+};
+```
+
+不要なセクションは省略してよい。
+
+---
+
+# 9. Directory Structure
+
+ディレクトリは機能・役割ごとに分類する。
+
+```text
+Engine/
+├─ MainEngine.h
+├─ MainEngine.cpp
+│
+├─ Graphics/
+├─ ECS/
+└─ Scene/
+```
+
+各ディレクトリには、その分類の中心となる `.h / .cpp` を配置する。
+
+中心となるクラスの機能をさらに細分化する場合は、その `.h / .cpp` と同じ階層にディレクトリを作成し、その下に関連する機能を配置する。
+
+ディレクトリ構成は、可能な限り以下を表現する。
+
+* 機能の分類
+* クラスの所有関係
+* 依存関係
+* システムの階層
+
+依存関係は、可能な範囲で横方向ではなく上下方向で表現する。
+
+```text
+上位機能
+  ↓
+サブシステム
+  ↓
+具体的な実装
+```
+
+---
+
+# 10. ECS Rules
+
+## 10.1 Component
+
+* Component は原則としてデータのみを保持する。
+* Component にゲームロジックを持たせない。
+* Component 間の処理依存を作らない。
+* Component は可能な限り Trivially Copyable を維持する。
+* Component から他の Component へのポインタを保持しない。
+
+## 10.2 System
+
+* System は Component のデータを処理する。
+* System ごとに責務を明確にする。
+* 複数の責務を持つ System は分割を検討する。
+* System 間の実行順序が必要な場合は依存関係を明示する。
+
+---
+
+# 11. RenderGraph Rules
+
+* Render 処理は可能な限り RenderGraph Pass として定義する。
+* Pass は単一の責務を持つ。
+* Resource の Read / Write を Pass に明示する。
+* Resource State Transition は RenderGraph 側で管理する。
+* Pass 内部で他 Pass の実行順序を直接制御しない。
+* Pass 間の依存関係は Resource Access によって表現する。
+* 1 Pass = 1 Shader Dispatch / Draw 単位を基本とする。
