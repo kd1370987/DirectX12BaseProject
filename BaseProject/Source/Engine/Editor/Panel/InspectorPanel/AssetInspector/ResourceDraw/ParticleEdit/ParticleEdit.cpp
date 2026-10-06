@@ -102,13 +102,13 @@ namespace Engine::Editor::Inspector
 		if (a_pParticles->IsLocalSpace())
 		{
 			Engine::Editor::HelpText("発生源にくっついて動く(ブースターの噴射など)");
-			Engine::Editor::HelpText("※ 重力は発生源のローカル軸に掛かるので GravityPow は 0 推奨");
-			Engine::Editor::HelpText("※ 同じアセットを同時に使える発生源は 8 個まで");
+			Engine::Editor::HelpText("※ 重力はワールドの下向きのまま掛かる");
 		}
 		else
 		{
 			Engine::Editor::HelpText("出したその場に残る(煙・爆発・弾の軌跡など)");
 		}
+		Engine::Editor::HelpText("※ 既定値。エフェクトのパーツの SimulationSpace で上書きできる");
 
 		// ---- 色の重ね方 ----
 		// 加算は光り物、半透明は煙や破片。

@@ -25,6 +25,7 @@
 #include "../../Resource/Data/EffectPrefab/EffectPrefab.h"
 
 #include "Application/Components/Effect/EffectAssetComponent.h"
+#include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Core/LifeTimeComponent.h"
 #include "Application/Utility/EffectSpawnHelper.h"
 #include "Application/Utility/EffectPrefabSpawnHelper.h"
@@ -351,6 +352,9 @@ namespace Engine::Editor
 
 			_ref.pRequest->isPlay = true;
 
+			// 持ち主の位置と向き(回したとき・動かしたときの見え方を確かめる)
+			ApplyPreviewTransform(_ref.entity, _dt);
+
 			// 出し切ったら頭から。
 			// 出しっぱなしのパーツを含むエフェクトは IsFinished が立たないので、
 			// ループ指定でも何も起きない(それでよい : もともと終わらない演出のため)
@@ -381,6 +385,38 @@ namespace Engine::Editor
 		m_upWorld->RunSystem(ECS::ESystemType::Animation, _dt);
 		m_upWorld->RunSystem(ECS::ESystemType::Camera, _dt);
 		m_upWorld->RunSystem(ECS::ESystemType::PostUpdate, _dt);
+	}
+
+	//======================================================================================
+	// プレビューの持ち主の位置と向き
+	//
+	// 回転は Pitch(X) / Yaw(Y) / Roll(Z) の度。回すと形状の +Z(噴き出す向き)が付いてくる。
+	// 円運動は止めている(dt = 0)あいだは進まない
+	//======================================================================================
+	void EffectEditor::ApplyPreviewTransform(ECS::Entity a_entity, float a_dt)
+	{
+		if (!m_upWorld) return;
+		if (!m_upWorld->HasComponent<LocalTransformComponent>(a_entity)) return;
+
+		auto* _pTransform = m_upWorld->RefData<LocalTransformComponent>(a_entity);
+		if (!_pTransform) return;
+
+		Math::Vector3 _pos = EFFECT_ORIGIN;
+		if (m_isPreviewOrbit)
+		{
+			m_previewOrbitAngle = std::fmod(m_previewOrbitAngle + m_previewOrbitSpeed * a_dt, 360.0f);
+			const float _rad = DirectX::XMConvertToRadians(m_previewOrbitAngle);
+			_pos += Math::Vector3(std::cos(_rad), 0.0f, std::sin(_rad)) * m_previewOrbitRadius;
+		}
+
+		const Math::Quaternion _quat = Math::Quaternion::CreateFromYawPitchRoll(
+			DirectX::XMConvertToRadians(m_previewRotation.y),
+			DirectX::XMConvertToRadians(m_previewRotation.x),
+			DirectX::XMConvertToRadians(m_previewRotation.z));
+
+		_pTransform->pos = _pos;
+		_pTransform->quat = _quat;
+		_pTransform->isDirty = true;
 	}
 
 	//======================================================================================
@@ -587,6 +623,28 @@ namespace Engine::Editor
 			if (m_upCamera) m_upCamera->SetPose(CAMERA_HOME_POS, CAMERA_HOME_YAW, CAMERA_HOME_PITCH);
 		}
 		Engine::Editor::Tooltip("右ドラッグ中のみ視点操作 / WASD・EQ移動 / Shift加速");
+
+		// ---- 持ち主の動かし方(エフェクトのときだけ) ----
+		if (m_mode == EMode::Effect)
+		{
+			Engine::Editor::Field("Owner Rotation (deg)", m_previewRotation, 1.0f);
+			Engine::Editor::Tooltip("エフェクトを付けた持ち主の向き(Pitch / Yaw / Roll)。形状の +Z が付いてくる");
+			Engine::Editor::SameLine();
+			if (ImGui::Button("Reset##OwnerRotation"))
+			{
+				m_previewRotation = { 0.0f, 0.0f, 0.0f };
+			}
+
+			Engine::Editor::Field("Owner Orbit", m_isPreviewOrbit);
+			Engine::Editor::Tooltip("持ち主を原点のまわりで回す。Local の粒は付いてきて、World の粒は置き去りになる");
+			if (m_isPreviewOrbit)
+			{
+				Engine::Editor::SameLine();
+				Engine::Editor::Field("Radius", m_previewOrbitRadius, 0.05f, 0.0f, 50.0f);
+				Engine::Editor::SameLine();
+				Engine::Editor::Field("Speed (deg/s)", m_previewOrbitSpeed, 1.0f, -720.0f, 720.0f);
+			}
+		}
 
 		Engine::Editor::SameLine();
 		if (DeleteButton("Close"))

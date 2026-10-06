@@ -6,6 +6,7 @@
 #include "../../../../../EffectEditor/EffectEditor.h"
 #include "../../../../../Editor.h"
 #include "../../../../../../Resource/Manager/AssetDatabase/AssetDatabase.h"
+#include "../../../../../../Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Editor::Inspector
 {
@@ -101,6 +102,31 @@ namespace Engine::Editor::Inspector
 			else
 			{
 				Engine::Editor::HelpText("Pos/Dir : 付いている相手の行列そのまま");
+			}
+			Engine::Editor::Tooltip("出す瞬間の位置と向きの決め方。持ち主のスケールは掛からない");
+
+			// ---- 出したあと、どの座標系で回すか ----
+			Engine::Editor::Header("Simulation");
+			if (Field("SimulationSpace", a_part.simulationSpace)) _isChanged = true;
+			{
+				// 読み込み済みのものだけ引く(未読込なら World 扱いの表示になる)
+				const Resource::ParticlesAsset* _pParticle = nullptr;
+				if (a_part.IsValid() && a_services.pResourceManager)
+				{
+					const auto _handle = a_services.pResourceManager->GetCache<Resource::ParticlesAsset>(a_part.particleGUID);
+					_pParticle = a_services.pResourceManager->Get(_handle);
+				}
+
+				const bool _isLocal = a_part.IsLocalSimulation(_pParticle);
+				if (a_part.simulationSpace == Resource::EEffectSimulationSpace::Inherit)
+				{
+					Engine::Editor::HelpText(_pParticle
+						? (_isLocal ? "パーティクルアセットの設定 : Local" : "パーティクルアセットの設定 : World")
+						: "(パーティクルが読めていないので World 扱い)");
+				}
+				Engine::Editor::HelpText(_isLocal
+					? "発生源にくっついて動く(ブースターの噴射など)"
+					: "出したその場に残る(煙・爆発・弾の軌跡など)");
 			}
 
 			Engine::Editor::Header("Emit Shape");

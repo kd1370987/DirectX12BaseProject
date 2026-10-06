@@ -225,7 +225,7 @@ namespace App::Utility
 		if (!_pSlotPool) return;
 
 		//----------------------------------------------------------------------
-		// 待つ時間 : このエフェクトが使うローカル空間パーティクルの最大寿命
+		// 待つ時間 : このエフェクトでローカル空間で回すパーツ(パーツの上書き込み)の最大寿命
 		//
 		// 粒の寿命は [LifeTimeMin, LifeTimeMax] の乱数なので、Max だけ待てば全部消えている。
 		// エフェクトやパーティクルが引けず寿命が分からないときは長めの代わりの値で待つ
@@ -247,7 +247,7 @@ namespace App::Utility
 					_isKnown = false;
 					continue;
 				}
-				if (!_pParticle->IsLocalSpace()) continue;
+				if (!_part.IsLocalSimulation(_pParticle)) continue;
 
 				_holdSeconds = (std::max)(_holdSeconds, _pParticle->GetLifeTimeMax());
 			}

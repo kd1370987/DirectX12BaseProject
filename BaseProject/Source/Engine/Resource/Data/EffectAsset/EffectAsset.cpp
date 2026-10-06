@@ -57,6 +57,17 @@ namespace Engine::Resource
 		a_ar.Field("ScaleAtOne", scaleAtOne);
 	}
 
+	const char* ToString(EEffectSimulationSpace a_space)
+	{
+		switch (a_space)
+		{
+		case EEffectSimulationSpace::Inherit:	return "Inherit";
+		case EEffectSimulationSpace::World:		return "World";
+		case EEffectSimulationSpace::Local:		return "Local";
+		default:								return "Unknown";
+		}
+	}
+
 	const char* ToString(EEffectTrigger a_trigger)
 	{
 		switch (a_trigger)
@@ -101,6 +112,19 @@ namespace Engine::Resource
 		// ※ 追加は末尾に。バイナリは順次読みなので途中に挿すと既存データが全部ずれる
 		a_ar.Field("EmitShape", emitShape);
 		a_ar.Field("Trigger", timing.trigger);
+		a_ar.Field("SimulationSpace", simulationSpace);
+	}
+
+	bool EffectParticlePart::IsLocalSimulation(const ParticlesAsset* a_pParticle) const
+	{
+		switch (simulationSpace)
+		{
+		case EEffectSimulationSpace::World:	return false;
+		case EEffectSimulationSpace::Local:	return true;
+		case EEffectSimulationSpace::Inherit:
+		default:
+			return a_pParticle && a_pParticle->IsLocalSpace();
+		}
 	}
 
 	//======================================================================================

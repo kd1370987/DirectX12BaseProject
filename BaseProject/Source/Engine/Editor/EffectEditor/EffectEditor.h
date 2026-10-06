@@ -225,5 +225,20 @@ namespace Engine::Editor
 		//----------------------------------------------------------------------------------
 		bool m_isDrawGrid = true;
 		float m_gridSize = 10.0f;		// 格子の半径(m)
+
+		//----------------------------------------------------------------------------------
+		// プレビューの持ち主(エフェクトを付けたエンティティ)の動かし方
+		//
+		// アセットは持ち主の座標系で作るので、持ち主を回したときに向きが付いてくるか、
+		// 動かしたときに Local の粒が付いてきて World の粒が置き去りになるかを、ここで確かめる
+		//----------------------------------------------------------------------------------
+		Math::Vector3 m_previewRotation = { 0.0f, 0.0f, 0.0f };	// 持ち主の向き(度。Pitch / Yaw / Roll)
+		bool  m_isPreviewOrbit = false;		// 原点のまわりを回す
+		float m_previewOrbitRadius = 2.0f;	// 回す半径(m)
+		float m_previewOrbitSpeed = 90.0f;	// 回す速さ(度/秒)
+		float m_previewOrbitAngle = 0.0f;	// いまの角度(度)
+
+		// プレビューの持ち主の位置と向きを、上の設定から書き込む(エフェクトのときだけ)
+		void ApplyPreviewTransform(ECS::Entity a_entity, float a_dt);
 	};
 }

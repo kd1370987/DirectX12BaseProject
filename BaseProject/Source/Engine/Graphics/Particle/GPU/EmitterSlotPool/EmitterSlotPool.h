@@ -70,6 +70,12 @@ namespace Engine::Particle
 		UINT GetSRVIndex() const;		// まだ一度も Upload していなければ無効値
 		static uint32_t ToGPUIndex(const Handle<EmitterTransform>& a_handle);		// 無効なら 0
 
+		// 拡縮を落として位置と回転だけを残す。
+		// 取り付け側のスケール(ブースターは 0.1 倍など)を残したまま戻すと、
+		// ローカルで進めた飛距離までそのスケールで縮んでしまう。
+		// 席に書く行列はこれを通す。ワールドで回す粒の発生位置も同じ行列から作る(EffectDrawSystem)
+		static Math::Matrix StripScale(const Math::Matrix& a_world);
+
 		// デバッグ表示用
 		uint32_t GetLiveCount() const { return m_liveCount; }			// 使用中(返却待ちを含む。席 0 も含む)
 		uint32_t GetPendingCount() const { return m_pendingCount; }		// 返却待ち
@@ -77,13 +83,6 @@ namespace Engine::Particle
 		uint32_t GetCPUCapacity() const { return static_cast<uint32_t>(m_transforms.size()); }	// blockSize 単位で伸びる
 		uint32_t GetGPUCapacity() const { return m_gpuCapacity; }
 		uint32_t GetBlockSize() const { return m_blockSize; }
-
-	private:
-
-		// 拡縮を落として位置と回転だけを残す。
-		// 取り付け側のスケール(ブースターは 0.1 倍など)を残したまま戻すと、
-		// ローカルで進めた飛距離までそのスケールで縮んでしまう
-		static Math::Matrix StripScale(const Math::Matrix& a_world);
 
 	private:
 

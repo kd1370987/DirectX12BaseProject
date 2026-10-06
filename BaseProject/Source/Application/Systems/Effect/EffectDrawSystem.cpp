@@ -76,8 +76,10 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 					bool _hasLocalPart = false;
 					for (const auto& _part : _pEffect->GetParticleParts())
 					{
-						const auto* _pParticle = _pResourceManager->Get(_part.particleHandle);
-						if (_pParticle && _pParticle->IsLocalSpace())
+						if (!_part.IsValid()) continue;
+
+						// パーツの上書き(Local / World)が先、無ければパーティクルアセットの設定
+						if (_part.IsLocalSimulation(_pResourceManager->Get(_part.particleHandle)))
 						{
 							_hasLocalPart = true;
 							break;
@@ -148,8 +150,19 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 						_ownerWorld;
 				}
 
-				// 置き場の向き → ワールド(向きを回すだけに使う。長さは MakeEmitMatrix が揃える)
-				const Math::Matrix _placeToWorld = _placeRot * _ownerWorld;
+				//----------------------------------------------------------
+				// パーティクル用 : 置き場(持ち主の座標系の中) と、持ち主から拡縮を落とした行列
+				//
+				// パーティクルの発生位置・向きには持ち主の拡縮を掛けない。
+				// 粒の大きさ・速さ・散らばりにも掛けておらず、ローカルで回す粒の席も拡縮を落としてあるので、
+				// それに揃えて「出す瞬間」は Local / World のどちらでも同じ位置・向きになるようにしてある。
+				// (メッシュとライトのパーツは物なので、上の _effectWorld で持ち主の拡縮ごと置く)
+				//----------------------------------------------------------
+				const Math::Matrix _placeMat =
+					Math::Matrix::CreateScale(_effectScale) *
+					_placeRot *
+					Math::Matrix::CreateTranslation(_override.overridePosOffset);
+				const Math::Matrix _ownerRT = Engine::Particle::EmitterSlotPool::StripScale(_ownerWorld);
 
 				//----------------------------------------------------------
 				// パーティクル
@@ -179,94 +192,87 @@ void EffectDrawSystem::Init(App::ECS::APPWorld& a_world)
 						//--------------------------------------------------
 						// 発生源(位置・噴き出す向き・上の手がかり)を決める
 						//
-						// ローカル空間で回すパーティクルは、発生源にくっついて動いてほしいので
-						// ワールドではなく席(発生源)の座標系のまま出す。ワールドへ戻すのは描画時。
-						// 戻すのに使う行列の席は上で確保・更新してある。
-						//
-						// このときパーツの space(WorldMatrix / ReverseVelocity)は使わない。
-						// どれも「ワールドのどこに出すか」を決めるものなので、
-						// ローカルで回す粒には意味を成さない。
+						// パーツの位置と向きは置き場から見た値。それを「粒を保存する空間」へ移す。
+						//   Local : 席(持ち主から拡縮を落とした行列)の座標系。ワールドへ戻すのは描画時(ParticleVS)
+						//   World : ワールド。席と同じ「拡縮を落とした持ち主」を掛ける
+						// 掛ける行列が違うだけで式は同じなので、出す瞬間の位置と向きは一致する。
+						// 違うのは、出したあとに発生源へ追従するかどうかだけ。
 						//
 						// 上の手がかりは、噴き出す向きを軸にした回転(ロール)を決める。
 						// 板を発生源に合わせる向き(EmitterAxis / EmitterFacing)で効く
 						//--------------------------------------------------
-						Math::Vector3 _pos;
-						Math::Vector3 _dir;
-						Math::Vector3 _up;
+						const bool _isLocal = _part.IsLocalSimulation(_pParticle);
 
 						// 席が取れていなければ 0(単位行列)になり、ワールド空間として出る
 						UINT _emitterIndex = 0;
-						if (_pParticle->IsLocalSpace())
+						if (_isLocal)
 						{
 							_emitterIndex = Engine::Particle::EmitterSlotPool::ToGPUIndex(_runtime.emitterSlot);
 						}
 
-						if (_emitterIndex != 0)
+						// 持ち主の座標系 → 粒を保存する空間(Local は席の座標系のままなので単位行列)
+						Math::Matrix _ownerToSim = Math::Matrix::Identity();
+						if (_emitterIndex == 0)
 						{
-							//----------------------------------------------
-							// ローカル空間 : 発生源の行列を掛けずに出す
-							//----------------------------------------------
-							// 置き場とパーツのオフセットだけを合成する。
-							// _effectWorld から発生源の行列を除いたものと同じ組み立て
-							// (席の行列は拡縮を落としてあるので、持ち主のスケールはオフセットに掛からない)
-							const Math::Matrix _localMat =
-								Math::Matrix::CreateScale(_effectScale) *
-								_placeRot *
-								Math::Matrix::CreateTranslation(_override.overridePosOffset);
-
-							_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _localMat);
-							_dir = Math::Vector3::TransformNormal(Math::Vector3(_part.emitDir), _placeRot);
-							_up  = Math::Vector3::TransformNormal(Math::Vector3(0.0f, 1.0f, 0.0f), _placeRot);
+							_ownerToSim = _ownerRT;
 						}
-						else
+
+						const Math::Matrix _placeToSim    = _placeMat * _ownerToSim;	// 位置用(エフェクトの拡縮込み)
+						const Math::Matrix _placeRotToSim = _placeRot * _ownerToSim;	// 向き用(長さは MakeEmitMatrix が揃える)
+
+						Math::Vector3 _pos;
+						Math::Vector3 _dir;
+						const Math::Vector3 _up = Math::Vector3::TransformNormal(Math::Vector3(0.0f, 1.0f, 0.0f), _placeRotToSim);
+
+						switch (_part.space)
 						{
-							//----------------------------------------------
-							// ワールド空間 : 出した場所にそのまま残る
-							//----------------------------------------------
-							// 上の手がかりは置き場の +Y(機体が傾けば一緒に傾く)
-							_up = Math::Vector3::TransformNormal(Math::Vector3(0.0f, 1.0f, 0.0f), _placeToWorld);
+						case Engine::Resource::EEffectSpace::WorldMatrix:
+							// 置き場の原点と前方向(+Z)
+							_pos = _placeToSim.Translation();
+							_dir = Math::Vector3::TransformNormal(Math::Vector3(0.0f, 0.0f, 1.0f), _placeRotToSim);
+							break;
 
-							switch (_part.space)
+						case Engine::Resource::EEffectSpace::ReverseVelocity:
+						{
+							// 進行方向の逆へ吹く(噴射・排気)。
+							// 弾やミサイルは見た目の姿勢が進行方向と一致しないので、
+							// 行列の軸ではなく実際の速度から向きを取る(置き場の回転も使わない)。
+							// DesiredVelocityComponent はこのクエリに含めない
+							// (持たないエンティティのエフェクトまで止まってしまうため)
+							_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _placeToSim);
+
+							// 速度はワールドの向き
+							Math::Vector3 _worldDir;
+
+							// RefData は持っていないコンポーネントなら nullptr を返す
+							if (a_ctx.pWorld->HasComponent<DesiredVelocityComponent>(_self))
 							{
-							case Engine::Resource::EEffectSpace::WorldMatrix:
-								// 置き場のワールド位置と前方向(+Z)
-								_pos = _effectWorld.Translation();
-								_dir = Math::Vector3::TransformNormal(Math::Vector3(0.0f, 0.0f, 1.0f), _placeToWorld);
-								break;
-
-							case Engine::Resource::EEffectSpace::ReverseVelocity:
-							{
-								// 進行方向の逆へ吹く(噴射・排気)。
-								// 弾やミサイルは見た目の姿勢が進行方向と一致しないので、
-								// 行列の軸ではなく実際の速度から向きを取る(置き場の回転も使わない)。
-								// DesiredVelocityComponent はこのクエリに含めない
-								// (持たないエンティティのエフェクトまで止まってしまうため)
-								_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _effectWorld);
-
-								// RefData は持っていないコンポーネントなら nullptr を返す
-								if (a_ctx.pWorld->HasComponent<DesiredVelocityComponent>(_self))
+								if (const auto* _pVel = a_ctx.pWorld->RefData<DesiredVelocityComponent>(_self))
 								{
-									if (const auto* _pVel = a_ctx.pWorld->RefData<DesiredVelocityComponent>(_self))
-									{
-										_dir = -Math::Vector3(_pVel->value);
-									}
+									_worldDir = -Math::Vector3(_pVel->value);
 								}
-
-								// 止まっている(または速度を持たない)ときは後ろ向き＝ローカル +Z の逆
-								if (_dir.LengthSquared() <= 1e-8f)
-								{
-									_dir = -Math::Vector3(_ownerWorld._31, _ownerWorld._32, _ownerWorld._33);
-								}
-								break;
 							}
 
-							case Engine::Resource::EEffectSpace::LocalOffset:
-							default:
-								// 置き場を基準に、パーツのオフセット位置・向きを合成
-								_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _effectWorld);
-								_dir = Math::Vector3::TransformNormal(Math::Vector3(_part.emitDir), _placeToWorld);
-								break;
+							// 止まっている(または速度を持たない)ときは後ろ向き＝持ち主の +Z の逆
+							if (_worldDir.LengthSquared() <= 1e-8f)
+							{
+								_worldDir = -Math::Vector3(_ownerRT._31, _ownerRT._32, _ownerRT._33);
 							}
+
+							// ローカルで回す粒なら、席の座標系へ戻す。
+							// 席は拡縮を落とした行列なので、回転の逆は転置で済む
+							_dir = (_emitterIndex != 0)
+								? Math::Vector3::TransformNormal(_worldDir, _ownerRT.Transpose())
+								: _worldDir;
+							break;
+						}
+
+						case Engine::Resource::EEffectSpace::LocalOffset:
+						default:
+							// 置き場を基準に、パーツのオフセット位置・向きを合成
+							_pos = Math::Vector3::Transform(Math::Vector3(_part.posOffset), _placeToSim);
+							_dir = Math::Vector3::TransformNormal(Math::Vector3(_part.emitDir), _placeRotToSim);
+							break;
 						}
 
 						//--------------------------------------------------

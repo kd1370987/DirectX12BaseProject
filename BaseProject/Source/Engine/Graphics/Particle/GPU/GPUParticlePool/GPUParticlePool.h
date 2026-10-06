@@ -88,24 +88,22 @@ namespace Engine::Particle
 		Handle<Resource::ParticlesAsset> m_assetHandle;
 
 		// GPU側データ
-		// メインのパーティクルデータプール
-		D3D12::RWStructuredBuffer<ParticleData> m_particlePool;
-
-		// 空き番号管理用 DeadList
-		D3D12::RWStructuredBuffer<uint32_t> m_deadList;
-
-		// カウンター : デッドリストに残っている空き番号の数
-		D3D12::RWStructuredBuffer<uint32_t> m_counterBuffer;
+		D3D12::RWStructuredBuffer<ParticleData> m_particlePool;		// メインのパーティクルデータプール
+		D3D12::RWStructuredBuffer<uint32_t> m_deadList;				// 空き番号管理用 DeadList
+		D3D12::RWStructuredBuffer<uint32_t> m_counterBuffer;		// カウンター : デッドリストに残っている空き番号の数
 
 		// 間接描画の引数 : D3D12_DRAW_INDEXED_ARGUMENTS(uint ×5)
 		static constexpr UINT DRAW_ARGS_ELEMENT_NUM = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS) / sizeof(uint32_t);
 		D3D12::RWStructuredBuffer<uint32_t> m_drawArgs;
-		bool m_isArgsReady = false;				// このフレームの引数を用意したか
+		bool m_isArgsReady = false;									// このフレームの引数を用意したか
 
 		// 生存リスト : 容量ぶん(生きている粒は容量を超えない)
 		D3D12::RWStructuredBuffer<uint32_t> m_aliveList;
 
 		// 最大容量 (アセットから取得したキャパシティ) 
 		UINT m_maxCapacity = 10000;
+ 
+
+
 	};
 }

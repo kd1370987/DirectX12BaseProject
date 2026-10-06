@@ -18,6 +18,10 @@ namespace Engine::Resource
 
 	//==========================================================================================
 	// 発生源の取り方 : エフェクトがついているものにたいして基準を選ぶ 末尾に追加必須
+	//
+	// 「出す瞬間の位置と向きをどう決めるか」だけを選ぶ。
+	// 出したあとの粒をどの座標系で回すか(シミュレーション空間)は EEffectSimulationSpace。
+	// 名前に Local / World が入っているが、両者は別物なので混ぜないこと
 	//==========================================================================================
 	enum class EEffectSpace : uint32_t
 	{
@@ -28,6 +32,27 @@ namespace Engine::Resource
 	};
 
 	const char* ToString(EEffectSpace a_space);
+
+	//==========================================================================================
+	// 出した粒をどの座標系で回すか(パーツ単位の上書き) : 末尾に追加必須(値は保存される)
+	//
+	//   Inherit : パーティクルアセットの SimulationSpace に従う(既定)
+	//   World   : 出した瞬間にワールドへ置き、そのまま回す。発生源が動いても置き去り(煙・爆発・軌跡)
+	//   Local   : 発生源(エフェクトの持ち主)の座標系で回し、描くときにワールドへ戻す。
+	//             発生源にくっついて動く(ブースターの噴射)
+	//
+	// どちらでも、出す瞬間の位置・向き・散らばりは同じ式で決まる(違うのは出したあとに追従するかだけ)。
+	// 粒は自分がどの発生源の座標系かを席番号で持つので、同じパーティクルアセットを
+	// あるエフェクトでは Local、別のエフェクトでは World で使ってよい
+	//==========================================================================================
+	enum class EEffectSimulationSpace : uint32_t
+	{
+		Inherit,	// パーティクルアセットの設定に従う
+		World,		// ワールドで回す
+		Local,		// 発生源の座標系で回す
+	};
+
+	const char* ToString(EEffectSimulationSpace a_space);
 
 	//==========================================================================================
 	// パーツがいつ動き出すか : 末尾に追加必須(値は保存される)
@@ -145,6 +170,8 @@ namespace Engine::Resource
 		Handle<ParticlesAsset> particleHandle = {};		// ランタイム用(読み込み時に解決)
 
 		// ---- どこから出すか ----
+		// 位置と向きはエフェクトの置き場から見た値(持ち主のスケールは掛からない。
+		// 粒の大きさ・速さ・散らばりにも掛からないのと揃えてある)
 		EEffectSpace space = EEffectSpace::LocalOffset;
 		Math::Vector3 posOffset = { 0.0f, 0.0f, 0.0f };	// 相手の行列基準の発生位置
 		Math::Vector3 emitDir = { 0.0f, 0.0f, 1.0f };	// 相手の行列基準の発生方向
@@ -172,7 +199,16 @@ namespace Engine::Resource
 		float positionRadius = 0.5f;	// 発生位置のばらつき半径
 		float directionAngle = 10.0f;	// 発生方向のばらつき(度)。Cone のときだけ効く
 
+		// ---- 出したあと、どの座標系で回すか ----
+		EEffectSimulationSpace simulationSpace = EEffectSimulationSpace::Inherit;
+
 		bool IsValid() const { return particleGUID != Engine::DefaultGUID; }
+
+		/// <summary>
+		/// 発生源の座標系で回すか(パーツの上書き → パーティクルアセットの設定の順で決める)
+		/// </summary>
+		/// <param name="a_pParticle">このパーツのパーティクルアセット。引けていなければ nullptr(World 扱い)</param>
+		bool IsLocalSimulation(const ParticlesAsset* a_pParticle) const;
 
 		void Archive(Persistence::Archive& a_ar);
 	};

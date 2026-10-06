@@ -338,6 +338,29 @@ Phase 6(移行と削除)に要る順に並べる。5-E・5-F は無くても Pha
 
 ---
 
+## 追補 : パーティクルの空間の整理(案B、2026-10-06)
+
+監査の結果、目標の「形状はローカルで作る → Local で回す / 出した瞬間に World へ → 最後にワールド」は
+GPU 側ではすでにその形だった(発生 CS は +Z のローカルで形状を作り emitMatrix を1回だけ掛ける。
+Local の粒は席番号を持ち、VS で席の行列を pos / velocity / orientation に掛ける。二重変換は無い)。
+そこで GPU には触らず、CPU 側とデータだけを整理した。
+
+| 変更 | 内容 |
+|---|---|
+| 空間をパーツで選ぶ | `EffectParticlePart::simulationSpace`(Inherit / World / Local、既定 Inherit = 今まで通り)。`IsLocalSimulation()` で判定。保存は末尾 `SimulationSpace` |
+| 出す瞬間の式を一本化 | `EffectDrawSystem` : 置き場 `_placeMat` に、Local は単位行列・World は「拡縮を落とした持ち主」を掛けるだけ。出す瞬間の位置と向きは Local / World で一致する |
+| 持ち主の拡縮 | パーティクルの発生位置・向きには掛けない(粒の大きさ・速さ・散らばり・席と同じ)。メッシュとライトのパーツは今まで通り掛ける |
+| Local でも space が効く | WorldMatrix / ReverseVelocity も Local の粒で使える(速度の向きは席の回転の逆で席の座標系へ戻す) |
+| エディター | パーツに SimulationSpace 欄(Inherit のとき実際の空間を表示)。エフェクトエディターに持ち主の回転と円運動(Owner Rotation / Owner Orbit) |
+| 古い記述 | `ParticleData.h`・パーティクルアセットの編集の「重力はローカル軸」「発生源は 8 個まで」を直した |
+
+- 既存データの見た目 : 変わらない見込み。パーツの posOffset はすべて 0 で、0 でないのは BoosterEffectComponent の置き場だけ。
+  それを使うエフェクトはすべて Local で、Local の式は変えていない。World で拡縮のある持ち主(Missile / RazerBullet 0.1)はオフセット 0
+- 噴き出す向きの決まりは +Z のまま(+Y に変えるのは全パーツの EmitDir と EmitterAxis の決まりを移す手間に見合わない)
+- やっていないこと(案C) : 席に置き場まで入れて「エフェクトの空間」で回すこと。置き場(向き・effectScale)は今も出した瞬間に粒へ焼き込まれる
+
+---
+
 ## 付録 : 作成中の EmitterSlotPool へのコメント(2026-10-05 時点)
 
 方向性(全体共通の表・世代付きハンドル・足りなければ伸ばす)は合っている。変えた方がよい点:
