@@ -509,7 +509,7 @@ Context
 
 # 5. PCH
 
-`Pch.h / Pch.cpp` を各分類のトップとして使用する。
+`Pch.h / Pch.cpp` を各分類のトップとして使用する。各 .cpp は自分の分類の PCH を強制インクルードする。
 
 ## 5.1 Common PCH
 
@@ -520,6 +520,20 @@ Context
 各分類では、トップの PCH を Include した上で、その分類で頻繁に使用するヘッダを分類別 PCH に登録する。
 
 特定のクラスでしか使用しないヘッダは、各 `.h / .cpp` 側で直接 Include する。
+
+| PCH | 使う .cpp | 中身 |
+| --- | --- | --- |
+| `Pch.h` | 外部ライブラリの .cpp(imgui など) | STL / Windows / DirectX / 外部ライブラリ |
+| `Core/CorePCH.h` | `Source/Core` | `Pch.h` + `Core/Core.h` |
+| `Engine/EnginePCH.h` | `Source/Engine`(vcxproj の既定) | `Pch.h` + `Engine/EngineCommon.h` |
+| `Application/AppPCH.h` | `Source/Application`・`main.cpp` | `Pch.h` + `EngineCommon.h` + `Application/AppCommon.h` |
+| `Editor/EditorPCH.h` | `Source/Editor` | `Pch.h` + `EngineCommon.h` + `AppCommon.h` + ImGui + `Editor/EditorCommon.h` |
+
+* 各 PCH は `XxxPCH.cpp`(Create)で作り、`$(IntDir)XxxPCH.pch` に出す。
+* .cpp を足したら、vcxproj で `PrecompiledHeaderFile` / `PrecompiledHeaderOutputFile` / `ForcedIncludeFiles` を分類の PCH にする
+  (既定は EnginePCH。分類と PCH が合っていないとビルド時の `CheckPch` で止まる)。
+* 分類の外から読まれるヘッダーは PCH に頼らない。上の層のヘッダーを読むときは、その層の共通ヘッダー
+  (`AppCommon.h` など)を自分で Include する(例 : `Application/Object/UI/Decoration.h`)。
 
 ---
 

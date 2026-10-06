@@ -79,14 +79,15 @@
       <!-- 複数コアで並列コンパイルする(/MP)。368TUを1プロセスで直列に回すのを止める -->
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Engine/EnginePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EnginePCH.pch</PrecompiledHeaderOutputFile>
       <!-- obj は $(IntDir) 直下へ平らに出す。
            ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
            cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
            同名 .cpp があると obj が黙って上書きされるので、ファイル名は
            プロジェクト全体で一意にすること(アプリ側は APP 接頭辞で避ける) -->
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12;$(ProjectDir)..\Library\Include\Jolt</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>Engine/EnginePCH.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- RTTI は使わない方針。型は Engine::TypeInfo で扱う(Utility/TypeInfo/TypeInfo.h) -->
@@ -126,14 +127,15 @@
       <!-- 複数コアで並列コンパイルする(/MP)。368TUを1プロセスで直列に回すのを止める -->
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Engine/EnginePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EnginePCH.pch</PrecompiledHeaderOutputFile>
       <!-- obj は $(IntDir) 直下へ平らに出す。
            ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
            cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
            同名 .cpp があると obj が黙って上書きされるので、ファイル名は
            プロジェクト全体で一意にすること(アプリ側は APP 接頭辞で避ける) -->
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12;$(ProjectDir)..\Library\Include\Jolt</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>Engine/EnginePCH.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- RTTI は使わない方針。型は Engine::TypeInfo で扱う(Utility/TypeInfo/TypeInfo.h) -->
@@ -174,13 +176,14 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12;$(ProjectDir)..\Library\Include\Jolt</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Engine/EnginePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EnginePCH.pch</PrecompiledHeaderOutputFile>
       <!-- obj は $(IntDir) 直下へ平らに出す。
            ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
            cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
            同名 .cpp があると obj が黙って上書きされるので、ファイル名は
            プロジェクト全体で一意にすること(アプリ側は APP 接頭辞で避ける) -->
-      <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>Engine/EnginePCH.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- RTTI は使わない方針。型は Engine::TypeInfo で扱う(Utility/TypeInfo/TypeInfo.h) -->
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -224,13 +227,14 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)..\Library\Include;$(ProjectDir)..\Library\Include\DirectXMesh-main;$(ProjectDir)..\Library\Include\imgui-docking;$(ProjectDir)..\Library\Include\ImGuizmo-master;$(ProjectDir)..\Library\Include\imnodes-master;$(ProjectDir)..\Library\Include\DXC;$(ProjectDir)..\Library\Include\stb-master;$(ProjectDir)..\Library\Include\DirectXTex;$(ProjectDir)..\Library\Include\DirectX12;$(ProjectDir)..\Library\Include\DirectXTK12;$(ProjectDir)..\Library\Include\Jolt</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Engine/EnginePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EnginePCH.pch</PrecompiledHeaderOutputFile>
       <!-- obj は $(IntDir) 直下へ平らに出す。
            ここに %(RelativeDir) のような項目ごとに変わる値を書くと、MSBuild が
            cl.exe をソース1本ずつ呼ぶようになり /MP が一切効かなくなる(実測 7倍差)。
            同名 .cpp があると obj が黙って上書きされるので、ファイル名は
            プロジェクト全体で一意にすること(アプリ側は APP 接頭辞で避ける) -->
-      <ForcedIncludeFiles>Pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>Engine/EnginePCH.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- RTTI は使わない方針。型は Engine::TypeInfo で扱う(Utility/TypeInfo/TypeInfo.h) -->
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -263,10 +267,36 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Application\Systems\Effect\EffectEventSystem.cpp" />
+    <ClCompile Include="Source\Application\AppPCH.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EnginePCH.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>Engine/EnginePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EnginePCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Engine/EnginePCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Core\CorePCH.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>Core/CorePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)CorePCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Core/CorePCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Effect\EffectEventSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Effect\EffectInstance.cpp" />
     <ClCompile Include="Source\Engine\Effect\EffectPlayer.cpp" />
-    <ClCompile Include="Source\Application\Systems\Render\GroundEffectSetSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Render\GroundEffectSetSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Editor\Helper\EditorField.cpp">
       <PrecompiledHeaderFile>Editor/EditorPCH.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
@@ -277,171 +307,733 @@
     <ClCompile Include="Source\Engine\Graphics\Frame\SceneView\SceneView.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Device\RenderDevice\RenderDevice.cpp" />
     <ClCompile Include="..\Library\Include\imgui-docking\imgui.cpp">
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\imgui.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_demo.cpp">
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\imgui_demo.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_draw.cpp">
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\imgui_draw.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_dx12.cpp">
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\imgui_impl_dx12.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_win32.cpp">
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\imgui_impl_win32.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_stdlib.cpp">
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\imgui_stdlib.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_tables.cpp">
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\imgui_tables.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_widgets.cpp">
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\imgui_widgets.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\ImGuizmo.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imnodes-master\imnodes.cpp">
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\imnodes.obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="Source\Application\App.cpp" />
+    <ClCompile Include="Source\Application\App.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Effect\BeamRenderer\BeamRenderer.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ZPrePass\GroundDepth.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.cpp" />
-    <ClCompile Include="Source\Application\Utility\EffectPrefabSpawnHelper.cpp" />
-    <ClCompile Include="Source\Application\Systems\Effect\DebrisEmitterSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Effect\BallisticSystem.cpp" />
-    <ClCompile Include="Source\Application\Editor\CompEditHelper\CompEditHelper.cpp" />
-    <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp" />
-    <ClCompile Include="Source\Application\Game\InputActions\InputManager\InputActionManager.cpp" />
-    <ClCompile Include="Source\Application\Game\UserData\UserData.cpp" />
-    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.cpp" />
-    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.cpp" />
-    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\CoilAttack\CoilAttack.cpp" />
-    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Reorganize\Reorganize.cpp" />
-    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Common\BallMotion.cpp" />
-    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Death\Death.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\SwarmBurstSystem.cpp" />
-    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.cpp" />
-    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.cpp" />
-    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge\ChargeState.cpp" />
-    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack\UperAttack.cpp" />
-    <ClCompile Include="Source\Application\Object\Scene\InputBinding\InputBinding.cpp" />
-    <ClCompile Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\MissileLockBoxHUD\MissileLockBoxHUD.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\UIManager.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\WaveAnnounceHUD\WaveAnnounceHUD.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.cpp" />
-    <ClCompile Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\UIBase.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\Decoration.cpp" />
-    <ClCompile Include="Source\Application\Object\SequenceBgm.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\UIButton\UIButton.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\UIGauge\UIGauge.cpp" />
-    <ClCompile Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.cpp" />
-    <ClCompile Include="Source\Application\Object\Scene\AmbientDustObject\AmbientDustObject.cpp" />
-    <ClCompile Include="Source\Application\Systems\Render\AnimationOptionalDraw.cpp" />
-    <ClCompile Include="Source\Application\Systems\Render\DynamicObjectDrawSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Render\RegisterAnimatedRayWorldSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Render\RegisterRayWorldSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Render\SkinningRegisterSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Render\StaticObjectDrawSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Render\RegisterPrevWorldMatSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Camera\CamSetShaderSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Camera\CameraPipelineSubmitSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Camera\CameraPipelineFixupSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Render\PointLightSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Render\ApplyEmissiveOverrideSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Camera\FollowTargetLinkSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Transform\HierarchyLinkSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Core\GUIDFixupSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentSlotLinkSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Render\ModelFixupSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\StateMachineFixupSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\AdditivePoseLinkSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\AnimationModelStartSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentNodeLinkSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Camera\CameraStartSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Weapon\GunStateStartSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Physics\RegisterPhysicsBodySystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\AdditivePoseFreeSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\AnimationMatrixFreeSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Audio\SoundFreeSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Physics\PhysicsBodyFreeSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Camera\AimTargetSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Camera\TPSSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Camera\CameraProjUpdateSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Camera\RadialBlurSpeedSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Camera\MainCameraSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Input\InputActionSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Input\InputMoveSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Physics\CapsuleCollisionSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Physics\HitDetectSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Physics\PositionIntegrationSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Physics\MovementIntegrationSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Physics\RayCollisionSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Physics\SphereCollisionSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\AdditivePoseSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\LowerBodyTurnSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\AnimationSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\CalcNodeSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Transform\FollowAnimationNodeSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Transform\CommitHierarchyWorldMatrixSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Transform\CalcMatrixSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Combat\LockOnTargetSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Weapon\MissileSalvoSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Weapon\ProjectileSpawn.cpp" />
-    <ClCompile Include="Source\Application\Systems\Transform\HierarchyTransform.cpp" />
-    <ClCompile Include="Source\Application\Systems\Weapon\MissileSalvo.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boss\BossCombatIntentSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boss\BossMissileSalvoSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Combat\ExplodeOnHitSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Combat\HealthSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Core\LifeTimeSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Combat\DeathStateSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Effect\GroundImpulseEmitSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Combat\HealthFixupSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\FollowLeaderSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\PlatoonFollowSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\SwarmLookSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\SwarmLeaderMoveSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\BoidWaveSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\SerchGroundSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\BoidGroundEffectSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\BoidContactDamageSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\SwarmMissileSystem.cpp" />
-    <ClCompile Include="Source\Application\Utility\PrefabSpawnHelper.cpp" />
-    <ClCompile Include="Source\Application\Utility\EffectSpawnHelper.cpp" />
-    <ClCompile Include="Source\Application\Systems\Audio\AudioListenerSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\SkinningSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Physics\CollisionEventClearSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Combat\HitEventClearSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\PlayerIntentSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentDispatchSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Weapon\SelfWeaponTriggerSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Audio\BoostSoundSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Effect\ThrusterEffectSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Transform\UpdateHierarchyDepthSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Movement\GravitySystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Movement\LockOnRotationSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Physics\SyncPhysicsBodySystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Movement\CharacterMovementSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Movement\RobotBoostSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Movement\ChargeDashSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Combat\ScoreSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Combat\DeathEventClearSystem.cpp" />
-    <ClCompile Include="Source\Application\Object\UI\ScoreHUD\ScoreHUD.cpp" />
-    <ClCompile Include="Source\Application\Object\Sequence\ResultSequence\ResultSequence.cpp" />
-    <ClCompile Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.cpp" />
-    <ClCompile Include="Source\Application\Object\Sequence\PauseSequence\PauseSequence.cpp" />
-    <ClCompile Include="Source\Application\Object\Sequence\MissionSelect\MissionSelect.cpp" />
-    <ClCompile Include="Source\Application\Systems\Movement\RotationSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\StateMachineCommitSystem.cpp" />
+    <ClCompile Include="Source\Application\Utility\EffectPrefabSpawnHelper.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Effect\DebrisEmitterSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Effect\BallisticSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Editor\CompEditHelper\CompEditHelper.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Game\GameManager\GameManager.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Game\InputActions\InputManager\InputActionManager.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Game\UserData\UserData.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossController.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\DiveAttack\DiveAttack.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\CoilAttack\CoilAttack.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Reorganize\Reorganize.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Common\BallMotion.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Death\Death.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\SwarmBurstSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\StateMachine.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmRandomWalk\RandomWalkState.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\SwarmCharge\ChargeState.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\UperAttack\UperAttack.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Scene\InputBinding\InputBinding.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\TargetBoxHUD\TargetBoxHUD.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\MissileLockBoxHUD\MissileLockBoxHUD.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIManager.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\WaveAnnounceHUD\WaveAnnounceHUD.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIBase.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\Decoration.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\SequenceBgm.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIButton\UIButton.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIGauge\UIGauge.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Scene\AmbientDustObject\AmbientDustObject.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Render\AnimationOptionalDraw.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Render\DynamicObjectDrawSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Render\RegisterAnimatedRayWorldSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Render\RegisterRayWorldSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Render\SkinningRegisterSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Render\StaticObjectDrawSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Render\RegisterPrevWorldMatSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Camera\CamSetShaderSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Camera\CameraPipelineSubmitSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Camera\CameraPipelineFixupSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Render\PointLightSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Render\ApplyEmissiveOverrideSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Camera\FollowTargetLinkSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Transform\HierarchyLinkSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Core\GUIDFixupSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentSlotLinkSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Render\ModelFixupSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\StateMachineFixupSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\AdditivePoseLinkSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\AnimationModelStartSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentNodeLinkSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Camera\CameraStartSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\GunStateStartSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Physics\RegisterPhysicsBodySystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\AdditivePoseFreeSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\AnimationMatrixFreeSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Audio\SoundFreeSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Physics\PhysicsBodyFreeSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Camera\AimTargetSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Camera\TPSSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Camera\CameraProjUpdateSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Camera\RadialBlurSpeedSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Camera\MainCameraSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Input\InputActionSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Input\InputMoveSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Physics\CapsuleCollisionSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Physics\HitDetectSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Physics\PositionIntegrationSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Physics\MovementIntegrationSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Physics\RayCollisionSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Physics\SphereCollisionSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\AdditivePoseSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\LowerBodyTurnSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\AnimationSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\CalcNodeSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Transform\FollowAnimationNodeSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Transform\CommitHierarchyWorldMatrixSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Transform\CalcMatrixSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Combat\LockOnTargetSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\MissileSalvoSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\ProjectileSpawn.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Transform\HierarchyTransform.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\MissileSalvo.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boss\BossCombatIntentSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boss\BossMissileSalvoSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Combat\ExplodeOnHitSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Combat\HealthSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Core\LifeTimeSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Combat\DeathStateSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Effect\GroundImpulseEmitSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Combat\HealthFixupSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\FollowLeaderSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\PlatoonFollowSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\SwarmLookSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\SwarmLeaderMoveSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\BoidWaveSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\SerchGroundSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\BoidGroundEffectSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\BoidContactDamageSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\SwarmMissileSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Utility\PrefabSpawnHelper.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Utility\EffectSpawnHelper.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Audio\AudioListenerSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\SkinningSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Physics\CollisionEventClearSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Combat\HitEventClearSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\PlayerIntentSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentDispatchSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\SelfWeaponTriggerSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Audio\BoostSoundSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Effect\ThrusterEffectSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Transform\UpdateHierarchyDepthSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Movement\GravitySystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Movement\LockOnRotationSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Physics\SyncPhysicsBodySystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Movement\CharacterMovementSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Movement\RobotBoostSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Movement\ChargeDashSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Combat\ScoreSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Combat\DeathEventClearSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\ScoreHUD\ScoreHUD.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\ResultSequence\ResultSequence.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\HomeSequence\HomeSequence.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\PauseSequence\PauseSequence.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\MissionSelect\MissionSelect.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Movement\RotationSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\StateMachineCommitSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Animation\AnimationEvaluator\AnimationEvaluator.cpp" />
     <ClCompile Include="Source\Engine\Audio\AudioManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\Archetype\ArchetypeManager.cpp" />
@@ -665,8 +1257,16 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\BaseObject\BaseObject.cpp" />
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.cpp" />
-    <ClCompile Include="Source\Application\ECS\World\APPWorld.cpp" />
-    <ClCompile Include="Source\Application\ECS\World\WorldTypeRegister.cpp" />
+    <ClCompile Include="Source\Application\ECS\World\APPWorld.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\ECS\World\WorldTypeRegister.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\GraphicsEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\LightManager\LightManager.cpp" />
@@ -751,7 +1351,11 @@
     <ClCompile Include="Source\Engine\Option\ProjectOptions\CursorOption.cpp" />
     <ClCompile Include="Source\Engine\Option\ProjectOptions\AudioOption.cpp" />
     <ClCompile Include="Source\Engine\Graphics\DebugDraw\DebugDraw.cpp" />
-    <ClCompile Include="Source\Application\Game\MouseCursor\MouseCursor.cpp" />
+    <ClCompile Include="Source\Application\Game\MouseCursor\MouseCursor.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Particle\GPU\EmitterSlotPool\EmitterSlotPool.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Particle\GPU\GPUParticlePool\GPUParticlePool.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Particle\ParticleBufferManager.cpp" />
@@ -793,14 +1397,46 @@
     <ClCompile Include="Source\Engine\Resource\Data\Shader\Shader.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\AnimatorAsset\IO\AnimatorAssetIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\AnimatorAsset\AnimatorAsset.cpp" />
-    <ClCompile Include="Source\Application\Systems\Enemy\SearchPlayerSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Movement\FaceTargetSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Weapon\HomingSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Enemy\CloseCombatIntentSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Enemy\EnemyShootIntentSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Enemy\EnemyMoveIntentSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Movement\LookAroundSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Enemy\EnemyMovementSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Enemy\SearchPlayerSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Movement\FaceTargetSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\HomingSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Enemy\CloseCombatIntentSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Enemy\EnemyShootIntentSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Enemy\EnemyMoveIntentSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Movement\LookAroundSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Enemy\EnemyMovementSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\Sound\IO\SoundIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Sound\Sound.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\AudioBehavior\AudioBehavior.cpp" />
@@ -812,10 +1448,26 @@
       <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>Editor/EditorPCH.h</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Effect\EffectFixupSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Effect\EffectUpdateSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Effect\BoosterEffectSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Effect\EffectDrawSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Effect\EffectFixupSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Effect\EffectUpdateSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Effect\BoosterEffectSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Effect\EffectDrawSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Resource\StateGraph\StateGraphTypes.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Creater\TextureCreater.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Texture\IO\Importer\TextureImporter.cpp" />
@@ -831,15 +1483,47 @@
     <ClCompile Include="Source\Engine\Time\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Source\Engine\Time\FPSController\FPSController.cpp" />
     <ClCompile Include="Source\Engine\Time\TimeManager.cpp" />
-    <ClCompile Include="Source\Core\BinaryHelper\BinaryHelper.cpp" />
-    <ClCompile Include="Source\Core\GUID\GUID.cpp" />
-    <ClCompile Include="Source\Core\Math\Vector\Vector3.cpp" />
-    <ClCompile Include="Source\Core\Math\Vector\Vector2.cpp" />
-    <ClCompile Include="Source\Core\Math\Vector\Vector4.cpp" />
-    <ClCompile Include="Source\Core\Math\Quaternion.cpp" />
-    <ClCompile Include="Source\Core\Math\Matrix.cpp" />
+    <ClCompile Include="Source\Core\BinaryHelper\BinaryHelper.cpp">
+      <PrecompiledHeaderFile>Core/CorePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)CorePCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Core/CorePCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Core\GUID\GUID.cpp">
+      <PrecompiledHeaderFile>Core/CorePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)CorePCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Core/CorePCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Math\Vector\Vector3.cpp">
+      <PrecompiledHeaderFile>Core/CorePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)CorePCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Core/CorePCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Math\Vector\Vector2.cpp">
+      <PrecompiledHeaderFile>Core/CorePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)CorePCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Core/CorePCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Math\Vector\Vector4.cpp">
+      <PrecompiledHeaderFile>Core/CorePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)CorePCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Core/CorePCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Math\Quaternion.cpp">
+      <PrecompiledHeaderFile>Core/CorePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)CorePCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Core/CorePCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Math\Matrix.cpp">
+      <PrecompiledHeaderFile>Core/CorePCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)CorePCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Core/CorePCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Window\NativeWindow.cpp" />
-    <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\main.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Editor\EditorPCH.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>Editor/EditorPCH.h</PrecompiledHeaderFile>
@@ -847,22 +1531,61 @@
       <ForcedIncludeFiles>Editor/EditorPCH.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="Source\Pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="Source\Application\Systems\Render\ModelReadyGateSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentReadyGateSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\BoidSnapshotSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\BoidSteeringSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Boid\PlatoonAxisSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Weapon\GunTriggerSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Weapon\GunProjectileSpawnSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Weapon\MuzzleFlashSystem.cpp" />
-    <ClCompile Include="Source\Application\Systems\Animation\AnimatorFreeSystem.cpp" />
+    <ClCompile Include="Source\Application\Systems\Render\ModelReadyGateSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Attachment\AttachmentReadyGateSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\BoidSnapshotSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\BoidSteeringSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Boid\PlatoonAxisSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\GunTriggerSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\GunProjectileSpawnSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Weapon\MuzzleFlashSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Systems\Animation\AnimatorFreeSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Application\AppPCH.h" />
+    <ClInclude Include="Source\Engine\EnginePCH.h" />
+    <ClInclude Include="Source\Core\CorePCH.h" />
     <ClInclude Include="Source\Editor\EditorCommon.h" />
     <ClInclude Include="Source\Application\AppCommon.h" />
     <ClInclude Include="Source\Core\Core.h" />
@@ -2053,14 +2776,20 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
   <!--
-    エディター配下(Source\Editor)の .cpp は EditorPCH を使う。
-    共通の Pch.h には ImGui が無いので、付け忘れると ImGui が見えずにエラーになる。
-    原因が分かりにくいので、ここで先に止めてファイル名を出す
+    .cpp は自分の分類の PCH を使う(トップの Pch.h は外部ライブラリの .cpp だけ)。
+      Source\Core\        -> Core/CorePCH.h
+      Source\Engine\      -> Engine/EnginePCH.h(既定)
+      Source\Application\ -> Application/AppPCH.h(main.cpp も)
+      Source\Editor\      -> Editor/EditorPCH.h
+    VS で .cpp を足すと既定(EnginePCH)になるので、Engine 以外に足したらここで止まる。
   -->
-  <Target Name="CheckEditorPch" BeforeTargets="ClCompile">
+  <Target Name="CheckPch" BeforeTargets="ClCompile">
     <ItemGroup>
-      <_EditorCppWithoutEditorPch Include="@(ClCompile)" Condition="$([System.String]::Copy('%(ClCompile.Identity)').StartsWith('Source\Editor\')) And '%(ClCompile.PrecompiledHeaderFile)' != 'Editor/EditorPCH.h'" />
+      <_PchMismatch Include="@(ClCompile)" Condition="$([System.String]::Copy('%(ClCompile.Identity)').StartsWith('Source\Core\')) And '%(ClCompile.PrecompiledHeaderFile)' != 'Core/CorePCH.h'" />
+      <_PchMismatch Include="@(ClCompile)" Condition="$([System.String]::Copy('%(ClCompile.Identity)').StartsWith('Source\Engine\')) And '%(ClCompile.PrecompiledHeaderFile)' != 'Engine/EnginePCH.h'" />
+      <_PchMismatch Include="@(ClCompile)" Condition="$([System.String]::Copy('%(ClCompile.Identity)').StartsWith('Source\Application\')) And '%(ClCompile.PrecompiledHeaderFile)' != 'Application/AppPCH.h'" />
+      <_PchMismatch Include="@(ClCompile)" Condition="$([System.String]::Copy('%(ClCompile.Identity)').StartsWith('Source\Editor\')) And '%(ClCompile.PrecompiledHeaderFile)' != 'Editor/EditorPCH.h'" />
     </ItemGroup>
-    <Error Condition="'@(_EditorCppWithoutEditorPch)' != ''" Text="EditorPCH を使っていないエディターのファイルがあります(vcxproj で PrecompiledHeaderFile / ForcedIncludeFiles を Editor/EditorPCH.h にすること): @(_EditorCppWithoutEditorPch)" />
+    <Error Condition="'@(_PchMismatch)' != ''" Text="分類の PCH を使っていない .cpp があります(vcxproj で PrecompiledHeaderFile / PrecompiledHeaderOutputFile / ForcedIncludeFiles を分類の PCH にすること): @(_PchMismatch)" />
   </Target>
 </Project>

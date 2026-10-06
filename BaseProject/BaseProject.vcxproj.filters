@@ -1335,6 +1335,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Application\AppPCH.cpp">
+      <Filter>Source\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EnginePCH.cpp">
+      <Filter>Source\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\CorePCH.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Effect\EffectEventSystem.cpp">
       <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
@@ -2561,6 +2570,15 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Application\AppPCH.h">
+      <Filter>Source\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EnginePCH.h">
+      <Filter>Source\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\CorePCH.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Editor\EditorCommon.h">
       <Filter>Source\Editor</Filter>
     </ClInclude>

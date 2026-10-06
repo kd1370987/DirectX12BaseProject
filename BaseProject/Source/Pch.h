@@ -123,9 +123,13 @@ namespace DXSM = DirectX::SimpleMath;
 #pragma warning(pop) // 外部ライブラリの警告無効化を解除
 
 //=============================================================================
-// Project Core / Engine (自作ヘッダー)
+// 自作ヘッダーはここに置かない
+//
+// トップの PCH は STL / Windows / DirectX / 外部ライブラリなどの基礎だけ。
+// 自作ヘッダーは分類ごとの PCH が自分の分類のものを足す。
+//   Core/CorePCH.h       : Core
+//   Engine/EnginePCH.h   : Engine(vcxproj の既定)
+//   Application/AppPCH.h : App
+//   Editor/EditorPCH.h   : Editor
+// このファイルを直接使うのは、外部ライブラリの .cpp(imgui など)だけ
 //=============================================================================
-#include "Engine/EngineCommon.h"
-
-// App の共通(App 用の PCH を分けるまではここで読む)
-#include "Application/AppCommon.h"

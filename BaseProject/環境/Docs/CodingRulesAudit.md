@@ -31,7 +31,7 @@
 | Critical | 層の逆流 Engine → App(ファイル数) | 7 | 3 |
 | Critical | 層の逆流 Engine → Editor(ファイル数) | 3 | 3 |
 | Critical | 層の逆流 App → Editor(ファイル数) | 3 | 3 |
-| Critical | PCH 構造(トップ PCH が Engine 全体を読む) | 1 | 1(保留の指示) |
+| Critical | PCH 構造(トップ PCH が Engine 全体を読む) | 1 | **0**(第3回で分類別 PCH に分割) |
 | Critical | 描画の global state(`g_skinning` / `g_particle`) | 2 | **0** |
 | High | global namespace への直接定義 | 269 | **0** |
 | High | `assert` | 95 | **0** |
@@ -79,7 +79,7 @@ Medium   372
 Low      509
 
 修正後:
-Critical   10   (層の逆流 9 ・ PCH 1。どちらも今回は対象外)
+Critical    9   (層の逆流 9。今回は対象外)
 High       23
 Medium     32
 Low       411   (うち役割コメント無し 307)
@@ -354,7 +354,6 @@ ECS の良い点(適合を確認したもの) :
 
 | ファイル | 内容 | 修正しなかった理由 | 推奨対応 |
 | --- | --- | --- | --- |
-| Pch.h / Engine/EngineCommon.h | トップ PCH が Engine 全体 + ForcedInclude | 保留の指示 | ヘッダ単体コンパイルの確認手段を作ってから、トップ / Engine / App / Editor に分ける |
 | Engine/MainEngine.cpp, Engine/Scene/BaseScene/BaseScene.cpp, Engine/Scene/SceneManager/SceneManager.cpp | Engine → Editor(MainEditor の駆動・通知) | REFACTORING_PLAN フェーズ1 の残り。駆動の付け替えが必要 | エディターの駆動を App(最上位)へ移し、Engine からの通知はコールバックに |
 | Engine/MainEngine.cpp, Engine/Scene/BaseScene/BaseScene.cpp, Engine/Resource/Data/Prefab/Prefab.cpp | Engine → App(`App.h` / `GUIDComponent` / `CombatReticleHUD`) | Engine が App の型を直接使っている設計 | GUID の扱いを Engine 側の仕組みへ、HUD は App 側から登録 |
 | Application/App.cpp, GameManager.cpp, InputActionManager.cpp | App → Editor(`::Editor::MainEditor`) | 同上(エディターの起動・ログ表示) | App を最上位の組み立て役にし、MainEditor への依存は main 側へ |
@@ -366,7 +365,18 @@ ECS の良い点(適合を確認したもの) :
 | Component 8 件・`Request*` 10 件・BossCombatIntentSystem | 設計判断 | 前回報告のとおり | 前回報告のとおり |
 | クラス 307 件 / ヘッダ公開関数 77 件 | 役割コメント無し | 大量追加はしない | 触るたびに足す |
 
-### 6.4 Build Result
+### 6.4 第3回の変更(PCH の分割)
+
+* トップの `Pch.h` から自作ヘッダー(EngineCommon.h / AppCommon.h)を外し、STL / Windows / DirectX / 外部ライブラリだけにした。
+  これを使うのは外部ライブラリの .cpp(imgui など 10 本)だけ。
+* 分類別 PCH を追加 : `Core/CorePCH.h`・`Engine/EnginePCH.h`(vcxproj の既定)・`Application/AppPCH.h`(main.cpp も)。
+  `Editor/EditorPCH.h` は Engine / App の共通を明示的に読むように変更。各 PCH は `XxxPCH.cpp` で作り `$(IntDir)XxxPCH.pch` に出す。
+* 設定は分類単位(4 種類)なので、/MP の並列コンパイルはそのまま効く。
+* `CheckEditorPch` を `CheckPch` に広げ、Core / Engine / App / Editor の .cpp が自分の分類の PCH を使っているかをビルド時に検査する。
+* 分割で表面化した include 漏れは 1 件 : Engine の `BaseScene.cpp` が読む App のヘッダー `Decoration.h` が
+  App の Core 取り込み(AppCommon.h)に頼っていたので、ヘッダー自身に include を足した。
+
+### 6.5 Build Result
 
 ```text
 Debug|x64 フルリビルド
@@ -375,6 +385,11 @@ Debug|x64 フルリビルド
 
 Release|x64 フルリビルド
   修正後 : Build: Success / Warning: 2128 / Error: 0
+
+PCH 分割後(第3回)
+  Debug|x64   フルリビルド : Success / Warning: 2164(重複除去 420。種類は修正前と同じ) / Error: 0
+  Release|x64 フルリビルド : Success / Warning: 2136 / Error: 0
+  ※ 総数の +8 は PCH を作る .cpp が増え、同じヘッダーの警告が重複して数えられた分
 ```
 
 実行(起動・シーン読み込み・ゲームモード往復・エディター操作)は確認していない。
