@@ -12,7 +12,7 @@
 #include "Application/Components/Enemy/EnemyTag.h"
 #include "Application/Components/Render/ModelComponent.h"
 
-namespace App::Systems::ProjectileSpawn
+namespace App::System::ProjectileSpawn
 {
 	namespace
 	{
@@ -27,7 +27,7 @@ namespace App::Systems::ProjectileSpawn
 		// (撃った本体が渡ってくる前提だが、辿っておけば銃を直接渡されても壊れない)。
 		// 見つからなければプレイヤー側とみなす。
 		//------------------------------------------------------------------------------
-		ECollisionLayer ResolveProjectileLayer(Engine::ECS::World& a_world, Engine::ECS::Entity a_shooter)
+		Component::ECollisionLayer ResolveProjectileLayer(Engine::ECS::World& a_world, Engine::ECS::Entity a_shooter)
 		{
 			constexpr int MAX_DEPTH = 8;
 
@@ -37,15 +37,15 @@ namespace App::Systems::ProjectileSpawn
 			{
 				if (_entity == Engine::ECS::Limits::INVALID_ENTITY) break;
 
-				if (a_world.HasComponent<EnemyTag>(_entity)) return ECollisionLayer::EnemyProjectile;
+				if (a_world.HasComponent<Component::EnemyTag>(_entity)) return Component::ECollisionLayer::EnemyProjectile;
 
-				if (!a_world.HasComponent<HierarchyComponent>(_entity)) break;
-				const auto* _pHierarchy = a_world.RefData<HierarchyComponent>(_entity);
+				if (!a_world.HasComponent<Component::HierarchyComponent>(_entity)) break;
+				const auto* _pHierarchy = a_world.RefData<Component::HierarchyComponent>(_entity);
 				if (!_pHierarchy) break;
 				_entity = _pHierarchy->parentID;
 			}
 
-			return ECollisionLayer::PlayerProjectile;
+			return Component::ECollisionLayer::PlayerProjectile;
 		}
 
 		//------------------------------------------------------------------------------
@@ -66,19 +66,19 @@ namespace App::Systems::ProjectileSpawn
 		// 斉射したミサイルが発射直後にぶつかって消える。
 		// 相手側は残してあるので、敵のミサイルは今までどおり撃ち落とせる。
 		//------------------------------------------------------------------------------
-		ECollisionLayer MakeProjectileCollideLayer(ECollisionLayer a_myLayer)
+		Component::ECollisionLayer MakeProjectileCollideLayer(Component::ECollisionLayer a_myLayer)
 		{
-			const bool _isEnemySide = (a_myLayer == ECollisionLayer::EnemyProjectile);
+			const bool _isEnemySide = (a_myLayer == Component::ECollisionLayer::EnemyProjectile);
 
-			const ECollisionLayer _otherSide = _isEnemySide
-				? ECollisionLayer::PlayerProjectile
-				: ECollisionLayer::EnemyProjectile;
+			const Component::ECollisionLayer _otherSide = _isEnemySide
+				? Component::ECollisionLayer::PlayerProjectile
+				: Component::ECollisionLayer::EnemyProjectile;
 
-			ECollisionLayer _result = ECollisionLayer::StaticObject | ECollisionLayer::DiynamicObject | _otherSide;
+			Component::ECollisionLayer _result = Component::ECollisionLayer::StaticObject | Component::ECollisionLayer::DiynamicObject | _otherSide;
 
 			// Enemy(群れのボスのボイドなど)はプレイヤー側の攻撃でだけ落ちる。
 			// 敵の弾にも当てると、敵同士の流れ弾でボスの体力が減ってしまう
-			if (!_isEnemySide) _result |= ECollisionLayer::Enemy;
+			if (!_isEnemySide) _result |= Component::ECollisionLayer::Enemy;
 
 			return _result;
 		}
@@ -100,11 +100,11 @@ namespace App::Systems::ProjectileSpawn
 			_last = _entity;
 
 			// コライダーを持つ = コリジョンワールドに居る本体
-			if (a_world.HasComponent<ColliderComponent>(_entity)) return _entity;
+			if (a_world.HasComponent<Component::ColliderComponent>(_entity)) return _entity;
 
 			// 親へ
-			if (!a_world.HasComponent<HierarchyComponent>(_entity)) break;
-			const auto* _pHierarchy = a_world.RefData<HierarchyComponent>(_entity);
+			if (!a_world.HasComponent<Component::HierarchyComponent>(_entity)) break;
+			const auto* _pHierarchy = a_world.RefData<Component::HierarchyComponent>(_entity);
 			if (!_pHierarchy) break;
 			_entity = _pHierarchy->parentID;
 		}
@@ -139,9 +139,9 @@ namespace App::Systems::ProjectileSpawn
 		Engine::ECS::Signature _sig = _instanceVec[0].sig;
 		auto _data = std::move(_instanceVec[0].dataMap);	// (型ID -> バイト列)
 
-		auto _ltID  = a_world.GetCompTypeID<LocalTransformComponent>();
-		auto _velID = a_world.GetCompTypeID<DesiredVelocityComponent>();
-		auto _wmID  = a_world.GetCompTypeID<WorldMatrixComponent>();
+		auto _ltID  = a_world.GetCompTypeID<Component::LocalTransformComponent>();
+		auto _velID = a_world.GetCompTypeID<Component::DesiredVelocityComponent>();
+		auto _wmID  = a_world.GetCompTypeID<Component::WorldMatrixComponent>();
 
 		// 弾が動く・描画されるために最低限必要なコンポーネントが無ければ足す
 		auto _ensure = [&](Engine::ECS::ComponentTypeID _id)
@@ -160,7 +160,7 @@ namespace App::Systems::ProjectileSpawn
 		// 位置の上書き
 		{
 			auto& _buf = _data[_ltID];
-			LocalTransformComponent _lt = {};
+			Component::LocalTransformComponent _lt = {};
 			std::memcpy(&_lt, _buf.data(), sizeof(_lt));
 			_lt.pos = a_pos;
 			_lt.isDirty = true;
@@ -169,7 +169,7 @@ namespace App::Systems::ProjectileSpawn
 		// 速度の上書き
 		{
 			auto& _buf = _data[_velID];
-			DesiredVelocityComponent _v = {};
+			Component::DesiredVelocityComponent _v = {};
 			std::memcpy(&_v, _buf.data(), sizeof(_v));
 			_v.value = a_velocity;
 			std::memcpy(_buf.data(), &_v, sizeof(_v));
@@ -177,12 +177,12 @@ namespace App::Systems::ProjectileSpawn
 		// 発射元を入れる。弾が自分を撃った相手に当たらないようにするため
 		// (銃口は体の中にあるので、入れないと発射した瞬間に自分へ当たる)
 		{
-			auto _projID = a_world.GetCompTypeID<ProjectileComponent>();
+			auto _projID = a_world.GetCompTypeID<Component::ProjectileComponent>();
 			auto _it = _data.find(_projID);
 			if (_sig.test(_projID) &&
-				_it != _data.end() && _it->second.size() >= sizeof(ProjectileComponent))
+				_it != _data.end() && _it->second.size() >= sizeof(Component::ProjectileComponent))
 			{
-				ProjectileComponent _proj = {};
+				Component::ProjectileComponent _proj = {};
 				std::memcpy(&_proj, _it->second.data(), sizeof(_proj));
 				_proj.shooterEntity = a_shooter;
 
@@ -197,21 +197,21 @@ namespace App::Systems::ProjectileSpawn
 
 		// この弾がどちら側のものか。レイヤーと発光色の両方で使う
 		const bool _isEnemySide =
-			(ResolveProjectileLayer(a_world, a_shooter) == ECollisionLayer::EnemyProjectile);
+			(ResolveProjectileLayer(a_world, a_shooter) == Component::ECollisionLayer::EnemyProjectile);
 
 		// 撃った側でレイヤーを入れ替える。
 		// プレハブに書いてあるレイヤーは、どちらが撃ったか分からない状態の値なので
 		// ここで必ず上書きする(プレハブ側をいじっても発射された弾には効かない)
 		{
-			auto _collID = a_world.GetCompTypeID<ColliderComponent>();
+			auto _collID = a_world.GetCompTypeID<Component::ColliderComponent>();
 			auto _it = _data.find(_collID);
 			if (_sig.test(_collID) &&
-				_it != _data.end() && _it->second.size() >= sizeof(ColliderComponent))
+				_it != _data.end() && _it->second.size() >= sizeof(Component::ColliderComponent))
 			{
-				ColliderComponent _coll = {};
+				Component::ColliderComponent _coll = {};
 				std::memcpy(&_coll, _it->second.data(), sizeof(_coll));
 
-				_coll.layer        = _isEnemySide ? ECollisionLayer::EnemyProjectile : ECollisionLayer::PlayerProjectile;
+				_coll.layer        = _isEnemySide ? Component::ECollisionLayer::EnemyProjectile : Component::ECollisionLayer::PlayerProjectile;
 				_coll.collideLayer = MakeProjectileCollideLayer(_coll.layer);
 
 				std::memcpy(_it->second.data(), &_coll, sizeof(_coll));
@@ -220,12 +220,12 @@ namespace App::Systems::ProjectileSpawn
 		// 敵が撃った弾は発光色を紫にする。
 		// レイヤーと同じで、どちら側の弾かはここでしか分からない
 		{
-			auto _modelID = a_world.GetCompTypeID<ModelComponent>();
+			auto _modelID = a_world.GetCompTypeID<Component::ModelComponent>();
 			auto _it = _data.find(_modelID);
 			if (_isEnemySide && _sig.test(_modelID) &&
-				_it != _data.end() && _it->second.size() >= sizeof(ModelComponent))
+				_it != _data.end() && _it->second.size() >= sizeof(Component::ModelComponent))
 			{
-				ModelComponent _model = {};
+				Component::ModelComponent _model = {};
 				std::memcpy(&_model, _it->second.data(), sizeof(_model));
 
 				_model.emissiveColor = ENEMY_PROJECTILE_EMISSIVE;
@@ -236,12 +236,12 @@ namespace App::Systems::ProjectileSpawn
 
 		// 誘導弾なら追う相手を入れる(持っていない弾には足さない)
 		{
-			auto _homingID = a_world.GetCompTypeID<HomingComponent>();
+			auto _homingID = a_world.GetCompTypeID<Component::HomingComponent>();
 			auto _it = _data.find(_homingID);
 			if (_sig.test(_homingID) &&
-				_it != _data.end() && _it->second.size() >= sizeof(HomingComponent))
+				_it != _data.end() && _it->second.size() >= sizeof(Component::HomingComponent))
 			{
-				HomingComponent _homing = {};
+				Component::HomingComponent _homing = {};
 				std::memcpy(&_homing, _it->second.data(), sizeof(_homing));
 				_homing.targetEntity = a_homingTarget;
 				std::memcpy(_it->second.data(), &_homing, sizeof(_homing));

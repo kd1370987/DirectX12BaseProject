@@ -15,36 +15,6 @@
 
 namespace
 {
-	//======================================================================================
-	// 用意しておくもの
-	//
-	// 旧 EmitParticlePass / UpdateParticlePass が
-	// RGComputePassBuilder に作らせていたぶんをここへ移した
-	//======================================================================================
-	struct ParticleRuntime
-	{
-		Engine::Graphics::PipelineStateManager* pPSOManager = nullptr;
-		Engine::Resource::ResourceManager* pResourceManager = nullptr;	// アセットの値を引く(借り物)
-
-		// 各シェーダーに対応する組み合わせ
-		Engine::Handle<ID3D12RootSignature> emitRootSig = {};
-		Engine::Handle<ID3D12PipelineState> emitPSO = {};
-
-		Engine::Handle<ID3D12RootSignature> updateRootSig = {};
-		Engine::Handle<ID3D12PipelineState> updatePSO = {};
-
-		Engine::Handle<ID3D12RootSignature> resetRootSig = {};
-		Engine::Handle<ID3D12PipelineState> resetPSO = {};
-
-		// プールを伸ばしたあと、増えた範囲を使えるようにする
-		Engine::Handle<ID3D12RootSignature> growRootSig = {};
-		Engine::Handle<ID3D12PipelineState> growPSO = {};
-
-		// このフレームの乱数の種
-		uint32_t frameCounter = 0;
-	};
-	ParticleRuntime g_particle = {};
-
 	// シェーダーからルートシグネチャとコンピュートPSOを起こす
 	bool SetupComputeShader(
 		Engine::Graphics::PipelineStateManager* a_pPSOManager,
@@ -76,45 +46,45 @@ namespace
 
 namespace Engine::Graphics
 {
-	void SetupParticleSimulation(PipelineStateManager* a_pPSOManager, Resource::ResourceManager& a_resourceManager)
+	void ParticleSimulation::Setup(PipelineStateManager* a_pPSOManager, Resource::ResourceManager& a_resourceManager)
 	{
 		if (!a_pPSOManager) return;
-		g_particle.pPSOManager = a_pPSOManager;
-		g_particle.pResourceManager = &a_resourceManager;
+		m_pPSOManager = a_pPSOManager;
+		m_pResourceManager = &a_resourceManager;
 
 		SetupComputeShader(
 			a_pPSOManager,
 			a_resourceManager,
 			"Asset/Shader/Source/Particle/Emit/EmitParticleShaeder.cso",
 			"EmitParticleShader",
-			g_particle.emitRootSig, g_particle.emitPSO);
+			m_emitRootSig, m_emitPSO);
 
 		SetupComputeShader(
 			a_pPSOManager,
 			a_resourceManager,
 			"Asset/Shader/Source/Particle/Update/UpdateParticleShader.cso",
 			"UpdateParticleShader",
-			g_particle.updateRootSig, g_particle.updatePSO);
+			m_updateRootSig, m_updatePSO);
 
 		SetupComputeShader(
 			a_pPSOManager,
 			a_resourceManager,
 			"Asset/Shader/Source/Particle/Update/ResetDrawArgs.cso",
 			"ResetDrawArgsShader",
-			g_particle.resetRootSig, g_particle.resetPSO);
+			m_resetRootSig, m_resetPSO);
 
 		SetupComputeShader(
 			a_pPSOManager,
 			a_resourceManager,
 			"Asset/Shader/Source/Particle/Update/GrowParticlePool.cso",
 			"GrowParticlePoolShader",
-			g_particle.growRootSig, g_particle.growPSO);
+			m_growRootSig, m_growPSO);
 	}
 
-	void ExecuteParticleSimulation(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
+	void ParticleSimulation::Execute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
 	{
 		if (!a_pGE || !a_pCtx) return;
-		if (!g_particle.pPSOManager) return;
+		if (!m_pPSOManager) return;
 
 		auto* _pCmd = a_pCtx->GetCurrentCmdList();
 		if (!_pCmd) return;
@@ -132,7 +102,7 @@ namespace Engine::Graphics
 		// 2つの間は UAV バリアで区切る(読み終わる前に足すと積む位置がずれる)。
 		// 伸ばす CS が読めていなければ伸ばさない(出す数は空きが無いぶん減るだけで、壊れはしない)
 		//----------------------------------------------------------------------------------
-		const bool _isGrowReady = g_particle.growRootSig.IsValid() && g_particle.growPSO.IsValid();
+		const bool _isGrowReady = m_growRootSig.IsValid() && m_growPSO.IsValid();
 		if (_isGrowReady)
 		{
 			for (auto& [_handle, _pool] : _pParticleManager->GetPoolMap())
@@ -145,8 +115,8 @@ namespace Engine::Graphics
 				const UINT _addCount = _pool->GetMaxCapacity() - _oldCapacity;
 
 				a_pCtx->BindBindlessHeaps();
-				a_pCtx->SetComputeRootSignature(g_particle.growRootSig);
-				a_pCtx->SetComputePSO(g_particle.growPSO);
+				a_pCtx->SetComputeRootSignature(m_growRootSig);
+				a_pCtx->SetComputePSO(m_growPSO);
 
 				// ※ HLSL 側 GrowParam(GrowParticlePool.hlsl)と並びを合わせること
 				UINT _growParam[] = {
@@ -186,7 +156,7 @@ namespace Engine::Graphics
 		// 発生
 		//----------------------------------------------------------------------------------
 		// このフレームの乱数の種を進める
-		++g_particle.frameCounter;
+		++m_frameCounter;
 
 		//----------------------------------------------------------------------------------
 		// 発生命令は全プール共通の1本(UploadEmitData がつなげて送ったもの)。
@@ -208,8 +178,8 @@ namespace Engine::Graphics
 
 			// ヒープとルートシグネチャ、PSOをセット
 			a_pCtx->BindBindlessHeaps();
-			a_pCtx->SetComputeRootSignature(g_particle.emitRootSig);
-			a_pCtx->SetComputePSO(g_particle.pPSOManager->GetPSO(g_particle.emitPSO));
+			a_pCtx->SetComputeRootSignature(m_emitRootSig);
+			a_pCtx->SetComputePSO(m_pPSOManager->GetPSO(m_emitPSO));
 
 			// 命令バインド(バインドレス : 番号をルート定数で渡す)
 			a_pCtx->ComputeBindDescriptorIndices(1, std::span<const UINT>(&_emitIndex, 1));
@@ -230,7 +200,7 @@ namespace Engine::Graphics
 			_cbEmit.emitTotal = _range.emitTotal;
 
 			// プールごとにも種をずらす(同一フレームに複数プールが出しても被らないように)
-			_cbEmit.frameSeed = g_particle.frameCounter * 2654435761u + _handle.id;
+			_cbEmit.frameSeed = m_frameCounter * 2654435761u + _handle.id;
 			a_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<EmitCB>(_pCmd, 0, _cbEmit);
 
 			// GPUパーティクルプールバインド : 本体 / デッドリスト / カウンターの順(シェーダーの u0-u2 と同じ)
@@ -283,7 +253,7 @@ namespace Engine::Graphics
 		// 更新シェーダーは生き残った粒を数えて引数へ足すので、リセットできないと
 		// 前のフレームの数に足し続けることになる。リセット用シェーダーが読めていないときは
 		// 更新ごと見送る(印が立たないので描画もされない)
-		const bool _isResetReady = g_particle.resetRootSig.IsValid() && g_particle.resetPSO.IsValid();
+		const bool _isResetReady = m_resetRootSig.IsValid() && m_resetPSO.IsValid();
 		if (!_isResetReady) return;
 
 		// 描く板ポリのインデックス数。ParticlePass が張るもの(平らな1枚板)と合わせる
@@ -318,8 +288,8 @@ namespace Engine::Graphics
 			_pool->RefDrawArgs().Barrier(_pCmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			_pool->RefAliveList().Barrier(_pCmd, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-			a_pCtx->SetComputeRootSignature(g_particle.resetRootSig);
-			a_pCtx->SetComputePSO(g_particle.resetPSO);
+			a_pCtx->SetComputeRootSignature(m_resetRootSig);
+			a_pCtx->SetComputePSO(m_resetPSO);
 			const UINT _resetParam[] = {
 				_pool->RefDrawArgs().GetUAV().GetIndex(),	// 引数バッファの UAV 番号
 				_quadIndexCount,							// 板ポリのインデックス数(1枚板なら 6)
@@ -330,8 +300,8 @@ namespace Engine::Graphics
 			D3D12::UAVBarrier(_pCmd, { _pool->RefDrawArgs().GetResource() });
 
 			// ルートシグネチャ、PSOをセット
-			a_pCtx->SetComputeRootSignature(g_particle.updateRootSig);
-			a_pCtx->SetComputePSO(g_particle.pPSOManager->GetPSO(g_particle.updatePSO));
+			a_pCtx->SetComputeRootSignature(m_updateRootSig);
+			a_pCtx->SetComputePSO(m_pPSOManager->GetPSO(m_updatePSO));
 
 			// 更新設定バインド
 			// ※ HLSL 側 UpdateCB(UpdateParticleShader.hlsl)と並びを合わせること
@@ -349,7 +319,7 @@ namespace Engine::Graphics
 			_cbData.deltaTime = MainEngine::Instance().GetDeltaTime();
 
 			// 重力と減衰はアセット単位。プールごとに回しているのでここで引ける
-			if (const auto* _pParticle = g_particle.pResourceManager ? g_particle.pResourceManager->Get(_handle) : nullptr)
+			if (const auto* _pParticle = m_pResourceManager ? m_pResourceManager->Get(_handle) : nullptr)
 			{
 				// GravityPow は「重力をどれだけ受けるか」の倍率。
 				// 1 で普通に落ち、0 で無重力、負にすると浮き上がる(煙向き)

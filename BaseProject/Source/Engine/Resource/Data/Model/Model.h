@@ -116,8 +116,8 @@ namespace Engine::Resource
 
 
 		// アニメーションのハンドルからGUIDを逆引き
-		Engine::GUID GetAnimationGUIDFromHandle(const Handle<AnimationData>& a_handle) const;
-		Handle<AnimationData> GetAnimationHandleFromGUID(const Engine::GUID& a_guid) const;
+		Core::GUID GetAnimationGUIDFromHandle(const Handle<AnimationData>& a_handle) const;
+		Handle<AnimationData> GetAnimationHandleFromGUID(const Core::GUID& a_guid) const;
 
 		// ---- アクセサ ----
 		// データのハンドル

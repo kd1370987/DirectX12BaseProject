@@ -75,7 +75,7 @@ namespace App::Object
 		_pAudioManager->ReleaseSoundInstance(m_soundHandle);
 		m_soundHandle = {};
 
-		if (m_soundGUID == Engine::DEFAULT_GUID) return;
+		if (m_soundGUID == Core::DEFAULT_GUID) return;
 
 		// 画面に出す音なので 2D で発行する(定位を付けない)
 		m_soundHandle = _pAudioManager->RequestSoundInstance(m_soundGUID, false);
@@ -149,9 +149,9 @@ namespace App::Object
 
 		auto* _pWorld = a_context.pWorld;
 		if (!_pWorld) return;
-		if (!_pWorld->HasResource<WaveAnnounceResource>()) return;
+		if (!_pWorld->HasResource<InstanceResource::WaveAnnounceResource>()) return;
 
-		const WaveAnnounceResource& _announce = _pWorld->GetResource<WaveAnnounceResource>();
+		const InstanceResource::WaveAnnounceResource& _announce = _pWorld->GetResource<InstanceResource::WaveAnnounceResource>();
 
 		// まだ一度も出ていない
 		if (_announce.waveIndex < 0) return;
@@ -212,10 +212,10 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Header("WaveAnnounce");
+		Engine::EditorField::Header("WaveAnnounce");
 
 		// 合図の音(アセットDBの Sound 一覧から選ぶ)
-		if (Engine::Editor::AssetField(
+		if (Engine::EditorField::AssetField(
 			*a_context.pServices,
 			"Wave Sound",
 			"Sound",
@@ -224,7 +224,7 @@ namespace App::Object
 			RequestSound(a_context);
 		}
 
-		if (Engine::Editor::Field("Volume", m_volume, 0.01f, 0.0f, 1.0f))
+		if (Engine::EditorField::Field("Volume", m_volume, 0.01f, 0.0f, 1.0f))
 		{
 			// 鳴らしながら調整できるよう、発行済みインスタンスへ即時反映する
 			if (a_context.pServices && a_context.pServices->pAudioManager)
@@ -236,36 +236,36 @@ namespace App::Object
 			}
 		}
 
-		Engine::Editor::Line();
-		Engine::Editor::Field("ShowTime", m_showTime, 0.1f, 0.0f, 10.0f);
-		Engine::Editor::Field("FadeOut", m_isFadeOut);
-		Engine::Editor::Field("PunchScale", m_punchScale, 0.01f, 0.1f, 4.0f);
+		Engine::EditorField::Line();
+		Engine::EditorField::Field("ShowTime", m_showTime, 0.1f, 0.0f, 10.0f);
+		Engine::EditorField::Field("FadeOut", m_isFadeOut);
+		Engine::EditorField::Field("PunchScale", m_punchScale, 0.01f, 0.1f, 4.0f);
 
-		Engine::Editor::Line();
+		Engine::EditorField::Line();
 
 		// 文字の組み立て
 		{
 			char _buf[64] = {};
 			std::snprintf(_buf, sizeof(_buf), "%s", m_prefix.c_str());
-			if (Engine::Editor::Field("Prefix", _buf, sizeof(_buf))) m_prefix = _buf;
+			if (Engine::EditorField::Field("Prefix", _buf, sizeof(_buf))) m_prefix = _buf;
 		}
-		Engine::Editor::Field("ShowTotal", m_isShowTotal);
+		Engine::EditorField::Field("ShowTotal", m_isShowTotal);
 		if (m_isShowTotal)
 		{
 			char _buf[16] = {};
 			std::snprintf(_buf, sizeof(_buf), "%s", m_separator.c_str());
-			if (Engine::Editor::Field("Separator", _buf, sizeof(_buf))) m_separator = _buf;
+			if (Engine::EditorField::Field("Separator", _buf, sizeof(_buf))) m_separator = _buf;
 		}
 
 		// 確認用に出してみる
-		if (Engine::Editor::Button("Test"))
+		if (Engine::EditorField::Button("Test"))
 		{
 			OnWaveSpawned(a_context, (m_lastWaveIndex >= 0) ? m_lastWaveIndex : 0, 0);
 		}
 
-		Engine::Editor::Line();
-		Engine::Editor::Value("LastWave", "%d", m_lastWaveIndex + 1);
-		Engine::Editor::Value("Remain", "%.2f", m_remainTime);
-		Engine::Editor::Tooltip("SceneSequence がウェーブを出したフレームに反応します\n文字は Text の飾りへ入るので、飾りを1つ足してフォントを選んでください");
+		Engine::EditorField::Line();
+		Engine::EditorField::Value("LastWave", "%d", m_lastWaveIndex + 1);
+		Engine::EditorField::Value("Remain", "%.2f", m_remainTime);
+		Engine::EditorField::Tooltip("SceneSequence がウェーブを出したフレームに反応します\n文字は Text の飾りへ入るので、飾りを1つ足してフォントを選んでください");
 	}
 }

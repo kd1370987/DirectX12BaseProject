@@ -19,6 +19,6 @@ namespace Engine::Graphics::Pipeline
 
 	void Connection::EditConnection(int a_srcOutPinID, int a_dstInPinID) const
 	{
-		Engine::Editor::NodeLink(linkID, a_srcOutPinID, a_dstInPinID);
+		Engine::EditorField::NodeLink(linkID, a_srcOutPinID, a_dstInPinID);
 	}
 }

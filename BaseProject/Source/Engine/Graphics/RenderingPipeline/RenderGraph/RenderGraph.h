@@ -46,7 +46,7 @@ namespace Engine::Graphics::Pipeline
 		};
 
 		ELevel level = ELevel::Error;
-		Engine::GUID passGUID = {};		// 問題のあるパス(グラフ全体の話なら空)
+		Core::GUID passGUID = {};		// 問題のあるパス(グラフ全体の話なら空)
 		std::string message = "";
 	};
 
@@ -96,9 +96,9 @@ namespace Engine::Graphics::Pipeline
 		Pass* AddPass(const PassMetaRegistry& a_registry, ID<Pass> a_typeID);
 
 		// 出入りするつなぎごと消す
-		void RemovePass(const Engine::GUID& a_passGUID);
+		void RemovePass(const Core::GUID& a_passGUID);
 
-		Pass* FindPass(const Engine::GUID& a_passGUID);
+		Pass* FindPass(const Core::GUID& a_passGUID);
 		Pass* FindPassByNodeID(int a_nodeID);
 
 		// ピンIDからパスを引く : 見つけたスロットと、それが入力側かどうかも返す
@@ -114,17 +114,17 @@ namespace Engine::Graphics::Pipeline
 		// 入力スロットは1本しか受けられないので、先に張られていた線は外してから張り直す。
 		// 自分自身へのつなぎ・存在しないスロット・型やアクセスが噛み合わない組は張らずに false を返す
 		bool Link(
-			const Engine::GUID& a_srcPassGUID, uint32_t a_srcSlotID,
-			const Engine::GUID& a_dstPassGUID, uint32_t a_dstSlotID);
+			const Core::GUID& a_srcPassGUID, uint32_t a_srcSlotID,
+			const Core::GUID& a_dstPassGUID, uint32_t a_dstSlotID);
 
 		// 線1本を消す
 		void RemoveLink(int a_linkID);
 
 		// 指定した入力スロットに入っている線を外す
-		void DisconnectInputSlot(const Engine::GUID& a_dstPassGUID, uint32_t a_dstSlotID);
+		void DisconnectInputSlot(const Core::GUID& a_dstPassGUID, uint32_t a_dstSlotID);
 
 		// キーは接続元(出力側)パスのGUID
-		const std::unordered_map<Engine::GUID, std::vector<Connection>>& GetConnections() const { return m_connectionMap; }
+		const std::unordered_map<Core::GUID, std::vector<Connection>>& GetConnections() const { return m_connectionMap; }
 
 		// つなぎの情報から各パスの入力スロットを張り直す。
 		// 「今つながっている線」だけが正なので、一度全部外してから引き直す
@@ -296,7 +296,7 @@ namespace Engine::Graphics::Pipeline
 		std::vector<std::unique_ptr<Pass>> m_passes = {};
 
 		// 接続線 : キーは接続元(出力側)パスのGUID
-		std::unordered_map<Engine::GUID, std::vector<Connection>> m_connectionMap = {};
+		std::unordered_map<Core::GUID, std::vector<Connection>> m_connectionMap = {};
 
 		// リソース
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。

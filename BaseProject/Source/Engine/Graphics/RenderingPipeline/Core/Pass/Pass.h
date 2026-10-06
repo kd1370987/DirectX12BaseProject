@@ -28,7 +28,7 @@ namespace Engine::Graphics::Pipeline
 	{
 	public:
 
-		// 実体の型を辿るための連鎖の根(Engine::TypeInfo)
+		// 実体の型を辿るための連鎖の根(Core::TypeInfo)
 		ENGINE_TYPE_CHAIN_ROOT(Pass);
 
 		Pass() = default;
@@ -123,7 +123,7 @@ namespace Engine::Graphics::Pipeline
 		const std::string& GetName() const { return m_name; }
 		void SetName(const std::string& a_name) { m_name = a_name; }
 
-		const Engine::GUID& GetGUID() const { return m_passGUID; }		// インスタンスの識別子
+		const Core::GUID& GetGUID() const { return m_passGUID; }		// インスタンスの識別子
 		ID<Pass> GetTypeID() const { return m_passID; }					// レジストリのクラス型ID
 		void SetTypeID(ID<Pass> a_id) { m_passID = a_id; }
 
@@ -181,7 +181,7 @@ namespace Engine::Graphics::Pipeline
 		void SetNodeID(int a_nodeID) { m_nodeID = a_nodeID; }
 
 		// ロード・複製でGUIDを引き継ぐ : ノードと線の紐づけがGUIDなので必ず写す
-		void SetGUID(const Engine::GUID& a_guid) { m_passGUID = a_guid; }
+		void SetGUID(const Core::GUID& a_guid) { m_passGUID = a_guid; }
 		const Math::Vector2& GetEditorPos() const { return m_editorPos; }
 		void SetEditorPos(const Math::Vector2& a_pos) { m_editorPos = a_pos; }
 
@@ -197,7 +197,7 @@ namespace Engine::Graphics::Pipeline
 		// 札が消えても個別のノードとして見えるだけで、絵は変わらない
 		//----------------------------------------------------------------------------------
 		// どのまとまりに属しているか : 無効なら単体のノード
-		const Engine::GUID& GetEditorGroupGUID() const { return m_editorGroupGUID; }
+		const Core::GUID& GetEditorGroupGUID() const { return m_editorGroupGUID; }
 
 		// まとまりの種類 : どの合成ノードが面倒を見るかの鍵になる
 		const std::string& GetEditorGroupType() const { return m_editorGroupType; }
@@ -207,7 +207,7 @@ namespace Engine::Graphics::Pipeline
 
 		bool IsInEditorGroup() const { return m_editorGroupGUID.IsValid(); }
 
-		void SetEditorGroup(const std::string& a_typeName, const Engine::GUID& a_groupGUID, int a_index)
+		void SetEditorGroup(const std::string& a_typeName, const Core::GUID& a_groupGUID, int a_index)
 		{
 			m_editorGroupType = a_typeName;
 			m_editorGroupGUID = a_groupGUID;
@@ -360,11 +360,11 @@ namespace Engine::Graphics::Pipeline
 		// ---- パス情報 ----
 		// メタ
 		std::string m_name = "";
-		Engine::GUID m_passGUID = {};	// インスタンス固有 : ノード/線の紐づけはこれで行う
+		Core::GUID m_passGUID = {};	// インスタンス固有 : ノード/線の紐づけはこれで行う
 		ID<Pass> m_passID;				// レジストリのクラス型ID
 
 		// シェーダー
-		Engine::GUID m_shaderGUID = {};
+		Core::GUID m_shaderGUID = {};
 		Handle<Resource::Shader> m_shaderHandle = {};
 
 		// リソース
@@ -389,7 +389,7 @@ namespace Engine::Graphics::Pipeline
 
 		// エディター上のまとまり : 見た目をまとめるためだけの札(ランタイムは見ない)
 		std::string m_editorGroupType = "";
-		Engine::GUID m_editorGroupGUID = {};
+		Core::GUID m_editorGroupGUID = {};
 		int m_editorGroupIndex = 0;
 		int m_nodeID = 0;			// ノード自身のID
 	};

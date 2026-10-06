@@ -1,6 +1,6 @@
 ﻿#include "InputAxisBase.h"
 
-Math::Vector2 Engine::Input::InputAxisBase::GetState() const
+Core::Math::Vector2 Engine::Input::InputAxisBase::GetState() const
 {
 	Math::Vector2 _retAxis = m_axis * m_valueRate;
 

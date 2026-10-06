@@ -25,7 +25,7 @@ namespace Engine::Resource
 	{
 		// アセットで変わらない情報
 		std::string type = "";								// アセットの種別
-		Engine::GUID guid = {};								// GUID
+		Core::GUID guid = {};								// GUID
 		std::string fileName = "";							// ファイル名
 		std::string filePath = "";							// 拡張子なしのベースパス
 

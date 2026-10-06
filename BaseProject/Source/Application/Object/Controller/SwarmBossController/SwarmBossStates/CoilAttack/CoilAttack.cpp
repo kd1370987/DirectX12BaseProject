@@ -4,7 +4,7 @@
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Persistence/Archive/Archive.h"
 #include "Engine/ECS/System/SystemContext.h"
-#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/EditorField/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
@@ -34,12 +34,12 @@ namespace App::Object
 		{
 			Engine::ECS::Entity _player = Engine::ECS::Limits::INVALID_ENTITY;
 
-			a_context.pWorld->ForEach<const ActiveTag, const PlayerControllTag>(
+			a_context.pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag>(
 				[&](
 					Engine::ECS::Chunk* a_pChunk,
 					uint32_t a_count,
-					const ActiveTag* a_activeTagArray,
-					const PlayerControllTag* a_playerTagArray
+					const Component::ActiveTag* a_activeTagArray,
+					const Component::PlayerControllTag* a_playerTagArray
 				)
 				{
 					if (_player != Engine::ECS::Limits::INVALID_ENTITY || a_count == 0) return;
@@ -50,14 +50,14 @@ namespace App::Object
 			if (_player == Engine::ECS::Limits::INVALID_ENTITY) return false;
 
 			auto& _world = *a_context.pWorld;
-			if (_world.HasComponent<WorldMatrixComponent>(_player))
+			if (_world.HasComponent<Component::WorldMatrixComponent>(_player))
 			{
-				a_outPos = _world.RefData<WorldMatrixComponent>(_player)->worldMat.Translation();
+				a_outPos = _world.RefData<Component::WorldMatrixComponent>(_player)->worldMat.Translation();
 				return true;
 			}
-			if (_world.HasComponent<LocalTransformComponent>(_player))
+			if (_world.HasComponent<Component::LocalTransformComponent>(_player))
 			{
-				a_outPos = _world.RefData<LocalTransformComponent>(_player)->pos;
+				a_outPos = _world.RefData<Component::LocalTransformComponent>(_player)->pos;
 				return true;
 			}
 			return false;
@@ -102,8 +102,8 @@ namespace App::Object
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
-		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
-		if (!_world.HasComponent<LocalTransformComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::MoveIntentComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::LocalTransformComponent>(_leader)) return;
 
 		// プレイヤーが居ない(倒された / まだ湧いていない)なら巻く相手が居ない
 		if (!FindPlayerPos(*a_context.pObject, m_playerPos))
@@ -112,18 +112,18 @@ namespace App::Object
 			return;
 		}
 
-		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(_leader)->pos;
+		const Math::Vector3 _pos = _world.RefData<Component::LocalTransformComponent>(_leader)->pos;
 
 		// 入力 1 で出る速さ。輪の上の目標点をリーダーの速さで進めるのに使う
-		const float _moveSpeed = _world.HasComponent<MovementParamsComponent>(_leader)
-			? _world.RefData<MovementParamsComponent>(_leader)->moveSpeed
+		const float _moveSpeed = _world.HasComponent<Component::MovementParamsComponent>(_leader)
+			? _world.RefData<Component::MovementParamsComponent>(_leader)->moveSpeed
 			: 0.0f;
 
 		// 地表の高さ(SerchGroundSystem が書いた結果)。
 		// レイが届かない高さに居るフレームは最後に見た値のまま。一度も見ていなければプレイヤーの足元
-		if (_world.HasComponent<SerchGroundComponent>(_leader))
+		if (_world.HasComponent<Component::SerchGroundComponent>(_leader))
 		{
-			const SerchGroundComponent& _ground = *_world.RefData<SerchGroundComponent>(_leader);
+			const Component::SerchGroundComponent& _ground = *_world.RefData<Component::SerchGroundComponent>(_leader);
 			if (_ground.isFoundGround)
 			{
 				m_groundHeight  = _ground.groundHeight;
@@ -165,9 +165,9 @@ namespace App::Object
 
 				// 回る向きは今進んでいる向きに近い方(急に折り返さないように)
 				m_turnSign = (Math::Random::Float(0.0f, 1.0f) < 0.5f) ? 1.0f : -1.0f;
-				if (_world.HasComponent<ActualVelocityComponent>(_leader))
+				if (_world.HasComponent<Component::ActualVelocityComponent>(_leader))
 				{
-					const Math::Vector3 _vel = _world.RefData<ActualVelocityComponent>(_leader)->value;
+					const Math::Vector3 _vel = _world.RefData<Component::ActualVelocityComponent>(_leader)->value;
 					const Math::Vector3 _tangent(-std::sin(m_angle), 0.0f, std::cos(m_angle));
 					const float _side = _vel.Dot(_tangent);
 					if (std::fabs(_side) > 1e-3f) m_turnSign = (_side >= 0.0f) ? 1.0f : -1.0f;
@@ -237,7 +237,7 @@ namespace App::Object
 			break;
 		}
 
-		_world.RefData<MoveIntentComponent>(_leader)->value = _intent;
+		_world.RefData<Component::MoveIntentComponent>(_leader)->value = _intent;
 
 		WriteMissileResource(a_context);
 		DrawRing(a_context);
@@ -251,9 +251,9 @@ namespace App::Object
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
-		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::MoveIntentComponent>(_leader)) return;
 
-		_world.RefData<MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
+		_world.RefData<Component::MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
 	}
 
 	void SwarmBossCoilAttackState::ChangePhase(EPhase a_phase)
@@ -293,7 +293,7 @@ namespace App::Object
 	{
 		if (!a_context.pPlatoonLeaders || a_context.pPlatoonLeaders->empty()) return;
 		auto& _world = *a_context.pObject->pWorld;
-		if (!_world.HasResource<SwarmMissileResource>()) return;
+		if (!_world.HasResource<InstanceResource::SwarmMissileResource>()) return;
 
 		const auto& _platoons = *a_context.pPlatoonLeaders;
 		const size_t _count = _platoons.size();
@@ -308,7 +308,7 @@ namespace App::Object
 			if (!_world.IsAliveEntity(_platoon)) continue;
 
 			// ボイドが残っていなければ SwarmMissileSystem が捨てる
-			_world.RefResource<SwarmMissileResource>().launchRequests.push_back(_platoon);
+			_world.RefResource<InstanceResource::SwarmMissileResource>().launchRequests.push_back(_platoon);
 			++m_launchCount;
 			return;
 		}
@@ -317,9 +317,9 @@ namespace App::Object
 	void SwarmBossCoilAttackState::WriteMissileResource(SwarmBossStateContext& a_context)
 	{
 		auto& _world = *a_context.pObject->pWorld;
-		if (!_world.HasResource<SwarmMissileResource>()) return;
+		if (!_world.HasResource<InstanceResource::SwarmMissileResource>()) return;
 
-		auto& _res = _world.RefResource<SwarmMissileResource>();
+		auto& _res = _world.RefResource<InstanceResource::SwarmMissileResource>();
 		_res.ringCenter    = m_center;
 		_res.launchSpeed   = m_missileLaunchSpeed;
 		_res.launchTime    = m_missileLaunchTime;
@@ -400,45 +400,45 @@ namespace App::Object
 
 	void SwarmBossCoilAttackState::DrawInspector()
 	{
-		Engine::Editor::Field("輪の半径の倍率", m_radiusScale, 0.01f, 0.0f);
-		Engine::Editor::Tooltip("半径 = 体の長さ ÷ (2 × 円周率) × これ(1 で頭と尾がちょうど繋がる)");
-		Engine::Editor::Field("輪の半径の下限", m_minRadius, 0.5f, 0.0f);
-		Engine::Editor::Field("中心をプレイヤーへ寄せる強さ", m_centerFollowGain, 0.01f, 0.0f);
-		Engine::Editor::Field("輪に入るまでの速さの倍率", m_approachSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Field("到着とみなす距離", m_arriveDistance, 0.1f, 0.0f);
-		Engine::Editor::Field("輪に入る最長時間", m_approachMaxTime, 0.1f, 0.0f);
-		Engine::Editor::Field("巻く速さの倍率", m_coilSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
-		Engine::Editor::Field("ずれを詰める強さ", m_followGain, 0.05f, 0.0f);
-		Engine::Editor::Field("巻く長さ", m_coilTime, 0.1f, 0.0f);
-		Engine::Editor::Field("一番低いところの高さ", m_lowHeight, 0.5f);
-		Engine::Editor::Tooltip("地表からの高さ。負で地中");
-		Engine::Editor::Field("一番高いところの高さ", m_highHeight, 0.5f);
-		Engine::Editor::Field("地面と上を1往復する周期", m_undulationPeriod, 0.05f, 0.0f);
-		Engine::Editor::Field("切り離しを始めるまでの時間", m_launchStartDelay, 0.05f, 0.0f);
-		Engine::Editor::Field("切り離す間隔", m_launchInterval, 0.01f, 0.01f);
-		Engine::Editor::Tooltip("小隊長ごとに1体ずつ、頭から尾へ順番に切り離す");
+		Engine::EditorField::Field("輪の半径の倍率", m_radiusScale, 0.01f, 0.0f);
+		Engine::EditorField::Tooltip("半径 = 体の長さ ÷ (2 × 円周率) × これ(1 で頭と尾がちょうど繋がる)");
+		Engine::EditorField::Field("輪の半径の下限", m_minRadius, 0.5f, 0.0f);
+		Engine::EditorField::Field("中心をプレイヤーへ寄せる強さ", m_centerFollowGain, 0.01f, 0.0f);
+		Engine::EditorField::Field("輪に入るまでの速さの倍率", m_approachSpeedScale, 0.05f, 0.0f);
+		Engine::EditorField::Field("到着とみなす距離", m_arriveDistance, 0.1f, 0.0f);
+		Engine::EditorField::Field("輪に入る最長時間", m_approachMaxTime, 0.1f, 0.0f);
+		Engine::EditorField::Field("巻く速さの倍率", m_coilSpeedScale, 0.05f, 0.0f);
+		Engine::EditorField::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
+		Engine::EditorField::Field("ずれを詰める強さ", m_followGain, 0.05f, 0.0f);
+		Engine::EditorField::Field("巻く長さ", m_coilTime, 0.1f, 0.0f);
+		Engine::EditorField::Field("一番低いところの高さ", m_lowHeight, 0.5f);
+		Engine::EditorField::Tooltip("地表からの高さ。負で地中");
+		Engine::EditorField::Field("一番高いところの高さ", m_highHeight, 0.5f);
+		Engine::EditorField::Field("地面と上を1往復する周期", m_undulationPeriod, 0.05f, 0.0f);
+		Engine::EditorField::Field("切り離しを始めるまでの時間", m_launchStartDelay, 0.05f, 0.0f);
+		Engine::EditorField::Field("切り離す間隔", m_launchInterval, 0.01f, 0.01f);
+		Engine::EditorField::Tooltip("小隊長ごとに1体ずつ、頭から尾へ順番に切り離す");
 
-		Engine::Editor::Line();
-		Engine::Editor::Field("ミサイル : 打ち上げの速さ", m_missileLaunchSpeed, 0.5f, 0.0f);
-		Engine::Editor::Field("ミサイル : 打ち上げの長さ", m_missileLaunchTime, 0.01f, 0.0f);
-		Engine::Editor::Field("ミサイル : 打ち上げの上向きの重み", m_missileLaunchUp, 0.01f);
-		Engine::Editor::Field("ミサイル : 打ち上げの外向きの重み", m_missileLaunchOut, 0.01f);
-		Engine::Editor::Field("ミサイル : 打ち上げのばらつき", m_missileLaunchSpread, 0.01f, 0.0f);
-		Engine::Editor::Field("ミサイル : 最高速", m_missileSpeed, 0.5f, 0.0f);
-		Engine::Editor::Field("ミサイル : 加速度", m_missileAcceleration, 0.5f, 0.0f);
-		Engine::Editor::Field("ミサイル : 曲がる速さ", m_missileTurnSpeedDeg, 1.0f, 0.0f);
-		Engine::Editor::Tooltip("度/秒。小さいほど大回りになり、避けやすい");
-		Engine::Editor::Field("ミサイル : 自爆までの時間", m_missileLifeTime, 0.1f, 0.0f);
-		Engine::Editor::Field("ミサイル : 自爆する距離", m_missileExplodeRadius, 0.1f, 0.0f);
-		Engine::Editor::Field("ミサイル : ダメージ", m_missileDamage, 0.5f, 0.0f);
-		Engine::Editor::ColorField("ミサイル : 発光色", m_missileColor);
-		Engine::Editor::Field("ミサイル : 発光の強さ", m_missileIntensity, 0.1f, 0.0f);
+		Engine::EditorField::Line();
+		Engine::EditorField::Field("ミサイル : 打ち上げの速さ", m_missileLaunchSpeed, 0.5f, 0.0f);
+		Engine::EditorField::Field("ミサイル : 打ち上げの長さ", m_missileLaunchTime, 0.01f, 0.0f);
+		Engine::EditorField::Field("ミサイル : 打ち上げの上向きの重み", m_missileLaunchUp, 0.01f);
+		Engine::EditorField::Field("ミサイル : 打ち上げの外向きの重み", m_missileLaunchOut, 0.01f);
+		Engine::EditorField::Field("ミサイル : 打ち上げのばらつき", m_missileLaunchSpread, 0.01f, 0.0f);
+		Engine::EditorField::Field("ミサイル : 最高速", m_missileSpeed, 0.5f, 0.0f);
+		Engine::EditorField::Field("ミサイル : 加速度", m_missileAcceleration, 0.5f, 0.0f);
+		Engine::EditorField::Field("ミサイル : 曲がる速さ", m_missileTurnSpeedDeg, 1.0f, 0.0f);
+		Engine::EditorField::Tooltip("度/秒。小さいほど大回りになり、避けやすい");
+		Engine::EditorField::Field("ミサイル : 自爆までの時間", m_missileLifeTime, 0.1f, 0.0f);
+		Engine::EditorField::Field("ミサイル : 自爆する距離", m_missileExplodeRadius, 0.1f, 0.0f);
+		Engine::EditorField::Field("ミサイル : ダメージ", m_missileDamage, 0.5f, 0.0f);
+		Engine::EditorField::ColorField("ミサイル : 発光色", m_missileColor);
+		Engine::EditorField::Field("ミサイル : 発光の強さ", m_missileIntensity, 0.1f, 0.0f);
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		Engine::Editor::Value("輪", "半径 %.1f m / 中心 %.1f, %.1f", m_radius, m_center.x, m_center.z);
-		Engine::Editor::Value("角度", "%.1f 度 (%s)", DirectX::XMConvertToDegrees(m_angle), m_turnSign > 0.0f ? "+" : "-");
-		Engine::Editor::Value("切り離した数", "%u (次の小隊長 %u)", m_launchCount, static_cast<uint32_t>(m_launchCursor));
+		Engine::EditorField::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::EditorField::Value("輪", "半径 %.1f m / 中心 %.1f, %.1f", m_radius, m_center.x, m_center.z);
+		Engine::EditorField::Value("角度", "%.1f 度 (%s)", DirectX::XMConvertToDegrees(m_angle), m_turnSign > 0.0f ? "+" : "-");
+		Engine::EditorField::Value("切り離した数", "%u (次の小隊長 %u)", m_launchCount, static_cast<uint32_t>(m_launchCursor));
 	}
 }

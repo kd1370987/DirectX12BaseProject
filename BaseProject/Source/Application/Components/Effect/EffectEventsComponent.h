@@ -2,8 +2,8 @@
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
-#include "Engine/Editor/Helper/EditorField.h"
-#include "Engine/Editor/Helper/EditorField.inl"
+#include "Engine/EditorField/EditorField.h"
+#include "Engine/EditorField/EditorField.inl"
 
 //==========================================================================================
 // EffectEventsComponent
@@ -25,39 +25,42 @@
 // ・解決と先読み(Warmup)は EffectEventSystem の Fixup、出すのも EffectEventSystem。
 //==========================================================================================
 
-// 出来事の種類 ※ 値は保存されるので、増やすときは必ず末尾に足すこと
-enum class EEffectEvent : uint32_t
+namespace App::Component
 {
-	OnSpawn,	// 生まれたとき
-	OnDeath,	// 死んだとき
-	OnHit,		// 攻撃を受けたとき
-};
+	// 出来事の種類 ※ 値は保存されるので、増やすときは必ず末尾に足すこと
+	enum class EEffectEvent : uint32_t
+	{
+		OnSpawn,	// 生まれたとき
+		OnDeath,	// 死んだとき
+		OnHit,		// 攻撃を受けたとき
+	};
 
-// 表の大きさ。増やすときはここだけ変えればよい(保存は件数ぶんのキーで書く)
-inline constexpr size_t EFFECT_EVENT_MAX = 4;
+	// 表の大きさ。増やすときはここだけ変えればよい(保存は件数ぶんのキーで書く)
+	inline constexpr size_t EFFECT_EVENT_MAX = 4;
 
-// 表の1行
-struct EffectEventEntry
-{
-	EEffectEvent event = EEffectEvent::OnSpawn;
-	Engine::GUID effectGUID = Engine::DEFAULT_GUID;							// 出すエフェクト(未設定なら何もしない)
-	Engine::Handle<Engine::Resource::EffectAsset> effectHandle = {};		// ランタイム用(Fixup が解決する)
-	float scale = 1.0f;														// エフェクト全体の大きさ倍率
+	// 表の1行
+	struct EffectEventEntry
+	{
+		EEffectEvent event = EEffectEvent::OnSpawn;
+		Core::GUID effectGUID = Core::DEFAULT_GUID;							// 出すエフェクト(未設定なら何もしない)
+		Engine::Handle<Engine::Resource::EffectAsset> effectHandle = {};		// ランタイム用(Fixup が解決する)
+		float scale = 1.0f;														// エフェクト全体の大きさ倍率
 
-	bool IsValid() const { return effectGUID != Engine::DEFAULT_GUID; }
-};
+		bool IsValid() const { return effectGUID != Core::DEFAULT_GUID; }
+	};
 
-struct EffectEventsComponent
-{
-	EffectEventEntry entries[EFFECT_EVENT_MAX] = {};
+	struct EffectEventsComponent
+	{
+		EffectEventEntry entries[EFFECT_EVENT_MAX] = {};
 
-	// ---- ランタイム(保存しない) ----
-	// OnSpawn をもう出したか。生まれて最初のフレームだけ出す(Fixup で下ろす)
-	bool isSpawnFired = false;
-};
+		// ---- ランタイム(保存しない) ----
+		// OnSpawn をもう出したか。生まれて最初のフレームだけ出す(Fixup で下ろす)
+		bool isSpawnFired = false;
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<EffectEventsComponent>
+struct Engine::ECS::ComponentTraits<App::Component::EffectEventsComponent>
 {
 	//----------------------------------------------------------------------------------
 	// 借りているリソースを返す
@@ -68,10 +71,10 @@ struct Engine::ECS::ComponentTraits<EffectEventsComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		EffectEventsComponent& _comp = Engine::Editor::GetValue<EffectEventsComponent>(a_pData);
+		App::Component::EffectEventsComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectEventsComponent>(a_pData);
 		auto& _resourceManager = *a_services.pResourceManager;
 
-		for (EffectEventEntry& _entry : _comp.entries)
+		for (App::Component::EffectEventEntry& _entry : _comp.entries)
 		{
 			_resourceManager.ReleaseHandle(_entry.effectHandle);
 		}
@@ -79,10 +82,10 @@ struct Engine::ECS::ComponentTraits<EffectEventsComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		EffectEventsComponent& _comp = Engine::Editor::GetValue<EffectEventsComponent>(a_pData);
+		App::Component::EffectEventsComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectEventsComponent>(a_pData);
 
 		// ハンドルと出したかの印はランタイム状態なので保存しない
-		for (size_t _i = 0; _i < EFFECT_EVENT_MAX; ++_i)
+		for (size_t _i = 0; _i < App::Component::EFFECT_EVENT_MAX; ++_i)
 		{
 			const std::string _key = "entries[" + std::to_string(_i) + "]";
 			a_ar.Field(_key + ".event", _comp.entries[_i].event);
@@ -93,38 +96,38 @@ struct Engine::ECS::ComponentTraits<EffectEventsComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		EffectEventsComponent& _comp = Engine::Editor::GetValue<EffectEventsComponent>(a_context.pData);
+		App::Component::EffectEventsComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectEventsComponent>(a_context.pData);
 
-		Engine::Editor::HelpText("出来事が起きたら、その場にエフェクトを出す(一発もの)");
+		Engine::EditorField::HelpText("出来事が起きたら、その場にエフェクトを出す(一発もの)");
 
-		for (size_t _i = 0; _i < EFFECT_EVENT_MAX; ++_i)
+		for (size_t _i = 0; _i < App::Component::EFFECT_EVENT_MAX; ++_i)
 		{
-			EffectEventEntry& _entry = _comp.entries[_i];
+			App::Component::EffectEventEntry& _entry = _comp.entries[_i];
 
-			Engine::Editor::IDScope _id(static_cast<int>(_i));
-			Engine::Editor::Header(("Entry " + std::to_string(_i)).c_str());
+			Engine::EditorField::IDScope _id(static_cast<int>(_i));
+			Engine::EditorField::Header(("Entry " + std::to_string(_i)).c_str());
 
-			Engine::Editor::Field("Event", _entry.event);
+			Engine::EditorField::Field("Event", _entry.event);
 			switch (_entry.event)
 			{
-			case EEffectEvent::OnSpawn:	Engine::Editor::Tooltip("生まれたときに、自分の位置へ出す"); break;
-			case EEffectEvent::OnDeath:	Engine::Editor::Tooltip("死んだときに、死んだ位置へ出す"); break;
-			case EEffectEvent::OnHit:	Engine::Editor::Tooltip("攻撃を受けたときに、当たった位置へ出す"); break;
+			case App::Component::EEffectEvent::OnSpawn:	Engine::EditorField::Tooltip("生まれたときに、自分の位置へ出す"); break;
+			case App::Component::EEffectEvent::OnDeath:	Engine::EditorField::Tooltip("死んだときに、死んだ位置へ出す"); break;
+			case App::Component::EEffectEvent::OnHit:	Engine::EditorField::Tooltip("攻撃を受けたときに、当たった位置へ出す"); break;
 			default: break;
 			}
 
-			Engine::Editor::AssetField<Engine::Resource::EffectAsset>(
+			Engine::EditorField::AssetField<Engine::Resource::EffectAsset>(
 				*a_context.pWorld->RefEngineServices(),
 				"Effect",
 				"EffectAsset",
 				_entry.effectGUID,
 				_entry.effectHandle);
 
-			Engine::Editor::Field("Scale", _entry.scale, 0.05f, 0.0f);
+			Engine::EditorField::Field("Scale", _entry.scale, 0.05f, 0.0f);
 
 			if (!_entry.IsValid())
 			{
-				Engine::Editor::HelpText("(未設定 : 何も出ない)");
+				Engine::EditorField::HelpText("(未設定 : 何も出ない)");
 			}
 		}
 	}

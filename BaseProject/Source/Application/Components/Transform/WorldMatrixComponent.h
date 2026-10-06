@@ -1,23 +1,26 @@
 ﻿#pragma once
 
-struct WorldMatrixComponent
+namespace App::Component
 {
-	Math::Matrix worldMat= {};
-	bool wasUpdatedThisFrame = true;
-};
+	struct WorldMatrixComponent
+	{
+		Math::Matrix worldMat= {};
+		bool wasUpdatedThisFrame = true;
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<WorldMatrixComponent>
+struct Engine::ECS::ComponentTraits<App::Component::WorldMatrixComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		WorldMatrixComponent& _comp = Engine::Editor::GetValue<WorldMatrixComponent>(a_pData);
+		App::Component::WorldMatrixComponent& _comp = Engine::EditorField::GetValue<App::Component::WorldMatrixComponent>(a_pData);
 		_comp.worldMat = Math::Matrix::Identity();
 		_comp.wasUpdatedThisFrame = false;
 	}
 	static void Edit(CompEditContext& a_context)
 	{
-		WorldMatrixComponent& _comp = Engine::Editor::GetValue<WorldMatrixComponent>(a_context.pData);
-		Engine::Editor::Field("worldMat", _comp.worldMat);
+		App::Component::WorldMatrixComponent& _comp = Engine::EditorField::GetValue<App::Component::WorldMatrixComponent>(a_context.pData);
+		Engine::EditorField::Field("worldMat", _comp.worldMat);
 	}
 };

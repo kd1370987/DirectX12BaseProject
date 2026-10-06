@@ -19,8 +19,8 @@ namespace Engine::Resource
 		auto _basePath = ASSET_DIR + a_path +"/" + a_name;
 
 		// すでにないかチェック
-		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DEFAULT_GUID)
+		Core::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
+		if (_checkGUID != Core::DEFAULT_GUID)
 		{
 			// すでに作成されていた場合
 			ENGINE_LOG("すでに作成済みのパーティクルです : %s",_basePath.c_str());

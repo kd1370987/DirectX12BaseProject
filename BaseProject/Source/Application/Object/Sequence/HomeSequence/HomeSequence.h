@@ -85,19 +85,19 @@ namespace App::Object
 		//-------------------------------------------------------------------
 		// 設定(保存される) : ボタン
 		//-------------------------------------------------------------------
-		Engine::GUID m_missionSelectButtonGUID = {};	// トップ : ミッションセレクトを開く
-		Engine::GUID m_warehouseButtonGUID     = {};	// トップ : 倉庫(まだ何もしない)
-		Engine::GUID m_backButtonGUID          = {};	// セレクト : トップへ戻る(任意)
+		Core::GUID m_missionSelectButtonGUID = {};	// トップ : ミッションセレクトを開く
+		Core::GUID m_warehouseButtonGUID     = {};	// トップ : 倉庫(まだ何もしない)
+		Core::GUID m_backButtonGUID          = {};	// セレクト : トップへ戻る(任意)
 
 		//-------------------------------------------------------------------
 		// 設定(保存される) : 出し分け
 		//-------------------------------------------------------------------
 		// トップでだけ出すもの(背景・ロゴ・見出しなど)
-		std::vector<Engine::GUID> m_homeUIGUIDVec = {};
+		std::vector<Core::GUID> m_homeUIGUIDVec = {};
 
 		// ミッションセレクトボタンを押したときに出すもの
 		// (MissionSelect 本体のほか、専用の背景なども並べられる)
-		std::vector<Engine::GUID> m_missionObjectGUIDVec = {};
+		std::vector<Core::GUID> m_missionObjectGUIDVec = {};
 
 		//-------------------------------------------------------------------
 		// 設定(保存される) : ふるまい

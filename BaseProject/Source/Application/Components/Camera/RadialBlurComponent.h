@@ -1,86 +1,89 @@
 ﻿#pragma once
 
-//==========================================================================================
-// RadialBlurComponent
-//
-// カメラに付ける、放射状ブラー(ラジアルブラー)の設定。
-//
-// blurCenter から外へ向かって絵を引きずり、スピード感を出す画面効果。
-// 引きずる長さは中心からの距離に比例するので、画面中央はほとんど動かず、
-// 端へ行くほど強く流れる。
-//
-//   中心からの距離が radius(UV) を超えたところから効き始め、
-//   falloff の傾きで 0 → 1 へ立ち上がる。
-//
-//------------------------------------------------------------------------------------------
-// 速度レスポンス
-//------------------------------------------------------------------------------------------
-// 強さは手で入れるのではなく、自機の速さから作る。
-// TPSカメラが既に「今どれくらい速いか」を 0..1 へ正規化した値
-// (TPSCameraStateComponent::currentSpeed01)を持っているので、それをそのまま使う。
-// 画角の広がり(fovBoost)と同じ元から効かせることで、両方の演出が足並みを揃える。
-//
-//   t        = speedThreshold から 1 の区間を 0..1 へ引き伸ばしたもの
-//   currentStrength → baseStrength + strengthAtSpeed * t へ responseRate でなまして寄る
-//
-// 実際に currentStrength を書くのは RadialBlurSpeedSystem。
-// アクティブカメラの値を CamSetShaderSystem が GraphicsEngine へ送り、
-// RadialBlurPass が定数バッファとして受け取る。
-//==========================================================================================
-struct RadialBlurComponent
+namespace App::Component
 {
-	// ---- 設定(保存される) ----
+	//==========================================================================================
+	// RadialBlurComponent
+	//
+	// カメラに付ける、放射状ブラー(ラジアルブラー)の設定。
+	//
+	// blurCenter から外へ向かって絵を引きずり、スピード感を出す画面効果。
+	// 引きずる長さは中心からの距離に比例するので、画面中央はほとんど動かず、
+	// 端へ行くほど強く流れる。
+	//
+	//   中心からの距離が radius(UV) を超えたところから効き始め、
+	//   falloff の傾きで 0 → 1 へ立ち上がる。
+	//
+	//------------------------------------------------------------------------------------------
+	// 速度レスポンス
+	//------------------------------------------------------------------------------------------
+	// 強さは手で入れるのではなく、自機の速さから作る。
+	// TPSカメラが既に「今どれくらい速いか」を 0..1 へ正規化した値
+	// (TPSCameraStateComponent::currentSpeed01)を持っているので、それをそのまま使う。
+	// 画角の広がり(fovBoost)と同じ元から効かせることで、両方の演出が足並みを揃える。
+	//
+	//   t        = speedThreshold から 1 の区間を 0..1 へ引き伸ばしたもの
+	//   currentStrength → baseStrength + strengthAtSpeed * t へ responseRate でなまして寄る
+	//
+	// 実際に currentStrength を書くのは RadialBlurSpeedSystem。
+	// アクティブカメラの値を CamSetShaderSystem が GraphicsEngine へ送り、
+	// RadialBlurPass が定数バッファとして受け取る。
+	//==========================================================================================
+	struct RadialBlurComponent
+	{
+		// ---- 設定(保存される) ----
 
-	// ブラーの中心(UV : 画面左上が {0,0}、右下が {1,1})。既定は画面中央
-	Math::Vector2 blurCenter	= { 0.5f, 0.5f };
+		// ブラーの中心(UV : 画面左上が {0,0}、右下が {1,1})。既定は画面中央
+		Math::Vector2 blurCenter	= { 0.5f, 0.5f };
 
-	// サンプル数。多いほど滑らかだが重い
-	int   sampleCount			= 12;
+		// サンプル数。多いほど滑らかだが重い
+		int   sampleCount			= 12;
 
-	// ここまで(中心からのUV距離)はボカさない。
-	// 注視している真ん中まで流すと何も見えなくなるので必ず残す
-	float radius				= 0.15f;
+		// ここまで(中心からのUV距離)はボカさない。
+		// 注視している真ん中まで流すと何も見えなくなるので必ず残す
+		float radius				= 0.15f;
 
-	// radius から先の効きの立ち上がり。大きいほど急に効く
-	float falloff				= 2.0f;
+		// radius から先の効きの立ち上がり。大きいほど急に効く
+		float falloff				= 2.0f;
 
-	// ---- 速度レスポンス(保存される) ----
+		// ---- 速度レスポンス(保存される) ----
 
-	// 速度に関係なく常に掛かる引きずり量(UV単位)。
-	// 既定は 0。TPSカメラでないカメラで固定量を掛けたいときだけ使う
-	float baseStrength			= 0.0f;
+		// 速度に関係なく常に掛かる引きずり量(UV単位)。
+		// 既定は 0。TPSカメラでないカメラで固定量を掛けたいときだけ使う
+		float baseStrength			= 0.0f;
 
-	// 全開(speed01 = 1)のときに baseStrength へ上乗せする量(UV単位)
-	float strengthAtSpeed		= 0.22f;
+		// 全開(speed01 = 1)のときに baseStrength へ上乗せする量(UV単位)
+		float strengthAtSpeed		= 0.22f;
 
-	// 効き始める速さ(0..1)。これ以下ではまったく掛からない。
-	// 巡航中にうっすら滲み続けると画面が汚いので、速いときだけ効かせる
-	float speedThreshold		= 0.35f;
+		// 効き始める速さ(0..1)。これ以下ではまったく掛からない。
+		// 巡航中にうっすら滲み続けると画面が汚いので、速いときだけ効かせる
+		float speedThreshold		= 0.35f;
 
-	// 強さそのものの追従レート(1秒あたりの指数減衰)。
-	// speed01 は TPSFollowComponent 側で既になまされているが、
-	// ブラーの立ち上がりは画角とは別に詰めたいので独立して持つ。
-	// 0 以下にすると速度レスポンスが止まる
-	float responseRate			= 5.0f;
+		// 強さそのものの追従レート(1秒あたりの指数減衰)。
+		// speed01 は TPSFollowComponent 側で既になまされているが、
+		// ブラーの立ち上がりは画角とは別に詰めたいので独立して持つ。
+		// 0 以下にすると速度レスポンスが止まる
+		float responseRate			= 5.0f;
 
-	// false なら流さずそのまま通す
-	bool  enable				= false;
+		// false なら流さずそのまま通す
+		bool  enable				= false;
 
-	// ---- ランタイム(保存しない。確認用) ----
+		// ---- ランタイム(保存しない。確認用) ----
 
-	// 速さから作った今の引きずり量。RadialBlurSpeedSystem が毎フレーム書く
-	float currentStrength		= 0.0f;
+		// 速さから作った今の引きずり量。RadialBlurSpeedSystem が毎フレーム書く
+		float currentStrength		= 0.0f;
 
-	// 実際にシェーダーへ送る引きずり量
-	float GetStrength() const { return baseStrength + currentStrength; }
-};
+		// 実際にシェーダーへ送る引きずり量
+		float GetStrength() const { return baseStrength + currentStrength; }
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<RadialBlurComponent>
+struct Engine::ECS::ComponentTraits<App::Component::RadialBlurComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		RadialBlurComponent& _comp = Engine::Editor::GetValue<RadialBlurComponent>(a_pData);
+		App::Component::RadialBlurComponent& _comp = Engine::EditorField::GetValue<App::Component::RadialBlurComponent>(a_pData);
 		a_ar.Field("blurCenter",      _comp.blurCenter);
 		a_ar.Field("sampleCount",     _comp.sampleCount);
 		a_ar.Field("radius",          _comp.radius);
@@ -94,29 +97,29 @@ struct Engine::ECS::ComponentTraits<RadialBlurComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		RadialBlurComponent& _comp = Engine::Editor::GetValue<RadialBlurComponent>(a_context.pData);
+		App::Component::RadialBlurComponent& _comp = Engine::EditorField::GetValue<App::Component::RadialBlurComponent>(a_context.pData);
 
-		Engine::Editor::Field("RadialBlur Enable", _comp.enable);
-		Engine::Editor::Field("BlurCenter (UV)", _comp.blurCenter, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("画面左上が 0,0 / 右下が 1,1");
-		Engine::Editor::Field("SampleCount", _comp.sampleCount, 1.0f, 1, 64);
-		Engine::Editor::Field("Radius (UV)", _comp.radius, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("この内側はボカさない");
-		Engine::Editor::Field("Falloff", _comp.falloff, 0.1f, 0.0f, 32.0f);
+		Engine::EditorField::Field("RadialBlur Enable", _comp.enable);
+		Engine::EditorField::Field("BlurCenter (UV)", _comp.blurCenter, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Tooltip("画面左上が 0,0 / 右下が 1,1");
+		Engine::EditorField::Field("SampleCount", _comp.sampleCount, 1.0f, 1, 64);
+		Engine::EditorField::Field("Radius (UV)", _comp.radius, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Tooltip("この内側はボカさない");
+		Engine::EditorField::Field("Falloff", _comp.falloff, 0.1f, 0.0f, 32.0f);
 
-		Engine::Editor::Line();
-		Engine::Editor::HelpText("Speed Response");
-		Engine::Editor::Field("BaseStrength", _comp.baseStrength, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("速度に関係なく常に掛かる量");
-		Engine::Editor::Field("StrengthAtSpeed", _comp.strengthAtSpeed, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("SpeedThreshold", _comp.speedThreshold, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("これ以下の速さでは掛からない");
-		Engine::Editor::Field("ResponseRate", _comp.responseRate, 0.1f, 0.0f, 60.0f);
-		Engine::Editor::Tooltip("速さの基準は TPSFollowComponent の SpeedReference");
+		Engine::EditorField::Line();
+		Engine::EditorField::HelpText("Speed Response");
+		Engine::EditorField::Field("BaseStrength", _comp.baseStrength, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Tooltip("速度に関係なく常に掛かる量");
+		Engine::EditorField::Field("StrengthAtSpeed", _comp.strengthAtSpeed, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Field("SpeedThreshold", _comp.speedThreshold, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Tooltip("これ以下の速さでは掛からない");
+		Engine::EditorField::Field("ResponseRate", _comp.responseRate, 0.1f, 0.0f, 60.0f);
+		Engine::EditorField::Tooltip("速さの基準は TPSFollowComponent の SpeedReference");
 
 		// システムが毎フレーム上書きするので表示のみ
-		Engine::Editor::Line();
-		Engine::Editor::Value("CurrentStrength", "%.3f", _comp.currentStrength);
-		Engine::Editor::Value("SendStrength", "%.3f", _comp.GetStrength());
+		Engine::EditorField::Line();
+		Engine::EditorField::Value("CurrentStrength", "%.3f", _comp.currentStrength);
+		Engine::EditorField::Value("SendStrength", "%.3f", _comp.GetStrength());
 	}
 };

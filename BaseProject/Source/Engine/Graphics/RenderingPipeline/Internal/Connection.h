@@ -15,7 +15,7 @@ namespace Engine::Graphics::Pipeline
 	struct Connection
 	{
 		int linkID = 0;							// この接続線のID
-		Engine::GUID dstPassGUID = {};			// 接続先パスのGUID
+		Core::GUID dstPassGUID = {};			// 接続先パスのGUID
 		uint32_t srcSlotID = 0;					// 出力側(線の根本)のスロットID
 		uint32_t dstSlotID = 0;					// 入力側(線の先)のスロットID
 

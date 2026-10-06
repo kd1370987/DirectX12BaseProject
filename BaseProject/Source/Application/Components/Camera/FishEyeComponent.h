@@ -1,46 +1,49 @@
 ﻿#pragma once
 
-//==========================================================================================
-// FishEyeComponent
-//
-// カメラに付ける、魚眼レンズの設定。
-//
-// center を中心に、外へ向かうほど強く絵を引き伸ばす画面効果。
-// ずらす量は中心からの距離の二乗に比例するので、中心付近はほとんど動かず、
-// 画面の隅だけが大きく膨らむ = レンズを通したような歪み方になる。
-//
-//   strength > 0 … 樽型。外側が縮んで画面の四隅に黒が出る(広角レンズ)
-//   strength < 0 … 糸巻き型。外側が伸びて絵が画面外へはみ出す
-//
-// ラジアルブラー(RadialBlurComponent)と同じで、値の置き場所はカメラ。
-// CamSetShaderSystem がアクティブカメラのぶんを GraphicsEngine へ送り、
-// FishEyePass が定数バッファとして受け取る。
-//
-// 掛かるのはシーンの絵だけで、UI には掛からない
-// (UIパスはポストプロセスより後で AfterTAAColor へ直接描かれるため)。
-// UIを曲げたいときは UIBase の湾曲(CurveAngle)を使うこと
-//==========================================================================================
-struct FishEyeComponent
+namespace App::Component
 {
-	// ---- 設定(保存される) ----
+	//==========================================================================================
+	// FishEyeComponent
+	//
+	// カメラに付ける、魚眼レンズの設定。
+	//
+	// center を中心に、外へ向かうほど強く絵を引き伸ばす画面効果。
+	// ずらす量は中心からの距離の二乗に比例するので、中心付近はほとんど動かず、
+	// 画面の隅だけが大きく膨らむ = レンズを通したような歪み方になる。
+	//
+	//   strength > 0 … 樽型。外側が縮んで画面の四隅に黒が出る(広角レンズ)
+	//   strength < 0 … 糸巻き型。外側が伸びて絵が画面外へはみ出す
+	//
+	// ラジアルブラー(RadialBlurComponent)と同じで、値の置き場所はカメラ。
+	// CamSetShaderSystem がアクティブカメラのぶんを GraphicsEngine へ送り、
+	// FishEyePass が定数バッファとして受け取る。
+	//
+	// 掛かるのはシーンの絵だけで、UI には掛からない
+	// (UIパスはポストプロセスより後で AfterTAAColor へ直接描かれるため)。
+	// UIを曲げたいときは UIBase の湾曲(CurveAngle)を使うこと
+	//==========================================================================================
+	struct FishEyeComponent
+	{
+		// ---- 設定(保存される) ----
 
-	// 歪みの中心(UV : 画面左上が {0,0}、右下が {1,1})。既定は画面中央
-	Math::Vector2 center	= { 0.5f, 0.5f };
+		// 歪みの中心(UV : 画面左上が {0,0}、右下が {1,1})。既定は画面中央
+		Math::Vector2 center	= { 0.5f, 0.5f };
 
-	// 歪みの強さ。0で歪まない。
-	// 0.2 前後でうっすら、0.5 を超えると四隅の黒がはっきり見えてくる
-	float strength			= 0.2f;
+		// 歪みの強さ。0で歪まない。
+		// 0.2 前後でうっすら、0.5 を超えると四隅の黒がはっきり見えてくる
+		float strength			= 0.2f;
 
-	// false なら歪ませずそのまま通す
-	bool  enable			= false;
-};
+		// false なら歪ませずそのまま通す
+		bool  enable			= false;
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<FishEyeComponent>
+struct Engine::ECS::ComponentTraits<App::Component::FishEyeComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		FishEyeComponent& _comp = Engine::Editor::GetValue<FishEyeComponent>(a_pData);
+		App::Component::FishEyeComponent& _comp = Engine::EditorField::GetValue<App::Component::FishEyeComponent>(a_pData);
 		a_ar.Field("center",   _comp.center);
 		a_ar.Field("strength", _comp.strength);
 		a_ar.Field("enable",   _comp.enable);
@@ -48,12 +51,12 @@ struct Engine::ECS::ComponentTraits<FishEyeComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		FishEyeComponent& _comp = Engine::Editor::GetValue<FishEyeComponent>(a_context.pData);
+		App::Component::FishEyeComponent& _comp = Engine::EditorField::GetValue<App::Component::FishEyeComponent>(a_context.pData);
 
-		Engine::Editor::Field("FishEye Enable", _comp.enable);
-		Engine::Editor::Field("Center (UV)", _comp.center, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("画面左上が 0,0 / 右下が 1,1");
-		Engine::Editor::Field("Strength", _comp.strength, 0.01f, -1.0f, 2.0f);
-		Engine::Editor::Tooltip("正で樽型(四隅が黒くなる) / 負で糸巻き型");
+		Engine::EditorField::Field("FishEye Enable", _comp.enable);
+		Engine::EditorField::Field("Center (UV)", _comp.center, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Tooltip("画面左上が 0,0 / 右下が 1,1");
+		Engine::EditorField::Field("Strength", _comp.strength, 0.01f, -1.0f, 2.0f);
+		Engine::EditorField::Tooltip("正で樽型(四隅が黒くなる) / 負で糸巻き型");
 	}
 };

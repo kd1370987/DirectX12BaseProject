@@ -1,0 +1,54 @@
+﻿#pragma once
+
+namespace Core
+{
+	struct GUID
+	{
+		UUID value;
+
+		GUID() { std::memset(&value, 0, sizeof(UUID)); }
+
+		// 文字列から生成するコンストラクタ
+		explicit GUID(const std::string& a_str) { FromString(a_str); }
+
+		// 新たに作成
+		void Create();
+
+		// 文字列へ変換
+		std::string String() const;
+
+		// 文字列からの再生
+		void FromString(const std::string& a_str);
+
+		// ハッシュの取得
+		size_t Hash() const noexcept;
+
+		// 宇宙船が定義されていなさそうだから
+		// 自分でオペレーター定義
+		bool operator==(const GUID& other) const
+		{
+			return InlineIsEqualGUID(value,other.value);
+		}
+
+		
+		bool IsValid() const {
+			// valueが全て0でないことをチェック
+			static const UUID ZERO = {};
+			return memcmp(&value, &ZERO, sizeof(UUID)) != 0;
+		}
+	};
+
+	inline const GUID DEFAULT_GUID = {};
+}
+
+namespace std
+{
+	template<>
+	struct hash<Core::GUID>
+	{
+		size_t operator()(const Core::GUID& g) const noexcept
+		{
+			return g.Hash();
+		}
+	};
+}

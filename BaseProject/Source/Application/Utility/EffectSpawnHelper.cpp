@@ -59,7 +59,7 @@ namespace App::Utility
 		//----------------------------------------------------------------------
 		bool BuildEffectEntity(
 			Engine::ECS::World& a_world,
-			const Engine::GUID& a_effectGUID,
+			const Core::GUID& a_effectGUID,
 			const Math::Vector3& a_pos,
 			bool a_isDestroyOnFinish,
 			const Math::Vector3& a_emitDir,
@@ -71,7 +71,7 @@ namespace App::Utility
 			EffectDataMap& _data = a_outData;
 
 			// ---- 位置 ----
-			LocalTransformComponent _localTrs = {};
+			Component::LocalTransformComponent _localTrs = {};
 			_localTrs.pos = a_pos;
 			_localTrs.isDirty = true;
 			if (!PushComponent(a_world, _sig, _data, _localTrs)) return false;
@@ -79,13 +79,13 @@ namespace App::Utility
 			// ---- ワールド行列 ----
 			// CalcMatrixSystem(PostUpdate)が Draw の前に組み直すが、
 			// 出た最初のフレームから正しい位置で出したいので、ここで平行移動だけ入れておく
-			WorldMatrixComponent _worldMat = {};
+			Component::WorldMatrixComponent _worldMat = {};
 			_worldMat.worldMat = Math::Matrix::CreateTranslation(a_pos);
 			_worldMat.wasUpdatedThisFrame = false;
 			if (!PushComponent(a_world, _sig, _data, _worldMat)) return false;
 
 			// ---- 再生するエフェクト ----
-			EffectAssetComponent _effect = {};
+			Component::EffectAssetComponent _effect = {};
 			_effect.effectGUID = a_effectGUID;
 			_effect.playOnStart = true;			// 出た瞬間から再生する
 			_effect.destroyOnFinish = a_isDestroyOnFinish;	// 出し切ったら自分から消える
@@ -95,7 +95,7 @@ namespace App::Utility
 			// ---- 出す側からの上書き ----
 			// アセットは共有なので、大きさと向きの違いはここで付ける。
 			// このエンティティは平行移動しか持たないので、渡された向きはそのままワールドの向きになる
-			EffectOverrideComponent _override = {};
+			Component::EffectOverrideComponent _override = {};
 			_override.effectScale = (a_scale > 0.0f) ? a_scale : 1.0f;
 
 			Math::Vector3 _emitDir = a_emitDir;
@@ -112,7 +112,7 @@ namespace App::Utility
 
 			// ---- エフェクトである印 ----
 			// 一括停止などで絞り込めるように、既存のエフェクトと同じ目印を付けておく
-			PushComponent(a_world, _sig, _data, EffectComponent{});
+			PushComponent(a_world, _sig, _data, Component::EffectComponent{});
 
 			return true;
 		}
@@ -120,13 +120,13 @@ namespace App::Utility
 
 	bool SpawnEffectAt(
 		Engine::ECS::World& a_world,
-		const Engine::GUID& a_effectGUID,
+		const Core::GUID& a_effectGUID,
 		const Math::Vector3& a_pos,
 		bool a_isDestroyOnFinish,
 		const Math::Vector3& a_emitDir,
 		float a_scale)
 	{
-		if (a_effectGUID == Engine::DEFAULT_GUID) return false;
+		if (a_effectGUID == Core::DEFAULT_GUID) return false;
 
 		Engine::ECS::Signature _sig = {};
 		EffectDataMap _data = {};
@@ -151,13 +151,13 @@ namespace App::Utility
 	//==========================================================================================
 	Engine::ECS::Entity SpawnEffectAtNow(
 		Engine::ECS::World& a_world,
-		const Engine::GUID& a_effectGUID,
+		const Core::GUID& a_effectGUID,
 		const Math::Vector3& a_pos,
 		bool a_isDestroyOnFinish,
 		const Math::Vector3& a_emitDir,
 		float a_scale)
 	{
-		if (a_effectGUID == Engine::DEFAULT_GUID) return Engine::ECS::Limits::INVALID_ENTITY;
+		if (a_effectGUID == Core::DEFAULT_GUID) return Engine::ECS::Limits::INVALID_ENTITY;
 
 		Engine::ECS::Signature _sig = {};
 		EffectDataMap _data = {};

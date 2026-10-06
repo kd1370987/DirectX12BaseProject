@@ -3,14 +3,14 @@
 #include "Engine/ECS/System/SystemContext.h"	// EngineServices
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 namespace Engine::Scene
 {
 	namespace
 	{
 		// GUID からテクスチャの読み込みを始める。未設定なら空のハンドル
-		ResourceRef<Resource::Texture> RequestTexture(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid)
+		ResourceRef<Resource::Texture> RequestTexture(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid)
 		{
 			if (!a_guid.IsValid()) return {};
 			return a_resourceManager.RequestLoad<Resource::Texture>(a_guid);
@@ -20,7 +20,7 @@ namespace Engine::Scene
 		bool EnableField(const char* a_label, int& a_enable)
 		{
 			bool _isEnable = (a_enable != 0);
-			if (!Engine::Editor::Field(a_label, _isEnable)) return false;
+			if (!Engine::EditorField::Field(a_label, _isEnable)) return false;
 
 			a_enable = _isEnable ? 1 : 0;
 			return true;
@@ -172,12 +172,12 @@ namespace Engine::Scene
 	//======================================================================================
 	void SceneAmbient::DrawEdit(const ECS::EngineServices& a_services)
 	{
-		Engine::Editor::Field("IsEnabled", m_isEnabled);
-		Engine::Editor::Tooltip("切ると、下に重なっているシーンの環境設定をそのまま使う(ポーズ画面など)");
+		Engine::EditorField::Field("IsEnabled", m_isEnabled);
+		Engine::EditorField::Tooltip("切ると、下に重なっているシーンの環境設定をそのまま使う(ポーズ画面など)");
 
 		if (!m_isEnabled)
 		{
-			Engine::Editor::HelpText("(このシーンの環境設定は使われません)");
+			Engine::EditorField::HelpText("(このシーンの環境設定は使われません)");
 			return;
 		}
 
@@ -190,76 +190,76 @@ namespace Engine::Scene
 
 	void SceneAmbient::DrawLightingEdit()
 	{
-		Engine::Editor::Header("Lighting");
+		Engine::EditorField::Header("Lighting");
 
-		Engine::Editor::Field("AmbientColor", m_ambient.ambientColorScale, 0.01f);
-		Engine::Editor::Field("DLColor", m_dlColor, 0.01f);
-		Engine::Editor::Field("DLDir", m_dlDir, 0.01f);
+		Engine::EditorField::Field("AmbientColor", m_ambient.ambientColorScale, 0.01f);
+		Engine::EditorField::Field("DLColor", m_dlColor, 0.01f);
+		Engine::EditorField::Field("DLDir", m_dlDir, 0.01f);
 	}
 
 	void SceneAmbient::DrawShadowEdit()
 	{
-		Engine::Editor::Header("Shadow");
+		Engine::EditorField::Header("Shadow");
 
 		// Raytracing : 主光源へレイを飛ばす / ShadowMap : 光源から見た深度と比べる
-		Engine::Editor::Field("ShadowMode", m_shadow.mode);
+		Engine::EditorField::Field("ShadowMode", m_shadow.mode);
 
 		// ここから下はシャドウマップのときだけ効く
 		if (m_shadow.mode != Graphics::EDirectionalShadowMode::ShadowMap) return;
 
 		// 影を落とす奥行き。広げるほど1テクセルが粗くなる
-		Engine::Editor::Field("Distance", m_shadow.distance, 0.5f, 1.0f, 10000.0f);
+		Engine::EditorField::Field("Distance", m_shadow.distance, 0.5f, 1.0f, 10000.0f);
 
 		int _cascadeCount = static_cast<int>(m_shadow.cascadeCount);
-		if (Engine::Editor::Field("CascadeCount", _cascadeCount, 0.05f, 1,
+		if (Engine::EditorField::Field("CascadeCount", _cascadeCount, 0.05f, 1,
 			static_cast<int>(Graphics::MAX_SHADOW_CASCADES)))
 		{
 			m_shadow.cascadeCount = static_cast<uint32_t>(_cascadeCount);
 		}
 
 		// 0 で等間隔、1 で手前に寄せる(足元ほど細かくなる)
-		Engine::Editor::Slider("SplitLambda", m_shadow.splitLambda, 0.0f, 1.0f);
+		Engine::EditorField::Slider("SplitLambda", m_shadow.splitLambda, 0.0f, 1.0f);
 
 		// 縞(アクネ)が出たら上げる。上げすぎると影が接地面から浮く
-		Engine::Editor::Field("DepthBias", m_shadow.depthBias, 0.001f, 0.0f, 10.0f);
-		Engine::Editor::Field("NormalBias", m_shadow.normalBias, 0.01f, 0.0f, 10.0f);
+		Engine::EditorField::Field("DepthBias", m_shadow.depthBias, 0.001f, 0.0f, 10.0f);
+		Engine::EditorField::Field("NormalBias", m_shadow.normalBias, 0.01f, 0.0f, 10.0f);
 
 		// 縁のぼかし幅(テクセル数)
-		Engine::Editor::Field("Softness", m_shadow.softness, 0.01f, 0.0f, 8.0f);
+		Engine::EditorField::Field("Softness", m_shadow.softness, 0.01f, 0.0f, 8.0f);
 
 		// 画面の外(光源側)の遮蔽物をどこまで拾うか
-		Engine::Editor::Field("CasterDistance", m_shadow.casterDistance, 1.0f, 0.0f, 10000.0f);
+		Engine::EditorField::Field("CasterDistance", m_shadow.casterDistance, 1.0f, 0.0f, 10000.0f);
 	}
 
 	void SceneAmbient::DrawFogEdit()
 	{
 		// enable が false の間はシェーダー側で計算ごとスキップされる
-		Engine::Editor::Header("HeightFog");
+		Engine::EditorField::Header("HeightFog");
 		{
 			EnableField("HeightFogEnable", m_ambient.heightFogEnable);
 
-			Engine::Editor::ColorField("HeightFogColor", m_ambient.heightFogColor);
-			Engine::Editor::Field("HeightFogHeight", m_ambient.heightFogHeight, 0.1f);
+			Engine::EditorField::ColorField("HeightFogColor", m_ambient.heightFogColor);
+			Engine::EditorField::Field("HeightFogHeight", m_ambient.heightFogHeight, 0.1f);
 			// 基準高さからこの距離だけ進むと 100%
-			Engine::Editor::Field("HeightFogMaxRange", m_ambient.heightFogMaxRange, 0.1f, 0.0f);
+			Engine::EditorField::Field("HeightFogMaxRange", m_ambient.heightFogMaxRange, 0.1f, 0.0f);
 
 			// どちら側へ濃くしていくか
 			static const char* DENSE_NAME[] = { "Upward", "Downward" };
 			int _denseDown = m_ambient.heightFogDenseDown != 0 ? 1 : 0;
-			if (Engine::Editor::Combo("HeightFogDense", _denseDown, DENSE_NAME))
+			if (Engine::EditorField::Combo("HeightFogDense", _denseDown, DENSE_NAME))
 			{
 				m_ambient.heightFogDenseDown = _denseDown;
 			}
 		}
 
-		Engine::Editor::Header("DistanceFog");
+		Engine::EditorField::Header("DistanceFog");
 		{
 			EnableField("DistanceFogEnable", m_ambient.distanceFogEnable);
 
-			Engine::Editor::ColorField("DistanceFogColor", m_ambient.distanceFogColor);
-			Engine::Editor::Field("DistanceFogStart", m_ambient.distanceFogStart, 0.1f, 0.0f);
+			Engine::EditorField::ColorField("DistanceFogColor", m_ambient.distanceFogColor);
+			Engine::EditorField::Field("DistanceFogStart", m_ambient.distanceFogStart, 0.1f, 0.0f);
 			// この距離で 100%。開始距離より手前には下げられないようにしておく
-			Engine::Editor::Field("DistanceFogMaxRange", m_ambient.distanceFogMaxRange, 0.1f, m_ambient.distanceFogStart, FLT_MAX);
+			Engine::EditorField::Field("DistanceFogMaxRange", m_ambient.distanceFogMaxRange, 0.1f, m_ambient.distanceFogStart, FLT_MAX);
 		}
 	}
 
@@ -271,83 +271,83 @@ namespace Engine::Scene
 	//======================================================================================
 	void SceneAmbient::DrawVolumetricFogEdit(const ECS::EngineServices& a_services)
 	{
-		Engine::Editor::Header("VolumetricFog");
-		Engine::Editor::HelpText("パイプラインに SceneVolumetricFogPass / SceneFogCompositePass があるときだけ効きます");
+		Engine::EditorField::Header("VolumetricFog");
+		Engine::EditorField::HelpText("パイプラインに SceneVolumetricFogPass / SceneFogCompositePass があるときだけ効きます");
 
 		// 合成 : メインカラーへ重ねるときの強さ
 		EnableField("FogCompositeEnable", m_fogComposite.enable);
-		Engine::Editor::Tooltip("切るとフォグを重ねずにそのまま通す");
-		Engine::Editor::Field("FogCompositeIntensity", m_fogComposite.intensity, 0.01f, 0.0f);
-		Engine::Editor::Tooltip("フォグの濃さに掛ける倍率");
+		Engine::EditorField::Tooltip("切るとフォグを重ねずにそのまま通す");
+		Engine::EditorField::Field("FogCompositeIntensity", m_fogComposite.intensity, 0.01f, 0.0f);
+		Engine::EditorField::Tooltip("フォグの濃さに掛ける倍率");
 
 		// シーンのフォグ
-		Engine::Editor::Header("SceneFog");
-		Engine::Editor::ColorField("SceneFogColor", m_sceneFog.fogColor);
-		Engine::Editor::Field("SceneFogDensity", m_sceneFog.density, 0.0001f, 0.0f);
-		Engine::Editor::Tooltip("濃さ(1m あたり)。0 ならシーンのフォグは掛からない");
-		Engine::Editor::Field("SceneFogMaxDistance", m_sceneFog.maxDistance, 1.0f, 0.0f);
-		Engine::Editor::Tooltip("空(何も描かれていない画素)へ向けて積分する距離(m)");
+		Engine::EditorField::Header("SceneFog");
+		Engine::EditorField::ColorField("SceneFogColor", m_sceneFog.fogColor);
+		Engine::EditorField::Field("SceneFogDensity", m_sceneFog.density, 0.0001f, 0.0f);
+		Engine::EditorField::Tooltip("濃さ(1m あたり)。0 ならシーンのフォグは掛からない");
+		Engine::EditorField::Field("SceneFogMaxDistance", m_sceneFog.maxDistance, 1.0f, 0.0f);
+		Engine::EditorField::Tooltip("空(何も描かれていない画素)へ向けて積分する距離(m)");
 
 		// グラウンドダスト
-		Engine::Editor::Header("GroundDust");
-		Engine::Editor::ColorField("DustColor", m_groundDust.dustColor);
-		Engine::Editor::Field("DustDensity", m_groundDust.density, 0.01f, 0.0f);
-		Engine::Editor::Tooltip("濃さ(1m あたり)。0 ならチリは出ない");
-		Engine::Editor::Field("DustHeight", m_groundDust.height, 0.05f, 0.0f);
-		Engine::Editor::Tooltip("チリが立つ高さ(地面から。この高さで濃さが 0 になる)");
-		Engine::Editor::Field("DustStepSize", m_groundDust.stepSize, 0.01f, 0.01f);
-		Engine::Editor::Tooltip("チリの層の中をレイマーチする1歩の長さ(m)。層の中が長いと歩数の上限で伸びる");
+		Engine::EditorField::Header("GroundDust");
+		Engine::EditorField::ColorField("DustColor", m_groundDust.dustColor);
+		Engine::EditorField::Field("DustDensity", m_groundDust.density, 0.01f, 0.0f);
+		Engine::EditorField::Tooltip("濃さ(1m あたり)。0 ならチリは出ない");
+		Engine::EditorField::Field("DustHeight", m_groundDust.height, 0.05f, 0.0f);
+		Engine::EditorField::Tooltip("チリが立つ高さ(地面から。この高さで濃さが 0 になる)");
+		Engine::EditorField::Field("DustStepSize", m_groundDust.stepSize, 0.01f, 0.01f);
+		Engine::EditorField::Tooltip("チリの層の中をレイマーチする1歩の長さ(m)。層の中が長いと歩数の上限で伸びる");
 
-		if (Engine::Editor::AssetField(a_services, "NoiseTexture", "Texture", m_fogNoiseTexGUID))
+		if (Engine::EditorField::AssetField(a_services, "NoiseTexture", "Texture", m_fogNoiseTexGUID))
 		{
 			if (a_services.pResourceManager)
 			{
 				m_fogNoiseTexRef = RequestTexture(*a_services.pResourceManager, m_fogNoiseTexGUID);
 			}
 		}
-		Engine::Editor::Field("DustNoiseScale", m_groundDust.noiseScale, 0.001f, 0.0f);
-		Engine::Editor::Tooltip("ノイズのワールド座標に掛ける倍率(大きいほど細かい)");
+		Engine::EditorField::Field("DustNoiseScale", m_groundDust.noiseScale, 0.001f, 0.0f);
+		Engine::EditorField::Tooltip("ノイズのワールド座標に掛ける倍率(大きいほど細かい)");
 
 		if (!m_fogNoiseTexGUID.IsValid())
 		{
-			Engine::Editor::HelpText("NoiseTexture 未設定 : チリはノイズなしで一様に立ちます");
+			Engine::EditorField::HelpText("NoiseTexture 未設定 : チリはノイズなしで一様に立ちます");
 		}
 	}
 
 	void SceneAmbient::DrawSkyEdit(const ECS::EngineServices& a_services)
 	{
-		Engine::Editor::Header("Sky");
+		Engine::EditorField::Header("Sky");
 
 		// 正距円筒(横:縦 = 2:1)のテクスチャを想定している。
 		// 選ぶだけで空になるので、スカイドームのモデルは置かなくてよい
-		if (Engine::Editor::AssetField(a_services, "Sky Texture", "Texture", m_skyTexGUID))
+		if (Engine::EditorField::AssetField(a_services, "Sky Texture", "Texture", m_skyTexGUID))
 		{
 			if (a_services.pResourceManager)
 			{
 				m_skyTexRef = RequestTexture(*a_services.pResourceManager, m_skyTexGUID);
 			}
 		}
-		Engine::Editor::Image(a_services, m_skyTexRef, 256, 128);
+		Engine::EditorField::Image(a_services, m_skyTexRef, 256, 128);
 
 		if (!m_skyTexGUID.IsValid())
 		{
-			Engine::Editor::WarningText("(Sky Texture 未設定 : 空は描かれません)");
+			Engine::EditorField::WarningText("(Sky Texture 未設定 : 空は描かれません)");
 		}
 
 		// 露出 : 出力先がHDRなので 1.0 を超えて構わない。
 		// 超えた分はブルームの抽出しきい値に乗り、最後にトーンマップで落ちる
-		Engine::Editor::Field("Exposure", m_sky.exposure, 0.01f, 0.0f, 100.0f);
+		Engine::EditorField::Field("Exposure", m_sky.exposure, 0.01f, 0.0f, 100.0f);
 
 		// 地平線の高さ = 仮想ドームの中心の高さ。カメラがここから離れると地平線が動く
-		Engine::Editor::Field("HorizonHeight", m_sky.horizonHeight, 0.1f);
+		Engine::EditorField::Field("HorizonHeight", m_sky.horizonHeight, 0.1f);
 
 		// 半径 : 小さいほどカメラの上下で地平線が強く動く。
 		// 十分大きく取ると、ほぼ無限遠のスカイボックスと同じ見え方になる
-		Engine::Editor::Field("Radius", m_sky.radius, 1.0f, 0.01f, 100000.0f);
+		Engine::EditorField::Field("Radius", m_sky.radius, 1.0f, 0.01f, 100000.0f);
 		if (m_sky.radius < 0.01f) m_sky.radius = 0.01f;
 
 		// 方位の回転 : 空を回して太陽や雲の位置を平行光の向きに合わせる
-		Engine::Editor::Field("RotationDeg", m_sky.rotationDeg, 0.5f, -360.0f, 360.0f);
+		Engine::EditorField::Field("RotationDeg", m_sky.rotationDeg, 0.5f, -360.0f, 360.0f);
 		if (m_sky.rotationDeg >= 360.0f) m_sky.rotationDeg -= 360.0f;
 		if (m_sky.rotationDeg <= -360.0f) m_sky.rotationDeg += 360.0f;
 
@@ -362,12 +362,12 @@ namespace Engine::Scene
 
 		const bool _isSkyDof = (m_sky.isSkyDof != 0);
 		{
-			Engine::Editor::DisabledScope _disabled(!_isSkyDof);
-			Engine::Editor::Field("SkyDofScale", m_sky.dofScale, 0.01f, 0.0f, 1.0f);
+			Engine::EditorField::DisabledScope _disabled(!_isSkyDof);
+			Engine::EditorField::Field("SkyDofScale", m_sky.dofScale, 0.01f, 0.0f, 1.0f);
 		}
 		if (!_isSkyDof)
 		{
-			Engine::Editor::HelpText("(空にはボケが掛かりません)");
+			Engine::EditorField::HelpText("(空にはボケが掛かりません)");
 		}
 	}
 }

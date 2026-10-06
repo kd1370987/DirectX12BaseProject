@@ -95,13 +95,13 @@ namespace Engine::Graphics::Pipeline
 		// 今入っているものを全部捨てる
 		//----------------------------------------------------------------------------------
 		{
-			std::vector<Engine::GUID> _guidVec = {};
+			std::vector<Core::GUID> _guidVec = {};
 			_guidVec.reserve(_pGraph->GetPasses().size());
 			for (const auto& _upPass : _pGraph->GetPasses())
 			{
 				if (_upPass) _guidVec.push_back(_upPass->GetGUID());
 			}
-			for (const Engine::GUID& _guid : _guidVec)
+			for (const Core::GUID& _guid : _guidVec)
 			{
 				_pGraph->RemovePass(_guid);
 			}

@@ -5,39 +5,42 @@
 #include "Application/Components/Core/PhaseTag/PostDeserializeTag.h"
 #include "Application/Components/Combat/HealthComponent.h"
 
-//==============================================================================
-// HealthFixupSystem
-//
-// 現在体力と死亡状態は保存しないランタイム値なので、生成された時点で
-// 「満タンの生存」に戻す。
-// シーンから読み込まれたエンティティも、プレハブから撃ち出されたエンティティも
-// 必ず PostDeserialize を通るので、ここで初期化すれば取りこぼしがない。
-//==============================================================================
-void HealthFixupSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	a_world.PostDeserializeTask<HealthComponent>(
-		Engine::ECS::ESystemType::PostDeserialize,
-		"HealthFixupSystem",
-		[]
-		(
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			PostDeserializeTag* a_tag,
-			HealthComponent* a_healthArray
-			)
-		{
-			for (size_t _i = 0; _i < a_count; ++_i)
+	//==============================================================================
+	// HealthFixupSystem
+	//
+	// 現在体力と死亡状態は保存しないランタイム値なので、生成された時点で
+	// 「満タンの生存」に戻す。
+	// シーンから読み込まれたエンティティも、プレハブから撃ち出されたエンティティも
+	// 必ず PostDeserialize を通るので、ここで初期化すれば取りこぼしがない。
+	//==============================================================================
+	void HealthFixupSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		a_world.PostDeserializeTask<Component::HealthComponent>(
+			Engine::ECS::ESystemType::PostDeserialize,
+			"HealthFixupSystem",
+			[]
+			(
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::PostDeserializeTag* a_tag,
+				Component::HealthComponent* a_healthArray
+				)
 			{
-				HealthComponent& _health = a_healthArray[_i];
+				for (size_t _i = 0; _i < a_count; ++_i)
+				{
+					Component::HealthComponent& _health = a_healthArray[_i];
 
-				if (_health.maxHealth < 0.0f) _health.maxHealth = 0.0f;
-				if (_health.releaseDelay < 0.0f) _health.releaseDelay = 0.0f;
+					if (_health.maxHealth < 0.0f) _health.maxHealth = 0.0f;
+					if (_health.releaseDelay < 0.0f) _health.releaseDelay = 0.0f;
 
-				_health.currentHealth = _health.maxHealth;
-				_health.isDead        = false;
-				_health.deathTimer    = 0.0f;
+					_health.currentHealth = _health.maxHealth;
+					_health.isDead        = false;
+					_health.deathTimer    = 0.0f;
+				}
 			}
-		}
-	);
+		);
+	}
 }

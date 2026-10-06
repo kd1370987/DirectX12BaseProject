@@ -1,16 +1,19 @@
 ﻿#pragma once
 
-struct NodePoseComponent
+namespace App::Component
 {
-	Engine::RangeHandle<Engine::Resource::NodePoseMatrix> nodePoseHandle;
-};
+	struct NodePoseComponent
+	{
+		Engine::RangeHandle<Engine::Resource::NodePoseMatrix> nodePoseHandle;
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<NodePoseComponent>
+struct Engine::ECS::ComponentTraits<App::Component::NodePoseComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		NodePoseComponent& _comp = Engine::Editor::GetValue<NodePoseComponent>(a_context.pData);
-		Engine::Editor::HandleInfo(_comp.nodePoseHandle);
+		App::Component::NodePoseComponent& _comp = Engine::EditorField::GetValue<App::Component::NodePoseComponent>(a_context.pData);
+		Engine::EditorField::HandleInfo(_comp.nodePoseHandle);
 	}
 };

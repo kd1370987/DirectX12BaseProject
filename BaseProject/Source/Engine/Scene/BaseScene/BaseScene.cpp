@@ -13,7 +13,7 @@
 #include "../../Option/OptionManager.h"
 #include "../../Physics/PhysicsWorld.h"
 #include "../../Input/InputManager/InputManager.h"
-#include "../../Editor/Editor.h"
+#include "Editor/Editor.h"
 #include "../../Graphics/GraphicsEngine.h"
 #include "../../Graphics/DebugDraw/DebugDraw.h"
 #include "../../Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
@@ -184,8 +184,8 @@ namespace Engine::Scene
 		// ---------------------------------------------------------
 		if (a_ar.GetMode() == Persistence::Archive::EMode::Save)
 		{
-			m_upWorld->ForEach<GUIDComponent>(
-				[&_entityVec](ECS::Chunk* a_pChunk, uint32_t a_count, GUIDComponent* a_guidArray)
+			m_upWorld->ForEach<App::Component::GUIDComponent>(
+				[&_entityVec](ECS::Chunk* a_pChunk, uint32_t a_count, App::Component::GUIDComponent* a_guidArray)
 				{
 					for (size_t _i = 0; _i < a_count; ++_i)
 					{

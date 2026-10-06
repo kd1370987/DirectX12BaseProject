@@ -32,9 +32,9 @@
 namespace Engine::ECS
 {
 	// 依存に数えない型として基盤へ宣言する
-	template<> struct IsQueryOnlyTag<PostDeserializeTag>	: std::true_type {};
-	template<> struct IsQueryOnlyTag<AwakeTag>			: std::true_type {};
-	template<> struct IsQueryOnlyTag<StartTag>			: std::true_type {};
-	template<> struct IsQueryOnlyTag<ActiveTag>			: std::true_type {};
-	template<> struct IsQueryOnlyTag<ReleaseTag>			: std::true_type {};
+	template<> struct IsQueryOnlyTag<App::Component::PostDeserializeTag>	: std::true_type {};
+	template<> struct IsQueryOnlyTag<App::Component::AwakeTag>			: std::true_type {};
+	template<> struct IsQueryOnlyTag<App::Component::StartTag>			: std::true_type {};
+	template<> struct IsQueryOnlyTag<App::Component::ActiveTag>			: std::true_type {};
+	template<> struct IsQueryOnlyTag<App::Component::ReleaseTag>			: std::true_type {};
 }

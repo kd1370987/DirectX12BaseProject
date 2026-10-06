@@ -17,6 +17,7 @@
 * `enum class` の型名は `E` から始める。
 * 一般的に定着している省略語は使用してよい。
 * 頭文字のみを使用した独自の省略は使用しない。
+* 構造体のメンバはプレフィックスなし
 
 ### 例
 
@@ -46,6 +47,20 @@ _rg
 
 ただし、`RT`、`GPU`、`CPU`、`DXGI` など、一般的に広く使用されている技術用語・略語については使用してよい。
 
+### 許可する略語
+
+次の略語は「一般的に定着している省略語」として使用してよい。ここに無い短縮は使わず、単語をそのまま書く。
+
+| 略語 | 元の語 | 例 |
+| --- | --- | --- |
+| `GPU` / `CPU` / `D3D` / `DXGI` / `RT` | 技術用語 | `_gpuHandle` |
+| `ctx` | Context | `a_ctx`, `_pCtx` |
+| `cmd` | Command(コマンドリスト・コマンド) | `_cmdList`, `a_cmd` |
+| `buf` | Buffer | `_buf` |
+| `tex` | Texture | `_tex` |
+
+NG 例の `_rndCtx` / `_vtxBuf` / `_texMgr` は、`ctx` / `buf` / `tex` ではなく `rnd` / `vtx` / `Mgr` が独自の省略なので NG。
+
 ---
 
 ## 1.2 Prefix
@@ -54,8 +69,30 @@ _rg
 | ----------- | ------ | ---------------- |
 | 引数          | `a_`   | `a_textureDesc`  |
 | ローカル変数      | `_`    | `_textureDesc`   |
-| メンバ変数       | `m_`   | `m_textureDesc`  |
+| メンバ変数(`class`) | `m_`   | `m_textureDesc`  |
 | staticメンバ変数 | `s_`   | `s_textureCount` |
+| 構造体(`struct`)のフィールド | なし | `maxFuel` |
+
+### 構造体のフィールド
+
+`struct` はデータだけを持つ型(ECS の Component・Desc・定数バッファ・イベントなど)に使い、
+公開フィールドには Prefix を付けない。`m_` は振る舞いを持つ `class` のメンバ変数に付ける。
+
+```cpp
+struct BoostParamsComponent
+{
+    float boostPower = 30.0f;   // Prefix なし
+};
+
+class Texture
+{
+private:
+    ETextureUsage m_usage = ETextureUsage::None;   // m_
+};
+```
+
+保存キーとフィールド名を揃えておけるので(`a_ar.Field("boostPower", _comp.boostPower)`)、
+データの型はこの形を保つ。振る舞い(関数)や隠したい状態が要るものは `class` にする。
 
 ---
 
@@ -82,11 +119,15 @@ Enum の値は `PascalCase` を使用する。
 
 Namespace はディレクトリ構成と対応させる。
 
-`Engine` と `App` はトップレベル Namespace とする。
+`Core`・`Engine`・`App`・`Editor` はトップレベル Namespace とする(ディレクトリは `Source/Core`・`Source/Engine`・`Source/Application`・`Source/Editor`)。
 
 自身が所属するディレクトリの役割を Namespace に反映する。
 
 ```cpp
+namespace Core::Math
+{
+}
+
 namespace Engine::Graphics
 {
 }
@@ -98,9 +139,59 @@ namespace Engine::ECS
 namespace App::Game
 {
 }
+
+namespace Editor::Inspector
+{
+}
 ```
 
-Utility 系の Namespace は、所属する機能・役割を示す Namespace を使用する。
+Utility 系の Namespace は、所属する機能・役割を示す Namespace を使用する(`Core::String`・`Core::File` など。`Utility` という名前の Namespace は作らない)。
+
+### App の ECS
+
+| ディレクトリ | Namespace |
+| --- | --- |
+| `Application/Components` | `App::Component` |
+| `Application/Systems` | `App::System` |
+| `Application/InstanceResource` | `App::InstanceResource` |
+
+基盤側テンプレートの特殊化(`Engine::ECS::ComponentTraits<T>` など)は `Engine::ECS` を囲む位置でしか書けないので、
+Namespace を閉じてから完全修飾の型名で書く。
+
+```cpp
+namespace App::Component
+{
+    struct HealthComponent
+    {
+        float hp = 100.0f;
+    };
+}
+
+template<>
+struct Engine::ECS::ComponentTraits<App::Component::HealthComponent>
+{
+    ...
+};
+```
+
+App の Namespace の中からは `Component::HealthComponent` のように末尾の Namespace から書く。
+
+### Core の取り込み
+
+Core は Engine / App から修飾なしで使えるよう、各トップレベル Namespace へ取り込んである
+(`Engine/EngineCommon.h`・`Application/AppCommon.h`)。取り込みは名前空間の別名と using 宣言で行い、
+`using namespace Core` は使わない(`Core::GUID` と Windows の `::GUID` が区別できなくなるため)。
+
+```cpp
+namespace Engine
+{
+    namespace Math = Core::Math;
+    using Core::GUID;
+}
+```
+
+Editor は Engine の型をそのまま扱う道具なので、`Editor/EditorCommon.h` で `using namespace Engine` している。
+Editor の中で GUID を書くときは `Core::GUID` と書く。
 
 ---
 
@@ -327,7 +418,7 @@ Visual Studio 側の設定で RTTI を無効化しているため、以下の機
 デバッグ・エラー処理は、原則としてプロジェクト共通の Debug 機能を使用する。
 
 ```text
-Source/Engine/Utility/Debug/DebugLog.h
+Source/Core/Debug/DebugLog.h
 ```
 
 通常のエラー処理では `assert` を使用せず、`ENGINE_ERRLOG` 系の機能を使用する。
@@ -363,7 +454,7 @@ App
   ↓
 Engine
   ↓
-Core / Utility
+Core
 ```
 
 ### 許可
@@ -372,6 +463,9 @@ Core / Utility
 App    → Engine
 Editor → App
 Editor → Engine
+Engine → Core
+App    → Core
+Editor → Core
 ```
 
 ### 禁止
@@ -380,7 +474,20 @@ Editor → Engine
 Engine → App
 Engine → Editor
 App    → Editor
+Core   → Engine / App / Editor
 ```
+
+### Core に置くもの
+
+App からも Engine からも使われる、ライブラリのような道具(数学・文字列・ファイル・型情報・GUID・ログ・アルゴリズムなど)。
+Core は上の層の型を一切知らない。Engine の型(`Handle` など)に依存するものは Engine 側に置く(例 : `Engine/Utility/Pool`)。
+
+### 編集UIの窓口(EditorField)
+
+コンポーネントの Edit・オプション・ゲームオブジェクトなど、エディターの外から編集UIを組むときは
+`Engine::EditorField` の関数だけを使う(`ImGui::` を直接書かない)。
+宣言は `Engine/EditorField` に置き、ImGui を使う実装は `Editor/Helper/EditorField.cpp` に置く。
+App / Engine は Editor のヘッダーを include しない。
 
 ---
 
@@ -563,6 +670,18 @@ private:
 # 9. Directory Structure
 
 ディレクトリは機能・役割ごとに分類する。
+
+最上位は層ごとに分ける。
+
+```text
+Source/
+├─ Core/          Core      : どの層にも依存しない道具箱(Core.h が中心)
+├─ Engine/        Engine    : エンジン本体(EngineCommon.h / MainEngine.h が中心)
+├─ Application/   App       : ゲーム(AppCommon.h / App.h が中心)
+└─ Editor/        Editor    : エディター(Editor.h / EditorCommon.h が中心)
+```
+
+各層の中も機能ごとに分ける。
 
 ```text
 Engine/

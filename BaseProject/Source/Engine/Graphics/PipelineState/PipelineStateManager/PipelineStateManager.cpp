@@ -98,7 +98,7 @@ namespace Engine::Graphics
 		// 名前があれば
 		if (!a_desc.name.empty())
 		{
-			_rootSig->SetName(Engine::String::ToWideString(a_desc.name).c_str());
+			_rootSig->SetName(Core::String::ToWideString(a_desc.name).c_str());
 		}
 
 		// 登録してハンドルを返す
@@ -112,7 +112,7 @@ namespace Engine::Graphics
 
 		// シェーダーバイトコードの読み込み
 		auto _hr = D3DReadFileToBlob(
-			Engine::String::ToWideString(a_shaderPath).c_str(),
+			Core::String::ToWideString(a_shaderPath).c_str(),
 			_cpBlob.ReleaseAndGetAddressOf()
 		);
 		if (FAILED(_hr))
@@ -156,7 +156,7 @@ namespace Engine::Graphics
 		}
 
 		// 名前を付ける
-		_rootSig->SetName(Engine::String::ToWideString(a_shaderPath).c_str());
+		_rootSig->SetName(Core::String::ToWideString(a_shaderPath).c_str());
 
 		// 登録してハンドルを返す
 		return RegisterRootSignature(_hash, _rootSig);
@@ -233,7 +233,7 @@ namespace Engine::Graphics
 		// 名前があれば
 		if (!a_desc.name.empty())
 		{
-			_pso->SetName(Engine::String::ToWideString(a_desc.name).c_str());
+			_pso->SetName(Core::String::ToWideString(a_desc.name).c_str());
 		}
 
 		// マップに保存して生ポインタを返す
@@ -274,7 +274,7 @@ namespace Engine::Graphics
 		// 名前があれば
 		if (!a_desc.name.empty())
 		{
-			_pso->SetName(Engine::String::ToWideString(a_desc.name).c_str());
+			_pso->SetName(Core::String::ToWideString(a_desc.name).c_str());
 		}
 
 		// マップに保存して生ポインタを返す

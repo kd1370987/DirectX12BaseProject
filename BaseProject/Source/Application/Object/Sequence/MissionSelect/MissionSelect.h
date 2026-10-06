@@ -80,13 +80,13 @@ namespace App::Object
 			std::string name = "Mission";
 
 			// 一覧に置く UIButton。押すと確認ボックスが出る
-			Engine::GUID buttonGUID = {};
+			Core::GUID buttonGUID = {};
 
 			// 出撃先
-			Engine::GUID sceneGUID = {};
+			Core::GUID sceneGUID = {};
 
 			// このミッションを見ている間だけ出す UI(ステージ画像・説明文など)
-			std::vector<Engine::GUID> detailUIGUIDVec = {};
+			std::vector<Core::GUID> detailUIGUIDVec = {};
 		};
 
 		//-------------------------------------------------------------------
@@ -132,13 +132,13 @@ namespace App::Object
 		// 設定(保存される) : 確認ボックス
 		//-------------------------------------------------------------------
 		// 確認中だけ出すUI(ボックスの枠・見出し・背景の暗幕など)
-		std::vector<Engine::GUID> m_confirmUIGUIDVec = {};
+		std::vector<Core::GUID> m_confirmUIGUIDVec = {};
 
-		Engine::GUID m_yesButtonGUID = {};	// 出撃する
-		Engine::GUID m_noButtonGUID = {};	// やめる
+		Core::GUID m_yesButtonGUID = {};	// 出撃する
+		Core::GUID m_noButtonGUID = {};	// やめる
 
 		// ミッション名を流し込む先のUIと、その中の Text 飾りの名前
-		Engine::GUID m_nameUIGUID = {};
+		Core::GUID m_nameUIGUID = {};
 		std::string m_nameDecorationName = "MissionName";
 
 		//-------------------------------------------------------------------

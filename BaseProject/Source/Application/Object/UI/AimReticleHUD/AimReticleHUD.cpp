@@ -74,13 +74,13 @@ namespace App::Object
 		//==================================================================
 		bool _isWritten = false;
 
-		_pWorld->ForEach<const ActiveTag, const PlayerControllTag, LockOnTargetComponent>(
+		_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag, Component::LockOnTargetComponent>(
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const ActiveTag* a_activeTagArray,
-				const PlayerControllTag* a_playerTagArray,
-				LockOnTargetComponent* a_lockOnArray
+				const Component::ActiveTag* a_activeTagArray,
+				const Component::PlayerControllTag* a_playerTagArray,
+				Component::LockOnTargetComponent* a_lockOnArray
 			)
 			{
 				// 操作しているプレイヤーは1体の想定。先に見つかったものへ渡す
@@ -89,7 +89,7 @@ namespace App::Object
 
 				// 保存値(reticleRadius)は触らない。実行中に書き換えると
 				// エディターで見ている設定値が UI の値に置き換わってしまう
-				LockOnTargetComponent& _lockOn = a_lockOnArray[0];
+				Component::LockOnTargetComponent& _lockOn = a_lockOnArray[0];
 				_lockOn.reticleCenter    = _center;
 				_lockOn.hudReticleRadius = _radius;
 				_lockOn.isReticleFromHUD = true;
@@ -111,21 +111,21 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Header("AutoAim");
+		Engine::EditorField::Header("AutoAim");
 
 		// 判定半径の作り方
-		Engine::Editor::Field("UseTextureSize", m_isUseTextureSize);
-		Engine::Editor::Tooltip("アンカーの PixelSize から作る(飾りの大きさではない)");
+		Engine::EditorField::Field("UseTextureSize", m_isUseTextureSize);
+		Engine::EditorField::Tooltip("アンカーの PixelSize から作る(飾りの大きさではない)");
 		if (m_isUseTextureSize)
 		{
-			Engine::Editor::Field("RadiusScale", m_radiusScale, 0.01f, 0.0f, 4.0f);
+			Engine::EditorField::Field("RadiusScale", m_radiusScale, 0.01f, 0.0f, 4.0f);
 		}
 		else
 		{
-			Engine::Editor::Field("LockRadius", m_lockRadius, 1.0f, 0.0f, 4096.0f);
+			Engine::EditorField::Field("LockRadius", m_lockRadius, 1.0f, 0.0f, 4096.0f);
 		}
 
-		Engine::Editor::Value("Radius", "%.0f px", CalcLockRadius());
-		Engine::Editor::Tooltip("この円の内側に入った敵だけがロック対象になります\n(中心は PixelPos。プレイヤーの LockOnTargetComponent へ毎フレーム渡します)");
+		Engine::EditorField::Value("Radius", "%.0f px", CalcLockRadius());
+		Engine::EditorField::Tooltip("この円の内側に入った敵だけがロック対象になります\n(中心は PixelPos。プレイヤーの LockOnTargetComponent へ毎フレーム渡します)");
 	}
 }

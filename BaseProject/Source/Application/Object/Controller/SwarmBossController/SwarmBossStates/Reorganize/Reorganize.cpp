@@ -4,7 +4,7 @@
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Persistence/Archive/Archive.h"
 #include "Engine/ECS/System/SystemContext.h"
-#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/EditorField/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 
 // App
 #include "../../../../../ECS/World/APPWorld.h"
@@ -79,9 +79,9 @@ namespace App::Object
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
-		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::MoveIntentComponent>(_leader)) return;
 
-		_world.RefData<MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
+		_world.RefData<Component::MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
 	}
 
 	void SwarmBossReorganizeState::ChangePhase(EPhase a_phase)
@@ -113,13 +113,13 @@ namespace App::Object
 	void SwarmBossReorganizeState::DrawInspector()
 	{
 		m_ball.DrawInspector();
-		Engine::Editor::Field("まとまる時間", m_gatherTime, 0.05f, 0.0f);
-		Engine::Editor::Field("落ち着く時間", m_settleTime, 0.05f, 0.0f);
-		Engine::Editor::Field("体の防御比率", m_defenseRatio, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("整理している間に体が受けるダメージの比率(0 で無敵)");
+		Engine::EditorField::Field("まとまる時間", m_gatherTime, 0.05f, 0.0f);
+		Engine::EditorField::Field("落ち着く時間", m_settleTime, 0.05f, 0.0f);
+		Engine::EditorField::Field("体の防御比率", m_defenseRatio, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Tooltip("整理している間に体が受けるダメージの比率(0 で無敵)");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		Engine::Editor::Value("整理を依頼済み", "%s", m_isRequested ? "はい" : "いいえ");
+		Engine::EditorField::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::EditorField::Value("整理を依頼済み", "%s", m_isRequested ? "はい" : "いいえ");
 	}
 }

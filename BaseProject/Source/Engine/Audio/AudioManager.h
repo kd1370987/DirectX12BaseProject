@@ -83,7 +83,7 @@ namespace Engine::Audio
 		// GUIDから発行する。
 		// (ファイルパス版はどこからも呼ばれておらず、アセットデータベースを直に引いていたので消した)
 		Handle<Resource::SoundInstance> RequestSoundInstance(
-			const Engine::GUID& a_guid, bool a_is3D = false,
+			const Core::GUID& a_guid, bool a_is3D = false,
 			ESoundGroup a_group = ESoundGroup::Se);
 
 		//----------------------------------------------------------------------------------
@@ -129,10 +129,10 @@ namespace Engine::Audio
 		/// <param name=a_minInterval>前回鳴らしてからこの秒数が経つまでは鳴らさない(0 で制限なし)</param>
 		/// <param name=a_maxConcurrent>同時に鳴っている数の上限(0 で制限なし)</param>
 		/// <returns>鳴らしてよいか</returns>
-		bool CanPlaySound(const Engine::GUID& a_guid, float a_minInterval, uint32_t a_maxConcurrent);
+		bool CanPlaySound(const Core::GUID& a_guid, float a_minInterval, uint32_t a_maxConcurrent);
 
 		// 鳴らしたことを記録する(最後に鳴らした時刻と、鳴っている声)
-		void NotifySoundPlayed(const Engine::GUID& a_guid, const Handle<Resource::SoundInstance>& a_handle);
+		void NotifySoundPlayed(const Core::GUID& a_guid, const Handle<Resource::SoundInstance>& a_handle);
 
 	private:
 
@@ -173,7 +173,7 @@ namespace Engine::Audio
 			bool hasPlayed = false;
 			std::vector<Handle<Resource::SoundInstance>> playingHandles;	// 鳴らした声(鳴り終わったものは見るときに外す)
 		};
-		std::unordered_map<Engine::GUID, SoundPlayGate> m_playGates;
+		std::unordered_map<Core::GUID, SoundPlayGate> m_playGates;
 
 	// シングルトン
 	private:

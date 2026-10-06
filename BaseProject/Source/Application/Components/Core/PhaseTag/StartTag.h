@@ -1,4 +1,7 @@
 ﻿
 #pragma once
 
-struct StartTag {};
+namespace App::Component
+{
+	struct StartTag {};
+}

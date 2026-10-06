@@ -12,60 +12,63 @@
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 
-void AnimationMatrixFreeSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	a_world.ReleaseTask<const ModelComponent, DynamicRaytracingComponent, NodePoseComponent, SkeletonPoseComponent>(
-		Engine::ECS::ESystemType::Release,
-		"AnimationMatrixFreeSystem",
-		[](
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			ReleaseTag* a_releaseTag,
-			const ModelComponent* a_pModelArray,
-			DynamicRaytracingComponent* a_rayArray,
-			NodePoseComponent* a_nodeArray,
-			SkeletonPoseComponent* a_poseArray
-		)
-		{
-			// ハンドルの登録
-			auto* _pGE = a_ctx.pServices->pMainEngine->RefGraphicsEngine();
-			ENGINE_ERRLOG(_pGE, "メッシュ解放時にGraphicsEngineが存在しません");
-
-			// メガバッファにアロケート
-			auto* _pMeshBufferAllocator = _pGE->RefMeshBufferAllocator();
-			ENGINE_ERRLOG(_pMeshBufferAllocator, "メッシュ解放時にメッシュバッファアロケーターが存在しません");
-
-			for (size_t _i = 0; _i < a_count; ++_i)
+	void AnimationMatrixFreeSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		a_world.ReleaseTask<const Component::ModelComponent, Component::DynamicRaytracingComponent, Component::NodePoseComponent, Component::SkeletonPoseComponent>(
+			Engine::ECS::ESystemType::Release,
+			"AnimationMatrixFreeSystem",
+			[](
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::ReleaseTag* a_releaseTag,
+				const Component::ModelComponent* a_pModelArray,
+				Component::DynamicRaytracingComponent* a_rayArray,
+				Component::NodePoseComponent* a_nodeArray,
+				Component::SkeletonPoseComponent* a_poseArray
+			)
 			{
-				const ModelComponent& _modelComp = a_pModelArray[_i];
-				DynamicRaytracingComponent& _rayComp = a_rayArray[_i];
-				NodePoseComponent& _nodeComp = a_nodeArray[_i];
-				SkeletonPoseComponent& _poseComp = a_poseArray[_i];
+				// ハンドルの登録
+				auto* _pGE = a_ctx.pServices->pMainEngine->RefGraphicsEngine();
+				ENGINE_ERRLOG(_pGE, "メッシュ解放時にGraphicsEngineが存在しません");
 
-				auto& _nodePosePool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
-				auto& _boneMatPool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
+				// メガバッファにアロケート
+				auto* _pMeshBufferAllocator = _pGE->RefMeshBufferAllocator();
+				ENGINE_ERRLOG(_pMeshBufferAllocator, "メッシュ解放時にメッシュバッファアロケーターが存在しません");
 
-				_nodePosePool.FreeRange(_nodeComp.nodePoseHandle);
-				_boneMatPool.FreeRange(_poseComp.skeletonPoseHandle);
-
-				// アニメーション用頂点データの解放
-				auto& _dynamicRaytracingData = a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
-				auto* _pAnimData = _dynamicRaytracingData.Ref(_rayComp.dynamicInstanceHandle);
-				if (!_pAnimData) continue;
-
-				// メッシュデータのハンドル解放
-				for (auto& _data : _pAnimData->meshDataVec)
+				for (size_t _i = 0; _i < a_count; ++_i)
 				{
-					_data.instanceBLAS.Release();
-					_pMeshBufferAllocator->AnimatedVertexFree(_data.animatedVertexHandle);
-				}
+					const Component::ModelComponent& _modelComp = a_pModelArray[_i];
+					Component::DynamicRaytracingComponent& _rayComp = a_rayArray[_i];
+					Component::NodePoseComponent& _nodeComp = a_nodeArray[_i];
+					Component::SkeletonPoseComponent& _poseComp = a_poseArray[_i];
 
-				// ダイナミックデータの解放
-				_dynamicRaytracingData.Remove(_rayComp.dynamicInstanceHandle);
-				_rayComp = {};
-				ENGINE_LOG("アニメーションデータの解放");
+					auto& _nodePosePool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+					auto& _boneMatPool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
+
+					_nodePosePool.FreeRange(_nodeComp.nodePoseHandle);
+					_boneMatPool.FreeRange(_poseComp.skeletonPoseHandle);
+
+					// アニメーション用頂点データの解放
+					auto& _dynamicRaytracingData = a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
+					auto* _pAnimData = _dynamicRaytracingData.Ref(_rayComp.dynamicInstanceHandle);
+					if (!_pAnimData) continue;
+
+					// メッシュデータのハンドル解放
+					for (auto& _data : _pAnimData->meshDataVec)
+					{
+						_data.instanceBLAS.Release();
+						_pMeshBufferAllocator->AnimatedVertexFree(_data.animatedVertexHandle);
+					}
+
+					// ダイナミックデータの解放
+					_dynamicRaytracingData.Remove(_rayComp.dynamicInstanceHandle);
+					_rayComp = {};
+					ENGINE_LOG("アニメーションデータの解放");
+				}
 			}
-		}
-	);
+		);
+	}
 }

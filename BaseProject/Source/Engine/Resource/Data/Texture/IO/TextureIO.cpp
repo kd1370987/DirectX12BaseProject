@@ -60,19 +60,19 @@ namespace Engine::Resource
 
 		return _tex;
 	}
-	Engine::GUID TextureIO::GetColorGUID(const Math::Color& a_color)
+	Core::GUID TextureIO::GetColorGUID(const Math::Color& a_color)
 	{
-		if (a_color == TexColor::WHITE)  return Engine::GUID(WHITE_TEXTURE_GUIDSTR);
-		if (a_color == TexColor::BLACK)  return Engine::GUID(BLACK_TEXTURE_GUIDSTR);
-		if (a_color == TexColor::NORMAL) return Engine::GUID(NORMAL_TEXTURE_GUIDSTR);
-		if (a_color == TexColor::ORM)    return Engine::GUID(ORM_TEXTURE_GUIDSTR);
+		if (a_color == TexColor::WHITE)  return Core::GUID(WHITE_TEXTURE_GUIDSTR);
+		if (a_color == TexColor::BLACK)  return Core::GUID(BLACK_TEXTURE_GUIDSTR);
+		if (a_color == TexColor::NORMAL) return Core::GUID(NORMAL_TEXTURE_GUIDSTR);
+		if (a_color == TexColor::ORM)    return Core::GUID(ORM_TEXTURE_GUIDSTR);
 
 		// 未知の色の場合は適当なハッシュをGUIDにするなどの処理
-		return Engine::GUID();
+		return Core::GUID();
 	}
 
 	Handle<Texture> TextureIO::LoadTexture(
-		const Engine::GUID& a_guid,
+		const Core::GUID& a_guid,
 		const Math::Color& a_defaultColor,
 		const ResourceBuildContext* a_pContext
 	)
@@ -95,7 +95,7 @@ namespace Engine::Resource
 
 		// ---- 無効なGUIDフォールバック処理 ----
 		// 色に対応する専用のGUIDを取得
-		Engine::GUID _colorGuid = GetColorGUID(a_defaultColor);
+		Core::GUID _colorGuid = GetColorGUID(a_defaultColor);
 
 		// すでに同じ色のテクスチャが作られていないかキャッシュをチェック
 		Handle<Texture> _handle = _resourceManager.GetCache<Texture>(_colorGuid);

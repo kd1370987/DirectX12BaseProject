@@ -1,3 +1,6 @@
 ﻿#pragma once
 
-struct MainGunTag {};
+namespace App::Component
+{
+	struct MainGunTag {};
+}

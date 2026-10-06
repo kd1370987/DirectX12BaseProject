@@ -32,10 +32,10 @@ namespace Engine::Option::ProjectOptions
 
 		void DrawEdit(const ECS::EngineServices&) override
 		{
-			Engine::Editor::Field("BuildMode",buildMode);
-			Engine::Editor::Field("AssetRootPath", assetRootPath);
+			Engine::EditorField::Field("BuildMode",buildMode);
+			Engine::EditorField::Field("AssetRootPath", assetRootPath);
 			int _count = (int)maxThreadCount;
-			Engine::Editor::Field("maxThreadCount", _count);
+			Engine::EditorField::Field("maxThreadCount", _count);
 			maxThreadCount = (UINT)_count;
 		}
 

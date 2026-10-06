@@ -247,7 +247,7 @@ namespace Engine::Resource::Converter
 	{
 		// 出力データ
 		ModelData _modelData = {};
-		auto _fileDir = Engine::File::GetDirFromPath(a_filePath);
+		auto _fileDir = Core::File::GetDirFromPath(a_filePath);
 
 		ConvertNodes(a_ctx,_modelData,a_rawModel);
 		ConvertMaterial(a_ctx,_modelData,a_rawModel,_fileDir);
@@ -261,7 +261,7 @@ namespace Engine::Resource::Converter
 		auto _guid = a_resourceManager.RefAssetDatabase().GetGUIDFromFilePath(a_filePath);
 		return ConvertModelDataToBinary(a_resourceManager, _guid);
 	}
-	bool ModelConverter::ConvertModelDataToBinary(ResourceManager& a_resourceManager, const Engine::GUID& a_guid)
+	bool ModelConverter::ConvertModelDataToBinary(ResourceManager& a_resourceManager, const Core::GUID& a_guid)
 	{
 		auto _refHandle = a_resourceManager.LoadImmediate<Model>(a_guid);
 		return ConvertModelDataToBinary(a_resourceManager, _refHandle);
@@ -301,7 +301,7 @@ namespace Engine::Resource::Converter
 
 		return true;
 	}
-	bool ModelConverter::SaveModelAsset(ResourceManager& a_resourceManager, const Engine::GUID& a_guid)
+	bool ModelConverter::SaveModelAsset(ResourceManager& a_resourceManager, const Core::GUID& a_guid)
 	{
 		auto _handle = a_resourceManager.GetCache<Model>(a_guid);
 		const auto* _pModel = a_resourceManager.Get(_handle);
@@ -331,8 +331,8 @@ namespace Engine::Resource::Converter
 	}
 	void ModelConverter::WriteModelFile(const std::string& a_filePath, ModelAssetData& a_asset)
 	{
-		auto _dir = Engine::File::GetDirFromPath(a_filePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
+		auto _dir = Core::File::GetDirFromPath(a_filePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_filePath);
 		Persistence::Archive _ar(Persistence::Archive::EMode::Save, _dir, _fileName, "mdl");
 		_ar.StringField("ModelName", a_asset.name);
 
@@ -369,7 +369,7 @@ namespace Engine::Resource::Converter
 			if (!_pMaterial) continue;
 
 			// コンバートパスの作成
-			auto _dirName = Engine::File::GetFileNameWithoutExtension(a_asset.name);
+			auto _dirName = Core::File::GetFileNameWithoutExtension(a_asset.name);
 			auto _fileName = _dirName + "_" + std::to_string(_i);
 			auto _convertDir = a_basePath + _dirName;
 			auto _fullPath = _convertDir + "/" + _fileName;
@@ -400,7 +400,7 @@ namespace Engine::Resource::Converter
 			if (!_pMesh) continue;
 
 			// コンバートパスの作成
-			auto _dirName = Engine::File::GetFileNameWithoutExtension(a_asset.name);
+			auto _dirName = Core::File::GetFileNameWithoutExtension(a_asset.name);
 			auto _fileName = _dirName + "_" + std::to_string(_i);
 			auto _convertDir = a_basePath + _dirName;
 			auto _fullPath = _convertDir + "/" + _fileName;
@@ -422,7 +422,7 @@ namespace Engine::Resource::Converter
 			if (!_pAnim) continue;
 
 			// コンバートパスの作成
-			auto _dirName = Engine::File::GetFileNameWithoutExtension(a_asset.name);
+			auto _dirName = Core::File::GetFileNameWithoutExtension(a_asset.name);
 			auto _fileName = _dirName + "_" + std::to_string(_i);
 			auto _convertDir = a_basePath + _dirName;
 			auto _fullPath = _convertDir + "/" + _fileName;
@@ -438,7 +438,7 @@ namespace Engine::Resource::Converter
 		if (!_pTex) return;
 
 		auto _guid = a_resourceManager.GetCache(a_ref.GetRaw());
-		if (_guid == Engine::DEFAULT_GUID) return;
+		if (_guid == Core::DEFAULT_GUID) return;
 
 		auto _path = a_resourceManager.RefAssetDatabase().GetFilePathFromGUID(_guid);
 

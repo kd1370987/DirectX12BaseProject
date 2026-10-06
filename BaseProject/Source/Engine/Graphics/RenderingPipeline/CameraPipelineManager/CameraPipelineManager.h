@@ -97,7 +97,7 @@ namespace Engine::Graphics
 		// GUIDは BuildFrom の複製で引き継がれるので、これが設計図と実行を結ぶ鍵になる。
 		// 同じ設計図を複数のカメラが使っていればメインカメラのものを返す
 		//--------------------------------------------------------------------------------------------
-		Pipeline::Pass* FindPipelinePass(const Engine::GUID& a_passGUID) const;
+		Pipeline::Pass* FindPipelinePass(const Core::GUID& a_passGUID) const;
 
 		//--------------------------------------------------------------------------------------------
 		// 直近に画面を作っていたカメラの描画構成

@@ -1,4 +1,7 @@
 ﻿
 #pragma once
 
-struct PostDeserializeTag {};
+namespace App::Component
+{
+	struct PostDeserializeTag {};
+}

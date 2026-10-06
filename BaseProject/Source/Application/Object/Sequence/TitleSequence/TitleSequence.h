@@ -56,10 +56,10 @@ namespace App::Object
 		// 設定(保存される)
 		//-------------------------------------------------------------------
 		// 押したらシーンを切り替えるボタン(同じシーンに置いた UIButton のGUID)
-		Engine::GUID m_playButtonGUID = {};
+		Core::GUID m_playButtonGUID = {};
 
 		// 遷移先のシーン
-		Engine::GUID m_nextSceneGUID = {};
+		Core::GUID m_nextSceneGUID = {};
 
 		// タイトルの間はカーソルの中央固定を切るか。
 		// 固定したままだとカーソルが毎フレーム中央へ戻され、ボタンを狙えない

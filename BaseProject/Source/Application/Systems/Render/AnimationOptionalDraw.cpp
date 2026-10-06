@@ -12,62 +12,65 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 
-void AnimationOptionalDrawSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	a_world.ActiveTask<
-		const WorldMatrixComponent,
-		const ModelComponent, 
-		const SkeletonPoseComponent,
-		const DynamicRaytracingComponent, 
-		const NodePoseComponent
-	>(
-		Engine::ECS::ESystemType::Draw,
-		"AnimationOptionalDrawSystem",
-		[]
-		(
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			ActiveTag* a_tags,
-			const WorldMatrixComponent* a_matArray,
-			const ModelComponent* a_modelArray,
-			const SkeletonPoseComponent* a_skeArray,
-			const DynamicRaytracingComponent* a_aniArray,
-			const NodePoseComponent* a_nodePoseArray
-			)
-		{
-			// グラフィックスエンジン取得
-			auto* _pGE = a_ctx.pServices->pMainEngine->RefGraphicsEngine();
-			if (!_pGE) return;
-		
-			for (size_t _i = 0; _i < a_count; ++_i)
+	void AnimationOptionalDrawSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		a_world.ActiveTask<
+			const Component::WorldMatrixComponent,
+			const Component::ModelComponent, 
+			const Component::SkeletonPoseComponent,
+			const Component::DynamicRaytracingComponent, 
+			const Component::NodePoseComponent
+		>(
+			Engine::ECS::ESystemType::Draw,
+			"AnimationOptionalDrawSystem",
+			[]
+			(
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::ActiveTag* a_tags,
+				const Component::WorldMatrixComponent* a_matArray,
+				const Component::ModelComponent* a_modelArray,
+				const Component::SkeletonPoseComponent* a_skeArray,
+				const Component::DynamicRaytracingComponent* a_aniArray,
+				const Component::NodePoseComponent* a_nodePoseArray
+				)
 			{
-				const WorldMatrixComponent& _matComp = a_matArray[_i];
-				const ModelComponent& _modelComp = a_modelArray[_i];
-				const SkeletonPoseComponent& _skeComp = a_skeArray[_i];
-				const NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
-				const DynamicRaytracingComponent& _rayComp = a_aniArray[_i];
+				// グラフィックスエンジン取得
+				auto* _pGE = a_ctx.pServices->pMainEngine->RefGraphicsEngine();
+				if (!_pGE) return;
+		
+				for (size_t _i = 0; _i < a_count; ++_i)
+				{
+					const Component::WorldMatrixComponent& _matComp = a_matArray[_i];
+					const Component::ModelComponent& _modelComp = a_modelArray[_i];
+					const Component::SkeletonPoseComponent& _skeComp = a_skeArray[_i];
+					const Component::NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
+					const Component::DynamicRaytracingComponent& _rayComp = a_aniArray[_i];
 
-				// モデル取得
-				auto* _model = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
-				if (!_model) continue;
+					// モデル取得
+					auto* _model = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);
+					if (!_model) continue;
 
-				// 描画
-				_pGE->RefDrawSubmitter()->SubmitModel(
-					*a_ctx.pWorld,
-					_model,
-					_matComp.worldMat,
-					_matComp.worldMat,
-					_skeComp.skeletonPoseHandle,
-					_nodePoseComp.nodePoseHandle,
-					_rayComp.dynamicInstanceHandle,
-					// 静的・動的の描画システムと同じく、コンポーネントの色設定を渡す。
-					// (ここだけ既定値のままで、インスペクタの ColorScale /
-					//  EmissiveScale がアニメーションモデルにだけ効いていなかった)
-					_modelComp.colorScale,
-					_modelComp.emissiveScale,
-					_modelComp.GetEmissiveAdd()
-				);
-			}
-		}); 
+					// 描画
+					_pGE->RefDrawSubmitter()->SubmitModel(
+						*a_ctx.pWorld,
+						_model,
+						_matComp.worldMat,
+						_matComp.worldMat,
+						_skeComp.skeletonPoseHandle,
+						_nodePoseComp.nodePoseHandle,
+						_rayComp.dynamicInstanceHandle,
+						// 静的・動的の描画システムと同じく、コンポーネントの色設定を渡す。
+						// (ここだけ既定値のままで、インスペクタの ColorScale /
+						//  EmissiveScale がアニメーションモデルにだけ効いていなかった)
+						_modelComp.colorScale,
+						_modelComp.emissiveScale,
+						_modelComp.GetEmissiveAdd()
+					);
+				}
+			}); 
+	}
 }

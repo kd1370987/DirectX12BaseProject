@@ -88,7 +88,7 @@ ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 	if (!_needsCompile && fs::exists(_csoPath))
 	{
 		ComPtr<ID3DBlob> _cpBlob;
-		std::wstring _wstrCso = Engine::String::ToWideString(_csoPath.string());
+		std::wstring _wstrCso = Core::String::ToWideString(_csoPath.string());
 
 		if (SUCCEEDED(D3DReadFileToBlob(_wstrCso.c_str(), &_cpBlob)))
 		{
@@ -185,7 +185,7 @@ ComPtr<ID3DBlob> Engine::Resource::RequestShader(
 	// シェーダー自身のディレクトリを必ずインクルードパスに追加する。
 	// 同じフォルダに置いた .hlsli を、相対パスなしで include できるようにするため。
 	// 文字列の実体は _args が指すのでコンパイル完了まで生かしておく。
-	std::wstring _selfDir = Engine::String::ToWideString(_hlslPath.parent_path().string());
+	std::wstring _selfDir = Core::String::ToWideString(_hlslPath.parent_path().string());
 	if (!_selfDir.empty())
 	{
 		_args.push_back(L"-I");
@@ -265,7 +265,7 @@ namespace Engine::Resource::Import
 		ComPtr<ID3DBlob> _cpBlob = {};
 
 		// 文字列変換
-		std::wstring _wstr = Engine::String::ToWideString(a_path);
+		std::wstring _wstr = Core::String::ToWideString(a_path);
 
 		auto _hr = D3DReadFileToBlob(
 			_wstr.c_str(),

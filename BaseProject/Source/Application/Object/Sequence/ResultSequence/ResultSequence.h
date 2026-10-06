@@ -57,10 +57,10 @@ namespace App::Object
 		// 設定(保存される)
 		//-------------------------------------------------------------------
 		// 押したらタイトルへ戻るボタン(同じシーンに置いた UIButton のGUID)
-		Engine::GUID m_homeButtonGUID = {};
+		Core::GUID m_homeButtonGUID = {};
 
 		// 戻り先(タイトル画面)
-		Engine::GUID m_titleSceneGUID = {};
+		Core::GUID m_titleSceneGUID = {};
 
 		// リザルトの間はカーソルの中央固定を切るか
 		bool m_isReleaseCursorLock = true;

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 // EngineCommon.h ではこちらが先に読まれるので、自分で引いておく
-#include "../Utility/Math/Color.h"
+#include "Core/Math/Color.h"
 
 namespace Engine
 {

@@ -240,7 +240,7 @@ namespace App::Object
 		/// </remarks>
 		void PlayUISound(
 			Engine::GameObject::ObjectContext& a_context,
-			const Engine::GUID& a_guid,
+			const Core::GUID& a_guid,
 			Engine::Handle<Engine::Resource::SoundInstance>& a_inoutHandle,
 			float& a_inoutCoolTime);
 
@@ -299,8 +299,8 @@ namespace App::Object
 		bool m_isInteractable = true;
 
 		// 乗った瞬間 / 押した瞬間に鳴らす音
-		Engine::GUID m_hoverSoundGUID = {};
-		Engine::GUID m_pressSoundGUID = {};
+		Core::GUID m_hoverSoundGUID = {};
+		Core::GUID m_pressSoundGUID = {};
 		float m_soundVolume = 1.0f;
 
 		// 同じ音を鳴らし直す最短間隔(秒)。0 で間引かない
@@ -341,7 +341,7 @@ namespace App::Object
 		// 並びを変えずにここへ読み込んでおき、飾りの配列を持たないシーンだけ
 		// 画像の飾り1つへ移し替える
 		//-----------------------------------------------------------------------
-		Engine::GUID m_legacyTexGUID = {};
+		Core::GUID m_legacyTexGUID = {};
 		Math::Vector2 m_legacyUvOffset = {};
 
 		// エディターで開いている飾りの番号(-1 で未選択)。保存しない

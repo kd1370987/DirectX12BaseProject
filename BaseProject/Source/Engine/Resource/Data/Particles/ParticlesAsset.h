@@ -35,8 +35,8 @@ namespace Engine::Resource
 		// 中身に書き込まれているGUID。
 		// 新規作成直後のファイルでは空のまま(GUIDは監視がメタファイルへ発行する)なので、
 		// 保存先を引く用途には使わず、呼び出し側が持っているGUIDを使うこと
-		const Engine::GUID& GetGUID() const { return m_guid; }
-		const Engine::GUID& GetTexGUID() const { return m_texGUID; }		// テクスチャGUID
+		const Core::GUID& GetGUID() const { return m_guid; }
+		const Core::GUID& GetTexGUID() const { return m_texGUID; }		// テクスチャGUID
 		Handle<Texture> GetTexHandle() const { return m_texHandle; }		// テクスチャハンドル
 		float GetInitalSpeedMin() const { return m_initialSpeedMin; }		// 最小初速
 		float GetInitalSpeedMax() const { return m_initialSpeedMax; }		// 最大初速
@@ -88,7 +88,7 @@ namespace Engine::Resource
 		int& RefSortOrder() { return m_sortOrder; }
 
 		// テクスチャの差し替え : GUIDとハンドルを同時に更新する
-		void SetTexture(const Engine::GUID& a_guid, const ResourceRef<Texture>& a_handle)
+		void SetTexture(const Core::GUID& a_guid, const ResourceRef<Texture>& a_handle)
 		{
 			m_texGUID = a_guid;
 			m_texHandle = a_handle;
@@ -116,11 +116,11 @@ namespace Engine::Resource
 
 		// ---- 識別子 ----
 		std::string m_name;		// アセット名
-		Engine::GUID m_guid;
+		Core::GUID m_guid;
 
 		// ---- 静的データ ----
 		// 参照データ
-		Engine::GUID m_texGUID;		// テクスチャ
+		Core::GUID m_texGUID;		// テクスチャ
 
 		// 初速
 		float m_initialSpeedMin = 1.0f;

@@ -129,7 +129,7 @@ namespace Engine::GameObject
 	{
 	public:
 
-		// 実体の型を辿るための連鎖の根(Engine::TypeInfo)
+		// 実体の型を辿るための連鎖の根(Core::TypeInfo)
 		ENGINE_TYPE_CHAIN_ROOT(BaseObject);
 
 		BaseObject() = default;
@@ -260,8 +260,8 @@ namespace Engine::GameObject
 		//=======================================================================
 		// GUID : インスタンスの一意識別子(シーン内でこのGUIDから実体を引ける)
 		//=======================================================================
-		void SetGUID(const Engine::GUID& a_guid) { m_guid = a_guid; }
-		const Engine::GUID& GetGUID() const { return m_guid; }
+		void SetGUID(const Core::GUID& a_guid) { m_guid = a_guid; }
+		const Core::GUID& GetGUID() const { return m_guid; }
 
 		//=======================================================================
 		// 初期化フェーズ : 進めるのは GameObjectManager
@@ -286,8 +286,8 @@ namespace Engine::GameObject
 		///
 		/// 実際の親子(座標が伝わるもの)が要るなら ECS の HierarchyComponent を使うこと。
 		/// </remarks>
-		const Engine::GUID& GetParentGUID() const { return m_parentGUID; }
-		void SetParentGUID(const Engine::GUID& a_guid) { m_parentGUID = a_guid; }
+		const Core::GUID& GetParentGUID() const { return m_parentGUID; }
+		void SetParentGUID(const Core::GUID& a_guid) { m_parentGUID = a_guid; }
 
 		//=======================================================================
 		// 実体の型
@@ -311,10 +311,10 @@ namespace Engine::GameObject
 		bool m_isExpired = false;
 
 		// インスタンスGUID(シーン保存時に発行し、読み込み時の参照解決に使う)
-		Engine::GUID m_guid = {};
+		Core::GUID m_guid = {};
 
 		// ヒエラルキー上の親(エディターの並びだけに効く)。無効なら根
-		Engine::GUID m_parentGUID = {};
+		Core::GUID m_parentGUID = {};
 
 		// どこまで初期化を通したか。生成直後は何も通っていない
 		EObjectInitPhase m_initPhase = EObjectInitPhase::PostDeserialize;

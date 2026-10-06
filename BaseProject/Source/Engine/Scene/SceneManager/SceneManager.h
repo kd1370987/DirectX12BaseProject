@@ -83,7 +83,7 @@ namespace Engine::Scene
 		/// BaseScene::Archive に項目が増えたときに古い形のまま作り続けてしまう
 		/// (バイナリ(.obscene)は並び順で読むので、そのまま壊れる)
 		/// </remarks>
-		Engine::GUID CreateEmptyScene(Resource::AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name);
+		Core::GUID CreateEmptyScene(Resource::AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name);
 
 		//------------------------------------------------------------------------------------------
 		// シーンの切り替え
@@ -94,7 +94,7 @@ namespace Engine::Scene
 		/// </summary>
 		/// <param name="a_nextScene">切り替え先のシーンタイプ</param>
 		/// <param name="a_changeType">切り替え方法</param>
-		void SetNextScene(const Engine::GUID& a_guid, const ESceneChangeType& a_changeType);
+		void SetNextScene(const Core::GUID& a_guid, const ESceneChangeType& a_changeType);
 
 		/// <summary>
 		/// 更新するのを一番上のシーンだけにするか
@@ -151,8 +151,8 @@ namespace Engine::Scene
 		// シーン
 		//------------------------------------------------------------------------------------------
 		void ChangeScenen(Resource::ResourceManager& a_resourceManager);								// フレームの初めにシーンの切り替えを実行する
-		void ReplaceScene(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid);	// シーンの切り替え
-		bool PushScene(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid);		// シーンを重ねる(読み込めたら true)
+		void ReplaceScene(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid);	// シーンの切り替え
+		bool PushScene(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid);		// シーンを重ねる(読み込めたら true)
 		void PopScene(Resource::ResourceManager& a_resourceManager);									// 最前面のシーンを消去
 
 		//------------------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ namespace Engine::Scene
 
 		struct SceneChangeCmd
 		{
-			Engine::GUID sceneGUID = Engine::DEFAULT_GUID;
+			Core::GUID sceneGUID = Core::DEFAULT_GUID;
 			ESceneChangeType changeType = ESceneChangeType::Replace;
 		};
 

@@ -27,7 +27,7 @@ namespace Engine::Option::DebugOptions
 
 		void DrawEdit(const ECS::EngineServices&) override
 		{
-			Engine::Editor::Field("Draw Debug Wire", drawWire);
+			Engine::EditorField::Field("Draw Debug Wire", drawWire);
 		}
 
 		void Archive(Persistence::Archive& a_archive) override

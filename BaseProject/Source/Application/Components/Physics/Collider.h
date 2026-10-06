@@ -3,102 +3,105 @@
 #include "Engine/Physics/Core/BodyID.h"
 #include "Engine/Physics/Core/ColliderShapeType.h"
 
-//==========================================================================================
-// 当たり判定のレイヤー
-//
-// layer        : 自分がどれか1つ(単一選択)
-// collideLayer : 当たりに行きたい相手(複数選択)
-//
-// 弾は「撃った側」でレイヤーを分けている。
-// プレイヤーも敵もまったく同じ弾/ミサイルのプレハブを撃つので、
-// どちら側のものかをプレハブへ書いておけない。
-// 発射のたびに ProjectileSpawn が撃った本体を見て入れる。
-//
-// 分けている理由は弾同士の相殺。以前は弾もまとめて DiynamicObject だったため、
-// 自分が撃った弾とミサイルがぶつかって発射直後に消えていた
-// (斉射のように同じ場所から続けて出るものでは必ず起きる)。
-// 相手側の弾のレイヤーだけを collideLayer へ入れておけば、
-// 敵のミサイルは今までどおり撃ち落とせて、自分の弾同士は素通りする。
-//==========================================================================================
-enum class ECollisionLayer : uint32_t
+namespace App::Component
 {
-	None			= 0,
-	StaticObject	= 1 << 0,
-	DiynamicObject	= 1 << 1,
-	Trigger			= 1 << 2,
+	//==========================================================================================
+	// 当たり判定のレイヤー
+	//
+	// layer        : 自分がどれか1つ(単一選択)
+	// collideLayer : 当たりに行きたい相手(複数選択)
+	//
+	// 弾は「撃った側」でレイヤーを分けている。
+	// プレイヤーも敵もまったく同じ弾/ミサイルのプレハブを撃つので、
+	// どちら側のものかをプレハブへ書いておけない。
+	// 発射のたびに ProjectileSpawn が撃った本体を見て入れる。
+	//
+	// 分けている理由は弾同士の相殺。以前は弾もまとめて DiynamicObject だったため、
+	// 自分が撃った弾とミサイルがぶつかって発射直後に消えていた
+	// (斉射のように同じ場所から続けて出るものでは必ず起きる)。
+	// 相手側の弾のレイヤーだけを collideLayer へ入れておけば、
+	// 敵のミサイルは今までどおり撃ち落とせて、自分の弾同士は素通りする。
+	//==========================================================================================
+	enum class ECollisionLayer : uint32_t
+	{
+		None			= 0,
+		StaticObject	= 1 << 0,
+		DiynamicObject	= 1 << 1,
+		Trigger			= 1 << 2,
 
-	PlayerProjectile	= 1 << 3,	// プレイヤー側が撃った弾・ミサイル
-	EnemyProjectile		= 1 << 4,	// 敵側が撃った弾・ミサイル
+		PlayerProjectile	= 1 << 3,	// プレイヤー側が撃った弾・ミサイル
+		EnemyProjectile		= 1 << 4,	// 敵側が撃った弾・ミサイル
 
-	// 敵の体(今は群れのボスのボイド)。プレイヤー側の攻撃にだけ当たる。
-	// DiynamicObject と分けてあるのは、地形・機体・他の敵・敵の弾には当たらないようにするため。
-	// 自分からは何も当たりに行かず(collideLayer = None)、地形からの押し出しもしない
-	// (isPhysical = 0)ので、地面の中へもそのまま潜れる。
-	// 以前の SwarmBoid と同じビットなので、保存済みのデータはそのまま読める
-	Enemy				= 1 << 5,
-};
+		// 敵の体(今は群れのボスのボイド)。プレイヤー側の攻撃にだけ当たる。
+		// DiynamicObject と分けてあるのは、地形・機体・他の敵・敵の弾には当たらないようにするため。
+		// 自分からは何も当たりに行かず(collideLayer = None)、地形からの押し出しもしない
+		// (isPhysical = 0)ので、地面の中へもそのまま潜れる。
+		// 以前の SwarmBoid と同じビットなので、保存済みのデータはそのまま読める
+		Enemy				= 1 << 5,
+	};
 
-struct ColliderComponent
-{
-	ECollisionLayer layer = ECollisionLayer::StaticObject;		// 自分が属するレイヤー
-	ECollisionLayer collideLayer = ECollisionLayer::None;		// 衝突したいレイヤー
-	Engine::ECS::Flg isPhysical = 1;		// 物理解決するかどうか(衝突時にイベントだけほしいとか)
+	struct ColliderComponent
+	{
+		ECollisionLayer layer = ECollisionLayer::StaticObject;		// 自分が属するレイヤー
+		ECollisionLayer collideLayer = ECollisionLayer::None;		// 衝突したいレイヤー
+		Engine::ECS::Flg isPhysical = 1;		// 物理解決するかどうか(衝突時にイベントだけほしいとか)
 
-	// 形状の種類。Mesh は判定メッシュ、それ以外は描画メッシュのAABBの箱になる
-	Engine::Physics::EShapeType shapeType = Engine::Physics::EShapeType::Sphere;
+		// 形状の種類。Mesh は判定メッシュ、それ以外は描画メッシュのAABBの箱になる
+		Engine::Physics::EShapeType shapeType = Engine::Physics::EShapeType::Sphere;
 
-	// 物理空間(Jolt)に登録されているボディ。
-	// 登録は Start(RegisterPhysicsBodySystem)、削除は Release フェーズ(PhysicsBodyFreeSystem)。保存はしない
-	Engine::Physics::BodyHandle physicsBody = {};
-};
+		// 物理空間(Jolt)に登録されているボディ。
+		// 登録は Start(RegisterPhysicsBodySystem)、削除は Release フェーズ(PhysicsBodyFreeSystem)。保存はしない
+		Engine::Physics::BodyHandle physicsBody = {};
+	};
 
-inline ECollisionLayer operator|(ECollisionLayer a, ECollisionLayer b)
-{
-	return static_cast<ECollisionLayer>(
-		static_cast<uint32_t>(a) | static_cast<uint32_t>(b)
-		);
-}
+	inline ECollisionLayer operator|(ECollisionLayer a, ECollisionLayer b)
+	{
+		return static_cast<ECollisionLayer>(
+			static_cast<uint32_t>(a) | static_cast<uint32_t>(b)
+			);
+	}
 
-inline ECollisionLayer operator&(ECollisionLayer a, ECollisionLayer b)
-{
-	return static_cast<ECollisionLayer>(
-		static_cast<uint32_t>(a) & static_cast<uint32_t>(b)
-		);
-}
+	inline ECollisionLayer operator&(ECollisionLayer a, ECollisionLayer b)
+	{
+		return static_cast<ECollisionLayer>(
+			static_cast<uint32_t>(a) & static_cast<uint32_t>(b)
+			);
+	}
 
-inline ECollisionLayer& operator|=(ECollisionLayer& a, ECollisionLayer b)
-{
-	a = a | b;
-	return a;
-}
+	inline ECollisionLayer& operator|=(ECollisionLayer& a, ECollisionLayer b)
+	{
+		a = a | b;
+		return a;
+	}
 
-inline bool HasLayer(ECollisionLayer value, ECollisionLayer test)
-{
-	return (value & test) != ECollisionLayer::None;
-}
+	inline bool HasLayer(ECollisionLayer value, ECollisionLayer test)
+	{
+		return (value & test) != ECollisionLayer::None;
+	}
 
-//------------------------------------------------------------------------------------------
-// 毎フレーム位置が変わる側のレイヤーか(=動くボディ(Kinematic)にして毎フレーム位置を合わせる側か)
-//
-// 弾を撃った側で分けたことで、動くものが DiynamicObject だけではなくなった。
-// 静的か動的かを見るところは必ずここを通すこと。
-// == Layer::DiynamicObject で見たままにしておくと、弾が静的ボディとして登録され、
-// 撃った瞬間の場所に当たり判定が置き去りになる(絵だけ飛んでいく)。
-//------------------------------------------------------------------------------------------
-inline bool IsDynamicLayer(ECollisionLayer a_layer)
-{
-	return HasLayer(a_layer,
-		ECollisionLayer::DiynamicObject | ECollisionLayer::PlayerProjectile | ECollisionLayer::EnemyProjectile |
-		ECollisionLayer::Enemy);
+	//------------------------------------------------------------------------------------------
+	// 毎フレーム位置が変わる側のレイヤーか(=動くボディ(Kinematic)にして毎フレーム位置を合わせる側か)
+	//
+	// 弾を撃った側で分けたことで、動くものが DiynamicObject だけではなくなった。
+	// 静的か動的かを見るところは必ずここを通すこと。
+	// == Layer::DiynamicObject で見たままにしておくと、弾が静的ボディとして登録され、
+	// 撃った瞬間の場所に当たり判定が置き去りになる(絵だけ飛んでいく)。
+	//------------------------------------------------------------------------------------------
+	inline bool IsDynamicLayer(ECollisionLayer a_layer)
+	{
+		return HasLayer(a_layer,
+			ECollisionLayer::DiynamicObject | ECollisionLayer::PlayerProjectile | ECollisionLayer::EnemyProjectile |
+			ECollisionLayer::Enemy);
+	}
 }
 
 // 形状情報、質量。動く、動かない。衝突時の挙動などは持たせない。
 template<>
-struct Engine::ECS::ComponentTraits<ColliderComponent>
+struct Engine::ECS::ComponentTraits<App::Component::ColliderComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		ColliderComponent& _comp = Engine::Editor::GetValue<ColliderComponent>(a_pData);
+		App::Component::ColliderComponent& _comp = Engine::EditorField::GetValue<App::Component::ColliderComponent>(a_pData);
 		a_ar.Field("layer", _comp.layer);
 		a_ar.Field("collideLayer", _comp.collideLayer);
 		a_ar.Field("isPhysical", _comp.isPhysical);
@@ -110,20 +113,20 @@ struct Engine::ECS::ComponentTraits<ColliderComponent>
 	{
 		// コンポーネント取得
 		using namespace Engine;
-		ColliderComponent& _comp = Engine::Editor::GetValue<ColliderComponent>(a_context.pData);
+		App::Component::ColliderComponent& _comp = Engine::EditorField::GetValue<App::Component::ColliderComponent>(a_context.pData);
 
 		// レイヤー選択
-		Engine::Editor::Field("MyLayer", _comp.layer);
-		Engine::Editor::FlagsField("HItLayer", _comp.collideLayer);
+		Engine::EditorField::Field("MyLayer", _comp.layer);
+		Engine::EditorField::FlagsField("HItLayer", _comp.collideLayer);
 
 		// 物理解決
 		bool _is = _comp.isPhysical != 0;
-		if (Engine::Editor::Field("IsPhysical", _is))
+		if (Engine::EditorField::Field("IsPhysical", _is))
 		{
 			_comp.isPhysical = _is ? 1u : 0u;
 		}
 
 		// シェープタイプ
-		Engine::Editor::Field("ShapeType",_comp.shapeType);
+		Engine::EditorField::Field("ShapeType",_comp.shapeType);
 	}
 };

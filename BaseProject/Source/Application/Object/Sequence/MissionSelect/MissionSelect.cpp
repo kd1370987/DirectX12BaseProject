@@ -3,7 +3,7 @@
 #include "Engine/ECS/System/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/GameObject/GameObjectManager/GameObjectManager.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 #include "../../ObjectPicker.h"
 #include "../../UI/UIBase.h"
@@ -179,7 +179,7 @@ namespace App::Object
 
 			// 詳細は「見ている1つ」だけ
 			const bool _isShowDetail = m_isVisible && (_i == m_showIndex);
-			for (const Engine::GUID& _guid : _mission.detailUIGUIDVec)
+			for (const Core::GUID& _guid : _mission.detailUIGUIDVec)
 			{
 				if (auto* _pUI = Picker::Find<Engine::GameObject::BaseObject>(m_pObjectManager, _guid))
 				{
@@ -193,7 +193,7 @@ namespace App::Object
 		//--------------------------------------------------------------
 		const bool _isShowConfirm = m_isVisible && _isConfirm;
 
-		for (const Engine::GUID& _guid : m_confirmUIGUIDVec)
+		for (const Core::GUID& _guid : m_confirmUIGUIDVec)
 		{
 			if (auto* _pUI = Picker::Find<Engine::GameObject::BaseObject>(m_pObjectManager, _guid))
 			{
@@ -281,7 +281,7 @@ namespace App::Object
 			return;
 		}
 
-		const Engine::GUID& _sceneGUID = m_missionVec[m_confirmIndex].sceneGUID;
+		const Core::GUID& _sceneGUID = m_missionVec[m_confirmIndex].sceneGUID;
 		if (!_sceneGUID.IsValid())
 		{
 			ENGINE_WARNING("[MissionSelect] このミッションにはシーンが設定されていません");
@@ -360,17 +360,17 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// エディターでは押して切り替えられないので、ここから出し入れして配置を見る
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Visible");
+		Engine::EditorField::Header("Visible");
 
 		bool _isVisible = m_isVisible;
-		if (Engine::Editor::Field("Visible", _isVisible)) SetVisible(_isVisible);
-		Engine::Editor::Tooltip("普段は HomeSequence が出し入れする。配置を見るときはここで切り替える");
+		if (Engine::EditorField::Field("Visible", _isVisible)) SetVisible(_isVisible);
+		Engine::EditorField::Tooltip("普段は HomeSequence が出し入れする。配置を見るときはここで切り替える");
 
 		//----------------------------------------------------------------------
 		// ミッション
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Missions");
-		Engine::Editor::HelpText("1ミッション = シーンへ置いた UIButton 1つ。並べ方はそのボタン側で決める");
+		Engine::EditorField::Header("Missions");
+		Engine::EditorField::HelpText("1ミッション = シーンへ置いた UIButton 1つ。並べ方はそのボタン側で決める");
 
 		int _removeIndex = -1;
 
@@ -378,34 +378,34 @@ namespace App::Object
 		{
 			MissionEntry& _mission = m_missionVec[_i];
 
-			Engine::Editor::IDScope _id(static_cast<int>(_i));
+			Engine::EditorField::IDScope _id(static_cast<int>(_i));
 
 			const std::string _label = std::to_string(_i) + " : " + _mission.name;
-			if (Engine::Editor::TreeScope _tree{ _label.c_str() })
+			if (Engine::EditorField::TreeScope _tree{ _label.c_str() })
 			{
-				if (Engine::Editor::Field("Name", _mission.name))
+				if (Engine::EditorField::Field("Name", _mission.name))
 				{
 					// 開いている確認ボックスへ即座に反映して、見ながら直せるようにする
 					if (m_confirmIndex == static_cast<int>(_i)) ApplyMissionName(_mission);
 				}
-				Engine::Editor::Tooltip("確認ボックスの Text 飾りへ流し込む名前");
+				Engine::EditorField::Tooltip("確認ボックスの Text 飾りへ流し込む名前");
 
 				if (Picker::DrawCombo<UIButton>("Button", _pObjectManager, _mission.buttonGUID))
 				{
 					m_isBound = false;
 				}
-				Engine::Editor::HelpText("押すと確認ボックスが出る");
+				Engine::EditorField::HelpText("押すと確認ボックスが出る");
 
-				Engine::Editor::AssetField(*a_context.pServices, "Scene", "Scene", _mission.sceneGUID);
-				Engine::Editor::Tooltip("Yes で飛ぶ先");
+				Engine::EditorField::AssetField(*a_context.pServices, "Scene", "Scene", _mission.sceneGUID);
+				Engine::EditorField::Tooltip("Yes で飛ぶ先");
 
-				Engine::Editor::HelpText("カーソルが乗っている間だけ出すUI(画像・説明文)");
+				Engine::EditorField::HelpText("カーソルが乗っている間だけ出すUI(画像・説明文)");
 				if (Picker::DrawList<Engine::GameObject::BaseObject>("Detail UI", _pObjectManager, _mission.detailUIGUIDVec))
 				{
 					ApplyVisible();
 				}
 
-				if (Engine::Editor::DeleteButton("Remove Mission"))
+				if (Engine::EditorField::DeleteButton("Remove Mission"))
 				{
 					_removeIndex = static_cast<int>(_i);
 				}
@@ -424,7 +424,7 @@ namespace App::Object
 			ApplyVisible();
 		}
 
-		if (Engine::Editor::CreateButton("Add Mission"))
+		if (Engine::EditorField::CreateButton("Add Mission"))
 		{
 			m_missionVec.push_back({});
 			m_isBound = false;
@@ -433,8 +433,8 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// 確認ボックス
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Confirm");
-		Engine::Editor::HelpText("ミッションを押したときに中央へ出すもの");
+		Engine::EditorField::Header("Confirm");
+		Engine::EditorField::HelpText("ミッションを押したときに中央へ出すもの");
 
 		if (Picker::DrawList<Engine::GameObject::BaseObject>("Confirm UI", _pObjectManager, m_confirmUIGUIDVec))
 		{
@@ -445,8 +445,8 @@ namespace App::Object
 		if (Picker::DrawCombo<UIButton>("No", _pObjectManager, m_noButtonGUID))   m_isBound = false;
 
 		if (Picker::DrawCombo<UIBase>("Name UI", _pObjectManager, m_nameUIGUID)) ApplyVisible();
-		Engine::Editor::Field("Name Decoration", m_nameDecorationName);
-		Engine::Editor::Tooltip("上のUIが持つ Text 飾りの名前。ここへミッション名を書き込む");
+		Engine::EditorField::Field("Name Decoration", m_nameDecorationName);
+		Engine::EditorField::Tooltip("上のUIが持つ Text 飾りの名前。ここへミッション名を書き込む");
 
 		// 指定した飾りが本当にあるか、その場で分かるようにしておく
 		if (auto* _pNameUI = Picker::Find<UIBase>(_pObjectManager, m_nameUIGUID))
@@ -455,21 +455,21 @@ namespace App::Object
 
 			if (_pDecoration == nullptr)
 			{
-				Engine::Editor::ErrorText("飾りが見つかりません");
+				Engine::EditorField::ErrorText("飾りが見つかりません");
 			}
 			else if (_pDecoration->type != Decoration::EDecorationType::Text)
 			{
-				Engine::Editor::WarningText("飾りが Text ではありません");
+				Engine::EditorField::WarningText("飾りが Text ではありません");
 			}
 		}
 
 		//----------------------------------------------------------------------
 		// 実行中の状態は表示のみ
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Runtime");
-		Engine::Editor::Value("Bound", "%s", m_isBound ? "yes" : "no");
-		Engine::Editor::Value("Show", "%d", m_showIndex);
-		Engine::Editor::Value("Confirm", "%d", m_confirmIndex);
-		Engine::Editor::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
+		Engine::EditorField::Header("Runtime");
+		Engine::EditorField::Value("Bound", "%s", m_isBound ? "yes" : "no");
+		Engine::EditorField::Value("Show", "%d", m_showIndex);
+		Engine::EditorField::Value("Confirm", "%d", m_confirmIndex);
+		Engine::EditorField::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
 	}
 }

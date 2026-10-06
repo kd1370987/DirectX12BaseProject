@@ -78,26 +78,26 @@ namespace App::Object
 		//==================================================================
 		bool _hasPlayer = false;
 
-		_pWorld->ForEach<const ActiveTag, const PlayerControllTag, const MissileLockComponent>(
+		_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag, const Component::MissileLockComponent>(
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const ActiveTag* a_activeTagArray,
-				const PlayerControllTag* a_playerTagArray,
-				const MissileLockComponent* a_missileArray
+				const Component::ActiveTag* a_activeTagArray,
+				const Component::PlayerControllTag* a_playerTagArray,
+				const Component::MissileLockComponent* a_missileArray
 			)
 			{
 				// 操作しているプレイヤーは1体の想定。先に見つかったものを使う
 				if (_hasPlayer || a_count == 0) return;
 				_hasPlayer = true;
 
-				const MissileLockComponent& _missile = a_missileArray[0];
+				const Component::MissileLockComponent& _missile = a_missileArray[0];
 
 				// 押している間だけ出す。撃った瞬間に溜めは捨てられるので枠も消える
 				if (!_missile.isCharging) return;
 
 				const int _count = std::clamp(
-					_missile.lockCount, 0, MissileLockComponent::MISSILE_MAX);
+					_missile.lockCount, 0, Component::MissileLockComponent::MISSILE_MAX);
 
 				for (int _i = 0; _i < _count; ++_i)
 				{
@@ -126,10 +126,10 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Header("MissileLockBox");
-		Engine::Editor::HelpText("ミサイルキーを押している間、溜めた敵を囲みます");
-		Engine::Editor::HelpText("収集範囲は CombatReticleHUD / 弾数はプレイヤーの MissileLockComponent");
-		Engine::Editor::HelpText("PixelPos is unused (follows enemies)");
-		Engine::Editor::Value("Boxes", "%d", static_cast<int>(m_lockScreenPosVec.size()));
+		Engine::EditorField::Header("MissileLockBox");
+		Engine::EditorField::HelpText("ミサイルキーを押している間、溜めた敵を囲みます");
+		Engine::EditorField::HelpText("収集範囲は CombatReticleHUD / 弾数はプレイヤーの MissileLockComponent");
+		Engine::EditorField::HelpText("PixelPos is unused (follows enemies)");
+		Engine::EditorField::Value("Boxes", "%d", static_cast<int>(m_lockScreenPosVec.size()));
 	}
 }

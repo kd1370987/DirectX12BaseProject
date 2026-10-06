@@ -2,10 +2,13 @@
 
 #include "Application/ECS/ISystem/APPISystem.h"
 
-class GroundEffectSetSystem : public App::ECS::APPISystem
+namespace App::System
 {
-public:
+	class GroundEffectSetSystem : public App::ECS::APPISystem
+	{
+	public:
 
 
-	void Init(App::ECS::APPWorld& a_world) override;
-};
+		void Init(App::ECS::APPWorld& a_world) override;
+	};
+}

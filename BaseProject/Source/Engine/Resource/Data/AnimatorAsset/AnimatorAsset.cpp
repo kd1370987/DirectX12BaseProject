@@ -33,7 +33,7 @@ namespace Engine::Resource
 		// ハッシュは保存せず、名前から張り直す(モデル差し替えに強くするため)
 		if (a_arch.IsLoading())
 		{
-			nodeNameHash = Engine::String::ToHash(nodeName);
+			nodeNameHash = Core::String::ToHash(nodeName);
 		}
 	}
 
@@ -52,8 +52,8 @@ namespace Engine::Resource
 			}
 		}
 
-		auto _dir = Engine::File::GetDirFromPath(a_savePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_savePath);
+		auto _dir = Core::File::GetDirFromPath(a_savePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_savePath);
 		Persistence::Archive _arch(Persistence::Archive::EMode::Save, _dir, _fileName, "stet");
 
 		// Animator固有ヘッダ
@@ -105,8 +105,8 @@ namespace Engine::Resource
 
 	void AnimatorAsset::Load(const std::string& a_filePath, ResourceManager& a_resourceManager)
 	{
-		auto _dir = Engine::File::GetDirFromPath(a_filePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
+		auto _dir = Core::File::GetDirFromPath(a_filePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_filePath);
 		LoadInternal(_dir, _fileName, a_resourceManager);
 	}
 
@@ -147,7 +147,7 @@ namespace Engine::Resource
 	{
 		m_graph.Clear();
 		m_name.clear();
-		m_modelGUID = Engine::DEFAULT_GUID;
+		m_modelGUID = Core::DEFAULT_GUID;
 		m_modelHandle = {};
 		m_additiveBones.clear();
 	}

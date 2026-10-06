@@ -28,7 +28,7 @@ namespace Engine::Resource
 	// 共通「つなぎ情報」を継承し、固有データとして再生アニメ情報を持つ。
 	struct AnimatorNode : Engine::StateGraph::StateNodeBase
 	{
-		Engine::GUID			animGUID;					// セーブ用(アニメのGUID)
+		Core::GUID			animGUID;					// セーブ用(アニメのGUID)
 		ResourceRef<AnimationData> playAnimData;			// 実行時に解決される再生アニメ参照
 		float					speed = 0.0f;
 		bool					isLoop = false;
@@ -77,7 +77,7 @@ namespace Engine::Resource
 		// エディター用 : 設計図を直接書き換える
 		//----------------------------------------------------------------------------------
 		Graph& RefGraph() { return m_graph; }
-		Engine::GUID& RefModelGUID() { return m_modelGUID; }
+		Core::GUID& RefModelGUID() { return m_modelGUID; }
 		Handle<Model>& RefModelHandle() { return m_modelHandle; }
 		std::vector<AdditiveBoneDef>& RefAdditiveBones() { return m_additiveBones; }
 
@@ -130,7 +130,7 @@ namespace Engine::Resource
 
 	private:
 		// 参照モデル(アニメ選択用)
-		Engine::GUID	m_modelGUID = Engine::DEFAULT_GUID;
+		Core::GUID	m_modelGUID = Core::DEFAULT_GUID;
 		Handle<Model>	m_modelHandle = {};
 
 		// 識別子

@@ -22,7 +22,7 @@
 // CommitHierarchyWorldMatrixSystem と同じ計算をここに置き、
 // 片方だけ直して食い違うことがないようにする。
 //==========================================================================================
-namespace App::Systems::HierarchyTransform
+namespace App::System::HierarchyTransform
 {
 	/// <summary>
 	/// 親を辿ってワールド行列を組み立てる

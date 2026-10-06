@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "Engine/Utility/Math/Vector/Vector3.h"
-#include "Engine/Utility/Math/Matrix.h"
-#include "Engine/Utility/Math/Ray.h"
+#include "Core/Math/Vector/Vector3.h"
+#include "Core/Math/Matrix.h"
+#include "Core/Math/Ray.h"
 #include "Core/BodyID.h"
 
 namespace JPH

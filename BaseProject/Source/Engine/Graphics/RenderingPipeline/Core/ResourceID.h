@@ -35,7 +35,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		static constexpr uint32_t INVALID_SLOT_ID = static_cast<uint32_t>(-1);
 
-		Engine::GUID passGUID = {};					// 作ったパス : 外部リソースなら空のまま
+		Core::GUID passGUID = {};					// 作ったパス : 外部リソースなら空のまま
 		uint32_t slotID = INVALID_SLOT_ID;			// その出力スロットID : 外部リソースなら名前のハッシュ
 
 		bool IsValid() const { return slotID != INVALID_SLOT_ID; }
@@ -47,7 +47,7 @@ namespace Engine::Graphics::Pipeline
 		bool operator!=(const ResourceID& a_other) const { return !(*this == a_other); }
 
 		// パスの出力ピンから起こす : 同じクラスを何個置いても別物になる
-		static ResourceID FromOutputSlot(const Engine::GUID& a_passGUID, uint32_t a_slotID);
+		static ResourceID FromOutputSlot(const Core::GUID& a_passGUID, uint32_t a_slotID);
 
 		// グラフの外から差し込まれるリソースから起こす。
 		// 作り手のパスが居ないので GUID は空のまま。

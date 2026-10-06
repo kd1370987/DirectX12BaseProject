@@ -2,30 +2,33 @@
 
 #include "AnimatorComponent.h"
 
-//==========================================================================================
-// UpperAnimatorComponent
-//
-// 基本レイヤー(AnimatorComponent::baseLayer)の上に重ねるアニメーター。
-//
-// ・基本レイヤーがノードポーズの配列へ書いた後に、ボーンレイヤー(モデルの BoneMask)に
-//   載っているノードだけを、このレイヤーのクリップで上書きする(AnimationSystem の UpperAnimationSystem)。
-//   マスクの重みが 0〜1 の間なら、基本レイヤーの結果と TRS で補間する。
-// ・ボーンレイヤーが未選択(0)なら全身を上書きする。
-// ・ステートの遷移・パラメータの実体は基本レイヤーとは別に持つ(設計図も別)。
-//==========================================================================================
-struct UpperAnimatorComponent
+namespace App::Component
 {
-	AnimatorLayer layer = {};
+	//==========================================================================================
+	// UpperAnimatorComponent
+	//
+	// 基本レイヤー(AnimatorComponent::baseLayer)の上に重ねるアニメーター。
+	//
+	// ・基本レイヤーがノードポーズの配列へ書いた後に、ボーンレイヤー(モデルの BoneMask)に
+	//   載っているノードだけを、このレイヤーのクリップで上書きする(AnimationSystem の UpperAnimationSystem)。
+	//   マスクの重みが 0〜1 の間なら、基本レイヤーの結果と TRS で補間する。
+	// ・ボーンレイヤーが未選択(0)なら全身を上書きする。
+	// ・ステートの遷移・パラメータの実体は基本レイヤーとは別に持つ(設計図も別)。
+	//==========================================================================================
+	struct UpperAnimatorComponent
+	{
+		AnimatorLayer layer = {};
 
-	// レイヤー全体の効き(0〜1)。マスクの重みに掛ける。外から書けばフェードに使える
-	float weight = 1.0f;
-};
+		// レイヤー全体の効き(0〜1)。マスクの重みに掛ける。外から書けばフェードに使える
+		float weight = 1.0f;
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<UpperAnimatorComponent>
+struct Engine::ECS::ComponentTraits<App::Component::UpperAnimatorComponent>
 {
 	// 重ねる土台が要る(ポーズの置き場なども AnimatorComponent から推移的に付く)
-	using Requires = Engine::ECS::RequireComponents<AnimatorComponent>;
+	using Requires = Engine::ECS::RequireComponents<App::Component::AnimatorComponent>;
 
 	//----------------------------------------------------------------------------------
 	// 借りているリソースを返す
@@ -33,13 +36,13 @@ struct Engine::ECS::ComponentTraits<UpperAnimatorComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		UpperAnimatorComponent& _comp = Engine::Editor::GetValue<UpperAnimatorComponent>(a_pData);
+		App::Component::UpperAnimatorComponent& _comp = Engine::EditorField::GetValue<App::Component::UpperAnimatorComponent>(a_pData);
 		a_services.pResourceManager->ReleaseHandle(_comp.layer.animatorHandle);
 	}
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		UpperAnimatorComponent& _comp = Engine::Editor::GetValue<UpperAnimatorComponent>(a_pData);
+		App::Component::UpperAnimatorComponent& _comp = Engine::EditorField::GetValue<App::Component::UpperAnimatorComponent>(a_pData);
 
 		if (a_ar.BeginGroup("layer"))
 		{
@@ -52,9 +55,9 @@ struct Engine::ECS::ComponentTraits<UpperAnimatorComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		UpperAnimatorComponent& _comp = Engine::Editor::GetValue<UpperAnimatorComponent>(a_context.pData);
+		App::Component::UpperAnimatorComponent& _comp = Engine::EditorField::GetValue<App::Component::UpperAnimatorComponent>(a_context.pData);
 
-		Engine::Editor::Slider("Weight", _comp.weight, 0.0f, 1.0f, "%.2f");
+		Engine::EditorField::Slider("Weight", _comp.weight, 0.0f, 1.0f, "%.2f");
 		EditAnimatorLayer(a_context, "Upper Layer", _comp.layer, true);
 	}
 };

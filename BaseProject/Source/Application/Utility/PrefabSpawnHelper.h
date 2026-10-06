@@ -40,13 +40,13 @@ namespace App::Utility
 
 		// 生成元の印(SpawnerComponent)。付けると出した側が生存数を数えられる。
 		// spawnerGUID が無効なら印は付けない。
-		Engine::GUID spawnerGUID = Engine::DEFAULT_GUID;
+		Core::GUID spawnerGUID = Core::DEFAULT_GUID;
 		int          waveIndex   = -1;
 
 		// 追従先(FollowTargetComponent)。ボイドのリーダーなど、出した側を追わせるときに使う。
 		// followTarget が無効なら触らない(プレハブの保存値のまま)
 		Engine::ECS::Entity followTarget     = Engine::ECS::Limits::INVALID_ENTITY;
-		Engine::GUID        followTargetGUID = Engine::DEFAULT_GUID;	// Awake の張り直しで上書きされないよう合わせて入れる
+		Core::GUID        followTargetGUID = Core::DEFAULT_GUID;	// Awake の張り直しで上書きされないよう合わせて入れる
 	};
 
 	/// <summary>
@@ -59,7 +59,7 @@ namespace App::Utility
 	bool SpawnPrefab(
 		Engine::ECS::World& a_world,
 		Engine::Resource::ResourceManager& a_resourceManager,
-		const Engine::GUID& a_prefabGUID,
+		const Core::GUID& a_prefabGUID,
 		Engine::Handle<Engine::Resource::Prefab>& a_refHandle,
 		const SpawnParams& a_params);
 
@@ -69,7 +69,7 @@ namespace App::Utility
 	bool SpawnPrefabAt(
 		Engine::ECS::World& a_world,
 		Engine::Resource::ResourceManager& a_resourceManager,
-		const Engine::GUID& a_prefabGUID,
+		const Core::GUID& a_prefabGUID,
 		Engine::Handle<Engine::Resource::Prefab>& a_refHandle,
 		const Math::Vector3& a_pos);
 

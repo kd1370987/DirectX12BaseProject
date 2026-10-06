@@ -106,8 +106,8 @@ namespace Engine::Resource
 			return;
 		}
 
-		auto _dir = Engine::File::GetDirFromPath(a_savePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_savePath);
+		auto _dir = Core::File::GetDirFromPath(a_savePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_savePath);
 
 		// 保存先ディレクトリが無ければ作成しておく
 		if (!_dir.empty())
@@ -126,8 +126,8 @@ namespace Engine::Resource
 		m_sigunature = {};
 		m_dataMap.clear();
 
-		auto _dir = Engine::File::GetDirFromPath(a_filePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
+		auto _dir = Core::File::GetDirFromPath(a_filePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_filePath);
 
 		// 形式はビルドモード任せ(Auto)。
 		// Development までは .ojprfb があればそちらを読むので、コンポーネントに
@@ -175,16 +175,16 @@ namespace Engine::Resource
 		//----------------------------------------------------------------------
 		// 保存時GUID → 新しいGUID の対応表を作る
 		//----------------------------------------------------------------------
-		std::unordered_map<Engine::GUID, Engine::GUID> _guidMap = {};
+		std::unordered_map<Core::GUID, Core::GUID> _guidMap = {};
 
-		std::vector<Engine::GUID> _newGUIDVec(_instanceVec.size());
+		std::vector<Core::GUID> _newGUIDVec(_instanceVec.size());
 		for (auto& _newGUID : _newGUIDVec) _newGUID.Create();
 
 		if (m_savedGUID.IsValid()) _guidMap[m_savedGUID] = _newGUIDVec[0];
 
 		for (size_t _i = 0; _i < m_children.size(); ++_i)
 		{
-			const Engine::GUID& _savedGUID = m_children[_i].savedGUID;
+			const Core::GUID& _savedGUID = m_children[_i].savedGUID;
 			if (!_savedGUID.IsValid()) continue;
 
 			_guidMap[_savedGUID] = _newGUIDVec[_i + 1];
@@ -193,7 +193,7 @@ namespace Engine::Resource
 		//----------------------------------------------------------------------
 		// 参照の張り替えと、自分自身のGUIDの書き込み
 		//----------------------------------------------------------------------
-		const ECS::ComponentTypeID _guidTypeID = a_pWorld->GetCompTypeID<GUIDComponent>();
+		const ECS::ComponentTypeID _guidTypeID = a_pWorld->GetCompTypeID<App::Component::GUIDComponent>();
 
 		for (size_t _i = 0; _i < _instanceVec.size(); ++_i)
 		{
@@ -209,12 +209,12 @@ namespace Engine::Resource
 			if (!_instanceVec[_i].sig.test(_guidTypeID)) continue;
 
 			auto _it = _instanceVec[_i].dataMap.find(_guidTypeID);
-			if (_it == _instanceVec[_i].dataMap.end() || _it->second.size() < sizeof(GUIDComponent))
+			if (_it == _instanceVec[_i].dataMap.end() || _it->second.size() < sizeof(App::Component::GUIDComponent))
 			{
 				continue;
 			}
 
-			GUIDComponent _guidComp = {};
+			App::Component::GUIDComponent _guidComp = {};
 			std::memcpy(&_guidComp, _it->second.data(), sizeof(_guidComp));
 			_guidComp.guid = _newGUIDVec[_i];
 			std::memcpy(_it->second.data(), &_guidComp, sizeof(_guidComp));
@@ -230,17 +230,17 @@ namespace Engine::Resource
 	//======================================================================================
 	void Prefab::RemapGUIDs(
 		uint8_t* a_pData, size_t a_size,
-		const std::unordered_map<Engine::GUID, Engine::GUID>& a_guidMap)
+		const std::unordered_map<Core::GUID, Core::GUID>& a_guidMap)
 	{
 		if (!a_pData || a_guidMap.empty()) return;
-		if (a_size < sizeof(Engine::GUID)) return;
+		if (a_size < sizeof(Core::GUID)) return;
 
 		constexpr size_t STRIDE = 4;
-		const size_t _end = a_size - sizeof(Engine::GUID);
+		const size_t _end = a_size - sizeof(Core::GUID);
 
 		for (size_t _offset = 0; _offset <= _end; _offset += STRIDE)
 		{
-			Engine::GUID _guid = {};
+			Core::GUID _guid = {};
 			std::memcpy(&_guid, a_pData + _offset, sizeof(_guid));
 
 			// 未設定(全ゼロ)は「参照なし」の意味なので触らない
@@ -329,8 +329,8 @@ namespace Engine::Resource
 		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
 
 		// すでに存在するなら作らない
-		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DEFAULT_GUID)
+		Core::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
+		if (_checkGUID != Core::DEFAULT_GUID)
 		{
 			ENGINE_LOG("すでに作成されたプレハブです : %s", _basePath.c_str());
 			return;

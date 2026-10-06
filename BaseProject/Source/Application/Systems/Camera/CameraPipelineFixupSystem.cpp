@@ -5,29 +5,32 @@
 #include "Application/Components/Core/PhaseTag/PostDeserializeTag.h"
 #include "Application/Components/Camera/CameraParamComponent.h"
 
-void CameraPipelineFixupSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	a_world.PostDeserializeTask<CameraParamComponent>(
-		Engine::ECS::ESystemType::PostDeserialize,
-		"CameraPipelineFixupSystem",
-		[]
-		(
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			PostDeserializeTag* a_tag,
-			CameraParamComponent* a_array
-			)
-		{
-			for (uint32_t _i = 0; _i < a_count; ++_i)
+	void CameraPipelineFixupSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		a_world.PostDeserializeTask<Component::CameraParamComponent>(
+			Engine::ECS::ESystemType::PostDeserialize,
+			"CameraPipelineFixupSystem",
+			[]
+			(
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::PostDeserializeTag* a_tag,
+				Component::CameraParamComponent* a_array
+				)
 			{
-				CameraParamComponent& _comp = a_array[_i];
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					Component::CameraParamComponent& _comp = a_array[_i];
 
-				// 描画構成を指していないカメラは従来経路のまま
-				if (_comp.pipelineGUID == Engine::DEFAULT_GUID) continue;
+					// 描画構成を指していないカメラは従来経路のまま
+					if (_comp.pipelineGUID == Core::DEFAULT_GUID) continue;
 
-				a_ctx.pServices->pResourceManager->AcquireImmediate(_comp.pipelineHandle, _comp.pipelineGUID);
+					a_ctx.pServices->pResourceManager->AcquireImmediate(_comp.pipelineHandle, _comp.pipelineGUID);
+				}
 			}
-		}
-	);
+		);
+	}
 }

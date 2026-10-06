@@ -156,7 +156,7 @@ namespace Engine::GameObject
 		}
 
 		// 新規GUIDを発行
-		Engine::GUID _guid = {};
+		Core::GUID _guid = {};
 		_guid.Create();
 		_upObject->SetGUID(_guid);
 
@@ -166,7 +166,7 @@ namespace Engine::GameObject
 		return _pObject;
 	}
 
-	BaseObject* GameObjectManager::FindByGUID(const Engine::GUID& a_guid) const
+	BaseObject* GameObjectManager::FindByGUID(const Core::GUID& a_guid) const
 	{
 		auto _it = m_guidMap.find(a_guid);
 		if (_it != m_guidMap.end())
@@ -222,7 +222,7 @@ namespace Engine::GameObject
 					}
 
 					// GUIDが未発行なら発行しておく
-					Engine::GUID _guid = _pObject->GetGUID();
+					Core::GUID _guid = _pObject->GetGUID();
 					if (!_guid.IsValid())
 					{
 						_guid.Create();
@@ -234,7 +234,7 @@ namespace Engine::GameObject
 
 					// ヒエラルキー上の親(エディターの並びだけに効く)。
 					// 派生の Archive を1つずつ直さずに済むよう、ここでまとめて面倒を見る
-					Engine::GUID _parentGUID = _pObject->GetParentGUID();
+					Core::GUID _parentGUID = _pObject->GetParentGUID();
 					a_ar.GUIDField("ParentGUID", _parentGUID);
 
 					// 個別データ
@@ -252,8 +252,8 @@ namespace Engine::GameObject
 					// シーンに書かれている値(登録名のハッシュ)。
 					// 登録名を変えたクラスもあるので、引くのは ResolveTypeID を通す
 					uint32_t _savedTypeID = INVALID_OBJECT_TYPE_ID;
-					Engine::GUID _guid = {};
-					Engine::GUID _parentGUID = {};
+					Core::GUID _guid = {};
+					Core::GUID _parentGUID = {};
 					a_ar.Field("TypeIndex", _savedTypeID);
 					a_ar.GUIDField("GUID", _guid);
 					a_ar.GUIDField("ParentGUID", _parentGUID);

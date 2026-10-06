@@ -17,7 +17,7 @@
 // 散らし角を付けて撃つ、というまったく同じ処理になる。片方だけ直して食い違わないよう、
 // キューの消化はここへ寄せてある。
 //==========================================================================================
-namespace App::Systems::MissileSalvo
+namespace App::System::MissileSalvo
 {
 	/// <summary>
 	/// 一斉射の弾を散らす向きを作る
@@ -47,7 +47,7 @@ namespace App::Systems::MissileSalvo
 	/// </remarks>
 	void ConsumeFireQueue(
 		const Engine::ECS::SystemContext& a_ctx,
-		MissileLockComponent&             a_missile,
+		Component::MissileLockComponent&             a_missile,
 		Engine::ECS::Entity               a_podEntity,
 		const Math::Vector3&              a_aimDir);
 }

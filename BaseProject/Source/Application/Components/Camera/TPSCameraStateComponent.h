@@ -1,52 +1,55 @@
 ﻿#pragma once
 
-// TPSカメラの実行時状態(TPSSystem が毎フレーム更新する)
-struct TPSCameraStateComponent
+namespace App::Component
 {
-	// 現在の注視点。ワールドの絶対座標ではなく「カメラ空間(オービット基準)の相対座標」で持つ。
-	// 左手系なので +Z が視線の奥、+X が画面右、+Y が画面上。
-	// 機体の姿勢で解決すると、胴体が視線と別方向を向いた瞬間に構図が振られる。
-	Math::Vector3 currentLookAt = { 0.0f, 0.0f, 0.0f };
-	Math::Quaternion currentOrbit  = { 0.0f, 0.0f, 0.0f, 1.0f }; // 現在のオービット回転(Slerp補間用)
+	// TPSカメラの実行時状態(TPSSystem が毎フレーム更新する)
+	struct TPSCameraStateComponent
+	{
+		// 現在の注視点。ワールドの絶対座標ではなく「カメラ空間(オービット基準)の相対座標」で持つ。
+		// 左手系なので +Z が視線の奥、+X が画面右、+Y が画面上。
+		// 機体の姿勢で解決すると、胴体が視線と別方向を向いた瞬間に構図が振られる。
+		Math::Vector3 currentLookAt = { 0.0f, 0.0f, 0.0f };
+		Math::Quaternion currentOrbit  = { 0.0f, 0.0f, 0.0f, 1.0f }; // 現在のオービット回転(Slerp補間用)
 
-	// currentLookAt をワールドへ解決した結果。TPSSystem が毎フレーム書く。
-	// 他システム(AimTargetSystem)がオービットの式を再現しなくて済むように置いている。
-	// 実行時の派生値なので保存しない。
-	Math::Vector3 lookAtWorld = { 0.0f, 0.0f, 0.0f };
+		// currentLookAt をワールドへ解決した結果。TPSSystem が毎フレーム書く。
+		// 他システム(AimTargetSystem)がオービットの式を再現しなくて済むように置いている。
+		// 実行時の派生値なので保存しない。
+		Math::Vector3 lookAtWorld = { 0.0f, 0.0f, 0.0f };
 
-	Math::Vector3 currentPivot  = { 0.0f, 0.0f, 0.0f }; // 現在のピボット。ターゲットへ遅れて追従する
-	float currentPullBack = 0.0f;							// 現在の引き量(m)。速度に応じて伸びる
+		Math::Vector3 currentPivot  = { 0.0f, 0.0f, 0.0f }; // 現在のピボット。ターゲットへ遅れて追従する
+		float currentPullBack = 0.0f;							// 現在の引き量(m)。速度に応じて伸びる
 
-	// 速度レスポンスの実行時値(保存しない)
-	float currentSpeed01  = 0.0f;	// 速度の正規化値(0..1)。引き/追従/画角の効きはすべてこれ基準
-	float currentFovAdd   = 0.0f;	// 現在の画角の上乗せ(度)。CameraParamComponent.fovBoost へ入る
+		// 速度レスポンスの実行時値(保存しない)
+		float currentSpeed01  = 0.0f;	// 速度の正規化値(0..1)。引き/追従/画角の効きはすべてこれ基準
+		float currentFovAdd   = 0.0f;	// 現在の画角の上乗せ(度)。CameraParamComponent.fovBoost へ入る
 
-	// 追従状態が一度でも作られたか。
-	// 保存しないので、シーンをロードした直後の1フレーム目は必ずターゲットへスナップする
-	// (原点から飛んでくるのを防ぐため)。
-	bool isInitialized = false;
-};
+		// 追従状態が一度でも作られたか。
+		// 保存しないので、シーンをロードした直後の1フレーム目は必ずターゲットへスナップする
+		// (原点から飛んでくるのを防ぐため)。
+		bool isInitialized = false;
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<TPSCameraStateComponent>
+struct Engine::ECS::ComponentTraits<App::Component::TPSCameraStateComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		TPSCameraStateComponent& _comp = Engine::Editor::GetValue<TPSCameraStateComponent>(a_pData);
+		App::Component::TPSCameraStateComponent& _comp = Engine::EditorField::GetValue<App::Component::TPSCameraStateComponent>(a_pData);
 		a_ar.Field("currentLookAt", _comp.currentLookAt);
 		a_ar.Field("currentOrbit", _comp.currentOrbit);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		TPSCameraStateComponent& _comp = Engine::Editor::GetValue<TPSCameraStateComponent>(a_context.pData);
+		App::Component::TPSCameraStateComponent& _comp = Engine::EditorField::GetValue<App::Component::TPSCameraStateComponent>(a_context.pData);
 
 		// システムが毎フレーム上書きするので表示のみ
-		Engine::Editor::Value("LookAtCamera", "%.2f, %.2f, %.2f", _comp.currentLookAt.x, _comp.currentLookAt.y, _comp.currentLookAt.z);
-		Engine::Editor::Value("LookAtWorld", "%.2f, %.2f, %.2f", _comp.lookAtWorld.x, _comp.lookAtWorld.y, _comp.lookAtWorld.z);
-		Engine::Editor::Value("CurrentPivot", "%.2f, %.2f, %.2f", _comp.currentPivot.x, _comp.currentPivot.y, _comp.currentPivot.z);
-		Engine::Editor::Value("PullBack", "%.2f", _comp.currentPullBack);
-		Engine::Editor::Value("Speed01", "%.2f", _comp.currentSpeed01);
-		Engine::Editor::Value("FovAdd", "%.2f", _comp.currentFovAdd);
+		Engine::EditorField::Value("LookAtCamera", "%.2f, %.2f, %.2f", _comp.currentLookAt.x, _comp.currentLookAt.y, _comp.currentLookAt.z);
+		Engine::EditorField::Value("LookAtWorld", "%.2f, %.2f, %.2f", _comp.lookAtWorld.x, _comp.lookAtWorld.y, _comp.lookAtWorld.z);
+		Engine::EditorField::Value("CurrentPivot", "%.2f, %.2f, %.2f", _comp.currentPivot.x, _comp.currentPivot.y, _comp.currentPivot.z);
+		Engine::EditorField::Value("PullBack", "%.2f", _comp.currentPullBack);
+		Engine::EditorField::Value("Speed01", "%.2f", _comp.currentSpeed01);
+		Engine::EditorField::Value("FovAdd", "%.2f", _comp.currentFovAdd);
 	}
 };

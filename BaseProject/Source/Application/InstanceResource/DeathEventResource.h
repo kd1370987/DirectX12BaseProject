@@ -20,36 +20,39 @@
 //
 //==========================================================================================
 
-// 死亡1件分の情報
-struct DeathEvent
+namespace App::InstanceResource
 {
-	// 死んだエンティティ
-	Engine::ECS::Entity entity = Engine::ECS::Limits::INVALID_ENTITY;
-
-	// 死んだ位置(ワールド)。エフェクトの発生点に使う
-	Math::Vector3 pos = { 0.0f, 0.0f, 0.0f };
-};
-
-// ワールドに1つだけ置く死亡イベントの配列
-struct DeathEventResource
-{
-	std::vector<DeathEvent> events = {};
-
-	// 死亡を追加する
-	void Push(const DeathEvent& a_event)
+	// 死亡1件分の情報
+	struct DeathEvent
 	{
-		events.push_back(a_event);
-	}
+		// 死んだエンティティ
+		Engine::ECS::Entity entity = Engine::ECS::Limits::INVALID_ENTITY;
 
-	// capacity は残すので、毎フレームの再確保は起きない
-	void Clear()
-	{
-		events.clear();
-	}
+		// 死んだ位置(ワールド)。エフェクトの発生点に使う
+		Math::Vector3 pos = { 0.0f, 0.0f, 0.0f };
+	};
 
-	// 事前確保(初期化時に一度だけ呼ぶ想定)
-	void Reserve(size_t a_capacity)
+	// ワールドに1つだけ置く死亡イベントの配列
+	struct DeathEventResource
 	{
-		events.reserve(a_capacity);
-	}
-};
+		std::vector<DeathEvent> events = {};
+
+		// 死亡を追加する
+		void Push(const DeathEvent& a_event)
+		{
+			events.push_back(a_event);
+		}
+
+		// capacity は残すので、毎フレームの再確保は起きない
+		void Clear()
+		{
+			events.clear();
+		}
+
+		// 事前確保(初期化時に一度だけ呼ぶ想定)
+		void Reserve(size_t a_capacity)
+		{
+			events.reserve(a_capacity);
+		}
+	};
+}

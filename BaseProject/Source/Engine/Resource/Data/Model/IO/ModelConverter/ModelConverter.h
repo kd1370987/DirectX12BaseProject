@@ -33,14 +33,14 @@ namespace Engine::Resource::Converter
 		/// </summary>
 		// a_resourceManager : 変換元の実体を引く先。保存先のパス解決とサブアセットのGUID発行は、この中のアセットデータベースで行う
 		static bool ConvertModelDataToBinary(ResourceManager& a_resourceManager, const std::string& a_filePath);		// ファイルパスから
-		static bool ConvertModelDataToBinary(ResourceManager& a_resourceManager, const Engine::GUID& a_guid);			// guidから
+		static bool ConvertModelDataToBinary(ResourceManager& a_resourceManager, const Core::GUID& a_guid);			// guidから
 		static bool ConvertModelDataToBinary(ResourceManager& a_resourceManager, const ResourceRef<Model>& a_modelHandle);	// ハンドルから
 
 		/// <summary>
 		/// 読み込み済みのモデルの .mdl だけを書き直す(ボーンレイヤーの編集結果など)。
 		/// サブアセットが未コンバート(gltf から読んだまま)なら ConvertModelDataToBinary に任せる
 		/// </summary>
-		static bool SaveModelAsset(ResourceManager& a_resourceManager, const Engine::GUID& a_guid);
+		static bool SaveModelAsset(ResourceManager& a_resourceManager, const Core::GUID& a_guid);
 
 	private:
 

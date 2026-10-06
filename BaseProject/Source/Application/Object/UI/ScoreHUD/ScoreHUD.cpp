@@ -4,7 +4,7 @@
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/ECS/World/World.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 #include "Application/Game/GameManager/GameManager.h"
 
@@ -157,51 +157,51 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Header("Score");
-		Engine::Editor::HelpText("画像の飾りを1つ置き、0〜9 を横一列に並べたテクスチャを指定すること");
-		Engine::Editor::HelpText("コマの切り出し(UVScale / UVOffset)は AtlasCount から自動で決まる");
+		Engine::EditorField::Header("Score");
+		Engine::EditorField::HelpText("画像の飾りを1つ置き、0〜9 を横一列に並べたテクスチャを指定すること");
+		Engine::EditorField::HelpText("コマの切り出し(UVScale / UVOffset)は AtlasCount から自動で決まる");
 
 		// 何を出すか。中身は GlobalGameContext から貰う
-		Engine::Editor::Field("ValueKind", m_valueKind);
-		Engine::Editor::Tooltip("Time は秒だけ(小数は切り捨て)");
+		Engine::EditorField::Field("ValueKind", m_valueKind);
+		Engine::EditorField::Tooltip("Time は秒だけ(小数は切り捨て)");
 
-		if (Engine::Editor::Field("DigitCount", m_digitCount, 1, 1, 9))
+		if (Engine::EditorField::Field("DigitCount", m_digitCount, 1, 1, 9))
 		{
 			m_digitCount = std::clamp(m_digitCount, 1, 9);
 		}
-		Engine::Editor::Tooltip("表示する桁数。足りないぶんは 0 で埋める");
+		Engine::EditorField::Tooltip("表示する桁数。足りないぶんは 0 で埋める");
 
-		if (Engine::Editor::Field("AtlasCount", m_atlasCount, 1, 1, 64))
+		if (Engine::EditorField::Field("AtlasCount", m_atlasCount, 1, 1, 64))
 		{
 			m_atlasCount = std::max(m_atlasCount, 1);
 		}
-		Engine::Editor::Tooltip("テクスチャに並んでいるコマ数(0〜9 だけなら 10)");
+		Engine::EditorField::Tooltip("テクスチャに並んでいるコマ数(0〜9 だけなら 10)");
 
-		Engine::Editor::Field("DigitSpacing", m_digitSpacing, 0.5f);
-		Engine::Editor::Tooltip("桁と桁の間隔(px)。アンカーの PixelSize.x が1桁ぶんの送り幅");
+		Engine::EditorField::Field("DigitSpacing", m_digitSpacing, 0.5f);
+		Engine::EditorField::Tooltip("桁と桁の間隔(px)。アンカーの PixelSize.x が1桁ぶんの送り幅");
 
-		Engine::Editor::Line();
-		Engine::Editor::Field("PunchScale", m_punchScale, 0.01f, 1.0f, 4.0f);
-		Engine::Editor::Field("PunchTime", m_punchTime, 0.01f, 0.0f, 2.0f);
-		Engine::Editor::Tooltip("スコアが増えたフレームだけ大きくして戻す");
+		Engine::EditorField::Line();
+		Engine::EditorField::Field("PunchScale", m_punchScale, 0.01f, 1.0f, 4.0f);
+		Engine::EditorField::Field("PunchTime", m_punchTime, 0.01f, 0.0f, 2.0f);
+		Engine::EditorField::Tooltip("スコアが増えたフレームだけ大きくして戻す");
 
-		Engine::Editor::Line();
+		Engine::EditorField::Line();
 
 		// 中身はシーンをまたぐグローバル側。ここでは表示と確認だけ
 		auto& _gameData = App::Game::GameManager::Instance().RefGameData();
 
-		Engine::Editor::Value("Value", "%d", m_value);
-		Engine::Editor::Value("Score", "%d", _gameData.score);
-		Engine::Editor::Value("Kill", "%d", _gameData.killCount);
-		Engine::Editor::Value("Time", "%.2f", _gameData.time);
+		Engine::EditorField::Value("Value", "%d", m_value);
+		Engine::EditorField::Value("Score", "%d", _gameData.score);
+		Engine::EditorField::Value("Kill", "%d", _gameData.killCount);
+		Engine::EditorField::Value("Time", "%.2f", _gameData.time);
 
 		// 実際に倒さなくても並びを確かめられるようにしておく
-		if (Engine::Editor::CreateButton("Add 100"))
+		if (Engine::EditorField::CreateButton("Add 100"))
 		{
 			_gameData.AddScore(100);
 		}
-		Engine::Editor::SameLine();
-		if (Engine::Editor::DeleteButton("Reset"))
+		Engine::EditorField::SameLine();
+		if (Engine::EditorField::DeleteButton("Reset"))
 		{
 			_gameData.ResetRun();
 		}

@@ -72,13 +72,13 @@ namespace App::Object
 		//==================================================================
 		bool _isWritten = false;
 
-		_pWorld->ForEach<const ActiveTag, const PlayerControllTag, MissileLockComponent>(
+		_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag, Component::MissileLockComponent>(
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const ActiveTag* a_activeTagArray,
-				const PlayerControllTag* a_playerTagArray,
-				MissileLockComponent* a_missileArray
+				const Component::ActiveTag* a_activeTagArray,
+				const Component::PlayerControllTag* a_playerTagArray,
+				Component::MissileLockComponent* a_missileArray
 			)
 			{
 				// 操作しているプレイヤーは1体の想定。先に見つかったものへ渡す
@@ -87,7 +87,7 @@ namespace App::Object
 
 				// 保存値(reticleRadius)は触らない。実行中に書き換えると
 				// エディターで見ている設定値が UI の値に置き換わってしまう
-				MissileLockComponent& _missile = a_missileArray[0];
+				Component::MissileLockComponent& _missile = a_missileArray[0];
 				_missile.reticleCenter    = _center;
 				_missile.hudReticleRadius = _radius;
 				_missile.isReticleFromHUD = true;
@@ -99,8 +99,8 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Header("Missile Lock");
-		Engine::Editor::Value("Collect radius", "%.0f px", CalcCollectRadius());
-		Engine::Editor::Tooltip("この円の内側に入った敵をミサイルが溜めます(アンカーの PixelSize に内接)\n中心は PixelPos。倍率や弾数はプレイヤーの MissileLockComponent");
+		Engine::EditorField::Header("Missile Lock");
+		Engine::EditorField::Value("Collect radius", "%.0f px", CalcCollectRadius());
+		Engine::EditorField::Tooltip("この円の内側に入った敵をミサイルが溜めます(アンカーの PixelSize に内接)\n中心は PixelPos。倍率や弾数はプレイヤーの MissileLockComponent");
 	}
 }

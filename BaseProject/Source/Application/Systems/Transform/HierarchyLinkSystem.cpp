@@ -5,33 +5,36 @@
 #include "Application/Components/Core/GUIDComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
 
-void HierarchyLinkSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	a_world.AwakeTask<const GUIDComponent, HierarchyComponent>(
-		// AwakeTag を見るので Awake フェーズで回す。
-		// 親IDを解決する側なので、これを待つ AttachmentReadyGateSystem より前に
-		// 走る必要がある(HierarchyComponent の読み書きで順序が確定する)
-		Engine::ECS::ESystemType::Awake,
-		"HierarchyLinkSystem",
-		[](
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			AwakeTag* a_tag,
-			const GUIDComponent* a_guidArray,
-			HierarchyComponent* a_hierarchyArray
-			)
-		{
-			for (size_t _i = 0; _i < a_count; ++_i)
+	void HierarchyLinkSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		a_world.AwakeTask<const Component::GUIDComponent, Component::HierarchyComponent>(
+			// AwakeTag を見るので Awake フェーズで回す。
+			// 親IDを解決する側なので、これを待つ AttachmentReadyGateSystem より前に
+			// 走る必要がある(HierarchyComponent の読み書きで順序が確定する)
+			Engine::ECS::ESystemType::Awake,
+			"HierarchyLinkSystem",
+			[](
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::AwakeTag* a_tag,
+				const Component::GUIDComponent* a_guidArray,
+				Component::HierarchyComponent* a_hierarchyArray
+				)
 			{
-				HierarchyComponent& _hieComp = a_hierarchyArray[_i];
-
-				// ターゲットGUIDがあるのなら
-				if (_hieComp.parentGUID != Engine::DEFAULT_GUID)
+				for (size_t _i = 0; _i < a_count; ++_i)
 				{
-					_hieComp.parentID = a_ctx.pWorld->GetEntity(_hieComp.parentGUID);
+					Component::HierarchyComponent& _hieComp = a_hierarchyArray[_i];
+
+					// ターゲットGUIDがあるのなら
+					if (_hieComp.parentGUID != Core::DEFAULT_GUID)
+					{
+						_hieComp.parentID = a_ctx.pWorld->GetEntity(_hieComp.parentGUID);
+					}
 				}
 			}
-		}
-	);
+		);
+	}
 }

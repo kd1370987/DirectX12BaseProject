@@ -53,10 +53,10 @@ namespace Engine::Resource
 		EAlpha alphaMode = EAlpha::Opaque;
 
 		// 参照テクスチャGUID
-		Engine::GUID baseColorTexGUID = {};
-		Engine::GUID metaRoughTexGUID = {};
-		Engine::GUID emissiveTexGUID = {};
-		Engine::GUID normalTexGUID = {};
+		Core::GUID baseColorTexGUID = {};
+		Core::GUID metaRoughTexGUID = {};
+		Core::GUID emissiveTexGUID = {};
+		Core::GUID normalTexGUID = {};
 
 		// 基本色
 		Math::Color				baseColor = { 1,1,1,1 };

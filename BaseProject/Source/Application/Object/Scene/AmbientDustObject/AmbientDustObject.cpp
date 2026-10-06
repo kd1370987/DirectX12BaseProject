@@ -4,7 +4,7 @@
 #include "Engine/MainEngine.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 #include "../../../../Engine/ECS/World/World.h"
 
@@ -46,7 +46,7 @@ namespace App::Object
 		if (!a_context.pWorld) return;
 
 		// 未設定なら出しているものを片付けて終わり
-		if (m_dast.effectGUID == Engine::DEFAULT_GUID)
+		if (m_dast.effectGUID == Core::DEFAULT_GUID)
 		{
 			ReleaseDastEntity(a_context);
 			return;
@@ -117,7 +117,7 @@ namespace App::Object
 
 			// チリのエフェクト。実体を使うのはエンティティ側(EffectAssetComponent)なので、
 			// こちらが握るのはインスペクターの表示用 ＋ 読み込みを始めさせるため
-			if (m_dast.effectGUID != Engine::DEFAULT_GUID)
+			if (m_dast.effectGUID != Core::DEFAULT_GUID)
 			{
 				m_dast.m_effectAsset =
 					a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_dast.effectGUID);
@@ -135,15 +135,15 @@ namespace App::Object
 		Engine::GameObject::ObjectContext& a_context, Math::Vector3& a_outPos) const
 	{
 		if (!a_context.pWorld) return false;
-		if (!a_context.pWorld->HasResource<SingletonEntityResource>()) return false;
+		if (!a_context.pWorld->HasResource<InstanceResource::SingletonEntityResource>()) return false;
 
 		const Engine::ECS::Entity _camera =
-			a_context.pWorld->RefResource<SingletonEntityResource>().mainCamera;
+			a_context.pWorld->RefResource<InstanceResource::SingletonEntityResource>().mainCamera;
 
 		if (!a_context.pWorld->IsAliveEntity(_camera)) return false;
-		if (!a_context.pWorld->HasComponent<WorldMatrixComponent>(_camera)) return false;
+		if (!a_context.pWorld->HasComponent<Component::WorldMatrixComponent>(_camera)) return false;
 
-		const auto* _pWorldMat = a_context.pWorld->RefData<WorldMatrixComponent>(_camera);
+		const auto* _pWorldMat = a_context.pWorld->RefData<Component::WorldMatrixComponent>(_camera);
 		if (!_pWorldMat) return false;
 
 		a_outPos = Math::Matrix(_pWorldMat->worldMat).Translation();
@@ -186,7 +186,7 @@ namespace App::Object
 
 		m_dastSpawnedGUID = (m_dastEntity != Engine::ECS::Limits::INVALID_ENTITY)
 			? m_dast.effectGUID
-			: Engine::DEFAULT_GUID;
+			: Core::DEFAULT_GUID;
 	}
 
 	//======================================================================================
@@ -201,18 +201,18 @@ namespace App::Object
 		if (!a_context.pWorld) return;
 		if (!a_context.pWorld->IsAliveEntity(m_dastEntity)) return;
 
-		if (a_context.pWorld->HasComponent<LocalTransformComponent>(m_dastEntity))
+		if (a_context.pWorld->HasComponent<Component::LocalTransformComponent>(m_dastEntity))
 		{
-			if (auto* _pTrs = a_context.pWorld->RefData<LocalTransformComponent>(m_dastEntity))
+			if (auto* _pTrs = a_context.pWorld->RefData<Component::LocalTransformComponent>(m_dastEntity))
 			{
 				_pTrs->pos = m_dast.center;
 				_pTrs->isDirty = true;
 			}
 		}
 
-		if (a_context.pWorld->HasComponent<WorldMatrixComponent>(m_dastEntity))
+		if (a_context.pWorld->HasComponent<Component::WorldMatrixComponent>(m_dastEntity))
 		{
-			if (auto* _pWorldMat = a_context.pWorld->RefData<WorldMatrixComponent>(m_dastEntity))
+			if (auto* _pWorldMat = a_context.pWorld->RefData<Component::WorldMatrixComponent>(m_dastEntity))
 			{
 				_pWorldMat->worldMat = Math::Matrix::CreateTranslation(m_dast.center);
 			}
@@ -220,9 +220,9 @@ namespace App::Object
 
 		// 出現空間の広さ。エフェクト全体の倍率なので、
 		// ばらつき半径と一緒に粒の大きさにも掛かる(EffectDrawSystem)
-		if (a_context.pWorld->HasComponent<EffectOverrideComponent>(m_dastEntity))
+		if (a_context.pWorld->HasComponent<Component::EffectOverrideComponent>(m_dastEntity))
 		{
-			if (auto* _pEffect = a_context.pWorld->RefData<EffectOverrideComponent>(m_dastEntity))
+			if (auto* _pEffect = a_context.pWorld->RefData<Component::EffectOverrideComponent>(m_dastEntity))
 			{
 				_pEffect->effectScale = std::max(m_dast.scale, 0.01f);
 			}
@@ -243,7 +243,7 @@ namespace App::Object
 		}
 
 		m_dastEntity = Engine::ECS::Limits::INVALID_ENTITY;
-		m_dastSpawnedGUID = Engine::DEFAULT_GUID;
+		m_dastSpawnedGUID = Core::DEFAULT_GUID;
 	}
 
 	//======================================================================================
@@ -251,8 +251,8 @@ namespace App::Object
 	//======================================================================================
 	void AmbientDustObject::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::HelpText("カメラに追従する空間のチリ。環境光・フォグ・空は SceneAmbientPanel で設定する");
-		Engine::Editor::Line();
+		Engine::EditorField::HelpText("カメラに追従する空間のチリ。環境光・フォグ・空は SceneAmbientPanel で設定する");
+		Engine::EditorField::Line();
 
 		DrawDastInspector(a_context);
 	}
@@ -262,20 +262,20 @@ namespace App::Object
 	//======================================================================================
 	void AmbientDustObject::DrawDastInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Header("Dast");
+		Engine::EditorField::Header("Dast");
 
 		if (!a_context.pServices || !a_context.pServices->pResourceManager)
 		{
-			Engine::Editor::WarningText("ResourceManager is null");
+			Engine::EditorField::WarningText("ResourceManager is null");
 			return;
 		}
 
 		// 差し替えたら次の Update が古いエンティティを片付けて出し直す
-		if (Engine::Editor::AssetField(
+		if (Engine::EditorField::AssetField(
 			*a_context.pServices,
 			"Dast Effect", "EffectAsset", m_dast.effectGUID))
 		{
-			m_dast.m_effectAsset = (m_dast.effectGUID != Engine::DEFAULT_GUID)
+			m_dast.m_effectAsset = (m_dast.effectGUID != Core::DEFAULT_GUID)
 				? a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_dast.effectGUID)
 				: Engine::ResourceRef<Engine::Resource::EffectAsset>{};
 
@@ -283,9 +283,9 @@ namespace App::Object
 			m_isDastCentered = false;
 		}
 
-		if (m_dast.effectGUID == Engine::DEFAULT_GUID)
+		if (m_dast.effectGUID == Core::DEFAULT_GUID)
 		{
-			Engine::Editor::HelpText("(未設定 : チリは出ません)");
+			Engine::EditorField::HelpText("(未設定 : チリは出ません)");
 			return;
 		}
 
@@ -294,43 +294,43 @@ namespace App::Object
 		// 読み込みを先に始めさせるため(出すのはエンティティ側のハンドル)
 		if (const auto* _pEffect = a_context.pServices->pResourceManager->Ref(m_dast.m_effectAsset))
 		{
-			Engine::Editor::Value("Particle Parts", "%d", static_cast<int>(_pEffect->GetParticleParts().size()));
-			Engine::Editor::Value("Mesh Parts", "%d", static_cast<int>(_pEffect->GetMeshParts().size()));
+			Engine::EditorField::Value("Particle Parts", "%d", static_cast<int>(_pEffect->GetParticleParts().size()));
+			Engine::EditorField::Value("Mesh Parts", "%d", static_cast<int>(_pEffect->GetMeshParts().size()));
 		}
 		else
 		{
-			Engine::Editor::HelpText("(読み込み中)");
+			Engine::EditorField::HelpText("(読み込み中)");
 		}
 
 		// 出現空間の広さ。エフェクト全体の倍率として渡すので、
 		// ばらつき半径だけでなく粒の大きさにも掛かる
-		Engine::Editor::Field("Volume Scale", m_dast.scale, 0.1f, 0.01f, 10000.0f);
+		Engine::EditorField::Field("Volume Scale", m_dast.scale, 0.1f, 0.01f, 10000.0f);
 		if (m_dast.scale < 0.01f) m_dast.scale = 0.01f;
 
 		// 色スケール : まだ絵には効かない。
 		// 粒の色はパーティクルアセットの定数バッファ(全員で共有)が持っているので、
 		// 個体ごとに掛けるには描画側に受け口を足す必要がある
-		Engine::Editor::ColorField("Color Scale", m_dast.m_colorScale);
-		Engine::Editor::Tooltip("(色はパーティクルアセット側。ここはまだ絵に反映されません)");
+		Engine::EditorField::ColorField("Color Scale", m_dast.m_colorScale);
+		Engine::EditorField::Tooltip("(色はパーティクルアセット側。ここはまだ絵に反映されません)");
 
 		// カメラがこの距離だけ離れたら追従を始める。
 		// 0 にすると常にカメラへ張り付くので、進んでいる感じが出なくなる
-		Engine::Editor::Field("Follow Length", m_dast.length, 0.1f, 0.0f, 10000.0f);
+		Engine::EditorField::Field("Follow Length", m_dast.length, 0.1f, 0.0f, 10000.0f);
 		if (m_dast.length < 0.0f) m_dast.length = 0.0f;
 
 		// 追従スピード(毎秒)。0 以下ならその場で詰め切る(＝常に張り付く)
-		Engine::Editor::Field("Follow Speed", m_dast.speed, 0.1f, 0.0f, 10000.0f);
+		Engine::EditorField::Field("Follow Speed", m_dast.speed, 0.1f, 0.0f, 10000.0f);
 		if (m_dast.speed < 0.0f) m_dast.speed = 0.0f;
 
 		// 今どこに居るか。追従の具合を見るための表示なので触らせない
-		Engine::Editor::Value("Center", "%.1f, %.1f, %.1f", m_dast.center.x, m_dast.center.y, m_dast.center.z);
+		Engine::EditorField::Value("Center", "%.1f, %.1f, %.1f", m_dast.center.x, m_dast.center.y, m_dast.center.z);
 
 		if (!a_context.pWorld || !a_context.pWorld->IsAliveEntity(m_dastEntity))
 		{
-			Engine::Editor::HelpText("(まだ出ていません : 次の更新で出ます)");
+			Engine::EditorField::HelpText("(まだ出ていません : 次の更新で出ます)");
 		}
 
-		if (Engine::Editor::Button("Reset Center"))
+		if (Engine::EditorField::Button("Reset Center"))
 		{
 			// 次の更新でカメラの位置へ置き直す
 			m_isDastCentered = false;

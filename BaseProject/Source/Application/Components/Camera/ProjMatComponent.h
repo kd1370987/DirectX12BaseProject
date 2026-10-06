@@ -1,18 +1,21 @@
 ﻿#pragma once
 
-struct ProjMatComponent
+namespace App::Component
 {
-	Math::Matrix projMat = {};     // 射影行列
-	Math::Matrix projInvMat = {};  // 射影逆行列
-};
+	struct ProjMatComponent
+	{
+		Math::Matrix projMat = {};     // 射影行列
+		Math::Matrix projInvMat = {};  // 射影逆行列
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<ProjMatComponent>
+struct Engine::ECS::ComponentTraits<App::Component::ProjMatComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		ProjMatComponent& _comp = Engine::Editor::GetValue<ProjMatComponent>(a_context.pData);
-		Engine::Editor::Field("projMat", _comp.projMat);
-		Engine::Editor::Field("projInvMat", _comp.projInvMat);
+		App::Component::ProjMatComponent& _comp = Engine::EditorField::GetValue<App::Component::ProjMatComponent>(a_context.pData);
+		Engine::EditorField::Field("projMat", _comp.projMat);
+		Engine::EditorField::Field("projInvMat", _comp.projInvMat);
 	}
 };

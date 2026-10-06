@@ -1,51 +1,54 @@
 ﻿#pragma once
 
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
-//==========================================================================================
-// CloseCombatComponent
-//
-// 近距離型の敵の「撃つ / 動き直す」のリズムを持つ。CloseCombatIntentSystem が進める。
-//
-// 遠距離型(Enemy_01)は間合いを保ったまま撃ち続けるが、近距離型はそれだと
-// ただの棒立ちになる。足を止めて撃つ時間と、撃たずに位置を変える時間を
-// 交互に持たせて「詰めて撃つ → 動く → また撃つ」の形にする。
-//
-// ・攻撃圏(TargetEntityComponent.isInAttackRange)の内側に入ってから回り出す。
-//   見つけて詰めている途中は EnemyMoveIntentSystem の追従に任せ、ここは何もしない。
-// ・撃つ相の間は移動入力を 0 にする。FSM の canMove を落とす手もあるが、
-//   それだと状態を1つ足すことになり、他の敵の遷移まで見直しが要る。
-//   移動入力を止めるだけなら FSM は Enemy_01 と同じものを使い回せる。
-// ・動く相では撃たない。撃ちながら動くと足を止める意味が無くなる。
-//==========================================================================================
-struct CloseCombatComponent
+namespace App::Component
 {
-	// ---- 設定(保存される) ----
-	float fireTime     = 2.0f;	// 足を止めて撃ち続ける時間(秒)
-	float moveTime     = 1.0f;	// 撃たずに動き直す時間(秒)
-	float moveThrottle = 1.0f;	// 動き直すときのスロットル(0..1)
+	//==========================================================================================
+	// CloseCombatComponent
+	//
+	// 近距離型の敵の「撃つ / 動き直す」のリズムを持つ。CloseCombatIntentSystem が進める。
+	//
+	// 遠距離型(Enemy_01)は間合いを保ったまま撃ち続けるが、近距離型はそれだと
+	// ただの棒立ちになる。足を止めて撃つ時間と、撃たずに位置を変える時間を
+	// 交互に持たせて「詰めて撃つ → 動く → また撃つ」の形にする。
+	//
+	// ・攻撃圏(TargetEntityComponent.isInAttackRange)の内側に入ってから回り出す。
+	//   見つけて詰めている途中は EnemyMoveIntentSystem の追従に任せ、ここは何もしない。
+	// ・撃つ相の間は移動入力を 0 にする。FSM の canMove を落とす手もあるが、
+	//   それだと状態を1つ足すことになり、他の敵の遷移まで見直しが要る。
+	//   移動入力を止めるだけなら FSM は Enemy_01 と同じものを使い回せる。
+	// ・動く相では撃たない。撃ちながら動くと足を止める意味が無くなる。
+	//==========================================================================================
+	struct CloseCombatComponent
+	{
+		// ---- 設定(保存される) ----
+		float fireTime     = 2.0f;	// 足を止めて撃ち続ける時間(秒)
+		float moveTime     = 1.0f;	// 撃たずに動き直す時間(秒)
+		float moveThrottle = 1.0f;	// 動き直すときのスロットル(0..1)
 
-	// 動く向きのうち、横へ回り込む割合(0..1)。残りが間合いの詰め/離しに回る。
-	// 1.0 にすると真横にしか動かないので、間合いがずれたまま戻らなくなる
-	float strafeRatio  = 0.75f;
+		// 動く向きのうち、横へ回り込む割合(0..1)。残りが間合いの詰め/離しに回る。
+		// 1.0 にすると真横にしか動かないので、間合いがずれたまま戻らなくなる
+		float strafeRatio  = 0.75f;
 
-	// 動き直しで保ちたい間合い(m)。これより近ければ下がり、遠ければ寄る。
-	// 攻撃圏(attackDistance)より内側にしておくこと。外に置くと
-	// 動くたびに攻撃圏から出て、撃つ相に入った瞬間に撃てない
-	float keepDistance = 18.0f;
+		// 動き直しで保ちたい間合い(m)。これより近ければ下がり、遠ければ寄る。
+		// 攻撃圏(attackDistance)より内側にしておくこと。外に置くと
+		// 動くたびに攻撃圏から出て、撃つ相に入った瞬間に撃てない
+		float keepDistance = 18.0f;
 
-	// ---- 状態(保存しない) ----
-	bool  isFirePhase = true;	// 今が撃つ相か(攻撃圏へ入ったら撃つ相から始める)
-	float timer       = 0.0f;	// 現在の相の経過時間(秒)
-	float sideSign    = 1.0f;	// 横へ回る向き(+1 / -1)。動く相へ入るたびに選び直す
-};
+		// ---- 状態(保存しない) ----
+		bool  isFirePhase = true;	// 今が撃つ相か(攻撃圏へ入ったら撃つ相から始める)
+		float timer       = 0.0f;	// 現在の相の経過時間(秒)
+		float sideSign    = 1.0f;	// 横へ回る向き(+1 / -1)。動く相へ入るたびに選び直す
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<CloseCombatComponent>
+struct Engine::ECS::ComponentTraits<App::Component::CloseCombatComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		CloseCombatComponent& _comp = Engine::Editor::GetValue<CloseCombatComponent>(a_pData);
+		App::Component::CloseCombatComponent& _comp = Engine::EditorField::GetValue<App::Component::CloseCombatComponent>(a_pData);
 		a_ar.Field("fireTime", _comp.fireTime);
 		a_ar.Field("moveTime", _comp.moveTime);
 		a_ar.Field("moveThrottle", _comp.moveThrottle);
@@ -55,15 +58,15 @@ struct Engine::ECS::ComponentTraits<CloseCombatComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		CloseCombatComponent& _comp = Engine::Editor::GetValue<CloseCombatComponent>(a_context.pData);
-		Engine::Editor::Field("FireTime", _comp.fireTime, 0.1f, 0.0f);
-		Engine::Editor::Field("MoveTime", _comp.moveTime, 0.1f, 0.0f);
-		Engine::Editor::Field("MoveThrottle", _comp.moveThrottle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("StrafeRatio", _comp.strafeRatio, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("KeepDistance", _comp.keepDistance, 0.1f, 0.0f);
+		App::Component::CloseCombatComponent& _comp = Engine::EditorField::GetValue<App::Component::CloseCombatComponent>(a_context.pData);
+		Engine::EditorField::Field("FireTime", _comp.fireTime, 0.1f, 0.0f);
+		Engine::EditorField::Field("MoveTime", _comp.moveTime, 0.1f, 0.0f);
+		Engine::EditorField::Field("MoveThrottle", _comp.moveThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Field("StrafeRatio", _comp.strafeRatio, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Field("KeepDistance", _comp.keepDistance, 0.1f, 0.0f);
 
-		Engine::Editor::Line();
-		Engine::Editor::Value("Phase", "%s", _comp.isFirePhase ? "Fire" : "Move");
-		Engine::Editor::Value("Timer", "%.2f", _comp.timer);
+		Engine::EditorField::Line();
+		Engine::EditorField::Value("Phase", "%s", _comp.isFirePhase ? "Fire" : "Move");
+		Engine::EditorField::Value("Timer", "%.2f", _comp.timer);
 	}
 };

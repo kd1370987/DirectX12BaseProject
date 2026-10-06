@@ -7,43 +7,46 @@
 
 #include "Application/Components/Movement/MovementParamsComponent.h"
 
-void PositionIntegrationSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	// 自分のチャンクの配列だけを書くので、チャンクを分けてワーカーで回す。
-	// MovementIntegrationSystem とは対象のアーキタイプが重ならないので、同時に走る
-	a_world.ActiveJobTask<const DesiredVelocityComponent, LocalTransformComponent>(
-		Engine::ECS::ESystemType::Physics,
-		"PositionIntegrationSystem",
-		[](
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			ActiveTag* a_tags,
-			const DesiredVelocityComponent* a_velocityArray,
-			LocalTransformComponent* a_trsArray
-		) 
-		{
-			for (size_t _i = 0; _i < a_count; ++_i)
+	void PositionIntegrationSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		// 自分のチャンクの配列だけを書くので、チャンクを分けてワーカーで回す。
+		// MovementIntegrationSystem とは対象のアーキタイプが重ならないので、同時に走る
+		a_world.ActiveJobTask<const Component::DesiredVelocityComponent, Component::LocalTransformComponent>(
+			Engine::ECS::ESystemType::Physics,
+			"PositionIntegrationSystem",
+			[](
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::ActiveTag* a_tags,
+				const Component::DesiredVelocityComponent* a_velocityArray,
+				Component::LocalTransformComponent* a_trsArray
+			) 
 			{
-				const DesiredVelocityComponent& _velComp = a_velocityArray[_i];
-				LocalTransformComponent& _trsComp = a_trsArray[_i];
-
-				if (std::abs(_velComp.value.x) > 0.0001f ||
-					std::abs(_velComp.value.y) > 0.0001f ||
-					std::abs(_velComp.value.z) > 0.0001f)
+				for (size_t _i = 0; _i < a_count; ++_i)
 				{
-					LocalTransformComponent& _trsComp = a_trsArray[_i];
+					const Component::DesiredVelocityComponent& _velComp = a_velocityArray[_i];
+					Component::LocalTransformComponent& _trsComp = a_trsArray[_i];
 
-					_trsComp.pos.x += _velComp.value.x * a_ctx.dt;
-					_trsComp.pos.y += _velComp.value.y * a_ctx.dt;
-					_trsComp.pos.z += _velComp.value.z * a_ctx.dt;
+					if (std::abs(_velComp.value.x) > 0.0001f ||
+						std::abs(_velComp.value.y) > 0.0001f ||
+						std::abs(_velComp.value.z) > 0.0001f)
+					{
+						Component::LocalTransformComponent& _trsComp = a_trsArray[_i];
 
-					// 座標が変わったのでDirtyフラグを立てる
-					_trsComp.isDirty = true;
+						_trsComp.pos.x += _velComp.value.x * a_ctx.dt;
+						_trsComp.pos.y += _velComp.value.y * a_ctx.dt;
+						_trsComp.pos.z += _velComp.value.z * a_ctx.dt;
+
+						// 座標が変わったのでDirtyフラグを立てる
+						_trsComp.isDirty = true;
+					}
 				}
-			}
-		},
-		// 加減速を持つ側は MovementIntegrationSystem が実速度で進める
-		Engine::ECS::Exclude<MovementParamsComponent>()
-	);
+			},
+			// 加減速を持つ側は MovementIntegrationSystem が実速度で進める
+			Engine::ECS::Exclude<Component::MovementParamsComponent>()
+		);
+	}
 }

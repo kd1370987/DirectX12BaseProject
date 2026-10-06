@@ -33,7 +33,7 @@
 
 #include "ECS/Component/ComponentMetaRegistry.h"
 
-#include "Engine/Editor/Editor.h"
+#include "Editor/Editor.h"
 
 // DXGIのデバッグ機能(ライブオブジェクト報告)はここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
@@ -102,7 +102,7 @@ namespace Engine
 		Window::WindowDesc _desc = {};
 		_desc.width = static_cast<UINT>(_winOp.windowWidth);
 		_desc.height = static_cast<UINT>(_winOp.windowHeight);
-		_desc.titleName = Engine::String::ToWideString(_winOp.windowTitle);
+		_desc.titleName = Core::String::ToWideString(_winOp.windowTitle);
 		_desc.className = L"AppWindow";
 		_desc.windowMode = _winOp.windowMode;
 		if (!m_upWindow->Create(_desc))
@@ -195,7 +195,7 @@ namespace Engine
 		BuildEngineServices();
 
 		// エディター初期化
-		if (!Engine::Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle(), _pHeapManager, m_upEngineServices.get()))
+		if (!Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle(), _pHeapManager, m_upEngineServices.get()))
 		{
 			ENGINE_ERRLOG(false, "エディターの初期化に失敗");
 			return;
@@ -236,7 +236,7 @@ namespace Engine
 		Audio::AudioManager::Instance().Release();
 
 		// エディター（ImGui）解放
-		Engine::Editor::MainEditor::Instance().Release();
+		Editor::MainEditor::Instance().Release();
 
 		// Jolt 全体の解放。
 		// すべての PhysicsWorld が消えた後でないといけない : シーンのワールドは
@@ -443,7 +443,7 @@ namespace Engine
 				_pCmdList->RSSetScissorRects(1, &_pBackBuffer->GetScissorRect());
 
 				// エディター描画
-				Engine::Editor::MainEditor::Instance().Draw(_pCmdList);
+				Editor::MainEditor::Instance().Draw(_pCmdList);
 				m_upGraphicsEngine->RefRenderDevice()->SubmitDirectCommandList(_pCmdList);
 			}
 

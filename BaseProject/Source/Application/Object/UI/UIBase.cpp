@@ -11,7 +11,7 @@
 #include "Engine/Window/NativeWindow.h"				// クライアント領域の実サイズ取得用
 #include "Engine/Audio/AudioManager.h"				// 乗った音・押した音
 
-#include "../../../Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 namespace App::Object
 {
@@ -382,7 +382,7 @@ namespace App::Object
 	//======================================================================================
 	void UIBase::PlayUISound(
 		Engine::GameObject::ObjectContext& a_context,
-		const Engine::GUID& a_guid,
+		const Core::GUID& a_guid,
 		Engine::Handle<Engine::Resource::SoundInstance>& a_inoutHandle,
 		float& a_inoutCoolTime)
 	{
@@ -781,84 +781,84 @@ namespace App::Object
 		const float _h = static_cast<float>(_winOp.windowHeight);
 
 		// 表示するか : 出し分けを持つ画面(ホームなど)は進行役がここを切り替える
-		Engine::Editor::Field("Visible", m_isVisible);
-		Engine::Editor::Tooltip("切ると描画も入力も止まる");
+		Engine::EditorField::Field("Visible", m_isVisible);
+		Engine::EditorField::Tooltip("切ると描画も入力も止まる");
 
 		// 色 : 全ての飾りへ乗算で掛かる。畳まずに常に出しておく
 		// (白い板ポリを1つ置いて、色だけで作り分けられるようにするため)
-		Engine::Editor::Field("Color", m_color);
+		Engine::EditorField::Field("Color", m_color);
 
-		Engine::Editor::Line();
+		Engine::EditorField::Line();
 
 		// 座標系
-		Engine::Editor::Field("PixelPos", m_pixelPos, 1.0f);						// スクリーン座標
+		Engine::EditorField::Field("PixelPos", m_pixelPos, 1.0f);						// スクリーン座標
 
-		Engine::Editor::Field("Rotation", m_rotation, 0.1f, -360.0f, 360.0f);
+		Engine::EditorField::Field("Rotation", m_rotation, 0.1f, -360.0f, 360.0f);
 		if (m_rotation >= 360) m_rotation -= 360;
 		if (m_rotation <= -360) m_rotation += 360;
 
-		if (Engine::Editor::Field("Scale", m_scale, 0.01f, 0.0f))						// 等倍拡縮
+		if (Engine::EditorField::Field("Scale", m_scale, 0.01f, 0.0f))						// 等倍拡縮
 		{
 			m_pixelSize = m_editSize * m_scale;
 		}
-		if (Engine::Editor::Field("PixelSize", m_pixelSize, 1.0f, 0.0f, 8192.0f))	// ピクセルサイズ
+		if (Engine::EditorField::Field("PixelSize", m_pixelSize, 1.0f, 0.0f, 8192.0f))	// ピクセルサイズ
 		{
 			m_editSize = m_pixelSize / m_scale;
 		}
-		Engine::Editor::Tooltip("アンカー自身の矩形(当たり判定・判定円の基準)。見た目は飾り側のサイズ");
+		Engine::EditorField::Tooltip("アンカー自身の矩形(当たり判定・判定円の基準)。見た目は飾り側のサイズ");
 
 		// 湾曲オプション
 		// 曲げても幅は変わらない。反りだけが増えていく。
 		// 弧は上の PixelSize を -1..1 として張るので、幅0だと曲がらない
-		Engine::Editor::Field("CurveAngle", m_curveAngle, 0.01f, -3.0f, 3.0f);
-		Engine::Editor::Tooltip("開き角(ラジアン)。0で曲げない / 正で山なり・負で谷");
-		Engine::Editor::Field("CurveRadius", m_curveRadius, 0.01f, 0.0f, 4.0f);
-		Engine::Editor::Tooltip("反りの深さの倍率。1で素直な円弧(0も1として扱う)");
-		Engine::Editor::Field("CurveCenter", m_curveCenter, 0.01f);
-		Engine::Editor::Tooltip("弧の頂点。PixelSizeを-1..1とした座標(x=横位置 / y=上下のずらし)");
+		Engine::EditorField::Field("CurveAngle", m_curveAngle, 0.01f, -3.0f, 3.0f);
+		Engine::EditorField::Tooltip("開き角(ラジアン)。0で曲げない / 正で山なり・負で谷");
+		Engine::EditorField::Field("CurveRadius", m_curveRadius, 0.01f, 0.0f, 4.0f);
+		Engine::EditorField::Tooltip("反りの深さの倍率。1で素直な円弧(0も1として扱う)");
+		Engine::EditorField::Field("CurveCenter", m_curveCenter, 0.01f);
+		Engine::EditorField::Tooltip("弧の頂点。PixelSizeを-1..1とした座標(x=横位置 / y=上下のずらし)");
 
 		// 端がどれだけ下がるかを出しておく : 数字だけだと効き具合が読めない
 		if (m_curveAngle != 0.0f)
 		{
 			const float _depth = (m_curveRadius > 0.0f) ? m_curveRadius : 1.0f;
 			const float _sag = m_pixelSize.x * 0.5f * std::tan(m_curveAngle * 0.25f) * _depth;
-			Engine::Editor::Value("端の反り", "%.1f px", _sag);
+			Engine::EditorField::Value("端の反り", "%.1f px", _sag);
 		}
 
 		// 初期化用ボタン
-		if (Engine::Editor::Button("RefreshTransform"))
+		if (Engine::EditorField::Button("RefreshTransform"))
 		{
 			m_pixelPos = { _w / 2.0f,_h / 2.0f };
 			m_pixelSize = { _w / 4 ,_h / 4 };
 			m_rotation = 0.0f;
 		}
 
-		Engine::Editor::Line();
+		Engine::EditorField::Line();
 
 		// ピボット : 正規化[0,1]。(0.5,0.5)=中心, (0,0)=左上, (1,1)=右下。
 		// この点が PixelPos に配置され、回転の中心にもなる。
-		Engine::Editor::Field("Pivot (0-1)", m_pivot, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("Layer", m_layer, 0.1f);
-		Engine::Editor::Tooltip("重なり順。大きいほど手前(同じ値なら置いた順)");
+		Engine::EditorField::Field("Pivot (0-1)", m_pivot, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Field("Layer", m_layer, 0.1f);
+		Engine::EditorField::Tooltip("重なり順。大きいほど手前(同じ値なら置いた順)");
 
 		//----------------------------------------------------------------------
 		// カーソルへの反応
 		//
 		// 見た目の変化は飾り側(Decoration の Reaction)。ここは判定と音だけ
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Interaction");
+		Engine::EditorField::Header("Interaction");
 
-		Engine::Editor::Field("Interactable", m_isInteractable);
-		Engine::Editor::Tooltip("切ると Disabled 扱いになる");
+		Engine::EditorField::Field("Interactable", m_isInteractable);
+		Engine::EditorField::Tooltip("切ると Disabled 扱いになる");
 
-		Engine::Editor::Field("ClickAction", m_clickAction);
-		Engine::Editor::Tooltip("InputManager へ登録したアクション名");
+		Engine::EditorField::Field("ClickAction", m_clickAction);
+		Engine::EditorField::Tooltip("InputManager へ登録したアクション名");
 
-		Engine::Editor::Field("HitPadding", m_hitPadding, 1.0f);
-		Engine::Editor::Tooltip("判定の矩形へ足す余白(px)");
+		Engine::EditorField::Field("HitPadding", m_hitPadding, 1.0f);
+		Engine::EditorField::Tooltip("判定の矩形へ足す余白(px)");
 
-		Engine::Editor::Field("HitFollowAnim", m_isHitFollowAnim);
-		Engine::Editor::Tooltip("飾りのアニメ・反応で大きくなったぶんも判定に入れる(PixelSize より優先)");
+		Engine::EditorField::Field("HitFollowAnim", m_isHitFollowAnim);
+		Engine::EditorField::Tooltip("飾りのアニメ・反応で大きくなったぶんも判定に入れる(PixelSize より優先)");
 
 		//----------------------------------------------------------------------
 		// いま効いている判定を出す
@@ -872,53 +872,53 @@ namespace App::Object
 		if (m_isHitFollowAnim && _hasHitBounds)
 		{
 			// 実行中は毎フレーム変わる。止まっているときは素の大きさと同じ
-			Engine::Editor::Value("Hit", "%.0f x %.0f (飾りの範囲/アニメ込み)", _hitSize.x * m_scale, _hitSize.y * m_scale);
+			Engine::EditorField::Value("Hit", "%.0f x %.0f (飾りの範囲/アニメ込み)", _hitSize.x * m_scale, _hitSize.y * m_scale);
 		}
 		else if (m_pixelSize.x > 0.0f && m_pixelSize.y > 0.0f)
 		{
-			Engine::Editor::Value("Hit", "%.0f x %.0f (PixelSize)", m_pixelSize.x, m_pixelSize.y);
+			Engine::EditorField::Value("Hit", "%.0f x %.0f (PixelSize)", m_pixelSize.x, m_pixelSize.y);
 
 			if (m_isHitFollowAnim)
 			{
-				Engine::Editor::HelpText("HitFollowAnim は立っていますが、測れる飾りが無いので PixelSize です");
+				Engine::EditorField::HelpText("HitFollowAnim は立っていますが、測れる飾りが無いので PixelSize です");
 			}
 		}
 		else if (_hasHitBounds)
 		{
-			Engine::Editor::Value("Hit", "%.0f x %.0f (飾りの範囲)", _hitSize.x * m_scale, _hitSize.y * m_scale);
-			Engine::Editor::Tooltip("PixelSize が 0 なので飾りの範囲を使っています");
+			Engine::EditorField::Value("Hit", "%.0f x %.0f (飾りの範囲)", _hitSize.x * m_scale, _hitSize.y * m_scale);
+			Engine::EditorField::Tooltip("PixelSize が 0 なので飾りの範囲を使っています");
 		}
 		else
 		{
-			Engine::Editor::ErrorText("Hit : なし");
-			Engine::Editor::HelpText("PixelSize も飾りの大きさも 0 です。カーソルに反応しません");
+			Engine::EditorField::ErrorText("Hit : なし");
+			Engine::EditorField::HelpText("PixelSize も飾りの大きさも 0 です。カーソルに反応しません");
 		}
 
 		// 音を差し替えたら、借りているインスタンスを返して取り直させる
-		if (Engine::Editor::AssetField(*a_context.pServices, "HoverSound", "Sound", m_hoverSoundGUID))
+		if (Engine::EditorField::AssetField(*a_context.pServices, "HoverSound", "Sound", m_hoverSoundGUID))
 		{
 			ReleaseUISounds(a_context);
 		}
-		if (Engine::Editor::AssetField(*a_context.pServices, "PressSound", "Sound", m_pressSoundGUID))
+		if (Engine::EditorField::AssetField(*a_context.pServices, "PressSound", "Sound", m_pressSoundGUID))
 		{
 			ReleaseUISounds(a_context);
 		}
-		Engine::Editor::Field("SoundVolume", m_soundVolume, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("SoundMinInterval", m_soundMinInterval, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("鳴らし直す最短間隔(秒)。縁で揺れて鳴り続けるのを止める");
+		Engine::EditorField::Field("SoundVolume", m_soundVolume, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Field("SoundMinInterval", m_soundMinInterval, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Tooltip("鳴らし直す最短間隔(秒)。縁で揺れて鳴り続けるのを止める");
 
 		// 実行中の状態は表示のみ
 		static const char* STATE_NAME[] = { "Normal", "Hovered", "Pressed", "Disabled" };
-		Engine::Editor::Value("State", "%s", STATE_NAME[static_cast<int>(GetUIState())]);
+		Engine::EditorField::Value("State", "%s", STATE_NAME[static_cast<int>(GetUIState())]);
 
 		// 重なりの取り合いの結果。
 		// 「矩形には入っているのに反応しない」の原因がここだと分かるようにする
 		if (m_isCursorInside && !a_context.IsCursorOwner(this))
 		{
-			Engine::Editor::WarningText("Cursor : 手前の別UIに取られています(Layer %.1f)", m_layer);
+			Engine::EditorField::WarningText("Cursor : 手前の別UIに取られています(Layer %.1f)", m_layer);
 		}
 
-		Engine::Editor::Line();
+		Engine::EditorField::Line();
 
 		// 飾り
 		DrawDecorationListInspector(a_context);
@@ -933,23 +933,23 @@ namespace App::Object
 	//======================================================================================
 	void UIBase::DrawDecorationListInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Header("Decorations");
-		Engine::Editor::HelpText("配列の順に描きます(下にあるものほど手前)");
+		Engine::EditorField::Header("Decorations");
+		Engine::EditorField::HelpText("配列の順に描きます(下にあるものほど手前)");
 
 		// ---- 追加 ----
-		if (Engine::Editor::CreateButton("Add Polygon"))
+		if (Engine::EditorField::CreateButton("Add Polygon"))
 		{
 			AddDecoration(Decoration::EDecorationType::Polygon);
 			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
 		}
-		Engine::Editor::SameLine();
-		if (Engine::Editor::CreateButton("Add Image"))
+		Engine::EditorField::SameLine();
+		if (Engine::EditorField::CreateButton("Add Image"))
 		{
 			AddDecoration(Decoration::EDecorationType::Image);
 			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
 		}
-		Engine::Editor::SameLine();
-		if (Engine::Editor::CreateButton("Add Text"))
+		Engine::EditorField::SameLine();
+		if (Engine::EditorField::CreateButton("Add Text"))
 		{
 			AddDecoration(Decoration::EDecorationType::Text);
 			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
@@ -959,13 +959,13 @@ namespace App::Object
 		// 戻せないので Ctrl を押している間だけ効かせる
 		if (!m_decorationVec.empty())
 		{
-			Engine::Editor::SameLine();
-			if (Engine::Editor::DeleteButton("Clear All") && Engine::Editor::IsCtrlDown())
+			Engine::EditorField::SameLine();
+			if (Engine::EditorField::DeleteButton("Clear All") && Engine::EditorField::IsCtrlDown())
 			{
 				m_decorationVec.clear();
 				m_editDecorationIndex = -1;
 			}
-			Engine::Editor::Tooltip("Ctrl+クリックで全部消す");
+			Engine::EditorField::Tooltip("Ctrl+クリックで全部消す");
 		}
 
 		// 一覧を回している間に配列を触ると足元が崩れるので、操作は覚えておいて後でまとめて行う
@@ -976,7 +976,7 @@ namespace App::Object
 		{
 			Decoration::Decoration& _decoration = m_decorationVec[_i];
 
-			Engine::Editor::IDScope _id(_i);
+			Engine::EditorField::IDScope _id(_i);
 
 			//----------------------------------------------------------------------
 			// 1行ぶん : [X][↑][↓] 名前
@@ -985,26 +985,26 @@ namespace App::Object
 			// Selectable は残りの幅を全部使うので、後ろへ並べると
 			// ボタンが行の外まで押し出されて押せなくなる
 			//----------------------------------------------------------------------
-			if (Engine::Editor::DeleteSmallButton("X")) _removeIndex = _i;
-			Engine::Editor::Tooltip("この飾りを消す");
+			if (Engine::EditorField::DeleteSmallButton("X")) _removeIndex = _i;
+			Engine::EditorField::Tooltip("この飾りを消す");
 
-			Engine::Editor::SameLine();
-			if (Engine::Editor::ArrowButton("##Up", Engine::Editor::EArrowDir::Up) && _i > 0) _swapIndex = _i - 1;
+			Engine::EditorField::SameLine();
+			if (Engine::EditorField::ArrowButton("##Up", Engine::EditorField::EArrowDir::Up) && _i > 0) _swapIndex = _i - 1;
 
-			Engine::Editor::SameLine();
-			if (Engine::Editor::ArrowButton("##Down", Engine::Editor::EArrowDir::Down) &&
+			Engine::EditorField::SameLine();
+			if (Engine::EditorField::ArrowButton("##Down", Engine::EditorField::EArrowDir::Down) &&
 				_i + 1 < static_cast<int>(m_decorationVec.size()))
 			{
 				_swapIndex = _i;
 			}
 
 			// 開閉 : 開いているものだけ中身を出す
-			Engine::Editor::SameLine();
+			Engine::EditorField::SameLine();
 			const bool _isOpen = (m_editDecorationIndex == _i);
 			const std::string _label =
 				std::to_string(_i) + " : " + (_decoration.name.empty() ? "(no name)" : _decoration.name);
 
-			if (Engine::Editor::Selectable(_label.c_str(), _isOpen))
+			if (Engine::EditorField::Selectable(_label.c_str(), _isOpen))
 			{
 				m_editDecorationIndex = _isOpen ? -1 : _i;
 			}
@@ -1012,10 +1012,10 @@ namespace App::Object
 			if (_isOpen)
 			{
 				{
-					Engine::Editor::IndentScope _indent;
+					Engine::EditorField::IndentScope _indent;
 					if (a_context.pServices) Decoration::DrawDecorationInspector(_decoration, *a_context.pServices);
 				}
-				Engine::Editor::Line();
+				Engine::EditorField::Line();
 			}
 		}
 
@@ -1061,7 +1061,7 @@ namespace App::Object
 
 		// ドラッグ中はマウス位置からピクセル座標を逆算して更新
 		Math::Vector2 _mouse = {};
-		if (Engine::Editor::ScreenHandle("##UIGizmo", _handle, HANDLE_RADIUS, _mouse))
+		if (Engine::EditorField::ScreenHandle("##UIGizmo", _handle, HANDLE_RADIUS, _mouse))
 		{
 			const float _u = (_mouse.x - a_ctx.viewportPos.x) / a_ctx.viewportSize.x;	// 0..1
 			const float _v = (_mouse.y - a_ctx.viewportPos.y) / a_ctx.viewportSize.y;	// 0..1

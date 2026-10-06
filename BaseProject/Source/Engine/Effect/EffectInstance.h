@@ -62,7 +62,7 @@ namespace Engine::Effect
 		// アセット側の指定と食い違っていたら作り直す(EffectPlayer の SyncSoundInstances)。
 		// エディターで音や 3D 指定を差し替えたとき、
 		// すでに出ているエフェクトにも次のフレームから効かせるためのもの
-		Engine::GUID soundSourceGUID[Resource::EFFECT_SOUND_MAX] = {};
+		Core::GUID soundSourceGUID[Resource::EFFECT_SOUND_MAX] = {};
 		bool         soundSource3D[Resource::EFFECT_SOUND_MAX] = {};
 
 		//------------------------------------------------------------------

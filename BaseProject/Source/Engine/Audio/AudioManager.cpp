@@ -98,7 +98,7 @@ namespace Engine::Audio
 
 		m_upAudioEngine = nullptr;
 	}
-	bool AudioManager::CanPlaySound(const Engine::GUID& a_guid, float a_minInterval, uint32_t a_maxConcurrent)
+	bool AudioManager::CanPlaySound(const Core::GUID& a_guid, float a_minInterval, uint32_t a_maxConcurrent)
 	{
 		if (a_minInterval <= 0.0f && a_maxConcurrent == 0) return true;
 
@@ -128,7 +128,7 @@ namespace Engine::Audio
 		return true;
 	}
 
-	void AudioManager::NotifySoundPlayed(const Engine::GUID& a_guid, const Handle<Resource::SoundInstance>& a_handle)
+	void AudioManager::NotifySoundPlayed(const Core::GUID& a_guid, const Handle<Resource::SoundInstance>& a_handle)
 	{
 		SoundPlayGate& _gate = m_playGates[a_guid];
 		_gate.lastPlayTime = std::chrono::steady_clock::now();
@@ -194,7 +194,7 @@ namespace Engine::Audio
 		return m_soundInstancePool.Ref(a_handle);
 	}
 	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(
-		const Engine::GUID& a_guid, bool a_is3D, ESoundGroup a_group)
+		const Core::GUID& a_guid, bool a_is3D, ESoundGroup a_group)
 	{
 		// サウンドエンジンがなければ発行しない
 		if (!m_upAudioEngine)
@@ -203,7 +203,7 @@ namespace Engine::Audio
 			return Handle<Resource::SoundInstance>();
 		}
 
-		if(a_guid == Engine::DEFAULT_GUID) return Handle<Resource::SoundInstance>();
+		if(a_guid == Core::DEFAULT_GUID) return Handle<Resource::SoundInstance>();
 
 		// インスタンスを作成
 		Resource::SoundInstance _instance = {};

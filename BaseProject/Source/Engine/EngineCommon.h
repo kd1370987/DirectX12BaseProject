@@ -4,13 +4,38 @@
 // 共通仕様
 // 
 //==========================================================================================
-// ---- 依存の無い小物(旧 Core) ----
-#include "Utility/String/StringUtility.h"				// 文字列
-#include "Utility/TypeInfo/TypeInfo.h"				// 型キー・型名(RTTIの代わり)
-#include "Utility/File/FileUtility.h"					// ファイルパス
-#include "Utility/Algorithm/Graph/TopologicalSort.h"		// トポロジカルソート
-#include "Utility/Algorithm/Graph/GroupTopologicalSort.h"	// グループ分けトポロジカルソート
-#include "Utility/EnumFlags.h"
+// ---- Core(Engine の下にある道具箱) ----
+#include "Core/Core.h"
+
+//==========================================================================================
+// Core の取り込み
+//
+// Engine の中から Core:: を付けずに使えるようにする。
+// using namespace Core にしないのは、Core::GUID が Windows の ::GUID と曖昧になるため
+//==========================================================================================
+namespace Engine
+{
+	// 名前空間はそのまま別名で
+	namespace Math = Core::Math;
+	namespace String = Core::String;
+	namespace File = Core::File;
+	namespace TypeInfo = Core::TypeInfo;
+	namespace Algorithm = Core::Algorithm;
+	namespace BinaryHelper = Core::BinaryHelper;
+	namespace Debug = Core::Debug;
+
+	// 型・定数
+	using Core::GUID;
+	using Core::DEFAULT_GUID;
+
+	// enum class のフラグ演算(演算子は名前で引けないと使えないため)
+	using Core::operator|;
+	using Core::operator|=;
+	using Core::operator&;
+	using Core::operator&=;
+	using Core::operator~;
+	using Core::HasFlag;
+}
 
 // ---- 共通変数・固定値 ----
 #include "Engine/Common/Color.h"						// 色
@@ -21,29 +46,6 @@
 
 // ---- マクロ ---- 
 #include "Engine/Common/Macros/ClassMacros.h"			// クラス用マクロ
-
-// ---- デバッグ用 ---- 
-#include "Utility/Debug/DebugLog.h"						// ログ出力
-#include "Utility/Debug/Profile/Time/TimeProfileScope.h"	// スコープ計測(ENGINE_PROFILE_SCOPE)
-
-// ---- 共通数学 ----
-#include "Utility/Math/Alignment.h"						// アライメント
-#include "Utility/Math/Random.h"						// ランダム
-
-// 自作の数学型。ECSのコンポーネントはこちらで持つ(XMFLOAT系は使わない)。
-// DirectXMath / SimpleMath とは暗黙に相互変換できるので、GPUへ渡す境界はそのまま書ける
-#include "Utility/Math/Vector/Vector2.h"					// Vector2
-#include "Utility/Math/Vector/Vector3.h"					// Vector3
-#include "Utility/Math/Vector/Vector4.h"					// Vector4
-#include "Utility/Math/Quaternion.h"					// クォータニオン
-#include "Utility/Math/Matrix.h"						// 行列
-#include "Utility/Math/Color.h"							// 色
-#include "Utility/Math/TRS.h"							// 行列の分解結果
-#include "Utility/Math/Ray.h"							// レイ
-#include "Utility/Math/DirectX/Math_DirectX.h"			// DirectXMath との橋渡し
-
-// ---- 共通クラス・構造体 ---- 
-#include "Utility/GUID/GUID.h"							// GUID
 
 // ---- 外部ライブラリ連携 ----
 // JSONHelper.h は AssetDatabase.cpp でしか使わないので、そちらで読む
@@ -213,7 +215,7 @@ namespace Engine::Resource
 // 
 //==========================================================================================
 //#include "Editor/Editor.h"
-#include "Editor/Helper/EditorField.h"		// 編集UIの入口(エディターの外はこれだけを使う)
+#include "Engine/EditorField/EditorField.h"		// 編集UIの入口(エディターの外はこれだけを使う)
 // エディター内部の描画ヘルパー(EditorHelper.h)は ImGui を使うので EditorPCH.h にある
 
 //==========================================================================================

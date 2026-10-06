@@ -19,18 +19,21 @@
 
 ## 1. 件数のまとめ
 
-修正前(HEAD)と修正後の両方に同じ計測スクリプトを当てた数。件数の単位は「違反箇所」(定数名・略語は出現箇所)。
-設計判断が必要で機械的に数えられない項目は下の表に分けた。
+修正前(HEAD)と修正後の両方に同じ計測スクリプトを当てた数。件数の単位は「違反箇所」(定数名・略語は出現箇所、層の逆流はファイル数)。
+設計判断が必要で機械的に数えられない項目は 1.2 に分けた。
+修正は 2 回に分けて行った(第1回 : 機械的に直せるもの / 第2回 : ユーザー判断後の構造変更。§6)。
 
 ### 1.1 機械計測した項目
 
 | 優先度 | 項目 | 修正前 | 修正後 |
 | --- | --- | ---: | ---: |
 | Critical | `ENGINE_ERRLOG` の条件反転 | 2 | **0** |
-| Critical | 層の逆流(Engine/Editor → App、Engine → Editor) | 2 | 2 |
-| Critical | PCH 構造(トップ PCH が Engine 全体を読む) | 1 | 1 |
-| Critical | 描画の global state(`g_skinning` / `g_particle`) | 2 | 2 |
-| High | global namespace への直接定義 | 269 | 254(すべて App。Engine 側は **0**) |
+| Critical | 層の逆流 Engine → App(ファイル数) | 7 | 3 |
+| Critical | 層の逆流 Engine → Editor(ファイル数) | 3 | 3 |
+| Critical | 層の逆流 App → Editor(ファイル数) | 3 | 3 |
+| Critical | PCH 構造(トップ PCH が Engine 全体を読む) | 1 | 1(保留の指示) |
+| Critical | 描画の global state(`g_skinning` / `g_particle`) | 2 | **0** |
+| High | global namespace への直接定義 | 269 | **0** |
 | High | `assert` | 95 | **0** |
 | High | `shared_ptr`(共有理由なし) | 35 | **0** |
 | High | 生ポインタでの所有権移譲 | 4 | **0** |
@@ -47,45 +50,47 @@
 | Low | ヘッダ公開関数のコメントが `///` でない | 91 | **0** |
 | Low | global namespace の型エイリアス(Pch.h の `ComPtr` / `DXSM`) | 2 | 2 |
 
+Engine → App の 7 → 3 は、App を読んでいたエディターのファイル(4)が Editor 層へ移って「Editor → App(許可)」になったため。
+
 ### 1.2 設計判断が必要な項目(手動で数えたもの)
 
 | 優先度 | 項目 | 修正前 | 修正後 |
 | --- | --- | ---: | ---: |
-| High | namespace とディレクトリの不一致(D3D12 / Raytracing / Particle / Animation / JobSystem / StateGraph / Utility 2) | 8 | 8 |
-| High | トップレベルが `Engine`/`App` 以外(`Math`) | 1 | 1 |
-| High | App のディレクトリで `Engine::ECS` に型を定義(PhaseTag) | 1 | 1 |
+| High | namespace とディレクトリの不一致 | 8 | 6(D3D12 / Raytracing / Particle / Animation / JobSystem / StateGraph) |
+| High | トップレベルが規定外(`Math`) | 1 | **0**(`Core::Math`) |
+| High | App のディレクトリで `Engine::ECS` に型を定義(PhaseTag) | 1 | **0**(型は `App::Component`。Engine::ECS 側は特殊化だけ) |
 | High | Build 構成(GPU Validation 無効 / VS 構成が Debug・Release のみ) | 2 | 2 |
-| High | 残すと決めていないシングルトン(SceneManager / OptionManager / AudioManager / InputManager / GameManager) | 5 | 5 |
-| Medium | クラスレイアウト(変数の後の関数 / public 変数 / private の後の public) | 9 | **0** |
+| High | 残すと決めていないシングルトン | 5 | 5 |
+| Medium | クラスレイアウト | 9 | **0** |
 | Medium | Component がメソッドを持つ | 8 | 8 |
 | Medium | 遅延実行の命名が `Reserve` でない(`Request*` 等) | 10 | 10 |
 | Medium | 責務が大きい System(BossCombatIntentSystem 622 行) | 1 | 1 |
 | Low | ヘッダ公開関数にコメントが無い | 77 | 77 |
 | Low | 関数内 static の可変状態 | 26 | 20 |
-| Low | 綴り誤りの識別子(`isBoostTriger` `SerchGround` `BoidSpowner` `gPosOnry` `_nameCach` `IsSomethigInput`) | 6 | 5 |
+| Low | 綴り誤りの識別子 | 6 | 5 |
 
 ### 1.3 合計
 
 ```text
 修正前:
-Critical   7
+Critical  18
 High     439
 Medium   372
 Low      509
 
 修正後:
-Critical   5
-High     281   (うち App の global namespace 254)
-Medium    32
-Low      411   (うち役割コメント無し 307)
+Critical   10   (層の逆流 9 ・ PCH 1。どちらも今回は対象外)
+High       23
+Medium     32
+Low       411   (うち役割コメント無し 307)
 ```
 
-### 1.4 ルール解釈待ち(件数に含めない)
+### 1.4 ルール解釈待ち → 明文化済み
 
-| 項目 | 件数 | 状況 |
+| 項目 | 件数 | 決定 |
 | --- | ---: | --- |
-| `struct` のフィールドに `m_` が無い | 2143 | `class` のメンバは 1364/1364 件すべて `m_`。`struct` は一貫して prefix 無し(§7.1) |
-| `ctx` / `cmd` / `buf` / `tex` の略語 | 約 1100 | 一般的な略語として許すかの決定待ち(§7.2) |
+| `struct` のフィールドに `m_` が無い | 2143 | 既存の規約として CodingStandards.md 1.2 に明文化(データだけの struct は Prefix なし) |
+| `ctx` / `cmd` / `buf` / `tex` の略語 | 約 1100 | 許可する略語として CodingStandards.md 1.1 に明文化 |
 
 ---
 
@@ -246,7 +251,7 @@ ECS の良い点(適合を確認したもの) :
 修正はすべて「1 種類ずつ変更 → Debug|x64 ビルド」で確認しながら進めた。
 置換はコメント・文字列を除いたコードだけに行い、関数内の定数は宣言のあるブロックの中だけを対象にした(同名の別変数を巻き込まないため)。
 
-### 6.1 主な変更
+### 6.1 第1回の変更(機械的に直せるもの)
 
 **Error Handling**
 * `GraphicsDevice.cpp` の `ENGINE_ERRLOG(FAILED(_hr), ...)` 2 件を `SUCCEEDED(_hr)` に修正(DXGI ファクトリ・デバイス生成の失敗が記録されていなかった)
@@ -311,72 +316,65 @@ ECS の良い点(適合を確認したもの) :
 **Comment**
 * ヘッダ公開の free function 91 件の直前コメントを `//` → `///` に(新しいコメントは足していない)
 
-### 6.2 未修正項目
+### 6.2 第2回の変更(ユーザー判断後)
 
-| ファイル | 内容 | 自動修正しなかった理由 | 推奨対応 |
+**App の namespace**
+* `Application/Components` → `App::Component`、`Application/Systems` → `App::System`(既存の `App::Systems::*` も揃えた)、
+  `Application/InstanceResource` → `App::InstanceResource`。
+* `Engine::ECS::ComponentTraits<T>` などの特殊化は namespace の外に残し、型名を `App::Component::` で完全修飾。
+  App の namespace の中の参照は `Component::X` / `InstanceResource::X` / `System::X`(2919 箇所)。
+* 保存キーは `RegisterComponent<T>("名前")` の文字列なので、保存データの互換は変わらない。
+
+**描画の global state**
+* `g_skinning` → `Engine::Graphics::SkinningCompute`、`g_particle` → `Engine::Graphics::ParticleSimulation` のクラスにし、
+  GraphicsEngine が `std::unique_ptr` で持つ(`Setup` は初期化時、`Execute` は毎フレーム。呼び出し順は以前と同じ)。
+  ファイルは `FrameCompute/SkinningCompute/SkinningCompute.h/.cpp` に改名。
+
+**Core ディレクトリ(`Source/Core`、namespace `Core`)**
+* `Engine/Utility` から Math・String・File・TypeInfo・Algorithm・BinaryHelper・JSONHelper・GUID・Debug・EnumFlags を移動。
+  namespace は `Core::Math` / `Core::String` / … / `Core::GUID`。`HasFlag` は `Utility` namespace をやめて `Core::HasFlag`。
+* `Engine/Utility/Pool` は Engine の `Handle` に依存しているので Engine に残した。
+* 中心ヘッダ `Core/Core.h` を追加。Engine / App からは `Engine/EngineCommon.h`・新設の `Application/AppCommon.h` で
+  名前空間の別名と using 宣言により取り込み、これまでどおり `Math::Vector3` と書ける(2000 箇所超の書き換えを避けた)。
+  `using namespace Core` にしなかったのは `Core::GUID` と Windows の `::GUID` が曖昧になるため。
+* `AppCommon.h` は App 用 PCH を分けるまでの間、Pch.h から読んでいる(PCH 分割は保留の指示)。
+
+**Editor ディレクトリ(`Source/Editor`、namespace `Editor`)**
+* `Engine/Editor` を `Source/Editor` へ移動し、namespace を `Engine::Editor` → `Editor`(`Editor::Inspector` など)。
+  Engine の型をそのまま使うので `Editor/EditorCommon.h` で `using namespace Engine` し、Editor 配下のヘッダーはすべてこれを読む。
+* 編集UIの窓口 `EditorField` は、宣言(.h/.inl)を `Engine/EditorField`・namespace `Engine::EditorField` に、
+  ImGui を使う実装を `Editor/Helper/EditorField.cpp` に分けた。App / Engine の呼び出し約 2450 箇所は `Engine::EditorField::X` に。
+* vcxproj の EditorPCH 設定と、エディターのファイルが EditorPCH を使っているかの検査(`CheckEditorPch`)のパスも更新。
+
+**ルール文書(CodingStandards.md)**
+* 1.1 許可する略語の表、1.2 struct のフィールドは Prefix なし、1.4 トップレベル namespace(Core / Engine / App / Editor)・
+  App の ECS の namespace・Core の取り込み、2.8 DebugLog.h のパス、4.1 層(Core を追加)と EditorField の置き方、9 最上位ディレクトリ
+
+### 6.3 未修正項目
+
+| ファイル | 内容 | 修正しなかった理由 | 推奨対応 |
 | --- | --- | --- | --- |
-| Application/Components・Systems・InstanceResource(254 定義) | global namespace | namespace 名を決める必要がある。参照側(App/Object・Engine/Editor)の修飾が数百ファイルに及ぶ大規模変更 | `App::Components` / `App::Systems` / `App::InstanceResource` を決め、ディレクトリ単位で段階的に移す。`ComponentTraits` の特殊化は namespace を閉じてから書く |
-| Pch.h / Engine/EngineCommon.h | トップ PCH が Engine 全体 + ForcedInclude | include 漏れが一斉に表面化する。今回も 1 件(InputManager.h)見つかった | 先にヘッダ単体コンパイルの確認手段を作り、PCH をトップ/Engine/App/Editor に分ける |
-| Engine/Editor/*、MainEngine.cpp、SceneManager.cpp | 層の逆流 | Editor の配置そのものの問題(計画書フェーズ1の残り) | Editor を Engine の外へ出す。`EditorField` は「Engine が持つ編集 UI の窓口」として Engine 側(Editor 以外)へ移す |
-| FrameCompute/SkinningPass.cpp, ParticleSimulation.cpp | `g_skinning` / `g_particle` | 所有関係の変更になる(依頼の「勝手に変更しない」に該当) | `SkinningCompute` / `ParticleSimulationCompute` クラスにして GraphicsEngine がメンバで持つ。Setup/Execute の呼び出し元は GraphicsEngine だけなので影響は小さい |
-| SequenceBgm.cpp | `g_globalDuck` / `g_livingBgmVec` | BGM の管理者を決める設計変更 | AudioManager か Sequence 側の管理者に持たせる |
-| EditorField.cpp / AudioBehaviorEdit.cpp / ModelEdit.cpp | エディターの即時モード状態を global に持つ | ImGui 風 API の内部状態で、置き場所(EditorContext 等)を決める必要がある | EditorContext に持たせる |
-| ImGuiContext.cpp | `g_pImGuiHeapManager` | ImGui の C コールバックにユーザーデータが無いため | 外部ライブラリ都合の例外としてルールに明記 |
-| ResourceManager.h | `GetState` / `GetCache` が const にできない | 内部で `IsValid` / `RefSlot` / `RefData`(非 const)とキャッシュ用 mutex を使う | const 版の内部取得関数を足し、mutex を `mutable` に |
-| DescriptorHeapManager.h | `GetCPU` / `GetGPU` が const にできない | `RefAllocator<T>()` が非 const | const 版の `GetAllocator<T>() const` を足す |
-| SceneManager / CommandPool / RenderContext / World | `GetCurrentTopScene` / `GetCommandQueue` / `GetFence` / `GetCurrentCmdList` / `GetComponentArray` が可変ポインタを返す | 呼び出し側が書き込む用途なので const 化では済まない | 書き込み用途なら `Ref*` に改名 |
-| APPWorld.h | `GetEntity(GUID)` が非 const | 索引を遅延で作り直すため | 索引を `mutable` にするか、作り直しを別関数へ |
-| Engine/Utility/Math | トップレベル `Math` namespace | App(global namespace)からの参照が数千箇所 | App の namespace 化と同時に `Engine::Math` へ |
-| Engine/Graphics/D3D12 ほか 8 | ディレクトリと namespace の不一致 | Graphics 全体の修飾が変わる | 方針(namespace に合わせてディレクトリを動かすか、その逆か)を決める |
-| Application/ECS/PhaseTag | App で `Engine::ECS` に型を定義 | Engine/Editor が参照している | 層の整理と同時に `App::ECS` へ |
-| MainEngine.cpp | GPU Validation が無効 | Debug の実行速度が大きく落ちる | DebugOptions のフラグで切り替え |
-| BaseProject.vcxproj | VS 構成が Debug/Release のみ | Shipping 未着手 | Shipping 着手時に構成とプリプロセッサ定義を追加 |
-| Component 8 件 | 派生値のメソッド(`HeatRatio` 等) | ロジックとまでは言えない小さなもの。free function にするかは判断 | ルールで「自分のフィールドだけを読む const の派生値は可」とするか、Utility へ出す |
-| `RequestDestroy` / `RequestChangeState` / `RequestEmit` / `RegisterDeferredResource` など | 遅延実行が `Reserve` でない | `Request` が get-or-create(PSO / Shader / RequestLoad)にも使われている | 語彙を決めてから改名 |
-| クラス 307 件 / ヘッダ公開関数 77 件 | 役割コメント無し | 「コメントを大量に追加しない」 | 触るたびに足す |
-| 綴り誤り 5 件 | `SerchGroundComponent` など | 型名・ファイル名の変更を伴う | まとめて改名(保存キーは文字列なので互換は保てる) |
+| Pch.h / Engine/EngineCommon.h | トップ PCH が Engine 全体 + ForcedInclude | 保留の指示 | ヘッダ単体コンパイルの確認手段を作ってから、トップ / Engine / App / Editor に分ける |
+| Engine/MainEngine.cpp, Engine/Scene/BaseScene/BaseScene.cpp, Engine/Scene/SceneManager/SceneManager.cpp | Engine → Editor(MainEditor の駆動・通知) | REFACTORING_PLAN フェーズ1 の残り。駆動の付け替えが必要 | エディターの駆動を App(最上位)へ移し、Engine からの通知はコールバックに |
+| Engine/MainEngine.cpp, Engine/Scene/BaseScene/BaseScene.cpp, Engine/Resource/Data/Prefab/Prefab.cpp | Engine → App(`App.h` / `GUIDComponent` / `CombatReticleHUD`) | Engine が App の型を直接使っている設計 | GUID の扱いを Engine 側の仕組みへ、HUD は App 側から登録 |
+| Application/App.cpp, GameManager.cpp, InputActionManager.cpp | App → Editor(`::Editor::MainEditor`) | 同上(エディターの起動・ログ表示) | App を最上位の組み立て役にし、MainEditor への依存は main 側へ |
+| Editor/Helper/EditorField.cpp ほか | エディターの即時モード状態を global に持つ(10 件) | 置き場所(EditorContext 等)を決める必要がある | EditorContext に持たせる。ImGui の C コールバック用 `g_pImGuiHeapManager` は外部ライブラリ都合の例外 |
+| Application/Object/SequenceBgm.cpp | `g_globalDuck` / `g_livingBgmVec` | BGM の管理者を決める設計変更 | AudioManager か Sequence 側の管理者へ |
+| ResourceManager.h / DescriptorHeapManager.h ほか | const にできない `Get` 13 件 | 内部で非 const 関数を呼ぶ・可変ポインタを返す | const 版の内部取得関数を足す / 書き込み用途は `Ref*` に改名 |
+| Engine/Graphics/D3D12 ほか 6 | ディレクトリと namespace の不一致 | Graphics 全体の修飾が変わる | 方針(namespace かディレクトリのどちらを動かすか)を決める |
+| MainEngine.cpp / vcxproj | GPU Validation 無効・VS 構成が 2 つ | 実行速度・Shipping 未着手 | DebugOptions のフラグで切り替え / Shipping 着手時に構成追加 |
+| Component 8 件・`Request*` 10 件・BossCombatIntentSystem | 設計判断 | 前回報告のとおり | 前回報告のとおり |
+| クラス 307 件 / ヘッダ公開関数 77 件 | 役割コメント無し | 大量追加はしない | 触るたびに足す |
 
-### 6.3 Build Result
+### 6.4 Build Result
 
 ```text
 Debug|x64 フルリビルド
   修正前 : Build: Success / Warning: 2156(重複除去 420) / Error: 0
   修正後 : Build: Success / Warning: 2156(重複除去 420) / Error: 0
-  ※ 警告は行番号を除いて修正前と同じ集合(新しい警告なし)
 
-Release|x64
+Release|x64 フルリビルド
   修正後 : Build: Success / Warning: 2128 / Error: 0
 ```
 
-実行(起動・シーン読み込み・ゲームモード往復)は確認していない。
-特に Input(`EState` の enum class 化・`unique_ptr` 化)と `ENGINE_ERRLOG` の Release での評価は実機で確認してほしい。
-
----
-
-## 7. ルール解釈待ち(CodingStandards.md への追記を推奨)
-
-### 7.1 `struct` のフィールドに `m_` を付けるか
-* 現状 : **`class` のメンバは 1364/1364 件すべて `m_`。`struct` のフィールドは 2143/2172 件が prefix 無し。** 偶然ではなく一貫した規約。
-* `struct` は Component・Desc・CB データ・イベントなどの「データだけの型」で、`a_ar.Field("maxFuel", _comp.maxFuel)` のように保存キーとフィールド名が対になっている。
-* 推奨 : CodingStandards.md 1.2 に「データだけの `struct` の公開フィールドは prefix を付けない。`m_` は振る舞いを持つ `class` のメンバに付ける」と明記する。
-
-### 7.2 `ctx` / `cmd` / `buf` / `tex` は「一般的な省略」か
-* `a_ctx` 783 回・`_pCtx` 154 回・`_cmd` / `a_cmd` 130 回・`_buf` 81 回・`_tex` 20 回。
-* NG 例 `_rndCtx` は `rnd` の方が独自。`ctx`(context)・`cmd`(command list)は D3D12 / グラフィックスでは広く使われる。
-* 推奨 : 許可する略語の一覧(GPU / CPU / D3D / DXGI / RT / ctx / cmd …)をルールに書く。決まれば機械的に揃えられる。
-
----
-
-## 8. 大規模・設計判断が必要なもの(今回は変更せず報告)
-
-| 項目 | 現在 → 問題 → 推奨 → 影響 |
-| --- | --- |
-| App の Component / System / InstanceResource の namespace 化 | global namespace(約 290 型) → ルール 2.1 違反 → `App::Components` / `App::Systems` / `App::InstanceResource` → **namespace 名の決定が必要**。参照する App/Object・Engine/Editor 側の修飾も要る(数百ファイル)。保存キーは文字列で明示登録されているのでデータ互換は壊れない |
-| PCH の再構成 | §2 → 全翻訳単位が Engine 全体を見る → トップ/Engine/App/Editor の 4 段に分ける → ヘッダの include 漏れが一斉に表面化する。単体コンパイルのチェックを先に作る |
-| Editor の層 | `Engine/Editor` が App を読み、Engine 本体が Editor を読む → ルール 4.1 → Editor を Engine の外へ → MainEngine の駆動・SceneManager の通知の付け替え(計画書フェーズ1の残り) |
-| `Math` → `Engine::Math` | トップレベル namespace → ルール 1.4 → `Engine::Math` → App(global namespace)からの参照が数千箇所。App の namespace 化と同時が安全 |
-| D3D12 / Raytracing / Particle / Animation / Thread の namespace | ディレクトリ不一致 → ルール 1.4 → namespace かディレクトリのどちらかを動かす → Graphics 全体の修飾が変わる |
-| FrameCompute の global state | §2 → `SkinningCompute` などのクラスにして GraphicsEngine が所有 → 初期化・解放順が変わる(所有関係の変更) |
-| GPU Validation | ルール 6.1 → 有効化 → Debug の実行速度が大きく落ちる。オプション化を推奨 |
-| `Request*` → `Reserve*` | 遅延と get-or-create が同じ語 → 語彙を決めてから改名 |
-| シングルトン | 計画書で「残す」と決めたもの以外 → 所有者へ移す(計画書フェーズ5) |
+実行(起動・シーン読み込み・ゲームモード往復・エディター操作)は確認していない。

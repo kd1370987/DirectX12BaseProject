@@ -123,13 +123,13 @@ namespace Engine::Scene
 		Graphics::SceneFogCB m_sceneFog = {};					// シーン全体に一様に漂うフォグ
 		Graphics::GroundDustCB m_groundDust = {};				// 地面から立つチリ(time はパスが進める)
 		Graphics::SceneFogCompositeCB m_fogComposite = {};		// メインカラーへ重ねるときの強さ
-		Engine::GUID m_fogNoiseTexGUID = {};					// ダストに掛けるノイズ。未設定ならノイズなし
+		Core::GUID m_fogNoiseTexGUID = {};					// ダストに掛けるノイズ。未設定ならノイズなし
 
 		// 空の見え方(露出 / 地平線の高さ / 仮想ドームの半径 / 方位の回転 / 被写界深度)
 		Graphics::SkyData m_sky = {};
 
 		// スカイテクスチャ(正距円筒。横:縦 = 2:1 のもの)
-		Engine::GUID m_skyTexGUID = {};
+		Core::GUID m_skyTexGUID = {};
 
 		//-------------------------------------------------------------------
 		// 状態(保存しない)

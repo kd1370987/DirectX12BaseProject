@@ -7,38 +7,41 @@
 #include "Application/Components/Render/ModelComponent.h"
 #include "Application/InstanceResource/ResourceWaitResource.h"
 
-void ModelReadyGateSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	a_world.AwakeTask<const ModelComponent>(
-		Engine::ECS::ESystemType::Awake,
-		"ModelReadyGateSystem",
-		[](
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			AwakeTag* a_awakeTag,
-			const ModelComponent* a_pModelArray
-		)
-		{
-			auto& _wait = a_ctx.pWorld->RefResource<ResourceWaitResource>();
-			auto& _resourceManager = *a_ctx.pServices->pResourceManager;
-
-			for (uint32_t _i = 0; _i < a_count; ++_i)
+	void ModelReadyGateSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		a_world.AwakeTask<const Component::ModelComponent>(
+			Engine::ECS::ESystemType::Awake,
+			"ModelReadyGateSystem",
+			[](
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::AwakeTag* a_awakeTag,
+				const Component::ModelComponent* a_pModelArray
+			)
 			{
-				const ModelComponent& _modelComp = a_pModelArray[_i];
+				auto& _wait = a_ctx.pWorld->RefResource<InstanceResource::ResourceWaitResource>();
+				auto& _resourceManager = *a_ctx.pServices->pResourceManager;
 
-				// そもそもモデルを使わないエンティティは待たせない
-				if (_modelComp.modelGUID == Engine::DEFAULT_GUID) continue;
+				for (uint32_t _i = 0; _i < a_count; ++_i)
+				{
+					const Component::ModelComponent& _modelComp = a_pModelArray[_i];
 
-				// 待つのは読込中のときだけ。
-				// Failed をここで待たせると、もう届かないものを永久に待って
-				// Start が一生走らなくなる
-				const auto _state = _resourceManager.GetState(_modelComp.handle);
-				if (_state != Engine::Resource::EResourceState::Loading) continue;
+					// そもそもモデルを使わないエンティティは待たせない
+					if (_modelComp.modelGUID == Core::DEFAULT_GUID) continue;
 
-				_wait.AddWait(a_pChunk->entityData[_i]);
+					// 待つのは読込中のときだけ。
+					// Failed をここで待たせると、もう届かないものを永久に待って
+					// Start が一生走らなくなる
+					const auto _state = _resourceManager.GetState(_modelComp.handle);
+					if (_state != Engine::Resource::EResourceState::Loading) continue;
+
+					_wait.AddWait(a_pChunk->entityData[_i]);
+				}
 			}
-		}
-	)
-	.WritesResource<ResourceWaitResource>();
+		)
+		.WritesResource<InstanceResource::ResourceWaitResource>();
+	}
 }

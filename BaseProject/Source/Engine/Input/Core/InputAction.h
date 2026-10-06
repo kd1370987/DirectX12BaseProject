@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../Utility/String/StringUtility.h"
+#include "Core/String/StringUtility.h"
 
 //==========================================================================================
 // Engine::Input のアクションID
@@ -8,7 +8,7 @@
 // 「どの操作か」を表す番号。ボタン・軸の登録も取得もこの番号を鍵にする。
 //
 // ゲーム側は操作を enum class : uint32_t で持っているので、その値をそのまま鍵にできる。
-// 文字列を渡した場合はハッシュ(Engine::String::ToHash)を通して番号へ直す。
+// 文字列を渡した場合はハッシュ(Core::String::ToHash)を通して番号へ直す。
 // リテラルならコンパイル時に畳まれるので、実行時のコストは無い。
 //==========================================================================================
 namespace Engine::Input
@@ -27,7 +27,7 @@ namespace Engine::Input
 	/// 文字列 -> アクションID
 	inline constexpr ActionID ToActionID(std::string_view a_name)
 	{
-		return static_cast<ActionID>(Engine::String::ToHash(a_name));
+		return static_cast<ActionID>(Core::String::ToHash(a_name));
 	}
 
 	/// 列挙値 -> アクションID

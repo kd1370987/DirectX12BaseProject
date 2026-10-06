@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/Utility/Debug/DebugLog.h"
+#include "Core/Debug/DebugLog.h"
 
 //==========================================================================================
 //
@@ -43,7 +43,7 @@ namespace Engine::GameObject
 	/// <summary>登録名からタイプIDを作る(登録・参照の両方でここを通す)</summary>
 	inline ObjectTypeID MakeObjectTypeID(const std::string& a_name)
 	{
-		return static_cast<ObjectTypeID>(Engine::String::ToHash(a_name));
+		return static_cast<ObjectTypeID>(Core::String::ToHash(a_name));
 	}
 
 	// クラスのメタ情報

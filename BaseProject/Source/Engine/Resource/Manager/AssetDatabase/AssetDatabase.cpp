@@ -6,7 +6,7 @@
 #include <nlohmannJSON/json.hpp>
 #pragma warning(pop)
 
-#include "Engine/Utility/JSONHelper/JSONHelper.h"
+#include "Core/JSONHelper/JSONHelper.h"
 
 namespace Engine::Resource
 {
@@ -86,7 +86,7 @@ namespace Engine::Resource
 		std::unique_lock _gard(m_mutex);
 		m_assetTypeExtensionsMap[a_data.type] = a_data;
 	}
-	Engine::GUID AssetDatabase::AddMetaData(const std::string& a_baseFilePath, const std::string& a_type)
+	Core::GUID AssetDatabase::AddMetaData(const std::string& a_baseFilePath, const std::string& a_type)
 	{
 		std::unique_lock _gard(m_mutex);
 		// 拡張子なしの論理パス
@@ -98,7 +98,7 @@ namespace Engine::Resource
 
 		// メタファイルの作成（すでに存在していれば既存のGUIDを使う）
 		nlohmann::json _json;
-		Engine::GUID _guid;
+		Core::GUID _guid;
 
 		if (std::filesystem::exists(_metaPath))
 		{
@@ -106,7 +106,7 @@ namespace Engine::Resource
 			std::ifstream _ifs(_metaPath.string());
 			_ifs >> _json;
 			_ifs.close(); // 念のためcloseを追加
-			_guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, Engine::DEFAULT_GUID.String()));
+			_guid.FromString(Core::JSONHelper::GetValue<std::string>("GUID", _json, Core::DEFAULT_GUID.String()));
 		}
 		else
 		{
@@ -128,7 +128,7 @@ namespace Engine::Resource
 		_prop.filePath = _basePath.lexically_normal().generic_string();
 		_prop.fileName = _basePath.filename().string();
 		// JSONからTypeを取得（なければ引数のa_type）
-		_prop.type = JSONHelper::GetValue<std::string>("Type", _json, a_type);
+		_prop.type = Core::JSONHelper::GetValue<std::string>("Type", _json, a_type);
 		_prop.guid = _guid;
 
 		// アセットが持っている拡張子リストの復元（CreateRuntimeDataと同じ動き）
@@ -162,7 +162,7 @@ namespace Engine::Resource
 
 		return _prop.guid;
 	}
-	bool AssetDatabase::IsValid(const Engine::GUID& a_guid) const
+	bool AssetDatabase::IsValid(const Core::GUID& a_guid) const
 	{
 		if (m_assetMap.find(a_guid) != m_assetMap.end())
 		{
@@ -279,7 +279,7 @@ namespace Engine::Resource
 			}
 			else
 			{
-				Engine::GUID _guid;
+				Core::GUID _guid;
 				_guid.Create();
 				_json["GUID"] = _guid.String();
 
@@ -324,7 +324,7 @@ namespace Engine::Resource
 			// 登録されている拡張子がなければすでにメタデータを必要とする実データが消えている
 			if (_prop.extensionsVec.empty())
 			{
-				const Engine::GUID _removeGUID = _guid;
+				const Core::GUID _removeGUID = _guid;
 
 				//----------------------------------------------------------------------
 				// 実体が無くなったのでメタファイルも消す
@@ -393,7 +393,7 @@ namespace Engine::Resource
 
 				// メタファイルの作成（すでに存在していれば既存のGUIDを使う）
 				nlohmann::json _json;
-				Engine::GUID _guid;
+				Core::GUID _guid;
 
 				// 拡張子リスト : メタファイルへ書くものと登録するもので同じものを使う
 				std::vector<std::string> _extensionsVec = {};
@@ -405,7 +405,7 @@ namespace Engine::Resource
 					std::ifstream _ifs(_metaPath.string());
 					_ifs >> _json;
 					_ifs.close();
-					_guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, Engine::DEFAULT_GUID.String()));
+					_guid.FromString(Core::JSONHelper::GetValue<std::string>("GUID", _json, Core::DEFAULT_GUID.String()));
 
 					//--------------------------------------------------------------
 					// 書いてある拡張子リストを土台にする
@@ -474,7 +474,7 @@ namespace Engine::Resource
 				_prop.filePath = _group.basePath;
 				_prop.fileName = _group.fileName;
 				// タイプは今書き出したメタファイルに合わせる(CreateRuntimeDataと同じ引き方)
-				_prop.type = JSONHelper::GetValue<std::string>("Type", _json, _group.type);
+				_prop.type = Core::JSONHelper::GetValue<std::string>("Type", _json, _group.type);
 				_prop.guid = _guid;
 				_prop.extensionsVec = _extensionsVec;
 
@@ -582,12 +582,12 @@ namespace Engine::Resource
 			// パスの正規化（ 区切り = / ）
 			_property.filePath = _resPath.lexically_normal().generic_string();				// ファイルパス
 			_property.fileName = _resPath.filename().string();								// ファイル名
-			_property.type = JSONHelper::GetValue<std::string>("Type", _json, "Unknown");	// タイプの取得
+			_property.type = Core::JSONHelper::GetValue<std::string>("Type", _json, "Unknown");	// タイプの取得
 
 			// GUIDの取得
-			Engine::GUID _guid = {};
+			Core::GUID _guid = {};
 			std::string _default = _guid.String();
-			_property.guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, _default));
+			_property.guid.FromString(Core::JSONHelper::GetValue<std::string>("GUID", _json, _default));
 
 			// アセットが持っている拡張子リストの復元
 			if (_json.contains("Files"))
@@ -611,12 +611,12 @@ namespace Engine::Resource
 
 	std::string AssetDatabase::GetFilePathFromGUID(const std::string& a_guid) const
 	{
-		Engine::GUID _guid = {};
+		Core::GUID _guid = {};
 		_guid.FromString(a_guid);
 		return GetFilePathFromGUID(_guid);
 	}
 
-	std::string AssetDatabase::GetFilePathFromGUID(const Engine::GUID& a_guid) const
+	std::string AssetDatabase::GetFilePathFromGUID(const Core::GUID& a_guid) const
 	{
 		auto _it = m_assetMap.find(a_guid);
 		if (_it == m_assetMap.end()) return "";
@@ -657,7 +657,7 @@ namespace Engine::Resource
 		return _prop.filePath; // 最終手段
 	}
 
-	std::string AssetDatabase::GetBaseFilePathFromGUID(const Engine::GUID& a_guid) const
+	std::string AssetDatabase::GetBaseFilePathFromGUID(const Core::GUID& a_guid) const
 	{
 		auto _it = m_assetMap.find(a_guid);
 		if (_it != m_assetMap.end())
@@ -668,7 +668,7 @@ namespace Engine::Resource
 		return "";
 	}
 
-	std::string AssetDatabase::GetFileNameFromGUID(const Engine::GUID& a_guid) const
+	std::string AssetDatabase::GetFileNameFromGUID(const Core::GUID& a_guid) const
 	{
 		auto _it = m_assetMap.find(a_guid);
 		if (_it != m_assetMap.end())
@@ -679,7 +679,7 @@ namespace Engine::Resource
 		return "";
 	}
 
-	Engine::GUID AssetDatabase::GetGUIDFromFilePath(const std::string& a_path) const
+	Core::GUID AssetDatabase::GetGUIDFromFilePath(const std::string& a_path) const
 	{
 		// 入力されたパスから拡張子を取り除き、ベースパスとして正規化する
 		std::filesystem::path _inputPath(a_path);
@@ -695,7 +695,7 @@ namespace Engine::Resource
 			}
 		}
 
-		return Engine::DEFAULT_GUID;
+		return Core::DEFAULT_GUID;
 	}
 
 	const std::unordered_map<std::string, TypeExtension>& AssetDatabase::GetAssetTypeExtensionsMap() const
@@ -713,7 +713,7 @@ namespace Engine::Resource
 		return std::span<const AssetProperty>();
 	}
 
-	const AssetProperty* AssetDatabase::GetAssetProperty(const Engine::GUID& a_guid) const
+	const AssetProperty* AssetDatabase::GetAssetProperty(const Core::GUID& a_guid) const
 	{
 		auto _it = m_assetMap.find(a_guid);
 		if (_it != m_assetMap.end())
@@ -730,7 +730,7 @@ namespace Engine::Resource
 		return GetAssetProperty(GetGUIDFromFilePath(a_filePath));
 	}
 
-	AssetProperty* AssetDatabase::FindAssetProperty(const Engine::GUID& a_guid)
+	AssetProperty* AssetDatabase::FindAssetProperty(const Core::GUID& a_guid)
 	{
 		std::unique_lock _gard(m_mutex);
 		auto _it = m_assetMap.find(a_guid);
@@ -830,7 +830,7 @@ namespace Engine::Resource
 		nlohmann::json _json;
 
 		// 新しいGUIDを発行
-		Engine::GUID _guid = {};
+		Core::GUID _guid = {};
 		_guid.Create();
 		_json["GUID"] = _guid.String();
 

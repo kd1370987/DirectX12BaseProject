@@ -11,15 +11,15 @@
 
 #include "../../Audio/AudioManager.h"
 
-#include "../../Editor/Editor.h"
-#include "../../Editor/EffectEditor/EffectEditor.h"
+#include "Editor/Editor.h"
+#include "Editor/EffectEditor/EffectEditor.h"
 
 namespace Engine::Scene
 {
 	void SceneManager::Release()
 	{
 		// エディターが覚えている選択はここで消えるシーンのもの
-		Engine::Editor::MainEditor::Instance().OnSceneChanged();
+		Editor::MainEditor::Instance().OnSceneChanged();
 
 		//----------------------------------------------------------------------------------
 		// 上のシーンから順に、PopScene と同じく後始末を通して消す
@@ -148,12 +148,12 @@ namespace Engine::Scene
 	//======================================================================================
 	// 空のシーンを作る
 	//======================================================================================
-	Engine::GUID SceneManager::CreateEmptyScene(Resource::AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
+	Core::GUID SceneManager::CreateEmptyScene(Resource::AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
 		if (a_name.empty())
 		{
 			ENGINE_WARNING("[Scene] 名前が空のためシーンを作成できません");
-			return Engine::GUID();
+			return Core::GUID();
 		}
 
 		//------------------------------------------------------------------
@@ -170,11 +170,11 @@ namespace Engine::Scene
 		const std::string _basePath = _dirPath + "/" + a_name;
 
 		// すでにないかチェック
-		const Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DEFAULT_GUID)
+		const Core::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
+		if (_checkGUID != Core::DEFAULT_GUID)
 		{
 			ENGINE_WARNING("[Scene] すでに同じ名前のシーンがあります : %s", _basePath.c_str());
-			return Engine::GUID();
+			return Core::GUID();
 		}
 
 		std::error_code _errorCode = {};
@@ -182,11 +182,11 @@ namespace Engine::Scene
 		if (_errorCode)
 		{
 			ENGINE_WARNING("[Scene] フォルダを作成できません : %s", _dirPath.c_str());
-			return Engine::GUID();
+			return Core::GUID();
 		}
 
 		// アセットデータベースに場所を作る
-		const Engine::GUID _guid = a_assetDB.AddMetaData(_basePath, "Scene");
+		const Core::GUID _guid = a_assetDB.AddMetaData(_basePath, "Scene");
 
 		//------------------------------------------------------------------
 		// 空の中身を書き出す
@@ -209,7 +209,7 @@ namespace Engine::Scene
 		return _guid;
 	}
 
-	bool SceneManager::PushScene(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid)
+	bool SceneManager::PushScene(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid)
 	{
 		// シーンの新規作成 : GUIDからロードする
 		auto _upScene = std::make_unique<BaseScene>();
@@ -237,8 +237,8 @@ namespace Engine::Scene
 		m_pLoadingScene = _upScene.get();
 
 		// シーンの再構築
-		auto _fileDir = Engine::File::GetDirFromPath(_sceneFilePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(_sceneFilePath);
+		auto _fileDir = Core::File::GetDirFromPath(_sceneFilePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(_sceneFilePath);
 		// 形式はビルドモード任せ(Auto)。Development までは .ojscene 優先、Shipping は .obscene のみ
 		{
 			Persistence::Archive _ar(Persistence::Archive::EMode::Load, _fileDir, _fileName, "scene");
@@ -343,7 +343,7 @@ namespace Engine::Scene
 	// 消す前に行き先が引けるかどうかを確かめて、引けなければ今のシーンを残す。
 	// (行き先の指定漏れ・GUIDの消滅は設定ミスなので、気付けるように知らせる)
 	//======================================================================================
-	void SceneManager::ReplaceScene(Resource::ResourceManager& a_resourceManager, const Engine::GUID& a_guid)
+	void SceneManager::ReplaceScene(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid)
 	{
 		if (m_upBaseSceneVec.empty()) return;
 
@@ -420,7 +420,7 @@ namespace Engine::Scene
 		}
 	}
 
-	void SceneManager::SetNextScene(const Engine::GUID& a_guid, const ESceneChangeType& a_changeType)
+	void SceneManager::SetNextScene(const Core::GUID& a_guid, const ESceneChangeType& a_changeType)
 	{
 		m_sceneChangeCmd.push({ a_guid,a_changeType });
 	}
@@ -441,7 +441,7 @@ namespace Engine::Scene
 			// 変わるため、どの切り替え方でも持ち越してはいけない。
 			// (パネル側の検証は描画時にしか回らないので、ここで先に断つ)
 			//----------------------------------------------------------------------
-			Engine::Editor::MainEditor::Instance().OnSceneChanged();
+			Editor::MainEditor::Instance().OnSceneChanged();
 
 			switch (_cmd.changeType)
 			{

@@ -273,7 +273,7 @@ namespace Engine::D3D12
 
 		// シェーダーバイトコードの読み込み
 		auto _hr = D3DReadFileToBlob(
-			Engine::String::ToWideString(a_path).c_str(),
+			Core::String::ToWideString(a_path).c_str(),
 			_pBlob.ReleaseAndGetAddressOf()
 		);
 		if (FAILED(_hr))

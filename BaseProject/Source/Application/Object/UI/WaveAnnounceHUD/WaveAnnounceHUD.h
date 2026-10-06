@@ -67,7 +67,7 @@ namespace App::Object
 	private:
 
 		// ---- 音(保存される) ----
-		Engine::GUID m_soundGUID = Engine::DEFAULT_GUID;
+		Core::GUID m_soundGUID = Core::DEFAULT_GUID;
 		Engine::Handle<Engine::Resource::SoundInstance> m_soundHandle = {};
 		float m_volume = 1.0f;
 

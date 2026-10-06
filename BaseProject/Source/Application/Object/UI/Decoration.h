@@ -253,7 +253,7 @@ namespace App::Object::Decoration
 		//----------------------------------------------------------------------------------
 		// Image
 		//----------------------------------------------------------------------------------
-		Engine::GUID texGUID = {};										// 保存用
+		Core::GUID texGUID = {};										// 保存用
 		Engine::ResourceRef<Engine::Resource::Texture> texRef = {};		// ランタイム用
 
 		//----------------------------------------------------------------------------------
@@ -268,7 +268,7 @@ namespace App::Object::Decoration
 		// Text
 		//----------------------------------------------------------------------------------
 		std::string	text = "Text";
-		Engine::GUID fontGUID = {};
+		Core::GUID fontGUID = {};
 		Engine::ResourceRef<Engine::Resource::Font> fontRef = {};
 
 		float		fontPixelSize	= 32.0f;				// 出したい文字の高さ(px)

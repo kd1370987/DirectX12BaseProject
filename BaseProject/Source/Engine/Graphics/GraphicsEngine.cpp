@@ -27,7 +27,7 @@
 #include "RenderingPipeline/RenderingPipelineMetaRegistry.h"
 
 // カメラに依存しない、フレームに1回のGPU処理
-#include "FrameCompute/SkinningPass/SkinningPass.h"
+#include "Engine/Graphics/FrameCompute/SkinningCompute/SkinningCompute.h"
 #include "FrameCompute/UpdateBLASPass/UpdateBLASPass.h"
 #include "FrameCompute/ParticleSimulation/ParticleSimulation.h"
 
@@ -246,8 +246,10 @@ namespace Engine::Graphics
 		//
 		// スキニング・BLAS更新・パーティクルの発生と更新は、どのカメラの描画でも同じ結果を読む
 		//------------------------------------------------------------------------------------
-		SetupSkinning(m_upPipelineStateManager.get(), *m_pResourceManager);
-		SetupParticleSimulation(m_upPipelineStateManager.get(), *m_pResourceManager);
+		m_upSkinningCompute = std::make_unique<SkinningCompute>();
+		m_upSkinningCompute->Setup(m_upPipelineStateManager.get(), *m_pResourceManager);
+		m_upParticleSimulation = std::make_unique<ParticleSimulation>();
+		m_upParticleSimulation->Setup(m_upPipelineStateManager.get(), *m_pResourceManager);
 
 		// シーンの見え方(カメラ・画面効果・空・環境光)
 		m_upSceneView = std::make_unique<SceneView>();
@@ -493,7 +495,7 @@ namespace Engine::Graphics
 		//------------------------------------------------------------------
 		{
 			ENGINE_PROFILE_SCOPE("GPUSkinning");
-			ExecuteSkinning(this, m_upRenderContextVec[m_currentFrameIndex].get());
+			m_upSkinningCompute->Execute(this, m_upRenderContextVec[m_currentFrameIndex].get());
 		}
 		{
 			ENGINE_PROFILE_SCOPE("BLASUpdate");
@@ -504,7 +506,7 @@ namespace Engine::Graphics
 		// 分けるとバリアを挟み忘れて、空きスロットが減り続ける不具合が戻る
 		{
 			ENGINE_PROFILE_SCOPE("ParticleSimulation");
-			ExecuteParticleSimulation(this, m_upRenderContextVec[m_currentFrameIndex].get());
+			m_upParticleSimulation->Execute(this, m_upRenderContextVec[m_currentFrameIndex].get());
 		}
 
 		// カメラごとの描画構成を回す。

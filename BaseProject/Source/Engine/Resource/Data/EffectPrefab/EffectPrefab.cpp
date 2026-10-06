@@ -26,8 +26,8 @@ namespace Engine::Resource
 			return;
 		}
 
-		auto _dir = Engine::File::GetDirFromPath(a_savePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_savePath);
+		auto _dir = Core::File::GetDirFromPath(a_savePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_savePath);
 
 		if (!_dir.empty())
 		{
@@ -41,8 +41,8 @@ namespace Engine::Resource
 
 	void EffectPrefab::Load(ECS::World* a_pWorld, const std::string& a_filePath)
 	{
-		auto _dir = Engine::File::GetDirFromPath(a_filePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
+		auto _dir = Core::File::GetDirFromPath(a_filePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_filePath);
 
 		// 形式はビルドモード任せ(Development までは .oj があればそちらを読む)
 		Persistence::Archive _arch(Persistence::Archive::EMode::Load, _dir, _fileName, FILE_EXT);
@@ -92,7 +92,7 @@ namespace Engine::Resource
 		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
 
 		// すでに存在するなら作らない
-		if (a_assetDB.GetGUIDFromFilePath(_basePath) != Engine::DEFAULT_GUID)
+		if (a_assetDB.GetGUIDFromFilePath(_basePath) != Core::DEFAULT_GUID)
 		{
 			ENGINE_LOG("すでに作成されたエフェクトプレハブです : %s", _basePath.c_str());
 			return;

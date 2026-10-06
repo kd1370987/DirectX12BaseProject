@@ -69,13 +69,13 @@ namespace App::Object
 		// 設定(保存される)
 		//-------------------------------------------------------------------
 		// 押したらゲームへ戻るボタン(同じシーンに置いた UIButton のGUID)
-		Engine::GUID m_resumeButtonGUID = {};
+		Core::GUID m_resumeButtonGUID = {};
 
 		// 押したらゲームをやめて別のシーンへ移るボタン(任意)
-		Engine::GUID m_exitButtonGUID = {};
+		Core::GUID m_exitButtonGUID = {};
 
 		// やめたときの行き先(ホームやタイトル)。未設定ならボタンを押しても移らない
-		Engine::GUID m_exitSceneGUID = {};
+		Core::GUID m_exitSceneGUID = {};
 
 		// 閉じるのにも使う入力アクション名。開くのと同じキーにしておく
 		Game::EGameAction m_pauseAction = Game::EGameAction::Pose;

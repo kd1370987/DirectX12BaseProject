@@ -1,21 +1,24 @@
 ﻿#pragma once
-struct NameComponent
+namespace App::Component
 {
-	char name[64] = "Unknown";
-};
+	struct NameComponent
+	{
+		char name[64] = "Unknown";
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<NameComponent>
+struct Engine::ECS::ComponentTraits<App::Component::NameComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		NameComponent& _comp = Engine::Editor::GetValue<NameComponent>(a_pData);
+		App::Component::NameComponent& _comp = Engine::EditorField::GetValue<App::Component::NameComponent>(a_pData);
 		a_ar.Field("name", _comp.name);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		NameComponent& _comp = Engine::Editor::GetValue<NameComponent>(a_context.pData);
-		Engine::Editor::Field("Name", _comp.name, 64);
+		App::Component::NameComponent& _comp = Engine::EditorField::GetValue<App::Component::NameComponent>(a_context.pData);
+		Engine::EditorField::Field("Name", _comp.name, 64);
 	}
 };

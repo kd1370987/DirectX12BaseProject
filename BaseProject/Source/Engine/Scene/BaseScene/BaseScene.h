@@ -97,8 +97,8 @@ namespace Engine::Scene
 		SceneAmbient& RefAmbient() { return m_ambient; }
 		const SceneAmbient& GetAmbient() const { return m_ambient; }
 
-		void SetGUID(const Engine::GUID& a_guid) { m_guid = a_guid; }
-		const Engine::GUID& GetGUID() const { return m_guid; }
+		void SetGUID(const Core::GUID& a_guid) { m_guid = a_guid; }
+		const Core::GUID& GetGUID() const { return m_guid; }
 
 
 	private:
@@ -112,9 +112,9 @@ namespace Engine::Scene
 		SceneAmbient m_ambient = {};
 
 		// 自身のデータの所在
-		Engine::GUID m_guid;
+		Core::GUID m_guid;
 
 		// シーンが開始時に読み込んでおきたいアセットデータ
-		std::vector<Engine::GUID> m_prevLoadAssetGUIDs = {};
+		std::vector<Core::GUID> m_prevLoadAssetGUIDs = {};
 	};
 }

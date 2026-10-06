@@ -1,4 +1,7 @@
 ﻿
 #pragma once
 
-struct AwakeTag {};
+namespace App::Component
+{
+	struct AwakeTag {};
+}

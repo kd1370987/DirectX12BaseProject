@@ -40,14 +40,14 @@ namespace Engine::Resource
 	struct SoundPart
 	{
 		// 音源データ
-		Engine::GUID soundGUID = Engine::DEFAULT_GUID;
+		Core::GUID soundGUID = Core::DEFAULT_GUID;
 
 		// 鳴らし方
 		float vol = 1.0f;
 		bool is3DSound = false;
 
 		// 音が設定されているか : false なら鳴らす側は何もしない
-		bool IsValid() const { return soundGUID != Engine::DEFAULT_GUID; }
+		bool IsValid() const { return soundGUID != Core::DEFAULT_GUID; }
 
 		void Archive(Persistence::Archive& a_ar);
 	};

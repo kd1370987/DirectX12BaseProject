@@ -38,7 +38,7 @@ namespace Engine::Effect
 
 			// 何から発行したかも空にする。
 			// 残しておくと、次に作り直すときに「合っている」と判断されて声が湧かない
-			soundSourceGUID[_i] = Engine::DEFAULT_GUID;
+			soundSourceGUID[_i] = Core::DEFAULT_GUID;
 			soundSource3D[_i] = false;
 		}
 	}

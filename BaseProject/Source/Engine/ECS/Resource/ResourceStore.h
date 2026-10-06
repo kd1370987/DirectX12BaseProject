@@ -2,7 +2,7 @@
 
 #include "ResourceTypeManager.h"
 #include "ResourceWrapper.h"
-#include "Engine/Utility/Debug/DebugLog.h"
+#include "Core/Debug/DebugLog.h"
 
 namespace Engine::ECS
 {

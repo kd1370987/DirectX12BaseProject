@@ -4,7 +4,7 @@
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Persistence/Archive/Archive.h"
 #include "Engine/ECS/System/SystemContext.h"
-#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/EditorField/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 
 // App
 #include "../../../../../ECS/World/APPWorld.h"
@@ -48,10 +48,10 @@ namespace App::Object
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
-		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
-		if (!_world.HasComponent<LocalTransformComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::MoveIntentComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::LocalTransformComponent>(_leader)) return;
 
-		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(_leader)->pos;
+		const Math::Vector3 _pos = _world.RefData<Component::LocalTransformComponent>(_leader)->pos;
 
 		// 目標地点を選び直すか
 		m_wanderTimer -= a_context.pObject->dt;
@@ -74,7 +74,7 @@ namespace App::Object
 			_dir = Math::Vector3(0.0f, 0.0f, 0.0f);
 		}
 
-		_world.RefData<MoveIntentComponent>(_leader)->value = _dir;
+		_world.RefData<Component::MoveIntentComponent>(_leader)->value = _dir;
 	}
 
 	void SwarmBossRandomWalkState::Exit(SwarmBossStateContext& a_context)
@@ -85,9 +85,9 @@ namespace App::Object
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
-		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::MoveIntentComponent>(_leader)) return;
 
-		_world.RefData<MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
+		_world.RefData<Component::MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
 	}
 
 	void SwarmBossRandomWalkState::PickWanderTarget(const Math::Vector3& a_center)
@@ -155,20 +155,20 @@ namespace App::Object
 
 	void SwarmBossRandomWalkState::DrawInspector()
 	{
-		Engine::Editor::Field("徘徊の半径", m_wanderRadius, 0.5f, 0.0f);
-		Engine::Editor::Field("徘徊の高さの振れ幅", m_wanderHeight, 0.5f, 0.0f);
-		Engine::Editor::Field("目標地点を選び直す間隔", m_wanderInterval, 0.1f, 0.0f);
-		Engine::Editor::Field("到着とみなす距離", m_arriveDistance, 0.1f, 0.0f);
-		Engine::Editor::Field("移動入力の強さ", m_throttle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("攻撃までの時間(最短)", m_minDurationTime, 0.1f, 0.0f);
-		Engine::Editor::Field("攻撃までの時間(最長)", m_maxDurationTime, 0.1f, 0.0f);
-		Engine::Editor::Field("抽選の重み : 突進", m_chargeWeight, 0.05f, 0.0f);
-		Engine::Editor::Field("抽選の重み : アッパー", m_uperAttackWeight, 0.05f, 0.0f);
-		Engine::Editor::Field("抽選の重み : ダイブ", m_diveAttackWeight, 0.05f, 0.0f);
-		Engine::Editor::Field("抽選の重み : 巻き付き", m_coilAttackWeight, 0.05f, 0.0f);
+		Engine::EditorField::Field("徘徊の半径", m_wanderRadius, 0.5f, 0.0f);
+		Engine::EditorField::Field("徘徊の高さの振れ幅", m_wanderHeight, 0.5f, 0.0f);
+		Engine::EditorField::Field("目標地点を選び直す間隔", m_wanderInterval, 0.1f, 0.0f);
+		Engine::EditorField::Field("到着とみなす距離", m_arriveDistance, 0.1f, 0.0f);
+		Engine::EditorField::Field("移動入力の強さ", m_throttle, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Field("攻撃までの時間(最短)", m_minDurationTime, 0.1f, 0.0f);
+		Engine::EditorField::Field("攻撃までの時間(最長)", m_maxDurationTime, 0.1f, 0.0f);
+		Engine::EditorField::Field("抽選の重み : 突進", m_chargeWeight, 0.05f, 0.0f);
+		Engine::EditorField::Field("抽選の重み : アッパー", m_uperAttackWeight, 0.05f, 0.0f);
+		Engine::EditorField::Field("抽選の重み : ダイブ", m_diveAttackWeight, 0.05f, 0.0f);
+		Engine::EditorField::Field("抽選の重み : 巻き付き", m_coilAttackWeight, 0.05f, 0.0f);
 
 		// 目標地点は毎フレーム上書きされるので表示のみ
-		Engine::Editor::Value("目標地点", "%.1f, %.1f, %.1f (選び直しまで %.1f 秒)", m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
-		Engine::Editor::Value("次の攻撃", "%.1f / %.1f 秒 -> %s", m_time, m_attackTime, std::string(magic_enum::enum_name(m_nextAttack)).c_str());
+		Engine::EditorField::Value("目標地点", "%.1f, %.1f, %.1f (選び直しまで %.1f 秒)", m_targetPos.x, m_targetPos.y, m_targetPos.z, m_wanderTimer);
+		Engine::EditorField::Value("次の攻撃", "%.1f / %.1f 秒 -> %s", m_time, m_attackTime, std::string(magic_enum::enum_name(m_nextAttack)).c_str());
 	}
 }

@@ -4,7 +4,7 @@
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Persistence/Archive/Archive.h"
 #include "Engine/ECS/System/SystemContext.h"
-#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/EditorField/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
@@ -36,9 +36,9 @@ namespace App::Object
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
-		if (!_world.HasComponent<LocalTransformComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::LocalTransformComponent>(_leader)) return;
 
-		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(_leader)->pos;
+		const Math::Vector3 _pos = _world.RefData<Component::LocalTransformComponent>(_leader)->pos;
 
 		//------------------------------------------------------------------
 		// 球の中心 : 今の位置が赤道の上にあり、今の進行方向(水平)が接線になるところ
@@ -47,9 +47,9 @@ namespace App::Object
 		// 中心から見た今の位置の向き(外向き)は (v.z, 0, -v.x) になる
 		//------------------------------------------------------------------
 		Math::Vector3 _out = Math::Vector3(1.0f, 0.0f, 0.0f);
-		if (_world.HasComponent<ActualVelocityComponent>(_leader))
+		if (_world.HasComponent<Component::ActualVelocityComponent>(_leader))
 		{
-			Math::Vector3 _vel = _world.RefData<ActualVelocityComponent>(_leader)->value;
+			Math::Vector3 _vel = _world.RefData<Component::ActualVelocityComponent>(_leader)->value;
 			_vel.y = 0.0f;
 			if (_vel.LengthSquared() > 1e-4f)
 			{
@@ -66,9 +66,9 @@ namespace App::Object
 		// 高さ : 地表から決まった高さか、地面に埋まらないように持ち上げるだけか
 		// (地面が見つからなければ今の高さのまま)
 		//------------------------------------------------------------------
-		if (_world.HasComponent<SerchGroundComponent>(_leader))
+		if (_world.HasComponent<Component::SerchGroundComponent>(_leader))
 		{
-			const SerchGroundComponent& _ground = *_world.RefData<SerchGroundComponent>(_leader);
+			const Component::SerchGroundComponent& _ground = *_world.RefData<Component::SerchGroundComponent>(_leader);
 			if (_ground.isFoundGround)
 			{
 				m_center.y = (a_centerHeight >= 0.0f)
@@ -85,14 +85,14 @@ namespace App::Object
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
-		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
-		if (!_world.HasComponent<LocalTransformComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::MoveIntentComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::LocalTransformComponent>(_leader)) return;
 
-		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(_leader)->pos;
+		const Math::Vector3 _pos = _world.RefData<Component::LocalTransformComponent>(_leader)->pos;
 
 		// 入力 1 で出る速さ。球の上の目標点をリーダーの速さで進めるのに使う
-		const float _moveSpeed = _world.HasComponent<MovementParamsComponent>(_leader)
-			? _world.RefData<MovementParamsComponent>(_leader)->moveSpeed
+		const float _moveSpeed = _world.HasComponent<Component::MovementParamsComponent>(_leader)
+			? _world.RefData<Component::MovementParamsComponent>(_leader)->moveSpeed
 			: 0.0f;
 
 		m_time        += a_dt;
@@ -124,7 +124,7 @@ namespace App::Object
 			_intent = CalcTargetVelocity(_azimuthSpeed) / _moveSpeed
 				+ (CalcTargetPos() - _pos) * (m_followGain / _moveSpeed);
 		}
-		_world.RefData<MoveIntentComponent>(_leader)->value = _intent;
+		_world.RefData<Component::MoveIntentComponent>(_leader)->value = _intent;
 	}
 
 	Math::Vector3 SwarmBossBallMotion::CalcTargetPos() const
@@ -208,16 +208,16 @@ namespace App::Object
 
 	void SwarmBossBallMotion::DrawInspector()
 	{
-		Engine::Editor::Field("球の半径", m_ballRadius, 0.5f, 0.0f);
-		Engine::Editor::Field("地表との間隔", m_clearance, 0.5f, 0.0f);
-		Engine::Editor::Tooltip("高さを決めないとき、球の下端を地表からこれだけ離す");
-		Engine::Editor::Field("回る速さの倍率", m_speedScale, 0.05f, 0.0f);
-		Engine::Editor::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
-		Engine::Editor::Field("ずれを詰める強さ", m_followGain, 0.05f, 0.0f);
-		Engine::Editor::Field("上下の振れ幅(度)", m_polarAmplitudeDeg, 1.0f, 0.0f, 89.0f);
-		Engine::Editor::Field("上下に1往復する周期", m_polarPeriod, 0.05f, 0.0f);
+		Engine::EditorField::Field("球の半径", m_ballRadius, 0.5f, 0.0f);
+		Engine::EditorField::Field("地表との間隔", m_clearance, 0.5f, 0.0f);
+		Engine::EditorField::Tooltip("高さを決めないとき、球の下端を地表からこれだけ離す");
+		Engine::EditorField::Field("回る速さの倍率", m_speedScale, 0.05f, 0.0f);
+		Engine::EditorField::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
+		Engine::EditorField::Field("ずれを詰める強さ", m_followGain, 0.05f, 0.0f);
+		Engine::EditorField::Field("上下の振れ幅(度)", m_polarAmplitudeDeg, 1.0f, 0.0f, 89.0f);
+		Engine::EditorField::Field("上下に1往復する周期", m_polarPeriod, 0.05f, 0.0f);
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Value("球の中心", "%.1f, %.1f, %.1f (半径 %.1f)", m_center.x, m_center.y, m_center.z, GetRadius());
+		Engine::EditorField::Value("球の中心", "%.1f, %.1f, %.1f (半径 %.1f)", m_center.x, m_center.y, m_center.z, GetRadius());
 	}
 }

@@ -38,6 +38,8 @@ namespace Engine::Graphics
 {
 	// 前方宣言
 	class RenderContext;
+	class SkinningCompute;
+	class ParticleSimulation;
 	class MeshBufferAllocator;
 	class DebugDraw;
 	class BackBuffer;
@@ -330,6 +332,10 @@ namespace Engine::Graphics
 
 		// パーティクルのGPUバッファ。ディスクリプタヒープにハンドルを持つ
 		std::unique_ptr<Particle::ParticleBufferManager> m_upParticleManager = nullptr;
+
+		// カメラに依存しない、フレームに1回のGPU処理(スキニング / パーティクルの発生と更新)
+		std::unique_ptr<SkinningCompute> m_upSkinningCompute = nullptr;
+		std::unique_ptr<ParticleSimulation> m_upParticleSimulation = nullptr;
 
 		// レイトレワールド(TLAS/BLAS・各種バッファ)
 		std::unique_ptr<Raytracing::RayEngine> m_upRayEngine = nullptr;

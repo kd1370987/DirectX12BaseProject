@@ -34,7 +34,7 @@ namespace App::Utility
 		// 0 以下・負(無期限)はアセットの寿命に置き換える
 		//------------------------------------------------------------------
 		const float _lifeTime = a_effectPrefab.GetLifeTime();
-		const auto _lifeTypeID = a_world.GetCompTypeID<LifeTimeComponent>();
+		const auto _lifeTypeID = a_world.GetCompTypeID<Component::LifeTimeComponent>();
 
 		for (Engine::Resource::PrefabInstanceData& _data : _instanceVec)
 		{
@@ -44,7 +44,7 @@ namespace App::Utility
 			uint8_t* _pBuf = EnsureInstanceComponent(a_world, _data, _lifeTypeID);
 			if (!_pBuf) continue;
 
-			LifeTimeComponent _life = {};
+			Component::LifeTimeComponent _life = {};
 			std::memcpy(&_life, _pBuf, sizeof(_life));
 			if (!_isAuthored || _life.value <= 0.0f || _life.value > _lifeTime)
 			{
@@ -54,7 +54,7 @@ namespace App::Utility
 		}
 
 		// ルートのワールド行列 : エフェクトもモデルもここから出るので、入れ忘れを補う
-		EnsureInstanceComponent(a_world, _instanceVec[0], a_world.GetCompTypeID<WorldMatrixComponent>());
+		EnsureInstanceComponent(a_world, _instanceVec[0], a_world.GetCompTypeID<Component::WorldMatrixComponent>());
 
 		if (a_edit) a_edit(a_world, _instanceVec);
 

@@ -26,7 +26,7 @@ namespace Engine::D3D12
 			return false;
 		}
 
-		m_cpPipelineState->SetName(Engine::String::ToWideString(a_desc.name).c_str());
+		m_cpPipelineState->SetName(Core::String::ToWideString(a_desc.name).c_str());
 
 		return true;
 	}
@@ -43,7 +43,7 @@ namespace Engine::D3D12
 			return false;
 		}
 
-		m_cpPipelineState->SetName(Engine::String::ToWideString(a_desc.name).c_str());
+		m_cpPipelineState->SetName(Core::String::ToWideString(a_desc.name).c_str());
 
 		return true;
 	}

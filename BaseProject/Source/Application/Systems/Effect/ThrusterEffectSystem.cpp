@@ -13,180 +13,183 @@
 #include "Application/Components/Effect/BoosterEffectComponent.h"
 #include "Application/Components/Physics/GroundStateComponent.h"
 
-//==========================================================================================
-// ThrusterEffectSystem
-//
-// プレイヤー(AttachmentSlotsComponent 保持者)の移動状態から、
-// スロットが指すブースター子エンティティの噴射 ON/OFF を決める。
-// 子エンティティはこのクエリに含まれないため World::RefData で横断参照する
-// (構造変更は行わないので反復中でも安全)。
-//
-// 噴射の中身は EffectAsset(パーティクル+メッシュ)が持ち、
-// 取り付け位置や吹かしたときの膨らみは BoosterEffectComponent が持つので、
-// ここが伝えるのは「噴いているか」と「ブーストダッシュ中か」の2つだけ。
-//
-// ダッシュ中かを別に配るのは、ジェットの見え方が2段あるため。
-// 通常移動でも噴射は出るので、ON/OFF だけでは歩いている時と
-// 一気に加速した時が同じ絵になってしまう。ダッシュ中はジェットを太らせ、
-// 踏み込んだ瞬間にはスパークを出す。どちらも実際に動かすのは
-// BoosterEffectSystem(Update)で、ここはその材料を渡すだけ。
-//
-// ダッシュ判定に入力の「押した瞬間」(isBoostTriger)を使わないのは、
-// あれがプレイヤー入力でしか立たないため。ボスのように isBoostIntent だけ
-// 立てて噴射に入る相手でも同じ演出が出るよう、BoostSoundSystem と同じく
-// 「実際に推力が出ているか」で見る(立ち上がりは受け取った側が見る)。
-//
-// 接地して歩いている間(水平に動いているだけで、ブースト・上昇・チャージダッシュを
-// していない)は噴射しない。歩きはアニメーションで見せるので、足元から火を吹くと
-// 飛んでいるように見えてしまう。接地判定(GroundStateComponent)を持たない機体は
-// 今まで通り、動いていれば噴射する。
-//
-// 以前はブースターに ParticlesComponent を直に付けていて、
-// それ向けの分岐もここにあったが、ブースターは全て EffectAsset へ移したので消した。
-//==========================================================================================
-void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	a_world.ActiveTask<const AttachmentSlotsComponent, const MoveIntentComponent, const DesiredVelocityComponent, const BoostParamsComponent, const BoostIntentComponent, const BoostStateComponent>(
-		Engine::ECS::ESystemType::PreUpdate,
-		"ThrusterEffectSystem",
-		[]
-		(
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			ActiveTag* a_tags,
-			const AttachmentSlotsComponent* a_slotsArray,
-			const MoveIntentComponent* a_moveArray,
-			const DesiredVelocityComponent* a_velocityArray,
-			const BoostParamsComponent* a_boostArray,
-			const BoostIntentComponent* a_boostIntentArray,
-			const BoostStateComponent* a_boostStateArray
-			)
-		{
-			// 微小な速度ノイズで点火しないための閾値
-			constexpr float MOVE_EPS = 0.1f;	// 水平移動とみなす速さ
-			constexpr float RISE_EPS = 0.1f;	// 上昇とみなす速度
-
-			// ブースター子へ噴射の ON/OFF とダッシュ中かを配る。
-			// RefData は持っていないコンポーネントなら nullptr を返す。
-			// BoosterEffectComponent を付けていないブースターもあり得るので、
-			// 2つは別々に確かめる(付いていない側は黙って飛ばす)
-			auto _driveBooster = [&a_ctx](Engine::ECS::Entity a_e, bool a_on, bool a_isBoosting,
-				float a_chargeRate, bool a_isChargeDashing)
+	//==========================================================================================
+	// ThrusterEffectSystem
+	//
+	// プレイヤー(AttachmentSlotsComponent 保持者)の移動状態から、
+	// スロットが指すブースター子エンティティの噴射 ON/OFF を決める。
+	// 子エンティティはこのクエリに含まれないため World::RefData で横断参照する
+	// (構造変更は行わないので反復中でも安全)。
+	//
+	// 噴射の中身は EffectAsset(パーティクル+メッシュ)が持ち、
+	// 取り付け位置や吹かしたときの膨らみは BoosterEffectComponent が持つので、
+	// ここが伝えるのは「噴いているか」と「ブーストダッシュ中か」の2つだけ。
+	//
+	// ダッシュ中かを別に配るのは、ジェットの見え方が2段あるため。
+	// 通常移動でも噴射は出るので、ON/OFF だけでは歩いている時と
+	// 一気に加速した時が同じ絵になってしまう。ダッシュ中はジェットを太らせ、
+	// 踏み込んだ瞬間にはスパークを出す。どちらも実際に動かすのは
+	// BoosterEffectSystem(Update)で、ここはその材料を渡すだけ。
+	//
+	// ダッシュ判定に入力の「押した瞬間」(isBoostTriger)を使わないのは、
+	// あれがプレイヤー入力でしか立たないため。ボスのように isBoostIntent だけ
+	// 立てて噴射に入る相手でも同じ演出が出るよう、BoostSoundSystem と同じく
+	// 「実際に推力が出ているか」で見る(立ち上がりは受け取った側が見る)。
+	//
+	// 接地して歩いている間(水平に動いているだけで、ブースト・上昇・チャージダッシュを
+	// していない)は噴射しない。歩きはアニメーションで見せるので、足元から火を吹くと
+	// 飛んでいるように見えてしまう。接地判定(GroundStateComponent)を持たない機体は
+	// 今まで通り、動いていれば噴射する。
+	//
+	// 以前はブースターに ParticlesComponent を直に付けていて、
+	// それ向けの分岐もここにあったが、ブースターは全て EffectAsset へ移したので消した。
+	//==========================================================================================
+	void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		a_world.ActiveTask<const Component::AttachmentSlotsComponent, const Component::MoveIntentComponent, const Component::DesiredVelocityComponent, const Component::BoostParamsComponent, const Component::BoostIntentComponent, const Component::BoostStateComponent>(
+			Engine::ECS::ESystemType::PreUpdate,
+			"ThrusterEffectSystem",
+			[]
+			(
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::ActiveTag* a_tags,
+				const Component::AttachmentSlotsComponent* a_slotsArray,
+				const Component::MoveIntentComponent* a_moveArray,
+				const Component::DesiredVelocityComponent* a_velocityArray,
+				const Component::BoostParamsComponent* a_boostArray,
+				const Component::BoostIntentComponent* a_boostIntentArray,
+				const Component::BoostStateComponent* a_boostStateArray
+				)
 			{
-				if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return;
+				// 微小な速度ノイズで点火しないための閾値
+				constexpr float MOVE_EPS = 0.1f;	// 水平移動とみなす速さ
+				constexpr float RISE_EPS = 0.1f;	// 上昇とみなす速度
 
-				if (a_ctx.pWorld->HasComponent<EffectPlayRequestComponent>(a_e))
+				// ブースター子へ噴射の ON/OFF とダッシュ中かを配る。
+				// RefData は持っていないコンポーネントなら nullptr を返す。
+				// BoosterEffectComponent を付けていないブースターもあり得るので、
+				// 2つは別々に確かめる(付いていない側は黙って飛ばす)
+				auto _driveBooster = [&a_ctx](Engine::ECS::Entity a_e, bool a_on, bool a_isBoosting,
+					float a_chargeRate, bool a_isChargeDashing)
 				{
-					if (auto* _pEffect = a_ctx.pWorld->RefData<EffectPlayRequestComponent>(a_e))
-					{
-						_pEffect->isPlay = a_on;
-					}
-				}
+					if (a_e == Engine::ECS::Limits::INVALID_ENTITY) return;
 
-				if (a_ctx.pWorld->HasComponent<BoosterEffectComponent>(a_e))
+					if (a_ctx.pWorld->HasComponent<Component::EffectPlayRequestComponent>(a_e))
+					{
+						if (auto* _pEffect = a_ctx.pWorld->RefData<Component::EffectPlayRequestComponent>(a_e))
+						{
+							_pEffect->isPlay = a_on;
+						}
+					}
+
+					if (a_ctx.pWorld->HasComponent<Component::BoosterEffectComponent>(a_e))
+					{
+						if (auto* _pBooster = a_ctx.pWorld->RefData<Component::BoosterEffectComponent>(a_e))
+						{
+							_pBooster->isBoosting = a_isBoosting;
+							_pBooster->chargeRate = a_chargeRate;
+							_pBooster->isChargeDashing = a_isChargeDashing;
+						}
+					}
+				};
+
+				for (size_t _i = 0; _i < a_count; ++_i)
 				{
-					if (auto* _pBooster = a_ctx.pWorld->RefData<BoosterEffectComponent>(a_e))
+					const Component::AttachmentSlotsComponent& _slots = a_slotsArray[_i];
+					const Component::MoveIntentComponent& _move = a_moveArray[_i];
+					const Component::DesiredVelocityComponent& _velocity = a_velocityArray[_i];
+					const Component::BoostParamsComponent& _boost = a_boostArray[_i];
+
+					// ---- 移動状態の判定 ----
+
+					// 入力で即応させつつ、実速度でも判定する
+					bool _inputMoving =
+						(_move.value.x != 0.0f) || (_move.value.z != 0.0f);
+
+					float _hSpeedSq =
+						_velocity.value.x * _velocity.value.x +
+						_velocity.value.z * _velocity.value.z;
+
+					bool _moving = _inputMoving || (_hSpeedSq > MOVE_EPS * MOVE_EPS);	// 水平移動
+					bool _rising = _velocity.value.y > RISE_EPS;						// 上昇(ジャンプ/上昇ブースト)
+
+					// ブースト中か : 入力が入っていて、かつ燃料が使用量を上回っている
+					// (RobotBoostSystem の推力適用条件に合わせている)
+					bool _boosting = a_boostIntentArray[_i].isBoostIntent && (a_boostStateArray[_i].currentFuel > _boost.boostFuel);
+
+					//--------------------------------------------------------------
+					// チャージダッシュの溜め具合と、撃ち出し中か
+					//
+					// ChargeDashComponent はクエリに入れず、持っている機体からだけ拾う。
+					// クエリに足すと、付けていない機体(敵・ボス)のブースターが
+					// 丸ごとこのシステムの対象から外れて噴射しなくなってしまう。
+					//
+					// RefData は持っていないコンポーネントなら nullptr を返す
+					//--------------------------------------------------------------
+					float _chargeRate = 0.0f;
+					bool  _chargeDashing = false;
+
+					const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
+					if (a_ctx.pWorld->HasComponent<Component::ChargeDashComponent>(_self))
 					{
-						_pBooster->isBoosting = a_isBoosting;
-						_pBooster->chargeRate = a_chargeRate;
-						_pBooster->isChargeDashing = a_isChargeDashing;
+						if (const auto* _pChargeDash = a_ctx.pWorld->RefData<Component::ChargeDashComponent>(_self))
+						{
+							_chargeRate = _pChargeDash->charge01;
+							_chargeDashing = _pChargeDash->isDashing;
+						}
 					}
-				}
-			};
 
-			for (size_t _i = 0; _i < a_count; ++_i)
-			{
-				const AttachmentSlotsComponent& _slots = a_slotsArray[_i];
-				const MoveIntentComponent& _move = a_moveArray[_i];
-				const DesiredVelocityComponent& _velocity = a_velocityArray[_i];
-				const BoostParamsComponent& _boost = a_boostArray[_i];
+					// ---- スラスター2系統の点火判定 ----
 
-				// ---- 移動状態の判定 ----
+					// 脚 : 通常移動・上昇のメイン推進
+					bool _legOn = _moving || _rising || _boosting;
 
-				// 入力で即応させつつ、実速度でも判定する
-				bool _inputMoving =
-					(_move.value.x != 0.0f) || (_move.value.z != 0.0f);
+					// 肩 : ブースト時のアフターバーナー
+					bool _shoulderOn = _boosting;
 
-				float _hSpeedSq =
-					_velocity.value.x * _velocity.value.x +
-					_velocity.value.z * _velocity.value.z;
+					// 溜めている間と撃ち出している間も点火しておく。
+					// 溜めは「少しずつ太っていく」ことで見せるので、
+					// 消えたままだと膨らむ様子がそもそも出ない
+					bool _charging = (_chargeRate > 0.0f);
 
-				bool _moving = _inputMoving || (_hSpeedSq > MOVE_EPS * MOVE_EPS);	// 水平移動
-				bool _rising = _velocity.value.y > RISE_EPS;						// 上昇(ジャンプ/上昇ブースト)
-
-				// ブースト中か : 入力が入っていて、かつ燃料が使用量を上回っている
-				// (RobotBoostSystem の推力適用条件に合わせている)
-				bool _boosting = a_boostIntentArray[_i].isBoostIntent && (a_boostStateArray[_i].currentFuel > _boost.boostFuel);
-
-				//--------------------------------------------------------------
-				// チャージダッシュの溜め具合と、撃ち出し中か
-				//
-				// ChargeDashComponent はクエリに入れず、持っている機体からだけ拾う。
-				// クエリに足すと、付けていない機体(敵・ボス)のブースターが
-				// 丸ごとこのシステムの対象から外れて噴射しなくなってしまう。
-				//
-				// RefData は持っていないコンポーネントなら nullptr を返す
-				//--------------------------------------------------------------
-				float _chargeRate = 0.0f;
-				bool  _chargeDashing = false;
-
-				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
-				if (a_ctx.pWorld->HasComponent<ChargeDashComponent>(_self))
-				{
-					if (const auto* _pChargeDash = a_ctx.pWorld->RefData<ChargeDashComponent>(_self))
+					//--------------------------------------------------------------
+					// 接地しているか
+					//
+					// GroundStateComponent はクエリに入れず、持っている機体からだけ拾う
+					// (持たない機体をこのシステムの対象から外さないため)。
+					// 接地中の水平移動は歩きなので、それだけでは点火しない
+					//--------------------------------------------------------------
+					bool _isGround = false;
+					if (a_ctx.pWorld->HasComponent<Component::GroundStateComponent>(_self))
 					{
-						_chargeRate = _pChargeDash->charge01;
-						_chargeDashing = _pChargeDash->isDashing;
+						if (const auto* _pGround = a_ctx.pWorld->RefData<Component::GroundStateComponent>(_self))
+						{
+							_isGround = _pGround->isGround;
+						}
 					}
+					const bool _flyMoving = _moving && !_isGround;
+
+					bool _boostOn = _flyMoving || _rising || _boosting || _charging || _chargeDashing;
+
+					// ダッシュ中はブースト時と同じ太さにもする。
+					// 撃ち出しの長さ(dashLengthScale)だけだと束が細いまま前に伸びて、
+					// 一番速い場面なのに噴射が痩せて見えてしまう
+					bool _fatJet = _boosting || _chargeDashing;
+
+					// ---- ブースタースロットへ配信 ----
+					_driveBooster(_slots.rightLegBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
+					_driveBooster(_slots.leftLegBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
+					_driveBooster(_slots.rightShoulderBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
+					_driveBooster(_slots.leftShoulderBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
 				}
-
-				// ---- スラスター2系統の点火判定 ----
-
-				// 脚 : 通常移動・上昇のメイン推進
-				bool _legOn = _moving || _rising || _boosting;
-
-				// 肩 : ブースト時のアフターバーナー
-				bool _shoulderOn = _boosting;
-
-				// 溜めている間と撃ち出している間も点火しておく。
-				// 溜めは「少しずつ太っていく」ことで見せるので、
-				// 消えたままだと膨らむ様子がそもそも出ない
-				bool _charging = (_chargeRate > 0.0f);
-
-				//--------------------------------------------------------------
-				// 接地しているか
-				//
-				// GroundStateComponent はクエリに入れず、持っている機体からだけ拾う
-				// (持たない機体をこのシステムの対象から外さないため)。
-				// 接地中の水平移動は歩きなので、それだけでは点火しない
-				//--------------------------------------------------------------
-				bool _isGround = false;
-				if (a_ctx.pWorld->HasComponent<GroundStateComponent>(_self))
-				{
-					if (const auto* _pGround = a_ctx.pWorld->RefData<GroundStateComponent>(_self))
-					{
-						_isGround = _pGround->isGround;
-					}
-				}
-				const bool _flyMoving = _moving && !_isGround;
-
-				bool _boostOn = _flyMoving || _rising || _boosting || _charging || _chargeDashing;
-
-				// ダッシュ中はブースト時と同じ太さにもする。
-				// 撃ち出しの長さ(dashLengthScale)だけだと束が細いまま前に伸びて、
-				// 一番速い場面なのに噴射が痩せて見えてしまう
-				bool _fatJet = _boosting || _chargeDashing;
-
-				// ---- ブースタースロットへ配信 ----
-				_driveBooster(_slots.rightLegBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
-				_driveBooster(_slots.leftLegBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
-				_driveBooster(_slots.rightShoulderBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
-				_driveBooster(_slots.leftShoulderBoost.id, _boostOn, _fatJet, _chargeRate, _chargeDashing);
 			}
-		}
-	)
-	// 絞り込みに使わない読み書き : 自分の溜め具合を読み、子(ブースター)の噴射へ RefData で配る
-	.Reads<ChargeDashComponent, GroundStateComponent>()
-	.Writes<EffectPlayRequestComponent, BoosterEffectComponent>();
+		)
+		// 絞り込みに使わない読み書き : 自分の溜め具合を読み、子(ブースター)の噴射へ RefData で配る
+		.Reads<Component::ChargeDashComponent, Component::GroundStateComponent>()
+		.Writes<Component::EffectPlayRequestComponent, Component::BoosterEffectComponent>();
+	}
 }

@@ -1,3 +1,6 @@
 ﻿#pragma once
 
-struct CameraControllTag{};
+namespace App::Component
+{
+	struct CameraControllTag{};
+}

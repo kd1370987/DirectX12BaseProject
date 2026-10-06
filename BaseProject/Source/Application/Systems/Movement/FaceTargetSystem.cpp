@@ -8,84 +8,87 @@
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Combat/HealthComponent.h"
 
-//==============================================================================
-// FaceTargetSystem
-//
-// 戦闘モードの敵(TargetEntityComponent.isFind == true)を、
-// プレイヤーの方向へ滑らかに旋回させる。
-//
-// ・旋回は Y 軸まわり(Yaw)のみ。上下に傾かないよう方向は水平化する。
-// ・このエンジンは左手系でローカル +Z が前方。RotationSystem と同じく
-//   Yaw = atan2(dir.x, dir.z) で目標角を作り、Slerp で追従する。
-// ・姿勢を書く他システムとの住み分け:
-//     RotationSystem       … LookAngleComponent 保持者(プレイヤー以外)
-//     LockOnRotationSystem … PlayerControllTag 保持者
-//   ザコ敵は LookAngleComponent を持たないので、ここで quat を書いても競合しない。
-//   逆に LookAngleComponent を持つ側(ボスなど)は、視線角を自分で更新して姿勢の
-//   書き込みは RotationSystem に任せる作りになっているので、ここでは除外する。
-//   除外しないと同じ quat を2つのシステムが書き、実行順が登録順頼みになってしまう。
-// ・死亡中は旋回しない(LockOnRotationSystem と同じ)。
-//   HealthComponent を持たない敵は死なないので、常に旋回する。
-// ・Update 帯に置く。書いた quat は PostUpdate の行列計算で反映される。
-//==============================================================================
-void FaceTargetSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
-	a_world.ActiveJobTask<const TargetEntityComponent, LocalTransformComponent>(
-		Engine::ECS::ESystemType::Update,
-		"FaceTargetSystem",
-		[](
-			Engine::ECS::Chunk*      a_pChunk,
-			uint32_t                          a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			ActiveTag*                        a_tags,
-			const TargetEntityComponent*      a_targetArray,
-			LocalTransformComponent*          a_trsArray
-		)
-		{
-			// 旋回速度(1秒あたりの補間強度。RotationSystem に合わせた値)
-			constexpr float TURN_SPEED = 10.0f;
-
-			for (size_t _i = 0; _i < a_count; ++_i)
+	//==============================================================================
+	// FaceTargetSystem
+	//
+	// 戦闘モードの敵(TargetEntityComponent.isFind == true)を、
+	// プレイヤーの方向へ滑らかに旋回させる。
+	//
+	// ・旋回は Y 軸まわり(Yaw)のみ。上下に傾かないよう方向は水平化する。
+	// ・このエンジンは左手系でローカル +Z が前方。RotationSystem と同じく
+	//   Yaw = atan2(dir.x, dir.z) で目標角を作り、Slerp で追従する。
+	// ・姿勢を書く他システムとの住み分け:
+	//     RotationSystem       … LookAngleComponent 保持者(プレイヤー以外)
+	//     LockOnRotationSystem … PlayerControllTag 保持者
+	//   ザコ敵は LookAngleComponent を持たないので、ここで quat を書いても競合しない。
+	//   逆に LookAngleComponent を持つ側(ボスなど)は、視線角を自分で更新して姿勢の
+	//   書き込みは RotationSystem に任せる作りになっているので、ここでは除外する。
+	//   除外しないと同じ quat を2つのシステムが書き、実行順が登録順頼みになってしまう。
+	// ・死亡中は旋回しない(LockOnRotationSystem と同じ)。
+	//   HealthComponent を持たない敵は死なないので、常に旋回する。
+	// ・Update 帯に置く。書いた quat は PostUpdate の行列計算で反映される。
+	//==============================================================================
+	void FaceTargetSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		// 自分のチャンクの値だけを書く(ほかのエンティティは RefData で読むだけ)ので、ワーカーで回す
+		a_world.ActiveJobTask<const Component::TargetEntityComponent, Component::LocalTransformComponent>(
+			Engine::ECS::ESystemType::Update,
+			"FaceTargetSystem",
+			[](
+				Engine::ECS::Chunk*      a_pChunk,
+				uint32_t                          a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::ActiveTag*                        a_tags,
+				const Component::TargetEntityComponent*      a_targetArray,
+				Component::LocalTransformComponent*          a_trsArray
+			)
 			{
-				const TargetEntityComponent& _target = a_targetArray[_i];
-				LocalTransformComponent&     _trs    = a_trsArray[_i];
+				// 旋回速度(1秒あたりの補間強度。RotationSystem に合わせた値)
+				constexpr float TURN_SPEED = 10.0f;
 
-				// 死んだら向きを変えない
-				if (IsDeadEntity(*a_ctx.pWorld, a_pChunk->entityData[_i])) continue;
+				for (size_t _i = 0; _i < a_count; ++_i)
+				{
+					const Component::TargetEntityComponent& _target = a_targetArray[_i];
+					Component::LocalTransformComponent&     _trs    = a_trsArray[_i];
 
-				// 視認していないときは旋回しない
-				if (!_target.isFind) continue;
-				if (_target.targetEntity == Engine::ECS::Limits::INVALID_ENTITY) continue;
-				if (!a_ctx.pWorld->HasComponent<WorldMatrixComponent>(_target.targetEntity)) continue;
+					// 死んだら向きを変えない
+					if (Component::IsDeadEntity(*a_ctx.pWorld, a_pChunk->entityData[_i])) continue;
 
-				const auto* _pPlayerWorld =
-					a_ctx.pWorld->RefData<WorldMatrixComponent>(_target.targetEntity);
-				if (!_pPlayerWorld) continue;
+					// 視認していないときは旋回しない
+					if (!_target.isFind) continue;
+					if (_target.targetEntity == Engine::ECS::Limits::INVALID_ENTITY) continue;
+					if (!a_ctx.pWorld->HasComponent<Component::WorldMatrixComponent>(_target.targetEntity)) continue;
 
-				Math::Vector3 _playerPos = Math::Matrix(_pPlayerWorld->worldMat).Translation();
+					const auto* _pPlayerWorld =
+						a_ctx.pWorld->RefData<Component::WorldMatrixComponent>(_target.targetEntity);
+					if (!_pPlayerWorld) continue;
 
-				// 対象への水平方向(Y を無視)
-				Math::Vector3 _dir = _playerPos - Math::Vector3(_trs.pos);
-				_dir.y = 0.0f;
+					Math::Vector3 _playerPos = Math::Matrix(_pPlayerWorld->worldMat).Translation();
 
-				float _lenSq = _dir.LengthSquared();
-				if (!(_lenSq > 1e-6f)) continue;	// 真上/真下・同一座標は旋回不能
-				_dir /= std::sqrt(_lenSq);
+					// 対象への水平方向(Y を無視)
+					Math::Vector3 _dir = _playerPos - Math::Vector3(_trs.pos);
+					_dir.y = 0.0f;
 
-				// 左手系 +Z 前方: Yaw = atan2(x, z)
-				float _targetYaw = std::atan2(_dir.x, _dir.z);
-				const Math::Quaternion _targetQuat =
-					Math::Quaternion::CreateFromYawPitchRoll(_targetYaw, 0.0f, 0.0f);
+					float _lenSq = _dir.LengthSquared();
+					if (!(_lenSq > 1e-6f)) continue;	// 真上/真下・同一座標は旋回不能
+					_dir /= std::sqrt(_lenSq);
 
-				// 現在の姿勢から Slerp で滑らかに追従
-				const float _t = std::min(TURN_SPEED * a_ctx.dt, 1.0f);
-				_trs.quat = Math::Quaternion::Slerp(_trs.quat, _targetQuat, _t);
-				_trs.isDirty = true;	// 停止中でも行列を再構築させる
-			}
-		},
-		Engine::ECS::Exclude<LookAngleComponent>{}
-	)
-	// 絞り込みに使わない読み : 死亡判定(IsDeadEntity)とターゲットの位置
-	.Reads<HealthComponent, WorldMatrixComponent>();
+					// 左手系 +Z 前方: Yaw = atan2(x, z)
+					float _targetYaw = std::atan2(_dir.x, _dir.z);
+					const Math::Quaternion _targetQuat =
+						Math::Quaternion::CreateFromYawPitchRoll(_targetYaw, 0.0f, 0.0f);
+
+					// 現在の姿勢から Slerp で滑らかに追従
+					const float _t = std::min(TURN_SPEED * a_ctx.dt, 1.0f);
+					_trs.quat = Math::Quaternion::Slerp(_trs.quat, _targetQuat, _t);
+					_trs.isDirty = true;	// 停止中でも行列を再構築させる
+				}
+			},
+			Engine::ECS::Exclude<Component::LookAngleComponent>{}
+		)
+		// 絞り込みに使わない読み : 死亡判定(IsDeadEntity)とターゲットの位置
+		.Reads<Component::HealthComponent, Component::WorldMatrixComponent>();
+	}
 }

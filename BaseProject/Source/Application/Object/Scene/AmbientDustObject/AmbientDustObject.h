@@ -20,7 +20,7 @@ namespace App::Object
 	struct Dast
 	{
 		// 出すエフェクト。未設定ならチリは出ない
-		Engine::GUID effectGUID = Engine::DEFAULT_GUID;
+		Core::GUID effectGUID = Core::DEFAULT_GUID;
 
 		Engine::ResourceRef<Engine::Resource::EffectAsset> m_effectAsset = {};		// エフェクト
 		Math::Color m_colorScale = { 1.0f, 1.0f, 1.0f, 1.0f };						// 色スケール
@@ -115,7 +115,7 @@ namespace App::Object
 
 		// チリのエンティティを作ったときのエフェクト。
 		// 設定を差し替えられたらこれとの差で気付いて作り直す
-		Engine::GUID m_dastSpawnedGUID = Engine::DEFAULT_GUID;
+		Core::GUID m_dastSpawnedGUID = Core::DEFAULT_GUID;
 
 		// center をカメラの位置へ合わせ終わったか。
 		// 立つまでは追従させず、その場でカメラへ置く

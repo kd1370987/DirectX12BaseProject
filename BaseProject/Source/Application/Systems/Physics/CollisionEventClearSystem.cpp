@@ -3,24 +3,27 @@
 #include "Application/ECS/World/APPWorld.h"
 #include "Engine/ECS/Component/CollisionEvent.h"
 
-void CollisionEventClearSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	// 自分のチャンクの配列を消すだけ(ボイド数千体ぶん)なので、ワーカーで回す
-	a_world.ActiveJobTask<Engine::ECS::CollisionEvent>(
-		Engine::ECS::ESystemType::PreUpdate,
-		"CollisionEventClearSystem",
-		[](
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			ActiveTag* a_tags,
-			Engine::ECS::CollisionEvent* a_eventArray
-			)
-		{
-			for (size_t _i = 0; _i < a_count; ++_i)
+	void CollisionEventClearSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		// 自分のチャンクの配列を消すだけ(ボイド数千体ぶん)なので、ワーカーで回す
+		a_world.ActiveJobTask<Engine::ECS::CollisionEvent>(
+			Engine::ECS::ESystemType::PreUpdate,
+			"CollisionEventClearSystem",
+			[](
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::ActiveTag* a_tags,
+				Engine::ECS::CollisionEvent* a_eventArray
+				)
 			{
-				a_eventArray[_i].other = Engine::ECS::Limits::INVALID_ENTITY;
+				for (size_t _i = 0; _i < a_count; ++_i)
+				{
+					a_eventArray[_i].other = Engine::ECS::Limits::INVALID_ENTITY;
+				}
 			}
-		}
-	);
+		);
+	}
 }

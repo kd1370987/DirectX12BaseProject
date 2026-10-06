@@ -1,2 +1,5 @@
 ﻿#pragma once
-struct EnemyTag {}; 
+namespace App::Component
+{
+	struct EnemyTag {}; 
+}

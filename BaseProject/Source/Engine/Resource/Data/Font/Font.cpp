@@ -514,7 +514,7 @@ namespace Engine::Resource
 
 		// 1文字ごとに転送していては本数が増えるので、まとめて焼いてから1回だけ送る
 		m_isBatching = true;
-		for (const uint32_t _codePoint : Engine::String::ToCodePoints(a_utf8Text))
+		for (const uint32_t _codePoint : Core::String::ToCodePoints(a_utf8Text))
 		{
 			RequestGlyph(_codePoint);
 		}
@@ -560,7 +560,7 @@ namespace Engine::Resource
 		int _lineCount = 1;
 		uint32_t _prevCodePoint = 0;
 
-		for (const uint32_t _codePoint : Engine::String::ToCodePoints(a_utf8Text))
+		for (const uint32_t _codePoint : Core::String::ToCodePoints(a_utf8Text))
 		{
 			if (_codePoint == '\n')
 			{

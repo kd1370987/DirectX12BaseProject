@@ -35,23 +35,23 @@ namespace Engine::Option::GraphicsOptions
 		void DrawEdit(const ECS::EngineServices&) override
 		{
 			// テンポラルデノイズ
-			Engine::Editor::Header("Temporal Denoise");
+			Engine::EditorField::Header("Temporal Denoise");
 			{
 				// TANormal は dot積(最大1.0)と比較するしきい値。
 				// ここに 32 のような「pow()の指数」用の値を入れると dot < 32 が常に成立して
 				// 履歴が毎フレーム全部捨てられ、テンポラルデノイズが完全に無効化される。
 				// 事故を防ぐため上限を 1.0 に固定する。
-				Engine::Editor::Field("TADepth", TAphiDepth, 0.005f, 0.0f, 1.0f);
-				Engine::Editor::Field("TANormal", TAphiNormal, 0.005f, 0.0f, 1.0f);
-				Engine::Editor::Field("TABlendRate", TAblendRate, 0.01f, 0.0f, 1.0f);
+				Engine::EditorField::Field("TADepth", TAphiDepth, 0.005f, 0.0f, 1.0f);
+				Engine::EditorField::Field("TANormal", TAphiNormal, 0.005f, 0.0f, 1.0f);
+				Engine::EditorField::Field("TABlendRate", TAblendRate, 0.01f, 0.0f, 1.0f);
 			}
 
 			// スペースデノイズセッティング
-			Engine::Editor::Header("Spatial Denoise");
+			Engine::EditorField::Header("Spatial Denoise");
 			// こちらの Normal は pow() の指数なので 1 を超える値でよい
-			Engine::Editor::Field("Depth", phiDepth, 0.005f, 0.0f, 1.0f);
-			Engine::Editor::Field("Normal", phiNormal, 0.5f, 0.0f, 256.0f);
-			Engine::Editor::Field("Color", phiColor, 0.1f, 0.0f, 100.0f);
+			Engine::EditorField::Field("Depth", phiDepth, 0.005f, 0.0f, 1.0f);
+			Engine::EditorField::Field("Normal", phiNormal, 0.5f, 0.0f, 256.0f);
+			Engine::EditorField::Field("Color", phiColor, 0.1f, 0.0f, 100.0f);
 		}
 
 		// アーカイブ

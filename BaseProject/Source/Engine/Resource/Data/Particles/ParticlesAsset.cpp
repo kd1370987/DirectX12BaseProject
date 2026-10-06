@@ -98,8 +98,8 @@ namespace Engine::Resource
 
 	void ParticlesAsset::Save(const std::string& a_filePath)
 	{
-		auto _fileDir = Engine::File::GetDirFromPath(a_filePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
+		auto _fileDir = Core::File::GetDirFromPath(a_filePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_filePath);
 		Persistence::Archive _archi(Persistence::Archive::EMode::Save, _fileDir, _fileName, "ptic");
 
 		Archive(_archi);
@@ -115,8 +115,8 @@ namespace Engine::Resource
 
 	void ParticlesAsset::Load(const std::string& a_filePath, ResourceManager& a_resourceManager)
 	{
-		auto _fileDir = Engine::File::GetDirFromPath(a_filePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
+		auto _fileDir = Core::File::GetDirFromPath(a_filePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_filePath);
 
 		Load(_fileDir, _fileName, a_resourceManager);
 	}

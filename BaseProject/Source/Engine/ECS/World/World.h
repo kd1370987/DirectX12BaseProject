@@ -88,7 +88,7 @@ namespace Engine::ECS
 
 		// GUID からエンティティを探す。
 		// 基盤は識別子を持たないので常に INVALID_ENTITY。GUID を持つ層が override する
-		virtual Entity GetEntity(const Engine::GUID& a_guid);
+		virtual Entity GetEntity(const Core::GUID& a_guid);
 
 		// シグネチャの取得 : 居なければ空
 		Signature GetSignature(const Entity& a_entity) const;

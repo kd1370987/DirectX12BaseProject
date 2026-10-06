@@ -166,7 +166,7 @@ namespace Engine::Resource
 	struct EffectParticlePart
 	{
 		// ---- 何を出すか ----
-		Engine::GUID particleGUID = Engine::DEFAULT_GUID;
+		Core::GUID particleGUID = Core::DEFAULT_GUID;
 		Handle<ParticlesAsset> particleHandle = {};		// ランタイム用(読み込み時に解決)
 
 		// ---- どこから出すか ----
@@ -202,7 +202,7 @@ namespace Engine::Resource
 		// ---- 出したあと、どの座標系で回すか ----
 		EEffectSimulationSpace simulationSpace = EEffectSimulationSpace::Inherit;
 
-		bool IsValid() const { return particleGUID != Engine::DEFAULT_GUID; }
+		bool IsValid() const { return particleGUID != Core::DEFAULT_GUID; }
 
 		/// <summary>
 		/// 発生源の座標系で回すか(パーツの上書き → パーティクルアセットの設定の順で決める)
@@ -219,7 +219,7 @@ namespace Engine::Resource
 	struct EffectMeshPart
 	{
 		// ---- 何を出すか ----
-		Engine::GUID modelGUID = Engine::DEFAULT_GUID;
+		Core::GUID modelGUID = Core::DEFAULT_GUID;
 		Handle<Model> modelHandle = {};					// ランタイム用(読み込み時に解決)
 
 		// ---- どこに出すか : 相手の行列基準のローカル配置 ----
@@ -241,7 +241,7 @@ namespace Engine::Resource
 		float endAlpha = 1.0f;							// duration の終わりでの不透明度
 		float endEmissiveIntensity = 0.0f;				// duration の終わりでの発光の強さ
 
-		bool IsValid() const { return modelGUID != Engine::DEFAULT_GUID; }
+		bool IsValid() const { return modelGUID != Core::DEFAULT_GUID; }
 
 		void Archive(Persistence::Archive& a_ar);
 	};
@@ -252,7 +252,7 @@ namespace Engine::Resource
 	struct EffectSoundPart
 	{
 		// ---- 何を鳴らすか ----
-		Engine::GUID soundGUID = Engine::DEFAULT_GUID;
+		Core::GUID soundGUID = Core::DEFAULT_GUID;
 		Handle<Sound> soundHandle = {};	// ランタイム用(読み込み時に解決)。
 										// 鳴らす瞬間に波形の読み込みが走らないよう先に持っておく
 
@@ -285,7 +285,7 @@ namespace Engine::Resource
 		float minInterval = 0.0f;	// 前回鳴らしてからこの秒数が経つまでは鳴らさない(0 で制限なし)
 		int   maxConcurrent = 0;	// 同時に鳴っている数の上限(0 で制限なし)
 
-		bool IsValid() const { return soundGUID != Engine::DEFAULT_GUID; }
+		bool IsValid() const { return soundGUID != Core::DEFAULT_GUID; }
 
 		void Archive(Persistence::Archive& a_ar);
 	};

@@ -73,7 +73,7 @@ namespace App::Object
 		_pAudioManager->ReleaseSoundInstance(m_soundHandle);
 		m_soundHandle = {};
 
-		if (m_soundGUID == Engine::DEFAULT_GUID) return;
+		if (m_soundGUID == Core::DEFAULT_GUID) return;
 
 		// 画面に出す音なので 2D で発行する(定位を付けない)
 		m_soundHandle = _pAudioManager->RequestSoundInstance(m_soundGUID, false);
@@ -115,9 +115,9 @@ namespace App::Object
 
 		auto* _pWorld = a_context.pWorld;
 		if (!_pWorld) return;
-		if (!_pWorld->HasResource<HitEventResource>()) return;
+		if (!_pWorld->HasResource<InstanceResource::HitEventResource>()) return;
 
-		const HitEventResource& _hitEvents = _pWorld->GetResource<HitEventResource>();
+		const InstanceResource::HitEventResource& _hitEvents = _pWorld->GetResource<InstanceResource::HitEventResource>();
 		if (_hitEvents.events.empty()) return;
 
 		//==================================================================
@@ -128,12 +128,12 @@ namespace App::Object
 		//==================================================================
 		Engine::ECS::Entity _player = Engine::ECS::Limits::INVALID_ENTITY;
 
-		_pWorld->ForEach<const ActiveTag, const PlayerControllTag>(
+		_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag>(
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const ActiveTag* a_activeTagArray,
-				const PlayerControllTag* a_playerTagArray
+				const Component::ActiveTag* a_activeTagArray,
+				const Component::PlayerControllTag* a_playerTagArray
 			)
 			{
 				if (_player != Engine::ECS::Limits::INVALID_ENTITY || a_count == 0) return;
@@ -144,7 +144,7 @@ namespace App::Object
 		if (_player == Engine::ECS::Limits::INVALID_ENTITY) return;
 
 		// 同じフレームに複数当たっても、出し直しは1回でよい
-		for (const HitEvent& _event : _hitEvents.events)
+		for (const InstanceResource::HitEvent& _event : _hitEvents.events)
 		{
 			if (_event.shooter != _player) continue;
 
@@ -162,7 +162,7 @@ namespace App::Object
 			// 条件が一度も成立しないためマーカーが出ていなかった。
 			//--------------------------------------------------------------
 			if (_event.victim == Engine::ECS::Limits::INVALID_ENTITY) continue;
-			if (!_pWorld->HasComponent<HealthComponent>(_event.victim)) continue;
+			if (!_pWorld->HasComponent<Component::HealthComponent>(_event.victim)) continue;
 
 			OnHit(a_context);
 			break;
@@ -212,10 +212,10 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Header("HitEffect");
+		Engine::EditorField::Header("HitEffect");
 
 		// ヒット音(アセットDBの Sound 一覧から選ぶ)
-		if (Engine::Editor::AssetField(
+		if (Engine::EditorField::AssetField(
 			*a_context.pServices,
 			"Hit Sound",
 			"Sound",
@@ -224,7 +224,7 @@ namespace App::Object
 			RequestSound(a_context);
 		}
 
-		if (Engine::Editor::Field("Volume", m_volume, 0.01f, 0.0f, 1.0f))
+		if (Engine::EditorField::Field("Volume", m_volume, 0.01f, 0.0f, 1.0f))
 		{
 			// 鳴らしながら調整できるよう、発行済みインスタンスへ即時反映する
 			if (a_context.pServices && a_context.pServices->pAudioManager)
@@ -236,18 +236,18 @@ namespace App::Object
 			}
 		}
 
-		Engine::Editor::Line();
-		Engine::Editor::Field("ShowTime", m_showTime, 0.01f, 0.0f, 5.0f);
-		Engine::Editor::Field("MinInterval", m_minInterval, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("FadeOut", m_isFadeOut);
-		Engine::Editor::Field("PunchScale", m_punchScale, 0.01f, 0.1f, 4.0f);
+		Engine::EditorField::Line();
+		Engine::EditorField::Field("ShowTime", m_showTime, 0.01f, 0.0f, 5.0f);
+		Engine::EditorField::Field("MinInterval", m_minInterval, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Field("FadeOut", m_isFadeOut);
+		Engine::EditorField::Field("PunchScale", m_punchScale, 0.01f, 0.1f, 4.0f);
 
 		// 確認用に鳴らしてみる
-		if (Engine::Editor::Button("Test")) OnHit(a_context);
+		if (Engine::EditorField::Button("Test")) OnHit(a_context);
 
-		Engine::Editor::Line();
-		Engine::Editor::Value("HitCount", "%d", m_hitCount);
-		Engine::Editor::Value("Remain", "%.2f", m_remainTime);
-		Engine::Editor::Tooltip("自分が撃った弾が HealthComponent 持ちに当たったフレームに反応します");
+		Engine::EditorField::Line();
+		Engine::EditorField::Value("HitCount", "%d", m_hitCount);
+		Engine::EditorField::Value("Remain", "%.2f", m_remainTime);
+		Engine::EditorField::Tooltip("自分が撃った弾が HealthComponent 持ちに当たったフレームに反応します");
 	}
 }

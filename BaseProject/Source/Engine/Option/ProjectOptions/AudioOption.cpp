@@ -30,19 +30,19 @@ void Engine::Option::ProjectOptions::AudioOption::DrawEdit(const ECS::EngineServ
 {
 	bool _isChanged = false;
 
-	Engine::Editor::Header("Master");
+	Engine::EditorField::Header("Master");
 
-	if (Engine::Editor::Slider("Master", masterVolume, 0.0f, 1.0f)) _isChanged = true;
-	Engine::Editor::Tooltip("全部の音へ掛かる");
+	if (Engine::EditorField::Slider("Master", masterVolume, 0.0f, 1.0f)) _isChanged = true;
+	Engine::EditorField::Tooltip("全部の音へ掛かる");
 
-	Engine::Editor::Header("Group");
-	Engine::Editor::HelpText("鳴らしている側を触らずに、そのグループだけ上下できる");
+	Engine::EditorField::Header("Group");
+	Engine::EditorField::HelpText("鳴らしている側を触らずに、そのグループだけ上下できる");
 
 	for (size_t _i = 0; _i < groupVolumeArray.size(); ++_i)
 	{
-		Engine::Editor::IDScope _id(static_cast<int>(_i));
+		Engine::EditorField::IDScope _id(static_cast<int>(_i));
 
-		if (Engine::Editor::Slider(GROUP_LABEL[_i], groupVolumeArray[_i], 0.0f, 1.0f)) _isChanged = true;
+		if (Engine::EditorField::Slider(GROUP_LABEL[_i], groupVolumeArray[_i], 0.0f, 1.0f)) _isChanged = true;
 	}
 
 	// 動かした瞬間に効かせる。鳴っている音にもその場で送り直される

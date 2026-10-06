@@ -14,7 +14,7 @@ namespace Engine::Resource { class Prefab; }
 // どちらの武器でも同じなので、片方だけ直して食い違うことがないようにここへ寄せる。
 // 「どこから・どっちへ・誰を狙って撃つか」は武器ごとに違うので呼び出し側の担当。
 //==========================================================================================
-namespace App::Systems::ProjectileSpawn
+namespace App::System::ProjectileSpawn
 {
 	/// <summary>
 	/// 「発射元」として弾に持たせるエンティティを解決する

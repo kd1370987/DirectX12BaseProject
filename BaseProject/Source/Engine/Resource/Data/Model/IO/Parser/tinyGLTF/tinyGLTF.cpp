@@ -115,7 +115,7 @@ namespace Engine::Resource::GLTF
 				std::string _err;
 				std::string _warn;
 				std::string _input_filename(a_filePath);
-				std::string _ext = Engine::File::GetFilePathExtension(_input_filename);
+				std::string _ext = Core::File::GetFilePathExtension(_input_filename);
 
 				// GLTF読込
 				bool _ret = false;

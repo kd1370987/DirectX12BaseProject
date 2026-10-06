@@ -1,11 +1,11 @@
 ﻿#include "RenderingOption.h"
 
-#include "../../Editor/Helper/EditorField.inl"
+#include "Engine/EditorField/EditorField.inl"
 
 void Engine::Option::GraphicsOptions::RenderingOption::DrawEdit(const ECS::EngineServices&)
 {
-	Engine::Editor::Field("isZPre", isZPre);
-	Engine::Editor::Field("useJitter (TAA)", useJitter);
+	Engine::EditorField::Field("isZPre", isZPre);
+	Engine::EditorField::Field("useJitter (TAA)", useJitter);
 }
 
 void Engine::Option::GraphicsOptions::RenderingOption::Archive(Persistence::Archive& a_archive)

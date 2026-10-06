@@ -5,7 +5,7 @@
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Option/OptionManager.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 #include "../../UI/UIButton/UIButton.h"
 #include "../../../Game/GameManager/GameManager.h"
@@ -63,7 +63,7 @@ namespace App::Object
 		if (!_pObject) return;
 
 		// 指定されたGUIDがボタン以外だった場合は差し込まない
-		auto* _pButton = Engine::TypeInfo::Cast<UIButton>(_pObject);
+		auto* _pButton = Core::TypeInfo::Cast<UIButton>(_pObject);
 		if (!_pButton)
 		{
 			// 設定ミスに気付けるよう一度だけ知らせて、以降は試さない
@@ -135,15 +135,15 @@ namespace App::Object
 	//======================================================================================
 	void ResultSequence::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Header("Home Button");
+		Engine::EditorField::Header("Home Button");
 
 		// 同じシーンに置いた UIButton から選ぶ
 		std::string _current = "None";
 		if (m_homeButtonGUID.IsValid()) _current = m_homeButtonGUID.String();
 
-		if (Engine::Editor::ComboScope _combo{ "Button", _current.c_str() })
+		if (Engine::EditorField::ComboScope _combo{ "Button", _current.c_str() })
 		{
-			if (Engine::Editor::Selectable("None", !m_homeButtonGUID.IsValid()))
+			if (Engine::EditorField::Selectable("None", !m_homeButtonGUID.IsValid()))
 			{
 				m_homeButtonGUID = {};
 				m_isBound = false;
@@ -154,40 +154,40 @@ namespace App::Object
 				const auto& _objectVec = a_context.pObjectManager->GetObjects();
 				for (size_t _i = 0; _i < _objectVec.size(); ++_i)
 				{
-					auto* _pButton = Engine::TypeInfo::Cast<UIButton>(_objectVec[_i].get());
+					auto* _pButton = Core::TypeInfo::Cast<UIButton>(_objectVec[_i].get());
 					if (!_pButton) continue;
 
 					// 同名でもIDがぶつからないようにする
-					Engine::Editor::IDScope _id(static_cast<int>(_i));
+					Engine::EditorField::IDScope _id(static_cast<int>(_i));
 
 					const bool _isSelected = (m_homeButtonGUID == _pButton->GetGUID());
-					if (Engine::Editor::Selectable(_pButton->GetGUID().String().c_str(), _isSelected))
+					if (Engine::EditorField::Selectable(_pButton->GetGUID().String().c_str(), _isSelected))
 					{
 						m_homeButtonGUID = _pButton->GetGUID();
 
 						// 差し込み直させる
 						m_isBound = false;
 					}
-					if (_isSelected) Engine::Editor::SetItemDefaultFocus();
+					if (_isSelected) Engine::EditorField::SetItemDefaultFocus();
 				}
 			}
 		}
 
-		Engine::Editor::Header("Title Scene");
+		Engine::EditorField::Header("Title Scene");
 
-		Engine::Editor::AssetField(*a_context.pServices, "Scene", "Scene", m_titleSceneGUID);
+		Engine::EditorField::AssetField(*a_context.pServices, "Scene", "Scene", m_titleSceneGUID);
 
 		m_bgm.DrawInspector(a_context);
 
-		Engine::Editor::Header("Cursor");
+		Engine::EditorField::Header("Cursor");
 
-		Engine::Editor::Field("ReleaseCursorLock", m_isReleaseCursorLock);
-		Engine::Editor::Tooltip("リザルトの間はカーソルの中央固定を切る");
+		Engine::EditorField::Field("ReleaseCursorLock", m_isReleaseCursorLock);
+		Engine::EditorField::Tooltip("リザルトの間はカーソルの中央固定を切る");
 
 		//----------------------------------------------------------------------
 		// 持ち越されてきた記録(表示のみ)
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Carried Data");
+		Engine::EditorField::Header("Carried Data");
 
 		const auto& _gameData = App::Game::GameManager::Instance().GetGameData();
 
@@ -199,16 +199,16 @@ namespace App::Object
 		default: break;
 		}
 
-		Engine::Editor::Value("Result", "%s", _resultName);
-		Engine::Editor::Value("Score", "%d", _gameData.score);
-		Engine::Editor::Value("Kill", "%d", _gameData.killCount);
-		Engine::Editor::Value("Time", "%.2f", _gameData.time);
-		Engine::Editor::Value("Wave", "%d / %d", _gameData.clearedWaveCount, _gameData.totalWaveCount);
-		Engine::Editor::Tooltip("数字を画面に出すのは ScoreHUD の仕事");
+		Engine::EditorField::Value("Result", "%s", _resultName);
+		Engine::EditorField::Value("Score", "%d", _gameData.score);
+		Engine::EditorField::Value("Kill", "%d", _gameData.killCount);
+		Engine::EditorField::Value("Time", "%.2f", _gameData.time);
+		Engine::EditorField::Value("Wave", "%d / %d", _gameData.clearedWaveCount, _gameData.totalWaveCount);
+		Engine::EditorField::Tooltip("数字を画面に出すのは ScoreHUD の仕事");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Header("Runtime");
-		Engine::Editor::Value("Bound", "%s", m_isBound ? "yes" : "no");
-		Engine::Editor::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
+		Engine::EditorField::Header("Runtime");
+		Engine::EditorField::Value("Bound", "%s", m_isBound ? "yes" : "no");
+		Engine::EditorField::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
 	}
 }

@@ -619,7 +619,7 @@ namespace Engine::Graphics
 	//
 	// メインカメラを先に見るのは、同じ設計図を複数のカメラが使っているときに
 	// 「画面に出ている絵」と、ノードに出る中身を揃えるため
-	Pipeline::Pass* CameraPipelineManager::FindPipelinePass(const Engine::GUID& a_passGUID) const
+	Pipeline::Pass* CameraPipelineManager::FindPipelinePass(const Core::GUID& a_passGUID) const
 	{
 		if (!a_passGUID.IsValid()) return nullptr;
 

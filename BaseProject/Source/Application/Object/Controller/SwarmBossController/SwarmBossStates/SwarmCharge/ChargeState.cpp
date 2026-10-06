@@ -4,7 +4,7 @@
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Persistence/Archive/Archive.h"
 #include "Engine/ECS/System/SystemContext.h"
-#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/EditorField/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 
 // App
 #include "../../../../../ECS/World/APPWorld.h"
@@ -28,12 +28,12 @@ namespace App::Object
 		{
 			Engine::ECS::Entity _player = Engine::ECS::Limits::INVALID_ENTITY;
 
-			a_context.pWorld->ForEach<const ActiveTag, const PlayerControllTag>(
+			a_context.pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag>(
 				[&](
 					Engine::ECS::Chunk* a_pChunk,
 					uint32_t a_count,
-					const ActiveTag* a_activeTagArray,
-					const PlayerControllTag* a_playerTagArray
+					const Component::ActiveTag* a_activeTagArray,
+					const Component::PlayerControllTag* a_playerTagArray
 				)
 				{
 					if (_player != Engine::ECS::Limits::INVALID_ENTITY || a_count == 0) return;
@@ -44,14 +44,14 @@ namespace App::Object
 			if (_player == Engine::ECS::Limits::INVALID_ENTITY) return false;
 
 			auto& _world = *a_context.pWorld;
-			if (_world.HasComponent<WorldMatrixComponent>(_player))
+			if (_world.HasComponent<Component::WorldMatrixComponent>(_player))
 			{
-				a_outPos = _world.RefData<WorldMatrixComponent>(_player)->worldMat.Translation();
+				a_outPos = _world.RefData<Component::WorldMatrixComponent>(_player)->worldMat.Translation();
 				return true;
 			}
-			if (_world.HasComponent<LocalTransformComponent>(_player))
+			if (_world.HasComponent<Component::LocalTransformComponent>(_player))
 			{
-				a_outPos = _world.RefData<LocalTransformComponent>(_player)->pos;
+				a_outPos = _world.RefData<Component::LocalTransformComponent>(_player)->pos;
 				return true;
 			}
 			return false;
@@ -74,10 +74,10 @@ namespace App::Object
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
-		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
-		if (!_world.HasComponent<LocalTransformComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::MoveIntentComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::LocalTransformComponent>(_leader)) return;
 
-		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(_leader)->pos;
+		const Math::Vector3 _pos = _world.RefData<Component::LocalTransformComponent>(_leader)->pos;
 
 		// プレイヤーが居ない(倒された / まだ湧いていない)なら突っ込む先が無い
 		const bool _isFoundPlayer = FindPlayerPos(*a_context.pObject, m_playerPos);
@@ -157,7 +157,7 @@ namespace App::Object
 			break;
 		}
 
-		_world.RefData<MoveIntentComponent>(_leader)->value = _intent;
+		_world.RefData<Component::MoveIntentComponent>(_leader)->value = _intent;
 	}
 
 	void SwarmBossChargeState::Exit(SwarmBossStateContext& a_context)
@@ -168,9 +168,9 @@ namespace App::Object
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
-		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::MoveIntentComponent>(_leader)) return;
 
-		_world.RefData<MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
+		_world.RefData<Component::MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
 	}
 
 	void SwarmBossChargeState::Finish(SwarmBossStateContext& a_context)
@@ -217,18 +217,18 @@ namespace App::Object
 
 	void SwarmBossChargeState::DrawInspector()
 	{
-		Engine::Editor::Field("溜めの長さ", m_windupTime, 0.05f, 0.0f);
-		Engine::Editor::Field("溜め中の移動入力の強さ", m_windupThrottle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("突進の速さの倍率", m_chargeSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Field("突進中に曲がれる速さ(ラジアン/秒)", m_homingTurnSpeed, 0.01f, 0.0f);
-		Engine::Editor::Field("突進の最長時間", m_maxChargeTime, 0.1f, 0.0f);
-		Engine::Editor::Field("通り過ぎてから止まる距離", m_overshootDistance, 0.5f, 0.0f);
-		Engine::Editor::Field("余韻の長さ", m_recoverTime, 0.05f, 0.0f);
-		Engine::Editor::Field("余韻中の移動入力の強さ", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
+		Engine::EditorField::Field("溜めの長さ", m_windupTime, 0.05f, 0.0f);
+		Engine::EditorField::Field("溜め中の移動入力の強さ", m_windupThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Field("突進の速さの倍率", m_chargeSpeedScale, 0.05f, 0.0f);
+		Engine::EditorField::Field("突進中に曲がれる速さ(ラジアン/秒)", m_homingTurnSpeed, 0.01f, 0.0f);
+		Engine::EditorField::Field("突進の最長時間", m_maxChargeTime, 0.1f, 0.0f);
+		Engine::EditorField::Field("通り過ぎてから止まる距離", m_overshootDistance, 0.5f, 0.0f);
+		Engine::EditorField::Field("余韻の長さ", m_recoverTime, 0.05f, 0.0f);
+		Engine::EditorField::Field("余韻中の移動入力の強さ", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		Engine::Editor::Value("プレイヤーの位置", "%.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
+		Engine::EditorField::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::EditorField::Value("プレイヤーの位置", "%.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
 	}
 }

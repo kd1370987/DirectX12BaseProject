@@ -19,21 +19,21 @@ namespace App::Editor
 		Engine::ECS::Entity _parentID = Engine::ECS::Limits::INVALID_ENTITY;
 		if (_pWorld && a_editContext.entity != Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			auto* _pHierarchy = _pWorld->RefData<HierarchyComponent>(a_editContext.entity);
+			auto* _pHierarchy = _pWorld->RefData<Component::HierarchyComponent>(a_editContext.entity);
 			if (_pHierarchy) _parentID = _pHierarchy->parentID;
 		}
 
 		if (!_pWorld || _parentID == Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			Engine::Editor::WarningText("Warning: No parent via HierarchyComponent.");
+			Engine::EditorField::WarningText("Warning: No parent via HierarchyComponent.");
 			return;
 		}
 
 		// 親のモデルコンポーネントを取得
-		auto* _pParentModelComp = _pWorld->RefData<ModelComponent>(_parentID);
+		auto* _pParentModelComp = _pWorld->RefData<Component::ModelComponent>(_parentID);
 		if (!_pParentModelComp)
 		{
-			Engine::Editor::WarningText("Warning: ModelComponent not found on Parent.");
+			Engine::EditorField::WarningText("Warning: ModelComponent not found on Parent.");
 			return;
 		}
 
@@ -54,15 +54,15 @@ namespace App::Editor
 		// RefData は生きているエンティティ前提で添え字を引くので、必ず先に弾く。
 		if (!_pWorld || a_editContext.entity == Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			Engine::Editor::WarningText("Warning: No entity. Set the node on the scene entity.");
+			Engine::EditorField::WarningText("Warning: No entity. Set the node on the scene entity.");
 			return;
 		}
 
 		// モデルコンポーネントを取得
-		auto* _pSelfModelComp = _pWorld->RefData<ModelComponent>(a_editContext.entity);
+		auto* _pSelfModelComp = _pWorld->RefData<Component::ModelComponent>(a_editContext.entity);
 		if (!_pSelfModelComp)
 		{
-			Engine::Editor::WarningText("Warning: ModelComponent not found on Self.");
+			Engine::EditorField::WarningText("Warning: ModelComponent not found on Self.");
 			return;
 		}
 
@@ -81,12 +81,12 @@ namespace App::Editor
 		const auto* _pParentModel = a_editContext.pWorld->RefEngineServices()->pResourceManager->Get(a_modelHandle);
 		if (!_pParentModel)
 		{
-			Engine::Editor::WarningText("Warning: Model Resource is null.");
+			Engine::EditorField::WarningText("Warning: Model Resource is null.");
 			return;
 		}
 
 		// ノード一覧の描画自体はエンジン側の共通ヘルパーに任せる
-		Engine::Editor::ModelNodeField(
+		Engine::EditorField::ModelNodeField(
 			"Target Node",
 			_pParentModel,
 			a_nodeIndex,

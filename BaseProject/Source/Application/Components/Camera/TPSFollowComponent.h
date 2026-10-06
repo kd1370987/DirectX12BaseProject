@@ -1,80 +1,83 @@
 #pragma once
 
-//==========================================================================================
-// TPSFollowComponent
-//
-// TPSカメラの「追従の質」を決めるパラメータ。カメラ本体に付ける。
-//
-// 旧実装はピボットも注視点もターゲット座標をそのまま毎フレーム代入していて、
-// 補間係数もコード内の固定値だった。結果として機体に完全に貼り付いた硬いカメラになる。
-// アーマードコアのカメラは「少し遅れて付いてきて、速度が乗ると後ろへ引き、
-// 上下方向はさらに柔らかく遅れる」という挙動なので、その調整値をここへ出す。
-//
-// 追従はフレームレート非依存の指数減衰で行う:
-//     t = 1 - exp(-rate * dt)
-// rate が大きいほど速く追いつき、0 にすると追従しない(置いていかれる)。
-//==========================================================================================
-struct TPSFollowComponent
+namespace App::Component
 {
-	// ---- 位置 ----
-	// y はピボット(追従先の足元からの高さ)、z は引きの距離(負で後ろ)。x は今は使っていない。
-	// 以前は TPSOffsetComponent として別に持っていた(常に TPSFollow と一緒だったので統合した)
-	Math::Vector3 offset = { 0.0f, 0.0f, 0.0f };
-
-	// ---- 追従速度(1秒あたりの減衰レート) ----
-	// ※ posRate* が効くのは CameraDeadZoneComponent を持たないカメラだけ。
-	//    デッドゾーンを持つカメラは「枠から出たぶんだけ寄せる」方式になり、
-	//    寄せる速さは CameraDeadZoneComponent::followRate が持つ。
-	float posRateHorizontal	= 9.0f;		// ピボットの水平追従。小さいほど機体が先行して見える
-	float posRateVertical	= 4.0f;		// ピボットの垂直追従。水平より遅くすると上昇/落下が柔らかくなる
-	float lookAtRate		= 12.0f;	// 注視点の追従
-	float orbitRate			= 10.0f;	// オービット回転(視点の向き)の追従
-
-	// ---- 速度レスポンス ----
-	// 「今どれくらい速いか」を 0..1 に正規化して、引き・追従・画角へまとめて効かせる。
-	//     speed   = |水平速度| + |上下速度| × verticalSpeedWeight を合成した速さ
-	//     speed01 = clamp(speed / speedReference, 0, 1)
-	// 空中戦では上下の速さも臨場感に効くので混ぜるが、ただ落ちているだけで
-	// カメラが暴れないように重みで加減する(0 にすれば従来どおり水平のみ)。
-	float speedReference		= 30.0f;	// 全開とみなす速度(m/s)。ブースト速度あたりが目安
-	float verticalSpeedWeight	= 0.6f;		// 速度へ上下成分を混ぜる割合(0=水平のみ)
-
-	// speed01 自体の追従レート。
-	// 上下の速度は加減速を通さず目標速度がそのまま出る(重力や着地を鈍らせないため)ので、
-	// 上下ブーストの瞬間は速さが1フレームで跳ねる。それを直接効かせるとカメラが
-	// 一気に動くため、速さをなましてから引き・追従・画角へ配る。
-	// 大きくするほど跳ねがそのまま出る。0 以下にすると速度レスポンスが止まる。
-	float speedResponseRate		= 6.0f;
-
-	// ---- 速度に応じた引き ----
-	float speedPullBack		= 0.15f;	// 速度1あたり何m後ろへ引くか
-	float maxPullBack		= 5.0f;		// 引きの上限(m)
-	float pullBackRate		= 3.0f;		// 引き量そのものの追従速度(伸び/戻りの滑らかさ)
-
-	// ---- 全開時(speed01 = 1)の効き ----
+	//==========================================================================================
+	// TPSFollowComponent
 	//
-	// ※ followRateScale / maxLagAtSpeed / lookAtLagRatio / maxLagDistance は
-	//    **もう読まれていない**。「速度で追従を鈍らせて機体を画面端へ流す」効きは
-	//    CameraDeadZoneComponent(画面の枠を出たぶんだけ寄せる)に置き換えた。
-	//    自機の動きでカメラが回ってしまい、マウスでの照準が難しかったため。
-	//    保存済みデータとのバイナリ互換のためフィールドだけ残してある
-	//    (消すと既存の .ob* が全部ずれる)。
-	float followRateScale	= 0.4f;		// [未使用]
-	float maxLagAtSpeed		= 18.0f;	// [未使用]
-	float lookAtLagRatio	= 0.65f;	// [未使用]
-	float fovAddAtSpeed		= 22.0f;	// 足す画角(度)。CameraParamComponent.fovY への加算
-	float fovRate			= 5.0f;		// 画角の追従レート
+	// TPSカメラの「追従の質」を決めるパラメータ。カメラ本体に付ける。
+	//
+	// 旧実装はピボットも注視点もターゲット座標をそのまま毎フレーム代入していて、
+	// 補間係数もコード内の固定値だった。結果として機体に完全に貼り付いた硬いカメラになる。
+	// アーマードコアのカメラは「少し遅れて付いてきて、速度が乗ると後ろへ引き、
+	// 上下方向はさらに柔らかく遅れる」という挙動なので、その調整値をここへ出す。
+	//
+	// 追従はフレームレート非依存の指数減衰で行う:
+	//     t = 1 - exp(-rate * dt)
+	// rate が大きいほど速く追いつき、0 にすると追従しない(置いていかれる)。
+	//==========================================================================================
+	struct TPSFollowComponent
+	{
+		// ---- 位置 ----
+		// y はピボット(追従先の足元からの高さ)、z は引きの距離(負で後ろ)。x は今は使っていない。
+		// 以前は TPSOffsetComponent として別に持っていた(常に TPSFollow と一緒だったので統合した)
+		Math::Vector3 offset = { 0.0f, 0.0f, 0.0f };
 
-	// ---- 遅れの上限 ----
-	float maxLagDistance	= 8.0f;		// [未使用] 引き戻しは CameraDeadZoneComponent::snapDistance が担当
-};
+		// ---- 追従速度(1秒あたりの減衰レート) ----
+		// ※ posRate* が効くのは CameraDeadZoneComponent を持たないカメラだけ。
+		//    デッドゾーンを持つカメラは「枠から出たぶんだけ寄せる」方式になり、
+		//    寄せる速さは CameraDeadZoneComponent::followRate が持つ。
+		float posRateHorizontal	= 9.0f;		// ピボットの水平追従。小さいほど機体が先行して見える
+		float posRateVertical	= 4.0f;		// ピボットの垂直追従。水平より遅くすると上昇/落下が柔らかくなる
+		float lookAtRate		= 12.0f;	// 注視点の追従
+		float orbitRate			= 10.0f;	// オービット回転(視点の向き)の追従
+
+		// ---- 速度レスポンス ----
+		// 「今どれくらい速いか」を 0..1 に正規化して、引き・追従・画角へまとめて効かせる。
+		//     speed   = |水平速度| + |上下速度| × verticalSpeedWeight を合成した速さ
+		//     speed01 = clamp(speed / speedReference, 0, 1)
+		// 空中戦では上下の速さも臨場感に効くので混ぜるが、ただ落ちているだけで
+		// カメラが暴れないように重みで加減する(0 にすれば従来どおり水平のみ)。
+		float speedReference		= 30.0f;	// 全開とみなす速度(m/s)。ブースト速度あたりが目安
+		float verticalSpeedWeight	= 0.6f;		// 速度へ上下成分を混ぜる割合(0=水平のみ)
+
+		// speed01 自体の追従レート。
+		// 上下の速度は加減速を通さず目標速度がそのまま出る(重力や着地を鈍らせないため)ので、
+		// 上下ブーストの瞬間は速さが1フレームで跳ねる。それを直接効かせるとカメラが
+		// 一気に動くため、速さをなましてから引き・追従・画角へ配る。
+		// 大きくするほど跳ねがそのまま出る。0 以下にすると速度レスポンスが止まる。
+		float speedResponseRate		= 6.0f;
+
+		// ---- 速度に応じた引き ----
+		float speedPullBack		= 0.15f;	// 速度1あたり何m後ろへ引くか
+		float maxPullBack		= 5.0f;		// 引きの上限(m)
+		float pullBackRate		= 3.0f;		// 引き量そのものの追従速度(伸び/戻りの滑らかさ)
+
+		// ---- 全開時(speed01 = 1)の効き ----
+		//
+		// ※ followRateScale / maxLagAtSpeed / lookAtLagRatio / maxLagDistance は
+		//    **もう読まれていない**。「速度で追従を鈍らせて機体を画面端へ流す」効きは
+		//    CameraDeadZoneComponent(画面の枠を出たぶんだけ寄せる)に置き換えた。
+		//    自機の動きでカメラが回ってしまい、マウスでの照準が難しかったため。
+		//    保存済みデータとのバイナリ互換のためフィールドだけ残してある
+		//    (消すと既存の .ob* が全部ずれる)。
+		float followRateScale	= 0.4f;		// [未使用]
+		float maxLagAtSpeed		= 18.0f;	// [未使用]
+		float lookAtLagRatio	= 0.65f;	// [未使用]
+		float fovAddAtSpeed		= 22.0f;	// 足す画角(度)。CameraParamComponent.fovY への加算
+		float fovRate			= 5.0f;		// 画角の追従レート
+
+		// ---- 遅れの上限 ----
+		float maxLagDistance	= 8.0f;		// [未使用] 引き戻しは CameraDeadZoneComponent::snapDistance が担当
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<TPSFollowComponent>
+struct Engine::ECS::ComponentTraits<App::Component::TPSFollowComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		TPSFollowComponent& _comp = Engine::Editor::GetValue<TPSFollowComponent>(a_pData);
+		App::Component::TPSFollowComponent& _comp = Engine::EditorField::GetValue<App::Component::TPSFollowComponent>(a_pData);
 		a_ar.Field("posRateHorizontal", _comp.posRateHorizontal);
 		a_ar.Field("posRateVertical", _comp.posRateVertical);
 		a_ar.Field("lookAtRate", _comp.lookAtRate);
@@ -100,49 +103,49 @@ struct Engine::ECS::ComponentTraits<TPSFollowComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		TPSFollowComponent& _comp = Engine::Editor::GetValue<TPSFollowComponent>(a_context.pData);
+		App::Component::TPSFollowComponent& _comp = Engine::EditorField::GetValue<App::Component::TPSFollowComponent>(a_context.pData);
 
-		Engine::Editor::HelpText("Offset");
-		Engine::Editor::Field("Offset", _comp.offset);
-		Engine::Editor::Tooltip("y : ピボットの高さ / z : 引きの距離(負で後ろ)");
+		Engine::EditorField::HelpText("Offset");
+		Engine::EditorField::Field("Offset", _comp.offset);
+		Engine::EditorField::Tooltip("y : ピボットの高さ / z : 引きの距離(負で後ろ)");
 
-		Engine::Editor::Line();
-		Engine::Editor::HelpText("Follow Rate");
-		Engine::Editor::Field("PosRateH", _comp.posRateHorizontal, 0.1f, 0.0f, 60.0f);
-		Engine::Editor::Field("PosRateV", _comp.posRateVertical, 0.1f, 0.0f, 60.0f);
-		Engine::Editor::Field("LookAtRate", _comp.lookAtRate, 0.1f, 0.0f, 60.0f);
-		Engine::Editor::Field("OrbitRate", _comp.orbitRate, 0.1f, 0.0f, 60.0f);
+		Engine::EditorField::Line();
+		Engine::EditorField::HelpText("Follow Rate");
+		Engine::EditorField::Field("PosRateH", _comp.posRateHorizontal, 0.1f, 0.0f, 60.0f);
+		Engine::EditorField::Field("PosRateV", _comp.posRateVertical, 0.1f, 0.0f, 60.0f);
+		Engine::EditorField::Field("LookAtRate", _comp.lookAtRate, 0.1f, 0.0f, 60.0f);
+		Engine::EditorField::Field("OrbitRate", _comp.orbitRate, 0.1f, 0.0f, 60.0f);
 
-		Engine::Editor::Line();
-		Engine::Editor::HelpText("Speed Response");
-		Engine::Editor::Field("SpeedReference", _comp.speedReference, 0.5f, 0.1f, 500.0f);
-		Engine::Editor::Field("VerticalSpeedWeight", _comp.verticalSpeedWeight, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("SpeedResponseRate", _comp.speedResponseRate, 0.1f, 0.0f, 60.0f);
-		Engine::Editor::Tooltip("小さいほど速度変化の効きがゆっくり立ち上がる");
+		Engine::EditorField::Line();
+		Engine::EditorField::HelpText("Speed Response");
+		Engine::EditorField::Field("SpeedReference", _comp.speedReference, 0.5f, 0.1f, 500.0f);
+		Engine::EditorField::Field("VerticalSpeedWeight", _comp.verticalSpeedWeight, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Field("SpeedResponseRate", _comp.speedResponseRate, 0.1f, 0.0f, 60.0f);
+		Engine::EditorField::Tooltip("小さいほど速度変化の効きがゆっくり立ち上がる");
 
-		Engine::Editor::Line();
-		Engine::Editor::HelpText("Speed Pull Back");
-		Engine::Editor::Field("SpeedPullBack", _comp.speedPullBack, 0.01f, 0.0f, 5.0f);
-		Engine::Editor::Field("MaxPullBack", _comp.maxPullBack, 0.1f, 0.0f, 50.0f);
-		Engine::Editor::Field("PullBackRate", _comp.pullBackRate, 0.1f, 0.0f, 60.0f);
+		Engine::EditorField::Line();
+		Engine::EditorField::HelpText("Speed Pull Back");
+		Engine::EditorField::Field("SpeedPullBack", _comp.speedPullBack, 0.01f, 0.0f, 5.0f);
+		Engine::EditorField::Field("MaxPullBack", _comp.maxPullBack, 0.1f, 0.0f, 50.0f);
+		Engine::EditorField::Field("PullBackRate", _comp.pullBackRate, 0.1f, 0.0f, 60.0f);
 
-		Engine::Editor::Line();
-		Engine::Editor::HelpText("At Full Speed");
-		Engine::Editor::Field("FovAddAtSpeed", _comp.fovAddAtSpeed, 0.5f, 0.0f, 90.0f);
-		Engine::Editor::Field("FovRate", _comp.fovRate, 0.1f, 0.0f, 60.0f);
+		Engine::EditorField::Line();
+		Engine::EditorField::HelpText("At Full Speed");
+		Engine::EditorField::Field("FovAddAtSpeed", _comp.fovAddAtSpeed, 0.5f, 0.0f, 90.0f);
+		Engine::EditorField::Field("FovRate", _comp.fovRate, 0.1f, 0.0f, 60.0f);
 
-		Engine::Editor::Line();
+		Engine::EditorField::Line();
 
 		// 追従の遅れ系は CameraDeadZoneComponent へ移した。
 		// 保存データの互換のためフィールドは残っているが、触っても効かない
-		if (Engine::Editor::CollapsingHeader("Legacy (未使用)"))
+		if (Engine::EditorField::CollapsingHeader("Legacy (未使用)"))
 		{
-			Engine::Editor::HelpText("追従範囲は CameraDeadZoneComponent が持ちます");
-			Engine::Editor::DisabledScope _disabled(true);
-			Engine::Editor::Field("FollowRateScale", _comp.followRateScale, 0.01f, 0.0f, 1.0f);
-			Engine::Editor::Field("MaxLagAtSpeed", _comp.maxLagAtSpeed, 0.1f, 0.0f, 100.0f);
-			Engine::Editor::Field("LookAtLagRatio", _comp.lookAtLagRatio, 0.01f, 0.0f, 1.0f);
-			Engine::Editor::Field("MaxLagDistance", _comp.maxLagDistance, 0.1f, 0.0f, 100.0f);
+			Engine::EditorField::HelpText("追従範囲は CameraDeadZoneComponent が持ちます");
+			Engine::EditorField::DisabledScope _disabled(true);
+			Engine::EditorField::Field("FollowRateScale", _comp.followRateScale, 0.01f, 0.0f, 1.0f);
+			Engine::EditorField::Field("MaxLagAtSpeed", _comp.maxLagAtSpeed, 0.1f, 0.0f, 100.0f);
+			Engine::EditorField::Field("LookAtLagRatio", _comp.lookAtLagRatio, 0.01f, 0.0f, 1.0f);
+			Engine::EditorField::Field("MaxLagDistance", _comp.maxLagDistance, 0.1f, 0.0f, 100.0f);
 		}
 	}
 };

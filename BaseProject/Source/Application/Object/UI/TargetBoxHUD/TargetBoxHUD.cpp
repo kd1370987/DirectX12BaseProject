@@ -93,23 +93,23 @@ namespace App::Object
 		//==================================================================
 		bool _hasPlayer = false;
 
-		_pWorld->ForEach<const ActiveTag, const PlayerControllTag, const LockOnTargetComponent>(
+		_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag, const Component::LockOnTargetComponent>(
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const ActiveTag* a_activeTagArray,
-				const PlayerControllTag* a_playerTagArray,
-				const LockOnTargetComponent* a_lockOnArray
+				const Component::ActiveTag* a_activeTagArray,
+				const Component::PlayerControllTag* a_playerTagArray,
+				const Component::LockOnTargetComponent* a_lockOnArray
 			)
 			{
 				// 操作しているプレイヤーは1体の想定。先に見つかったものを使う
 				if (_hasPlayer || a_count == 0) return;
 				_hasPlayer = true;
 
-				const LockOnTargetComponent& _lockOn = a_lockOnArray[0];
+				const Component::LockOnTargetComponent& _lockOn = a_lockOnArray[0];
 
 				const int _count = std::clamp(
-					_lockOn.targetCount, 0, LockOnTargetComponent::TARGET_MAX);
+					_lockOn.targetCount, 0, Component::LockOnTargetComponent::TARGET_MAX);
 
 				for (int _i = 0; _i < _count; ++_i)
 				{
@@ -199,22 +199,22 @@ namespace App::Object
 	{
 		UIBase::DrawInspector(a_context);
 
-		Engine::Editor::Header("TargetBox");
+		Engine::EditorField::Header("TargetBox");
 
 		if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
 
 		// ロック枠へ掛ける色。飾りの色へ乗算で乗る
-		Engine::Editor::Field("LockColor", m_lockColor);
-		Engine::Editor::Field("LockSizeScale", m_lockSizeScale, 0.01f, 0.0f, 8.0f);
+		Engine::EditorField::Field("LockColor", m_lockColor);
+		Engine::EditorField::Field("LockSizeScale", m_lockSizeScale, 0.01f, 0.0f, 8.0f);
 
-		Engine::Editor::HelpText("飾りの Group : 0 = 通常枠 / 1 = ロック枠");
-		Engine::Editor::Value("Lock decoration", "%s", HasDecorationGroup(GROUP_LOCK) ? "yes" : "no (通常枠を LockColor で代用)");
+		Engine::EditorField::HelpText("飾りの Group : 0 = 通常枠 / 1 = ロック枠");
+		Engine::EditorField::Value("Lock decoration", "%s", HasDecorationGroup(GROUP_LOCK) ? "yes" : "no (通常枠を LockColor で代用)");
 
 		// 枠は画面内の敵すべてに出る。
 		// ロック(赤枠)の判定半径と距離はプレイヤー側(LockOnTargetComponent)の設定
-		Engine::Editor::HelpText("Boxes : every enemy on screen (within MaxDistance)");
-		Engine::Editor::HelpText("Lock radius / range : Player's LockOnTargetComponent");
-		Engine::Editor::HelpText("PixelPos is unused (follows enemies)");
-		Engine::Editor::Value("Boxes", "%d%s", static_cast<int>(m_targetScreenPosVec.size()), m_isLocked ? " (+lock)" : "");
+		Engine::EditorField::HelpText("Boxes : every enemy on screen (within MaxDistance)");
+		Engine::EditorField::HelpText("Lock radius / range : Player's LockOnTargetComponent");
+		Engine::EditorField::HelpText("PixelPos is unused (follows enemies)");
+		Engine::EditorField::Value("Boxes", "%d%s", static_cast<int>(m_targetScreenPosVec.size()), m_isLocked ? " (+lock)" : "");
 	}
 }

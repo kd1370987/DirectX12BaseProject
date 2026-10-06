@@ -95,7 +95,7 @@ namespace Engine::Graphics::Pipeline
 		}
 
 		// 依存の洗い出し : 繋いだ相手だけを辺とする
-		std::unordered_map<Engine::GUID, std::unordered_set<Engine::GUID>> _dependMap = {};
+		std::unordered_map<Core::GUID, std::unordered_set<Core::GUID>> _dependMap = {};
 		for (const auto& [_srcGUID, _connectionVec] : m_pRenderGraph->GetConnections())
 		{
 			// パスごとに出ている線を見る
@@ -155,7 +155,7 @@ namespace Engine::Graphics::Pipeline
 		{
 			if (!_upPass) continue;
 
-			const Engine::GUID& _passGUID = _upPass->GetGUID();
+			const Core::GUID& _passGUID = _upPass->GetGUID();
 
 			for (Slot& _out : _upPass->RefOutputSlots())
 			{
@@ -189,13 +189,13 @@ namespace Engine::Graphics::Pipeline
 		// 「このパスの入力へ誰が来ているか」を毎回全走査することになる
 		struct IncomingLink
 		{
-			Engine::GUID srcPassGUID = {};		// 元のパス
+			Core::GUID srcPassGUID = {};		// 元のパス
 			uint32_t srcSlotID = 0;				// 元パスのスロットID
 			uint32_t dstSlotID = 0;				// つながっているところのID
 		};
 
 		// 対応表作成
-		std::unordered_map<Engine::GUID, std::vector<IncomingLink>> _incomingMap = {};
+		std::unordered_map<Core::GUID, std::vector<IncomingLink>> _incomingMap = {};
 		for (const auto& [_srcGUID, _connectionVec] : m_pRenderGraph->GetConnections())
 		{
 			for (const Connection& _connection : _connectionVec)

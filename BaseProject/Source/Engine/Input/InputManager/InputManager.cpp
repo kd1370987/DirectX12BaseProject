@@ -20,11 +20,11 @@ namespace Engine::Input
 		// エディタのテキスト入力欄にフォーカスがあるか(=文字入力中か)。
 		// この間はゲーム側の入力を無効化し、プレイヤー操作やシーン遷移が
 		// 誤って走らないようにする。
-		// エディタが無い(無効時など)ときは何もブロックしない
-		bool IsUICapturingInput()
-		{
-			return Editor::IsTextInputActive();
-		}
+		// エディタが無い(無効時など)ときは何もブロックしない
+		bool IsUICapturingInput()
+		{
+			return EditorField::IsTextInputActive();
+		}
 
 		// ゲーム入力を受け付けてよい状態か。
 		//
@@ -354,17 +354,17 @@ namespace Engine::Input
 	bool InputManager::IsPress(ActionKey a_action) const
 	{
 		if (!m_isActive) return false;
-		return Utility::HasFlag(GetButtonState(a_action), InputButtonBase::EState::Press);
+		return Core::HasFlag(GetButtonState(a_action), InputButtonBase::EState::Press);
 	}
 	bool InputManager::IsHold(ActionKey a_action) const
 	{
 		if (!m_isActive) return false;
-		return Utility::HasFlag(GetButtonState(a_action), InputButtonBase::EState::Hold);
+		return Core::HasFlag(GetButtonState(a_action), InputButtonBase::EState::Hold);
 	}
 	bool InputManager::IsRelease(ActionKey a_action) const
 	{
 		if (!m_isActive) return false;
-		return Utility::HasFlag(GetButtonState(a_action), InputButtonBase::EState::Release);
+		return Core::HasFlag(GetButtonState(a_action), InputButtonBase::EState::Release);
 	}
 
 	//======================================================================================
@@ -394,12 +394,12 @@ namespace Engine::Input
 
 	bool InputManager::IsSystemPress(ActionKey a_action) const
 	{
-		return Utility::HasFlag(GetSystemButtonState(a_action), InputButtonBase::EState::Press);
+		return Core::HasFlag(GetSystemButtonState(a_action), InputButtonBase::EState::Press);
 	}
 
 	bool InputManager::IsSystemHold(ActionKey a_action) const
 	{
-		return Utility::HasFlag(GetSystemButtonState(a_action), InputButtonBase::EState::Hold);
+		return Core::HasFlag(GetSystemButtonState(a_action), InputButtonBase::EState::Hold);
 	}
 
 	// 任意の軸の入力状態を取得

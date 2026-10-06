@@ -111,30 +111,30 @@ namespace App::Object
 
 	void SwarmBossStateMachine::DrawInspector()
 	{
-		Engine::Editor::Value("現在のステート", "%s", m_pCurrentState
+		Engine::EditorField::Value("現在のステート", "%s", m_pCurrentState
 			? GetStateDisplayName(m_currentState).c_str()
 			: "(未開始)");
 
 		//------------------------------------------------------------------
 		// デバッグ : 次のステートを指定する
 		//------------------------------------------------------------------
-		Engine::Editor::Header("デバッグ");
-		Engine::Editor::Field("指定するステート", m_debugState);
-		if (Engine::Editor::Button("今すぐ切り替える"))
+		Engine::EditorField::Header("デバッグ");
+		Engine::EditorField::Field("指定するステート", m_debugState);
+		if (Engine::EditorField::Button("今すぐ切り替える"))
 		{
 			// 切り替わるのは次のフレーム(普段の切り替えと同じ)
 			RequestChangeState(m_debugState);
 		}
-		Engine::Editor::Tooltip("選んだステートへ次のフレームで切り替える");
-		Engine::Editor::Field("次の攻撃を固定", m_isDebugNextAttack);
-		Engine::Editor::Tooltip("徘徊から攻撃へ移るとき、抽選せずに選んだステートへ入る");
+		Engine::EditorField::Tooltip("選んだステートへ次のフレームで切り替える");
+		Engine::EditorField::Field("次の攻撃を固定", m_isDebugNextAttack);
+		Engine::EditorField::Tooltip("徘徊から攻撃へ移るとき、抽選せずに選んだステートへ入る");
 
 		for (auto& [_state, _upState] : m_upStates)
 		{
 			if (!_upState) continue;
 
-			Engine::Editor::Header(GetStateDisplayName(_state).c_str());
-			Engine::Editor::IDScope _id(static_cast<int>(_state));
+			Engine::EditorField::Header(GetStateDisplayName(_state).c_str());
+			Engine::EditorField::IDScope _id(static_cast<int>(_state));
 			_upState->DrawInspector();
 		}
 	}

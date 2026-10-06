@@ -1,16 +1,19 @@
 ﻿#pragma once
 
-struct PreviousWorldMatrixComponent
+namespace App::Component
 {
-	Math::Matrix worldMat = {};
-};
+	struct PreviousWorldMatrixComponent
+	{
+		Math::Matrix worldMat = {};
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<PreviousWorldMatrixComponent>
+struct Engine::ECS::ComponentTraits<App::Component::PreviousWorldMatrixComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		PreviousWorldMatrixComponent& _comp = Engine::Editor::GetValue<PreviousWorldMatrixComponent>(a_context.pData);
-		Engine::Editor::Field("prevWorldMat", _comp.worldMat);
+		App::Component::PreviousWorldMatrixComponent& _comp = Engine::EditorField::GetValue<App::Component::PreviousWorldMatrixComponent>(a_context.pData);
+		Engine::EditorField::Field("prevWorldMat", _comp.worldMat);
 	}
 };

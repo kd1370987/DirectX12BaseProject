@@ -8,7 +8,7 @@
 
 #include "../Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
-#include "Engine/Editor/Editor.h"
+#include "Editor/Editor.h"
 namespace App
 {
 	//==================================================================================
@@ -126,7 +126,7 @@ namespace App
 			// プロファイラのフレーム終了
 			// ここで受け取った結果の集計・平均の確定・表示用の並べ替えが行われ、
 			// 次フレームのパネル描画で使われる
-			Engine::Editor::MainEditor::Instance().EndProfileFrame();
+			::Editor::MainEditor::Instance().EndProfileFrame();
 		}
 	}
 
@@ -148,7 +148,7 @@ namespace App
 		// エディターがモーダルな画面(エフェクトエディター)を出している間は切り替えない。
 		// あちらが開いている間はゲームのシーンが止まっているので、
 		// ここで切り替えると「プレイモードなのに何も動かない」状態になってしまう
-		if (Engine::Editor::MainEditor::Instance().IsModalActive()) return;
+		if (::Editor::MainEditor::Instance().IsModalActive()) return;
 
 		// プレイモードでなくても拾う取り方。エディターに居るときに押すため
 		if (!Engine::Input::InputManager::Instance().IsSystemPress(

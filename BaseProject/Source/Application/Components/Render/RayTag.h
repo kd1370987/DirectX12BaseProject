@@ -1,4 +1,7 @@
 ﻿
 #pragma once
 
-struct RayTag {};
+namespace App::Component
+{
+	struct RayTag {};
+}

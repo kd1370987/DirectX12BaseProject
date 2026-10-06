@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/System/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/Audio/AudioManager.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 namespace App::Object
 {
@@ -183,36 +183,36 @@ namespace App::Object
 	//======================================================================================
 	void SequenceBgm::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Header("BGM");
+		Engine::EditorField::Header("BGM");
 
 		// 曲を差し替えたら、借りている分を返して鳴らし直させる
-		if (Engine::Editor::AssetField(*a_context.pServices, "Bgm", "Sound", m_guid))
+		if (Engine::EditorField::AssetField(*a_context.pServices, "Bgm", "Sound", m_guid))
 		{
 			Release(a_context);
 		}
 
-		if (Engine::Editor::Field("BgmVolume", m_volume, 0.01f, 0.0f, 1.0f))
+		if (Engine::EditorField::Field("BgmVolume", m_volume, 0.01f, 0.0f, 1.0f))
 		{
 			// 鳴らしながら合わせられるよう、その場で送り直す
 			ApplyVolume();
 		}
 
-		Engine::Editor::Field("BgmFadeInTime", m_fadeInTime, 0.05f, 0.0f, 20.0f);
-		Engine::Editor::Tooltip("鳴り始めに音量を上げきるまでの時間(秒)。0で即時");
+		Engine::EditorField::Field("BgmFadeInTime", m_fadeInTime, 0.05f, 0.0f, 20.0f);
+		Engine::EditorField::Tooltip("鳴り始めに音量を上げきるまでの時間(秒)。0で即時");
 
-		Engine::Editor::Field("BgmLoop", m_isLoop);
+		Engine::EditorField::Field("BgmLoop", m_isLoop);
 
 		bool _isDuckTarget = m_isDuckTarget;
-		if (Engine::Editor::Field("BgmDuckTarget", _isDuckTarget)) SetDuckTarget(_isDuckTarget);
-		Engine::Editor::Tooltip("ポーズ中の絞りを受けるか。ポーズ自身のBGMは切ること");
+		if (Engine::EditorField::Field("BgmDuckTarget", _isDuckTarget)) SetDuckTarget(_isDuckTarget);
+		Engine::EditorField::Tooltip("ポーズ中の絞りを受けるか。ポーズ自身のBGMは切ること");
 
 		// 鳴らし直し : 曲を変えずに頭から確かめたいとき用
-		if (Engine::Editor::CreateButton("Replay Bgm"))
+		if (Engine::EditorField::CreateButton("Replay Bgm"))
 		{
 			Release(a_context);
 		}
 
-		Engine::Editor::SameLine();
-		Engine::Editor::Value("Playing", "%s", m_isStarted ? "yes" : (m_isFailed ? "failed" : "no"));
+		Engine::EditorField::SameLine();
+		Engine::EditorField::Value("Playing", "%s", m_isStarted ? "yes" : (m_isFailed ? "failed" : "no"));
 	}
 }

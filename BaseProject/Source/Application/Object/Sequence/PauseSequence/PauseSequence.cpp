@@ -5,7 +5,7 @@
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Option/OptionManager.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 #include "../../UI/UIButton/UIButton.h"
 
@@ -83,9 +83,9 @@ namespace App::Object
 		if (m_isBound) return;
 		if (!a_context.pObjectManager) return;
 
-		auto* _pResume = Engine::TypeInfo::Cast<UIButton>(
+		auto* _pResume = Core::TypeInfo::Cast<UIButton>(
 			m_resumeButtonGUID.IsValid() ? a_context.pObjectManager->FindByGUID(m_resumeButtonGUID) : nullptr);
-		auto* _pExit = Engine::TypeInfo::Cast<UIButton>(
+		auto* _pExit = Core::TypeInfo::Cast<UIButton>(
 			m_exitButtonGUID.IsValid() ? a_context.pObjectManager->FindByGUID(m_exitButtonGUID) : nullptr);
 
 		// 設定されているのに見つからないものがあれば、まだ読み込みの途中とみなして次のフレームへ回す
@@ -110,7 +110,7 @@ namespace App::Object
 
 		// 自分を外すだけ。後ろのゲームは残っているので続きから動き出す
 		Engine::Scene::SceneManager::Instance().SetNextScene(
-			Engine::DEFAULT_GUID, Engine::Scene::ESceneChangeType::Pop);
+			Core::DEFAULT_GUID, Engine::Scene::ESceneChangeType::Pop);
 	}
 
 	//======================================================================================
@@ -132,7 +132,7 @@ namespace App::Object
 
 		// 先に自分を外す。重ねたまま差し替えると、入れ替わるのは後ろのゲームの方で
 		// ポーズ画面が乗りっぱなしになる
-		_sceneManager.SetNextScene(Engine::DEFAULT_GUID, Engine::Scene::ESceneChangeType::Pop);
+		_sceneManager.SetNextScene(Core::DEFAULT_GUID, Engine::Scene::ESceneChangeType::Pop);
 
 		// 続けて後ろのゲームを行き先へ差し替える(命令は積んだ順に処理される)
 		_sceneManager.SetNextScene(m_exitSceneGUID, Engine::Scene::ESceneChangeType::Replace);
@@ -181,17 +181,17 @@ namespace App::Object
 	//======================================================================================
 	void PauseSequence::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Header("Buttons");
+		Engine::EditorField::Header("Buttons");
 
 		// 同じシーンに置いた UIButton から選ぶ
-		auto _drawButtonCombo = [&](const char* a_label, Engine::GUID& a_inoutGUID)
+		auto _drawButtonCombo = [&](const char* a_label, Core::GUID& a_inoutGUID)
 			{
 				std::string _current = a_inoutGUID.IsValid() ? a_inoutGUID.String() : "None";
 
-				Engine::Editor::ComboScope _combo(a_label, _current.c_str());
+				Engine::EditorField::ComboScope _combo(a_label, _current.c_str());
 				if (!_combo) return;
 
-				if (Engine::Editor::Selectable("None", !a_inoutGUID.IsValid()))
+				if (Engine::EditorField::Selectable("None", !a_inoutGUID.IsValid()))
 				{
 					a_inoutGUID = {};
 					m_isBound = false;
@@ -202,21 +202,21 @@ namespace App::Object
 					const auto& _objectVec = a_context.pObjectManager->GetObjects();
 					for (size_t _i = 0; _i < _objectVec.size(); ++_i)
 					{
-						auto* _pButton = Engine::TypeInfo::Cast<UIButton>(_objectVec[_i].get());
+						auto* _pButton = Core::TypeInfo::Cast<UIButton>(_objectVec[_i].get());
 						if (!_pButton) continue;
 
 						// 同名でもIDがぶつからないようにする
-						Engine::Editor::IDScope _id(static_cast<int>(_i));
+						Engine::EditorField::IDScope _id(static_cast<int>(_i));
 
 						const bool _isSelected = (a_inoutGUID == _pButton->GetGUID());
-						if (Engine::Editor::Selectable(_pButton->GetGUID().String().c_str(), _isSelected))
+						if (Engine::EditorField::Selectable(_pButton->GetGUID().String().c_str(), _isSelected))
 						{
 							a_inoutGUID = _pButton->GetGUID();
 
 							// 差し込み直させる
 							m_isBound = false;
 						}
-						if (_isSelected) Engine::Editor::SetItemDefaultFocus();
+						if (_isSelected) Engine::EditorField::SetItemDefaultFocus();
 					}
 				}
 			};
@@ -224,33 +224,33 @@ namespace App::Object
 		_drawButtonCombo("Resume", m_resumeButtonGUID);
 		_drawButtonCombo("Exit", m_exitButtonGUID);
 
-		Engine::Editor::Header("Exit Scene");
+		Engine::EditorField::Header("Exit Scene");
 
-		Engine::Editor::AssetField(*a_context.pServices, "Scene", "Scene", m_exitSceneGUID);
-		Engine::Editor::Tooltip("やめたときの行き先(ホームなど)");
+		Engine::EditorField::AssetField(*a_context.pServices, "Scene", "Scene", m_exitSceneGUID);
+		Engine::EditorField::Tooltip("やめたときの行き先(ホームなど)");
 		if (!m_exitSceneGUID.IsValid())
 		{
-			Engine::Editor::HelpText("(未設定 : Exit を押しても移りません)");
+			Engine::EditorField::HelpText("(未設定 : Exit を押しても移りません)");
 		}
 
-		Engine::Editor::Header("Input");
+		Engine::EditorField::Header("Input");
 
-		Engine::Editor::Field("Pause Action", m_pauseAction);
-		Engine::Editor::Tooltip("これを押しても閉じる。開くのと同じ名前にしておく");
+		Engine::EditorField::Field("Pause Action", m_pauseAction);
+		Engine::EditorField::Tooltip("これを押しても閉じる。開くのと同じ名前にしておく");
 
 		m_bgm.DrawInspector(a_context);
 
-		Engine::Editor::Field("GameBgmDuck", m_gameBgmDuck, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("ポーズ中、下のゲームBGMへ掛ける倍率(1で絞らない)");
+		Engine::EditorField::Field("GameBgmDuck", m_gameBgmDuck, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Tooltip("ポーズ中、下のゲームBGMへ掛ける倍率(1で絞らない)");
 
-		Engine::Editor::Header("Cursor");
+		Engine::EditorField::Header("Cursor");
 
-		Engine::Editor::Field("ReleaseCursorLock", m_isReleaseCursorLock);
-		Engine::Editor::Tooltip("ポーズの間はカーソルの中央固定を切る");
+		Engine::EditorField::Field("ReleaseCursorLock", m_isReleaseCursorLock);
+		Engine::EditorField::Tooltip("ポーズの間はカーソルの中央固定を切る");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Header("Runtime");
-		Engine::Editor::Value("Bound", "%s", m_isBound ? "yes" : "no");
-		Engine::Editor::Value("Closing", "%s", m_isClosing ? "yes" : "no");
+		Engine::EditorField::Header("Runtime");
+		Engine::EditorField::Value("Bound", "%s", m_isBound ? "yes" : "no");
+		Engine::EditorField::Value("Closing", "%s", m_isClosing ? "yes" : "no");
 	}
 }

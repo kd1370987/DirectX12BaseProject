@@ -5,7 +5,7 @@
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Option/OptionManager.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 #include "../../UI/UIButton/UIButton.h"
 
@@ -64,7 +64,7 @@ namespace App::Object
 		if (!_pObject) return;
 
 		// 指定されたGUIDがボタン以外だった場合は差し込まない
-		auto* _pButton = Engine::TypeInfo::Cast<UIButton>(_pObject);
+		auto* _pButton = Core::TypeInfo::Cast<UIButton>(_pObject);
 		if (!_pButton)
 		{
 			// 設定ミスに気付けるよう一度だけ知らせて、以降は試さない
@@ -138,15 +138,15 @@ namespace App::Object
 	//======================================================================================
 	void TitleSequence::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Header("Play Button");
+		Engine::EditorField::Header("Play Button");
 
 		// 同じシーンに置いた UIButton から選ぶ
 		std::string _current = "None";
 		if (m_playButtonGUID.IsValid()) _current = m_playButtonGUID.String();
 
-		if (Engine::Editor::ComboScope _combo{ "Button", _current.c_str() })
+		if (Engine::EditorField::ComboScope _combo{ "Button", _current.c_str() })
 		{
-			if (Engine::Editor::Selectable("None", !m_playButtonGUID.IsValid()))
+			if (Engine::EditorField::Selectable("None", !m_playButtonGUID.IsValid()))
 			{
 				m_playButtonGUID = {};
 				m_isBound = false;
@@ -157,39 +157,39 @@ namespace App::Object
 				const auto& _objectVec = a_context.pObjectManager->GetObjects();
 				for (size_t _i = 0; _i < _objectVec.size(); ++_i)
 				{
-					auto* _pButton = Engine::TypeInfo::Cast<UIButton>(_objectVec[_i].get());
+					auto* _pButton = Core::TypeInfo::Cast<UIButton>(_objectVec[_i].get());
 					if (!_pButton) continue;
 
 					// 同名でもIDがぶつからないようにする
-					Engine::Editor::IDScope _id(static_cast<int>(_i));
+					Engine::EditorField::IDScope _id(static_cast<int>(_i));
 
 					const bool _isSelected = (m_playButtonGUID == _pButton->GetGUID());
-					if (Engine::Editor::Selectable(_pButton->GetGUID().String().c_str(), _isSelected))
+					if (Engine::EditorField::Selectable(_pButton->GetGUID().String().c_str(), _isSelected))
 					{
 						m_playButtonGUID = _pButton->GetGUID();
 
 						// 差し込み直させる
 						m_isBound = false;
 					}
-					if (_isSelected) Engine::Editor::SetItemDefaultFocus();
+					if (_isSelected) Engine::EditorField::SetItemDefaultFocus();
 				}
 			}
 		}
 
-		Engine::Editor::Header("Next Scene");
+		Engine::EditorField::Header("Next Scene");
 
-		Engine::Editor::AssetField(*a_context.pServices, "Scene", "Scene", m_nextSceneGUID);
+		Engine::EditorField::AssetField(*a_context.pServices, "Scene", "Scene", m_nextSceneGUID);
 
 		m_bgm.DrawInspector(a_context);
 
-		Engine::Editor::Header("Cursor");
+		Engine::EditorField::Header("Cursor");
 
-		Engine::Editor::Field("ReleaseCursorLock", m_isReleaseCursorLock);
-		Engine::Editor::Tooltip("タイトルの間はカーソルの中央固定を切る");
+		Engine::EditorField::Field("ReleaseCursorLock", m_isReleaseCursorLock);
+		Engine::EditorField::Tooltip("タイトルの間はカーソルの中央固定を切る");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Header("Runtime");
-		Engine::Editor::Value("Bound", "%s", m_isBound ? "yes" : "no");
-		Engine::Editor::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
+		Engine::EditorField::Header("Runtime");
+		Engine::EditorField::Value("Bound", "%s", m_isBound ? "yes" : "no");
+		Engine::EditorField::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
 	}
 }

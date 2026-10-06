@@ -1,4 +1,7 @@
 ﻿
 #pragma once
 
-struct ReleaseTag {};
+namespace App::Component
+{
+	struct ReleaseTag {};
+}

@@ -21,8 +21,8 @@ namespace App::ECS
 	//======================================================================================
 	APPWorld::APPWorld()
 	{
-		AddResource<HierarchyResource>();
-		AddResource<ResourceWaitResource>();
+		AddResource<InstanceResource::HierarchyResource>();
+		AddResource<InstanceResource::ResourceWaitResource>();
 	}
 
 	void APPWorld::RegisterGameTypes()
@@ -48,7 +48,7 @@ namespace App::ECS
 	void APPWorld::BeginFrame()
 	{
 		// 階層の変更通知をリセット
-		RefResource<HierarchyResource>().isDirty = false;
+		RefResource<InstanceResource::HierarchyResource>().isDirty = false;
 
 		// システムのソート
 		m_systemManager.Sort();
@@ -82,7 +82,7 @@ namespace App::ECS
 		// ---------------------------------------------------------
 		RunSystem(ESystemType::PostDeserialize, 0.0f);
 		ApplyReservedChange();
-		TransitionPhase<PostDeserializeTag, AwakeTag>();
+		TransitionPhase<Component::PostDeserializeTag, Component::AwakeTag>();
 		ApplyReservedChange();
 
 		RunSystem(ESystemType::Awake, 0.0f);
@@ -95,9 +95,9 @@ namespace App::ECS
 		// Start 系が複数ぶら下がっていて「一部だけ走った」状態を作れないため。
 		// 領域確保をするシステムがあるので、二重実行はそのままリークになる
 		{
-			auto& _waitRes = RefResource<ResourceWaitResource>();
+			auto& _waitRes = RefResource<InstanceResource::ResourceWaitResource>();
 
-			TransitionPhase<AwakeTag, StartTag>(
+			TransitionPhase<Component::AwakeTag, Component::StartTag>(
 				[&_waitRes](Entity a_entity)
 				{
 					return !_waitRes.IsWaiting(a_entity);
@@ -112,7 +112,7 @@ namespace App::ECS
 
 		RunSystem(ESystemType::Start, 0.0f);
 		ApplyReservedChange();
-		TransitionPhase<StartTag, ActiveTag>();
+		TransitionPhase<Component::StartTag, Component::ActiveTag>();
 		ApplyReservedChange();
 	}
 
@@ -129,7 +129,7 @@ namespace App::ECS
 	void APPWorld::Release()
 	{
 		// 動いているものを後始末へ回す
-		TransitionPhase<ActiveTag, ReleaseTag>();
+		TransitionPhase<Component::ActiveTag, Component::ReleaseTag>();
 		ApplyReservedChange();
 
 		// 削除前にリリース処理を走らせる
@@ -153,16 +153,16 @@ namespace App::ECS
 		Signature _sig = GetSignature(a_entity);
 
 		// すでに解放待ちなら積み直さない(寿命と撃破が同じフレームに重なる等)
-		if (_sig.test(GetCompTypeID<ReleaseTag>())) return;
+		if (_sig.test(GetCompTypeID<Component::ReleaseTag>())) return;
 
 		// もう動かす必要はないので Active から外して Release へ移す。
 		// BeginFrame では「引っ越し → Release実行 → ReleaseTag付きを削除」の順に流れるので、
 		// 次のフレームの頭で解放処理まで済ませて消える
-		if (_sig.test(GetCompTypeID<ActiveTag>()))
+		if (_sig.test(GetCompTypeID<Component::ActiveTag>()))
 		{
-			_sig.reset(GetCompTypeID<ActiveTag>());
+			_sig.reset(GetCompTypeID<Component::ActiveTag>());
 		}
-		_sig.set(GetCompTypeID<ReleaseTag>());
+		_sig.set(GetCompTypeID<Component::ReleaseTag>());
 
 		ChangeEntityCmd _cmd = {};
 		_cmd.entity = a_entity;
@@ -174,10 +174,10 @@ namespace App::ECS
 	//======================================================================================
 	// GUIDからエンティティを探す
 	//======================================================================================
-	Entity APPWorld::GetEntity(const Engine::GUID& a_guid)
+	Entity APPWorld::GetEntity(const Core::GUID& a_guid)
 	{
 		// 未設定の GUID は誰も指していないものとして扱う(呼ぶ側も未設定なら引かない)
-		if (a_guid == Engine::DEFAULT_GUID) return Engine::ECS::Limits::INVALID_ENTITY;
+		if (a_guid == Core::DEFAULT_GUID) return Engine::ECS::Limits::INVALID_ENTITY;
 
 		if (m_isGuidIndexDirty)
 		{
@@ -208,13 +208,13 @@ namespace App::ECS
 	{
 		m_guidIndexMap.clear();
 
-		ForEach<const GUIDComponent>(
-			[this](Chunk* a_pChunk, uint32_t a_count, const GUIDComponent* a_guidArray)
+		ForEach<const Component::GUIDComponent>(
+			[this](Chunk* a_pChunk, uint32_t a_count, const Component::GUIDComponent* a_guidArray)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
-					const Engine::GUID& _guid = a_guidArray[_i].guid;
-					if (_guid == Engine::DEFAULT_GUID) continue;
+					const Core::GUID& _guid = a_guidArray[_i].guid;
+					if (_guid == Core::DEFAULT_GUID) continue;
 
 					// 同じ GUID が重なっていたら先に見つかったほう(以前の全件検索と同じ)
 					m_guidIndexMap.emplace(_guid, a_pChunk->entityData[_i]);
@@ -225,12 +225,12 @@ namespace App::ECS
 		m_isGuidIndexDirty = false;
 	}
 
-	Entity APPWorld::FindEntityByScan(const Engine::GUID& a_guid)
+	Entity APPWorld::FindEntityByScan(const Core::GUID& a_guid)
 	{
 		Entity _res = Engine::ECS::Limits::INVALID_ENTITY;
 
-		ForEach<const GUIDComponent>(
-			[&a_guid, &_res](Chunk* a_pChunk, uint32_t a_count, const GUIDComponent* a_guidArray)
+		ForEach<const Component::GUIDComponent>(
+			[&a_guid, &_res](Chunk* a_pChunk, uint32_t a_count, const Component::GUIDComponent* a_guidArray)
 			{
 				if (_res != Engine::ECS::Limits::INVALID_ENTITY) return;
 
@@ -247,12 +247,12 @@ namespace App::ECS
 		return _res;
 	}
 
-	bool APPWorld::IsGuidIndexEntryValid(const Entity& a_entity, const Engine::GUID& a_guid)
+	bool APPWorld::IsGuidIndexEntryValid(const Entity& a_entity, const Core::GUID& a_guid)
 	{
 		if (!IsAliveEntity(a_entity)) return false;
-		if (!HasComponent<GUIDComponent>(a_entity)) return false;
+		if (!HasComponent<Component::GUIDComponent>(a_entity)) return false;
 
-		const GUIDComponent* _pGuid = RefData<GUIDComponent>(a_entity);
+		const Component::GUIDComponent* _pGuid = RefData<Component::GUIDComponent>(a_entity);
 		return _pGuid && _pGuid->guid == a_guid;
 	}
 
@@ -262,12 +262,12 @@ namespace App::ECS
 	void APPWorld::OnCreateEntitySignature(Signature& a_sig)
 	{
 		// 初めて通るシステムフェーズ
-		a_sig.set(GetCompTypeID<PostDeserializeTag>());
+		a_sig.set(GetCompTypeID<Component::PostDeserializeTag>());
 
 		// 保存データに ActiveTag が入っていても、初期化を飛ばさせない
-		if (a_sig.test(GetCompTypeID<ActiveTag>()))
+		if (a_sig.test(GetCompTypeID<Component::ActiveTag>()))
 		{
-			a_sig.reset(GetCompTypeID<ActiveTag>());
+			a_sig.reset(GetCompTypeID<Component::ActiveTag>());
 		}
 	}
 
@@ -275,24 +275,24 @@ namespace App::ECS
 	{
 		// 動いているものだけを初期化へ戻す。
 		// まだ初期化中のものは、今いるフェーズをそのまま続けさせる
-		if (!a_sig.test(GetCompTypeID<ActiveTag>())) return;
+		if (!a_sig.test(GetCompTypeID<Component::ActiveTag>())) return;
 
-		a_sig.set(GetCompTypeID<PostDeserializeTag>());
-		a_sig.reset(GetCompTypeID<ActiveTag>());
+		a_sig.set(GetCompTypeID<Component::PostDeserializeTag>());
+		a_sig.reset(GetCompTypeID<Component::ActiveTag>());
 	}
 
 	bool APPWorld::IsReenteringInit(const Signature& a_from, const Signature& a_to)
 	{
 		// PostDeserialize へ入り直すなら、直後に fixup が取り直すので
 		// 今持っているものは返させる(返さないと二重に持つ)
-		const ComponentTypeID _postDeserializeID = GetCompTypeID<PostDeserializeTag>();
+		const ComponentTypeID _postDeserializeID = GetCompTypeID<Component::PostDeserializeTag>();
 		return a_to.test(_postDeserializeID) && !a_from.test(_postDeserializeID);
 	}
 
 	void APPWorld::OnEntityStructureChanged()
 	{
 		// エンティティの構成が変わったので階層の作り直しを促す
-		RefResource<HierarchyResource>().isDirty = true;
+		RefResource<InstanceResource::HierarchyResource>().isDirty = true;
 
 		// 生成・削除があれば GUID の索引も古くなる(次に引くときに作り直す)
 		m_isGuidIndexDirty = true;
@@ -310,11 +310,11 @@ namespace App::ECS
 		for (const Entity& _entity : m_commandBuffer.TakeRefresh())
 		{
 			Signature _sig = GetSignature(_entity);
-			if (_sig.test(GetCompTypeID<ActiveTag>()))
+			if (_sig.test(GetCompTypeID<Component::ActiveTag>()))
 			{
-				_sig.reset(GetCompTypeID<ActiveTag>());
+				_sig.reset(GetCompTypeID<Component::ActiveTag>());
 			}
-			_sig.set(GetCompTypeID<ReleaseTag>());
+			_sig.set(GetCompTypeID<Component::ReleaseTag>());
 
 			ChangeEntityCmd _cmd = {};
 			_cmd.entity = _entity;
@@ -326,7 +326,7 @@ namespace App::ECS
 		RunSystem(ESystemType::Release, 0.0f);
 
 		// リリースされたものを初期化処理に回す
-		TransitionPhase<ReleaseTag, PostDeserializeTag>();
+		TransitionPhase<Component::ReleaseTag, Component::PostDeserializeTag>();
 	}
 
 	//======================================================================================
@@ -334,12 +334,12 @@ namespace App::ECS
 	//======================================================================================
 	void APPWorld::CollectReleasedEntities()
 	{
-		ForEach<ReleaseTag>(
+		ForEach<Component::ReleaseTag>(
 			[this]
 			(
 				Chunk* a_pChunk,
 				uint32_t a_count,
-				ReleaseTag* a_releaseTag
+				Component::ReleaseTag* a_releaseTag
 				)
 			{
 				(void)a_releaseTag;
@@ -369,8 +369,8 @@ namespace App::ECS
 	//======================================================================================
 	void APPWorld::PropagateReleaseToChildren()
 	{
-		const ComponentTypeID _releaseTypeID = GetCompTypeID<ReleaseTag>();
-		const ComponentTypeID _activeTypeID  = GetCompTypeID<ActiveTag>();
+		const ComponentTypeID _releaseTypeID = GetCompTypeID<Component::ReleaseTag>();
+		const ComponentTypeID _activeTypeID  = GetCompTypeID<Component::ActiveTag>();
 		if (_releaseTypeID == Engine::ECS::Limits::INVALID_COMPONENTTYPEID) return;
 
 		//----------------------------------------------------------------------
@@ -378,12 +378,12 @@ namespace App::ECS
 		//----------------------------------------------------------------------
 		std::unordered_set<Entity> _releasing = {};
 
-		ForEach<ReleaseTag>(
+		ForEach<Component::ReleaseTag>(
 			[&_releasing]
 			(
 				Chunk* a_pChunk,
 				uint32_t a_count,
-				ReleaseTag* a_releaseTag
+				Component::ReleaseTag* a_releaseTag
 				)
 			{
 				(void)a_releaseTag;
@@ -409,12 +409,12 @@ namespace App::ECS
 		{
 			_found.clear();
 
-			ForEach<const HierarchyComponent>(
+			ForEach<const Component::HierarchyComponent>(
 				[&_releasing, &_found]
 				(
 					Chunk* a_pChunk,
 					uint32_t a_count,
-					const HierarchyComponent* a_hierarchyArray
+					const Component::HierarchyComponent* a_hierarchyArray
 					)
 				{
 					for (uint32_t _i = 0; _i < a_count; ++_i)

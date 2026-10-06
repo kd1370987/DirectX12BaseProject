@@ -22,7 +22,7 @@ namespace Engine::Option::ProjectOptions
 		bool isEnable = true;
 
 		// カーソルとして描くテクスチャ
-		Engine::GUID textureGUID = {};
+		Core::GUID textureGUID = {};
 
 		// 描くときの一辺の大きさ(描画解像度基準のpx)。
 		// 画像は正方形として扱い、縦横ともこの大きさで描く

@@ -159,14 +159,14 @@ namespace App::Object
 		// ボスの構成要素
 		//------------------------------------------------------------------------------------------
 		// 先頭のリーダ : このクラスから指示を出す対象
-		Engine::GUID m_leaderPrefabGUID = {};								// 保存用
+		Core::GUID m_leaderPrefabGUID = {};								// 保存用
 		Engine::ResourceRef<Engine::Resource::Prefab> m_leaderPrefabHandle;	// ランタイム用
 		Engine::ECS::Entity m_leaderEntity = Engine::ECS::Limits::INVALID_ENTITY;
 		Math::Vector3 m_spawnPos = {};										// リーダーの生成位置(ワールド)
 
 		// 構成する小隊長 : 基本的にリーダーに追従する処理はECS側
 		// 並びはリーダーの後ろ(-Z)へ一列。間隔は小隊長プレハブの PlatoonLeaderComponent.distance
-		Engine::GUID m_platoonPrefabGUID = {};							// 小隊長のプレハブ(保存用)
+		Core::GUID m_platoonPrefabGUID = {};							// 小隊長のプレハブ(保存用)
 		Engine::ResourceRef<Engine::Resource::Prefab> m_platoonPrefab;	// 小隊長のプレハブ(ランタイム用)
 		std::vector<Engine::ECS::Entity> m_platoonLeaderEntities = {};	// 生存している小隊長
 		uint32_t m_maxPlatoonLeader = 100;								// 最大小隊長数
@@ -245,7 +245,7 @@ namespace App::Object
 
 		// 爆散の瞬間に球の中心へ炊く大きな爆発(EffectAsset。出し切って消えるもの)。
 		// 既定は Asset/Effect/Explosion/Explosion_Enemy_02(ボイド1体ずつの死亡は 01)
-		Engine::GUID m_burstEffectGUID = Engine::GUID("c4a70b39-8e21-4d6c-95f8-3b0e7a1d24f5");
+		Core::GUID m_burstEffectGUID = Core::GUID("c4a70b39-8e21-4d6c-95f8-3b0e7a1d24f5");
 		Engine::ResourceRef<Engine::Resource::EffectAsset> m_burstEffectRef = {};	// 読み込んだままにしておく
 		float m_burstEffectScale = 10.0f;		// 爆発の大きさ倍率(アセットのままの大きさに掛ける)
 
@@ -277,7 +277,7 @@ namespace App::Object
 		Math::Vector3 m_wavePeakColor = { 1.0f, 1.0f, 0.9f };	// ピークの色(0〜1)
 
 		// ---- 実行中の状態(保存しない) ----
-		std::vector<SwarmBossWave> m_waveVec = {};	// 走っているウェーブ(位置と速さ)
+		std::vector<Component::SwarmBossWave> m_waveVec = {};	// 走っているウェーブ(位置と速さ)
 		float m_waveTimer = 0.0f;					// 次に出すまでの残り時間(秒)
 		float m_tailAlongWorm = 0.0f;				// 最後尾の小隊長の1次元位置(生成時に決まる)
 
@@ -289,7 +289,7 @@ namespace App::Object
 		// 1回炊くたびにエフェクトのエンティティが1体増えるので、間隔と1フレームの上限で数を抑える
 		//------------------------------------------------------------------------------------------
 		// 炊くエフェクト(保存用。単発で消えるもの)。既定は Asset/Effect/Dast/Worm_GroundDust
-		Engine::GUID m_groundEffectGUID = Engine::GUID("a1a7bdfe-2da7-4767-8d22-55844f0a0115");
+		Core::GUID m_groundEffectGUID = Core::GUID("a1a7bdfe-2da7-4767-8d22-55844f0a0115");
 		Engine::ResourceRef<Engine::Resource::EffectAsset> m_groundEffectRef = {};		// 読み込んだままにしておく(炊くたびに読み直さない)
 
 		float m_groundEffectMaxHeight  = 20.0f;		// 地面からこの高さまでのボイドが炊く(m)
@@ -312,7 +312,7 @@ namespace App::Object
 		// 地表すれすれを泳ぐと切り替わりが続くので、間隔(cooldown)を空ける
 		//------------------------------------------------------------------------------------------
 		// 炊くエフェクトプレハブ(保存用)。既定は Asset/EffectPrefab/Worm/Worm_BurrowBurst
-		Engine::GUID m_burrowEffectGUID = Engine::GUID("3545c827-95ef-4b39-b3e1-ae2f11dd494d");
+		Core::GUID m_burrowEffectGUID = Core::GUID("3545c827-95ef-4b39-b3e1-ae2f11dd494d");
 		Engine::ResourceRef<Engine::Resource::EffectPrefab> m_burrowEffectRef = {};	// 読み込んだままにしておく
 
 		float m_burrowEffectCooldown = 1.0f;	// 次に炊けるまでの間隔(秒)

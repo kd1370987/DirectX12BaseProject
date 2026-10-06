@@ -12,37 +12,40 @@
 
 #include "Engine/Option/OptionManager.h"
 
-void CameraStartSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	a_world.StartTask<CameraParamComponent,ProjMatComponent>(
-		Engine::ECS::ESystemType::Start,
-		"CameraStartSystem",
-		[](
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			StartTag* a_startTag,
-			CameraParamComponent* a_camParamArray,
-			ProjMatComponent* a_projMatArray
-		)
-		{
-			for (size_t _i = 0; _i < a_count; ++_i)
+	void CameraStartSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		a_world.StartTask<Component::CameraParamComponent,Component::ProjMatComponent>(
+			Engine::ECS::ESystemType::Start,
+			"CameraStartSystem",
+			[](
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::StartTag* a_startTag,
+				Component::CameraParamComponent* a_camParamArray,
+				Component::ProjMatComponent* a_projMatArray
+			)
 			{
-				CameraParamComponent& _camParamComp = a_camParamArray[_i];
-				ProjMatComponent& _projMatComp = a_projMatArray[_i];
+				for (size_t _i = 0; _i < a_count; ++_i)
+				{
+					Component::CameraParamComponent& _camParamComp = a_camParamArray[_i];
+					Component::ProjMatComponent& _projMatComp = a_projMatArray[_i];
 
-				// カメラパラメーターの初期化
-				const auto& _winOp = Engine::Option::OptionManager::Instance().GetWindowOption();
-				_camParamComp.aspectRatio = (float)_winOp.windowWidth / (float)_winOp.windowHeight;
+					// カメラパラメーターの初期化
+					const auto& _winOp = Engine::Option::OptionManager::Instance().GetWindowOption();
+					_camParamComp.aspectRatio = (float)_winOp.windowWidth / (float)_winOp.windowHeight;
 
-				// プロジェクション行列の作成
-				_projMatComp.projMat = Math::Matrix::CreatePerspectiveFieldOfView(
-					DirectX::XMConvertToRadians(_camParamComp.GetFovY()),
-					_camParamComp.aspectRatio,
-					_camParamComp.nearZ,
-					_camParamComp.farZ
-				);
+					// プロジェクション行列の作成
+					_projMatComp.projMat = Math::Matrix::CreatePerspectiveFieldOfView(
+						DirectX::XMConvertToRadians(_camParamComp.GetFovY()),
+						_camParamComp.aspectRatio,
+						_camParamComp.nearZ,
+						_camParamComp.farZ
+					);
+				}
 			}
-		}
-	);
+		);
+	}
 }

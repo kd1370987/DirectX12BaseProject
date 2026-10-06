@@ -107,8 +107,8 @@ namespace DXSM = DirectX::SimpleMath;
 //---------------------------------------------------------
 // ImGui はここに置かない
 //
-// エディター配下だけが使うので、Engine/Editor/EditorPCH.h に置いてある。
-// エディターの外は Engine::Editor の EditorField 関数で編集UIを組む
+// エディター配下だけが使うので、Editor/EditorPCH.h に置いてある。
+// エディターの外は Engine::EditorField の関数で編集UIを組む
 //---------------------------------------------------------
 
 //---------------------------------------------------------
@@ -126,3 +126,6 @@ namespace DXSM = DirectX::SimpleMath;
 // Project Core / Engine (自作ヘッダー)
 //=============================================================================
 #include "Engine/EngineCommon.h"
+
+// App の共通(App 用の PCH を分けるまではここで読む)
+#include "Application/AppCommon.h"

@@ -4,7 +4,7 @@
 #include "Application/ECS/World/APPWorld.h"
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 #include "Engine/Common/Color.h"
 
 #include "Application/Components/Core/SpawnerComponent.h"
@@ -187,12 +187,12 @@ namespace App::Object
 		bool _isFound = false;
 		bool _isDead  = false;
 
-		a_context.pWorld->ForEach<const ActiveTag, const PlayerControllTag>(
+		a_context.pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag>(
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const ActiveTag* a_activeTagArray,
-				const PlayerControllTag* a_playerTagArray
+				const Component::ActiveTag* a_activeTagArray,
+				const Component::PlayerControllTag* a_playerTagArray
 			)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
@@ -200,9 +200,9 @@ namespace App::Object
 					_isFound = true;
 
 					const Engine::ECS::Entity _entity = a_pChunk->entityData[_i];
-					if (!a_context.pWorld->HasComponent<HealthComponent>(_entity)) continue;
+					if (!a_context.pWorld->HasComponent<Component::HealthComponent>(_entity)) continue;
 
-					const auto* _pHealth = a_context.pWorld->RefData<HealthComponent>(_entity);
+					const auto* _pHealth = a_context.pWorld->RefData<Component::HealthComponent>(_entity);
 					if (_pHealth && _pHealth->isDead) _isDead = true;
 				}
 			}
@@ -331,20 +331,20 @@ namespace App::Object
 	{
 		for (Wave& _wave : m_waves) _wave.aliveCount = 0;
 
-		const Engine::GUID _selfGUID = GetGUID();
+		const Core::GUID _selfGUID = GetGUID();
 		if (!_selfGUID.IsValid()) return;
 
-		a_context.pWorld->ForEach<const ActiveTag, const SpawnerComponent>(
+		a_context.pWorld->ForEach<const Component::ActiveTag, const Component::SpawnerComponent>(
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const ActiveTag* a_activeTagArray,
-				const SpawnerComponent* a_spawnerArray
+				const Component::ActiveTag* a_activeTagArray,
+				const Component::SpawnerComponent* a_spawnerArray
 			)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
-					const SpawnerComponent& _spawner = a_spawnerArray[_i];
+					const Component::SpawnerComponent& _spawner = a_spawnerArray[_i];
 
 					if (!(_spawner.spawnerGUID == _selfGUID)) continue;
 					if (_spawner.waveIndex < 0) continue;
@@ -352,9 +352,9 @@ namespace App::Object
 
 					// 倒されて消えるのを待っているだけの個体は生存に数えない
 					const Engine::ECS::Entity _entity = a_pChunk->entityData[_i];
-					if (a_context.pWorld->HasComponent<HealthComponent>(_entity))
+					if (a_context.pWorld->HasComponent<Component::HealthComponent>(_entity))
 					{
-						const auto* _pHealth = a_context.pWorld->RefData<HealthComponent>(_entity);
+						const auto* _pHealth = a_context.pWorld->RefData<Component::HealthComponent>(_entity);
 						if (_pHealth && _pHealth->isDead) continue;
 					}
 
@@ -469,9 +469,9 @@ namespace App::Object
 		// ここは「何番目が出たか」を置くだけで、見た目も音も持たない。
 		// 1体も出せなかったウェーブでも知らせる。ウェーブが進んだこと自体は
 		// 起きているので、黙って飛ばすと進行が止まったように見える
-		if (a_context.pWorld->HasResource<WaveAnnounceResource>())
+		if (a_context.pWorld->HasResource<InstanceResource::WaveAnnounceResource>())
 		{
-			a_context.pWorld->RefResource<WaveAnnounceResource>().Push(
+			a_context.pWorld->RefResource<InstanceResource::WaveAnnounceResource>().Push(
 				static_cast<int>(a_index), static_cast<int>(m_waves.size()));
 		}
 	}
@@ -520,7 +520,7 @@ namespace App::Object
 		if (!a_context.pWorld) return;
 		if (m_bossOrders.empty()) return;
 
-		const Engine::GUID _selfGUID = GetGUID();
+		const Core::GUID _selfGUID = GetGUID();
 
 		for (size_t _i = 0; _i < m_bossOrders.size(); ++_i)
 		{
@@ -535,12 +535,12 @@ namespace App::Object
 
 			int _sentCount = 0;
 
-			a_context.pWorld->ForEach<const ActiveTag, BossCommandComponent>(
+			a_context.pWorld->ForEach<const Component::ActiveTag, Component::BossCommandComponent>(
 				[&](
 					Engine::ECS::Chunk* a_pChunk,
 					uint32_t a_count,
-					const ActiveTag* a_activeTagArray,
-					BossCommandComponent* a_bossArray
+					const Component::ActiveTag* a_activeTagArray,
+					Component::BossCommandComponent* a_bossArray
 				)
 				{
 					for (uint32_t _b = 0; _b < a_count; ++_b)
@@ -550,10 +550,10 @@ namespace App::Object
 						{
 							const Engine::ECS::Entity _entity = a_pChunk->entityData[_b];
 
-							if (!a_context.pWorld->HasComponent<SpawnerComponent>(_entity)) continue;
+							if (!a_context.pWorld->HasComponent<Component::SpawnerComponent>(_entity)) continue;
 
 							const auto* _pSpawner =
-								a_context.pWorld->RefData<SpawnerComponent>(_entity);
+								a_context.pWorld->RefData<Component::SpawnerComponent>(_entity);
 							if (!_pSpawner) continue;
 
 							if (!(_pSpawner->spawnerGUID == _selfGUID)) continue;
@@ -715,9 +715,9 @@ namespace App::Object
 		Math::Matrix _mat = Math::Matrix::CreateTranslation(_worldPos);
 
 		// Ctrl を押している間だけスナップ(エンティティ用ギズモと同じ操作感)
-		const float _snap = Engine::Editor::IsCtrlDown() ? 1.0f : 0.0f;
+		const float _snap = Engine::EditorField::IsCtrlDown() ? 1.0f : 0.0f;
 
-		if (Engine::Editor::TranslateGizmo(a_ctx.viewMat, a_ctx.projMat, _mat, _snap))
+		if (Engine::EditorField::TranslateGizmo(a_ctx.viewMat, a_ctx.projMat, _mat, _snap))
 		{
 			// 保持しているのは相対座標なので、基準を引いてから書き戻す
 			*_pTargetPos = Math::Vector3(_mat._41, _mat._42, _mat._43) - _origin;
@@ -837,42 +837,42 @@ namespace App::Object
 	//======================================================================================
 	void SceneSequence::DrawInspector(Engine::GameObject::ObjectContext& a_context)
 	{
-		Engine::Editor::Value("Time", "%.2f", m_time);
-		if (Engine::Editor::Button("Reset Progress")) ResetProgress();
+		Engine::EditorField::Value("Time", "%.2f", m_time);
+		if (Engine::EditorField::Button("Reset Progress")) ResetProgress();
 
-		Engine::Editor::HelpText("Gizmo : select a position below (Ctrl to snap)");
+		Engine::EditorField::HelpText("Gizmo : select a position below (Ctrl to snap)");
 
-		Engine::Editor::Line();
+		Engine::EditorField::Line();
 
 		m_bgm.DrawInspector(a_context);
 
-		Engine::Editor::Line();
+		Engine::EditorField::Line();
 
 		//----------------------------------------------------------------------
 		// 決着(リザルトへの遷移)
 		//----------------------------------------------------------------------
-		if (Engine::Editor::CollapsingHeader("Result", true))
+		if (Engine::EditorField::CollapsingHeader("Result", true))
 		{
-			Engine::Editor::HelpText("負け : プレイヤーが倒された");
-			Engine::Editor::HelpText("勝ち : 生き残って全ウェーブを全滅させた(ボスも1ウェーブ)");
+			Engine::EditorField::HelpText("負け : プレイヤーが倒された");
+			Engine::EditorField::HelpText("勝ち : 生き残って全ウェーブを全滅させた(ボスも1ウェーブ)");
 
-			Engine::Editor::AssetField(
+			Engine::EditorField::AssetField(
 				*a_context.pServices,
 				"Result Scene", "Scene", m_resultSceneGUID);
 			if (!m_resultSceneGUID.IsValid())
 			{
-				Engine::Editor::HelpText("(未設定 : 決着しても移動しません)");
+				Engine::EditorField::HelpText("(未設定 : 決着しても移動しません)");
 			}
 
-			Engine::Editor::Field("Clear Delay (s)", m_clearDelay, 0.1f, 0.0f, 60.0f);
-			Engine::Editor::Field("Dead Delay (s)", m_deadDelay, 0.1f, 0.0f, 60.0f);
-			Engine::Editor::Tooltip("決着してから移るまでの間(演出を見せる時間)");
+			Engine::EditorField::Field("Clear Delay (s)", m_clearDelay, 0.1f, 0.0f, 60.0f);
+			Engine::EditorField::Field("Dead Delay (s)", m_deadDelay, 0.1f, 0.0f, 60.0f);
+			Engine::EditorField::Tooltip("決着してから移るまでの間(演出を見せる時間)");
 
-			Engine::Editor::Field("Reset On Start", m_isResetOnStart);
-			Engine::Editor::Tooltip("シーンの入り口でスコアとタイムを消す");
+			Engine::EditorField::Field("Reset On Start", m_isResetOnStart);
+			Engine::EditorField::Tooltip("シーンの入り口でスコアとタイムを消す");
 
 			// 実行中の状態は表示のみ
-			Engine::Editor::Line();
+			Engine::EditorField::Line();
 			const char* _resultName = "None";
 			switch (m_result)
 			{
@@ -880,37 +880,37 @@ namespace App::Object
 			case App::Game::EGameResult::GameOver: _resultName = "GameOver"; break;
 			default: break;
 			}
-			Engine::Editor::Value("Result", "%s", _resultName);
-			Engine::Editor::Value("Timer", "%.2f", m_resultTimer);
-			Engine::Editor::Value("Cleared", "%d / %d", GetClearedWaveCount(), static_cast<int>(m_waves.size()));
-			Engine::Editor::Value("PlayerHit", "%s", m_isPlayerFound ? "found" : "not yet");
-			Engine::Editor::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
+			Engine::EditorField::Value("Result", "%s", _resultName);
+			Engine::EditorField::Value("Timer", "%.2f", m_resultTimer);
+			Engine::EditorField::Value("Cleared", "%d / %d", GetClearedWaveCount(), static_cast<int>(m_waves.size()));
+			Engine::EditorField::Value("PlayerHit", "%s", m_isPlayerFound ? "found" : "not yet");
+			Engine::EditorField::Value("Requested", "%s", m_isSceneRequested ? "yes" : "no");
 		}
 
 		//----------------------------------------------------------------------
 		// ポーズ(重ねるシーン)
 		//----------------------------------------------------------------------
-		if (Engine::Editor::CollapsingHeader("Pause", true))
+		if (Engine::EditorField::CollapsingHeader("Pause", true))
 		{
-			Engine::Editor::HelpText("切り替えずに重ねるので、閉じれば続きから再開する");
+			Engine::EditorField::HelpText("切り替えずに重ねるので、閉じれば続きから再開する");
 
-			Engine::Editor::AssetField(
+			Engine::EditorField::AssetField(
 				*a_context.pServices,
 				"Pause Scene", "Scene", m_pauseSceneGUID);
 			if (!m_pauseSceneGUID.IsValid())
 			{
-				Engine::Editor::HelpText("(未設定 : ポーズしません)");
+				Engine::EditorField::HelpText("(未設定 : ポーズしません)");
 			}
 
-			Engine::Editor::Field("Pause Action", m_pauseAction);
-			Engine::Editor::Tooltip("InputManager へ登録したアクション名(既定 : Esc)");
+			Engine::EditorField::Field("Pause Action", m_pauseAction);
+			Engine::EditorField::Tooltip("InputManager へ登録したアクション名(既定 : Esc)");
 
-			Engine::Editor::Value("Paused", "%s", m_isPauseRequested ? "yes" : "no");
+			Engine::EditorField::Value("Paused", "%s", m_isPauseRequested ? "yes" : "no");
 		}
 
-		Engine::Editor::Line();
+		Engine::EditorField::Line();
 
-		if (Engine::Editor::CreateButton("Add Wave")) m_waves.emplace_back();
+		if (Engine::EditorField::CreateButton("Add Wave")) m_waves.emplace_back();
 
 		int _removeWaveIndex = -1;
 
@@ -918,34 +918,34 @@ namespace App::Object
 		{
 			Wave& _wave = m_waves[_i];
 
-			Engine::Editor::IDScope _id(static_cast<int>(_i));
+			Engine::EditorField::IDScope _id(static_cast<int>(_i));
 
 			const std::string _label = "Wave " + std::to_string(_i);
-			if (Engine::Editor::CollapsingHeader(_label.c_str(), true))
+			if (Engine::EditorField::CollapsingHeader(_label.c_str(), true))
 			{
 				// ---- 基準位置 ----
 				// ここを動かすと配下の出現位置(相対座標)がまとめて動く
-				Engine::Editor::Field("Wave Pos", _wave.pos, 0.1f);
+				Engine::EditorField::Field("Wave Pos", _wave.pos, 0.1f);
 
 				const bool _isGizmoWave =
 					(m_gizmoWaveIndex == static_cast<int>(_i)) && (m_gizmoSpawnIndex < 0);
-				if (Engine::Editor::RadioButton("Gizmo##wave", _isGizmoWave))
+				if (Engine::EditorField::RadioButton("Gizmo##wave", _isGizmoWave))
 				{
 					m_gizmoWaveIndex  = static_cast<int>(_i);
 					m_gizmoSpawnIndex = -1;
 				}
 
 				// ---- 出現条件 ----
-				Engine::Editor::Field("IsAnnihilation", _wave.isAnnihilation);
-				Engine::Editor::Tooltip(_wave.isAnnihilation ? "(after prev cleared)" : "(from scene start)");
+				Engine::EditorField::Field("IsAnnihilation", _wave.isAnnihilation);
+				Engine::EditorField::Tooltip(_wave.isAnnihilation ? "(after prev cleared)" : "(from scene start)");
 
-				Engine::Editor::Field("Timing", _wave.timing, 0.1f, 0.0f, 3600.0f);
+				Engine::EditorField::Field("Timing", _wave.timing, 0.1f, 0.0f, 3600.0f);
 
 				// ---- 進行状況 ----
-				Engine::Editor::HelpText("Spawned : %s / Alive : %d / Cleared : %s", _wave.isSpawned ? "yes" : "no", _wave.aliveCount, _wave.isCleared ? "yes" : "no");
+				Engine::EditorField::HelpText("Spawned : %s / Alive : %d / Cleared : %s", _wave.isSpawned ? "yes" : "no", _wave.aliveCount, _wave.isCleared ? "yes" : "no");
 
 				// ---- 出現させるエンティティ ----
-				if (Engine::Editor::CreateButton("Add Spawn")) _wave.spawnEntities.emplace_back();
+				if (Engine::EditorField::CreateButton("Add Spawn")) _wave.spawnEntities.emplace_back();
 
 				int _removeSpawnIndex = -1;
 
@@ -953,11 +953,11 @@ namespace App::Object
 				{
 					SpawnSettings& _settings = _wave.spawnEntities[_s];
 
-					Engine::Editor::IDScope _spawnID(static_cast<int>(_s));
-					Engine::Editor::Line();
+					Engine::EditorField::IDScope _spawnID(static_cast<int>(_s));
+					Engine::EditorField::Line();
 
 					// プレハブを選び直したらハンドルを捨てて解決し直させる
-					if (Engine::Editor::AssetField(
+					if (Engine::EditorField::AssetField(
 						*a_context.pServices,
 						"Prefab", "Prefab", _settings.spawnEntityGUID))
 					{
@@ -965,21 +965,21 @@ namespace App::Object
 					}
 
 					// 位置はウェーブからの相対
-					Engine::Editor::Field("Pos (relative)", _settings.pos, 0.1f);
+					Engine::EditorField::Field("Pos (relative)", _settings.pos, 0.1f);
 
 					const bool _isGizmoSpawn =
 						(m_gizmoWaveIndex == static_cast<int>(_i)) &&
 						(m_gizmoSpawnIndex == static_cast<int>(_s));
-					if (Engine::Editor::RadioButton("Gizmo##spawn", _isGizmoSpawn))
+					if (Engine::EditorField::RadioButton("Gizmo##spawn", _isGizmoSpawn))
 					{
 						m_gizmoWaveIndex  = static_cast<int>(_i);
 						m_gizmoSpawnIndex = static_cast<int>(_s);
 					}
 
-					Engine::Editor::Field("Dir", _settings.dir, 0.01f);
-					Engine::Editor::Tooltip("World : %.2f, %.2f, %.2f", _wave.pos.x + _settings.pos.x, _wave.pos.y + _settings.pos.y, _wave.pos.z + _settings.pos.z);
+					Engine::EditorField::Field("Dir", _settings.dir, 0.01f);
+					Engine::EditorField::Tooltip("World : %.2f, %.2f, %.2f", _wave.pos.x + _settings.pos.x, _wave.pos.y + _settings.pos.y, _wave.pos.z + _settings.pos.z);
 
-					if (Engine::Editor::DeleteButton("Remove Spawn")) _removeSpawnIndex = static_cast<int>(_s);
+					if (Engine::EditorField::DeleteButton("Remove Spawn")) _removeSpawnIndex = static_cast<int>(_s);
 				}
 
 				if (_removeSpawnIndex >= 0)
@@ -991,8 +991,8 @@ namespace App::Object
 					ClearGizmoTarget();
 				}
 
-				Engine::Editor::Line();
-				if (Engine::Editor::DeleteButton("Remove Wave")) _removeWaveIndex = static_cast<int>(_i);
+				Engine::EditorField::Line();
+				if (Engine::EditorField::DeleteButton("Remove Wave")) _removeWaveIndex = static_cast<int>(_i);
 			}
 		}
 
@@ -1008,10 +1008,10 @@ namespace App::Object
 		//==================================================================================
 		// ボスへの戦闘開始命令
 		//==================================================================================
-		Engine::Editor::Header("Boss Orders");
-		Engine::Editor::HelpText("Bosses stand by until an order reaches them");
+		Engine::EditorField::Header("Boss Orders");
+		Engine::EditorField::HelpText("Bosses stand by until an order reaches them");
 
-		if (Engine::Editor::CreateButton("Add Boss Order")) m_bossOrders.emplace_back();
+		if (Engine::EditorField::CreateButton("Add Boss Order")) m_bossOrders.emplace_back();
 
 		int _removeOrderIndex = -1;
 
@@ -1020,29 +1020,29 @@ namespace App::Object
 			BossOrder& _order = m_bossOrders[_i];
 
 			// ウェーブ側と添え字が衝突しないように別の基点でIDを振る
-			Engine::Editor::IDScope _id(static_cast<int>(_i) + 10000);
+			Engine::EditorField::IDScope _id(static_cast<int>(_i) + 10000);
 
 			const std::string _label = "Boss Order " + std::to_string(_i);
-			if (Engine::Editor::CollapsingHeader(_label.c_str(), true))
+			if (Engine::EditorField::CollapsingHeader(_label.c_str(), true))
 			{
 				// ---- 送る条件 ----
-				Engine::Editor::Field("AfterWaveIndex", _order.afterWaveIndex, 0.1f, -1, static_cast<int>(m_waves.size()) - 1);
-				Engine::Editor::Tooltip(_order.afterWaveIndex < 0
+				Engine::EditorField::Field("AfterWaveIndex", _order.afterWaveIndex, 0.1f, -1, static_cast<int>(m_waves.size()) - 1);
+				Engine::EditorField::Tooltip(_order.afterWaveIndex < 0
 					? "from scene start"
 					: "after that wave cleared");
 
-				Engine::Editor::Field("Timing", _order.timing, 0.1f, 0.0f, 3600.0f);
+				Engine::EditorField::Field("Timing", _order.timing, 0.1f, 0.0f, 3600.0f);
 
 				// ---- 送る相手 ----
-				Engine::Editor::Field("TargetWaveIndex", _order.targetWaveIndex, 0.1f, -1, static_cast<int>(m_waves.size()) - 1);
-				Engine::Editor::Tooltip(_order.targetWaveIndex < 0
+				Engine::EditorField::Field("TargetWaveIndex", _order.targetWaveIndex, 0.1f, -1, static_cast<int>(m_waves.size()) - 1);
+				Engine::EditorField::Tooltip(_order.targetWaveIndex < 0
 					? "all bosses"
 					: "bosses spawned by that wave");
 
 				// ---- 進行状況 ----
-				Engine::Editor::HelpText("Sent : %s / Count : %d", _order.isSent ? "yes" : "no", _order.sentCount);
+				Engine::EditorField::HelpText("Sent : %s / Count : %d", _order.isSent ? "yes" : "no", _order.sentCount);
 
-				if (Engine::Editor::DeleteButton("Remove Boss Order"))
+				if (Engine::EditorField::DeleteButton("Remove Boss Order"))
 				{
 					_removeOrderIndex = static_cast<int>(_i);
 				}

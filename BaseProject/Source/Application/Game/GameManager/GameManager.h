@@ -81,7 +81,7 @@ namespace App::Game
 		bool m_isPaused = false;
 
 		// ゲーム開始時の初回シーン : 起動時に出現させる
-		Engine::GUID m_farstScene;
+		Core::GUID m_farstScene;
 
 		// ユーザーデータ
 		std::unique_ptr<UserData> m_upUserData;

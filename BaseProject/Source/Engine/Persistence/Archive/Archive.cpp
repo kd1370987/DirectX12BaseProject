@@ -440,7 +440,7 @@ namespace Engine::Persistence
 	{
 		if (!m_jsonNodeStack.empty()) m_jsonNodeStack.pop();
 	}
-	void Archive::GUIDField(const std::string & a_name, Engine::GUID & a_guid)
+	void Archive::GUIDField(const std::string & a_name, Core::GUID & a_guid)
 	{
 		// セーブ時
 		if (IsSaving())
@@ -462,7 +462,7 @@ namespace Engine::Persistence
 			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_guid.value);
 		}
 	}
-	void Archive::GUIDVectorField(const std::string & a_name, std::vector<Engine::GUID>&a_guids)
+	void Archive::GUIDVectorField(const std::string & a_name, std::vector<Core::GUID>&a_guids)
 	{
 		// 保存処理
 		if (IsSaving())

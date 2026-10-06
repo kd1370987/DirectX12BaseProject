@@ -49,7 +49,7 @@ namespace Engine::Input
 			if (a_isDown)
 			{
 				// ホールドフラグがついていたらそのフレームに押されたわけではないのでフラグを消す
-				if (Utility::HasFlag(m_state, EState::Hold))
+				if (Core::HasFlag(m_state, EState::Hold))
 				{
 					m_state &= ~EState::Press;
 				}
@@ -63,7 +63,7 @@ namespace Engine::Input
 			else
 			{
 				// 押されているのなら離されたフレームにする
-				if (Utility::HasFlag(m_state, EState::Hold))
+				if (Core::HasFlag(m_state, EState::Hold))
 				{
 					m_state &= ~EState::Press;
 					m_state &= ~EState::Hold;

@@ -6,7 +6,7 @@
 #include "Engine/Resource/Data/Texture/IO/TextureIO.h"
 #include "../../Manager/ResourceManager/ResourceManager.h"
 
-#include "../../../Utility/BinaryHelper/BinaryHelper.h"
+#include "Core/BinaryHelper/BinaryHelper.h"
 
 #include "../../../Option/OptionManager.h"
 

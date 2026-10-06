@@ -36,7 +36,7 @@ namespace Engine::Resource
 		/// <param name="a_pContext">ビルドコンテキスト : 参照するマネージャーはここから引く</param>
 		/// <returns>リソースマネージャーに登録されたハンドル</returns>
 		static Handle<Texture> LoadTexture(
-			const Engine::GUID& a_guid,
+			const Core::GUID& a_guid,
 			const Math::Color& a_defaultColor,
 			const ResourceBuildContext* a_pContext = nullptr
 		);
@@ -44,7 +44,7 @@ namespace Engine::Resource
 	private:
 
 		// 色からGUIDを返す
-		static Engine::GUID GetColorGUID(const Math::Color& a_color);
+		static Core::GUID GetColorGUID(const Math::Color& a_color);
 
 		// 単色テクスチャ作成 
 		static Texture CreateColorTexture(const Math::Color& a_color, const ResourceBuildContext& a_ctx);

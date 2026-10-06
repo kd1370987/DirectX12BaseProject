@@ -4,7 +4,7 @@
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 #include "Engine/Persistence/Archive/Archive.h"
 #include "Engine/ECS/System/SystemContext.h"
-#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/EditorField/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 
 // App
 #include "../../../../../ECS/World/APPWorld.h"
@@ -29,12 +29,12 @@ namespace App::Object
 		{
 			Engine::ECS::Entity _player = Engine::ECS::Limits::INVALID_ENTITY;
 
-			a_context.pWorld->ForEach<const ActiveTag, const PlayerControllTag>(
+			a_context.pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag>(
 				[&](
 					Engine::ECS::Chunk* a_pChunk,
 					uint32_t a_count,
-					const ActiveTag* a_activeTagArray,
-					const PlayerControllTag* a_playerTagArray
+					const Component::ActiveTag* a_activeTagArray,
+					const Component::PlayerControllTag* a_playerTagArray
 				)
 				{
 					if (_player != Engine::ECS::Limits::INVALID_ENTITY || a_count == 0) return;
@@ -45,14 +45,14 @@ namespace App::Object
 			if (_player == Engine::ECS::Limits::INVALID_ENTITY) return false;
 
 			auto& _world = *a_context.pWorld;
-			if (_world.HasComponent<WorldMatrixComponent>(_player))
+			if (_world.HasComponent<Component::WorldMatrixComponent>(_player))
 			{
-				a_outPos = _world.RefData<WorldMatrixComponent>(_player)->worldMat.Translation();
+				a_outPos = _world.RefData<Component::WorldMatrixComponent>(_player)->worldMat.Translation();
 				return true;
 			}
-			if (_world.HasComponent<LocalTransformComponent>(_player))
+			if (_world.HasComponent<Component::LocalTransformComponent>(_player))
 			{
-				a_outPos = _world.RefData<LocalTransformComponent>(_player)->pos;
+				a_outPos = _world.RefData<Component::LocalTransformComponent>(_player)->pos;
 				return true;
 			}
 			return false;
@@ -81,20 +81,20 @@ namespace App::Object
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
-		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
-		if (!_world.HasComponent<LocalTransformComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::MoveIntentComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::LocalTransformComponent>(_leader)) return;
 
 		// 地面が分からないと潜れない
-		if (!_world.HasComponent<SerchGroundComponent>(_leader))
+		if (!_world.HasComponent<Component::SerchGroundComponent>(_leader))
 		{
 			Finish(a_context);
 			return;
 		}
 
-		const Math::Vector3 _pos = _world.RefData<LocalTransformComponent>(_leader)->pos;
+		const Math::Vector3 _pos = _world.RefData<Component::LocalTransformComponent>(_leader)->pos;
 
 		// 地面との関係(SerchGroundSystem が書いた結果)
-		const SerchGroundComponent _ground = *_world.RefData<SerchGroundComponent>(_leader);
+		const Component::SerchGroundComponent _ground = *_world.RefData<Component::SerchGroundComponent>(_leader);
 		m_isUnderGround = _ground.isUnderGround != 0;
 		if (_ground.isFoundGround)
 		{
@@ -212,7 +212,7 @@ namespace App::Object
 			break;
 		}
 
-		_world.RefData<MoveIntentComponent>(_leader)->value = _intent;
+		_world.RefData<Component::MoveIntentComponent>(_leader)->value = _intent;
 	}
 
 	void SwarmBossUperAttackState::Exit(SwarmBossStateContext& a_context)
@@ -223,9 +223,9 @@ namespace App::Object
 
 		const auto _leader = a_context.leaderEntity;
 		if (!_world.IsAliveEntity(_leader)) return;
-		if (!_world.HasComponent<MoveIntentComponent>(_leader)) return;
+		if (!_world.HasComponent<Component::MoveIntentComponent>(_leader)) return;
 
-		_world.RefData<MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
+		_world.RefData<Component::MoveIntentComponent>(_leader)->value = Math::Vector3(0.0f, 0.0f, 0.0f);
 	}
 
 	void SwarmBossUperAttackState::ChangePhase(EPhase a_phase)
@@ -265,24 +265,24 @@ namespace App::Object
 
 	void SwarmBossUperAttackState::DrawInspector()
 	{
-		Engine::Editor::Field("潜る深さ", m_burrowDepth, 0.5f, 0.0f);
-		Engine::Editor::Field("深さの許容範囲", m_depthTolerance, 0.1f, 0.0f);
-		Engine::Editor::Field("潜りながら進む量", m_burrowForward, 0.5f, 0.0f);
-		Engine::Editor::Field("潜るときの移動入力の強さ", m_burrowThrottle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Field("潜る最長時間", m_burrowMaxTime, 0.1f, 0.0f);
-		Engine::Editor::Field("地中移動の速さの倍率", m_approachSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Field("真下とみなす距離", m_underDistance, 0.1f, 0.0f);
-		Engine::Editor::Field("地中移動の最長時間", m_approachMaxTime, 0.1f, 0.0f);
-		Engine::Editor::Field("突き上げの速さの倍率", m_uperSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Field("突き上げをやめる高さ", m_overshootHeight, 0.5f, 0.0f);
-		Engine::Editor::Field("突き上げの最長時間", m_uperMaxTime, 0.1f, 0.0f);
-		Engine::Editor::Field("余韻の長さ", m_recoverTime, 0.05f, 0.0f);
-		Engine::Editor::Field("余韻中の移動入力の強さ", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
-		Engine::Editor::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
+		Engine::EditorField::Field("潜る深さ", m_burrowDepth, 0.5f, 0.0f);
+		Engine::EditorField::Field("深さの許容範囲", m_depthTolerance, 0.1f, 0.0f);
+		Engine::EditorField::Field("潜りながら進む量", m_burrowForward, 0.5f, 0.0f);
+		Engine::EditorField::Field("潜るときの移動入力の強さ", m_burrowThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Field("潜る最長時間", m_burrowMaxTime, 0.1f, 0.0f);
+		Engine::EditorField::Field("地中移動の速さの倍率", m_approachSpeedScale, 0.05f, 0.0f);
+		Engine::EditorField::Field("真下とみなす距離", m_underDistance, 0.1f, 0.0f);
+		Engine::EditorField::Field("地中移動の最長時間", m_approachMaxTime, 0.1f, 0.0f);
+		Engine::EditorField::Field("突き上げの速さの倍率", m_uperSpeedScale, 0.05f, 0.0f);
+		Engine::EditorField::Field("突き上げをやめる高さ", m_overshootHeight, 0.5f, 0.0f);
+		Engine::EditorField::Field("突き上げの最長時間", m_uperMaxTime, 0.1f, 0.0f);
+		Engine::EditorField::Field("余韻の長さ", m_recoverTime, 0.05f, 0.0f);
+		Engine::EditorField::Field("余韻中の移動入力の強さ", m_recoverThrottle, 0.01f, 0.0f, 1.0f);
+		Engine::EditorField::Tooltip("小隊長の倍率を超える速さにすると列が千切れる");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
-		Engine::Editor::Value("プレイヤーの位置", "%.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
-		Engine::Editor::Value("地表の高さ", "%.1f (深さ %.1f, %s)", m_groundHeight, m_depth, m_isUnderGround ? "地中" : "地上");
+		Engine::EditorField::Value("フェーズ", "%s (%.1f 秒)", std::string(magic_enum::enum_name(m_phase)).c_str(), m_phaseTime);
+		Engine::EditorField::Value("プレイヤーの位置", "%.1f, %.1f, %.1f", m_playerPos.x, m_playerPos.y, m_playerPos.z);
+		Engine::EditorField::Value("地表の高さ", "%.1f (深さ %.1f, %s)", m_groundHeight, m_depth, m_isUnderGround ? "地中" : "地上");
 	}
 }

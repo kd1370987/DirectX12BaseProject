@@ -3,7 +3,7 @@
 #include "../../Manager/ResourceManager/ResourceManager.h"
 #include "../../Manager/AssetDatabase/AssetDatabase.h"
 
-#include "../../../Utility/BinaryHelper/BinaryHelper.h"
+#include "Core/BinaryHelper/BinaryHelper.h"
 
 namespace Engine::Resource
 {
@@ -22,7 +22,7 @@ namespace Engine::Resource
 			auto* _matrial = a_resourceManager.Ref(_mateHandle);
 
 			// 保存データ作成
-			auto _fileName = Engine::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
+			auto _fileName = Core::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
 			std::string basePath ="Asset/Material/" + _fileName;
 
 			// 保存
@@ -43,7 +43,7 @@ namespace Engine::Resource
 			auto* _mesh = a_resourceManager.Ref(_meshHandle);
 
 			// 保存データ作成
-			auto _fileName = Engine::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
+			auto _fileName = Core::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
 			std::string basePath ="Asset/Mesh/" + _fileName;
 
 			// 保存
@@ -62,7 +62,7 @@ namespace Engine::Resource
 			auto* _anim = a_resourceManager.Ref(_animHandle);
 
 			// 保存データ作成
-			auto _fileName = Engine::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
+			auto _fileName = Core::File::GetFileNameWithoutExtension(m_AssetData.name) + std::to_string(_i);
 			std::string basePath = "Asset/Animation/" + _fileName;
 
 			// 保存
@@ -72,8 +72,8 @@ namespace Engine::Resource
 		}
 
 		// モデルデータの保存
-		auto _dir = Engine::File::GetDirFromPath(a_fileDir);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_fileDir);
+		auto _dir = Core::File::GetDirFromPath(a_fileDir);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_fileDir);
 		Persistence::Archive _ar(Persistence::Archive::EMode::Save, _dir, _fileName, "mdl");
 		_ar.StringField("ModelName", m_AssetData.name);
 
@@ -101,7 +101,7 @@ namespace Engine::Resource
 	{
 		
 	}
-	Engine::GUID Model::GetAnimationGUIDFromHandle(const Handle<AnimationData>& a_handle) const
+	Core::GUID Model::GetAnimationGUIDFromHandle(const Handle<AnimationData>& a_handle) const
 	{
 		// セーブ時の1回だけ線形探索
 		for (size_t _i = 0; _i < m_runtimeData.animations.size(); ++_i)
@@ -114,9 +114,9 @@ namespace Engine::Resource
 		}
 
 		// 見つからなかった場合
-		return Engine::GUID();
+		return Core::GUID();
 	}
-	Handle<AnimationData> Model::GetAnimationHandleFromGUID(const Engine::GUID& a_guid) const
+	Handle<AnimationData> Model::GetAnimationHandleFromGUID(const Core::GUID& a_guid) const
 	{
 		// セーブ時の1回だけ線形探索
 		for (size_t _i = 0; _i < m_AssetData.animationGUIDs.size(); ++_i)
@@ -171,7 +171,7 @@ namespace Engine::Resource
 
 			if (a_ar.IsLoading())
 			{
-				_mask.nameHash = Engine::String::ToHash(_mask.name);
+				_mask.nameHash = Core::String::ToHash(_mask.name);
 			}
 			a_ar.EndObject();
 		}

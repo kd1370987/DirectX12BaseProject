@@ -2,8 +2,11 @@
 
 #include "Application/ECS/ISystem/APPISystem.h"
 
-class FaceTargetSystem : public App::ECS::APPISystem
+namespace App::System
 {
-public:
-	void Init(App::ECS::APPWorld& a_world) override;
-};
+	class FaceTargetSystem : public App::ECS::APPISystem
+	{
+	public:
+		void Init(App::ECS::APPWorld& a_world) override;
+	};
+}

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 // CreateMetaData() の戻り値の型を名乗るだけなので前方宣言で足りる
-#include "Engine/Utility/JSONHelper/JSONForward.h"
+#include "Core/JSONHelper/JSONForward.h"
 #include "AssetTypes.h"
 namespace Engine::Resource
 {
@@ -66,22 +66,22 @@ namespace Engine::Resource
 		//   ・シーン新規作成 : 発行したGUIDでそのまま開く
 		// 監視は別スレッドなのでGUIDが決まるのが翌フレームになり、これらには間に合わない
 		//-------------------------------------------------------------------------------------------------
-		Engine::GUID AddMetaData(const std::string& a_newFilePath,const std::string& a_type);
+		Core::GUID AddMetaData(const std::string& a_newFilePath,const std::string& a_type);
 
 		// データベース内にGUIDが存在するかチェック
-		bool IsValid(const Engine::GUID& a_guid) const;
+		bool IsValid(const Core::GUID& a_guid) const;
 
 		// ---- アクセサ ----
 		std::string GetFilePathFromGUID(const std::string& a_guid) const;		// GUIDから現在のファイルパスを取得
-		std::string GetFilePathFromGUID(const Engine::GUID& a_guid) const;		// GUIDから現在のファイルパスを取得
-		std::string GetBaseFilePathFromGUID(const Engine::GUID& a_guid) const;	// ベースファイルパスの取得
-		std::string GetFileNameFromGUID(const Engine::GUID& a_guid) const;		// ファイルネームの取得
-		Engine::GUID GetGUIDFromFilePath(const std::string& a_path) const;		// ファイルパスからGUIDを取得
+		std::string GetFilePathFromGUID(const Core::GUID& a_guid) const;		// GUIDから現在のファイルパスを取得
+		std::string GetBaseFilePathFromGUID(const Core::GUID& a_guid) const;	// ベースファイルパスの取得
+		std::string GetFileNameFromGUID(const Core::GUID& a_guid) const;		// ファイルネームの取得
+		Core::GUID GetGUIDFromFilePath(const std::string& a_path) const;		// ファイルパスからGUIDを取得
 		const AssetNode& GetAssetRootNode() const { return m_assetRootNode; }		// アセット構造取得
 		const std::unordered_map<std::string, TypeExtension>& GetAssetTypeExtensionsMap() const;
 		std::span<const AssetProperty> GetTypeMetaVec(const std::string& a_type) const;		// 指定したタイプのメタ配列取得
 
-		const AssetProperty* GetAssetProperty(const Engine::GUID& a_guid) const;
+		const AssetProperty* GetAssetProperty(const Core::GUID& a_guid) const;
 		const AssetProperty* GetAssetProperty(const std::string& a_filePath) const;
 
 		/// <summary>
@@ -93,7 +93,7 @@ namespace Engine::Resource
 		/// 「引けたら出す・駄目なら出さない」を判断するためのもの。
 		/// 返るのは m_assetMap の実体なので、アセットパネルが配っているものと同じポインタ。
 		/// </remarks>
-		AssetProperty* FindAssetProperty(const Engine::GUID& a_guid);
+		AssetProperty* FindAssetProperty(const Core::GUID& a_guid);
 	private:
 
 		//-----------------------------------------------------------------------------------------------------
@@ -142,7 +142,7 @@ namespace Engine::Resource
 		// 対応しているファイル拡張子ごとのメタデータ
 		std::unordered_map<std::string, std::vector<AssetProperty>> m_typeMetaMap = {};
 		// 管理しているすべてのアセットメタデータ
-		std::unordered_map<Engine::GUID, AssetProperty> m_assetMap;
+		std::unordered_map<Core::GUID, AssetProperty> m_assetMap;
 
 		// 階層構造
 		AssetNode m_assetRootNode = {};
@@ -158,6 +158,6 @@ namespace Engine::Resource
 		// 中間バッファ
 		std::array<std::byte, 64 * 1024> m_buffer;											// 変更点
 		std::unordered_map<std::string, std::vector<AssetGroup>> m_typeAssetGroupTemp = {};	// 変更をためるバッファ
-		std::unordered_map<Engine::GUID, AssetProperty> m_changedAssetPropMap = { };		// 既存に対しての変更点
+		std::unordered_map<Core::GUID, AssetProperty> m_changedAssetPropMap = { };		// 既存に対しての変更点
 	};
 }

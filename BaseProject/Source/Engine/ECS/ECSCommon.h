@@ -46,7 +46,7 @@ namespace Engine::ECS
 		return a_typeID < ECS::Limits::MAX_COMPONENT_TYPES;
 	}
 
-	// 型名(ログ用)は Engine::TypeInfo::GetTypeName<T>() を使う。
+	// 型名(ログ用)は Core::TypeInfo::GetTypeName<T>() を使う。
 	// 未登録の型はレジストリに名前が無いので、警告やエラーで型を示すときに使う
 
 	using Flg = uint8_t;

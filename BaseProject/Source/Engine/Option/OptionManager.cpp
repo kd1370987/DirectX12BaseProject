@@ -47,8 +47,8 @@ namespace Engine::Option
 	{
 		for (auto* _pOption : m_pOptionList)
 		{
-			Engine::Editor::Line();
-			if (Engine::Editor::TreeScope _tree{ _pOption->GetName().c_str(), false, true })
+			Engine::EditorField::Line();
+			if (Engine::EditorField::TreeScope _tree{ _pOption->GetName().c_str(), false, true })
 			{
 				_pOption->DrawEdit(a_services);
 			}
@@ -65,4 +65,4 @@ namespace Engine::Option
 			}
 		}
 	}
-}
+}

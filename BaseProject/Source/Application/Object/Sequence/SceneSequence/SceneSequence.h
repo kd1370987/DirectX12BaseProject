@@ -14,7 +14,7 @@ namespace App::Object
 	struct SpawnSettings
 	{
 		// 出現させるエンティティ
-		Engine::GUID								spawnEntityGUID = {};		// 出すプレハブ(保存する)
+		Core::GUID								spawnEntityGUID = {};		// 出すプレハブ(保存する)
 		Engine::Handle<Engine::Resource::Prefab>	spawnPrefabHandle = {};	// 解決済みハンドル(ランタイム)
 
 		// 初期情報
@@ -200,7 +200,7 @@ namespace App::Object
 		// 決着(リザルトへの遷移)
 		//=======================================================================
 		// ---- 設定(保存する) ----
-		Engine::GUID m_resultSceneGUID = {};	// 遷移先。未設定なら遷移しない
+		Core::GUID m_resultSceneGUID = {};	// 遷移先。未設定なら遷移しない
 
 		// 決着してから実際に移るまでの待ち。倒れる演出や爆発を見せるための間
 		float m_clearDelay = 3.0f;	// 勝ったとき
@@ -219,7 +219,7 @@ namespace App::Object
 		// 更新されるのは一番上のシーンだけなので、重ねている間ここは止まり、
 		// 描画だけが続く(SceneManager::SetUpdateTopSceneOnly)。
 		// 閉じるのは重ねた側(PauseSequence)の仕事。
-		Engine::GUID m_pauseSceneGUID = {};
+		Core::GUID m_pauseSceneGUID = {};
 
 		// ポーズに使う入力アクション名(InputManager へ登録した名前)
 		Game::EGameAction m_pauseAction = Game::EGameAction::Pose;

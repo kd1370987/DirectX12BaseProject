@@ -459,8 +459,8 @@ void Engine::Resource::Mesh::Load(const ResourceBuildContext& a_ctx, const std::
 
 void Engine::Resource::Mesh::Load(const ResourceBuildContext& a_ctx, const std::string& a_filePath)
 {
-	auto _fileDir = Engine::File::GetDirFromPath(a_filePath);
-	auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
+	auto _fileDir = Core::File::GetDirFromPath(a_filePath);
+	auto _fileName = Core::File::GetFileNameWithoutExtension(a_filePath);
 
 	Load(a_ctx, _fileDir, _fileName);
 }

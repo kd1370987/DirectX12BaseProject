@@ -6,8 +6,8 @@ namespace Engine::Resource
 {
 	AudioBehavior AudioBehaviorIO::LoadFromFile(const std::string& a_path)
 	{
-		auto _fileDir = Engine::File::GetDirFromPath(a_path);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_path);
+		auto _fileDir = Core::File::GetDirFromPath(a_path);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_path);
 
 		Persistence::Archive _ar(Persistence::Archive::EMode::Load, _fileDir, _fileName, "audbhv");
 
@@ -23,8 +23,8 @@ namespace Engine::Resource
 		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
 
 		// すでにないかチェック
-		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DEFAULT_GUID)
+		Core::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
+		if (_checkGUID != Core::DEFAULT_GUID)
 		{
 			ENGINE_LOG("すでに作成済みのオーディオビヘイビアです : %s", _basePath.c_str());
 			return;

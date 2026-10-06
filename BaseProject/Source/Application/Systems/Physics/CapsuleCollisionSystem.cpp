@@ -10,88 +10,91 @@
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
 
-namespace
+namespace App::System
 {
-	// カプセルをHLSLのカプセル形状（DrawCapsule）で描画する。
-	//
-	// ベースメッシュ（GetCapsulePoint）は次の単位カプセル :
-	//   ・半径          r = 0.5
-	//   ・円柱の半長     h = 0.5 （＝上下の球中心が y = ±0.5）
-	// これを 半径 a_radius・球中心間の距離 a_height に合わせてスケールする。
-	//   ・XZ … 半径を合わせる      : 0.5 -> a_radius        => scale = a_radius * 2
-	//   ・Y  … 球中心間を合わせる  : 1.0(=±0.5) -> a_height => scale = a_height
-	// ※ ベースが「半球半径 == 円柱半長」固定比のため、a_height != a_radius*2 のときは
-	//    上下のキャップが楕円に伸びる（当たり判定の線分自体は常に一致）。
-	void DrawCapsuleUpright(
-		Engine::Graphics::DebugDraw* a_pDebugDraw,
-		const Math::Vector3& a_center,
-		float a_radius,
-		float a_height,
-		const Math::Color& a_color)
+	namespace
 	{
-		if (!a_pDebugDraw) return;
-		Math::Matrix _mat =
-			Math::Matrix::CreateScale(a_radius * 2.0f, a_height, a_radius * 2.0f) *
-			Math::Matrix::CreateTranslation(a_center);
-		a_pDebugDraw->DrawCapsule(_mat, a_color);
-	}
-}
-
-void CapsuleCollisionSystem::Init(App::ECS::APPWorld& a_world)
-{
-	a_world.ActiveTask<const CapsuleColliderComponent, LocalTransformComponent>(
-		Engine::ECS::ESystemType::Physics,
-		"CapsuleCollisionSystem",
-		[](
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			ActiveTag* a_activeTag,
-			const CapsuleColliderComponent* a_capArray,
-			LocalTransformComponent* a_transArray
-			)
+		// カプセルをHLSLのカプセル形状（DrawCapsule）で描画する。
+		//
+		// ベースメッシュ（GetCapsulePoint）は次の単位カプセル :
+		//   ・半径          r = 0.5
+		//   ・円柱の半長     h = 0.5 （＝上下の球中心が y = ±0.5）
+		// これを 半径 a_radius・球中心間の距離 a_height に合わせてスケールする。
+		//   ・XZ … 半径を合わせる      : 0.5 -> a_radius        => scale = a_radius * 2
+		//   ・Y  … 球中心間を合わせる  : 1.0(=±0.5) -> a_height => scale = a_height
+		// ※ ベースが「半球半径 == 円柱半長」固定比のため、a_height != a_radius*2 のときは
+		//    上下のキャップが楕円に伸びる（当たり判定の線分自体は常に一致）。
+		void DrawCapsuleUpright(
+			Engine::Graphics::DebugDraw* a_pDebugDraw,
+			const Math::Vector3& a_center,
+			float a_radius,
+			float a_height,
+			const Math::Color& a_color)
 		{
-			ENGINE_PROFILE_SCOPE("Physics_ResolveCapsule");
-			const auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
-
-			for (size_t _i = 0; _i < a_count; ++_i)
-			{
-				const CapsuleColliderComponent& _cap = a_capArray[_i];
-				LocalTransformComponent& _trans = a_transArray[_i];
-
-				// 中心（ワールドY軸方向の直立カプセル）
-				Math::Vector3 _center = Math::Vector3(_trans.pos) + Math::Vector3(_cap.offset);
-
-				Math::Vector3 _half = { 0.0f, _cap.height * 0.5f, 0.0f };
-				Math::Vector3 _pointA = _center - _half;	// 下端の球中心
-				Math::Vector3 _pointB = _center + _half;	// 上端の球中心
-
-				// 地形と動く敵の判定メッシュから押し出す（pointA/B は押し出し後に更新される）。
-				// 弾・ボイドの箱からは押し出さない
-				Math::Vector3 _correction = {};
-				bool _isHit = _physicsWorld.ResolveCapsule(
-					_pointA, _pointB, _cap.radius,
-					Engine::Physics::QUERY_ALL_LAYERS, a_pChunk->entityData[_i], _correction, 4);
-
-				// 補正をトランスフォームへ反映
-				if (_isHit)
-				{
-					_trans.pos.x += _correction.x;
-					_trans.pos.y += _correction.y;
-					_trans.pos.z += _correction.z;
-					_trans.isDirty = true;
-				}
-
-				// デバッグ描画（押し出しが起きたら赤、なければ緑）。押し出し後の中心で描画。
-				Math::Vector3 _drawCenter = _center + _correction;
-				DrawCapsuleUpright(
-					a_ctx.pServices->pDebugDraw,
-					_drawCenter, _cap.radius, _cap.height,
-					_isHit ? Engine::Color::RED : Engine::Color::GREEN);
-			}
+			if (!a_pDebugDraw) return;
+			Math::Matrix _mat =
+				Math::Matrix::CreateScale(a_radius * 2.0f, a_height, a_radius * 2.0f) *
+				Math::Matrix::CreateTranslation(a_center);
+			a_pDebugDraw->DrawCapsule(_mat, a_color);
 		}
-	)
-	// 順序 : 積分と接地の後で押し出す(動いた後の位置で壁から出す)
-	.ReadsResource<Engine::Physics::PhysicsWorld>()
-	.After("RayCollisionSystem");
+	}
+
+	void CapsuleCollisionSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		a_world.ActiveTask<const Component::CapsuleColliderComponent, Component::LocalTransformComponent>(
+			Engine::ECS::ESystemType::Physics,
+			"CapsuleCollisionSystem",
+			[](
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::ActiveTag* a_activeTag,
+				const Component::CapsuleColliderComponent* a_capArray,
+				Component::LocalTransformComponent* a_transArray
+				)
+			{
+				ENGINE_PROFILE_SCOPE("Physics_ResolveCapsule");
+				const auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
+
+				for (size_t _i = 0; _i < a_count; ++_i)
+				{
+					const Component::CapsuleColliderComponent& _cap = a_capArray[_i];
+					Component::LocalTransformComponent& _trans = a_transArray[_i];
+
+					// 中心（ワールドY軸方向の直立カプセル）
+					Math::Vector3 _center = Math::Vector3(_trans.pos) + Math::Vector3(_cap.offset);
+
+					Math::Vector3 _half = { 0.0f, _cap.height * 0.5f, 0.0f };
+					Math::Vector3 _pointA = _center - _half;	// 下端の球中心
+					Math::Vector3 _pointB = _center + _half;	// 上端の球中心
+
+					// 地形と動く敵の判定メッシュから押し出す（pointA/B は押し出し後に更新される）。
+					// 弾・ボイドの箱からは押し出さない
+					Math::Vector3 _correction = {};
+					bool _isHit = _physicsWorld.ResolveCapsule(
+						_pointA, _pointB, _cap.radius,
+						Engine::Physics::QUERY_ALL_LAYERS, a_pChunk->entityData[_i], _correction, 4);
+
+					// 補正をトランスフォームへ反映
+					if (_isHit)
+					{
+						_trans.pos.x += _correction.x;
+						_trans.pos.y += _correction.y;
+						_trans.pos.z += _correction.z;
+						_trans.isDirty = true;
+					}
+
+					// デバッグ描画（押し出しが起きたら赤、なければ緑）。押し出し後の中心で描画。
+					Math::Vector3 _drawCenter = _center + _correction;
+					DrawCapsuleUpright(
+						a_ctx.pServices->pDebugDraw,
+						_drawCenter, _cap.radius, _cap.height,
+						_isHit ? Engine::Color::RED : Engine::Color::GREEN);
+				}
+			}
+		)
+		// 順序 : 積分と接地の後で押し出す(動いた後の位置で壁から出す)
+		.ReadsResource<Engine::Physics::PhysicsWorld>()
+		.After("RayCollisionSystem");
+	}
 }

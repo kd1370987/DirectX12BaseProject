@@ -1,21 +1,24 @@
 ﻿#pragma once
-struct GUIDComponent
+namespace App::Component
 {
-	Engine::GUID guid = {};
-};
+	struct GUIDComponent
+	{
+		Core::GUID guid = {};
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<GUIDComponent>
+struct Engine::ECS::ComponentTraits<App::Component::GUIDComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		GUIDComponent& _comp = Engine::Editor::GetValue<GUIDComponent>(a_pData);
+		App::Component::GUIDComponent& _comp = Engine::EditorField::GetValue<App::Component::GUIDComponent>(a_pData);
 		a_ar.Field("guid", _comp.guid);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		GUIDComponent& _comp = Engine::Editor::GetValue<GUIDComponent>(a_context.pData);
-		Engine::Editor::Text("%s", _comp.guid.String().c_str());
+		App::Component::GUIDComponent& _comp = Engine::EditorField::GetValue<App::Component::GUIDComponent>(a_context.pData);
+		Engine::EditorField::Text("%s", _comp.guid.String().c_str());
 	}
 };

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/Utility/Debug/DebugLog.h"
+#include "Core/Debug/DebugLog.h"
 
 // テンプレートの登録関数がパスの実体を1つ作って中身を読むので、
 // 前方宣言では足りない
@@ -93,7 +93,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 登録名からタイプIDを作成
 		// ID<> のコンストラクタは explicit なので直接初期化で作る
-		const ID<Pass> _typeID{ static_cast<uint32_t>(Engine::String::ToHash(a_name)) };
+		const ID<Pass> _typeID{ static_cast<uint32_t>(Core::String::ToHash(a_name)) };
 
 		// 名前チェック
 		// IsValid() が false = 内部値が uint32_t の最大値(無効値)

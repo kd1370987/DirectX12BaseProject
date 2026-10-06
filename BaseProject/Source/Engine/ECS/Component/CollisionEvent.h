@@ -18,16 +18,16 @@ struct Engine::ECS::ComponentTraits<Engine::ECS::CollisionEvent>
 	static void Edit(CompEditContext& a_context)
 	{
 		Engine::ECS::CollisionEvent& _comp =
-			Engine::Editor::GetValue<Engine::ECS::CollisionEvent>(a_context.pData);
+			Engine::EditorField::GetValue<Engine::ECS::CollisionEvent>(a_context.pData);
 
 		if (_comp.other == Engine::ECS::Limits::INVALID_ENTITY)
 		{
-			Engine::Editor::HelpText("No hit");
+			Engine::EditorField::HelpText("No hit");
 		}
 		else
 		{
-			Engine::Editor::Value("Hit Entity", "%d", (int)_comp.other);
-			Engine::Editor::Value("Hit Pos", "%.2f, %.2f, %.2f", _comp.hitPos.x, _comp.hitPos.y, _comp.hitPos.z);
+			Engine::EditorField::Value("Hit Entity", "%d", (int)_comp.other);
+			Engine::EditorField::Value("Hit Pos", "%.2f, %.2f, %.2f", _comp.hitPos.x, _comp.hitPos.y, _comp.hitPos.z);
 		}
 	}
 };

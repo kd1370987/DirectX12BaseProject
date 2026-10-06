@@ -31,10 +31,10 @@ namespace Engine::Option::GraphicsOptions
 
 		void DrawEdit(const ECS::EngineServices&) override
 		{
-			Engine::Editor::Field("Enable", enable);
-			Engine::Editor::Field("Threshold", threshold, 0.01f, 0.0f, 20.0f);
-			Engine::Editor::Field("Soft Knee", softKnee, 0.01f, 0.0f, 1.0f);
-			Engine::Editor::Field("Intensity", intensity, 0.01f, 0.0f, 10.0f);
+			Engine::EditorField::Field("Enable", enable);
+			Engine::EditorField::Field("Threshold", threshold, 0.01f, 0.0f, 20.0f);
+			Engine::EditorField::Field("Soft Knee", softKnee, 0.01f, 0.0f, 1.0f);
+			Engine::EditorField::Field("Intensity", intensity, 0.01f, 0.0f, 10.0f);
 		}
 
 		void Archive(Persistence::Archive& a_archive) override

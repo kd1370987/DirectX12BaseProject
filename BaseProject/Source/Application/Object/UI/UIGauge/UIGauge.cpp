@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/System/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Application/ECS/World/APPWorld.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 #include "Application/Components/Input/PlayerControllTag.h"
 #include "Application/Components/Combat/HealthComponent.h"
@@ -112,9 +112,9 @@ namespace App::Object
 			// 射影も判定も LockOnTargetSystem が済ませてあるので、ここは読むだけ
 			const Engine::ECS::Entity _player = FindPlayer(a_pWorld);
 			if (_player == Engine::ECS::Limits::INVALID_ENTITY) break;
-			if (!a_pWorld->HasComponent<LockOnTargetComponent>(_player)) break;
+			if (!a_pWorld->HasComponent<Component::LockOnTargetComponent>(_player)) break;
 
-			const auto* _pLockOn = a_pWorld->RefData<LockOnTargetComponent>(_player);
+			const auto* _pLockOn = a_pWorld->RefData<Component::LockOnTargetComponent>(_player);
 			if (_pLockOn && _pLockOn->IsLocked()) m_targetEntity = _pLockOn->lockedEntity;
 			break;
 		}
@@ -155,9 +155,9 @@ namespace App::Object
 		{
 		case EGaugeSource::Health:
 		{
-			if (!a_pWorld->HasComponent<HealthComponent>(m_targetEntity)) return false;
+			if (!a_pWorld->HasComponent<Component::HealthComponent>(m_targetEntity)) return false;
 
-			const auto* _pHealth = a_pWorld->RefData<HealthComponent>(m_targetEntity);
+			const auto* _pHealth = a_pWorld->RefData<Component::HealthComponent>(m_targetEntity);
 			if (!_pHealth) return false;
 
 			m_current = _pHealth->currentHealth;
@@ -167,10 +167,10 @@ namespace App::Object
 
 		case EGaugeSource::BoostFuel:
 		{
-			if (!a_pWorld->HasComponent<BoostParamsComponent>(m_targetEntity)) return false;
+			if (!a_pWorld->HasComponent<Component::BoostParamsComponent>(m_targetEntity)) return false;
 
-			const auto* _pBoost = a_pWorld->RefData<BoostParamsComponent>(m_targetEntity);
-			const auto* _pBoostState = a_pWorld->RefData<BoostStateComponent>(m_targetEntity);
+			const auto* _pBoost = a_pWorld->RefData<Component::BoostParamsComponent>(m_targetEntity);
+			const auto* _pBoostState = a_pWorld->RefData<Component::BoostStateComponent>(m_targetEntity);
 			if (!_pBoostState) return false;
 			if (!_pBoost) return false;
 
@@ -181,9 +181,9 @@ namespace App::Object
 
 		case EGaugeSource::Overheat:
 		{
-			if (!a_pWorld->HasComponent<GunStateComponent>(m_targetEntity)) return false;
+			if (!a_pWorld->HasComponent<Component::GunStateComponent>(m_targetEntity)) return false;
 
-			const auto* _pGun = a_pWorld->RefData<GunStateComponent>(m_targetEntity);
+			const auto* _pGun = a_pWorld->RefData<Component::GunStateComponent>(m_targetEntity);
 			if (!_pGun) return false;
 
 			// 熱は「溜まるほど満タン」。色のしきい値も溜まった側で読むことになるので、
@@ -195,9 +195,9 @@ namespace App::Object
 
 		case EGaugeSource::ChargeDash:
 		{
-			if (!a_pWorld->HasComponent<ChargeDashComponent>(m_targetEntity)) return false;
+			if (!a_pWorld->HasComponent<Component::ChargeDashComponent>(m_targetEntity)) return false;
 
-			const auto* _pDash = a_pWorld->RefData<ChargeDashComponent>(m_targetEntity);
+			const auto* _pDash = a_pWorld->RefData<Component::ChargeDashComponent>(m_targetEntity);
 			if (!_pDash) return false;
 
 			m_current = _pDash->chargeTimer;
@@ -219,12 +219,12 @@ namespace App::Object
 		Engine::ECS::Entity _player = Engine::ECS::Limits::INVALID_ENTITY;
 		if (a_pWorld == nullptr) return _player;
 
-		a_pWorld->ForEach<const ActiveTag, const PlayerControllTag>(
+		a_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag>(
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const ActiveTag* a_activeTagArray,
-				const PlayerControllTag* a_playerTagArray
+				const Component::ActiveTag* a_activeTagArray,
+				const Component::PlayerControllTag* a_playerTagArray
 			)
 			{
 				// 操作しているプレイヤーは1体の想定。先に見つかったものを使う
@@ -249,12 +249,12 @@ namespace App::Object
 		const Engine::ECS::Entity _player = FindPlayer(a_pWorld);
 		if (_player == Engine::ECS::Limits::INVALID_ENTITY) return Engine::ECS::Limits::INVALID_ENTITY;
 
-		if (!a_pWorld->HasComponent<AttachmentSlotsComponent>(_player))
+		if (!a_pWorld->HasComponent<Component::AttachmentSlotsComponent>(_player))
 		{
 			return Engine::ECS::Limits::INVALID_ENTITY;
 		}
 
-		const auto* _pSlots = a_pWorld->RefData<AttachmentSlotsComponent>(_player);
+		const auto* _pSlots = a_pWorld->RefData<Component::AttachmentSlotsComponent>(_player);
 		if (!_pSlots) return Engine::ECS::Limits::INVALID_ENTITY;
 
 		return a_isRight ? _pSlots->rightWeapon.id : _pSlots->leftWeapon.id;
@@ -476,114 +476,114 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// どこから値を取るか
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Source");
+		Engine::EditorField::Header("Source");
 
-		Engine::Editor::Field("Target", m_target);
-		Engine::Editor::Tooltip("見るエンティティの決め方");
+		Engine::EditorField::Field("Target", m_target);
+		Engine::EditorField::Tooltip("見るエンティティの決め方");
 
-		Engine::Editor::Field("Source", m_source);
-		Engine::Editor::Tooltip("見るコンポーネント。持っていなければ何も出ない");
+		Engine::EditorField::Field("Source", m_source);
+		Engine::EditorField::Tooltip("見るコンポーネント。持っていなければ何も出ない");
 
 		if (m_source != EGaugeSource::Manual)
 		{
-			Engine::Editor::Field("HideWhenNoValue", m_isHideWhenNoValue);
-			Engine::Editor::Tooltip("値が取れないフレームは描かない(ロックしていない等)");
+			Engine::EditorField::Field("HideWhenNoValue", m_isHideWhenNoValue);
+			Engine::EditorField::Tooltip("値が取れないフレームは描かない(ロックしていない等)");
 
 			// 今どれを見ているかが分かるようにしておく
 			if (m_targetEntity == Engine::ECS::Limits::INVALID_ENTITY)
 			{
-				Engine::Editor::HelpText("Entity : none");
+				Engine::EditorField::HelpText("Entity : none");
 			}
 			else
 			{
-				Engine::Editor::Value("Entity", "%u  (%s)", static_cast<uint32_t>(m_targetEntity), m_hasValue ? "ok" : "コンポーネントなし");
+				Engine::EditorField::Value("Entity", "%u  (%s)", static_cast<uint32_t>(m_targetEntity), m_hasValue ? "ok" : "コンポーネントなし");
 			}
 		}
 
-		Engine::Editor::Header("Gauge");
+		Engine::EditorField::Header("Gauge");
 
 		//----------------------------------------------------------------------
 		// 中身
 		//----------------------------------------------------------------------
-		Engine::Editor::Field("FillDecoration", m_fillDecorationName);
-		Engine::Editor::Tooltip("横幅を縮める飾りの名前");
+		Engine::EditorField::Field("FillDecoration", m_fillDecorationName);
+		Engine::EditorField::Tooltip("横幅を縮める飾りの名前");
 
 		// 指している飾りが本当にあるか、その場で分かるようにしておく
 		if (FindDecorationIndex(m_fillDecorationName) < 0)
 		{
-			Engine::Editor::ErrorText("その名前の飾りがありません");
+			Engine::EditorField::ErrorText("その名前の飾りがありません");
 		}
 
-		Engine::Editor::Field("Anchor", m_anchor);
-		Engine::Editor::Tooltip("減っても動かない場所。Center は両側から均等に減る");
+		Engine::EditorField::Field("Anchor", m_anchor);
+		Engine::EditorField::Tooltip("減っても動かない場所。Center は両側から均等に減る");
 
 		//----------------------------------------------------------------------
 		// 色
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Color");
+		Engine::EditorField::Header("Color");
 
-		Engine::Editor::Field("BlendColor", m_isBlendColor);
-		Engine::Editor::Tooltip("切ると、しきい値でパッと切り替わる");
+		Engine::EditorField::Field("BlendColor", m_isBlendColor);
+		Engine::EditorField::Tooltip("切ると、しきい値でパッと切り替わる");
 
 		int _removeIndex = -1;
 
 		for (size_t _i = 0; _i < m_colorStopVec.size(); ++_i)
 		{
-			Engine::Editor::IDScope _id(static_cast<int>(_i));
+			Engine::EditorField::IDScope _id(static_cast<int>(_i));
 
 			// ボタンを先に置く : 後ろへ並べると幅を取られて押しにくい
-			if (Engine::Editor::DeleteSmallButton("X")) _removeIndex = static_cast<int>(_i);
+			if (Engine::EditorField::DeleteSmallButton("X")) _removeIndex = static_cast<int>(_i);
 
-			Engine::Editor::SameLine();
-			Engine::Editor::SetNextItemWidth(80.0f);
-			if (Engine::Editor::Field("##ratio", m_colorStopVec[_i].ratio, 0.01f, 0.0f, 1.0f))
+			Engine::EditorField::SameLine();
+			Engine::EditorField::SetNextItemWidth(80.0f);
+			if (Engine::EditorField::Field("##ratio", m_colorStopVec[_i].ratio, 0.01f, 0.0f, 1.0f))
 			{
 				m_colorStopVec[_i].ratio = std::clamp(m_colorStopVec[_i].ratio, 0.0f, 1.0f);
 			}
 
-			Engine::Editor::SameLine();
-			Engine::Editor::Field("##color", m_colorStopVec[_i].color);
+			Engine::EditorField::SameLine();
+			Engine::EditorField::Field("##color", m_colorStopVec[_i].color);
 		}
 
 		if (_removeIndex >= 0) m_colorStopVec.erase(m_colorStopVec.begin() + _removeIndex);
 
-		if (Engine::Editor::CreateButton("Add Color Stop"))
+		if (Engine::EditorField::CreateButton("Add Color Stop"))
 		{
 			m_colorStopVec.push_back({});
 		}
 
-		Engine::Editor::SameLine();
-		if (Engine::Editor::Button("Sort"))
+		Engine::EditorField::SameLine();
+		if (Engine::EditorField::Button("Sort"))
 		{
 			// 残量の小さい順に並んでいることが前提の作りなので、ここで直せるようにしておく
 			std::sort(m_colorStopVec.begin(), m_colorStopVec.end(),
 				[](const GaugeColorStop& a, const GaugeColorStop& b) { return a.ratio < b.ratio; });
 		}
-		Engine::Editor::Tooltip("残量の小さい順に並べること(Sort で整う)");
+		Engine::EditorField::Tooltip("残量の小さい順に並べること(Sort で整う)");
 
 		//----------------------------------------------------------------------
 		// 数値
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Value Text");
+		Engine::EditorField::Header("Value Text");
 
-		Engine::Editor::Field("TextFormat", m_textFormat);
+		Engine::EditorField::Field("TextFormat", m_textFormat);
 
 		if (m_textFormat != EGaugeTextFormat::None)
 		{
-			Engine::Editor::Field("TextDecoration", m_textDecorationName);
-			Engine::Editor::Tooltip("数値を流し込む Text 飾りの名前。置き場所はその飾りの OffsetPos");
+			Engine::EditorField::Field("TextDecoration", m_textDecorationName);
+			Engine::EditorField::Tooltip("数値を流し込む Text 飾りの名前。置き場所はその飾りの OffsetPos");
 
 			const int _textIndex = FindDecorationIndex(m_textDecorationName);
 			if (_textIndex < 0)
 			{
-				Engine::Editor::ErrorText("その名前の飾りがありません");
+				Engine::EditorField::ErrorText("その名前の飾りがありません");
 			}
 			else if (m_decorationVec[_textIndex].type != Decoration::EDecorationType::Text)
 			{
-				Engine::Editor::WarningText("その飾りが Text ではありません");
+				Engine::EditorField::WarningText("その飾りが Text ではありません");
 			}
 
-			if (Engine::Editor::Field("Decimals", m_decimals, 1, 0, 4))
+			if (Engine::EditorField::Field("Decimals", m_decimals, 1, 0, 4))
 			{
 				m_decimals = std::clamp(m_decimals, 0, 4);
 				m_appliedText.clear();	// 桁を変えたらすぐ出し直す
@@ -594,20 +594,20 @@ namespace App::Object
 		// 値 : 実行中は入れる側が毎フレーム書き換える。
 		//      ここで動かせるのは見た目を詰めるため
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Value");
+		Engine::EditorField::Header("Value");
 
 		if (m_source == EGaugeSource::Manual)
 		{
-			Engine::Editor::HelpText("実行中は SetValue を呼ぶ側の値で上書きされる");
+			Engine::EditorField::HelpText("実行中は SetValue を呼ぶ側の値で上書きされる");
 		}
 		else
 		{
-			Engine::Editor::HelpText("実行中は見ているコンポーネントの値で毎フレーム上書きされる");
+			Engine::EditorField::HelpText("実行中は見ているコンポーネントの値で毎フレーム上書きされる");
 		}
 
-		Engine::Editor::Field("Max", m_max, 1.0f, 0.0f, 100000.0f);
-		Engine::Editor::Slider("Current", m_current, 0.0f, std::max(m_max, 1.0f));
+		Engine::EditorField::Field("Max", m_max, 1.0f, 0.0f, 100000.0f);
+		Engine::EditorField::Slider("Current", m_current, 0.0f, std::max(m_max, 1.0f));
 
-		Engine::Editor::Value("Ratio", "%.0f %%", GetRatio() * 100.0f);
+		Engine::EditorField::Value("Ratio", "%.0f %%", GetRatio() * 100.0f);
 	}
 }

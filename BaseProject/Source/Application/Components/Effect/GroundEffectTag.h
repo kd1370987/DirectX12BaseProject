@@ -1,5 +1,8 @@
 ﻿#pragma once
-struct GroundEffectTag
+namespace App::Component
 {
+	struct GroundEffectTag
+	{
 
-};
+	};
+}

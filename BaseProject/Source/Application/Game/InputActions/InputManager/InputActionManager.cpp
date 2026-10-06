@@ -12,7 +12,7 @@
 #include "Engine/Input/InputDevice/Button/InputButtonForWindows/InputButtonForWindows.h"
 #include "Engine/Input/InputDevice/Button/InputButtonForXInput/InputButtonForXInput.h"
 
-#include "Engine/Editor/Editor.h"
+#include "Editor/Editor.h"
 
 namespace App::Input
 {
@@ -113,18 +113,18 @@ namespace App::Input
 		{
 			bool _isChanged = false;
 
-			if (Engine::Editor::ComboScope _combo{ a_label, KeyName(a_code).c_str() })
+			if (Engine::EditorField::ComboScope _combo{ a_label, KeyName(a_code).c_str() })
 			{
 				for (const auto& [_code, _name] : KeyTable())
 				{
 					const bool _isSelected = (_code == a_code);
 
-					if (Engine::Editor::Selectable(_name.c_str(), _isSelected))
+					if (Engine::EditorField::Selectable(_name.c_str(), _isSelected))
 					{
 						a_code = _code;
 						_isChanged = true;
 					}
-					if (_isSelected) Engine::Editor::SetItemDefaultFocus();
+					if (_isSelected) Engine::EditorField::SetItemDefaultFocus();
 				}
 			}
 			return _isChanged;
@@ -141,8 +141,8 @@ namespace App::Input
 				auto _it = a_map.find(_action);
 				if (_it == a_map.end()) continue;
 
-				Engine::Editor::IDScope _id(static_cast<int>(_action));
-				Engine::Editor::Header(std::string(magic_enum::enum_name(_action)).c_str());
+				Engine::EditorField::IDScope _id(static_cast<int>(_action));
+				Engine::EditorField::Header(std::string(magic_enum::enum_name(_action)).c_str());
 
 				if (auto* _pAxis = std::get_if<Game::AxisInputData>(&_it->second))
 				{
@@ -180,10 +180,10 @@ namespace App::Input
 		Apply();
 
 		// エディター登録
-		Engine::Editor::MainEditor::Instance().RegisterEditFunc(
+		::Editor::MainEditor::Instance().RegisterEditFunc(
 			[this]()
 			{
-				if (Engine::Editor::WindowScope _window{ "InputSetting" })
+				if (Engine::EditorField::WindowScope _window{ "InputSetting" })
 				{
 					Edit();
 				}
@@ -288,7 +288,7 @@ namespace App::Input
 	{
 		if (!m_pUserData)
 		{
-			Engine::Editor::HelpText("ユーザーデータが設定されていません");
+			Engine::EditorField::HelpText("ユーザーデータが設定されていません");
 			return;
 		}
 
@@ -297,32 +297,32 @@ namespace App::Input
 
 		// ---- 既定へ戻す ----
 		// 保存・リセットは色を付けない(生成=緑 / 削除=赤 の決まりに合わせる)
-		if (Engine::Editor::Button("Reset To Default"))
+		if (Engine::EditorField::Button("Reset To Default"))
 		{
 			ResetToDefault();
 		}
-		Engine::Editor::Tooltip("作った時の割り当てへ戻す");
+		Engine::EditorField::Tooltip("作った時の割り当てへ戻す");
 
-		Engine::Editor::Line();
+		Engine::EditorField::Line();
 
 		// ---- マウス感度 ----
 		// ここは持っているだけで、実際の振り向きの速さは
 		// エンジン側の InputOption(Project設定)が持っている
-		Engine::Editor::Field("MouseSensitivity", _settings.mouseSensitivity, 0.01f, 0.01f, 10.0f);
-		if (Engine::Editor::IsItemEditFinished()) _isChanged = true;
+		Engine::EditorField::Field("MouseSensitivity", _settings.mouseSensitivity, 0.01f, 0.01f, 10.0f);
+		if (Engine::EditorField::IsItemEditFinished()) _isChanged = true;
 
 		// ---- 割り当て ----
-		if (Engine::Editor::CollapsingHeader("Keyboard", true))
+		if (Engine::EditorField::CollapsingHeader("Keyboard", true))
 		{
-			Engine::Editor::IDScope _id("Keyboard");
+			Engine::EditorField::IDScope _id("Keyboard");
 			_isChanged |= DrawActionMapEdit(_settings.keyboard);
 		}
 
-		if (Engine::Editor::CollapsingHeader("Mouse"))
+		if (Engine::EditorField::CollapsingHeader("Mouse"))
 		{
-			Engine::Editor::HelpText("視点(Look)はマウスの移動量そのものなので割り当ては無い");
+			Engine::EditorField::HelpText("視点(Look)はマウスの移動量そのものなので割り当ては無い");
 
-			Engine::Editor::IDScope _id("Mouse");
+			Engine::EditorField::IDScope _id("Mouse");
 			_isChanged |= DrawActionMapEdit(_settings.mouse);
 		}
 

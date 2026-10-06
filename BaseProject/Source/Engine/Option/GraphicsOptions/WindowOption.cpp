@@ -6,16 +6,16 @@
 void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineServices&)
 {
 	// ウィンドウサイズ
-	Engine::Editor::Header("WindowSize");
-	Engine::Editor::Value("Width", "%f", windowWidth);
-	Engine::Editor::Value("Height", "%f", windowHeight);
-	Engine::Editor::Field("Width", windowWidth, 1, 0, 1980);
-	Engine::Editor::Field("Height", windowHeight, 1, 0, 1080);
+	Engine::EditorField::Header("WindowSize");
+	Engine::EditorField::Value("Width", "%f", windowWidth);
+	Engine::EditorField::Value("Height", "%f", windowHeight);
+	Engine::EditorField::Field("Width", windowWidth, 1, 0, 1980);
+	Engine::EditorField::Field("Height", windowHeight, 1, 0, 1080);
 
-	Engine::Editor::Line();
+	Engine::EditorField::Line();
 
 	// ウィンドウタイトル
-	if (Engine::Editor::Field("Title", windowTitle))
+	if (Engine::EditorField::Field("Title", windowTitle))
 	{
 		// ウィンドウがない状況はあり得ないが一応
 		auto* _pWindow = MainEngine::Instance().RefNativeWindow();
@@ -24,7 +24,7 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineSe
 			_pWindow->ChangeTitle(windowTitle);
 		}
 	}
-	if (Engine::Editor::Field("IsTitleFPS", isTitleFPS))
+	if (Engine::EditorField::Field("IsTitleFPS", isTitleFPS))
 	{
 		// FPS表示を消すため
 		auto* _pWindow = MainEngine::Instance().RefNativeWindow();
@@ -34,10 +34,10 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineSe
 		}
 	}
 
-	Engine::Editor::Line();
+	Engine::EditorField::Line();
 
 	// ウィンドウモード
-	if (Engine::Editor::Field("WindowMode", windowMode))
+	if (Engine::EditorField::Field("WindowMode", windowMode))
 	{
 		// ウィンドウがない状況はあり得ないが一応
 		auto* _pWindow = MainEngine::Instance().RefNativeWindow();
@@ -46,10 +46,10 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineSe
 			_pWindow->ChangeWindowMode(windowMode);
 		}
 	}
-	Engine::Editor::Field("Vsync", isVsync);
-	Engine::Editor::Field("TargetFrameRate", targetFrameRate, 1, 0, 1000);
+	Engine::EditorField::Field("Vsync", isVsync);
+	Engine::EditorField::Field("TargetFrameRate", targetFrameRate, 1, 0, 1000);
 
-	Engine::Editor::Line();
+	Engine::EditorField::Line();
 }
 
 void Engine::Option::GraphicsOptions::WindowOption::Archive(Persistence::Archive& a_archive)

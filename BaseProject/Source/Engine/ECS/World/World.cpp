@@ -103,7 +103,7 @@ namespace Engine::ECS
 		return a_location.pChunk->entityData[a_location.chunkIndex];
 	}
 
-	Entity World::GetEntity(const Engine::GUID& a_guid)
+	Entity World::GetEntity(const Core::GUID& a_guid)
 	{
 		// 基盤のエンティティは番号でしかなく、保存をまたいで残る識別子は持たない
 		(void)a_guid;

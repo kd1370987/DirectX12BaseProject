@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "../../Utility/BinaryHelper/BinaryHelper.h"
+#include "Core/BinaryHelper/BinaryHelper.h"
 
 // json.hpp ではなく前方宣言だけを読む。
 // Archive.h はプリコンパイル済みヘッダーに入っているので、ここで json.hpp を
 // 読むと 900KB のヘッダーが全翻訳単位に乗る。
 // JSON を実際に触るのは Archive.cpp 側(下の Json〜 関数)
-#include "../../Utility/JSONHelper/JSONForward.h"
+#include "Core/JSONHelper/JSONForward.h"
 
 namespace Engine::Persistence
 {
@@ -93,8 +93,8 @@ namespace Engine::Persistence
 		void EndObject();
 
 		// GUID用
-		void GUIDField(const std::string& a_name,Engine::GUID& a_guid);
-		void GUIDVectorField(const std::string& a_name, std::vector<Engine::GUID>& a_guid);
+		void GUIDField(const std::string& a_name,Core::GUID& a_guid);
+		void GUIDVectorField(const std::string& a_name, std::vector<Core::GUID>& a_guid);
 
 		// モード取得
 		EMode GetMode() const { return m_mode; }
@@ -407,7 +407,7 @@ namespace Engine::Persistence
 	}
 	// GUID
 	template<>
-	inline void Archive::Field(const std::string& a_name, Engine::GUID& a_data)
+	inline void Archive::Field(const std::string& a_name, Core::GUID& a_data)
 	{
 		// セーブ時
 		if (IsSaving())

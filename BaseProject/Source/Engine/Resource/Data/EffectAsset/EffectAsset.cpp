@@ -431,8 +431,8 @@ namespace Engine::Resource
 
 	void EffectAsset::Save(const std::string& a_baseFilePath)
 	{
-		auto _fileDir = Engine::File::GetDirFromPath(a_baseFilePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_baseFilePath);
+		auto _fileDir = Core::File::GetDirFromPath(a_baseFilePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_baseFilePath);
 
 		Persistence::Archive _ar(Persistence::Archive::EMode::Save, _fileDir, _fileName, "effect");
 		Archive(_ar);

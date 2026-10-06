@@ -51,7 +51,7 @@ namespace Engine::GameObject
 		/// <summary>
 		/// GUIDからインスタンスを引く(参照解決用)。無ければ nullptr。
 		/// </summary>
-		BaseObject* FindByGUID(const Engine::GUID& a_guid) const;
+		BaseObject* FindByGUID(const Core::GUID& a_guid) const;
 
 		/// <summary>
 		/// そのポインタが今このマネージャーの管理下にあるか。
@@ -127,7 +127,7 @@ namespace Engine::GameObject
 		std::vector<std::unique_ptr<BaseObject>> m_upObjectVec = {};
 
 		// GUID からインスタンスを引くための対応表
-		std::unordered_map<Engine::GUID, BaseObject*> m_guidMap = {};
+		std::unordered_map<Core::GUID, BaseObject*> m_guidMap = {};
 	};
 
 
@@ -141,7 +141,7 @@ namespace Engine::GameObject
 		auto _upObject = CreateObject<T>();
 
 		// 新規GUIDを発行(まだ持っていなければ)
-		Engine::GUID _guid = {};
+		Core::GUID _guid = {};
 		_guid.Create();
 		_upObject->SetGUID(_guid);
 

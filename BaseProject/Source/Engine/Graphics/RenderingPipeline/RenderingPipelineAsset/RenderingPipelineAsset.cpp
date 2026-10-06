@@ -116,8 +116,8 @@ namespace Engine::Graphics::Pipeline
 	// ImNodes 上で動かした位置を書き戻すのは呼ぶ側(エディター)の役
 	void RenderingPipelineAsset::Save(const std::string& a_baseFilePath)
 	{
-		auto _fileDir = Engine::File::GetDirFromPath(a_baseFilePath);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_baseFilePath);
+		auto _fileDir = Core::File::GetDirFromPath(a_baseFilePath);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_baseFilePath);
 
 		// 読み込みと同じくJSON固定(理由は RenderingPipelineAssetIO::LoadFromFile を参照)
 		Persistence::Archive _arch(Persistence::Archive::EMode::Save, _fileDir, _fileName, EXTENSION,

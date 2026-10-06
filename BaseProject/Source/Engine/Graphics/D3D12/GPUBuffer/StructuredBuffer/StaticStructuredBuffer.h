@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "../StaticBuffer/StaticBuffer.h"
-#include "Engine/Utility/Debug/DebugLog.h"
+#include "Core/Debug/DebugLog.h"
 
 namespace Engine::D3D12
 {

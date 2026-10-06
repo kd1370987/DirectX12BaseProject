@@ -37,7 +37,7 @@
 #include "../MouseCursor/MouseCursor.h"
 
 // エディター
-#include "Engine/Editor/Editor.h"
+#include "Editor/Editor.h"
 
 namespace App::Game
 {
@@ -137,10 +137,10 @@ namespace App::Game
 		}
 
 		// エディター関数登録
-		Engine::Editor::MainEditor::Instance().RegisterEditFunc(
+		::Editor::MainEditor::Instance().RegisterEditFunc(
 			[&]()
 			{
-				if (Engine::Editor::WindowScope _window{ "GameSetting" })
+				if (Engine::EditorField::WindowScope _window{ "GameSetting" })
 				{
 					DrawGameSettingEdit();
 				}
@@ -217,17 +217,17 @@ namespace App::Game
 	//======================================================================================
 	void GameManager::DrawGameSettingEdit()
 	{
-		Engine::Editor::Value("Farst Scene", "%s", m_farstScene.String().c_str());
+		Engine::EditorField::Value("Farst Scene", "%s", m_farstScene.String().c_str());
 
-		Engine::Editor::AssetField(
+		Engine::EditorField::AssetField(
 			Engine::MainEngine::Instance().GetEngineServices(),
 			"##FarstScene",
 			"Scene",
 			m_farstScene);
 
-		Engine::Editor::Line();
+		Engine::EditorField::Line();
 
-		if (Engine::Editor::Button("Save"))
+		if (Engine::EditorField::Button("Save"))
 		{
 			SaveGameSetting();
 		}

@@ -2,9 +2,9 @@
 
 #include <Jolt/Jolt.h>
 
-#include "Engine/Utility/Math/Vector/Vector3.h"
-#include "Engine/Utility/Math/Quaternion.h"
-#include "Engine/Utility/Math/Matrix.h"
+#include "Core/Math/Vector/Vector3.h"
+#include "Core/Math/Quaternion.h"
+#include "Core/Math/Matrix.h"
 
 //==========================================================================================
 // 自作 Math 型 <-> Jolt の型の変換。

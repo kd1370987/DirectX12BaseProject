@@ -14,54 +14,57 @@
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
 
-void SkinningRegisterSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	a_world.ActiveTask<
-		const ModelComponent, 
-		const WorldMatrixComponent,
-		const DynamicRaytracingComponent,
-		const NodePoseComponent,
-		const SkeletonPoseComponent
-		>
-		(
-		Engine::ECS::ESystemType::Draw,
-		"SkinningRegisterSystem",
-		[]
-		(
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			ActiveTag* a_pTags,
-			const ModelComponent* a_pModelArray,
-			const WorldMatrixComponent* a_pWorldMatArray,
-			const DynamicRaytracingComponent* a_pAnimationArray,
-			const NodePoseComponent* a_nodePoseArray,
-			const SkeletonPoseComponent* a_skeletonArray
-			)
-		{
-			for (size_t _i = 0; _i < a_count; ++_i)
+	void SkinningRegisterSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		a_world.ActiveTask<
+			const Component::ModelComponent, 
+			const Component::WorldMatrixComponent,
+			const Component::DynamicRaytracingComponent,
+			const Component::NodePoseComponent,
+			const Component::SkeletonPoseComponent
+			>
+			(
+			Engine::ECS::ESystemType::Draw,
+			"SkinningRegisterSystem",
+			[]
+			(
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::ActiveTag* a_pTags,
+				const Component::ModelComponent* a_pModelArray,
+				const Component::WorldMatrixComponent* a_pWorldMatArray,
+				const Component::DynamicRaytracingComponent* a_pAnimationArray,
+				const Component::NodePoseComponent* a_nodePoseArray,
+				const Component::SkeletonPoseComponent* a_skeletonArray
+				)
 			{
-				const WorldMatrixComponent& _wMatComp = a_pWorldMatArray[_i];
-				const ModelComponent& _modelComp = a_pModelArray[_i];
-				const DynamicRaytracingComponent& _rayComp = a_pAnimationArray[_i];
-				const NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
-				const SkeletonPoseComponent& _skePoseComp = a_skeletonArray[_i];
+				for (size_t _i = 0; _i < a_count; ++_i)
+				{
+					const Component::WorldMatrixComponent& _wMatComp = a_pWorldMatArray[_i];
+					const Component::ModelComponent& _modelComp = a_pModelArray[_i];
+					const Component::DynamicRaytracingComponent& _rayComp = a_pAnimationArray[_i];
+					const Component::NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];
+					const Component::SkeletonPoseComponent& _skePoseComp = a_skeletonArray[_i];
 
-				auto* _pGE = a_ctx.pServices->pMainEngine->RefGraphicsEngine();
-				if (!_pGE) continue;
+					auto* _pGE = a_ctx.pServices->pMainEngine->RefGraphicsEngine();
+					if (!_pGE) continue;
 
-				auto* _model = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);;
-				if (!_model) continue;
+					auto* _model = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);;
+					if (!_model) continue;
 
-				// GPUスキニング登録
-				_pGE->RefDrawSubmitter()->SubmitSkinning(
-					*a_ctx.pWorld,
-					_model,
-					_rayComp.dynamicInstanceHandle,
-					_nodePoseComp.nodePoseHandle,
-					_skePoseComp.skeletonPoseHandle
-				);
+					// GPUスキニング登録
+					_pGE->RefDrawSubmitter()->SubmitSkinning(
+						*a_ctx.pWorld,
+						_model,
+						_rayComp.dynamicInstanceHandle,
+						_nodePoseComp.nodePoseHandle,
+						_skePoseComp.skeletonPoseHandle
+					);
+				}
 			}
-		}
-	);
+		);
+	}
 }

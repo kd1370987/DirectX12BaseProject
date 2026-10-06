@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Engine/Utility/Debug/DebugLog.h"
+#include "Core/Debug/DebugLog.h"
 
 // アセットデータベース
 #include "../AssetDatabase/AssetDatabase.h"
@@ -76,7 +76,7 @@ namespace Engine::Resource
 	{
 		Pool::AtomicItemPool<T>						pool;					// リソース
 
-		std::unordered_map<Engine::GUID, Handle<T>>	cache = {};				// GUID to Handle
+		std::unordered_map<Core::GUID, Handle<T>>	cache = {};				// GUID to Handle
 		mutable std::mutex							cacheMutex;				// cache を守る
 		std::condition_variable						loadingCondition;		// 読み込み完了の通知
 
@@ -125,7 +125,7 @@ namespace Engine::Resource
 		/// </summary>
 		/// <param name="a_guid">アセットのGUID</param>
 		template<typename T>
-		inline ResourceRef<T> RequestLoad(const Engine::GUID& a_guid);
+		inline ResourceRef<T> RequestLoad(const Core::GUID& a_guid);
 
 		/// <summary>
 		/// リソースの読み込み : 実体ができるまで呼び出しスレッドを待たせる
@@ -145,7 +145,7 @@ namespace Engine::Resource
 		/// 省略した場合はロード側がその場でバッチを開くため、リソース1個ごとにキューへの実行が走る。
 		/// </param>
 		template<typename T>
-		inline ResourceRef<T> LoadImmediate(const Engine::GUID& a_guid, const ResourceBuildContext* a_pBuildContext = nullptr);
+		inline ResourceRef<T> LoadImmediate(const Core::GUID& a_guid, const ResourceBuildContext* a_pBuildContext = nullptr);
 
 		// リソースの追加
 		template<typename T>
@@ -162,7 +162,7 @@ namespace Engine::Resource
 		/// <param name="a_guid">アセットの読み込み時GUID</param>
 		/// <returns>保存されたラインタイムハンドル</returns>
 		template<typename T>
-		Handle<T> AddResourceAndGUID(T&& a_resource,const Engine::GUID& a_guid);
+		Handle<T> AddResourceAndGUID(T&& a_resource,const Core::GUID& a_guid);
 
 		// リソースの削除
 		template<typename T>
@@ -195,13 +195,13 @@ namespace Engine::Resource
 		/// 参照を1つ取って、ハンドルを書き込む : 実体の到着は待たない
 		/// </summary>
 		template<typename T>
-		void AcquireRequest(Handle<T>& a_inoutHandle, const Engine::GUID& a_guid);
+		void AcquireRequest(Handle<T>& a_inoutHandle, const Core::GUID& a_guid);
 
 		/// <summary>
 		/// 参照を1つ取って、ハンドルを書き込む : 実体ができるまで待つ
 		/// </summary>
 		template<typename T>
-		void AcquireImmediate(Handle<T>& a_inoutHandle, const Engine::GUID& a_guid,
+		void AcquireImmediate(Handle<T>& a_inoutHandle, const Core::GUID& a_guid,
 			const ResourceBuildContext* a_pBuildContext = nullptr);
 
 		/// <summary>
@@ -247,7 +247,7 @@ namespace Engine::Resource
 		/// GUIDからリソースの状態を取得する : まだ読んでいないものは Empty
 		/// </summary>
 		template<typename T>
-		EResourceState GetState(const Engine::GUID& a_guid);
+		EResourceState GetState(const Core::GUID& a_guid);
 
 		/// <summary>
 		/// 状態を書き換える
@@ -296,19 +296,19 @@ namespace Engine::Resource
 		// 参照ではなく値で返す :
 		// マップの中身への参照を返すと、他スレッドの登録・削除で足元が崩れる
 		template<typename T>
-		Handle<T> GetCache(const Engine::GUID& a_guid);
+		Handle<T> GetCache(const Core::GUID& a_guid);
 		template<typename T>
-		Engine::GUID GetCache(const Handle<T>& a_handle);
+		Core::GUID GetCache(const Handle<T>& a_handle);
 
 		// キャッシュから削除
 		template<typename T>
 		void RemoveCache(const Handle<T>& a_handle);
 		template<typename T>
-		void RemoveCache(const Engine::GUID& a_guid);
+		void RemoveCache(const Core::GUID& a_guid);
 
 		// すでに読み込まれているかのチェック
 		template<typename T>
-		bool Has(const Engine::GUID& a_guid);
+		bool Has(const Core::GUID& a_guid);
 
 		// ハンドルの有効チェック
 		template<typename T>
@@ -360,14 +360,14 @@ namespace Engine::Resource
 		/// </summary>
 		/// <param name="a_outIsOwner">このスロットを新規に押さえた(=ビルド担当)なら true</param>
 		template<typename T>
-		Handle<T> ReserveSlot(const Engine::GUID& a_guid, bool& a_outIsOwner);
+		Handle<T> ReserveSlot(const Core::GUID& a_guid, bool& a_outIsOwner);
 
 		/// <summary>
 		/// 押さえておいたスロットへ実体をビルドして流し込む
 		/// 終わったところで Ready / Failed に切り替え、待っているスレッドを起こす
 		/// </summary>
 		template<typename T>
-		void BuildIntoSlot(const Engine::GUID& a_guid, const Handle<T>& a_handle, const ResourceBuildContext* a_pBuildContext);
+		void BuildIntoSlot(const Core::GUID& a_guid, const Handle<T>& a_handle, const ResourceBuildContext* a_pBuildContext);
 
 		/// <summary>
 		/// 対象スロットが Loading でなくなるまで待つ
@@ -377,7 +377,7 @@ namespace Engine::Resource
 
 		// キャッシュ追加
 		template<typename T>
-		void RegisterCache(const Handle<T>& a_handle, const Engine::GUID& a_guid);
+		void RegisterCache(const Handle<T>& a_handle, const Core::GUID& a_guid);
 
 		/// <summary>
 		/// テンプレート特殊化された内部データを参照するための関数
@@ -457,7 +457,7 @@ namespace Engine::Resource
 	};
 	// リソースの読み込み要求 : 待たない
 	template<typename T>
-	inline ResourceRef<T> ResourceManager::RequestLoad(const Engine::GUID& a_guid)
+	inline ResourceRef<T> ResourceManager::RequestLoad(const Core::GUID& a_guid)
 	{
 		bool _isOwner = false;
 		const Handle<T> _handle = ReserveSlot<T>(a_guid, _isOwner);
@@ -490,7 +490,7 @@ namespace Engine::Resource
 
 	// リソースのロード : 実体ができるまで待つ
 	template<typename T>
-	inline ResourceRef<T> ResourceManager::LoadImmediate(const Engine::GUID& a_guid, const ResourceBuildContext* a_pBuildContext)
+	inline ResourceRef<T> ResourceManager::LoadImmediate(const Core::GUID& a_guid, const ResourceBuildContext* a_pBuildContext)
 	{
 		bool _isOwner = false;
 		const Handle<T> _handle = ReserveSlot<T>(a_guid, _isOwner);
@@ -511,7 +511,7 @@ namespace Engine::Resource
 
 	// スロットの確保
 	template<typename T>
-	inline Handle<T> ResourceManager::ReserveSlot(const Engine::GUID& a_guid, bool& a_outIsOwner)
+	inline Handle<T> ResourceManager::ReserveSlot(const Core::GUID& a_guid, bool& a_outIsOwner)
 	{
 		auto& _data = RefData<T>();
 
@@ -549,7 +549,7 @@ namespace Engine::Resource
 
 	// 実体のビルドと流し込み
 	template<typename T>
-	inline void ResourceManager::BuildIntoSlot(const Engine::GUID& a_guid, const Handle<T>& a_handle, const ResourceBuildContext* a_pBuildContext)
+	inline void ResourceManager::BuildIntoSlot(const Core::GUID& a_guid, const Handle<T>& a_handle, const ResourceBuildContext* a_pBuildContext)
 	{
 		auto& _data = RefData<T>();
 
@@ -666,7 +666,7 @@ namespace Engine::Resource
 	// 生ハンドルの取得と返却
 	//======================================================================================
 	template<typename T>
-	inline void ResourceManager::AcquireRequest(Handle<T>& a_inoutHandle, const Engine::GUID& a_guid)
+	inline void ResourceManager::AcquireRequest(Handle<T>& a_inoutHandle, const Core::GUID& a_guid)
 	{
 		if (!a_guid.IsValid())
 		{
@@ -688,7 +688,7 @@ namespace Engine::Resource
 	}
 
 	template<typename T>
-	inline void ResourceManager::AcquireImmediate(Handle<T>& a_inoutHandle, const Engine::GUID& a_guid,
+	inline void ResourceManager::AcquireImmediate(Handle<T>& a_inoutHandle, const Core::GUID& a_guid,
 		const ResourceBuildContext* a_pBuildContext)
 	{
 		if (!a_guid.IsValid())
@@ -720,7 +720,7 @@ namespace Engine::Resource
 	}
 
 	template<typename T>
-	inline Handle<T> ResourceManager::AddResourceAndGUID(T&& a_resource, const Engine::GUID& a_guid)
+	inline Handle<T> ResourceManager::AddResourceAndGUID(T&& a_resource, const Core::GUID& a_guid)
 	{
 		auto _handle = RefPool<T>().Add(std::move(a_resource));
 		RegisterCache<T>(_handle, a_guid); // キャッシュにも登録
@@ -901,7 +901,7 @@ namespace Engine::Resource
 	}
 
 	template<typename T>
-	inline EResourceState ResourceManager::GetState(const Engine::GUID& a_guid)
+	inline EResourceState ResourceManager::GetState(const Core::GUID& a_guid)
 	{
 		return GetState<T>(GetCache<T>(a_guid));
 	}
@@ -982,7 +982,7 @@ namespace Engine::Resource
 
 	// キャッシュアクセス
 	template<typename T>
-	inline Handle<T> ResourceManager::GetCache(const Engine::GUID& a_guid)
+	inline Handle<T> ResourceManager::GetCache(const Core::GUID& a_guid)
 	{
 		auto& _data = RefData<T>();
 
@@ -996,7 +996,7 @@ namespace Engine::Resource
 		return Handle<T>();
 	}
 	template<typename T>
-	inline Engine::GUID ResourceManager::GetCache(const Handle<T>& a_handle)
+	inline Core::GUID ResourceManager::GetCache(const Handle<T>& a_handle)
 	{
 		auto& _data = RefData<T>();
 
@@ -1010,7 +1010,7 @@ namespace Engine::Resource
 			}
 		}
 		ENGINE_LOG("登録されていないハンドルです");
-		return Engine::GUID();
+		return Core::GUID();
 	}
 	// キャッシュ削除
 	template<typename T>
@@ -1031,7 +1031,7 @@ namespace Engine::Resource
 	}
 
 	template<typename T>
-	inline void ResourceManager::RemoveCache(const Engine::GUID& a_guid)
+	inline void ResourceManager::RemoveCache(const Core::GUID& a_guid)
 	{
 		auto& _data = RefData<T>();
 
@@ -1040,7 +1040,7 @@ namespace Engine::Resource
 	}
 
 	template<typename T>
-	inline bool ResourceManager::Has(const Engine::GUID& a_guid)
+	inline bool ResourceManager::Has(const Core::GUID& a_guid)
 	{
 		auto& _data = RefData<T>();
 
@@ -1057,7 +1057,7 @@ namespace Engine::Resource
 
 	// 型ごとにキャッシュに登録
 	template<typename T>
-	inline void ResourceManager::RegisterCache(const Handle<T>& a_handle, const Engine::GUID& a_guid)
+	inline void ResourceManager::RegisterCache(const Handle<T>& a_handle, const Core::GUID& a_guid)
 	{
 		auto& _data = RefData<T>();
 

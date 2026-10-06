@@ -22,8 +22,8 @@ namespace Engine::Graphics::Pipeline
 			return _asset;
 		}
 
-		auto _fileDir = Engine::File::GetDirFromPath(a_path);
-		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_path);
+		auto _fileDir = Core::File::GetDirFromPath(a_path);
+		auto _fileName = Core::File::GetFileNameWithoutExtension(a_path);
 
 		_asset.SetMetaRegistry(a_pRegistry);
 		_asset.SetName(_fileName);
@@ -47,8 +47,8 @@ namespace Engine::Graphics::Pipeline
 		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
 
 		// すでにないかチェック
-		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DEFAULT_GUID)
+		Core::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
+		if (_checkGUID != Core::DEFAULT_GUID)
 		{
 			ENGINE_LOG("すでに作成済みのパイプラインです : %s", _basePath.c_str());
 			return;

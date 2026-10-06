@@ -1,6 +1,6 @@
 ﻿#include "Node.h"
 
-#include "../../../Utility/BinaryHelper/BinaryHelper.h"
+#include "Core/BinaryHelper/BinaryHelper.h"
 
 
 void Engine::Resource::Node::Archive(Persistence::Archive& a_ar, int a_idx)

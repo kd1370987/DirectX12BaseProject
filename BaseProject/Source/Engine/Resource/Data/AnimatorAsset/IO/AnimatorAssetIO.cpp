@@ -18,8 +18,8 @@ namespace Engine::Resource
 		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
 
 		// すでにないかチェック
-		Engine::GUID _checkGUID = a_resourceManager.RefAssetDatabase().GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DEFAULT_GUID)
+		Core::GUID _checkGUID = a_resourceManager.RefAssetDatabase().GetGUIDFromFilePath(_basePath);
+		if (_checkGUID != Core::DEFAULT_GUID)
 		{
 			ENGINE_LOG("すでに作成されたアニメーターです : %s", _basePath.c_str());
 			return;

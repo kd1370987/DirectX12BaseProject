@@ -65,7 +65,7 @@ namespace App::Game
 
 		// 描画に使うテクスチャ。設定のGUIDが変わったら読み直す
 		Engine::ResourceRef<Engine::Resource::Texture> m_texRef = {};
-		Engine::GUID m_loadedGUID = {};
+		Core::GUID m_loadedGUID = {};
 
 		// OSのカーソルを消してよいか(＝自前の絵を出せる状態か)
 		bool m_isHideOSCursor = false;

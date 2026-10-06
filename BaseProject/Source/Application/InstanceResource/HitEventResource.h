@@ -15,74 +15,77 @@
 //
 //==========================================================================================
 
-// ヒットの種別。反応系が「何に当たったか」で分岐するために使う。
-enum class EHitEventType : uint8_t
+namespace App::InstanceResource
 {
-	Unknown = 0,	// 未設定
-	Bullet,			// 弾が当たった
-	Melee,			// 近接攻撃が当たった
-	Explosion,		// 爆風が当たった
-	Contact,		// 体がぶつかった(群れのボスのボイドなど)
-};
-
-// ヒット1件分の情報
-struct HitEvent
-{
-	// 当てた側(弾やダメージ判定を出した敵など)
-	Engine::ECS::Entity attacker = Engine::ECS::Limits::INVALID_ENTITY;
-
-	// 当てた側の持ち主(弾を撃った本体)。
-	// attacker は弾そのものなので、「自分の攻撃が当たったか」を知りたい側
-	// (ヒットマーカーなど)は attacker ではなくこちらを見る。
-	// 弾以外で持ち主が居ない場合は無効値のまま。
-	Engine::ECS::Entity shooter = Engine::ECS::Limits::INVALID_ENTITY;
-
-	// 当てられた側(敵やプレイヤー)
-	Engine::ECS::Entity victim = Engine::ECS::Limits::INVALID_ENTITY;
-
-	Math::Vector3 hitPos = { 0.0f, 0.0f, 0.0f };	// 当たった位置(エフェクト発生点)
-	Math::Vector3 hitDir = { 0.0f, 0.0f, 0.0f };	// victim から見て受けた方向(のけぞりの向きに使う)
-
-	float damage = 0.0f;							// 与えたダメージ(未使用なら0)
-	EHitEventType type = EHitEventType::Unknown;	// ヒットの種別
-
-	// 生成したいエフェクトのプレハブ(未設定なら生成しない)。
-	// 弾のように「反応する前に自分が消える」側が、産むときに指定しておくために持たせている。
-	Engine::GUID effectPrefabGUID = Engine::DEFAULT_GUID;
-};
-
-// ワールドに1つだけ置くヒットイベントの配列
-struct HitEventResource
-{
-	// そのフレームに発生したヒット群
-	std::vector<HitEvent> events = {};
-
-	// ヒットを追加する
-	void Push(const HitEvent& a_event)
+	// ヒットの種別。反応系が「何に当たったか」で分岐するために使う。
+	enum class EHitEventType : uint8_t
 	{
-		events.push_back(a_event);
-	}
+		Unknown = 0,	// 未設定
+		Bullet,			// 弾が当たった
+		Melee,			// 近接攻撃が当たった
+		Explosion,		// 爆風が当たった
+		Contact,		// 体がぶつかった(群れのボスのボイドなど)
+	};
 
-	// フレーム頭のクリア。
-	// capacity は残すので、毎フレームの再確保は起きない。
-	void Clear()
+	// ヒット1件分の情報
+	struct HitEvent
 	{
-		events.clear();
-	}
+		// 当てた側(弾やダメージ判定を出した敵など)
+		Engine::ECS::Entity attacker = Engine::ECS::Limits::INVALID_ENTITY;
 
-	// 事前確保(初期化時に一度だけ呼ぶ想定)
-	void Reserve(size_t a_capacity)
-	{
-		events.reserve(a_capacity);
-	}
+		// 当てた側の持ち主(弾を撃った本体)。
+		// attacker は弾そのものなので、「自分の攻撃が当たったか」を知りたい側
+		// (ヒットマーカーなど)は attacker ではなくこちらを見る。
+		// 弾以外で持ち主が居ない場合は無効値のまま。
+		Engine::ECS::Entity shooter = Engine::ECS::Limits::INVALID_ENTITY;
 
-	// 指定エンティティが受けたヒットがあるか(画面を赤くする等の判定用)
-	bool HasVictim(const Engine::ECS::Entity& a_entity) const
+		// 当てられた側(敵やプレイヤー)
+		Engine::ECS::Entity victim = Engine::ECS::Limits::INVALID_ENTITY;
+
+		Math::Vector3 hitPos = { 0.0f, 0.0f, 0.0f };	// 当たった位置(エフェクト発生点)
+		Math::Vector3 hitDir = { 0.0f, 0.0f, 0.0f };	// victim から見て受けた方向(のけぞりの向きに使う)
+
+		float damage = 0.0f;							// 与えたダメージ(未使用なら0)
+		EHitEventType type = EHitEventType::Unknown;	// ヒットの種別
+
+		// 生成したいエフェクトのプレハブ(未設定なら生成しない)。
+		// 弾のように「反応する前に自分が消える」側が、産むときに指定しておくために持たせている。
+		Core::GUID effectPrefabGUID = Core::DEFAULT_GUID;
+	};
+
+	// ワールドに1つだけ置くヒットイベントの配列
+	struct HitEventResource
 	{
-		for (const HitEvent& _event : events)
+		// そのフレームに発生したヒット群
+		std::vector<HitEvent> events = {};
+
+		// ヒットを追加する
+		void Push(const HitEvent& a_event)
 		{
-			if (_event.victim == a_entity) return true;
+			events.push_back(a_event);
 		}
-		return false;
-	}
-};
+
+		// フレーム頭のクリア。
+		// capacity は残すので、毎フレームの再確保は起きない。
+		void Clear()
+		{
+			events.clear();
+		}
+
+		// 事前確保(初期化時に一度だけ呼ぶ想定)
+		void Reserve(size_t a_capacity)
+		{
+			events.reserve(a_capacity);
+		}
+
+		// 指定エンティティが受けたヒットがあるか(画面を赤くする等の判定用)
+		bool HasVictim(const Engine::ECS::Entity& a_entity) const
+		{
+			for (const HitEvent& _event : events)
+			{
+				if (_event.victim == a_entity) return true;
+			}
+			return false;
+		}
+	};
+}

@@ -44,11 +44,11 @@ namespace App::Utility
 	bool SpawnPrefab(
 		Engine::ECS::World& a_world,
 		Engine::Resource::ResourceManager& a_resourceManager,
-		const Engine::GUID& a_prefabGUID,
+		const Core::GUID& a_prefabGUID,
 		Engine::Handle<Engine::Resource::Prefab>& a_refHandle,
 		const SpawnParams& a_params)
 	{
-		if (a_prefabGUID == Engine::DEFAULT_GUID) return false;
+		if (a_prefabGUID == Core::DEFAULT_GUID) return false;
 
 		// ハンドルを解決(未ロードならロード)して、参照を1つ取る。
 		// 返すのはこのハンドルを持っているコンポーネントの解放フック
@@ -74,7 +74,7 @@ namespace App::Utility
 	bool SpawnPrefabAt(
 		Engine::ECS::World& a_world,
 		Engine::Resource::ResourceManager& a_resourceManager,
-		const Engine::GUID& a_prefabGUID,
+		const Core::GUID& a_prefabGUID,
 		Engine::Handle<Engine::Resource::Prefab>& a_refHandle,
 		const Math::Vector3& a_pos)
 	{
@@ -108,9 +108,9 @@ namespace App::Utility
 
 		// 位置と向きを入れる。LocalTransform が無ければ足す
 		if (uint8_t* _pBuf = EnsureInstanceComponent(
-			a_world, _root, a_world.GetCompTypeID<LocalTransformComponent>()))
+			a_world, _root, a_world.GetCompTypeID<Component::LocalTransformComponent>()))
 		{
-			LocalTransformComponent _lt = {};
+			Component::LocalTransformComponent _lt = {};
 			std::memcpy(&_lt, _pBuf, sizeof(_lt));
 			_lt.pos     = a_params.pos;
 			if (a_params.isOverrideRotation) _lt.quat = a_params.quat;
@@ -122,9 +122,9 @@ namespace App::Utility
 		if (a_params.spawnerGUID.IsValid())
 		{
 			if (uint8_t* _pBuf = EnsureInstanceComponent(
-				a_world, _root, a_world.GetCompTypeID<SpawnerComponent>()))
+				a_world, _root, a_world.GetCompTypeID<Component::SpawnerComponent>()))
 			{
-				SpawnerComponent _spawner = {};
+				Component::SpawnerComponent _spawner = {};
 				std::memcpy(&_spawner, _pBuf, sizeof(_spawner));
 				_spawner.spawnerGUID = a_params.spawnerGUID;
 				_spawner.waveIndex   = a_params.waveIndex;
@@ -136,9 +136,9 @@ namespace App::Utility
 		if (a_params.followTarget != Engine::ECS::Limits::INVALID_ENTITY)
 		{
 			if (uint8_t* _pBuf = EnsureInstanceComponent(
-				a_world, _root, a_world.GetCompTypeID<FollowTargetComponent>()))
+				a_world, _root, a_world.GetCompTypeID<Component::FollowTargetComponent>()))
 			{
-				FollowTargetComponent _follow = {};
+				Component::FollowTargetComponent _follow = {};
 				std::memcpy(&_follow, _pBuf, sizeof(_follow));
 				_follow.target     = a_params.followTarget;
 				_follow.targetGUID = a_params.followTargetGUID;

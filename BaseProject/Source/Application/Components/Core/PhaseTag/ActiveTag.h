@@ -1,4 +1,7 @@
 ﻿
 #pragma once
 
-struct ActiveTag {};
+namespace App::Component
+{
+	struct ActiveTag {};
+}

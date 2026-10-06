@@ -36,7 +36,7 @@ namespace Engine::Resource
 		std::unordered_map<ECS::ComponentTypeID, std::vector<uint8_t>> dataMap = {};
 
 		// 保存したときのGUID。実体化時に「旧→新」の対応を作るための鍵として使う
-		Engine::GUID savedGUID = {};
+		Core::GUID savedGUID = {};
 
 		// 親の位置。-1 ならルート直下、それ以外は children の添え字
 		int parentIndex = -1;
@@ -97,8 +97,8 @@ namespace Engine::Resource
 		const std::vector<PrefabChild>& GetChildren() const { return m_children; }
 
 		// ルートを保存したときのGUID(参照の張り替えに使う)
-		void SetSavedGUID(const Engine::GUID& a_guid) { m_savedGUID = a_guid; }
-		const Engine::GUID& GetSavedGUID() const { return m_savedGUID; }
+		void SetSavedGUID(const Core::GUID& a_guid) { m_savedGUID = a_guid; }
+		const Core::GUID& GetSavedGUID() const { return m_savedGUID; }
 
 		//----------------------------------------------------------------------------------
 		// コンポーネント操作(エディタから使用)
@@ -144,7 +144,7 @@ namespace Engine::Resource
 		/// </summary>
 		static void RemapGUIDs(
 			uint8_t* a_pData, size_t a_size,
-			const std::unordered_map<Engine::GUID, Engine::GUID>& a_guidMap);
+			const std::unordered_map<Core::GUID, Core::GUID>& a_guidMap);
 
 	private:
 
@@ -157,7 +157,7 @@ namespace Engine::Resource
 		// ルートを保存したときのGUID。
 		// ルート自身の GUIDComponent は空のまま(従来どおり実体化時に振る)なので、
 		// 子から親を指すための鍵としてここに別で覚えておく。
-		Engine::GUID m_savedGUID = {};
+		Core::GUID m_savedGUID = {};
 
 		// 子エンティティ(親が子より前に来る順で持つ)
 		std::vector<PrefabChild> m_children = {};

@@ -5,28 +5,31 @@
 #include "Application/Components/Animation/AdditivePoseComponent.h"
 #include "Application/InstanceResource/AdditiveBoneEntry.h"
 
-void AdditivePoseFreeSystem::Init(App::ECS::APPWorld& a_world)
+namespace App::System
 {
-	a_world.ReleaseTask<AdditivePoseComponent>(
-		Engine::ECS::ESystemType::Release,
-		"AdditivePoseFreeSystem",
-		[](
-			Engine::ECS::Chunk* a_pChunk,
-			uint32_t a_count,
-			const Engine::ECS::SystemContext& a_ctx,
-			ReleaseTag* a_releaseTag,
-			AdditivePoseComponent* a_additiveArray
-		)
-		{
-			auto& _entryPool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
-
-			for (size_t _i = 0; _i < a_count; ++_i)
+	void AdditivePoseFreeSystem::Init(App::ECS::APPWorld& a_world)
+	{
+		a_world.ReleaseTask<Component::AdditivePoseComponent>(
+			Engine::ECS::ESystemType::Release,
+			"AdditivePoseFreeSystem",
+			[](
+				Engine::ECS::Chunk* a_pChunk,
+				uint32_t a_count,
+				const Engine::ECS::SystemContext& a_ctx,
+				Component::ReleaseTag* a_releaseTag,
+				Component::AdditivePoseComponent* a_additiveArray
+			)
 			{
-				AdditivePoseComponent& _addComp = a_additiveArray[_i];
+				auto& _entryPool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<InstanceResource::AdditiveBoneEntry>>();
 
-				_entryPool.FreeRange(_addComp.handle);
-				_addComp.handle = {};
+				for (size_t _i = 0; _i < a_count; ++_i)
+				{
+					Component::AdditivePoseComponent& _addComp = a_additiveArray[_i];
+
+					_entryPool.FreeRange(_addComp.handle);
+					_addComp.handle = {};
+				}
 			}
-		}
-	);
+		);
+	}
 }

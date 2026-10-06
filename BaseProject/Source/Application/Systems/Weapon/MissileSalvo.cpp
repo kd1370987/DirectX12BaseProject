@@ -15,7 +15,7 @@
 //
 // 一斉射の「撃つ」ほうだけを持つ。誰を狙うか(溜め)は呼び出し側の担当。
 //==========================================================================================
-namespace App::Systems::MissileSalvo
+namespace App::System::MissileSalvo
 {
 	Math::Vector3 MakeSpreadDir(
 		const Math::Vector3& a_baseDir,
@@ -50,7 +50,7 @@ namespace App::Systems::MissileSalvo
 
 	void ConsumeFireQueue(
 		const Engine::ECS::SystemContext& a_ctx,
-		MissileLockComponent&             a_missile,
+		Component::MissileLockComponent&             a_missile,
 		Engine::ECS::Entity               a_podEntity,
 		const Math::Vector3&              a_aimDir)
 	{
@@ -64,16 +64,16 @@ namespace App::Systems::MissileSalvo
 		// ミサイルポッド(発射する武器)を引く
 		//------------------------------------------------------------------
 		if (a_podEntity == Engine::ECS::Limits::INVALID_ENTITY ||
-			!a_ctx.pWorld->HasComponent<GunStateComponent>(a_podEntity) ||
-			!a_ctx.pWorld->HasComponent<WorldMatrixComponent>(a_podEntity))
+			!a_ctx.pWorld->HasComponent<Component::GunStateComponent>(a_podEntity) ||
+			!a_ctx.pWorld->HasComponent<Component::WorldMatrixComponent>(a_podEntity))
 		{
 			// 武器が付いていないなら撃てない。キューは捨てる
 			a_missile.fireRemain = 0;
 			return;
 		}
 
-		auto* _pGun      = a_ctx.pWorld->RefData<GunStateComponent>(a_podEntity);
-		auto* _pPodWorld = a_ctx.pWorld->RefData<WorldMatrixComponent>(a_podEntity);
+		auto* _pGun      = a_ctx.pWorld->RefData<Component::GunStateComponent>(a_podEntity);
+		auto* _pPodWorld = a_ctx.pWorld->RefData<Component::WorldMatrixComponent>(a_podEntity);
 		if (!_pGun || !_pPodWorld)
 		{
 			a_missile.fireRemain = 0;
@@ -81,7 +81,7 @@ namespace App::Systems::MissileSalvo
 		}
 
 		// プレハブ未設定なら撃てない
-		if (_pGun->bulletPrefabGUID == Engine::DEFAULT_GUID)
+		if (_pGun->bulletPrefabGUID == Core::DEFAULT_GUID)
 		{
 			a_missile.fireRemain = 0;
 			return;
@@ -107,9 +107,9 @@ namespace App::Systems::MissileSalvo
 		Math::Vector3 _spawnPos = { _podMat._41, _podMat._42, _podMat._43 };
 
 		if (_pGun->nullPtrNodeHash != 0 &&
-			a_ctx.pWorld->HasComponent<ModelComponent>(a_podEntity))
+			a_ctx.pWorld->HasComponent<Component::ModelComponent>(a_podEntity))
 		{
-			if (const auto* _pModelComp = a_ctx.pWorld->RefData<ModelComponent>(a_podEntity))
+			if (const auto* _pModelComp = a_ctx.pWorld->RefData<Component::ModelComponent>(a_podEntity))
 			{
 				auto* _pModel = a_ctx.pServices->pResourceManager->Get(_pModelComp->handle);
 				if (_pModel)
@@ -134,7 +134,7 @@ namespace App::Systems::MissileSalvo
 
 		const float _spreadRad = DirectX::XMConvertToRadians(std::max(a_missile.spreadAngle, 0.0f));
 		const Engine::ECS::Entity _shooter =
-			App::Systems::ProjectileSpawn::ResolveShooterEntity(*a_ctx.pWorld, a_podEntity);
+			App::System::ProjectileSpawn::ResolveShooterEntity(*a_ctx.pWorld, a_podEntity);
 
 		//------------------------------------------------------------------
 		// 溜まっているぶんを撃つ
@@ -150,9 +150,9 @@ namespace App::Systems::MissileSalvo
 			// 相手が居るならそちらを基準に、居なければ狙いの向きを基準に散らす
 			Math::Vector3 _baseDir = _aimDir;
 			if (_target != Engine::ECS::Limits::INVALID_ENTITY &&
-				a_ctx.pWorld->HasComponent<WorldMatrixComponent>(_target))
+				a_ctx.pWorld->HasComponent<Component::WorldMatrixComponent>(_target))
 			{
-				if (const auto* _pTargetWorld = a_ctx.pWorld->RefData<WorldMatrixComponent>(_target))
+				if (const auto* _pTargetWorld = a_ctx.pWorld->RefData<Component::WorldMatrixComponent>(_target))
 				{
 					Math::Vector3 _targetPos = Math::Matrix(_pTargetWorld->worldMat).Translation();
 					_targetPos.y += a_missile.targetOffsetY;
@@ -169,7 +169,7 @@ namespace App::Systems::MissileSalvo
 			const Math::Vector3 _shootDir =
 				MakeSpreadDir(_baseDir, _spreadRad, _index, a_missile.fireTotal);
 
-			App::Systems::ProjectileSpawn::Spawn(
+			App::System::ProjectileSpawn::Spawn(
 				*a_ctx.pWorld,
 				_pPrefab,
 				_spawnPos,

@@ -33,13 +33,13 @@ namespace Engine::Graphics::Pipeline
 
 	uint32_t Pass::MakeSlotID(const std::string& a_pinName)
 	{
-		return static_cast<uint32_t>(Engine::String::ToHash(a_pinName));
+		return static_cast<uint32_t>(Core::String::ToHash(a_pinName));
 	}
 
 	//======================================================================================
 	// 仮想リソースの識別子
 	//======================================================================================
-	ResourceID ResourceID::FromOutputSlot(const Engine::GUID& a_passGUID, uint32_t a_slotID)
+	ResourceID ResourceID::FromOutputSlot(const Core::GUID& a_passGUID, uint32_t a_slotID)
 	{
 		ResourceID _id = {};
 		_id.passGUID = a_passGUID;

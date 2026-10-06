@@ -200,7 +200,7 @@ namespace Engine::Graphics::Pipeline
 		// キーが接続元パスのGUIDなので、マップのままだと配列に落とせない。
 		// 「接続元GUID + 線1本」の並びへ展開して保存する
 		//----------------------------------------------------------------------------------
-		std::vector<std::pair<Engine::GUID, Connection>> _flatConnectionVec = {};
+		std::vector<std::pair<Core::GUID, Connection>> _flatConnectionVec = {};
 		if (a_arch.IsSaving())
 		{
 			for (const auto& [_srcGUID, _connectionVec] : m_connectionMap)
@@ -270,7 +270,7 @@ namespace Engine::Graphics::Pipeline
 		return _pPass;
 	}
 
-	void RenderGraph::RemovePass(const Engine::GUID& a_passGUID)
+	void RenderGraph::RemovePass(const Core::GUID& a_passGUID)
 	{
 		// このパスから出る線を消す
 		m_connectionMap.erase(a_passGUID);
@@ -298,7 +298,7 @@ namespace Engine::Graphics::Pipeline
 		ApplyLinks();
 	}
 
-	Pass* RenderGraph::FindPass(const Engine::GUID& a_passGUID)
+	Pass* RenderGraph::FindPass(const Core::GUID& a_passGUID)
 	{
 		for (auto& _upPass : m_passes)
 		{
@@ -339,8 +339,8 @@ namespace Engine::Graphics::Pipeline
 	//
 	//======================================================================================
 	bool RenderGraph::Link(
-		const Engine::GUID& a_srcPassGUID, uint32_t a_srcSlotID,
-		const Engine::GUID& a_dstPassGUID, uint32_t a_dstSlotID)
+		const Core::GUID& a_srcPassGUID, uint32_t a_srcSlotID,
+		const Core::GUID& a_dstPassGUID, uint32_t a_dstSlotID)
 	{
 		Pass* _pSrc = FindPass(a_srcPassGUID);
 		Pass* _pDst = FindPass(a_dstPassGUID);
@@ -396,7 +396,7 @@ namespace Engine::Graphics::Pipeline
 	}
 
 	// 入力スロットは1本しか受けられないので、張り直す前に既存の線を外す
-	void RenderGraph::DisconnectInputSlot(const Engine::GUID& a_dstPassGUID, uint32_t a_dstSlotID)
+	void RenderGraph::DisconnectInputSlot(const Core::GUID& a_dstPassGUID, uint32_t a_dstSlotID)
 	{
 		for (auto& [_srcGUID, _connectionVec] : m_connectionMap)
 		{
@@ -698,7 +698,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		m_validationIssueVec.clear();
 
-		auto _push = [this](ValidationIssue::ELevel a_level, const Engine::GUID& a_guid, std::string a_message)
+		auto _push = [this](ValidationIssue::ELevel a_level, const Core::GUID& a_guid, std::string a_message)
 			{
 				ValidationIssue _issue = {};
 				_issue.level = a_level;
@@ -708,7 +708,7 @@ namespace Engine::Graphics::Pipeline
 			};
 
 		// パスをGUIDで引けるようにしておく(接続の検証で何度も引くため)
-		std::unordered_map<Engine::GUID, const Pass*> _passMap = {};
+		std::unordered_map<Core::GUID, const Pass*> _passMap = {};
 		for (const auto& _upPass : m_passes)
 		{
 			if (!_upPass) continue;
@@ -720,9 +720,9 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		// 入力スロットが何本の線を受けているか。1本を超えたら繋ぎ方がおかしい
 		std::unordered_map<uint64_t, int> _inputLinkCountMap = {};
-		auto _makeInputKey = [](const Engine::GUID& a_guid, uint32_t a_slotID)
+		auto _makeInputKey = [](const Core::GUID& a_guid, uint32_t a_slotID)
 			{
-				return (static_cast<uint64_t>(std::hash<Engine::GUID>{}(a_guid)) << 32) ^ a_slotID;
+				return (static_cast<uint64_t>(std::hash<Core::GUID>{}(a_guid)) << 32) ^ a_slotID;
 			};
 
 		for (const auto& [_srcGUID, _connectionVec] : m_connectionMap)
@@ -1308,7 +1308,7 @@ namespace Engine::Graphics::Pipeline
 			const std::string& _psoKeyName = _pShadingName ? std::string(_pShadingName) : _pPass->GetName();
 
 			_pPass->RefPipelineBuilder().Init(
-				_rtvFormatVec, _dsvFormat, static_cast<UINT>(Engine::String::ToHash(_psoKeyName)));
+				_rtvFormatVec, _dsvFormat, static_cast<UINT>(Core::String::ToHash(_psoKeyName)));
 
 			//------------------------------------------------------------------------------
 			// SRV / UAV の番号

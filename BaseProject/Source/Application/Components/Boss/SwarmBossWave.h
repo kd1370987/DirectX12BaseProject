@@ -1,8 +1,11 @@
 ﻿#pragma once
 
-struct SwarmBossWave
+namespace App::Component
 {
-	float position = 0.0f;		// ワーム上の波の位置
-	float speed = 10.0f;
+	struct SwarmBossWave
+	{
+		float position = 0.0f;		// ワーム上の波の位置
+		float speed = 10.0f;
 
-};
+	};
+}

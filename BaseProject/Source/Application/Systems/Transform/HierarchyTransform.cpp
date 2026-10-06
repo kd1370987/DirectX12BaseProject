@@ -3,7 +3,7 @@
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
 
-namespace App::Systems::HierarchyTransform
+namespace App::System::HierarchyTransform
 {
 	namespace
 	{
@@ -19,7 +19,7 @@ namespace App::Systems::HierarchyTransform
 		//------------------------------------------------------------------------------
 		Math::Matrix FilterParentMatrix(
 			const Math::Matrix& a_parentMat,
-			ETransformInheritance a_inheritance)
+			Component::ETransformInheritance a_inheritance)
 		{
 			Math::Matrix _filtered = Math::Matrix::Identity();
 
@@ -28,15 +28,15 @@ namespace App::Systems::HierarchyTransform
 			Math::Vector3 _scale = {};
 			a_parentMat.Decompose(_scale, _quat, _pos);
 
-			if (Engine::Utility::HasFlag(a_inheritance, ETransformInheritance::Scale))
+			if (Core::HasFlag(a_inheritance, Component::ETransformInheritance::Scale))
 			{
 				_filtered *= Math::Matrix::CreateScale(_scale);
 			}
-			if (Engine::Utility::HasFlag(a_inheritance, ETransformInheritance::Rotation))
+			if (Core::HasFlag(a_inheritance, Component::ETransformInheritance::Rotation))
 			{
 				_filtered *= Math::Matrix::CreateFromQuaternion(_quat);
 			}
-			if (Engine::Utility::HasFlag(a_inheritance, ETransformInheritance::Translation))
+			if (Core::HasFlag(a_inheritance, Component::ETransformInheritance::Translation))
 			{
 				_filtered *= Math::Matrix::CreateTranslation(_pos);
 			}
@@ -55,8 +55,8 @@ namespace App::Systems::HierarchyTransform
 			if (a_entity == Engine::ECS::Limits::INVALID_ENTITY) return Math::Matrix::Identity();
 
 			// 持っていなければ単位行列(RefData も持っていなければ nullptr を返す)
-			if (!a_world.HasComponent<LocalTransformComponent>(a_entity)) return Math::Matrix::Identity();
-			const auto* _pTrs = a_world.RefData<LocalTransformComponent>(a_entity);
+			if (!a_world.HasComponent<Component::LocalTransformComponent>(a_entity)) return Math::Matrix::Identity();
+			const auto* _pTrs = a_world.RefData<Component::LocalTransformComponent>(a_entity);
 			if (!_pTrs) return Math::Matrix::Identity();
 
 			// 自分のローカル行列
@@ -67,9 +67,9 @@ namespace App::Systems::HierarchyTransform
 
 			// これ以上辿らない条件。自分のローカルだけ返す
 			if (a_depth >= MAX_DEPTH) return _localMat;
-			if (!a_world.HasComponent<HierarchyComponent>(a_entity)) return _localMat;
+			if (!a_world.HasComponent<Component::HierarchyComponent>(a_entity)) return _localMat;
 
-			const auto* _pHierarchy = a_world.RefData<HierarchyComponent>(a_entity);
+			const auto* _pHierarchy = a_world.RefData<Component::HierarchyComponent>(a_entity);
 			if (!_pHierarchy) return _localMat;
 			if (_pHierarchy->parentID == Engine::ECS::Limits::INVALID_ENTITY) return _localMat;
 
@@ -78,7 +78,7 @@ namespace App::Systems::HierarchyTransform
 				CalcWorldMatrixInternal(a_world, _pHierarchy->parentID, a_depth + 1);
 
 			// 全継承ならそのまま掛ける
-			if (_pTrs->inheritance == ETransformInheritance::All)
+			if (_pTrs->inheritance == Component::ETransformInheritance::All)
 			{
 				return _localMat * _parentMat;
 			}

@@ -47,7 +47,7 @@ namespace App::Utility
 	/// <returns>生成コマンドを積めたら true</returns>
 	bool SpawnEffectAt(
 		Engine::ECS::World& a_world,
-		const Engine::GUID& a_effectGUID,
+		const Core::GUID& a_effectGUID,
 		const Math::Vector3& a_pos,
 		bool a_isDestroyOnFinish = true,
 		const Math::Vector3& a_emitDir = {},
@@ -73,7 +73,7 @@ namespace App::Utility
 	/// <returns>作ったエンティティ。作れなければ INVALID_ENTITY</returns>
 	Engine::ECS::Entity SpawnEffectAtNow(
 		Engine::ECS::World& a_world,
-		const Engine::GUID& a_effectGUID,
+		const Core::GUID& a_effectGUID,
 		const Math::Vector3& a_pos,
 		bool a_isDestroyOnFinish = true,
 		const Math::Vector3& a_emitDir = {},

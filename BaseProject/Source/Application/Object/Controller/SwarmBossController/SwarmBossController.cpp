@@ -6,7 +6,7 @@
 #include "Engine/Resource/Data/Prefab/Prefab.h"
 #include "Engine/Resource/Data/EffectAsset/EffectAsset.h"
 #include "Engine/Resource/Data/EffectPrefab/EffectPrefab.h"
-#include "Engine/Editor/Helper/EditorField.h"	// コンポーネントの Traits が使うので先に置く
+#include "Engine/EditorField/EditorField.h"	// コンポーネントの Traits が使うので先に置く
 
 // App
 #include "../../../ECS/World/APPWorld.h"
@@ -117,8 +117,8 @@ namespace App::Object
 			std::vector<Engine::Resource::PrefabInstanceData>& a_instanceVec,
 			float a_speed)
 		{
-			EditRootComponent<MovementParamsComponent>(a_world, a_instanceVec,
-				[a_speed](MovementParamsComponent& a_comp)
+			EditRootComponent<Component::MovementParamsComponent>(a_world, a_instanceVec,
+				[a_speed](Component::MovementParamsComponent& a_comp)
 				{
 					a_comp.moveSpeed    = a_speed;
 					a_comp.acceleration = a_speed * 4.0f;
@@ -159,10 +159,10 @@ namespace App::Object
 		}
 
 		// エンティティのGUID(持っていなければ無効)
-		Engine::GUID GetEntityGUID(Engine::ECS::World& a_world, Engine::ECS::Entity a_entity)
+		Core::GUID GetEntityGUID(Engine::ECS::World& a_world, Engine::ECS::Entity a_entity)
 		{
-			if (!a_world.HasComponent<GUIDComponent>(a_entity)) return Engine::DEFAULT_GUID;
-			return a_world.RefData<GUIDComponent>(a_entity)->guid;
+			if (!a_world.HasComponent<Component::GUIDComponent>(a_entity)) return Core::DEFAULT_GUID;
+			return a_world.RefData<Component::GUIDComponent>(a_entity)->guid;
 		}
 
 		//----------------------------------------------------------------------
@@ -173,7 +173,7 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		const Engine::Resource::Prefab* LoadPrefab(
 			Engine::GameObject::ObjectContext& a_context,
-			const Engine::GUID& a_guid,
+			const Core::GUID& a_guid,
 			Engine::ResourceRef<Engine::Resource::Prefab>& a_inoutRef)
 		{
 			if (!a_guid.IsValid()) return nullptr;
@@ -311,7 +311,7 @@ namespace App::Object
 
 	void SwarmBossController::RequestLoadBurstEffect(Engine::GameObject::ObjectContext& a_context)
 	{
-		if (m_burstEffectRef || m_burstEffectGUID == Engine::DEFAULT_GUID) return;
+		if (m_burstEffectRef || m_burstEffectGUID == Core::DEFAULT_GUID) return;
 		if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
 
 		m_burstEffectRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_burstEffectGUID);
@@ -339,15 +339,15 @@ namespace App::Object
 		std::vector<BoidEntry> _boids = {};
 		_boids.reserve(m_currentBoids);
 
-		const Engine::GUID _self = m_guid;
-		_world.ForEach<const SwarmBossBoidTag, const SpawnerComponent, const LocalTransformComponent, const BoidSteeringParamsComponent>(
+		const Core::GUID _self = m_guid;
+		_world.ForEach<const Component::SwarmBossBoidTag, const Component::SpawnerComponent, const Component::LocalTransformComponent, const Component::BoidSteeringParamsComponent>(
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const SwarmBossBoidTag*,
-				const SpawnerComponent* a_spawnerArray,
-				const LocalTransformComponent* a_trsArray,
-				const BoidSteeringParamsComponent*)
+				const Component::SwarmBossBoidTag*,
+				const Component::SpawnerComponent* a_spawnerArray,
+				const Component::LocalTransformComponent* a_trsArray,
+				const Component::BoidSteeringParamsComponent*)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
@@ -359,12 +359,12 @@ namespace App::Object
 
 		const Engine::ECS::ComponentTypeID _removeIDs[] =
 		{
-			_world.GetCompTypeID<BoidSteeringParamsComponent>(),
-			_world.GetCompTypeID<FollowTargetComponent>(),
-			_world.GetCompTypeID<BoidWaveStateComponent>(),
-			_world.GetCompTypeID<BoidContactDamageComponent>(),
+			_world.GetCompTypeID<Component::BoidSteeringParamsComponent>(),
+			_world.GetCompTypeID<Component::FollowTargetComponent>(),
+			_world.GetCompTypeID<Component::BoidWaveStateComponent>(),
+			_world.GetCompTypeID<Component::BoidContactDamageComponent>(),
 		};
-		const auto _burstID = _world.GetCompTypeID<SwarmBurstComponent>();
+		const auto _burstID = _world.GetCompTypeID<Component::SwarmBurstComponent>();
 
 		const float _speedMin = std::min(a_request.speedMin, a_request.speedMax);
 		const float _speedMax = std::max(a_request.speedMin, a_request.speedMax);
@@ -381,7 +381,7 @@ namespace App::Object
 			_dir += Math::Vector3::Up() * std::max(a_request.upBias, 0.0f);
 			_dir.Normalize();
 
-			SwarmBurstComponent _burst = {};
+			Component::SwarmBurstComponent _burst = {};
 			_burst.velocity = _dir * Math::Random::Float(_speedMin, _speedMax);
 			_burst.timer    = Math::Random::Float(_lifeMin, _lifeMax);
 			_burst.gravity  = a_request.gravity;
@@ -395,23 +395,23 @@ namespace App::Object
 
 			SetCommandData(_world, _cmd, _burst);
 
-			EmissiveOverrideComponent _emissive = {};
+			Component::EmissiveOverrideComponent _emissive = {};
 			_emissive.emissiveColor     = a_request.color;
 			_emissive.emissiveIntensity = a_request.intensity;
 			_emissive.isOverride        = true;
 			SetCommandData(_world, _cmd, _emissive);
 
-			DefenseRatioComponent _defense = {};
+			Component::DefenseRatioComponent _defense = {};
 			_defense.ratio = 1.0f;
 			SetCommandData(_world, _cmd, _defense);
 
-			ActualVelocityComponent _actual = {};
+			Component::ActualVelocityComponent _actual = {};
 			_actual.value = _burst.velocity;
 			SetCommandData(_world, _cmd, _actual);
 
-			if (_world.HasComponent<MovementParamsComponent>(_entry.entity))
+			if (_world.HasComponent<Component::MovementParamsComponent>(_entry.entity))
 			{
-				MovementParamsComponent _move = *_world.RefData<MovementParamsComponent>(_entry.entity);
+				Component::MovementParamsComponent _move = *_world.RefData<Component::MovementParamsComponent>(_entry.entity);
 				_move.acceleration = 0.0f;
 				_move.deceleration = 0.0f;
 				SetCommandData(_world, _cmd, _move);
@@ -435,7 +435,7 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// 中心に大きな爆発(出し切ったら自分から消える)
 		//----------------------------------------------------------------------
-		if (m_burstEffectGUID != Engine::DEFAULT_GUID && m_burstEffectScale > 0.0f)
+		if (m_burstEffectGUID != Core::DEFAULT_GUID && m_burstEffectScale > 0.0f)
 		{
 			App::Utility::SpawnEffectAt(_world, m_burstEffectGUID, a_request.center, true, {}, m_burstEffectScale);
 		}
@@ -513,9 +513,9 @@ namespace App::Object
 
 		// 体の長さ = 最後尾になった小隊長の位置(ウェーブを捨てる位置に使う)
 		m_tailAlongWorm = 0.0f;
-		if (_world.HasComponent<PlatoonLeaderComponent>(_platoons.back()))
+		if (_world.HasComponent<Component::PlatoonLeaderComponent>(_platoons.back()))
 		{
-			m_tailAlongWorm = _world.RefData<PlatoonLeaderComponent>(_platoons.back())->distanceAlongWorm;
+			m_tailAlongWorm = _world.RefData<Component::PlatoonLeaderComponent>(_platoons.back())->distanceAlongWorm;
 		}
 
 		//----------------------------------------------------------------------
@@ -529,15 +529,15 @@ namespace App::Object
 		std::vector<BoidEntry> _boids = {};
 		_boids.reserve(m_currentBoids);
 
-		const Engine::GUID _self = m_guid;
-		_world.ForEach<const SwarmBossBoidTag, const SpawnerComponent, const BoidMembershipComponent, const BoidSteeringParamsComponent>(
+		const Core::GUID _self = m_guid;
+		_world.ForEach<const Component::SwarmBossBoidTag, const Component::SpawnerComponent, const Component::BoidMembershipComponent, const Component::BoidSteeringParamsComponent>(
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const SwarmBossBoidTag*,
-				const SpawnerComponent* a_spawnerArray,
-				const BoidMembershipComponent* a_memberArray,
-				const BoidSteeringParamsComponent*)
+				const Component::SwarmBossBoidTag*,
+				const Component::SpawnerComponent* a_spawnerArray,
+				const Component::BoidMembershipComponent* a_memberArray,
+				const Component::BoidSteeringParamsComponent*)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
@@ -557,7 +557,7 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// 残った小隊長へ頭から均等に配る(走査が終わってから書く)
 		//----------------------------------------------------------------------
-		std::vector<Engine::GUID> _platoonGUIDs = {};
+		std::vector<Core::GUID> _platoonGUIDs = {};
 		_platoonGUIDs.reserve(_platoons.size());
 		for (const Engine::ECS::Entity _platoon : _platoons) _platoonGUIDs.push_back(GetEntityGUID(_world, _platoon));
 
@@ -566,17 +566,17 @@ namespace App::Object
 			const size_t _index = _i * _platoons.size() / _boids.size();
 			const Engine::ECS::Entity _boid = _boids[_i].entity;
 
-			_world.RefData<BoidMembershipComponent>(_boid)->platoonID = _platoons[_index];
+			_world.RefData<Component::BoidMembershipComponent>(_boid)->platoonID = _platoons[_index];
 
-			if (_world.HasComponent<FollowTargetComponent>(_boid))
+			if (_world.HasComponent<Component::FollowTargetComponent>(_boid))
 			{
-				auto* _pFollow = _world.RefData<FollowTargetComponent>(_boid);
+				auto* _pFollow = _world.RefData<Component::FollowTargetComponent>(_boid);
 				_pFollow->target     = _platoons[_index];
 				_pFollow->targetGUID = _platoonGUIDs[_index];
 			}
-			if (_world.HasComponent<SpawnerComponent>(_boid))
+			if (_world.HasComponent<Component::SpawnerComponent>(_boid))
 			{
-				_world.RefData<SpawnerComponent>(_boid)->waveIndex = static_cast<int>(_index);
+				_world.RefData<Component::SpawnerComponent>(_boid)->waveIndex = static_cast<int>(_index);
 			}
 		}
 	}
@@ -589,21 +589,21 @@ namespace App::Object
 	void SwarmBossController::ApplyBodyDefense(Engine::GameObject::ObjectContext& a_context, float a_ratio)
 	{
 		auto& _world = *a_context.pWorld;
-		const Engine::GUID _self = m_guid;
+		const Core::GUID _self = m_guid;
 
-		_world.ForEach<const SwarmBossBoidTag, const SpawnerComponent, DefenseRatioComponent>(
+		_world.ForEach<const Component::SwarmBossBoidTag, const Component::SpawnerComponent, Component::DefenseRatioComponent>(
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const SwarmBossBoidTag*,
-				const SpawnerComponent* a_spawnerArray,
-				DefenseRatioComponent* a_defenseArray)
+				const Component::SwarmBossBoidTag*,
+				const Component::SpawnerComponent* a_spawnerArray,
+				Component::DefenseRatioComponent* a_defenseArray)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
 					if (a_spawnerArray[_i].spawnerGUID != _self) continue;
 
-					const bool _isMissile = _world.HasComponent<SwarmMissileComponent>(a_pChunk->entityData[_i]);
+					const bool _isMissile = _world.HasComponent<Component::SwarmMissileComponent>(a_pChunk->entityData[_i]);
 					a_defenseArray[_i].ratio = _isMissile ? 1.0f : a_ratio;
 				}
 			}
@@ -638,7 +638,7 @@ namespace App::Object
 		// 走っている最中に速さを変えても、その帯は出たときの速さのまま流れる
 		//----------------------------------------------------------------------
 		size_t _alive = 0;
-		for (SwarmBossWave& _wave : m_waveVec)
+		for (Component::SwarmBossWave& _wave : m_waveVec)
 		{
 			_wave.position += _wave.speed * _dt;
 			if (_wave.position > _endPos) continue;
@@ -666,7 +666,7 @@ namespace App::Object
 					m_waveVec.erase(m_waveVec.begin());
 				}
 
-				SwarmBossWave _new = {};
+				Component::SwarmBossWave _new = {};
 				_new.position = 0.0f;			// 頭から
 				_new.speed    = m_waveSpeed * m_waveSpeedScale;
 				m_waveVec.push_back(_new);
@@ -676,7 +676,7 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// ECS側へ書き写す
 		//----------------------------------------------------------------------
-		auto& _waveRes = a_context.pWorld->RefResource<WormWaveResource>();
+		auto& _waveRes = a_context.pWorld->RefResource<InstanceResource::WormWaveResource>();
 
 		_waveRes.waves         = m_waveVec;
 		_waveRes.width         = m_waveWidth;
@@ -708,9 +708,9 @@ namespace App::Object
 	{
 		if (!a_context.pWorld) return;
 		auto& _world = *a_context.pWorld;
-		if (!_world.HasResource<SwarmContactDamageResource>()) return;
+		if (!_world.HasResource<InstanceResource::SwarmContactDamageResource>()) return;
 
-		auto& _res = _world.RefResource<SwarmContactDamageResource>();
+		auto& _res = _world.RefResource<InstanceResource::SwarmContactDamageResource>();
 		_res.damage     = m_contactDamage;
 		_res.cooldown   = m_contactDamageCooldown;
 		_res.boidRadius = m_boidColliderRadius;
@@ -718,24 +718,24 @@ namespace App::Object
 
 		// 操作しているプレイヤー
 		Engine::ECS::Entity _player = Engine::ECS::Limits::INVALID_ENTITY;
-		_world.ForEach<const ActiveTag, const PlayerControllTag>(
-			[&](Engine::ECS::Chunk* a_pChunk, uint32_t a_count, const ActiveTag*, const PlayerControllTag*)
+		_world.ForEach<const Component::ActiveTag, const Component::PlayerControllTag>(
+			[&](Engine::ECS::Chunk* a_pChunk, uint32_t a_count, const Component::ActiveTag*, const Component::PlayerControllTag*)
 			{
 				if (_player != Engine::ECS::Limits::INVALID_ENTITY || a_count == 0) return;
 				_player = a_pChunk->entityData[0];
 			}
 		);
 		if (_player == Engine::ECS::Limits::INVALID_ENTITY) return;
-		if (!_world.HasComponent<LocalTransformComponent>(_player)) return;
+		if (!_world.HasComponent<Component::LocalTransformComponent>(_player)) return;
 
 		// カプセルは縦の線分 + 半径(CapsuleCollisionSystem と同じ組み方)。
 		// プレイヤーは親を持たないので、ローカル座標がそのままワールド座標
-		Math::Vector3 _center = _world.RefData<LocalTransformComponent>(_player)->pos;
+		Math::Vector3 _center = _world.RefData<Component::LocalTransformComponent>(_player)->pos;
 		Math::Vector3 _half   = {};
 		float _radius = 0.0f;
-		if (_world.HasComponent<CapsuleColliderComponent>(_player))
+		if (_world.HasComponent<Component::CapsuleColliderComponent>(_player))
 		{
-			const auto* _pCapsule = _world.RefData<CapsuleColliderComponent>(_player);
+			const auto* _pCapsule = _world.RefData<Component::CapsuleColliderComponent>(_player);
 			_center += Math::Vector3(_pCapsule->offset);
 			_half    = Math::Vector3(0.0f, _pCapsule->height * 0.5f, 0.0f);
 			_radius  = _pCapsule->radius;
@@ -764,10 +764,10 @@ namespace App::Object
 		m_burrowEffectTimer -= a_context.dt;
 
 		if (!_world.IsAliveEntity(m_leaderEntity)) return;
-		if (!_world.HasComponent<SerchGroundComponent>(m_leaderEntity)) return;
-		if (!_world.HasComponent<LocalTransformComponent>(m_leaderEntity)) return;
+		if (!_world.HasComponent<Component::SerchGroundComponent>(m_leaderEntity)) return;
+		if (!_world.HasComponent<Component::LocalTransformComponent>(m_leaderEntity)) return;
 
-		const SerchGroundComponent _ground = *_world.RefData<SerchGroundComponent>(m_leaderEntity);
+		const Component::SerchGroundComponent _ground = *_world.RefData<Component::SerchGroundComponent>(m_leaderEntity);
 		if (!_ground.isFoundGround) return;
 
 		const bool _isUnderGround = _ground.isUnderGround != 0;
@@ -785,7 +785,7 @@ namespace App::Object
 
 		// 地表すれすれを泳いでいると切り替わりが続くので、間を空ける
 		if (m_burrowEffectTimer > 0.0f) return;
-		if (m_burrowEffectGUID == Engine::DEFAULT_GUID) return;
+		if (m_burrowEffectGUID == Core::DEFAULT_GUID) return;
 
 		// 初めて炊くときに読み込む(以降は握ったまま)。
 		// 中身を読むのにワールドのコンポーネント情報が要るので、同期で読む
@@ -794,7 +794,7 @@ namespace App::Object
 			m_burrowEffectRef = _rm.LoadImmediate<Engine::Resource::EffectPrefab>(m_burrowEffectGUID);
 		}
 
-		const Math::Vector3 _leaderPos = _world.RefData<LocalTransformComponent>(m_leaderEntity)->pos;
+		const Math::Vector3 _leaderPos = _world.RefData<Component::LocalTransformComponent>(m_leaderEntity)->pos;
 		const Math::Vector3 _pos(_leaderPos.x, _ground.groundHeight, _leaderPos.z);
 
 		if (App::Utility::SpawnEffectPrefab(_world, _rm, m_burrowEffectRef, _pos))
@@ -812,9 +812,9 @@ namespace App::Object
 	void SwarmBossController::UpdateGroundEffect(Engine::GameObject::ObjectContext& a_context)
 	{
 		if (!a_context.pWorld) return;
-		if (!a_context.pWorld->HasResource<WormGroundEffectResource>()) return;
+		if (!a_context.pWorld->HasResource<InstanceResource::WormGroundEffectResource>()) return;
 
-		auto& _res = a_context.pWorld->RefResource<WormGroundEffectResource>();
+		auto& _res = a_context.pWorld->RefResource<InstanceResource::WormGroundEffectResource>();
 
 		_res.effectGUID       = m_groundEffectGUID;
 		_res.maxHeight        = m_groundEffectMaxHeight;
@@ -831,7 +831,7 @@ namespace App::Object
 		m_isGroundEffectOneShot = false;
 
 		// 既定値のまま置いた直後など、まだ読み込みを始めていなければここで始める
-		if (!m_groundEffectRef && m_groundEffectGUID != Engine::DEFAULT_GUID &&
+		if (!m_groundEffectRef && m_groundEffectGUID != Core::DEFAULT_GUID &&
 			a_context.pServices && a_context.pServices->pResourceManager)
 		{
 			m_groundEffectRef =
@@ -901,21 +901,21 @@ namespace App::Object
 		// リーダーに必須なコンポーネントを付与 : すでにあればスキップ
 		// (LocalTransform は BuildSpawnInstanceData が足している)
 		ApplyMoveSpeed(_world, _instanceVec, m_leaderSpeed);
-		EnsureRootComponent<DesiredVelocityComponent>(_world, _instanceVec);
-		EnsureRootComponent<BoidLeaderComponent>(_world, _instanceVec);
+		EnsureRootComponent<Component::DesiredVelocityComponent>(_world, _instanceVec);
+		EnsureRootComponent<Component::BoidLeaderComponent>(_world, _instanceVec);
 
 		// 地面との関係(上下にレイを打つのは SerchGroundSystem)。アッパー攻撃で潜る深さに使う
-		EnsureRootComponent<SerchGroundComponent>(_world, _instanceVec);
+		EnsureRootComponent<Component::SerchGroundComponent>(_world, _instanceVec);
 
 		// 移動入力の受け皿。中身を書くのはこのクラス(UpdateLeaderBrain)
-		EnsureRootComponent<MoveIntentComponent>(_world, _instanceVec);
+		EnsureRootComponent<Component::MoveIntentComponent>(_world, _instanceVec);
 
 		// どちらを向いているか。進んでいる向きへ寄せるのは SwarmLookSystem、
 		// 体の向きにするのは RotationSystem。既定は Yaw 0 = +Z 前方で、
 		// 小隊長を並べる向き(PLATOON_LINE_DIR)と揃えてある。
 		// 上下も体ごと向かせる(空を泳ぐので、人型のように上体だけでは向かない)
-		EditRootComponent<LookAngleComponent>(_world, _instanceVec,
-			[](LookAngleComponent& a_comp)
+		EditRootComponent<Component::LookAngleComponent>(_world, _instanceVec,
+			[](Component::LookAngleComponent& a_comp)
 			{
 				a_comp.isApplyPitchToBody = true;
 			}
@@ -974,8 +974,8 @@ namespace App::Object
 			// 初めの小隊長はリーダーのEntityIDを覚えさせる
 			// 間隔はプレハブに保存された値を使う
 			float _distance = 0.0f;
-			EditRootComponent<PlatoonLeaderComponent>(_world, _instanceVec,
-				[&](PlatoonLeaderComponent& a_comp)
+			EditRootComponent<Component::PlatoonLeaderComponent>(_world, _instanceVec,
+				[&](Component::PlatoonLeaderComponent& a_comp)
 				{
 					a_comp.preLeader    = _preLeader;
 					a_comp.platoonIndex = static_cast<int>(_i);
@@ -988,8 +988,8 @@ namespace App::Object
 
 			// 一つ前の相手の後ろへ間隔ぶん下げて置く
 			const Math::Vector3 _pos = _prePos + PLATOON_LINE_DIR * _distance;
-			EditRootComponent<LocalTransformComponent>(_world, _instanceVec,
-				[&](LocalTransformComponent& a_comp)
+			EditRootComponent<Component::LocalTransformComponent>(_world, _instanceVec,
+				[&](Component::LocalTransformComponent& a_comp)
 				{
 					a_comp.pos     = _pos;
 					a_comp.isDirty = true;
@@ -998,12 +998,12 @@ namespace App::Object
 			// 必須なコンポーネントを付与 : すでにあればスキップ。
 			// 速さはリーダーより速くしておく(同じだと離された分を詰められない)
 			ApplyMoveSpeed(_world, _instanceVec, m_leaderSpeed * m_platoonSpeedScale);
-			EnsureRootComponent<DesiredVelocityComponent>(_world, _instanceVec);
+			EnsureRootComponent<Component::DesiredVelocityComponent>(_world, _instanceVec);
 
 			// 前の相手の後ろを狙うのに前方が要る(LookAngle から作る)。
 			// 上下も体ごと向く(列が潜っても機体の向きが進路と揃う)
-			EditRootComponent<LookAngleComponent>(_world, _instanceVec,
-				[](LookAngleComponent& a_comp)
+			EditRootComponent<Component::LookAngleComponent>(_world, _instanceVec,
+				[](Component::LookAngleComponent& a_comp)
 				{
 					a_comp.isApplyPitchToBody = true;
 				}
@@ -1033,9 +1033,9 @@ namespace App::Object
 
 			// 位置は生成時に書き込んだ値をそのまま読む(まだ行列は組まれていない)
 			Math::Vector3 _center = m_spawnPos;
-			if (_world.HasComponent<LocalTransformComponent>(_platoon))
+			if (_world.HasComponent<Component::LocalTransformComponent>(_platoon))
 			{
-				_center = _world.RefData<LocalTransformComponent>(_platoon)->pos;
+				_center = _world.RefData<Component::LocalTransformComponent>(_platoon)->pos;
 			}
 
 			const uint32_t _count = GetBoidCountForPlatoon(_i, m_platoonLeaderEntities.size());
@@ -1061,7 +1061,7 @@ namespace App::Object
 		auto& _rm = *a_context.pServices->pResourceManager;
 
 		// 出すボイドの設定は小隊長が持っている
-		if (!_world.HasComponent<BoidSpownerComponent>(a_platoonLeader))
+		if (!_world.HasComponent<Component::BoidSpownerComponent>(a_platoonLeader))
 		{
 			ENGINE_WARNING("SwarmBossController : 小隊長のプレハブに BoidSpownerComponent がありません");
 			return false;
@@ -1072,7 +1072,7 @@ namespace App::Object
 		{
 			// この後エンティティを作るとチャンクが動くことがあるので、
 			// コンポーネントへのポインタはこのブロックの中だけで使う
-			BoidSpownerComponent* _pSpowner = _world.RefData<BoidSpownerComponent>(a_platoonLeader);
+			Component::BoidSpownerComponent* _pSpowner = _world.RefData<Component::BoidSpownerComponent>(a_platoonLeader);
 			if (!_pSpowner->boidPrefabGUID.IsValid())
 			{
 				ENGINE_WARNING("SwarmBossController : BoidSpownerComponent のボイドプレハブが設定されていません");
@@ -1114,59 +1114,59 @@ namespace App::Object
 			// 速さはリーダー・小隊長より速くしておく(最後尾なので一番速さが要る)。
 			// 舵(maxSteeringForce)も速さに比例させないと、最高速に乗る前に曲がれなくなる
 			const float _boidSpeed = m_leaderSpeed * m_boidSpeedScale;
-			EditRootComponent<BoidSteeringParamsComponent>(_world, _instanceVec,
-				[&](BoidSteeringParamsComponent& a_comp)
+			EditRootComponent<Component::BoidSteeringParamsComponent>(_world, _instanceVec,
+				[&](Component::BoidSteeringParamsComponent& a_comp)
 				{
 					a_comp.maxSpeed         = _boidSpeed;
 					a_comp.maxSteeringForce = _boidSpeed * 4.0f;
 				}
 			);
-			EditRootComponent<BoidMembershipComponent>(_world, _instanceVec,
-				[&](BoidMembershipComponent& a_comp)
+			EditRootComponent<Component::BoidMembershipComponent>(_world, _instanceVec,
+				[&](Component::BoidMembershipComponent& a_comp)
 				{
 					a_comp.platoonID = a_platoonLeader;
 				}
 			);
 			ApplyMoveSpeed(_world, _instanceVec, _boidSpeed);
-			EnsureRootComponent<DesiredVelocityComponent>(_world, _instanceVec);
+			EnsureRootComponent<Component::DesiredVelocityComponent>(_world, _instanceVec);
 
 			// ボスの体である印。Controller はこれを数えて体力にする
-			EnsureRootComponent<SwarmBossBoidTag>(_world, _instanceVec);
+			EnsureRootComponent<Component::SwarmBossBoidTag>(_world, _instanceVec);
 
 			// 防御比率(HealthSystem が受けたダメージに掛ける)。小隊長の整理中だけ 0 にする
-			EditRootComponent<DefenseRatioComponent>(_world, _instanceVec,
-				[this](DefenseRatioComponent& a_comp)
+			EditRootComponent<Component::DefenseRatioComponent>(_world, _instanceVec,
+				[this](Component::DefenseRatioComponent& a_comp)
 				{
 					a_comp.ratio = m_bodyDefenseRatio;
 				}
 			);
 
 			// 体当たりのダメージ(BoidContactDamageSystem)。持つのは待ち時間だけ
-			EnsureRootComponent<BoidContactDamageComponent>(_world, _instanceVec);
+			EnsureRootComponent<Component::BoidContactDamageComponent>(_world, _instanceVec);
 
 			// 体を走る発光のウェーブ(BoidWaveSystem)。
 			// 計算途中の値と発光の差し替えの置き場。発光を ModelComponent へ写すのは
 			// ApplyEmissiveOverrideSystem で、差し替えが立つまではプレハブの発光のまま
-			EnsureRootComponent<BoidWaveStateComponent>(_world, _instanceVec);
-			EnsureRootComponent<EmissiveOverrideComponent>(_world, _instanceVec);
+			EnsureRootComponent<Component::BoidWaveStateComponent>(_world, _instanceVec);
+			EnsureRootComponent<Component::EmissiveOverrideComponent>(_world, _instanceVec);
 
 			// 地面の近く・地面の中で砂埃を炊く番を待つ時間(BoidGroundEffectSystem)。
 			// 最初の番をばらしておき、全員が同じフレームにレイを打たないようにする
-			EditRootComponent<WarmGroundEffectComponent>(_world, _instanceVec,
-				[this](WarmGroundEffectComponent& a_comp)
+			EditRootComponent<Component::WarmGroundEffectComponent>(_world, _instanceVec,
+				[this](Component::WarmGroundEffectComponent& a_comp)
 				{
 					a_comp.timer = Math::Random::Float(0.0f, std::max(m_groundEffectInterval, 0.01f));
 				}
 			);
 
 			// 当たり判定
-			EditRootComponent<ColliderComponent>(_world, _instanceVec,
-				[&](ColliderComponent& a_comp)
+			EditRootComponent<Component::ColliderComponent>(_world, _instanceVec,
+				[&](Component::ColliderComponent& a_comp)
 				{
 					// プレイヤーの攻撃にだけ当たる(当てに来るのは弾の側)。
 					// 自分からは当たりに行かず、押し出しもしないので地形はすり抜ける
-					a_comp.layer        = ECollisionLayer::Enemy;
-					a_comp.collideLayer = ECollisionLayer::None;
+					a_comp.layer        = Component::ECollisionLayer::Enemy;
+					a_comp.collideLayer = Component::ECollisionLayer::None;
 					a_comp.isPhysical   = 0;
 
 					// Mesh 以外なので、ボディは描画メッシュのAABBの箱になる。
@@ -1176,8 +1176,8 @@ namespace App::Object
 			);
 
 			// 判定を出す側(HitDetectSystem)に要る球と、当たった結果の受け皿
-			EditRootComponent<SphereColliderComponent>(_world, _instanceVec,
-				[&](SphereColliderComponent& a_comp)
+			EditRootComponent<Component::SphereColliderComponent>(_world, _instanceVec,
+				[&](Component::SphereColliderComponent& a_comp)
 				{
 					a_comp.radius = m_boidColliderRadius;
 				}
@@ -1185,8 +1185,8 @@ namespace App::Object
 			EnsureRootComponent<Engine::ECS::CollisionEvent>(_world, _instanceVec);
 
 			// 体力 : 落とされた1体ぶんがボスの体力1になる
-			EditRootComponent<HealthComponent>(_world, _instanceVec,
-				[&](HealthComponent& a_comp)
+			EditRootComponent<Component::HealthComponent>(_world, _instanceVec,
+				[&](Component::HealthComponent& a_comp)
 				{
 					a_comp.maxHealth    = m_boidHealth;
 					a_comp.releaseDelay = m_boidReleaseDelay;
@@ -1194,8 +1194,8 @@ namespace App::Object
 			);
 
 			// 向きは所属している小隊長の向きへ寄せる(SwarmLookSystem)。上下も体ごと向く
-			EditRootComponent<LookAngleComponent>(_world, _instanceVec,
-				[](LookAngleComponent& a_comp)
+			EditRootComponent<Component::LookAngleComponent>(_world, _instanceVec,
+				[](Component::LookAngleComponent& a_comp)
 				{
 					a_comp.isApplyPitchToBody = true;
 				}
@@ -1239,16 +1239,16 @@ namespace App::Object
 	uint32_t SwarmBossController::CountAliveBoids(Engine::GameObject::ObjectContext& a_context) const
 	{
 		uint32_t _count = 0;
-		const Engine::GUID _self = m_guid;
+		const Core::GUID _self = m_guid;
 
 		// 解放待ち(ActiveTag が外れたもの)は数えない
-		a_context.pWorld->ForEach<const ActiveTag, const SwarmBossBoidTag, const SpawnerComponent>(
+		a_context.pWorld->ForEach<const Component::ActiveTag, const Component::SwarmBossBoidTag, const Component::SpawnerComponent>(
 			[&_count, &_self, &a_context](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const ActiveTag* a_activeTagArray,
-				const SwarmBossBoidTag* a_boidTagArray,
-				const SpawnerComponent* a_spawnerArray)
+				const Component::ActiveTag* a_activeTagArray,
+				const Component::SwarmBossBoidTag* a_boidTagArray,
+				const Component::SpawnerComponent* a_spawnerArray)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
@@ -1256,9 +1256,9 @@ namespace App::Object
 
 					// 死亡状態(消えるのを待っているだけ)のものは体力に数えない
 					const Engine::ECS::Entity _entity = a_pChunk->entityData[_i];
-					if (a_context.pWorld->HasComponent<HealthComponent>(_entity))
+					if (a_context.pWorld->HasComponent<Component::HealthComponent>(_entity))
 					{
-						const auto* _pHealth = a_context.pWorld->RefData<HealthComponent>(_entity);
+						const auto* _pHealth = a_context.pWorld->RefData<Component::HealthComponent>(_entity);
 						if (_pHealth && _pHealth->isDead) continue;
 					}
 
@@ -1334,7 +1334,7 @@ namespace App::Object
 		// 炊くたびに読み込みが走らないよう、読んだ時点で握っておく
 		if (a_ar.IsLoading() && a_context.pServices && a_context.pServices->pResourceManager)
 		{
-			m_groundEffectRef = (m_groundEffectGUID != Engine::DEFAULT_GUID)
+			m_groundEffectRef = (m_groundEffectGUID != Core::DEFAULT_GUID)
 				? a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_groundEffectGUID)
 				: Engine::ResourceRef<Engine::Resource::EffectAsset>{};
 		}
@@ -1348,60 +1348,60 @@ namespace App::Object
 		if (!a_context.pServices) return;
 		auto& _services = *a_context.pServices;
 
-		Engine::Editor::Header("リーダー");
-		Engine::Editor::AssetField(_services, "リーダーのプレハブ", "Prefab", m_leaderPrefabGUID);
-		Engine::Editor::Field("生成位置", m_spawnPos, 0.1f);
+		Engine::EditorField::Header("リーダー");
+		Engine::EditorField::AssetField(_services, "リーダーのプレハブ", "Prefab", m_leaderPrefabGUID);
+		Engine::EditorField::Field("生成位置", m_spawnPos, 0.1f);
 
-		Engine::Editor::Header("小隊長");
-		Engine::Editor::AssetField(_services, "小隊長のプレハブ", "Prefab", m_platoonPrefabGUID);
-		Engine::Editor::Field("小隊長の最大数", m_maxPlatoonLeader);
-		Engine::Editor::Tooltip("リーダーの後ろ(-Z)へ、PlatoonLeaderComponent.distance の間隔で一列に並ぶ");
+		Engine::EditorField::Header("小隊長");
+		Engine::EditorField::AssetField(_services, "小隊長のプレハブ", "Prefab", m_platoonPrefabGUID);
+		Engine::EditorField::Field("小隊長の最大数", m_maxPlatoonLeader);
+		Engine::EditorField::Tooltip("リーダーの後ろ(-Z)へ、PlatoonLeaderComponent.distance の間隔で一列に並ぶ");
 
-		Engine::Editor::Header("ボイド");
-		Engine::Editor::Field("ボイドの最大数", m_maxBoid);
+		Engine::EditorField::Header("ボイド");
+		Engine::EditorField::Field("ボイドの最大数", m_maxBoid);
 		if (m_maxPlatoonLeader > 0)
 		{
-			Engine::Editor::HelpText("1小隊あたり %u 体(先頭から %u 小隊は +1)", m_maxBoid / m_maxPlatoonLeader, m_maxBoid % m_maxPlatoonLeader);
+			Engine::EditorField::HelpText("1小隊あたり %u 体(先頭から %u 小隊は +1)", m_maxBoid / m_maxPlatoonLeader, m_maxBoid % m_maxPlatoonLeader);
 		}
-		Engine::Editor::HelpText("出すボイドのプレハブと広さ : 小隊長プレハブの BoidSpownerComponent");
+		Engine::EditorField::HelpText("出すボイドのプレハブと広さ : 小隊長プレハブの BoidSpownerComponent");
 
-		Engine::Editor::Field("ボイドの判定半径", m_boidColliderRadius, 0.05f, 0.0f);
-		Engine::Editor::Field("ボイドの体力", m_boidHealth, 1.0f, 0.0f);
-		Engine::Editor::Field("ボイドが消えるまでの猶予", m_boidReleaseDelay, 0.05f, 0.0f);
-		Engine::Editor::Tooltip("当たるのはプレイヤーの攻撃だけ(地形はすり抜ける)");
+		Engine::EditorField::Field("ボイドの判定半径", m_boidColliderRadius, 0.05f, 0.0f);
+		Engine::EditorField::Field("ボイドの体力", m_boidHealth, 1.0f, 0.0f);
+		Engine::EditorField::Field("ボイドが消えるまでの猶予", m_boidReleaseDelay, 0.05f, 0.0f);
+		Engine::EditorField::Tooltip("当たるのはプレイヤーの攻撃だけ(地形はすり抜ける)");
 
-		Engine::Editor::Field("体当たりのダメージ", m_contactDamage, 0.5f, 0.0f);
-		Engine::Editor::Field("体当たりの待ち時間", m_contactDamageCooldown, 0.05f, 0.0f);
-		Engine::Editor::Tooltip("ボイドごとに、プレイヤーに触れたらダメージを与え、その後この秒数は判定しない");
+		Engine::EditorField::Field("体当たりのダメージ", m_contactDamage, 0.5f, 0.0f);
+		Engine::EditorField::Field("体当たりの待ち時間", m_contactDamageCooldown, 0.05f, 0.0f);
+		Engine::EditorField::Tooltip("ボイドごとに、プレイヤーに触れたらダメージを与え、その後この秒数は判定しない");
 
-		Engine::Editor::Header("速さ");
-		Engine::Editor::Field("リーダーの速さ", m_leaderSpeed, 0.5f, 0.0f);
-		Engine::Editor::Field("小隊長の倍率", m_platoonSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Field("ボイドの倍率", m_boidSpeedScale, 0.05f, 0.0f);
-		Engine::Editor::Tooltip("小隊長 %.1f / ボイド %.1f (生成時に書き込み、プレハブの値より優先)", m_leaderSpeed * m_platoonSpeedScale, m_leaderSpeed * m_boidSpeedScale);
+		Engine::EditorField::Header("速さ");
+		Engine::EditorField::Field("リーダーの速さ", m_leaderSpeed, 0.5f, 0.0f);
+		Engine::EditorField::Field("小隊長の倍率", m_platoonSpeedScale, 0.05f, 0.0f);
+		Engine::EditorField::Field("ボイドの倍率", m_boidSpeedScale, 0.05f, 0.0f);
+		Engine::EditorField::Tooltip("小隊長 %.1f / ボイド %.1f (生成時に書き込み、プレハブの値より優先)", m_leaderSpeed * m_platoonSpeedScale, m_leaderSpeed * m_boidSpeedScale);
 
-		Engine::Editor::Header("小隊長の整理");
-		Engine::Editor::Field("整理する体力の間隔", m_reorganizeHpInterval);
-		Engine::Editor::Tooltip("ボイドがこの数だけ減るたびに球状にまとまり、小隊長を体力の比率まで減らす(0 で整理しない)");
+		Engine::EditorField::Header("小隊長の整理");
+		Engine::EditorField::Field("整理する体力の間隔", m_reorganizeHpInterval);
+		Engine::EditorField::Tooltip("ボイドがこの数だけ減るたびに球状にまとまり、小隊長を体力の比率まで減らす(0 で整理しない)");
 		if (m_reorganizeHpInterval > 0)
 		{
 			const int _next = static_cast<int>(m_maxBoid) - static_cast<int>(m_reorganizeHpInterval * (m_reorganizeCount + 1));
-			Engine::Editor::HelpText("次 : 体力 %d (整理済み %u 回)", _next, m_reorganizeCount);
+			Engine::EditorField::HelpText("次 : 体力 %d (整理済み %u 回)", _next, m_reorganizeCount);
 		}
-		Engine::Editor::Value("体の防御比率", "%.2f", m_bodyDefenseRatio);
+		Engine::EditorField::Value("体の防御比率", "%.2f", m_bodyDefenseRatio);
 
-		Engine::Editor::Header("死亡");
-		Engine::Editor::Field("死亡する体力", m_deathHp);
-		Engine::Editor::Tooltip("体力がこれ以下になったら、地上の高いところで球状にまとまり、ウェーブを速めて爆散する(0 で死亡しない)");
-		if (Engine::Editor::AssetField(_services, "爆散のエフェクト", "EffectAsset", m_burstEffectGUID))
+		Engine::EditorField::Header("死亡");
+		Engine::EditorField::Field("死亡する体力", m_deathHp);
+		Engine::EditorField::Tooltip("体力がこれ以下になったら、地上の高いところで球状にまとまり、ウェーブを速めて爆散する(0 で死亡しない)");
+		if (Engine::EditorField::AssetField(_services, "爆散のエフェクト", "EffectAsset", m_burstEffectGUID))
 		{
 			// 差し替えたら読み直す
 			m_burstEffectRef = {};
 			RequestLoadBurstEffect(a_context);
 		}
-		if (m_burstEffectGUID == Engine::DEFAULT_GUID)
+		if (m_burstEffectGUID == Core::DEFAULT_GUID)
 		{
-			Engine::Editor::HelpText("(未設定 : 中心の爆発は出ない)");
+			Engine::EditorField::HelpText("(未設定 : 中心の爆発は出ない)");
 		}
 		else if (m_burstEffectRef)
 		{
@@ -1409,94 +1409,94 @@ namespace App::Object
 			const auto* _pEffect = _services.pResourceManager->Get(m_burstEffectRef);
 			if (_pEffect && !IsOneShotEffect(*_pEffect))
 			{
-				Engine::Editor::ErrorText("長さ0(終わらない)のパーツがあるため、消えずに残り続ける");
+				Engine::EditorField::ErrorText("長さ0(終わらない)のパーツがあるため、消えずに残り続ける");
 			}
 		}
-		Engine::Editor::Field("爆散のエフェクトの大きさ", m_burstEffectScale, 0.1f, 0.0f);
-		Engine::Editor::Value("死亡中", "%s%s", m_isDying ? "はい" : "いいえ", m_isBurst ? " (爆散済み)" : "");
-		Engine::Editor::Value("ウェーブの倍率", "x %.2f", m_waveSpeedScale);
+		Engine::EditorField::Field("爆散のエフェクトの大きさ", m_burstEffectScale, 0.1f, 0.0f);
+		Engine::EditorField::Value("死亡中", "%s%s", m_isDying ? "はい" : "いいえ", m_isBurst ? " (爆散済み)" : "");
+		Engine::EditorField::Value("ウェーブの倍率", "x %.2f", m_waveSpeedScale);
 
-		Engine::Editor::Header("リーダーの行動");
+		Engine::EditorField::Header("リーダーの行動");
 		m_stateMachine.DrawInspector();
 
-		Engine::Editor::Header("ウェーブ");
-		Engine::Editor::Field("ウェーブの速さ", m_waveSpeed, 1.0f, 0.0f);
-		Engine::Editor::Field("ウェーブの間隔", m_waveInterval, 0.05f, 0.0f);
-		Engine::Editor::Field("ウェーブの幅", m_waveWidth, 0.5f, 0.0f);
-		Engine::Editor::Field("ウェーブの最大本数", m_maxWave);
-		Engine::Editor::Field("ベースの発光の強さ", m_waveBaseIntensity, 0.05f, 0.0f);
-		Engine::Editor::Field("ピークの発光の強さ", m_wavePeakIntensity, 0.05f, 0.0f);
-		Engine::Editor::ColorField("ベースの色", m_waveBaseColor);
-		Engine::Editor::ColorField("ピークの色", m_wavePeakColor);
-		Engine::Editor::Tooltip("ブルームは 1.0 を超えた画素を拾うので、ピークはそれより上にする");
+		Engine::EditorField::Header("ウェーブ");
+		Engine::EditorField::Field("ウェーブの速さ", m_waveSpeed, 1.0f, 0.0f);
+		Engine::EditorField::Field("ウェーブの間隔", m_waveInterval, 0.05f, 0.0f);
+		Engine::EditorField::Field("ウェーブの幅", m_waveWidth, 0.5f, 0.0f);
+		Engine::EditorField::Field("ウェーブの最大本数", m_maxWave);
+		Engine::EditorField::Field("ベースの発光の強さ", m_waveBaseIntensity, 0.05f, 0.0f);
+		Engine::EditorField::Field("ピークの発光の強さ", m_wavePeakIntensity, 0.05f, 0.0f);
+		Engine::EditorField::ColorField("ベースの色", m_waveBaseColor);
+		Engine::EditorField::ColorField("ピークの色", m_wavePeakColor);
+		Engine::EditorField::Tooltip("ブルームは 1.0 を超えた画素を拾うので、ピークはそれより上にする");
 
 		// 頭から尾までを流れるので、1本が抜けるまでにかかる時間を出しておく
 		if (m_waveSpeed > 0.0f)
 		{
-			Engine::Editor::HelpText("体の長さ %.1f m / 尾まで %.1f 秒(間隔 %.1f 秒)", GetWormLength(), (GetWormLength() + m_waveWidth) / m_waveSpeed, m_waveInterval);
+			Engine::EditorField::HelpText("体の長さ %.1f m / 尾まで %.1f 秒(間隔 %.1f 秒)", GetWormLength(), (GetWormLength() + m_waveWidth) / m_waveSpeed, m_waveInterval);
 		}
-		Engine::Editor::Value("走っている本数", "%u", static_cast<uint32_t>(m_waveVec.size()));
+		Engine::EditorField::Value("走っている本数", "%u", static_cast<uint32_t>(m_waveVec.size()));
 
-		Engine::Editor::Header("砂埃");
-		if (Engine::Editor::AssetField(
+		Engine::EditorField::Header("砂埃");
+		if (Engine::EditorField::AssetField(
 			_services, "砂埃のエフェクト", "EffectAsset", m_groundEffectGUID))
 		{
-			m_groundEffectRef = (m_groundEffectGUID != Engine::DEFAULT_GUID)
+			m_groundEffectRef = (m_groundEffectGUID != Core::DEFAULT_GUID)
 				? _services.pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_groundEffectGUID)
 				: Engine::ResourceRef<Engine::Resource::EffectAsset>{};
 		}
-		if (m_groundEffectGUID == Engine::DEFAULT_GUID)
+		if (m_groundEffectGUID == Core::DEFAULT_GUID)
 		{
-			Engine::Editor::HelpText("(未設定 : 砂埃は出ない)");
+			Engine::EditorField::HelpText("(未設定 : 砂埃は出ない)");
 		}
 		else if (!m_isGroundEffectOneShot)
 		{
-			Engine::Editor::ErrorText("読み込み中か、長さ0(終わらない)のパーツがあるため炊かない");
+			Engine::EditorField::ErrorText("読み込み中か、長さ0(終わらない)のパーツがあるため炊かない");
 		}
-		Engine::Editor::Field("炊く高さの上限", m_groundEffectMaxHeight, 0.5f, 0.0f);
-		Engine::Editor::Field("炊く深さの上限", m_groundEffectMaxDepth, 1.0f, 0.0f);
-		Engine::Editor::Field("地表すれすれでの大きさ", m_groundEffectNearScale, 0.01f, 0.0f);
-		Engine::Editor::Field("上限の高さでの大きさ", m_groundEffectFarScale, 0.01f, 0.0f);
-		Engine::Editor::Field("地中での大きさ", m_groundEffectUnderScale, 0.01f, 0.0f);
-		Engine::Editor::Field("炊く間隔", m_groundEffectInterval, 0.05f, 0.01f);
-		Engine::Editor::Field("1フレームに出す上限", m_groundEffectMaxSpawnPerFrame);
+		Engine::EditorField::Field("炊く高さの上限", m_groundEffectMaxHeight, 0.5f, 0.0f);
+		Engine::EditorField::Field("炊く深さの上限", m_groundEffectMaxDepth, 1.0f, 0.0f);
+		Engine::EditorField::Field("地表すれすれでの大きさ", m_groundEffectNearScale, 0.01f, 0.0f);
+		Engine::EditorField::Field("上限の高さでの大きさ", m_groundEffectFarScale, 0.01f, 0.0f);
+		Engine::EditorField::Field("地中での大きさ", m_groundEffectUnderScale, 0.01f, 0.0f);
+		Engine::EditorField::Field("炊く間隔", m_groundEffectInterval, 0.05f, 0.01f);
+		Engine::EditorField::Field("1フレームに出す上限", m_groundEffectMaxSpawnPerFrame);
 
-		Engine::Editor::Header("潜る/出るときの砂埃(リーダー)");
-		if (Engine::Editor::AssetField(
+		Engine::EditorField::Header("潜る/出るときの砂埃(リーダー)");
+		if (Engine::EditorField::AssetField(
 			_services, "潜る/出るときのエフェクト", "EffectPrefab", m_burrowEffectGUID))
 		{
 			// 差し替えたら次に炊くときに読み直す
 			m_burrowEffectRef = {};
 		}
-		Engine::Editor::Field("潜る/出るときの砂埃の間隔", m_burrowEffectCooldown, 0.05f, 0.0f);
-		Engine::Editor::Value("リーダーの位置", "%s", !m_isLeaderGroundKnown ? "(不明)"
+		Engine::EditorField::Field("潜る/出るときの砂埃の間隔", m_burrowEffectCooldown, 0.05f, 0.0f);
+		Engine::EditorField::Value("リーダーの位置", "%s", !m_isLeaderGroundKnown ? "(不明)"
 			: (m_wasLeaderUnderGround ? "地中" : "地上"));
 
 		// 間隔が来たボイドだけがレイを打つので、1フレームの本数の目安を出しておく
 		if (m_groundEffectInterval > 0.0f)
 		{
-			Engine::Editor::HelpText("レイ : 毎秒およそ %.0f 体(1体につき最大2本)", static_cast<float>(m_maxBoid) / m_groundEffectInterval);
+			Engine::EditorField::HelpText("レイ : 毎秒およそ %.0f 体(1体につき最大2本)", static_cast<float>(m_maxBoid) / m_groundEffectInterval);
 		}
 
 		// ここから下は実行中の状態なので表示のみ
-		Engine::Editor::Header("実行中");
-		Engine::Editor::Value("生成済み", "%s", m_isSpown ? "はい" : "いいえ");
+		Engine::EditorField::Header("実行中");
+		Engine::EditorField::Value("生成済み", "%s", m_isSpown ? "はい" : "いいえ");
 		if (!m_isSpown)
 		{
 			// 置いた直後はプレハブ未設定のまま Awake を通っているので、設定してから出せるようにする
-			Engine::Editor::SameLine();
-			if (Engine::Editor::CreateSmallButton("生成"))
+			Engine::EditorField::SameLine();
+			if (Engine::EditorField::CreateSmallButton("生成"))
 			{
 				Spawn(a_context);
 			}
 		}
 
-		Engine::Editor::Value("リーダー", "%llu", static_cast<unsigned long long>(m_leaderEntity));
-		Engine::Editor::Value("小隊長の数", "%u / %u", static_cast<uint32_t>(m_platoonLeaderEntities.size()), m_maxPlatoonLeader);
+		Engine::EditorField::Value("リーダー", "%llu", static_cast<unsigned long long>(m_leaderEntity));
+		Engine::EditorField::Value("小隊長の数", "%u / %u", static_cast<uint32_t>(m_platoonLeaderEntities.size()), m_maxPlatoonLeader);
 		for (size_t _i = 0; _i < m_platoonLeaderEntities.size(); ++_i)
 		{
-			Engine::Editor::BulletText("[%u] %llu", static_cast<uint32_t>(_i), static_cast<unsigned long long>(m_platoonLeaderEntities[_i]));
+			Engine::EditorField::BulletText("[%u] %llu", static_cast<uint32_t>(_i), static_cast<unsigned long long>(m_platoonLeaderEntities[_i]));
 		}
-		Engine::Editor::Value("体力", "%u / %u (生存ボイド数)", m_currentBoids, m_maxBoid);
+		Engine::EditorField::Value("体力", "%u / %u (生存ボイド数)", m_currentBoids, m_maxBoid);
 	}
 }

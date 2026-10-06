@@ -1,6 +1,174 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Source\Editor">
+      <UniqueIdentifier>{9993d5dd-e269-41d9-8858-2cb01e00e967}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\EditorCamera">
+      <UniqueIdentifier>{b1ed04bb-23d9-41b3-999a-46576e7ce3b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\EffectEditor">
+      <UniqueIdentifier>{bcb02616-0410-4ca2-a7ec-c73ee465b582}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Helper">
+      <UniqueIdentifier>{6994aee8-ff1e-49af-b2f5-bb1b337752b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\ImGui">
+      <UniqueIdentifier>{3bc88cff-986e-4d67-bfc3-a828559749f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\ImGui\ImNode">
+      <UniqueIdentifier>{5495c8d8-9e34-4d7c-90bc-bed038c7c4df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\ImGui\ImNode\Core">
+      <UniqueIdentifier>{243c5f18-9b6e-4d86-9b9d-5d510a6397fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Internal">
+      <UniqueIdentifier>{5953b993-e21f-4f40-9ec0-256b17dd1bfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel">
+      <UniqueIdentifier>{e0c81d1d-6f95-447e-9d4e-66f6993be308}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\AssetDataBasePanel">
+      <UniqueIdentifier>{189d75a0-5f8c-4a85-a200-193f01eb5f48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\GameObjectHierarchyPanel">
+      <UniqueIdentifier>{9fa37fb1-2393-44a6-b055-5244ec4bd5b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\HierarchyPanel">
+      <UniqueIdentifier>{5a8f5cff-5cf7-4208-8cf3-aca6de88f017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel">
+      <UniqueIdentifier>{54764941-794d-42ee-b12e-b84e455e0b2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector">
+      <UniqueIdentifier>{0784a7e0-03ee-468d-b7d9-c4836d2b24b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw">
+      <UniqueIdentifier>{0d7649fd-d56b-4f11-8ae1-19a83a85a3af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit">
+      <UniqueIdentifier>{2b9b2e20-75da-4a80-b09b-91d87145b653}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit">
+      <UniqueIdentifier>{0cf243cb-eca3-4277-a5c5-ebd92ca70f85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit">
+      <UniqueIdentifier>{9106565e-8ffb-4d57-b341-022f3521dc1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit">
+      <UniqueIdentifier>{55c82092-9480-4bc1-899c-f8347aa4699d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit">
+      <UniqueIdentifier>{54f497f0-564e-4861-835c-a775554e573a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit">
+      <UniqueIdentifier>{274a71af-c1db-4641-b70b-26537d1b2af3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit">
+      <UniqueIdentifier>{23de4339-bbe9-49d3-bc1f-ea8cd296eb2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit">
+      <UniqueIdentifier>{17629a54-efac-4f05-9f79-6c99e39fd5b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit">
+      <UniqueIdentifier>{7f10265d-6d54-4a46-a638-db87b4472323}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode">
+      <UniqueIdentifier>{1a79252f-7c9f-49fe-874b-0661f002cd9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor">
+      <UniqueIdentifier>{7884a880-e57e-43e9-80da-faa83d415e86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit">
+      <UniqueIdentifier>{c09c2bec-5d73-4959-ba79-6b6ab56badf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit">
+      <UniqueIdentifier>{5033186f-cdf1-4861-b01f-1328a6f27a3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\InspectorPanel\EntityInspector">
+      <UniqueIdentifier>{9e132aab-04b2-46c3-be8d-35a77f38d646}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\LogPanel">
+      <UniqueIdentifier>{b47bd218-0c11-43b8-a329-423beecfc184}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\OptionPanel">
+      <UniqueIdentifier>{a7029d46-62c4-4536-8f66-4c887b29dbe7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\ProfilerPanel">
+      <UniqueIdentifier>{a5b0b01d-2be5-4a59-94e9-c5ac52db30ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\RenderGraphResourceViewPanel">
+      <UniqueIdentifier>{ee7569c1-c32f-4489-ad60-55e2e607b096}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\SceneAmbientPanel">
+      <UniqueIdentifier>{8d45b7a4-1e64-41cc-a26f-e3c92afc04fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Panel\SceneViewPanel">
+      <UniqueIdentifier>{6c6a374a-ecea-4f89-8590-89ffa76bc7f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Profiler">
+      <UniqueIdentifier>{3cf8e3dd-3bae-4117-9d98-c020ea1ceb7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Widget">
+      <UniqueIdentifier>{afaba804-edb7-4aee-885c-5a4744a5e990}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor\Widget\StateGraphEditor">
+      <UniqueIdentifier>{fda3fae2-6d5c-41a3-91e2-32e6f17759e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\EditorField">
+      <UniqueIdentifier>{49b74832-b3f2-48fe-ac14-765b2b59cf12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core">
+      <UniqueIdentifier>{b0663ed1-d1b6-4045-948a-3ee0c0278ba2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Algorithm">
+      <UniqueIdentifier>{01bb81fb-4f12-4487-817e-435d364bc037}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Algorithm\Graph">
+      <UniqueIdentifier>{64520324-937d-4f1f-81a5-b491f6ae707e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\BinaryHelper">
+      <UniqueIdentifier>{ecbf8823-688d-40dc-ae09-71e526ba5db5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Debug">
+      <UniqueIdentifier>{ecf87967-71e1-43ce-aaaa-f16f61920153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Debug\Profile">
+      <UniqueIdentifier>{a98a91ae-a354-486a-ac93-531d753cf2b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Debug\Profile\Time">
+      <UniqueIdentifier>{403c67bb-f097-4644-9f10-f722577b30ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\EnumFlags">
+      <UniqueIdentifier>{ec3a0b5f-323a-4e08-ae96-fa67e899534a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\File">
+      <UniqueIdentifier>{d5fbdea5-33ca-46f2-9dd8-a129bd1cd2bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\GUID">
+      <UniqueIdentifier>{35b9892a-a580-4bd9-8093-ee949791be77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\JSONHelper">
+      <UniqueIdentifier>{2ed401e6-8ab2-4fe0-b909-a1c8cd0e899e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Math">
+      <UniqueIdentifier>{782c2682-7cf8-495f-8d95-7d033c3442de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Math\DirectX">
+      <UniqueIdentifier>{83da55f9-f019-4eaa-a442-f08764eea8ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\Math\Vector">
+      <UniqueIdentifier>{ce1e813c-12e8-49a2-8e46-55657ba6b8e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\String">
+      <UniqueIdentifier>{70b77f50-cabd-411f-9377-be9df7b7bff6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core\TypeInfo">
+      <UniqueIdentifier>{d90c2301-28e5-455d-a3b3-ef234b36a8be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\FrameCompute\SkinningCompute">
+      <UniqueIdentifier>{1b42e75d-c25a-45a5-b606-cf754716dfab}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Effect">
       <UniqueIdentifier>{f82f1e36-8fef-4103-81ac-ecee75d75760}</UniqueIdentifier>
     </Filter>
@@ -160,15 +328,6 @@
     <Filter Include="Source\Engine\Resource\Data\EffectPrefab">
       <UniqueIdentifier>{b77035d4-594a-44b7-b204-475c915e653d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode">
-      <UniqueIdentifier>{14c12470-0049-44af-a7ee-6139b5296aff}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor">
-      <UniqueIdentifier>{4a15ed14-7cd5-409e-807f-67d5bb2ed69d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit">
-      <UniqueIdentifier>{92a28953-5ff5-4e10-8786-c4d41c64eb19}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Diagnostics">
       <UniqueIdentifier>{a7f3c9d2-4b81-4e6a-9c15-8d2e7f0b3a64}</UniqueIdentifier>
     </Filter>
@@ -177,9 +336,6 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics\FrameCompute\ParticleSimulation">
       <UniqueIdentifier>{23ecb1cc-376d-4253-9293-0315bdf2058b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\FrameCompute\SkinningPass">
-      <UniqueIdentifier>{ba8d5a83-b45b-4b22-94ac-8edf5c5f1b70}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\FrameCompute\UpdateBLASPass">
       <UniqueIdentifier>{43e9295a-b100-48de-a35e-17f6a606da8a}</UniqueIdentifier>
@@ -604,113 +760,8 @@
     <Filter Include="Source\Engine\ECS\World\Profile">
       <UniqueIdentifier>{4dea8932-379a-4595-aa83-94f2c9fc8403}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Editor">
-      <UniqueIdentifier>{2548f352-a17e-4a6f-b5f3-56019292c9f4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\EditorCamera">
-      <UniqueIdentifier>{7b2e9f14-6c83-4a51-9d0e-2f6a83c14b57}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\EffectEditor">
-      <UniqueIdentifier>{7ca6906d-6eee-4c3d-8c16-2255e448608e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Helper">
-      <UniqueIdentifier>{ad3ffab4-be6c-47e8-a828-946754b75d07}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\ImGui">
-      <UniqueIdentifier>{0ec4e5d1-d266-4eb4-8765-14190a5c0247}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\ImGui\ImNode">
-      <UniqueIdentifier>{d8417def-0447-4280-bd1d-5cb8b4a86919}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\ImGui\ImNode\Core">
-      <UniqueIdentifier>{8c549a59-850f-4a44-a0e8-9fbb31f14dd6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Application\Game\Core">
       <UniqueIdentifier>{bc46982f-9e0c-4d73-bf68-e60cbd003c73}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Internal">
-      <UniqueIdentifier>{a1c0f001-1111-4a10-9f01-000000000004}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel">
-      <UniqueIdentifier>{6fc96173-b325-4988-9827-b37056a3a016}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\AssetDataBasePanel">
-      <UniqueIdentifier>{90030208-20e1-484e-899e-1f31e16762fc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\GameObjectHierarchyPanel">
-      <UniqueIdentifier>{2b9f4e17-6d3a-4c1e-9a52-77b0c1e8d640}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\HierarchyPanel">
-      <UniqueIdentifier>{7caba347-d8ed-4d56-8c72-eb7bb089a11e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel">
-      <UniqueIdentifier>{eb28d7d8-afde-4e25-ad20-43baf66604ca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector">
-      <UniqueIdentifier>{d0a8d3a9-aaa1-4c54-9f60-5cd6e0060aaf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw">
-      <UniqueIdentifier>{81b2b532-3f42-4981-8cd4-687ee5365994}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit">
-      <UniqueIdentifier>{ec53dd8b-9023-4799-a533-1fa18c7bfeb5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit">
-      <UniqueIdentifier>{42e6a43b-0660-440a-8549-4dc1cf035dd5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit">
-      <UniqueIdentifier>{c0de0013-1111-4222-8333-0000c0de0013}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit">
-      <UniqueIdentifier>{c0de0016-1111-4222-8333-0000c0de0016}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit">
-      <UniqueIdentifier>{121cbf04-49fd-43e9-b27b-6bd404950320}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit">
-      <UniqueIdentifier>{c1c19fb9-795c-47b7-91b7-a05e5973a6c7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit">
-      <UniqueIdentifier>{808d461b-faef-422f-b83d-45aab5facb05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit">
-      <UniqueIdentifier>{3b85857a-ef77-4ff0-9d74-555678159556}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit">
-      <UniqueIdentifier>{5890440e-a74f-4a98-9404-00a85cdb13a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit">
-      <UniqueIdentifier>{9ce1b612-5217-4b01-8b9f-6e06a8fc0772}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector">
-      <UniqueIdentifier>{af62945a-6181-4141-9e13-2cb16ae96d85}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\LogPanel">
-      <UniqueIdentifier>{1e8eaa4a-e3f0-4c01-85b5-1eb7065a71ed}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\SceneAmbientPanel">
-      <UniqueIdentifier>{0974b6c5-9148-4739-92c8-57c1167cacb9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\OptionPanel">
-      <UniqueIdentifier>{f5cc4efa-c1c8-4d8b-9593-527d46f587b5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\ProfilerPanel">
-      <UniqueIdentifier>{ca050a17-b355-47f7-b972-aacb3cebcc83}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel">
-      <UniqueIdentifier>{889d1e3f-bbfa-4110-a6b5-930e7c58f753}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Panel\SceneViewPanel">
-      <UniqueIdentifier>{0972806a-69b5-45cb-9bd5-0880e661203a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Profiler">
-      <UniqueIdentifier>{a1c0f001-1111-4a10-9f01-000000000001}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Widget">
-      <UniqueIdentifier>{d8eec145-b06d-5ed3-9a71-b7a1bbc25882}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Editor\Widget\StateGraphEditor">
-      <UniqueIdentifier>{08c2c105-b448-50bf-8c36-859eb0a2800f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\GameObject">
       <UniqueIdentifier>{2091c567-a640-4d3c-9ba2-72c3235c3ae9}</UniqueIdentifier>
@@ -1033,42 +1084,6 @@
     <Filter Include="Source\Engine\Utility">
       <UniqueIdentifier>{9508a125-c3b0-4adc-a45d-516c8aed527c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Utility\Algorithm">
-      <UniqueIdentifier>{c0de000e-1111-4222-8333-0000c0de000e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\Algorithm\Graph">
-      <UniqueIdentifier>{c0de000f-1111-4222-8333-0000c0de000f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\BinaryHelper">
-      <UniqueIdentifier>{312e8f8a-1040-489c-afb0-fbeb1e1cc827}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\Debug">
-      <UniqueIdentifier>{61e8de91-a24f-4c93-aefe-608f4296c768}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\Debug\Profile">
-      <UniqueIdentifier>{61e8de91-a24f-4c93-aefe-608f4296c769}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\Debug\Profile\Time">
-      <UniqueIdentifier>{61e8de91-a24f-4c93-aefe-608f4296c76a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\File">
-      <UniqueIdentifier>{c0de0010-1111-4222-8333-0000c0de0010}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\GUID">
-      <UniqueIdentifier>{5a647595-1de9-4700-a553-6299e915a858}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\JSONHelper">
-      <UniqueIdentifier>{fff340b1-9164-4e05-8b05-7be1dc6f4994}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\Math">
-      <UniqueIdentifier>{7ce9559e-fdc6-4075-bc84-db1f4870b840}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\Math\DirectX">
-      <UniqueIdentifier>{5b2f4a10-9c7d-4e21-8f36-2a4d61b0c702}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\Math\Vector">
-      <UniqueIdentifier>{5b2f4a10-9c7d-4e21-8f36-2a4d61b0c701}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Utility\Pool">
       <UniqueIdentifier>{9bc13487-f5a9-4b72-81af-5fe0029cccee}</UniqueIdentifier>
     </Filter>
@@ -1083,12 +1098,6 @@
     </Filter>
     <Filter Include="Source\Engine\Utility\Pool\RangePool">
       <UniqueIdentifier>{7628df47-cca6-4a67-b773-bf97b752bb8e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\String">
-      <UniqueIdentifier>{a89720f8-c303-4c35-961b-802545baf70a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Utility\TypeInfo">
-      <UniqueIdentifier>{3f6d2b1e-8c47-4a1d-9e5b-7c2a0d4f6e81}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Window">
       <UniqueIdentifier>{4903a1c3-ef1a-452c-aa19-3c12f2daf394}</UniqueIdentifier>
@@ -1324,9 +1333,6 @@
     <Filter Include="Source\Application\Object\Controller\SwarmBossController\SwarmBossStates\Death">
       <UniqueIdentifier>{e8d4f5b6-d973-4ab9-93b4-f48c14525121}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\Effect\GroundDust">
-      <UniqueIdentifier>{13f2282b-2f7f-4572-8233-60c24bb85847}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Systems\Effect\EffectEventSystem.cpp">
@@ -1365,20 +1371,20 @@
     <ClCompile Include="Source\Application\Systems\Effect\BallisticSystem.cpp">
       <Filter>Source\Application\Systems\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\BuiltinCompositeNodes.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\BuiltinCompositeNodes.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\CompositeNode.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\CompositeNode.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor\BuiltinPassEditors.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor\BuiltinPassEditors.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor\PassEditor.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor\PassEditor.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
     </ClCompile>
     <ClCompile Include="..\Library\Include\ImGuizmo-master\ImGuizmo.cpp">
       <Filter>Library\Include\ImGuizmo-master</Filter>
@@ -1866,110 +1872,110 @@
     <ClCompile Include="Source\Engine\ECS\World\Profile\ECSWorldProfiler.cpp">
       <Filter>Source\Engine\ECS\World\Profile</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Editor.cpp">
-      <Filter>Source\Engine\Editor</Filter>
+    <ClCompile Include="Source\Editor\Editor.cpp">
+      <Filter>Source\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\EditorCamera\EditorCamera.cpp">
-      <Filter>Source\Engine\Editor\EditorCamera</Filter>
+    <ClCompile Include="Source\Editor\EditorCamera\EditorCamera.cpp">
+      <Filter>Source\Editor\EditorCamera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\EffectEditor\EffectEditor.cpp">
-      <Filter>Source\Engine\Editor\EffectEditor</Filter>
+    <ClCompile Include="Source\Editor\EffectEditor\EffectEditor.cpp">
+      <Filter>Source\Editor\EffectEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Helper\EditorHelper.cpp">
-      <Filter>Source\Engine\Editor\Helper</Filter>
+    <ClCompile Include="Source\Editor\Helper\EditorHelper.cpp">
+      <Filter>Source\Editor\Helper</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\EditorPCH.cpp">
-      <Filter>Source\Engine\Editor</Filter>
+    <ClCompile Include="Source\Editor\EditorPCH.cpp">
+      <Filter>Source\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Helper\EditorField.cpp">
-      <Filter>Source\Engine\Editor\Helper</Filter>
+    <ClCompile Include="Source\Editor\Helper\EditorField.cpp">
+      <Filter>Source\Editor\Helper</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\ImGui\ImGuiContext.cpp">
-      <Filter>Source\Engine\Editor\ImGui</Filter>
+    <ClCompile Include="Source\Editor\ImGui\ImGuiContext.cpp">
+      <Filter>Source\Editor\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\PanelManager.cpp">
-      <Filter>Source\Engine\Editor\Panel</Filter>
+    <ClCompile Include="Source\Editor\Panel\PanelManager.cpp">
+      <Filter>Source\Editor\Panel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.cpp">
-      <Filter>Source\Engine\Editor\Panel\AssetDataBasePanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.cpp">
+      <Filter>Source\Editor\Panel\AssetDataBasePanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\GameObjectHierarchyPanel\GameObjectHierarchyPanel.cpp">
-      <Filter>Source\Engine\Editor\Panel\GameObjectHierarchyPanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\GameObjectHierarchyPanel\GameObjectHierarchyPanel.cpp">
+      <Filter>Source\Editor\Panel\GameObjectHierarchyPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\HierarchyPanel\HierarchyPanel.cpp">
-      <Filter>Source\Engine\Editor\Panel\HierarchyPanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\HierarchyPanel\HierarchyPanel.cpp">
+      <Filter>Source\Editor\Panel\HierarchyPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\InspectorPanel.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\InspectorPanel.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetLink.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\AssetLink.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit\EffectAssetEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit\EffectAssetEdit.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit\MaterialEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit\MaterialEdit.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit\MeshEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit\MeshEdit.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit\ModelEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit\ModelEdit.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.cpp">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\EntityInspector</Filter>
+    <ClCompile Include="Source\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.cpp">
+      <Filter>Source\Editor\Panel\InspectorPanel\EntityInspector</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.cpp">
-      <Filter>Source\Engine\Editor\Panel\LogPanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\LogPanel\LogPanel.cpp">
+      <Filter>Source\Editor\Panel\LogPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\SceneAmbientPanel\SceneAmbientPanel.cpp">
-      <Filter>Source\Engine\Editor\Panel\SceneAmbientPanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\SceneAmbientPanel\SceneAmbientPanel.cpp">
+      <Filter>Source\Editor\Panel\SceneAmbientPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.cpp">
-      <Filter>Source\Engine\Editor\Panel\OptionPanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\OptionPanel\OptionPanel.cpp">
+      <Filter>Source\Editor\Panel\OptionPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.cpp">
-      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\ProfilerPanel\ProfilerPanel.cpp">
+      <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ECSProfilerView.cpp">
-      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\ProfilerPanel\ECSProfilerView.cpp">
+      <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\ProfilerPanel\ThreadProfilerView.cpp">
-      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\ProfilerPanel\ThreadProfilerView.cpp">
+      <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.cpp">
-      <Filter>Source\Engine\Editor\Panel\RenderGraphResourceViewPanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.cpp">
+      <Filter>Source\Editor\Panel\RenderGraphResourceViewPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.cpp">
-      <Filter>Source\Engine\Editor\Panel\SceneViewPanel</Filter>
+    <ClCompile Include="Source\Editor\Panel\SceneViewPanel\SceneViewPanel.cpp">
+      <Filter>Source\Editor\Panel\SceneViewPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\Profiler\Profiler.cpp">
-      <Filter>Source\Engine\Editor\Profiler</Filter>
+    <ClCompile Include="Source\Editor\Profiler\Profiler.cpp">
+      <Filter>Source\Editor\Profiler</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\BaseObject\BaseObject.cpp">
       <Filter>Source\Engine\GameObject\BaseObject</Filter>
@@ -2244,26 +2250,26 @@
     <ClCompile Include="Source\Engine\Time\FPSController\FPSController.cpp">
       <Filter>Source\Engine\Time\FPSController</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Utility\BinaryHelper\BinaryHelper.cpp">
-      <Filter>Source\Engine\Utility\BinaryHelper</Filter>
+    <ClCompile Include="Source\Core\BinaryHelper\BinaryHelper.cpp">
+      <Filter>Source\Core\BinaryHelper</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Utility\GUID\GUID.cpp">
-      <Filter>Source\Engine\Utility\GUID</Filter>
+    <ClCompile Include="Source\Core\GUID\GUID.cpp">
+      <Filter>Source\Core\GUID</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Utility\Math\Matrix.cpp">
-      <Filter>Source\Engine\Utility\Math</Filter>
+    <ClCompile Include="Source\Core\Math\Matrix.cpp">
+      <Filter>Source\Core\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Utility\Math\Quaternion.cpp">
-      <Filter>Source\Engine\Utility\Math</Filter>
+    <ClCompile Include="Source\Core\Math\Quaternion.cpp">
+      <Filter>Source\Core\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Utility\Math\Vector\Vector2.cpp">
-      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    <ClCompile Include="Source\Core\Math\Vector\Vector2.cpp">
+      <Filter>Source\Core\Math\Vector</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Utility\Math\Vector\Vector3.cpp">
-      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    <ClCompile Include="Source\Core\Math\Vector\Vector3.cpp">
+      <Filter>Source\Core\Math\Vector</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Utility\Math\Vector\Vector4.cpp">
-      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    <ClCompile Include="Source\Core\Math\Vector\Vector4.cpp">
+      <Filter>Source\Core\Math\Vector</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Window\NativeWindow.cpp">
       <Filter>Source\Engine\Window</Filter>
@@ -2280,8 +2286,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset\RenderingPipelineAsset.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\FrameCompute\SkinningPass\SkinningPass.cpp">
-      <Filter>Source\Engine\Graphics\FrameCompute\SkinningPass</Filter>
+    <ClCompile Include="Source\Engine\Graphics\FrameCompute\SkinningCompute\SkinningCompute.cpp">
+      <Filter>Source\Engine\Graphics\FrameCompute\SkinningCompute</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\FrameCompute\UpdateBLASPass\UpdateBLASPass.cpp">
       <Filter>Source\Engine\Graphics\FrameCompute\UpdateBLASPass</Filter>
@@ -2427,8 +2433,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler\RenderGraphCompiler.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraphCompiler</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.cpp">
-      <Filter>Source\Engine\Editor\ImGui\ImNode\Core</Filter>
+    <ClCompile Include="Source\Editor\ImGui\ImNode\Core\NodeGraphEditor.cpp">
+      <Filter>Source\Editor\ImGui\ImNode\Core</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.cpp">
       <Filter>Source\Application\Object\Scene\SceneInitializer</Filter>
@@ -2555,6 +2561,15 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\EditorCommon.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\AppCommon.h">
+      <Filter>Source\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Core.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Components\Effect\EffectEventsComponent.h">
       <Filter>Source\Application\Components\Effect</Filter>
     </ClInclude>
@@ -2600,14 +2615,14 @@
     <ClInclude Include="Source\Application\Systems\Effect\BallisticSystem.h">
       <Filter>Source\Application\Systems\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\CompositeNode.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode\CompositeNode.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\CompositeNode</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor\PassEditor.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor\PassEditor.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\PassEditor</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit\RenderingPipelineEdit.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\RenderingPipelineEdit</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\Include\ImGuizmo-master\ImGuizmo.h">
       <Filter>Library\Include\ImGuizmo-master</Filter>
@@ -3422,122 +3437,122 @@
     <ClInclude Include="Source\Engine\ECS\World\Profile\ECSWorldProfiler.h">
       <Filter>Source\Engine\ECS\World\Profile</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Editor.h">
-      <Filter>Source\Engine\Editor</Filter>
+    <ClInclude Include="Source\Editor\Editor.h">
+      <Filter>Source\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\EditorCamera\EditorCamera.h">
-      <Filter>Source\Engine\Editor\EditorCamera</Filter>
+    <ClInclude Include="Source\Editor\EditorCamera\EditorCamera.h">
+      <Filter>Source\Editor\EditorCamera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\EffectEditor\EffectEditor.h">
-      <Filter>Source\Engine\Editor\EffectEditor</Filter>
+    <ClInclude Include="Source\Editor\EffectEditor\EffectEditor.h">
+      <Filter>Source\Editor\EffectEditor</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\EditorPCH.h">
-      <Filter>Source\Engine\Editor</Filter>
+    <ClInclude Include="Source\Editor\EditorPCH.h">
+      <Filter>Source\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Helper\EditorHelper.h">
-      <Filter>Source\Engine\Editor\Helper</Filter>
+    <ClInclude Include="Source\Editor\Helper\EditorHelper.h">
+      <Filter>Source\Editor\Helper</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Helper\EditorField.h">
-      <Filter>Source\Engine\Editor\Helper</Filter>
+    <ClInclude Include="Source\Engine\EditorField\EditorField.h">
+      <Filter>Source\Engine\EditorField</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Helper\EditorField.inl">
-      <Filter>Source\Engine\Editor\Helper</Filter>
+    <ClInclude Include="Source\Engine\EditorField\EditorField.inl">
+      <Filter>Source\Engine\EditorField</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\ImGui\ImGuiContext.h">
-      <Filter>Source\Engine\Editor\ImGui</Filter>
+    <ClInclude Include="Source\Editor\ImGui\ImGuiContext.h">
+      <Filter>Source\Editor\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Internal\EditorContext.h">
-      <Filter>Source\Engine\Editor\Internal</Filter>
+    <ClInclude Include="Source\Editor\Internal\EditorContext.h">
+      <Filter>Source\Editor\Internal</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\IPanel.h">
-      <Filter>Source\Engine\Editor\Panel</Filter>
+    <ClInclude Include="Source\Editor\Panel\IPanel.h">
+      <Filter>Source\Editor\Panel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\PanelManager.h">
-      <Filter>Source\Engine\Editor\Panel</Filter>
+    <ClInclude Include="Source\Editor\Panel\PanelManager.h">
+      <Filter>Source\Editor\Panel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.h">
-      <Filter>Source\Engine\Editor\Panel\AssetDataBasePanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\AssetDataBasePanel\AssetDataBasePanel.h">
+      <Filter>Source\Editor\Panel\AssetDataBasePanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\GameObjectHierarchyPanel\GameObjectHierarchyPanel.h">
-      <Filter>Source\Engine\Editor\Panel\GameObjectHierarchyPanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\GameObjectHierarchyPanel\GameObjectHierarchyPanel.h">
+      <Filter>Source\Editor\Panel\GameObjectHierarchyPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\HierarchyPanel\HierarchyPanel.h">
-      <Filter>Source\Engine\Editor\Panel\HierarchyPanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\HierarchyPanel\HierarchyPanel.h">
+      <Filter>Source\Editor\Panel\HierarchyPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\InspectorPanel.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\InspectorPanel.h">
+      <Filter>Source\Editor\Panel\InspectorPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\AssetInspector.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\AssetLink.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\AssetLink.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ResourceDraw.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit\AnimationEdit.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimationEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit\AnimatorEdit.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AnimatorEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit\AudioBehaviorEdit.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\AudioBehaviorEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit\EffectAssetEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit\EffectAssetEdit.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\EffectAssetEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit\MaterialEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit\MaterialEdit.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MaterialEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit\MeshEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit\MeshEdit.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\MeshEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit\ModelEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit\ModelEdit.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ModelEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit\ParticleEdit.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ParticleEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit\ShaderEdit.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\ShaderEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit\TextureEdit.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\AssetInspector\ResourceDraw\TextureEdit</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.h">
-      <Filter>Source\Engine\Editor\Panel\InspectorPanel\EntityInspector</Filter>
+    <ClInclude Include="Source\Editor\Panel\InspectorPanel\EntityInspector\EntityInspector.h">
+      <Filter>Source\Editor\Panel\InspectorPanel\EntityInspector</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\LogPanel\LogPanel.h">
-      <Filter>Source\Engine\Editor\Panel\LogPanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\LogPanel\LogPanel.h">
+      <Filter>Source\Editor\Panel\LogPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\SceneAmbientPanel\SceneAmbientPanel.h">
-      <Filter>Source\Engine\Editor\Panel\SceneAmbientPanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\SceneAmbientPanel\SceneAmbientPanel.h">
+      <Filter>Source\Editor\Panel\SceneAmbientPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\OptionPanel\OptionPanel.h">
-      <Filter>Source\Engine\Editor\Panel\OptionPanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\OptionPanel\OptionPanel.h">
+      <Filter>Source\Editor\Panel\OptionPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ProfilerPanel.h">
-      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\ProfilerPanel\ProfilerPanel.h">
+      <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ECSProfilerView.h">
-      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\ProfilerPanel\ECSProfilerView.h">
+      <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\ProfilerPanel\ThreadProfilerView.h">
-      <Filter>Source\Engine\Editor\Panel\ProfilerPanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\ProfilerPanel\ThreadProfilerView.h">
+      <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.h">
-      <Filter>Source\Engine\Editor\Panel\RenderGraphResourceViewPanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.h">
+      <Filter>Source\Editor\Panel\RenderGraphResourceViewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Panel\SceneViewPanel\SceneViewPanel.h">
-      <Filter>Source\Engine\Editor\Panel\SceneViewPanel</Filter>
+    <ClInclude Include="Source\Editor\Panel\SceneViewPanel\SceneViewPanel.h">
+      <Filter>Source\Editor\Panel\SceneViewPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Profiler\Profiler.h">
-      <Filter>Source\Engine\Editor\Profiler</Filter>
+    <ClInclude Include="Source\Editor\Profiler\Profiler.h">
+      <Filter>Source\Editor\Profiler</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\Widget\StateGraphEditor\StateGraphEditor.h">
-      <Filter>Source\Engine\Editor\Widget\StateGraphEditor</Filter>
+    <ClInclude Include="Source\Editor\Widget\StateGraphEditor\StateGraphEditor.h">
+      <Filter>Source\Editor\Widget\StateGraphEditor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GameObject\BaseObject\BaseObject.h">
       <Filter>Source\Engine\GameObject\BaseObject</Filter>
@@ -3911,77 +3926,77 @@
     <ClInclude Include="Source\Engine\Time\FPSController\FPSController.h">
       <Filter>Source\Engine\Time\FPSController</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\EnumFlags.h">
-      <Filter>Source\Engine\Utility</Filter>
+    <ClInclude Include="Source\Core\EnumFlags\EnumFlags.h">
+      <Filter>Source\Core\EnumFlags</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Algorithm\Graph\GroupTopologicalSort.h">
-      <Filter>Source\Engine\Utility\Algorithm\Graph</Filter>
+    <ClInclude Include="Source\Core\Algorithm\Graph\GroupTopologicalSort.h">
+      <Filter>Source\Core\Algorithm\Graph</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Algorithm\Graph\TopologicalSort.h">
-      <Filter>Source\Engine\Utility\Algorithm\Graph</Filter>
+    <ClInclude Include="Source\Core\Algorithm\Graph\TopologicalSort.h">
+      <Filter>Source\Core\Algorithm\Graph</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\BinaryHelper\BinaryHelper.h">
-      <Filter>Source\Engine\Utility\BinaryHelper</Filter>
+    <ClInclude Include="Source\Core\BinaryHelper\BinaryHelper.h">
+      <Filter>Source\Core\BinaryHelper</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Debug\DebugLog.h">
-      <Filter>Source\Engine\Utility\Debug</Filter>
+    <ClInclude Include="Source\Core\Debug\DebugLog.h">
+      <Filter>Source\Core\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Debug\Profile\Time\TimeProfileScope.h">
-      <Filter>Source\Engine\Utility\Debug\Profile\Time</Filter>
+    <ClInclude Include="Source\Core\Debug\Profile\Time\TimeProfileScope.h">
+      <Filter>Source\Core\Debug\Profile\Time</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\File\FileUtility.h">
-      <Filter>Source\Engine\Utility\File</Filter>
+    <ClInclude Include="Source\Core\File\FileUtility.h">
+      <Filter>Source\Core\File</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\GUID\GUID.h">
-      <Filter>Source\Engine\Utility\GUID</Filter>
+    <ClInclude Include="Source\Core\GUID\GUID.h">
+      <Filter>Source\Core\GUID</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONForward.h">
-      <Filter>Source\Engine\Utility\JSONHelper</Filter>
+    <ClInclude Include="Source\Core\JSONHelper\JSONForward.h">
+      <Filter>Source\Core\JSONHelper</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\JSONHelper\JSONHelper.h">
-      <Filter>Source\Engine\Utility\JSONHelper</Filter>
+    <ClInclude Include="Source\Core\JSONHelper\JSONHelper.h">
+      <Filter>Source\Core\JSONHelper</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Game\Core\InputSettings.h">
       <Filter>Source\Application\Game\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\Alignment.h">
-      <Filter>Source\Engine\Utility\Math</Filter>
+    <ClInclude Include="Source\Core\Math\Alignment.h">
+      <Filter>Source\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\CameraUtility.h">
-      <Filter>Source\Engine\Utility\Math</Filter>
+    <ClInclude Include="Source\Core\Math\CameraUtility.h">
+      <Filter>Source\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\Color.h">
-      <Filter>Source\Engine\Utility\Math</Filter>
+    <ClInclude Include="Source\Core\Math\Color.h">
+      <Filter>Source\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\Matrix.h">
-      <Filter>Source\Engine\Utility\Math</Filter>
+    <ClInclude Include="Source\Core\Math\Matrix.h">
+      <Filter>Source\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\Quaternion.h">
-      <Filter>Source\Engine\Utility\Math</Filter>
+    <ClInclude Include="Source\Core\Math\Quaternion.h">
+      <Filter>Source\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\Random.h">
-      <Filter>Source\Engine\Utility\Math</Filter>
+    <ClInclude Include="Source\Core\Math\Random.h">
+      <Filter>Source\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\Ray.h">
-      <Filter>Source\Engine\Utility\Math</Filter>
+    <ClInclude Include="Source\Core\Math\Ray.h">
+      <Filter>Source\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\TRS.h">
-      <Filter>Source\Engine\Utility\Math</Filter>
+    <ClInclude Include="Source\Core\Math\TRS.h">
+      <Filter>Source\Core\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\DirectX\Math_DirectX.h">
-      <Filter>Source\Engine\Utility\Math\DirectX</Filter>
+    <ClInclude Include="Source\Core\Math\DirectX\Math_DirectX.h">
+      <Filter>Source\Core\Math\DirectX</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\DirectX\Math_DirectXSimpleMath.h">
-      <Filter>Source\Engine\Utility\Math\DirectX</Filter>
+    <ClInclude Include="Source\Core\Math\DirectX\Math_DirectXSimpleMath.h">
+      <Filter>Source\Core\Math\DirectX</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\Vector\Vector2.h">
-      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    <ClInclude Include="Source\Core\Math\Vector\Vector2.h">
+      <Filter>Source\Core\Math\Vector</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\Vector\Vector3.h">
-      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    <ClInclude Include="Source\Core\Math\Vector\Vector3.h">
+      <Filter>Source\Core\Math\Vector</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\Math\Vector\Vector4.h">
-      <Filter>Source\Engine\Utility\Math\Vector</Filter>
+    <ClInclude Include="Source\Core\Math\Vector\Vector4.h">
+      <Filter>Source\Core\Math\Vector</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\Pool\HandlePool\HandlePool.h">
       <Filter>Source\Engine\Utility\Pool\HandlePool</Filter>
@@ -3998,11 +4013,11 @@
     <ClInclude Include="Source\Engine\Utility\Pool\RangePool\RangePool.h">
       <Filter>Source\Engine\Utility\Pool\RangePool</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\String\StringUtility.h">
-      <Filter>Source\Engine\Utility\String</Filter>
+    <ClInclude Include="Source\Core\String\StringUtility.h">
+      <Filter>Source\Core\String</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Utility\TypeInfo\TypeInfo.h">
-      <Filter>Source\Engine\Utility\TypeInfo</Filter>
+    <ClInclude Include="Source\Core\TypeInfo\TypeInfo.h">
+      <Filter>Source\Core\TypeInfo</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Window\NativeWindow.h">
       <Filter>Source\Engine\Window</Filter>
@@ -4037,8 +4052,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset\RenderingPipelineAsset.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPipelineAsset</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\FrameCompute\SkinningPass\SkinningPass.h">
-      <Filter>Source\Engine\Graphics\FrameCompute\SkinningPass</Filter>
+    <ClInclude Include="Source\Engine\Graphics\FrameCompute\SkinningCompute\SkinningCompute.h">
+      <Filter>Source\Engine\Graphics\FrameCompute\SkinningCompute</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\FrameCompute\UpdateBLASPass\UpdateBLASPass.h">
       <Filter>Source\Engine\Graphics\FrameCompute\UpdateBLASPass</Filter>
@@ -4199,8 +4214,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal\AliasingBarrier.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Internal</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Editor\ImGui\ImNode\Core\NodeGraphEditor.h">
-      <Filter>Source\Engine\Editor\ImGui\ImNode\Core</Filter>
+    <ClInclude Include="Source\Editor\ImGui\ImNode\Core\NodeGraphEditor.h">
+      <Filter>Source\Editor\ImGui\ImNode\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.h">
       <Filter>Source\Application\Object\Scene\SceneInitializer</Filter>

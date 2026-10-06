@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "../../Engine/GameObject/GameObjectManager/GameObjectManager.h"
-#include "../../Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 //==========================================================================================
 // シーンに置いたオブジェクトを GUID で指すための小物
@@ -18,12 +18,12 @@ namespace App::Object::Picker
 	/// </summary>
 	/// <returns>見つからない・型が違うなら nullptr(設定ミスでも落ちないように)</returns>
 	template<typename T>
-	inline T* Find(Engine::GameObject::GameObjectManager* a_pObjectManager, const Engine::GUID& a_guid)
+	inline T* Find(Engine::GameObject::GameObjectManager* a_pObjectManager, const Core::GUID& a_guid)
 	{
 		if (a_pObjectManager == nullptr) return nullptr;
 		if (!a_guid.IsValid()) return nullptr;
 
-		return Engine::TypeInfo::Cast<T>(a_pObjectManager->FindByGUID(a_guid));
+		return Core::TypeInfo::Cast<T>(a_pObjectManager->FindByGUID(a_guid));
 	}
 
 	/// <summary>
@@ -34,7 +34,7 @@ namespace App::Object::Picker
 	/// 差し込み(SetOnClick)は全部そろってから一度に行うので、差し込み漏れが起きない
 	/// </remarks>
 	template<typename T>
-	inline bool IsReady(Engine::GameObject::GameObjectManager* a_pObjectManager, const Engine::GUID& a_guid)
+	inline bool IsReady(Engine::GameObject::GameObjectManager* a_pObjectManager, const Core::GUID& a_guid)
 	{
 		if (!a_guid.IsValid()) return true;	// 設定されていないものは待たない
 
@@ -62,7 +62,7 @@ namespace App::Object::Picker
 	inline bool DrawCombo(
 		const char* a_label,
 		Engine::GameObject::GameObjectManager* a_pObjectManager,
-		Engine::GUID& a_inoutGUID)
+		Core::GUID& a_inoutGUID)
 	{
 		bool _isChanged = false;
 
@@ -75,10 +75,10 @@ namespace App::Object::Picker
 			_currentLabel = _pCurrent ? MakeLabel(_pCurrent) : ("(missing) " + a_inoutGUID.String().substr(0, 8));
 		}
 
-		Engine::Editor::ComboScope _combo(a_label, _currentLabel.c_str());
+		Engine::EditorField::ComboScope _combo(a_label, _currentLabel.c_str());
 		if (!_combo) return false;
 
-		if (Engine::Editor::Selectable("None", !a_inoutGUID.IsValid()))
+		if (Engine::EditorField::Selectable("None", !a_inoutGUID.IsValid()))
 		{
 			a_inoutGUID = {};
 			_isChanged = true;
@@ -89,19 +89,19 @@ namespace App::Object::Picker
 			const auto& _objectVec = a_pObjectManager->GetObjects();
 			for (size_t _i = 0; _i < _objectVec.size(); ++_i)
 			{
-				auto* _pObject = Engine::TypeInfo::Cast<T>(_objectVec[_i].get());
+				auto* _pObject = Core::TypeInfo::Cast<T>(_objectVec[_i].get());
 				if (!_pObject) continue;
 
 				// 同名でもIDがぶつからないようにする
-				Engine::Editor::IDScope _id(static_cast<int>(_i));
+				Engine::EditorField::IDScope _id(static_cast<int>(_i));
 
 				const bool _isSelected = (a_inoutGUID == _pObject->GetGUID());
-				if (Engine::Editor::Selectable(MakeLabel(_pObject).c_str(), _isSelected))
+				if (Engine::EditorField::Selectable(MakeLabel(_pObject).c_str(), _isSelected))
 				{
 					a_inoutGUID = _pObject->GetGUID();
 					_isChanged = true;
 				}
-				if (_isSelected) Engine::Editor::SetItemDefaultFocus();
+				if (_isSelected) Engine::EditorField::SetItemDefaultFocus();
 			}
 		}
 
@@ -116,11 +116,11 @@ namespace App::Object::Picker
 	inline bool DrawList(
 		const char* a_label,
 		Engine::GameObject::GameObjectManager* a_pObjectManager,
-		std::vector<Engine::GUID>& a_inoutGUIDVec)
+		std::vector<Core::GUID>& a_inoutGUIDVec)
 	{
 		bool _isChanged = false;
 
-		Engine::Editor::TreeScope _tree(a_label);
+		Engine::EditorField::TreeScope _tree(a_label);
 		if (!_tree) return false;
 
 		// 回している間に配列を触ると足元が崩れるので、削除は覚えておいて後で行う
@@ -128,15 +128,15 @@ namespace App::Object::Picker
 
 		for (size_t _i = 0; _i < a_inoutGUIDVec.size(); ++_i)
 		{
-			Engine::Editor::IDScope _id(static_cast<int>(_i));
+			Engine::EditorField::IDScope _id(static_cast<int>(_i));
 
 			// ボタンを先に置く : コンボが残り幅を全部使うため
-			if (Engine::Editor::DeleteSmallButton("X"))
+			if (Engine::EditorField::DeleteSmallButton("X"))
 			{
 				_removeIndex = static_cast<int>(_i);
 			}
 
-			Engine::Editor::SameLine();
+			Engine::EditorField::SameLine();
 			if (DrawCombo<T>("##Object", a_pObjectManager, a_inoutGUIDVec[_i])) _isChanged = true;
 		}
 
@@ -146,7 +146,7 @@ namespace App::Object::Picker
 			_isChanged = true;
 		}
 
-		if (Engine::Editor::CreateButton("Add"))
+		if (Engine::EditorField::CreateButton("Add"))
 		{
 			a_inoutGUIDVec.push_back({});
 			_isChanged = true;

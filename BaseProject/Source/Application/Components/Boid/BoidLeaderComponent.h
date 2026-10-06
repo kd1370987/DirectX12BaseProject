@@ -1,38 +1,41 @@
 ﻿#pragma once
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 #include "Application/Utility/PrefabSpawnHelper.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Core/GUIDComponent.h"
 
-//==========================================================================================
-// BoidLeaderComponent
-// 
-// ボイド、小隊長を率いる今のところマーカーだが状態を持たせる予定
-//
-// ・付けるのは SwarmBossController。プレハブに入れ忘れていても生成時に足される。
-// ・向き(LookAngleComponent)は SwarmLookSystem が進んでいる向きへ turnSpeedDeg で寄せる。
-//   小隊長はこの向きの後ろを追いかけるので、列全体の進路はここが決めることになる。
-//==========================================================================================
-struct BoidLeaderComponent
+namespace App::Component
 {
-	float turnSpeedDeg = 270.0f;	// 進んでいる向きへ向き直る速さ(度/秒。保存される)
-};
+	//==========================================================================================
+	// BoidLeaderComponent
+	// 
+	// ボイド、小隊長を率いる今のところマーカーだが状態を持たせる予定
+	//
+	// ・付けるのは SwarmBossController。プレハブに入れ忘れていても生成時に足される。
+	// ・向き(LookAngleComponent)は SwarmLookSystem が進んでいる向きへ turnSpeedDeg で寄せる。
+	//   小隊長はこの向きの後ろを追いかけるので、列全体の進路はここが決めることになる。
+	//==========================================================================================
+	struct BoidLeaderComponent
+	{
+		float turnSpeedDeg = 270.0f;	// 進んでいる向きへ向き直る速さ(度/秒。保存される)
+	};
+}
 
 template<>
-struct Engine::ECS::ComponentTraits<BoidLeaderComponent>
+struct Engine::ECS::ComponentTraits<App::Component::BoidLeaderComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		BoidLeaderComponent& _comp = Engine::Editor::GetValue<BoidLeaderComponent>(a_pData);
+		App::Component::BoidLeaderComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidLeaderComponent>(a_pData);
 		a_ar.Field("turnSpeedDeg", _comp.turnSpeedDeg);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		BoidLeaderComponent& _comp = Engine::Editor::GetValue<BoidLeaderComponent>(a_context.pData);
-		Engine::Editor::Field("TurnSpeedDeg", _comp.turnSpeedDeg, 1.0f, 0.0f);
+		App::Component::BoidLeaderComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidLeaderComponent>(a_context.pData);
+		Engine::EditorField::Field("TurnSpeedDeg", _comp.turnSpeedDeg, 1.0f, 0.0f);
 	}
 };

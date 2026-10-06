@@ -80,6 +80,6 @@ namespace App::Object
 		bool m_isLocked = false;
 
 		// 旧形式(ロック枠テクスチャ1枚)からの引き継ぎ用
-		Engine::GUID m_legacyLockTexGUID = {};
+		Core::GUID m_legacyLockTexGUID = {};
 	};
 }

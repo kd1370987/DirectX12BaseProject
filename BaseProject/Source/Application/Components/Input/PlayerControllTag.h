@@ -1,3 +1,6 @@
 ﻿#pragma once
 
-struct PlayerControllTag{};
+namespace App::Component
+{
+	struct PlayerControllTag{};
+}

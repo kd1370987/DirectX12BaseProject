@@ -4,7 +4,7 @@
 #include "Engine/GameObject/GameObjectManager/GameObjectManager.h"
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Engine/Option/OptionManager.h"
-#include "Engine/Editor/Helper/EditorField.h"
+#include "Engine/EditorField/EditorField.h"
 
 #include "../../ObjectPicker.h"
 #include "../../UI/UIBase.h"
@@ -144,7 +144,7 @@ namespace App::Object
 			_pUI->SetVisible(_isHome);
 
 			// 倉庫の中身はまだ無い。既定では押せない状態(灰色)にしておく
-			if (auto* _pButton = Engine::TypeInfo::Cast<UIButton>(_pUI))
+			if (auto* _pButton = Core::TypeInfo::Cast<UIButton>(_pUI))
 			{
 				_pButton->SetInteractable(m_isWarehouseInteractable);
 			}
@@ -157,7 +157,7 @@ namespace App::Object
 		}
 
 		// トップでだけ出すもの
-		for (const Engine::GUID& _guid : m_homeUIGUIDVec)
+		for (const Core::GUID& _guid : m_homeUIGUIDVec)
 		{
 			if (auto* _pUI = Picker::Find<Engine::GameObject::BaseObject>(a_pObjectManager, _guid))
 			{
@@ -166,7 +166,7 @@ namespace App::Object
 		}
 
 		// 押したときに出すもの(MissionSelect など)
-		for (const Engine::GUID& _guid : m_missionObjectGUIDVec)
+		for (const Core::GUID& _guid : m_missionObjectGUIDVec)
 		{
 			if (auto* _pObject = Picker::Find<Engine::GameObject::BaseObject>(a_pObjectManager, _guid))
 			{
@@ -241,43 +241,43 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// エディターでは押して切り替えられないので、ここから切り替えて配置を見る
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Mode");
+		Engine::EditorField::Header("Mode");
 
 		EHomeMode _mode = m_mode;
-		if (Engine::Editor::Field("Mode", _mode))
+		if (Engine::EditorField::Field("Mode", _mode))
 		{
 			SetMode(_mode, _pObjectManager);
 		}
-		Engine::Editor::Tooltip("配置を見るときはここで切り替える(保存はされない)");
+		Engine::EditorField::Tooltip("配置を見るときはここで切り替える(保存はされない)");
 
 		//----------------------------------------------------------------------
 		// ボタン
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Buttons");
+		Engine::EditorField::Header("Buttons");
 
 		if (Picker::DrawCombo<UIButton>("MissionSelect", _pObjectManager, m_missionSelectButtonGUID)) m_isBound = false;
 		if (Picker::DrawCombo<UIButton>("Warehouse", _pObjectManager, m_warehouseButtonGUID))         m_isBound = false;
 		if (Picker::DrawCombo<UIButton>("Back", _pObjectManager, m_backButtonGUID))                   m_isBound = false;
 
-		if (Engine::Editor::Field("WarehouseInteractable", m_isWarehouseInteractable))
+		if (Engine::EditorField::Field("WarehouseInteractable", m_isWarehouseInteractable))
 		{
 			// その場で見た目へ反映する
 			ApplyVisible(_pObjectManager);
 		}
-		Engine::Editor::Tooltip("倉庫はまだ中身が無いので、押しても何も起きない");
+		Engine::EditorField::Tooltip("倉庫はまだ中身が無いので、押しても何も起きない");
 
 		//----------------------------------------------------------------------
 		// 出し分け
 		//----------------------------------------------------------------------
-		Engine::Editor::Header("Visible Group");
+		Engine::EditorField::Header("Visible Group");
 
-		Engine::Editor::HelpText("トップでだけ出すもの(背景・ロゴ・見出しなど)");
+		Engine::EditorField::HelpText("トップでだけ出すもの(背景・ロゴ・見出しなど)");
 		if (Picker::DrawList<Engine::GameObject::BaseObject>("Home Only", _pObjectManager, m_homeUIGUIDVec))
 		{
 			ApplyVisible(_pObjectManager);
 		}
 
-		Engine::Editor::HelpText("MissionSelect ボタンを押したときに出すもの");
+		Engine::EditorField::HelpText("MissionSelect ボタンを押したときに出すもの");
 		if (Picker::DrawList<Engine::GameObject::BaseObject>("Mission Objects", _pObjectManager, m_missionObjectGUIDVec))
 		{
 			ApplyVisible(_pObjectManager);
@@ -288,12 +288,12 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		m_bgm.DrawInspector(a_context);
 
-		Engine::Editor::Header("Cursor");
-		Engine::Editor::Field("ReleaseCursorLock", m_isReleaseCursorLock);
-		Engine::Editor::Tooltip("ホームの間はカーソルの中央固定を切る");
+		Engine::EditorField::Header("Cursor");
+		Engine::EditorField::Field("ReleaseCursorLock", m_isReleaseCursorLock);
+		Engine::EditorField::Tooltip("ホームの間はカーソルの中央固定を切る");
 
 		// 実行中の状態は表示のみ
-		Engine::Editor::Header("Runtime");
-		Engine::Editor::Value("Bound", "%s", m_isBound ? "yes" : "no");
+		Engine::EditorField::Header("Runtime");
+		Engine::EditorField::Value("Bound", "%s", m_isBound ? "yes" : "no");
 	}
 }
