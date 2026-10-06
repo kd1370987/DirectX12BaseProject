@@ -54,7 +54,7 @@ namespace Engine::Resource
 
 		auto _dir = Engine::File::GetDirFromPath(a_savePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_savePath);
-		Persistence::Archive _arch(Persistence::Archive::Mode::Save, _dir, _fileName, "stet");
+		Persistence::Archive _arch(Persistence::Archive::EMode::Save, _dir, _fileName, "stet");
 
 		// Animator固有ヘッダ
 		_arch.Field("m_name", m_name);
@@ -116,7 +116,7 @@ namespace Engine::Resource
 
 		// 形式はビルドモード任せ(Auto)。Development までは .ojstet 優先、Shipping は .obstet のみ
 		Persistence::Archive _arch(
-			Persistence::Archive::Mode::Load, a_fileDir, a_fileName, "stet");
+			Persistence::Archive::EMode::Load, a_fileDir, a_fileName, "stet");
 
 		// Animator固有ヘッダ
 		_arch.Field("m_name", m_name);
@@ -147,7 +147,7 @@ namespace Engine::Resource
 	{
 		m_graph.Clear();
 		m_name.clear();
-		m_modelGUID = Engine::DefaultGUID;
+		m_modelGUID = Engine::DEFAULT_GUID;
 		m_modelHandle = {};
 		m_additiveBones.clear();
 	}

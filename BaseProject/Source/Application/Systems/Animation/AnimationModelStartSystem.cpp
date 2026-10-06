@@ -43,7 +43,7 @@ void AnimationModelStartSystem::Init(App::ECS::APPWorld& a_world)
 				if (!_pModel) continue;
 
 				// ノードポーズ行列領域確保
-				auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto& _nodePosePool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 	
 				// モデルのアニメーションから最大ノードを持つものを取得
 				UINT _totalNodeCount = static_cast<UINT>(_pModel->GetOriginalNodeVec().size());
@@ -63,7 +63,7 @@ void AnimationModelStartSystem::Init(App::ECS::APPWorld& a_world)
 				}
 
 				// ボーン行列領域確保
-				auto& _boneMatPool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
+				auto& _boneMatPool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 				size_t _boneNodeCount = _pModel->GetBoneNodeVec().size();
 				_poseComp.skeletonPoseHandle = _boneMatPool.AllocateRange(static_cast<uint32_t>(_boneNodeCount));
 
@@ -75,14 +75,14 @@ void AnimationModelStartSystem::Init(App::ECS::APPWorld& a_world)
 
 				// BLASインスタンス確保
 				auto& _dynamicInstancePool = 
-					a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
+					a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
 
 				// 空で生成
 				Engine::Raytracing::DynamicRaytracingData _resource = {};
 				_rayComp.dynamicInstanceHandle = _dynamicInstancePool.Add(std::move(_resource));
 
 				// GPU処理のため遅延生成用命令
-				auto& _initRequestVec = a_ctx.pWorld->GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+				auto& _initRequestVec = a_ctx.pWorld->RefResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 				Engine::Raytracing::DynamicRaytracingInitRequest _req = {};
 				_req.dynamicInstanceHandle = _rayComp.dynamicInstanceHandle;
 				_req.modelHandle = _modelComp.handle;

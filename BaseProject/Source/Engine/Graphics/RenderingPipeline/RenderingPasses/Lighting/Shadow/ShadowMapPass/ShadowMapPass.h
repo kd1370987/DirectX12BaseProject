@@ -34,7 +34,7 @@ namespace Engine::Graphics::Pipeline
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
 		// アトラスの1辺あたりのタイル数 : カスケードは最大 2x2 = 4 枚
-		static constexpr uint32_t kAtlasTiles = 2;
+		static constexpr uint32_t ATLAS_TILES = 2;
 
 		//----------------------------------------------------------------------------------
 		// 編集対象の値 : エディターはここだけを触る

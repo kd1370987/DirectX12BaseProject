@@ -241,10 +241,10 @@ namespace App::ECS
 
 		// システム実体は Init でタスクを登録するだけの入れ物。
 		// 実行はタスク側で行うので、基盤へは寿命の保持だけ頼む
-		std::shared_ptr<System> _spSys = std::make_shared<System>();
-		_spSys->Init(*this);
+		std::unique_ptr<System> _upSys = std::make_unique<System>();
+		_upSys->Init(*this);
 
-		HoldSystem(std::move(_spSys));
+		HoldSystem(std::move(_upSys));
 	}
 
 	template<typename ...Components, typename ...Excludes, typename Func>

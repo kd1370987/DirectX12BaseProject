@@ -123,7 +123,7 @@ namespace Engine::Raytracing
 		m_isCommit = false;
 	}
 
-	const std::vector<Instance>& Engine::Raytracing::RayEngine::GetInstanceVec()
+	const std::vector<Instance>& Engine::Raytracing::RayEngine::GetInstanceVec() const
 	{
 		return m_upRayWorld->GetInstanceVec();
 	}

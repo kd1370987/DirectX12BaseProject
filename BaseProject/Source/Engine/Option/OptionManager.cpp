@@ -22,7 +22,7 @@ namespace Engine::Option
 	}
 	void OptionManager::Serialize()
 	{
-		Persistence::Archive _archive(Persistence::Archive::Mode::Save, "Asset/Data/Engine", "EngineData", "optn");
+		Persistence::Archive _archive(Persistence::Archive::EMode::Save, "Asset/Data/Engine", "EngineData", "optn");
 		Archive(_archive);
 	}
 	//======================================================================================
@@ -35,11 +35,11 @@ namespace Engine::Option
 	void OptionManager::Deserialize()
 	{
 		Persistence::Archive _archive(
-			Persistence::Archive::Mode::Load, 
+			Persistence::Archive::EMode::Load, 
 			"Asset/Data/Engine",
 			"EngineData", 
 			"optn",
-			Persistence::Archive::ArchiveFormat::Json
+			Persistence::Archive::EArchiveFormat::Json
 		);
 		Archive(_archive);
 	}

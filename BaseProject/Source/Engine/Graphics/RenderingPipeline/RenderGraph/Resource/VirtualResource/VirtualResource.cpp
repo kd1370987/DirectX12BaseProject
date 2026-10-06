@@ -68,7 +68,7 @@ namespace Engine::Graphics::Pipeline
 		m_width = 0;
 		m_height = 0;
 		m_scale = 1.f;
-		m_usage = Resource::TextureUsage::None;
+		m_usage = Resource::ETextureUsage::None;
 
 		m_allocationSize = 0;
 		m_allocationAlignment = 0;
@@ -185,9 +185,9 @@ namespace Engine::Graphics::Pipeline
 		CalcAllocationSize();
 	}
 
-	bool VirtualResource::HasUsage(Resource::TextureUsage a_usage) const
+	bool VirtualResource::HasUsage(Resource::ETextureUsage a_usage) const
 	{
-		return (m_usage & a_usage) != Resource::TextureUsage::None;
+		return (m_usage & a_usage) != Resource::ETextureUsage::None;
 	}
 
 	// 実体を作るときの要件を、テクスチャ生成の宣言へ落とす。
@@ -205,8 +205,8 @@ namespace Engine::Graphics::Pipeline
 
 		// RTV / DSV はクリアバリューを作成時に渡しておかないと、
 		// クリアのたびにドライバ側で最適化が効かず警告も出る
-		if (HasUsage(Resource::TextureUsage::RTV) ||
-			HasUsage(Resource::TextureUsage::DSV))
+		if (HasUsage(Resource::ETextureUsage::RTV) ||
+			HasUsage(Resource::ETextureUsage::DSV))
 		{
 			_desc.optClearValue = m_clearColor;
 		}
@@ -288,7 +288,7 @@ namespace Engine::Graphics::Pipeline
 			_desc.heapType = D3D12_HEAP_TYPE_DEFAULT;
 
 			// UAV として触るなら生成時にフラグを立てておく必要がある
-			_desc.flags = HasUsage(Resource::TextureUsage::UAV)
+			_desc.flags = HasUsage(Resource::ETextureUsage::UAV)
 				? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
 				: D3D12_RESOURCE_FLAG_NONE;
 
@@ -415,7 +415,7 @@ namespace Engine::Graphics::Pipeline
 			// GPUBuffer::Create が組むものに合わせる(width にバイト数が入っている)
 			_desc = CD3DX12_RESOURCE_DESC::Buffer(
 				m_width,
-				HasUsage(Resource::TextureUsage::UAV)
+				HasUsage(Resource::ETextureUsage::UAV)
 					? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
 					: D3D12_RESOURCE_FLAG_NONE);
 		}
@@ -444,26 +444,26 @@ namespace Engine::Graphics::Pipeline
 		m_allocationAlignment = _info.Alignment;
 	}
 
-	Resource::TextureUsage VirtualResource::ToUsage(EAccessType a_accessType, bool a_isWrite)
+	Resource::ETextureUsage VirtualResource::ToUsage(EAccessType a_accessType, bool a_isWrite)
 	{
 		if (a_isWrite)
 		{
 			// 書いた結果は後続のパスが読むのが普通なので、SRV も一緒に立てておく
 			switch (a_accessType)
 			{
-			case EAccessType::RTV:			return Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;
-			case EAccessType::Depth_Write:	return Resource::TextureUsage::DSV | Resource::TextureUsage::SRV;
-			case EAccessType::UAV:			return Resource::TextureUsage::UAV | Resource::TextureUsage::SRV;
-			default:						return Resource::TextureUsage::None;
+			case EAccessType::RTV:			return Resource::ETextureUsage::RTV | Resource::ETextureUsage::SRV;
+			case EAccessType::DepthWrite:	return Resource::ETextureUsage::DSV | Resource::ETextureUsage::SRV;
+			case EAccessType::UAV:			return Resource::ETextureUsage::UAV | Resource::ETextureUsage::SRV;
+			default:						return Resource::ETextureUsage::None;
 			}
 		}
 
 		switch (a_accessType)
 		{
-		case EAccessType::SRV:			return Resource::TextureUsage::SRV;
-		case EAccessType::UAV:			return Resource::TextureUsage::UAV;
-		case EAccessType::Depth_Read:	return Resource::TextureUsage::DSV;
-		default:						return Resource::TextureUsage::None;
+		case EAccessType::SRV:			return Resource::ETextureUsage::SRV;
+		case EAccessType::UAV:			return Resource::ETextureUsage::UAV;
+		case EAccessType::DepthRead:	return Resource::ETextureUsage::DSV;
+		default:						return Resource::ETextureUsage::None;
 		}
 	}
 
@@ -475,8 +475,8 @@ namespace Engine::Graphics::Pipeline
 		case EAccessType::SRV:			return D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 		case EAccessType::RTV:			return D3D12_RESOURCE_STATE_RENDER_TARGET;
 		case EAccessType::UAV:			return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-		case EAccessType::Depth_Read:	return D3D12_RESOURCE_STATE_DEPTH_READ;
-		case EAccessType::Depth_Write:	return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+		case EAccessType::DepthRead:	return D3D12_RESOURCE_STATE_DEPTH_READ;
+		case EAccessType::DepthWrite:	return D3D12_RESOURCE_STATE_DEPTH_WRITE;
 		case EAccessType::CopySrc:		return D3D12_RESOURCE_STATE_COPY_SOURCE;
 		case EAccessType::CopyDst:		return D3D12_RESOURCE_STATE_COPY_DEST;
 		default:						return D3D12_RESOURCE_STATE_COMMON;
@@ -487,7 +487,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		// 読み取り専用のステートだけを並べたもの。
 		// これに収まっていれば、同じ塊の中で複数のパスが同時に読んでも問題ない
-		constexpr D3D12_RESOURCE_STATES _readOnlyMask =
+		constexpr D3D12_RESOURCE_STATES READ_ONLY_MASK =
 			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE |
 			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE |
 			D3D12_RESOURCE_STATE_DEPTH_READ |
@@ -496,6 +496,6 @@ namespace Engine::Graphics::Pipeline
 		// COMMON(=0) は「読み取り専用」ではないので弾く
 		if (a_state == D3D12_RESOURCE_STATE_COMMON) return false;
 
-		return (a_state & ~_readOnlyMask) == 0;
+		return (a_state & ~READ_ONLY_MASK) == 0;
 	}
 }

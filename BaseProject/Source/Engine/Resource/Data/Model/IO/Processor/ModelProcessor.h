@@ -20,8 +20,8 @@ namespace Engine::Resource::Processor
 	/// </summary>
 	enum class ECoordinateSystem : uint8_t
 	{
-		RightHanded_YUp,		// 右手座標系 Y-Up : GLTF/FBXなど一般的なDCCの出力
-		LeftHanded_YUp,			// 左手座標系 Y-Up : このエンジンの標準(前方 +Z)
+		RightHandedYUp,		// 右手座標系 Y-Up : GLTF/FBXなど一般的なDCCの出力
+		LeftHandedYUp,			// 左手座標系 Y-Up : このエンジンの標準(前方 +Z)
 	};
 
 	/// <summary>
@@ -32,8 +32,8 @@ namespace Engine::Resource::Processor
 	struct ModelImportSettings
 	{
 		// 変換元・変換先の座標系
-		ECoordinateSystem	sourceCoordinate = ECoordinateSystem::RightHanded_YUp;
-		ECoordinateSystem	targetCoordinate = ECoordinateSystem::LeftHanded_YUp;
+		ECoordinateSystem	sourceCoordinate = ECoordinateSystem::RightHandedYUp;
+		ECoordinateSystem	targetCoordinate = ECoordinateSystem::LeftHandedYUp;
 
 		// 接線が入っていない場合に生成するかどうか
 		bool				generateTangents = true;

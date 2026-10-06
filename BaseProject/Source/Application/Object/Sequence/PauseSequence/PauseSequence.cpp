@@ -110,7 +110,7 @@ namespace App::Object
 
 		// 自分を外すだけ。後ろのゲームは残っているので続きから動き出す
 		Engine::Scene::SceneManager::Instance().SetNextScene(
-			Engine::DefaultGUID, Engine::Scene::SceneChangeType::Pop);
+			Engine::DEFAULT_GUID, Engine::Scene::ESceneChangeType::Pop);
 	}
 
 	//======================================================================================
@@ -132,10 +132,10 @@ namespace App::Object
 
 		// 先に自分を外す。重ねたまま差し替えると、入れ替わるのは後ろのゲームの方で
 		// ポーズ画面が乗りっぱなしになる
-		_sceneManager.SetNextScene(Engine::DefaultGUID, Engine::Scene::SceneChangeType::Pop);
+		_sceneManager.SetNextScene(Engine::DEFAULT_GUID, Engine::Scene::ESceneChangeType::Pop);
 
 		// 続けて後ろのゲームを行き先へ差し替える(命令は積んだ順に処理される)
-		_sceneManager.SetNextScene(m_exitSceneGUID, Engine::Scene::SceneChangeType::Replace);
+		_sceneManager.SetNextScene(m_exitSceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 
 	//======================================================================================

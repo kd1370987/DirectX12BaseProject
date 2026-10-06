@@ -30,25 +30,6 @@ namespace Engine::Resource
 		void Load(const std::string& a_fileDir, const std::string& a_fileName, ResourceManager& a_resourceManager);
 		void Load(const std::string& a_filePath, ResourceManager& a_resourceManager);
 
-	private:
-
-		/// <summary>
-		/// 保存と読み込みで共通の項目並び
-		/// </summary>
-		/// <remarks>
-		/// 以前は Save と Load 2つに同じ並びを3回書いていて、
-		/// 項目を足すときに片方だけ直すと読み書きがずれた。1箇所に寄せてある。
-		/// ※ 追加は末尾に。バイナリは順次読みなので途中に挿すと既存データが全部ずれる
-		/// </remarks>
-		void Archive(Persistence::Archive& a_ar);
-
-		/// <summary>
-		/// 読み込み後の後始末(値の下限補正とテクスチャの解決)
-		/// </summary>
-		void OnLoaded(ResourceManager& a_resourceManager);
-
-	public:
-
 		// ---- アクセサ ----
 		const std::string& GetName()const { return m_name; }				// パーティクル名
 		// 中身に書き込まれているGUID。
@@ -113,6 +94,23 @@ namespace Engine::Resource
 			m_texHandle = a_handle;
 		}
 
+
+	private:
+
+		/// <summary>
+		/// 保存と読み込みで共通の項目並び
+		/// </summary>
+		/// <remarks>
+		/// 以前は Save と Load 2つに同じ並びを3回書いていて、
+		/// 項目を足すときに片方だけ直すと読み書きがずれた。1箇所に寄せてある。
+		/// ※ 追加は末尾に。バイナリは順次読みなので途中に挿すと既存データが全部ずれる
+		/// </remarks>
+		void Archive(Persistence::Archive& a_ar);
+
+		/// <summary>
+		/// 読み込み後の後始末(値の下限補正とテクスチャの解決)
+		/// </summary>
+		void OnLoaded(ResourceManager& a_resourceManager);
 
 	private:
 

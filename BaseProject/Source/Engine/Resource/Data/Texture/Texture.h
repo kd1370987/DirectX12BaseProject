@@ -26,7 +26,7 @@ namespace Engine::Resource
 		UINT sampleCount = 1;
 
 		// テクスチャの使用方法
-		TextureUsage usage = TextureUsage::None;
+		ETextureUsage usage = ETextureUsage::None;
 
 		/// <summary>
 		/// SRVで読むときの成分の並び替え(スウィズル)
@@ -61,7 +61,7 @@ namespace Engine::Resource
 		void Import(const ResourceBuildContext& a_ctx,const std::string& a_filePath,const Math::Color& a_defoltData = { 255,255,255,255 });
 		void Create(const ResourceBuildContext& a_ctx,const std::string& a_name, const Math::Color& a_defoltData);
 		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,const TextureCreateDesc& a_desc);
-		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,TextureUsage a_texUsage = TextureUsage::RTV);
+		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,ETextureUsage a_texUsage = ETextureUsage::RTV);
 
 		/// <summary>
 		/// 指定のヒープ上に作成する(placed)
@@ -87,11 +87,11 @@ namespace Engine::Resource
 		const std::string& GetName() const;
 
 		// リソース情報
-		const TextureUsage& GetUsage() const;		// 使用フラグ
+		const ETextureUsage& GetUsage() const;		// 使用フラグ
 		const D3D12_RESOURCE_DESC& GetDesc() const;	// テクスチャ設定
 
 		// クリアバリュー
-		const Math::Color& GetClearColor() { return m_clearValue; }
+		const Math::Color& GetClearColor() const { return m_clearValue; }
 
 	private:
 
@@ -106,7 +106,7 @@ namespace Engine::Resource
 		// リソース
 		std::string m_name = "none";						// テクスチャの名前	
 		D3D12_RESOURCE_DESC m_desc;							// テクスチャの仕様書
-		TextureUsage m_useFlg = TextureUsage::None;			// テクスチャの使用方法
+		ETextureUsage m_usage = ETextureUsage::None;			// テクスチャの使用方法
 
 		// SRVの成分並び替え : 1成分テクスチャを rgba へ配るときに使う
 		UINT m_srvComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;

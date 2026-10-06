@@ -76,7 +76,7 @@ namespace Engine::Resource
 	ResourceManager::ResourceManager()
 		: m_upAssetDatabase(std::make_unique<AssetDatabase>())
 	{
-		assert(s_pInstance == nullptr && "ResourceManager は1つだけ作ること");
+		ENGINE_ERRLOG(s_pInstance == nullptr, "ResourceManager は1つだけ作ること");
 		s_pInstance = this;
 		AliveFlag() = true;
 	}

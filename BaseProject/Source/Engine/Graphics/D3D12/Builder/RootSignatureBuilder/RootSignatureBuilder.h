@@ -14,12 +14,12 @@ namespace Engine::D3D12
 		void AddDescriptorHeap(std::vector<RootRangeInit> a_rangeVec)
 		{
 			RootParamInit _init = {};
-			_init.paramType = RootParameterType::DescriptorTable;
+			_init.paramType = ERootParameterType::DescriptorTable;
 			_init.rangeVec = a_rangeVec;
 			_init.shaderRegisterIndex = 0;
 			paramVec.push_back(_init);
 		}
-		void AddRoot(RootParameterType a_type, UINT a_shaderIndex)
+		void AddRoot(ERootParameterType a_type, UINT a_shaderIndex)
 		{
 			RootParamInit _init = {};
 			_init.paramType = a_type;

@@ -14,7 +14,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		// 深度は読むだけ : 半透明なので書かず、手前のものには隠される。
 		// 単体で置いた構成も作れるよう任意にしてある
-		DeclareInput("Depth", EAccessType::Depth_Read, EPassSlotType::Texture, false);
+		DeclareInput("Depth", EAccessType::DepthRead, EPassSlotType::Texture, false);
 
 		// 描き足す先 : 「前段が描いた絵の上に重ねる」という順序をこの線で表す
 		DeclareInput("Color", EAccessType::RTV, EPassSlotType::Texture, false);
@@ -66,7 +66,7 @@ namespace Engine::Graphics::Pipeline
 
 		// ---- 加算合成 : 光り物。重ねるほど明るくなり、描く順番に依存しない ----
 		SetupRasterShader(
-			a_context, _vsPath, _psPath, D3D12::Input::gParticleInputLayout,
+			a_context, _vsPath, _psPath, D3D12::Input::PARTICLE_INPUT_LAYOUT,
 			"ParticleDraw_Additive",
 			[&_setupCommon](D3D12::GraphicsPipelineDesc& a_pso)
 			{
@@ -86,7 +86,7 @@ namespace Engine::Graphics::Pipeline
 
 		// ---- 半透明合成 : 煙や破片。背景を明るくせず、前のものが後ろを隠す ----
 		SetupRasterShader(
-			a_context, _vsPath, _psPath, D3D12::Input::gParticleInputLayout,
+			a_context, _vsPath, _psPath, D3D12::Input::PARTICLE_INPUT_LAYOUT,
 			"ParticleDraw_AlphaBlend",
 			[&_setupCommon](D3D12::GraphicsPipelineDesc& a_pso)
 			{

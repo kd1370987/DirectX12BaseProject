@@ -85,7 +85,7 @@ namespace
 		if (!FindLayerClip(a_ctx, a_layer, _clip)) return;
 
 		// ノードポーズ行列配列取得
-		auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+		auto& _nodePosePool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 		auto _nodePoseVec = _nodePosePool.RefRange(a_nodeposeComp.nodePoseHandle);
 		if (_nodePoseVec.empty()) return;
 
@@ -122,7 +122,7 @@ namespace
 		if (!FindLayerClip(a_ctx, _layer, _clip)) return;
 
 		// ノードポーズ行列配列取得
-		auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+		auto& _nodePosePool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 		auto _nodePoseVec = _nodePosePool.RefRange(a_nodeposeComp.nodePoseHandle);
 		if (_nodePoseVec.empty()) return;
 

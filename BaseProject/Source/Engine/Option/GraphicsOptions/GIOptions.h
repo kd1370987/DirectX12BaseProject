@@ -21,8 +21,8 @@ namespace Engine::Option::GraphicsOptions
 
 		const std::string& GetName() override
 		{
-			static const std::string _name = "GIOption";
-			return _name;
+			static const std::string NAME = "GIOption";
+			return NAME;
 		}
 
 		// カテゴリー

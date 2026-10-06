@@ -8,7 +8,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		// 受け取った絵をそのまま写すだけなので、読み書きともコピーのアクセスにする。
 		// シェーダーを通さないぶん、フォーマットと大きさは入口と出口で揃っている必要がある
-		DeclareInput(kInputName, EAccessType::CopySrc);
+		DeclareInput(INPUT_NAME, EAccessType::CopySrc);
 
 		// 出力先は GraphicsEngine がカメラの最終出力として差し込む外部リソース。
 		//
@@ -16,7 +16,7 @@ namespace Engine::Graphics::Pipeline
 		// 差し込む側にはパスが居ない。ここだけは名前で待ち合わせる
 		DeclareImportedOutput(
 			"Output",
-			CameraPipelineManager::kCameraOutputName,
+			CameraPipelineManager::CAMERA_OUTPUT_NAME,
 			EAccessType::CopyDst);
 	}
 
@@ -31,7 +31,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 入口が繋がっていなければ何も写さない。
 		// (必須入力なので、本来は Validation の時点で弾かれている)
-		const Slot* _pInSlot = FindInputSlot(MakeSlotID(kInputName));
+		const Slot* _pInSlot = FindInputSlot(MakeSlotID(INPUT_NAME));
 		if (!_pInSlot || !_pInSlot->IsConnected()) return;
 
 		D3D12::GPUResource* _pSrc = a_context.GetResource(*_pInSlot);

@@ -45,7 +45,7 @@ void MainCameraSystem::Init(App::ECS::APPWorld& a_world)
 			if (!a_ctx.pWorld) return;
 			if (!a_ctx.pWorld->HasResource<SingletonEntityResource>()) return;
 
-			auto& _singleton = a_ctx.pWorld->GetResource<SingletonEntityResource>();
+			auto& _singleton = a_ctx.pWorld->RefResource<SingletonEntityResource>();
 
 			// 前のフレームの答えは捨てる。
 			// カメラが消えた/全部下ろされたフレームは

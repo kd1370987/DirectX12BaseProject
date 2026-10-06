@@ -74,8 +74,8 @@ namespace Engine::GameObject
 		}
 
 		// 未登録時は空メタを返す(静的なので寿命は安全)
-		static const ObjectMeta _empty = {};
-		return _empty;
+		static const ObjectMeta EMPTY = {};
+		return EMPTY;
 	}
 
 	std::unique_ptr<BaseObject> ObjectMetaRegistry::Create(ObjectTypeID a_id) const

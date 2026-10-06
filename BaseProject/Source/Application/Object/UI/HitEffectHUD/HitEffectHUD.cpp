@@ -73,7 +73,7 @@ namespace App::Object
 		_pAudioManager->ReleaseSoundInstance(m_soundHandle);
 		m_soundHandle = {};
 
-		if (m_soundGUID == Engine::DefaultGUID) return;
+		if (m_soundGUID == Engine::DEFAULT_GUID) return;
 
 		// 画面に出す音なので 2D で発行する(定位を付けない)
 		m_soundHandle = _pAudioManager->RequestSoundInstance(m_soundGUID, false);

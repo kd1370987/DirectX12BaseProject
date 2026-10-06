@@ -41,7 +41,7 @@ void GunStateStartSystem::Init(App::ECS::APPWorld& a_world)
 				// 枠は EffectAssetComponent。進行(EffectUpdateSystem)も
 				// 発生・描画(EffectDrawSystem)もこれを見ているので、付けるだけで動く。
 				//==============================================================
-				if (_gunComp.muzzleEffectGUID != Engine::DefaultGUID)
+				if (_gunComp.muzzleEffectGUID != Engine::DEFAULT_GUID)
 				{
 					if (a_ctx.pWorld->HasComponent<EffectAssetComponent>(_self))
 					{

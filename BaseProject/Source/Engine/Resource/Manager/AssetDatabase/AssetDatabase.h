@@ -79,7 +79,7 @@ namespace Engine::Resource
 		Engine::GUID GetGUIDFromFilePath(const std::string& a_path) const;		// ファイルパスからGUIDを取得
 		const AssetNode& GetAssetRootNode() const { return m_assetRootNode; }		// アセット構造取得
 		const std::unordered_map<std::string, TypeExtension>& GetAssetTypeExtensionsMap() const;
-		std::span<const AssetProperty> GetTypeMetaVec(const std::string& a_type);		// 指定したタイプのメタ配列取得
+		std::span<const AssetProperty> GetTypeMetaVec(const std::string& a_type) const;		// 指定したタイプのメタ配列取得
 
 		const AssetProperty* GetAssetProperty(const Engine::GUID& a_guid) const;
 		const AssetProperty* GetAssetProperty(const std::string& a_filePath) const;
@@ -129,7 +129,7 @@ namespace Engine::Resource
 		void ChangeFileName(const std::filesystem::path& a_filePath);
 
 		// ファイルパスの拡張子からアセットのタイプを検出
-		std::string GetAssetType(const std::filesystem::path& a_filePath);
+		std::string GetAssetType(const std::filesystem::path& a_filePath) const;
 
 	private:
 

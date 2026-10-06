@@ -153,14 +153,14 @@ namespace Engine::Graphics
 
 	const std::vector<Pipeline::Pass*>& CameraPipelineManager::GetGeometryPasses(EGeometryQueue a_queue) const
 	{
-		static const std::vector<Pipeline::Pass*> _empty = {};
+		static const std::vector<Pipeline::Pass*> EMPTY = {};
 
 		auto _it = m_pipelinePassMap.find(a_queue);
 		if (_it != m_pipelinePassMap.end())
 		{
 			return _it->second;
 		}
-		return _empty;
+		return EMPTY;
 	}
 
 	void CameraPipelineManager::SubmitCamera(const CameraSubmitDesc& a_desc)
@@ -352,7 +352,7 @@ namespace Engine::Graphics
 					_texDesc.width = _pCamera->builtWidth;
 					_texDesc.height = _pCamera->builtHeight;
 					_texDesc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
-					_texDesc.usage = Resource::TextureUsage::RTV | Resource::TextureUsage::SRV;
+					_texDesc.usage = Resource::ETextureUsage::RTV | Resource::ETextureUsage::SRV;
 					_texDesc.optClearValue = Math::Color(0.f, 0.f, 0.f, 1.f);
 					_pCamera->upFinalTex->Create(m_pGraphicsEngine->RefDescriptorHeapManager(), _texDesc);
 				}
@@ -387,7 +387,7 @@ namespace Engine::Graphics
 				// このカメラの最終出力を、グラフの外から差し込む。
 				// パスはこの名前で出力スロットを宣言すれば画面ぶんへ描ける
 				_pCamera->upPipeline->ImportResource(
-					kCameraOutputName,
+					CAMERA_OUTPUT_NAME,
 					_pCamera->upFinalTex.get(),
 					D3D12_RESOURCE_STATE_RENDER_TARGET);
 

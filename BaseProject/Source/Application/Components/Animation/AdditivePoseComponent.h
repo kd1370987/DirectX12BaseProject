@@ -119,7 +119,7 @@ struct Engine::ECS::ComponentTraits<AdditivePoseComponent>
 		// 解決済みボーンの確認(読み取り専用)
 		if (a_context.pWorld)
 		{
-			auto& _pool = a_context.pWorld->GetResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
+			auto& _pool = a_context.pWorld->RefResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
 			auto _entryVec = _pool.GetRange(_comp.handle);
 			if (_entryVec.empty())
 			{

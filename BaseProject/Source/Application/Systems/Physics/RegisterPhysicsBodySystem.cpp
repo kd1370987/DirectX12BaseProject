@@ -28,7 +28,7 @@ void RegisterPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 		{
 			ENGINE_PROFILE_SCOPE("Physics_RegisterBody");
 
-			auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
+			auto& _physicsWorld = a_ctx.pWorld->RefResource<Engine::Physics::PhysicsWorld>();
 			const auto& _resourceManager = *a_ctx.pServices->pResourceManager;
 
 			for (size_t _i = 0; _i < a_count; ++_i)

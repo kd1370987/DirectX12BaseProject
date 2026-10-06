@@ -48,7 +48,7 @@ namespace App::ECS
 	void APPWorld::BeginFrame()
 	{
 		// 階層の変更通知をリセット
-		GetResource<HierarchyResource>().isDirty = false;
+		RefResource<HierarchyResource>().isDirty = false;
 
 		// システムのソート
 		m_systemManager.Sort();
@@ -95,7 +95,7 @@ namespace App::ECS
 		// Start 系が複数ぶら下がっていて「一部だけ走った」状態を作れないため。
 		// 領域確保をするシステムがあるので、二重実行はそのままリークになる
 		{
-			auto& _waitRes = GetResource<ResourceWaitResource>();
+			auto& _waitRes = RefResource<ResourceWaitResource>();
 
 			TransitionPhase<AwakeTag, StartTag>(
 				[&_waitRes](Entity a_entity)
@@ -177,7 +177,7 @@ namespace App::ECS
 	Entity APPWorld::GetEntity(const Engine::GUID& a_guid)
 	{
 		// 未設定の GUID は誰も指していないものとして扱う(呼ぶ側も未設定なら引かない)
-		if (a_guid == Engine::DefaultGUID) return Engine::ECS::Limits::INVALID_ENTITY;
+		if (a_guid == Engine::DEFAULT_GUID) return Engine::ECS::Limits::INVALID_ENTITY;
 
 		if (m_isGuidIndexDirty)
 		{
@@ -214,7 +214,7 @@ namespace App::ECS
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
 					const Engine::GUID& _guid = a_guidArray[_i].guid;
-					if (_guid == Engine::DefaultGUID) continue;
+					if (_guid == Engine::DEFAULT_GUID) continue;
 
 					// 同じ GUID が重なっていたら先に見つかったほう(以前の全件検索と同じ)
 					m_guidIndexMap.emplace(_guid, a_pChunk->entityData[_i]);
@@ -292,7 +292,7 @@ namespace App::ECS
 	void APPWorld::OnEntityStructureChanged()
 	{
 		// エンティティの構成が変わったので階層の作り直しを促す
-		GetResource<HierarchyResource>().isDirty = true;
+		RefResource<HierarchyResource>().isDirty = true;
 
 		// 生成・削除があれば GUID の索引も古くなる(次に引くときに作り直す)
 		m_isGuidIndexDirty = true;
@@ -400,12 +400,12 @@ namespace App::ECS
 		// 子・孫…と辿って集める
 		//----------------------------------------------------------------------
 		// 深さの保険。親子が循環していなくてもここで必ず止まる
-		constexpr int _kMaxDepth = 32;
+		constexpr int MAX_DEPTH = 32;
 
 		std::vector<Entity> _found = {};
 		std::vector<Entity> _targets = {};
 
-		for (int _depth = 0; _depth < _kMaxDepth; ++_depth)
+		for (int _depth = 0; _depth < MAX_DEPTH; ++_depth)
 		{
 			_found.clear();
 

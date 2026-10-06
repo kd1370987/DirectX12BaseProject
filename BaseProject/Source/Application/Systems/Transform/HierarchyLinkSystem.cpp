@@ -27,7 +27,7 @@ void HierarchyLinkSystem::Init(App::ECS::APPWorld& a_world)
 				HierarchyComponent& _hieComp = a_hierarchyArray[_i];
 
 				// ターゲットGUIDがあるのなら
-				if (_hieComp.parentGUID != Engine::DefaultGUID)
+				if (_hieComp.parentGUID != Engine::DEFAULT_GUID)
 				{
 					_hieComp.parentID = a_ctx.pWorld->GetEntity(_hieComp.parentGUID);
 				}

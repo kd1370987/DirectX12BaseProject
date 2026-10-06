@@ -8,7 +8,7 @@
 namespace Engine::Graphics::Pipeline
 {
 	// アセットの置き場所 : 他のアセットと同じく Asset/ 以下に種類ごとのフォルダを掘る
-	static const std::string kAssetDir = "Asset/RenderingPipeline/";
+	static const std::string ASSET_DIR = "Asset/RenderingPipeline/";
 
 	RenderingPipelineAsset RenderingPipelineAssetIO::LoadFromFile(const std::string& a_path, PassMetaRegistry* a_pRegistry)
 	{
@@ -35,8 +35,8 @@ namespace Engine::Graphics::Pipeline
 		// パスの種類ぶんだけ増改築が起きる構成データなので、この形式とは相性が悪い。
 		// (Auto にすると .ob が残っている間そちらを読みに行くことがある)
 		Persistence::Archive _arch(
-			Persistence::Archive::Mode::Load, _fileDir, _fileName, RenderingPipelineAsset::kExtension,
-			Persistence::Archive::ArchiveFormat::Json);
+			Persistence::Archive::EMode::Load, _fileDir, _fileName, RenderingPipelineAsset::EXTENSION,
+			Persistence::Archive::EArchiveFormat::Json);
 		_asset.Archive(_arch);
 
 		return _asset;
@@ -44,11 +44,11 @@ namespace Engine::Graphics::Pipeline
 
 	void RenderingPipelineAssetIO::Create(Resource::AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name, PassMetaRegistry* a_pRegistry)
 	{
-		auto _basePath = kAssetDir + a_path + "/" + a_name;
+		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
 
 		// すでにないかチェック
 		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DefaultGUID)
+		if (_checkGUID != Engine::DEFAULT_GUID)
 		{
 			ENGINE_LOG("すでに作成済みのパイプラインです : %s", _basePath.c_str());
 			return;

@@ -1,10 +1,11 @@
 ﻿#pragma once
 
 #include "../Core/InputAction.h"
+#include "../InputDevice/Button/InputButtonBase.h"
 
 namespace Engine::Input
 {
-	class InputButtonBase;
+
 	class InputAxisBase;
 
 	struct InputContext;
@@ -48,7 +49,7 @@ namespace Engine::Input
 		bool IsSomethigInput();
 
 		// 任意の入力状況の取得
-		short GetButtonState(ActionKey a_action) const;
+		InputButtonBase::EState GetButtonState(ActionKey a_action) const;
 		Math::Vector2 GetAxisState(ActionKey a_action) const;
 
 		// 入力デバイスの状態の取得と設定
@@ -69,16 +70,15 @@ namespace Engine::Input
 		void SetKeepOnReset(bool a_isKeep) { m_isKeepOnReset = a_isKeep; }
 		bool IsKeepOnReset() const { return m_isKeepOnReset; }
 
-		// アプリケーションボタンの追加・上書き
-		void AddButton(ActionKey a_action, InputButtonBase* a_pButton);
-		void AddButton(ActionKey a_action, std::shared_ptr<InputButtonBase> a_spButton);
+		// アプリケーションボタンの追加・上書き(所有権を受け取る)
+		void AddButton(ActionKey a_action, std::unique_ptr<InputButtonBase> a_upButton);
 
-		// 入力軸の追加・上書き
-		void AddAxis(ActionKey a_action, InputAxisBase* a_pAxis);
-		void AddAxis(ActionKey a_action, std::shared_ptr<InputAxisBase> a_spAxis);
+		// 入力軸の追加・上書き(所有権を受け取る)
+		void AddAxis(ActionKey a_action, std::unique_ptr<InputAxisBase> a_upAxis);
 
-		const std::shared_ptr<InputButtonBase> GetButton(ActionKey a_action)  const;
-		const std::shared_ptr<InputAxisBase> GetAxis(ActionKey a_action) const;
+		// 登録されているボタン・軸(無ければ nullptr)
+		const InputButtonBase* GetButton(ActionKey a_action) const;
+		const InputAxisBase* GetAxis(ActionKey a_action) const;
 
 	private:
 
@@ -87,8 +87,8 @@ namespace Engine::Input
 
 	private:
 		// 登録されているデバイス(鍵はアクションID)
-		std::unordered_map<ActionID, std::shared_ptr<InputButtonBase>> m_spButtonMap;
-		std::unordered_map<ActionID, std::shared_ptr<InputAxisBase>> m_spAxisMap;
+		std::unordered_map<ActionID, std::unique_ptr<InputButtonBase>> m_upButtonMap;
+		std::unordered_map<ActionID, std::unique_ptr<InputAxisBase>> m_upAxisMap;
 
 		// 有効
 		EActiveState m_state = EActiveState::Enable;

@@ -161,7 +161,7 @@ namespace App::Object
 		// エンティティのGUID(持っていなければ無効)
 		Engine::GUID GetEntityGUID(Engine::ECS::World& a_world, Engine::ECS::Entity a_entity)
 		{
-			if (!a_world.HasComponent<GUIDComponent>(a_entity)) return Engine::DefaultGUID;
+			if (!a_world.HasComponent<GUIDComponent>(a_entity)) return Engine::DEFAULT_GUID;
 			return a_world.RefData<GUIDComponent>(a_entity)->guid;
 		}
 
@@ -311,7 +311,7 @@ namespace App::Object
 
 	void SwarmBossController::RequestLoadBurstEffect(Engine::GameObject::ObjectContext& a_context)
 	{
-		if (m_burstEffectRef || m_burstEffectGUID == Engine::DefaultGUID) return;
+		if (m_burstEffectRef || m_burstEffectGUID == Engine::DEFAULT_GUID) return;
 		if (!a_context.pServices || !a_context.pServices->pResourceManager) return;
 
 		m_burstEffectRef = a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_burstEffectGUID);
@@ -435,7 +435,7 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// 中心に大きな爆発(出し切ったら自分から消える)
 		//----------------------------------------------------------------------
-		if (m_burstEffectGUID != Engine::DefaultGUID && m_burstEffectScale > 0.0f)
+		if (m_burstEffectGUID != Engine::DEFAULT_GUID && m_burstEffectScale > 0.0f)
 		{
 			App::Utility::SpawnEffectAt(_world, m_burstEffectGUID, a_request.center, true, {}, m_burstEffectScale);
 		}
@@ -676,7 +676,7 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// ECS側へ書き写す
 		//----------------------------------------------------------------------
-		auto& _waveRes = a_context.pWorld->GetResource<WormWaveResource>();
+		auto& _waveRes = a_context.pWorld->RefResource<WormWaveResource>();
 
 		_waveRes.waves         = m_waveVec;
 		_waveRes.width         = m_waveWidth;
@@ -710,7 +710,7 @@ namespace App::Object
 		auto& _world = *a_context.pWorld;
 		if (!_world.HasResource<SwarmContactDamageResource>()) return;
 
-		auto& _res = _world.GetResource<SwarmContactDamageResource>();
+		auto& _res = _world.RefResource<SwarmContactDamageResource>();
 		_res.damage     = m_contactDamage;
 		_res.cooldown   = m_contactDamageCooldown;
 		_res.boidRadius = m_boidColliderRadius;
@@ -785,7 +785,7 @@ namespace App::Object
 
 		// 地表すれすれを泳いでいると切り替わりが続くので、間を空ける
 		if (m_burrowEffectTimer > 0.0f) return;
-		if (m_burrowEffectGUID == Engine::DefaultGUID) return;
+		if (m_burrowEffectGUID == Engine::DEFAULT_GUID) return;
 
 		// 初めて炊くときに読み込む(以降は握ったまま)。
 		// 中身を読むのにワールドのコンポーネント情報が要るので、同期で読む
@@ -814,7 +814,7 @@ namespace App::Object
 		if (!a_context.pWorld) return;
 		if (!a_context.pWorld->HasResource<WormGroundEffectResource>()) return;
 
-		auto& _res = a_context.pWorld->GetResource<WormGroundEffectResource>();
+		auto& _res = a_context.pWorld->RefResource<WormGroundEffectResource>();
 
 		_res.effectGUID       = m_groundEffectGUID;
 		_res.maxHeight        = m_groundEffectMaxHeight;
@@ -831,7 +831,7 @@ namespace App::Object
 		m_isGroundEffectOneShot = false;
 
 		// 既定値のまま置いた直後など、まだ読み込みを始めていなければここで始める
-		if (!m_groundEffectRef && m_groundEffectGUID != Engine::DefaultGUID &&
+		if (!m_groundEffectRef && m_groundEffectGUID != Engine::DEFAULT_GUID &&
 			a_context.pServices && a_context.pServices->pResourceManager)
 		{
 			m_groundEffectRef =
@@ -1165,8 +1165,8 @@ namespace App::Object
 				{
 					// プレイヤーの攻撃にだけ当たる(当てに来るのは弾の側)。
 					// 自分からは当たりに行かず、押し出しもしないので地形はすり抜ける
-					a_comp.layer        = Layer::Enemy;
-					a_comp.collideLayer = Layer::None;
+					a_comp.layer        = ECollisionLayer::Enemy;
+					a_comp.collideLayer = ECollisionLayer::None;
 					a_comp.isPhysical   = 0;
 
 					// Mesh 以外なので、ボディは描画メッシュのAABBの箱になる。
@@ -1334,7 +1334,7 @@ namespace App::Object
 		// 炊くたびに読み込みが走らないよう、読んだ時点で握っておく
 		if (a_ar.IsLoading() && a_context.pServices && a_context.pServices->pResourceManager)
 		{
-			m_groundEffectRef = (m_groundEffectGUID != Engine::DefaultGUID)
+			m_groundEffectRef = (m_groundEffectGUID != Engine::DEFAULT_GUID)
 				? a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_groundEffectGUID)
 				: Engine::ResourceRef<Engine::Resource::EffectAsset>{};
 		}
@@ -1399,7 +1399,7 @@ namespace App::Object
 			m_burstEffectRef = {};
 			RequestLoadBurstEffect(a_context);
 		}
-		if (m_burstEffectGUID == Engine::DefaultGUID)
+		if (m_burstEffectGUID == Engine::DEFAULT_GUID)
 		{
 			Engine::Editor::HelpText("(未設定 : 中心の爆発は出ない)");
 		}
@@ -1441,11 +1441,11 @@ namespace App::Object
 		if (Engine::Editor::AssetField(
 			_services, "砂埃のエフェクト", "EffectAsset", m_groundEffectGUID))
 		{
-			m_groundEffectRef = (m_groundEffectGUID != Engine::DefaultGUID)
+			m_groundEffectRef = (m_groundEffectGUID != Engine::DEFAULT_GUID)
 				? _services.pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_groundEffectGUID)
 				: Engine::ResourceRef<Engine::Resource::EffectAsset>{};
 		}
-		if (m_groundEffectGUID == Engine::DefaultGUID)
+		if (m_groundEffectGUID == Engine::DEFAULT_GUID)
 		{
 			Engine::Editor::HelpText("(未設定 : 砂埃は出ない)");
 		}

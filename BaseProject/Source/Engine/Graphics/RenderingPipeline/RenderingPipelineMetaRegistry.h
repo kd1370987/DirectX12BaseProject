@@ -1,4 +1,7 @@
 ﻿#pragma once
+
+#include "Engine/Utility/Debug/DebugLog.h"
+
 // テンプレートの登録関数がパスの実体を1つ作って中身を読むので、
 // 前方宣言では足りない
 #include "Core/Pass/Pass.h"
@@ -97,13 +100,13 @@ namespace Engine::Graphics::Pipeline
 		if (_typeID.value == 0 || !_typeID.IsValid())
 		{
 			ENGINE_WARNING("[PassMetaRegistry] タイプIDが無効値になりました。登録名を変えてください : %s", a_name.c_str());
-			assert(0 && "PassTypeID が無効値 : 登録名を変えること");
+			ENGINE_ERRLOG(false, "PassTypeID が無効値 : 登録名を変えること");
 			return ID<Pass>();
 		}
 		if (auto _it = m_metaMap.find(_typeID); _it != m_metaMap.end())
 		{
 			ENGINE_WARNING("[PassMetaRegistry] タイプIDが衝突しました : %s <-> %s", a_name.c_str(), _it->second.name.c_str());
-			assert(0 && "PassTypeID の衝突 : どちらかの登録名を変えること");
+			ENGINE_ERRLOG(false, "PassTypeID の衝突 : どちらかの登録名を変えること");
 			return ID<Pass>();
 		}
 
@@ -140,7 +143,7 @@ namespace Engine::Graphics::Pipeline
 		return GetTypeID(TypeInfo::GetTypeKey<T>());
 	}
 
-	// エンジン標準のパスをまとめて登録する
-	// これを通していないと、ノードエディタの AddPass 一覧が空のままになる
+	/// エンジン標準のパスをまとめて登録する
+	/// これを通していないと、ノードエディタの AddPass 一覧が空のままになる
 	void RegisterBuiltinPasses(PassMetaRegistry& a_registry);
 }

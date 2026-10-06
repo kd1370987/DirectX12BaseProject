@@ -90,9 +90,9 @@ namespace Engine::Graphics
 	{
 		// 探したいパスのキーの最小値と最大値を求める。
 		// パス番号は RenderSortKey の最上位8bit(56〜63)に置いてある
-		constexpr uint32_t _kPassIndexShift = 56;
-		uint64_t _minKey = static_cast<uint64_t>(a_passIndex) << _kPassIndexShift;
-		uint64_t _maxKey = _minKey | ((1ull << _kPassIndexShift) - 1ull); // 下位56ビットをすべて1にする
+		constexpr uint32_t PASS_INDEX_SHIFT = 56;
+		uint64_t _minKey = static_cast<uint64_t>(a_passIndex) << PASS_INDEX_SHIFT;
+		uint64_t _maxKey = _minKey | ((1ull << PASS_INDEX_SHIFT) - 1ull); // 下位56ビットをすべて1にする
 
 		// ソート済み配列から開始位置を見つける
 		auto _itStart = std::lower_bound(
@@ -200,7 +200,7 @@ namespace Engine::Graphics
 
 		if (a_world.HasResource<Pool::RangePool<Resource::BoneMatrix>>())
 		{
-			auto& _boneMatPool = a_world.GetResource<Pool::RangePool<Resource::BoneMatrix>>();
+			auto& _boneMatPool = a_world.RefResource<Pool::RangePool<Resource::BoneMatrix>>();
 
 			// プールは最初から10000要素ぶん確保されているので、丸ごと積むと
 			// ワールドを2つ重ねただけでGPU側のボーンパレットが溢れる。

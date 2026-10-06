@@ -53,19 +53,19 @@ namespace Engine::Raytracing
 		(
 			BuildSubObjectHelper::LocalRootSignatureSubObject& a_rsSO,
 			BuildSubObjectHelper::ExportAssociationSubObject& a_eaSO,
-			LocalRootSignature a_rootSig,
+			ELocalRootSignature a_rootSig,
 			const WCHAR* a_exportNames[]
 			)
 			{
-				if (a_rootSig == LocalRootSignature::RayGen)
+				if (a_rootSig == ELocalRootSignature::RayGen)
 				{
 					a_rsSO.Init(_pRayGenRootSig);
 				}
-				if (a_rootSig == LocalRootSignature::PBRMaterialHit)
+				if (a_rootSig == ELocalRootSignature::PBRMaterialHit)
 				{
 					a_rsSO.Init(_pHitRootSig);
 				}
-				if (a_rootSig == LocalRootSignature::Empty)
+				if (a_rootSig == ELocalRootSignature::Empty)
 				{
 					a_rsSO.Init(_pMissRootSig);
 				}
@@ -93,19 +93,19 @@ namespace Engine::Raytracing
 		if (_pRayGenRootSig)
 		{
 			BuildAndRegistRootSignatureAndAssSubObjectFunc(
-				_rayGenSigSO, _rayGenAssSO, LocalRootSignature::RayGen, _rayGenExportName);
+				_rayGenSigSO, _rayGenAssSO, ELocalRootSignature::RayGen, _rayGenExportName);
 		}
 		// ヒットシェーダーにルートシグネチャがあれば関連付ける
 		if(_pHitRootSig)
 		{
 			BuildAndRegistRootSignatureAndAssSubObjectFunc(
-				_modelSigSO, _modelAssSO, LocalRootSignature::PBRMaterialHit, _modelExportName);
+				_modelSigSO, _modelAssSO, ELocalRootSignature::PBRMaterialHit, _modelExportName);
 		}
 		// ミスシェーダーにルートシグネチャがあれば関連付ける
 		if(_pMissRootSig)
 		{
 			BuildAndRegistRootSignatureAndAssSubObjectFunc(
-				_emptySigSO, _emptyAssSO, LocalRootSignature::Empty, _emptyExportName);
+				_emptySigSO, _emptyAssSO, ELocalRootSignature::Empty, _emptyExportName);
 		}
 
 		// シェーダー設定(ペイロード)

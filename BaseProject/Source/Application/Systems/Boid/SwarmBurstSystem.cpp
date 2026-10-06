@@ -84,7 +84,7 @@ void SwarmBurstSystem::Init(App::ECS::APPWorld& a_world)
 		{
 			auto& _world = *a_ctx.pWorld;
 			if (!_world.HasResource<HitEventResource>()) return;
-			HitEventResource& _hitEvents = _world.GetResource<HitEventResource>();
+			HitEventResource& _hitEvents = _world.RefResource<HitEventResource>();
 
 			for (uint32_t _i = 0; _i < a_count; ++_i)
 			{

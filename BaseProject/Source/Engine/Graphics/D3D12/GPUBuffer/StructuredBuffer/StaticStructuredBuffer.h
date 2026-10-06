@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../StaticBuffer/StaticBuffer.h"
+#include "Engine/Utility/Debug/DebugLog.h"
 
 namespace Engine::D3D12
 {
@@ -32,7 +33,7 @@ namespace Engine::D3D12
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
 		if (!StaticBuffer::Create(a_pDevice, a_pHeapManager, a_pCmdList, _desc, (void*)a_pInitData))
 		{
-			assert(0 && "ストラクチャバッファの生成に失敗");
+			ENGINE_ERRLOG(false, "ストラクチャバッファの生成に失敗");
 			return;
 		}
 

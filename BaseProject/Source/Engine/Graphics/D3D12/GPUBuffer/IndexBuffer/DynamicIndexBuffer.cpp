@@ -12,7 +12,7 @@ namespace Engine::D3D12
 
 		if (!DynamicBuffer::Create(a_pDebice, a_pHeapManager, _desc))
 		{
-			assert(0 && "インデックスバッファ作成時にリソース作成失敗");
+			ENGINE_ERRLOG(false, "インデックスバッファ作成時にリソース作成失敗");
 			return false;
 		}
 		

@@ -59,10 +59,10 @@ namespace Engine::ECS
 		//------------------------------------------------------------------------------------------
 
 		bool IsAlive(const Entity& a_entity) { return m_entityManager.IsAlive(a_entity); }
-		const Signature& GetSignature(const Entity& a_entity) { return m_entityManager.GetSignature(a_entity); }
-		const EntityLocation& GetLocation(const Entity& a_entity) { return m_entityManager.GetLocation(a_entity); }
-		const std::vector<EntityLocation>& GetAllEntityLocation() { return m_entityManager.GetAllEntityLocation(); }
-		UINT GetAliveEntityCount() { return m_entityManager.GetAliveEntityCount(); }
+		const Signature& GetSignature(const Entity& a_entity) const { return m_entityManager.GetSignature(a_entity); }
+		const EntityLocation& GetLocation(const Entity& a_entity) const { return m_entityManager.GetLocation(a_entity); }
+		const std::vector<EntityLocation>& GetAllEntityLocation() const { return m_entityManager.GetAllEntityLocation(); }
+		UINT GetAliveEntityCount() const { return m_entityManager.GetAliveEntityCount(); }
 
 		// コンポーネント単体 : 持っていなければ nullptr
 		uint8_t* RefComponent(const Entity& a_entity, ComponentTypeID a_typeID);

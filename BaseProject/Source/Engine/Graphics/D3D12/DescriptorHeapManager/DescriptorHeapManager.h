@@ -79,8 +79,8 @@ namespace Engine::D3D12
 		//   RefShaderVisibleCBVSRVUAVHeap … シェーダー可視。SetDescriptorHeaps で張って、
 		//                                   シェーダーから番号(ResourceDescriptorHeap[i])で引く
 		// GetCPU は前者、GetGPU は後者のハンドルを返す
-		UINT GetCBVSRVUAVHeapSize();
-		ID3D12DescriptorHeap* GetCBVSRVUAVHeap();
+		UINT GetCBVSRVUAVHeapSize() const;
+		ID3D12DescriptorHeap* GetCBVSRVUAVHeap() const;
 		ID3D12DescriptorHeap* RefShaderVisibleCBVSRVUAVHeap();
 
 		//==========================================================================================
@@ -116,8 +116,8 @@ namespace Engine::D3D12
 		void FreeImGuiSRV(const Handle<ImGuiSRV>& a_handle);
 
 		// ImGuiのSRVハンドルを取得
-		D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Engine::Handle<ImGuiSRV> a_range);
-		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVGPUHandle(Engine::Handle<ImGuiSRV> a_range);
+		D3D12_CPU_DESCRIPTOR_HANDLE GetImGuiSRVCPUHandle(Engine::Handle<ImGuiSRV> a_range) const;
+		D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSRVGPUHandle(Engine::Handle<ImGuiSRV> a_range) const;
 
 		//==========================================================================================
 		// 
@@ -125,15 +125,15 @@ namespace Engine::D3D12
 		// 
 		//==========================================================================================
 		// 作成
-		Engine::Handle<SAMPLER> CreateSampler(
+		Engine::Handle<SamplerTag> CreateSampler(
 			D3D12::Device* a_pDevice,
 			const D3D12_SAMPLER_DESC& a_desc
 		);
 
 		// 取得
-		D3D12_GPU_DESCRIPTOR_HANDLE GetLinearWrap();
-		D3D12_GPU_DESCRIPTOR_HANDLE GetPointClamp();
-		D3D12_GPU_DESCRIPTOR_HANDLE GetShadow();
+		D3D12_GPU_DESCRIPTOR_HANDLE GetLinearWrap() const;
+		D3D12_GPU_DESCRIPTOR_HANDLE GetPointClamp() const;
+		D3D12_GPU_DESCRIPTOR_HANDLE GetShadow() const;
 
 		// ヒープ
 		ID3D12DescriptorHeap* RefSamplerHeap();
@@ -172,9 +172,9 @@ namespace Engine::D3D12
 		std::vector<UINT>					m_imguiBackendFreeIndices;
 
 		// サンプラー
-		Engine::Handle<SAMPLER> m_linearWrap;
-		Engine::Handle<SAMPLER> m_pointClamp;
-		Engine::Handle<SAMPLER> m_shadow;
+		Engine::Handle<SamplerTag> m_linearWrap;
+		Engine::Handle<SamplerTag> m_pointClamp;
+		Engine::Handle<SamplerTag> m_shadow;
 
 		//--------------------------------------------------------------------------------------------
 		// 解放の遅延
@@ -228,10 +228,10 @@ namespace Engine::D3D12
 		if (!a_handle.IsValid()) return;
 
 		// シェーダーが番号で引く種類だけ、GPUが使い終わるまで預かる
-		constexpr bool _isShaderIndexed =
+		constexpr bool IS_SHADER_INDEXED =
 			std::is_same_v<T, CBV> || std::is_same_v<T, SRV> || std::is_same_v<T, UAV>;
 
-		if constexpr (_isShaderIndexed)
+		if constexpr (IS_SHADER_INDEXED)
 		{
 			if (m_nextFenceValueProvider)
 			{

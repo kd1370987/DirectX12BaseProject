@@ -56,7 +56,7 @@ namespace Engine
 		m_upResourceManager = std::make_unique<Resource::ResourceManager>();
 
 		// オプションマネージャーの初期化と読込
-		auto& _optionManager = Option::OptionManager::GetInstance();
+		auto& _optionManager = Option::OptionManager::Instance();
 		_optionManager.Init();
 		_optionManager.Deserialize();
 		const auto& _winOp = _optionManager.GetWindowOption();
@@ -121,7 +121,7 @@ namespace Engine
 		m_upGraphicsEngine = std::make_unique<Graphics::GraphicsEngine>();
 		if (!m_upGraphicsEngine->InitDevice(_isD3DDebug))
 		{
-			assert(0 && "デバイスの作成に失敗");
+			ENGINE_ERRLOG(false, "デバイスの作成に失敗");
 			return;
 		}
 
@@ -158,7 +158,7 @@ namespace Engine
 		// 保存されている音量を流し込む。
 		// オプションの読み込みはこれより前に済んでいるが、
 		// AudioManager がまだ無い状態では入れられないのでここで反映する
-		Option::OptionManager::GetInstance().GetAudioOption().Apply();
+		Option::OptionManager::Instance().GetAudioOption().Apply();
 
 		// アセットマネージャー作成
 		InitializeAssetDatabase();
@@ -167,7 +167,7 @@ namespace Engine
 		// バックバッファのRTVを取るより前に用意しておく必要がある
 		if (!m_upGraphicsEngine->InitDescriptorHeap())
 		{
-			assert(0 && "ディスクリプタヒープマネージャーの初期化に失敗");
+			ENGINE_ERRLOG(false, "ディスクリプタヒープマネージャーの初期化に失敗");
 			return;
 		}
 		auto* _pHeapManager = m_upGraphicsEngine->RefDescriptorHeapManager();
@@ -197,7 +197,7 @@ namespace Engine
 		// エディター初期化
 		if (!Engine::Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle(), _pHeapManager, m_upEngineServices.get()))
 		{
-			assert(0 && "エディターの初期化に失敗");
+			ENGINE_ERRLOG(false, "エディターの初期化に失敗");
 			return;
 		}
 
@@ -208,7 +208,7 @@ namespace Engine
 	void MainEngine::Release()
 	{
 		// 設定を保存
-		Option::OptionManager::GetInstance().Serialize();
+		Option::OptionManager::Instance().Serialize();
 
 		// ジョブシステムの解放は最初に行う。
 		// 走っているジョブはリソースやGPUリソースを触っているため、
@@ -320,7 +320,7 @@ namespace Engine
 
 	bool MainEngine::BeginFrame()
 	{
-		auto& _optionManager = Option::OptionManager::GetInstance();
+		auto& _optionManager = Option::OptionManager::Instance();
 
 		// フレーム開始
 		m_upTimeManager->BeginFrame();
@@ -358,7 +358,7 @@ namespace Engine
 	void MainEngine::EndFrame()
 	{
 		// フレーム終了
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
 		m_upTimeManager->EndFrame(_winOp.isVsync);
 
 		// スレッドごとの稼働時間を1フレームぶん締める。
@@ -406,7 +406,7 @@ namespace Engine
 
 	void MainEngine::EndDraw()
 	{
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
 
 		{
 			ENGINE_PROFILE_SCOPE("EditorPhase");
@@ -458,12 +458,12 @@ namespace Engine
 		}
 	}
 
-	UINT MainEngine::GetFPS()
+	UINT MainEngine::GetFPS() const
 	{
 		return m_upTimeManager->GetNowFPS();
 	}
 
-	float MainEngine::GetDeltaTime()
+	float MainEngine::GetDeltaTime() const
 	{
 		return m_upTimeManager->GetDeltaTime();
 	}
@@ -528,7 +528,7 @@ namespace Engine
 		// 描画の設定はここ(オプションの持ち主を知っている側)から流し込む。
 		// グラフィックスエンジンはオプションを直接引かない
 		m_upGraphicsEngine->RefSceneView()->SetJitterEnabled(
-			Option::OptionManager::GetInstance().GetRenderingOption().useJitter);
+			Option::OptionManager::Instance().GetRenderingOption().useJitter);
 
 		m_upGraphicsEngine->Execute();
 	}
@@ -578,7 +578,7 @@ namespace Engine
 		_services.pAudioManager		= &Audio::AudioManager::Instance();
 		_services.pJobSystem		= m_upJobSystem.get();
 		_services.pPhysicsEngine	= m_upPhysicsEngine.get();
-		_services.pOptionManager	= &Option::OptionManager::GetInstance();
+		_services.pOptionManager	= &Option::OptionManager::Instance();
 		_services.pDebugDraw		= m_upGraphicsEngine ? m_upGraphicsEngine->RefDebugDraw() : nullptr;
 	}
 

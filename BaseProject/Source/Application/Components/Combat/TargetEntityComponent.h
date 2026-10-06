@@ -18,7 +18,7 @@
 //==========================================================================================
 struct TargetEntityComponent
 {
-	Engine::GUID targetGUID = Engine::DefaultGUID;
+	Engine::GUID targetGUID = Engine::DEFAULT_GUID;
 	Engine::ECS::Entity targetEntity = Engine::ECS::Limits::INVALID_ENTITY;
 
 	// ---- 発見距離(保存される) ----

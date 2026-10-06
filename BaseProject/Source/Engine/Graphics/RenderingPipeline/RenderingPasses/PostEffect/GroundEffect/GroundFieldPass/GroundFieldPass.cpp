@@ -13,7 +13,7 @@ namespace Engine::Graphics::Pipeline
 		// 画面とは関係のない広さなので、解像度は固定で持つ(描画解像度に追従させない)。
 		// 全テクセルを書き潰すのでクリアは不要
 		DeclareOutput("Field", "GroundField", DXGI_FORMAT_R16G16_FLOAT,
-			EAccessType::UAV, EPassSlotType::Texture, false, kRootOutputUAV,
+			EAccessType::UAV, EPassSlotType::Texture, false, ROOT_OUTPUT_UAV,
 			GROUND_FIELD_RESOLUTION, GROUND_FIELD_RESOLUTION);
 	}
 
@@ -32,7 +32,7 @@ namespace Engine::Graphics::Pipeline
 
 		// カメラ : フィールドの中心を決める
 		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(
-			_pCmd, kRootCameraCB, _pGE->GetSceneView()->GetCameraData());
+			_pCmd, ROOT_CAMERA_CB, _pGE->GetSceneView()->GetCameraData());
 
 		// 経過時間と衝撃の数
 		const float _deltaTime = MainEngine::Instance().GetDeltaTime();
@@ -42,13 +42,13 @@ namespace Engine::Graphics::Pipeline
 		_cb.time = m_elapsedTime;
 		_cb.deltaTime = _deltaTime;
 		_cb.impulseCount = _pGE->GetGroundImpulseCount();
-		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, kRootGroundFieldCB, _cb);
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, ROOT_GROUND_FIELD_CB, _cb);
 
 		// 衝撃の配列
 		const UINT _impulseIndices[] = {
 			_pGE->GetGroundImpulseBuffer().GetSRV().GetIndex(),
 		};
-		_pCtx->ComputeBindDescriptorIndices(kRootImpulseSRV, _impulseIndices);
+		_pCtx->ComputeBindDescriptorIndices(ROOT_IMPULSE_SRV, _impulseIndices);
 
 		// 画面ではなくフィールドの大きさで回す
 		const Slot* _pOut = FindOutputSlot(MakeSlotID("Field"));

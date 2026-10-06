@@ -98,7 +98,7 @@ namespace App::Object
 		// シーンの切り替えは SceneManager が持っている。
 		// (ObjectContext のサービス群には載っていないので、ここだけ直接触る)
 		Engine::Scene::SceneManager::Instance().SetNextScene(
-			m_nextSceneGUID, Engine::Scene::SceneChangeType::Replace);
+			m_nextSceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 
 	//======================================================================================

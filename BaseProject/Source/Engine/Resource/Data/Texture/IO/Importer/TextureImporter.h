@@ -30,25 +30,25 @@ namespace Engine::Resource
 	// デバイスと転送の依頼先(グラフィックスエンジン)はコンテキストから引く
 	//----------------------------------------------------------------------------------------------
 
-	// テクスチャ読み込み
+	/// テクスチャ読み込み
 	ComPtr<ID3D12Resource> ImportTexture(
 		const ResourceBuildContext& a_ctx,
 		const std::string& a_filePath,
 		D3D12_RESOURCE_DESC* a_desc = nullptr
 	);
 
-	// 色を指定してデフォルトテクスチャ生成
+	/// 色を指定してデフォルトテクスチャ生成
 	ComPtr<ID3D12Resource> DefaultTexture(const ResourceBuildContext& a_ctx, Math::Color a_color);
 
-	// 白テクスチャ
+	/// 白テクスチャ
 	ComPtr<ID3D12Resource> WhiteTexture(const ResourceBuildContext& a_ctx);
 
-	// 黒テクスチャ
+	/// 黒テクスチャ
 	ComPtr<ID3D12Resource> BlackTexture(const ResourceBuildContext& a_ctx);
 
-	// ノーマルマップ白テクスチャ
+	/// ノーマルマップ白テクスチャ
 	ComPtr<ID3D12Resource> NormalWhiteTexture(const ResourceBuildContext& a_ctx);
 
-	// ORMテクスチャ
+	/// ORMテクスチャ
 	ComPtr<ID3D12Resource> ORMTexture(const ResourceBuildContext& a_ctx);
 }

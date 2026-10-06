@@ -85,7 +85,7 @@ struct BoosterEffectComponent
 	// ---- 踏み込んだ瞬間のスパーク(設定値) ----
 	// ジェットとは別のエフェクトを噴射口へ1回だけ出す。
 	// 未設定なら何も出ない(ジェットの太らせだけが効く)
-	Engine::GUID sparkEffectGUID = Engine::DefaultGUID;
+	Engine::GUID sparkEffectGUID = Engine::DEFAULT_GUID;
 	Engine::Handle<Engine::Resource::EffectAsset> sparkHandle = {};	// EffectFixupSystem が解決する
 	float sparkScale = 1.0f;	// スパークの大きさ倍率(アセットは共有なので個体差はここで付ける)
 
@@ -193,7 +193,7 @@ struct Engine::ECS::ComponentTraits<BoosterEffectComponent>
 			_comp.sparkEffectGUID,
 			_comp.sparkHandle);
 		Engine::Editor::Field("SparkScale", _comp.sparkScale, 0.01f, 0.0f);
-		if (_comp.sparkEffectGUID == Engine::DefaultGUID)
+		if (_comp.sparkEffectGUID == Engine::DEFAULT_GUID)
 		{
 			Engine::Editor::HelpText("(未設定 : ダッシュしても何も出ない)");
 		}

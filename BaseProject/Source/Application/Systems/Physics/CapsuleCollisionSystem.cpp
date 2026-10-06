@@ -71,7 +71,7 @@ void CapsuleCollisionSystem::Init(App::ECS::APPWorld& a_world)
 				Math::Vector3 _correction = {};
 				bool _isHit = _physicsWorld.ResolveCapsule(
 					_pointA, _pointB, _cap.radius,
-					Engine::Physics::kQueryAllLayers, a_pChunk->entityData[_i], _correction, 4);
+					Engine::Physics::QUERY_ALL_LAYERS, a_pChunk->entityData[_i], _correction, 4);
 
 				// 補正をトランスフォームへ反映
 				if (_isHit)

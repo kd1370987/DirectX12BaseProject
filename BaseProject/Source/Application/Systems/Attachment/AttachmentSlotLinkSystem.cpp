@@ -21,7 +21,7 @@ void AttachmentSlotLinkSystem::Init(App::ECS::APPWorld& a_world)
 			// 1スロットの GUID -> id を解決
 			auto _resolve = [&a_ctx](AttachmentSlot& a_slot)
 			{
-				if (a_slot.guid != Engine::DefaultGUID)
+				if (a_slot.guid != Engine::DEFAULT_GUID)
 				{
 					a_slot.id = a_ctx.pWorld->GetEntity(a_slot.guid);
 				}

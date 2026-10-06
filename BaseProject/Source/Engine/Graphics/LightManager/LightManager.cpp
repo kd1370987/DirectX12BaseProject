@@ -112,16 +112,16 @@ namespace Engine::Graphics
 		// 中心を「テクセルの整数倍」の格子に乗せればずれは起きない。
 		// 格子がシャドウマップのテクセルより粗ければ整数倍になるので、
 		// 解像度(パスの持ち物)を知らなくて済むよう、あり得る最小の解像度で割っておく
-		constexpr float kSnapDivision = 512.0f;
+		constexpr float SNAP_DIVISION = 512.0f;
 
 		// 次のカスケードへ混ぜる幅(カスケードの奥行きに対する割合)。
 		// 混ぜないと、カスケードの境目で影の粗さが急に変わって線が見える
-		constexpr float kCascadeBlendRate = 0.1f;
+		constexpr float CASCADE_BLEND_RATE = 0.1f;
 
 		// 背面カリング用のカメラ位置を、光源側へどれだけ離すか。
 		// 増幅シェーダーは「カメラ位置からメッシュレットへの向き」で裏表を判定するので、
 		// 平行光として扱えるだけ遠くへ置く(近いと箱の端で向きがずれ、影を落とす面まで間引く)
-		constexpr float kCullEyeDistance = 100000.0f;
+		constexpr float CULL_EYE_DISTANCE = 100000.0f;
 	}
 
 	void LightManager::BuildShadowCascades(const CameraData& a_camera)
@@ -163,7 +163,7 @@ namespace Engine::Graphics
 		// 奥行きの区間 [a_near, a_far] を覆う視錐台の角8つ(ワールド)
 		auto _calcSliceCorners = [&](float a_near, float a_far, Math::Vector3(&a_outCorners)[8])
 			{
-				constexpr float kSigns[2] = { -1.0f, 1.0f };
+				constexpr float SIGNS[2] = { -1.0f, 1.0f };
 				const float _depths[2] = { a_near, a_far };
 
 				int _index = 0;
@@ -172,9 +172,9 @@ namespace Engine::Graphics
 					const float _w = _isPerspective ? _halfW * _depth : _halfW;
 					const float _h = _isPerspective ? _halfH * _depth : _halfH;
 
-					for (float _sy : kSigns)
+					for (float _sy : SIGNS)
 					{
-						for (float _sx : kSigns)
+						for (float _sx : SIGNS)
 						{
 							const Math::Vector3 _viewPos(_w * _sx, _h * _sy, _depth);
 							a_outCorners[_index++] = Math::Vector3::Transform(_viewPos, a_camera.viewInvMat);
@@ -223,7 +223,7 @@ namespace Engine::Graphics
 			const float _far = (_i + 1 == _count) ? _shadowFar : (_uniform + (_log - _uniform) * _lambda);
 
 			// 最後の段は「影なし」へ混ぜて、影の届く端をぼかす
-			const float _blendStart = _far - (_far - _prevFar) * kCascadeBlendRate;
+			const float _blendStart = _far - (_far - _prevFar) * CASCADE_BLEND_RATE;
 
 			// ---- 区間を覆う球 ----
 			// 箱ではなく球で囲むのは、カメラが回っても大きさが変わらないようにするため。
@@ -245,7 +245,7 @@ namespace Engine::Graphics
 			_radius = std::max(std::ceil(_radius * 16.0f) / 16.0f, 0.0625f);
 
 			// ---- 中心を格子へ寄せる(光源から見た平面上で) ----
-			const float _grid = (_radius * 2.0f) / kSnapDivision;
+			const float _grid = (_radius * 2.0f) / SNAP_DIVISION;
 			Math::Vector3 _centerLS = Math::Vector3::Transform(_center, _lightRot);
 			_centerLS.x = std::floor(_centerLS.x / _grid) * _grid;
 			_centerLS.y = std::floor(_centerLS.y / _grid) * _grid;
@@ -286,7 +286,7 @@ namespace Engine::Graphics
 			_cam.prevProj = _cam.projMat;
 			_cam.prevViewProj = _cam.viewProjMat;
 
-			const Math::Vector3 _cullEye = _center - _lightDir * kCullEyeDistance;
+			const Math::Vector3 _cullEye = _center - _lightDir * CULL_EYE_DISTANCE;
 			_cam.pos = Math::Vector4(_cullEye.x, _cullEye.y, _cullEye.z, 1.0f);
 
 			// 視錐台カリングの面 : 箱の6面になる

@@ -171,7 +171,7 @@ namespace Engine::Scene
 
 		// すでにないかチェック
 		const Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DefaultGUID)
+		if (_checkGUID != Engine::DEFAULT_GUID)
 		{
 			ENGINE_WARNING("[Scene] すでに同じ名前のシーンがあります : %s", _basePath.c_str());
 			return Engine::GUID();
@@ -198,7 +198,7 @@ namespace Engine::Scene
 			_emptyScene.Enter();
 			_emptyScene.SetGUID(_guid);
 
-			Persistence::Archive _ar(Persistence::Archive::Mode::Save, _dirPath, a_name, "scene");
+			Persistence::Archive _ar(Persistence::Archive::EMode::Save, _dirPath, a_name, "scene");
 			_emptyScene.Archive(_ar);
 
 			_emptyScene.Exit();
@@ -241,7 +241,7 @@ namespace Engine::Scene
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(_sceneFilePath);
 		// 形式はビルドモード任せ(Auto)。Development までは .ojscene 優先、Shipping は .obscene のみ
 		{
-			Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "scene");
+			Persistence::Archive _ar(Persistence::Archive::EMode::Load, _fileDir, _fileName, "scene");
 			_upScene->Archive(_ar);
 		}
 
@@ -420,7 +420,7 @@ namespace Engine::Scene
 		}
 	}
 
-	void SceneManager::SetNextScene(const Engine::GUID& a_guid, const SceneChangeType& a_changeType)
+	void SceneManager::SetNextScene(const Engine::GUID& a_guid, const ESceneChangeType& a_changeType)
 	{
 		m_sceneChangeCmd.push({ a_guid,a_changeType });
 	}
@@ -445,16 +445,16 @@ namespace Engine::Scene
 
 			switch (_cmd.changeType)
 			{
-			case SceneChangeType::Push:
+			case ESceneChangeType::Push:
 				PushScene(a_resourceManager, _cmd.sceneGUID);
 				break;
-			case SceneChangeType::Pop:
+			case ESceneChangeType::Pop:
 				PopScene(a_resourceManager);
 				break;
-			case SceneChangeType::Replace:
+			case ESceneChangeType::Replace:
 				ReplaceScene(a_resourceManager, _cmd.sceneGUID);
 				break;
-			case SceneChangeType::Clear:
+			case ESceneChangeType::Clear:
 				// 1つずつ Pop に通す。最後の1つを外したところで
 				// 共有の当たり判定空間が空になる
 				while (!m_upBaseSceneVec.empty())

@@ -71,7 +71,7 @@ namespace Engine::Editor
 	//======================================================================================
 	void EffectEditor::Open(const Engine::GUID& a_effectGUID)
 	{
-		if (a_effectGUID == Engine::DefaultGUID) return;
+		if (a_effectGUID == Engine::DEFAULT_GUID) return;
 
 		// 開き直しでも中身は作り直す(別のエフェクトを選んだ場合があるため)
 		DestroyEffectEntity();
@@ -87,7 +87,7 @@ namespace Engine::Editor
 
 	void EffectEditor::OpenEffectPrefab(const Engine::GUID& a_effectPrefabGUID)
 	{
-		if (a_effectPrefabGUID == Engine::DefaultGUID) return;
+		if (a_effectPrefabGUID == Engine::DEFAULT_GUID) return;
 
 		DestroyEffectEntity();
 
@@ -141,7 +141,7 @@ namespace Engine::Editor
 
 		m_isOpen = false;
 		m_mode = EMode::Effect;
-		m_effectGUID = Engine::DefaultGUID;
+		m_effectGUID = Engine::DEFAULT_GUID;
 		m_effectHandle = {};
 		m_effectPrefabHandle = {};
 
@@ -183,7 +183,7 @@ namespace Engine::Editor
 	void EffectEditor::RequestSpawn()
 	{
 		if (!m_upWorld) return;
-		if (m_effectGUID == Engine::DefaultGUID) return;
+		if (m_effectGUID == Engine::DEFAULT_GUID) return;
 
 		// エフェクトプレハブ : ゲームと同じ経路で炊く(寿命も付くので、放っておけば全部消える)。
 		// 編集中の値は、メモリ上のアセットをそのまま使うので保存しなくても反映される
@@ -379,7 +379,7 @@ namespace Engine::Editor
 		m_upWorld->RunSystem(ECS::ESystemType::Update, _dt);
 
 		// 判定クエリ(Physics)の前に物理空間を進める。BaseScene::Update と同じ位置
-		m_upWorld->GetResource<Physics::PhysicsWorld>().Update(_dt);
+		m_upWorld->RefResource<Physics::PhysicsWorld>().Update(_dt);
 
 		m_upWorld->RunSystem(ECS::ESystemType::Physics, _dt);
 		m_upWorld->RunSystem(ECS::ESystemType::Animation, _dt);
@@ -469,7 +469,7 @@ namespace Engine::Editor
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGE) return;
 
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
 
 		Engine::Graphics::CameraSubmitDesc _desc = {};
 		_desc.pWorld			= m_upWorld.get();
@@ -612,7 +612,7 @@ namespace Engine::Editor
 
 		// ---- 表示 ----
 		Engine::Editor::Field("Grid", m_isDrawGrid);
-		if (m_isDrawGrid && !Option::OptionManager::GetInstance().GetDebugDrawOption().drawWire)
+		if (m_isDrawGrid && !Option::OptionManager::Instance().GetDebugDrawOption().drawWire)
 		{
 			Engine::Editor::SameLine();
 			Engine::Editor::HelpText("(Option の Draw Debug Wire が off のため出ません)");
@@ -673,7 +673,7 @@ namespace Engine::Editor
 		const auto* _pTex = _pGE->GetCameraPipelines()->GetCameraFinalTexture(m_upWorld.get(), PREVIEW_CAMERA_ENTITY);
 		if (!_pTex) { Engine::Editor::HelpText("出力テクスチャがまだありません"); return; }
 
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
 		const float _aspect = (_winOp.windowHeight > 0)
 			? static_cast<float>(_winOp.windowWidth) / static_cast<float>(_winOp.windowHeight)
 			: 16.0f / 9.0f;

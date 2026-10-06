@@ -203,7 +203,7 @@ namespace Engine::Audio
 			return Handle<Resource::SoundInstance>();
 		}
 
-		if(a_guid == Engine::DefaultGUID) return Handle<Resource::SoundInstance>();
+		if(a_guid == Engine::DEFAULT_GUID) return Handle<Resource::SoundInstance>();
 
 		// インスタンスを作成
 		Resource::SoundInstance _instance = {};

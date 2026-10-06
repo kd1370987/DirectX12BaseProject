@@ -9,12 +9,12 @@ namespace Engine::Graphics::Pipeline
 	{
 		// 同じ番号を指定した入力は、宣言した順にルート定数へ並ぶ
 		// メインカラー(トーンマップ前)
-		DeclareInput("Color", EAccessType::SRV, EPassSlotType::Texture, true, kRootInputSRV);
+		DeclareInput("Color", EAccessType::SRV, EPassSlotType::Texture, true, ROOT_INPUT_SRV);
 		// フォグ(SceneVolumetricFogPass の出力)
-		DeclareInput("Fog", EAccessType::SRV, EPassSlotType::Texture, true, kRootInputSRV);
+		DeclareInput("Fog", EAccessType::SRV, EPassSlotType::Texture, true, ROOT_INPUT_SRV);
 
 		DeclareOutput("Result", "SceneFogCompositeColor", DXGI_FORMAT_R16G16B16A16_FLOAT,
-			EAccessType::UAV, EPassSlotType::Texture, false, kRootOutputUAV);
+			EAccessType::UAV, EPassSlotType::Texture, false, ROOT_OUTPUT_UAV);
 	}
 
 	void SceneFogCompositePass::Compile(const PassContext& a_context)
@@ -28,7 +28,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 合成の設定はシーンの持ち物。受け取ったものをそのまま送る
 		a_context.pRenderContext->BindCB()->BindAndAttachDataComputeRootCBV(
-			a_context.pCmdList, kRootCompositeCB, a_context.pGraphicsEngine->GetSceneView()->GetSceneFogCompositeData());
+			a_context.pCmdList, ROOT_COMPOSITE_CB, a_context.pGraphicsEngine->GetSceneView()->GetSceneFogCompositeData());
 		DispatchFullScreen(a_context);
 	}
 

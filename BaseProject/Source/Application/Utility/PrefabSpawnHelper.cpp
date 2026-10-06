@@ -48,7 +48,7 @@ namespace App::Utility
 		Engine::Handle<Engine::Resource::Prefab>& a_refHandle,
 		const SpawnParams& a_params)
 	{
-		if (a_prefabGUID == Engine::DefaultGUID) return false;
+		if (a_prefabGUID == Engine::DEFAULT_GUID) return false;
 
 		// ハンドルを解決(未ロードならロード)して、参照を1つ取る。
 		// 返すのはこのハンドルを持っているコンポーネントの解放フック

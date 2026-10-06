@@ -29,7 +29,7 @@ namespace Engine::ECS
 	{
 		if (m_availbleEntitiyQueue.empty())
 		{
-			assert(0 && "エンティティの生成上限に達しました");
+			ENGINE_ERRLOG(false, "エンティティの生成上限に達しました");
 			return ECS::Limits::INVALID_ENTITY;
 		}
 
@@ -101,20 +101,20 @@ namespace Engine::ECS
 	// 「持っていない」として扱われる。
 	// 世代も見るので、消えたエンティティの古いIDで引いても別の個体には届かない。
 	//======================================================================================
-	const EntityLocation& EntityManager::GetLocation(const ECS::Entity& a_entity)
+	const EntityLocation& EntityManager::GetLocation(const ECS::Entity& a_entity) const
 	{
-		static const EntityLocation _emptyLoca = {};
+		static const EntityLocation EMPTY_LOCATION = {};
 
-		if (a_entity == ECS::Limits::INVALID_ENTITY) return _emptyLoca;
+		if (a_entity == ECS::Limits::INVALID_ENTITY) return EMPTY_LOCATION;
 
 		uint32_t _idx = GetIndex(a_entity);
 
 		// 別ワールドのIDなどで添え字が範囲外になることがある
-		if (_idx >= m_entityLocationVec.size()) return _emptyLoca;
+		if (_idx >= m_entityLocationVec.size()) return EMPTY_LOCATION;
 
 		// 消えたエンティティの古いIDは、同じ添え字を使い回した別のエンティティを指す。
 		// 世代が合わなければ「もう居ない」として空の住所を返す
-		if (m_entityGeneVec[_idx] != GetGeneration(a_entity)) return _emptyLoca;
+		if (m_entityGeneVec[_idx] != GetGeneration(a_entity)) return EMPTY_LOCATION;
 
 		return m_entityLocationVec[_idx];
 	}
@@ -144,12 +144,12 @@ namespace Engine::ECS
 		return m_entityLocationVec[_idx];
 	}
 
-	const std::vector<EntityLocation>& EntityManager::GetAllEntityLocation()
+	const std::vector<EntityLocation>& EntityManager::GetAllEntityLocation() const
 	{
 		return m_entityLocationVec;
 	}
 
-	UINT EntityManager::GetAliveEntityCount()
+	UINT EntityManager::GetAliveEntityCount() const
 	{
 		return m_aliveCount;
 	}
@@ -169,20 +169,20 @@ namespace Engine::ECS
 	// 空のシグネチャを返せば「何も持っていない」扱いになり、
 	// 呼び出し側の HasComponent 判定がそのまま効く。
 	//======================================================================================
-	const ECS::Signature& EntityManager::GetSignature(const ECS::Entity& a_entity)
+	const ECS::Signature& EntityManager::GetSignature(const ECS::Entity& a_entity) const
 	{
-		static const ECS::Signature _emptySig = {};
+		static const ECS::Signature EMPTY_SIG = {};
 
-		if (a_entity == ECS::Limits::INVALID_ENTITY) return _emptySig;
+		if (a_entity == ECS::Limits::INVALID_ENTITY) return EMPTY_SIG;
 
 		uint32_t _idx = GetIndex(a_entity);
 
 		// 別ワールドのIDなどで添え字が範囲外になることがある
-		if (_idx >= m_signatureVec.size()) return _emptySig;
+		if (_idx >= m_signatureVec.size()) return EMPTY_SIG;
 
 		// 古いIDで引いたときに、添え字を使い回した別のエンティティの構成を返さない
 		// (GetLocation と同じ理由。HasComponent もここで弾かれる)
-		if (m_entityGeneVec[_idx] != GetGeneration(a_entity)) return _emptySig;
+		if (m_entityGeneVec[_idx] != GetGeneration(a_entity)) return EMPTY_SIG;
 
 		return m_signatureVec[_idx];
 	}
@@ -193,12 +193,12 @@ namespace Engine::ECS
 		m_signatureVec[_index] = a_sig;
 	}
 
-	uint32_t EntityManager::GetGeneration(const ECS::Entity& a_entity)
+	uint32_t EntityManager::GetGeneration(const ECS::Entity& a_entity) const
 	{
 		return uint32_t(a_entity >> 32);;
 	}
 
-	uint32_t EntityManager::GetIndex(const ECS::Entity& a_entity)
+	uint32_t EntityManager::GetIndex(const ECS::Entity& a_entity) const
 	{
 		return uint32_t(a_entity & 0xFFFFFFFF);
 	}

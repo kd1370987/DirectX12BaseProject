@@ -43,7 +43,7 @@ void CameraPipelineSubmitSystem::Init(App::ECS::APPWorld& a_world)
 			Engine::ECS::Entity _mainCamera = Engine::ECS::Limits::INVALID_ENTITY;
 			if (a_ctx.pWorld->HasResource<SingletonEntityResource>())
 			{
-				_mainCamera = a_ctx.pWorld->GetResource<SingletonEntityResource>().mainCamera;
+				_mainCamera = a_ctx.pWorld->RefResource<SingletonEntityResource>().mainCamera;
 			}
 
 			a_ctx.pWorld->ForEach<const ActiveTag, const CameraTag, const CameraParamComponent, const ProjMatComponent, const WorldMatrixComponent>(

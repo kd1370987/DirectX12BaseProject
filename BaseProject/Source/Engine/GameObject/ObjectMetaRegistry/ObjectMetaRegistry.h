@@ -1,4 +1,7 @@
 ﻿#pragma once
+
+#include "Engine/Utility/Debug/DebugLog.h"
+
 //==========================================================================================
 //
 // ObjectMetaRegistry (クラスメタマネージャー)
@@ -156,13 +159,13 @@ namespace Engine::GameObject
 		if (_typeID == 0 || _typeID == INVALID_OBJECT_TYPE_ID)
 		{
 			ENGINE_WARNING("[ObjectMetaRegistry] タイプIDが無効値になりました。登録名を変えてください : %s", a_name.c_str());
-			assert(0 && "ObjectTypeID が無効値 : 登録名を変えること");
+			ENGINE_ERRLOG(false, "ObjectTypeID が無効値 : 登録名を変えること");
 			return INVALID_OBJECT_TYPE_ID;
 		}
 		if (auto _it = m_metaMap.find(_typeID); _it != m_metaMap.end())
 		{
 			ENGINE_WARNING("[ObjectMetaRegistry] タイプIDが衝突しました : %s <-> %s", a_name.c_str(), _it->second.name.c_str());
-			assert(0 && "ObjectTypeID の衝突 : どちらかの登録名を変えること");
+			ENGINE_ERRLOG(false, "ObjectTypeID の衝突 : どちらかの登録名を変えること");
 			return INVALID_OBJECT_TYPE_ID;
 		}
 

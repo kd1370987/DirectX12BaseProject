@@ -39,7 +39,7 @@ namespace App::Object::Decoration
 		OutElastic,		// 弾んで止まる
 	};
 
-	// 0〜1 の進み具合にイージングを掛ける
+	/// 0〜1 の進み具合にイージングを掛ける
 	float Ease(EEase a_ease, float a_rate);
 
 	//======================================================================================
@@ -166,7 +166,7 @@ namespace App::Object::Decoration
 	};
 	ENUM_ATTR_BITFLAG(EUIStateFlag);
 
-	// 状態を絞り込み用のビットへ
+	/// 状態を絞り込み用のビットへ
 	constexpr EUIStateFlag ToStateFlag(EUIState a_state)
 	{
 		switch (a_state)

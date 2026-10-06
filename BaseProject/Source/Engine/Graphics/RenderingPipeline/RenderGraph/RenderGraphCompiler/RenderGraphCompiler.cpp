@@ -552,8 +552,8 @@ namespace Engine::Graphics::Pipeline
 		// バッファは Discard の対象外
 		if (a_vRes.IsBuffer()) return D3D12_RESOURCE_STATE_COMMON;
 
-		if (a_vRes.HasUsage(Resource::TextureUsage::DSV)) return D3D12_RESOURCE_STATE_DEPTH_WRITE;
-		if (a_vRes.HasUsage(Resource::TextureUsage::RTV)) return D3D12_RESOURCE_STATE_RENDER_TARGET;
+		if (a_vRes.HasUsage(Resource::ETextureUsage::DSV)) return D3D12_RESOURCE_STATE_DEPTH_WRITE;
+		if (a_vRes.HasUsage(Resource::ETextureUsage::RTV)) return D3D12_RESOURCE_STATE_RENDER_TARGET;
 
 		return D3D12_RESOURCE_STATE_COMMON;
 	}

@@ -35,11 +35,11 @@ namespace Engine::Graphics::Pipeline
 		// ---- レイ用ルートシグネチャ ----
 		D3D12::RootSignatureDesc _rayGlobal = {};
 		_rayGlobal.isUseStaticSampler = true;
-		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 0);		// カメラ
-		_rayGlobal.AddRoot(D3D12::RootParameterType::RootSRV, 0);		// TLAS
-		_rayGlobal.AddDescriptorHeap({ {D3D12::RangeType::UAV,0} });	// 出力
-		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 1);		// GBufferIndex
-		_rayGlobal.AddRoot(D3D12::RootParameterType::RootCBV, 10);		// 主光源
+		_rayGlobal.AddRoot(D3D12::ERootParameterType::RootCBV, 0);		// カメラ
+		_rayGlobal.AddRoot(D3D12::ERootParameterType::RootSRV, 0);		// TLAS
+		_rayGlobal.AddDescriptorHeap({ {D3D12::ERangeType::UAV,0} });	// 出力
+		_rayGlobal.AddRoot(D3D12::ERootParameterType::RootCBV, 1);		// GBufferIndex
+		_rayGlobal.AddRoot(D3D12::ERootParameterType::RootCBV, 10);		// 主光源
 		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		_rayGlobal.name = "global";
 
@@ -64,9 +64,9 @@ namespace Engine::Graphics::Pipeline
 		// ---- PSOの作成 ----
 		Raytracing::RayPSODesc _psoInit = {};
 		_psoInit.shaderPass = "Asset/Shader/Source/Raytracing/Shadow/RayShadowShader.hlsl";
-		_psoInit.AddShader(L"RayGen", Raytracing::LocalRootSignature::RayGen, Raytracing::ShaderCategory::RayGenerator);
-		_psoInit.AddShader(L"ShadowCHS", Raytracing::LocalRootSignature::PBRMaterialHit, Raytracing::ShaderCategory::ClosestHit);
-		_psoInit.AddShader(L"ShadowMiss", Raytracing::LocalRootSignature::Empty, Raytracing::ShaderCategory::Miss);
+		_psoInit.AddShader(L"RayGen", Raytracing::ELocalRootSignature::RayGen, Raytracing::EShaderCategory::RayGenerator);
+		_psoInit.AddShader(L"ShadowCHS", Raytracing::ELocalRootSignature::PBRMaterialHit, Raytracing::EShaderCategory::ClosestHit);
+		_psoInit.AddShader(L"ShadowMiss", Raytracing::ELocalRootSignature::Empty, Raytracing::EShaderCategory::Miss);
 		_psoInit.AddHitGroup(L"ShadowHitGroup", L"ShadowCHS");
 		_psoInit.maxRecursionDepth = 1;
 
@@ -87,7 +87,7 @@ namespace Engine::Graphics::Pipeline
 			.pRayPSO = &m_rayPSO,
 			.shaderData = _psoInit.shaderDataVec,
 			.hitGroup = _psoInit.hitGroupVec,
-			.maxInstance = Raytracing::kMaxInstanceNum,
+			.maxInstance = Raytracing::MAX_INSTANCE_NUM,
 			.maxLocalRootSize = 0
 		};
 		m_shaderTable.Init(_pDevice, _shaderTableInit);

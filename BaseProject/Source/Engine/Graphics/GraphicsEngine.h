@@ -236,7 +236,7 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 
 		// UIの湾曲用板ポリの横分割数
-		static constexpr uint32_t kCurveDivision = 32;
+		static constexpr uint32_t CURVE_DIVISION = 32;
 
 		Resource::QuadPolygon* RefQuadPolygon()			{ return m_upQuadPolygon.get(); }
 		Resource::QuadPolygon* RefCurvedQuadPolygon()	{ return m_upCurvedQuadPolygon.get(); }

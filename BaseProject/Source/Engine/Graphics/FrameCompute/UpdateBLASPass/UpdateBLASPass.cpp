@@ -47,7 +47,7 @@ namespace Engine::Graphics
 					if (!_item.pWorld) continue;
 					if (!_item.pWorld->HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) continue;
 
-					auto& _pool = _item.pWorld->GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
+					auto& _pool = _item.pWorld->RefResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
 					auto* _animMeshData = _pool.Ref(_item.animHandle);
 					if (!_animMeshData) continue;
 

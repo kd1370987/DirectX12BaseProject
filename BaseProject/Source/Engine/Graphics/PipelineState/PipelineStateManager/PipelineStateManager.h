@@ -78,10 +78,10 @@ namespace Engine::Graphics
 		Handle<ID3D12PipelineState> RequestHandle(const D3D12::RenderPipelineBuilder& a_builder);
 
 
-		ID3D12PipelineState* GetPSO(Handle<ID3D12PipelineState> a_handle);
+		ID3D12PipelineState* GetPSO(Handle<ID3D12PipelineState> a_handle) const;
 		// 描画アイテムのソートキーから来る生添字で引く。
 		// 幅は Handle::GetIndex() と揃えてあるので、途中で切り捨てられることはない
-		ID3D12PipelineState* GetPSO(uint16_t a_rawIndex);
+		ID3D12PipelineState* GetPSO(uint16_t a_rawIndex) const;
 
 	private:
 		// 構造体からハッシュ値を求める

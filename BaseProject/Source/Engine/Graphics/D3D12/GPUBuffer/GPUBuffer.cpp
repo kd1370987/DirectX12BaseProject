@@ -49,8 +49,8 @@ namespace Engine::D3D12
 	{
 		auto _hr = m_cpResource->Map(0, nullptr, a_ppData);
 
-		assert(SUCCEEDED(_hr));
-		assert(*a_ppData);
+		ENGINE_ERRLOG(SUCCEEDED(_hr), "GPUBuffer::Map : リソースのマップに失敗");
+		ENGINE_ERRLOG(*a_ppData != nullptr, "GPUBuffer::Map : マップ先のアドレスが空です");
 	}
 
 	void GPUBuffer::Unmap()
@@ -60,7 +60,7 @@ namespace Engine::D3D12
 
 	void GPUBuffer::Write(const void* a_pData, size_t a_size)
 	{
-		assert(m_cpResource);
+		ENGINE_ERRLOG(m_cpResource, "GPUBuffer::Write : リソースが作られていません");
 		void* _pMappedData = nullptr;
 		Map(&_pMappedData);
 		std::memcpy(_pMappedData,a_pData,a_size);

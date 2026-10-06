@@ -75,7 +75,7 @@ namespace Engine::Graphics
 		// バッファ関係
 		//--------------------------------------------------------------------------------------------
 		// 現在のフレームの定数バッファアロケーターにアクセス
-		CBAllocator* BindCB();
+		D3D12::CBAllocator* BindCB();
 
 		// ---- 定数バッファをルートでバインド ----
 		// グラフィック版
@@ -113,7 +113,7 @@ namespace Engine::Graphics
 		// シングルトンではなくここから借りること
 		//--------------------------------------------------------------------------------------
 		D3D12::DescriptorHeapManager* RefDescriptorHeapManager() const { return m_pHeapManager; }
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandleBindLess(Handle<D3D12::SRV> a_handle);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandleBindLess(Handle<D3D12::SRV> a_handle) const;
 
 		// レンダーターゲットのクリア
 		void ClearRenderTarget(const Handle<Resource::Texture>& a_texHandle);
@@ -270,7 +270,7 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// フレーム限定リソース
 		//--------------------------------------------------------------------------------------------
-		std::unique_ptr<CBAllocator> m_upCBAllocator = nullptr;	// 定数バッファアロケーター
+		std::unique_ptr<D3D12::CBAllocator> m_upCBAllocator = nullptr;	// 定数バッファアロケーター
 		D3D12::GraphicsCommandList* m_pCmdList = nullptr;				// 現在フレームのグラフィックスコマンドリスト
 
 		// ボーン用データ

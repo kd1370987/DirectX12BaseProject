@@ -62,7 +62,7 @@ namespace Engine::Graphics
 			// スキニングのコンピュートが読むのはGPU上の位置なので土台を足す
 			_item.boneBufferStart = _boneBaseIndex + boneHandle.startIndex;
 
-			auto& _pool = a_world.GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
+			auto& _pool = a_world.RefResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
 			auto* _data = _pool.Get(dynamicHandle);
 			if (!_data) continue;
 
@@ -132,11 +132,11 @@ namespace Engine::Graphics
 			// PermutationFlags の構築
 			// -----------------------------------------------------
 			// この経路は静的モデル専用(アニメーションするモデルはボーンを受け取る方の SubmitModel)
-			constexpr bool _isAnimation = false;
+			constexpr bool IS_ANIMATION = false;
 			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
 			_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::Static;
 
-			if (_cmd.alphaMode == Engine::Resource::Alpha::Mask) {
+			if (_cmd.alphaMode == Engine::Resource::EAlpha::Mask) {
 				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::AlphaMasked;
 			}
 
@@ -149,7 +149,7 @@ namespace Engine::Graphics
 			RegisterDrawCommandToPasses(
 				_cmd, _pMesh, _pMaterial,
 				_mat, _prevMat,
-				_isAnimation, 0 /*animatedVertexStart*/,
+				IS_ANIMATION, 0 /*animatedVertexStart*/,
 				a_albedoScale, a_emissiveScale, a_emissiveAdd, _psoKey);
 		}
 	}
@@ -168,11 +168,11 @@ namespace Engine::Graphics
 	)
 	{
 		// ノード行列取得
-		auto& _nodePosePool = a_world.GetResource<Pool::RangePool<Resource::NodePoseMatrix>>();
+		auto& _nodePosePool = a_world.RefResource<Pool::RangePool<Resource::NodePoseMatrix>>();
 		const auto& _nodePoseMatVec = _nodePosePool.GetRange(a_nodePoseHandle);
 
 		// アニメーション後データ (※1つのモデルに対して共通ならループ外で取得・チェックすると効率的です)
-		auto& _pool = a_world.GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
+		auto& _pool = a_world.RefResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
 		auto* _data = _pool.Get(a_animData);
 		if (!_data) return;
 
@@ -228,7 +228,7 @@ namespace Engine::Graphics
 				Engine::Graphics::EShaderPermutationFlags::Static);
 
 			// アルファモード判定
-			if (_cmd.alphaMode == Engine::Resource::Alpha::Mask) {
+			if (_cmd.alphaMode == Engine::Resource::EAlpha::Mask) {
 				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::AlphaMasked;
 			}
 
@@ -282,11 +282,11 @@ namespace Engine::Graphics
 			// PermutationFlags の構築
 			// -----------------------------------------------------
 			// この経路は静的モデル専用(アニメーションするモデルはボーンを受け取る方の SubmitModel)
-			constexpr bool _isAnimation = false;
+			constexpr bool IS_ANIMATION = false;
 			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
 			_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::Static;
 
-			if (_cmd.alphaMode == Engine::Resource::Alpha::Mask) {
+			if (_cmd.alphaMode == Engine::Resource::EAlpha::Mask) {
 				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::AlphaMasked;
 			}
 
@@ -300,21 +300,21 @@ namespace Engine::Graphics
 				EGeometryQueue::Ground,
 				_cmd, _pMesh, _pMaterial,
 				_mat, _prevMat,
-				_isAnimation, 0 /*animatedVertexStart*/,
+				IS_ANIMATION, 0 /*animatedVertexStart*/,
 				{}, {}, {}, _psoKey);
 		}
 	}
 
 	void DrawSubmitter::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, const Math::Vector2& a_screenRect, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, const Math::Vector2& a_uvScale, float a_curveK, float a_curveOffsetX)
 	{
-		auto& _resMgr = (*m_pResourceManager);
+		auto& _resourceManager = (*m_pResourceManager);
 
 		// 読み込みが終わっていないものは、そのフレームは描かない。
 		// 非同期ロード中のスロットには空の実体が入っているため、
 		// ポインタのnullチェックだけでは弾けない
-		if (!_resMgr.IsReady(a_texHandle)) return;
+		if (!_resourceManager.IsReady(a_texHandle)) return;
 
-		auto* _pTex = _resMgr.Get(a_texHandle);
+		auto* _pTex = _resourceManager.Get(a_texHandle);
 		if (!_pTex) return;
 
 		// サイズは呼び出し側の指定値をそのまま使う
@@ -323,12 +323,12 @@ namespace Engine::Graphics
 
 	void DrawSubmitter::SubmitUI(const Handle<Resource::Texture>& a_texHandle, const Math::Vector2& a_screenPos, float a_scale, const Math::Color& a_color, float a_rotation, float a_layer, const Math::Vector2& a_uvOffset, const Math::Vector2& a_pivot, float a_curveK, float a_curveOffsetX)
 	{
-		auto& _resMgr = (*m_pResourceManager);
+		auto& _resourceManager = (*m_pResourceManager);
 
 		// 読み込み中のものは描かない : 空の実体のサイズを掛けても意味がない
-		if (!_resMgr.IsReady(a_texHandle)) return;
+		if (!_resourceManager.IsReady(a_texHandle)) return;
 
-		auto* _pTex = _resMgr.Get(a_texHandle);
+		auto* _pTex = _resourceManager.Get(a_texHandle);
 		if (!_pTex) return;
 
 		// テクスチャの元サイズにスケールを掛けたものを表示サイズにする
@@ -352,10 +352,10 @@ namespace Engine::Graphics
 		if (!a_world.HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) return;
 		if (!a_world.HasResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>()) return;
 
-		auto& _initRequestVec = a_world.GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+		auto& _initRequestVec = a_world.RefResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 		if (_initRequestVec.empty()) return;
 
-		auto& _dynamicPool = a_world.GetResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
+		auto& _dynamicPool = a_world.RefResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();
 
 		auto* _pDevice = m_pRenderDevice->RefDevice();
 		auto* _pCmdList = m_pRenderDevice->AcquireDirectCommandList();
@@ -435,7 +435,7 @@ namespace Engine::Graphics
 	//   ・読み込み失敗
 	// 以前は見つからないと null を参照していた(Shipping では ERRLOG が消えるので素通りする)
 	//------------------------------------------------------------------------------------------
-	int DrawSubmitter::GetSRVIndexFromTextureHandle(const Handle<Resource::Texture>& a_texHandle)
+	int DrawSubmitter::GetSRVIndexFromTextureHandle(const Handle<Resource::Texture>& a_texHandle) const
 	{
 		auto& _resManager = (*m_pResourceManager);
 		if (!_resManager.IsReady(a_texHandle)) return -1;
@@ -504,7 +504,7 @@ namespace Engine::Graphics
 	{
 		// マテリアルの透明モードで、どちらのキューへ流すかを決める。
 		// Mask はアルファで抜くだけで前後関係は不透明と同じ扱いなので Opaque
-		const EGeometryQueue _queue = (a_pMaterial->alphaMode == Resource::Alpha::Blend)
+		const EGeometryQueue _queue = (a_pMaterial->alphaMode == Resource::EAlpha::Blend)
 			? EGeometryQueue::Transparent
 			: EGeometryQueue::Opaque;
 		RegisterDrawCommandToPasses(
@@ -530,11 +530,11 @@ namespace Engine::Graphics
 		// テクスチャのSRV番号も同じ回数だけ引き直すことになる。
 		// 作るのは最初にアイテムを積めたパスのときだけ(PSOが無くて1つも積めなければ作らない)
 		//------------------------------------------------------------------------------------------
-		constexpr UINT kNotCreated = UINT_MAX;
-		UINT _meshInstanceIndex = kNotCreated;
+		constexpr UINT NOT_CREATED = UINT_MAX;
+		UINT _meshInstanceIndex = NOT_CREATED;
 		auto _acquireInstanceIndex = [&]() -> UINT
 			{
-				if (_meshInstanceIndex != kNotCreated) return _meshInstanceIndex;
+				if (_meshInstanceIndex != NOT_CREATED) return _meshInstanceIndex;
 
 				const MeshMaterial _meshMaterial = BuildMeshMaterial(a_pMaterial, a_albedoScale, a_emissiveScale, a_emissiveAdd);
 

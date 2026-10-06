@@ -43,8 +43,8 @@ namespace Engine::Option::ProjectOptions
 
 		const std::string& GetName() override
 		{
-			static const std::string _name = "InputOption";
-			return _name;
+			static const std::string NAME = "InputOption";
+			return NAME;
 		}
 
 		EOptionCategory GetCategory() override

@@ -20,7 +20,7 @@ namespace Engine::Editor::Inspector
 			auto _filePath = a_editContext.pServices->pAssetDatabase->GetFilePathFromGUID(_guid);
 			auto _fileDir = Engine::File::GetDirFromPath(_filePath);
 			auto _fileName = Engine::File::GetFileNameWithoutExtension(_filePath);
-			Persistence::Archive _ar(Persistence::Archive::Mode::Save, _fileDir, _fileName, "mtrl");
+			Persistence::Archive _ar(Persistence::Archive::EMode::Save, _fileDir, _fileName, "mtrl");
 			a_pMaterial->Archive(_ar);
 		}
 

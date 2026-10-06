@@ -20,7 +20,7 @@ void UpdateHierarchyDepthSystem::Init(App::ECS::APPWorld& a_world)
 		)
 		{
 			// 参照
-			auto& _hRes = a_ctx.pWorld->GetResource<HierarchyResource>();
+			auto& _hRes = a_ctx.pWorld->RefResource<HierarchyResource>();
 			if (!_hRes.isDirty) return;
 
 			// 階層変更の可能性があるのなら走査して検出する

@@ -138,7 +138,7 @@ void SwarmMissileSystem::Init(App::ECS::APPWorld& a_world)
 			auto& _world = *a_ctx.pWorld;
 			if (!_world.HasResource<SwarmMissileResource>()) return;
 
-			SwarmMissileResource& _res = _world.GetResource<SwarmMissileResource>();
+			SwarmMissileResource& _res = _world.RefResource<SwarmMissileResource>();
 			if (_res.launchRequests.empty()) return;
 
 			// 叶えた要求は無効値で潰していく
@@ -348,7 +348,7 @@ void SwarmMissileSystem::Init(App::ECS::APPWorld& a_world)
 
 			const SwarmMissileResource& _res = _world.GetResource<SwarmMissileResource>();
 			const SwarmContactDamageResource& _player = _world.GetResource<SwarmContactDamageResource>();
-			HitEventResource& _hitEvents = _world.GetResource<HitEventResource>();
+			HitEventResource& _hitEvents = _world.RefResource<HitEventResource>();
 
 			const bool _isFoundPlayer = _player.isActive && _player.player != Engine::ECS::Limits::INVALID_ENTITY;
 			const float _hitDistance   = std::max(_res.explodeRadius, 0.0f) + _player.playerRadius;

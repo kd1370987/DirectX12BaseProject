@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Engine/Utility/Debug/DebugLog.h"
+
 namespace Engine::ECS
 {
 	struct EngineServices;
@@ -38,8 +40,8 @@ namespace Engine::ECS
 	template<typename T>
 	struct ComponentTypeSlot
 	{
-		inline static ComponentTypeID				id		= Limits::INVALID_COMPONENTTYPEID;
-		inline static const ComponentMetaRegistry*	pOwner	= nullptr;	// 番号を書いたレジストリ
+		inline static ComponentTypeID				s_id		= Limits::INVALID_COMPONENTTYPEID;
+		inline static const ComponentMetaRegistry*	s_pOwner	= nullptr;	// 番号を書いたレジストリ
 	};
 
 	//==========================================================================================
@@ -102,16 +104,6 @@ namespace Engine::ECS
 
 	private:
 
-		// 名前からタイプIDへ(保存データの読み込みで使う)
-		std::unordered_map<std::string, ComponentTypeID> m_compNameMap;
-
-		// コンポーネントに付随するデータ : 添え字がタイプID
-		std::vector<ComponentMeta> m_metaVec;	// 型の情報
-		std::vector<ComponentFunc> m_funcVec;	// 関数情報
-
-		// 型ごとの置き場所を未登録へ戻す処理(レジストリが消えるときに呼ぶ)
-		std::vector<void(*)()> m_resetSlotFuncVec;
-
 		// RequireComponents の型をシグネチャへ立てる : 未登録の型は立てずに警告する
 		template<typename... Comps>
 		static void AddRequiredTypes(Signature& a_sig, RequireComponents<Comps...>)
@@ -130,13 +122,25 @@ namespace Engine::ECS
 				}(), ...
 			);
 		}
+
+	private:
+
+		// 名前からタイプIDへ(保存データの読み込みで使う)
+		std::unordered_map<std::string, ComponentTypeID> m_compNameMap;
+
+		// コンポーネントに付随するデータ : 添え字がタイプID
+		std::vector<ComponentMeta> m_metaVec;	// 型の情報
+		std::vector<ComponentFunc> m_funcVec;	// 関数情報
+
+		// 型ごとの置き場所を未登録へ戻す処理(レジストリが消えるときに呼ぶ)
+		std::vector<void(*)()> m_resetSlotFuncVec;
 	};
 
 	template<typename Comp>
 	inline ComponentTypeID ComponentMetaRegistry::GetTypeID()
 	{
 		// const 付きで引かれても同じ置き場所を見る
-		return ComponentTypeSlot<std::remove_cv_t<Comp>>::id;
+		return ComponentTypeSlot<std::remove_cv_t<Comp>>::s_id;
 	}
 
 	template<typename Comp>
@@ -152,22 +156,22 @@ namespace Engine::ECS
 		using Slot = ComponentTypeSlot<Comp>;
 
 		// 登録済み : ワールドを作るたびに同じ登録が流れてくるので、今の番号を返すだけ
-		if (Slot::pOwner == this)
+		if (Slot::s_pOwner == this)
 		{
-			return Slot::id;
+			return Slot::s_id;
 		}
 
 		// 置き場所に番号があるのに書いたのは別のレジストリ = 番号の出所が2つになるので止める
-		if (Slot::pOwner != nullptr)
+		if (Slot::s_pOwner != nullptr)
 		{
-			assert(0 && "別の ComponentMetaRegistry がこの型を登録しています。レジストリはプロセスに1つだけ置くこと");
-			return Slot::id;
+			ENGINE_ERRLOG(false, "別の ComponentMetaRegistry がこの型を登録しています。レジストリはプロセスに1つだけ置くこと");
+			return Slot::s_id;
 		}
 
 		// 名前は保存データのキーなので、別の型と被ってはいけない
 		if (m_compNameMap.contains(a_name))
 		{
-			assert(0 && "同じ名前のコンポーネントが既に登録されています(名前は保存データのキー)");
+			ENGINE_ERRLOG(false, "同じ名前のコンポーネントが既に登録されています(名前は保存データのキー)");
 			return Limits::INVALID_COMPONENTTYPEID;
 		}
 
@@ -175,7 +179,7 @@ namespace Engine::ECS
 		// 次に振るIDは size() なので、size() == MAX の時点でシグネチャの範囲外になる
 		if (m_metaVec.size() >= Limits::MAX_COMPONENT_TYPES)
 		{
-			assert(0 && "登録できるコンポーネント数の上限に達しました");
+			ENGINE_ERRLOG(false, "登録できるコンポーネント数の上限に達しました");
 			return Limits::INVALID_COMPONENTTYPEID;
 		}
 
@@ -241,12 +245,12 @@ namespace Engine::ECS
 		m_funcVec.push_back(std::move(_func));
 
 		// 型ごとの置き場所へ書く(番号の出所はここだけ)
-		Slot::id = _typeID;
-		Slot::pOwner = this;
+		Slot::s_id = _typeID;
+		Slot::s_pOwner = this;
 		m_resetSlotFuncVec.push_back([]()
 			{
-				Slot::id = Limits::INVALID_COMPONENTTYPEID;
-				Slot::pOwner = nullptr;
+				Slot::s_id = Limits::INVALID_COMPONENTTYPEID;
+				Slot::s_pOwner = nullptr;
 			});
 
 		return _typeID;

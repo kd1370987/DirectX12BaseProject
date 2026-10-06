@@ -24,7 +24,7 @@ void CameraPipelineFixupSystem::Init(App::ECS::APPWorld& a_world)
 				CameraParamComponent& _comp = a_array[_i];
 
 				// 描画構成を指していないカメラは従来経路のまま
-				if (_comp.pipelineGUID == Engine::DefaultGUID) continue;
+				if (_comp.pipelineGUID == Engine::DEFAULT_GUID) continue;
 
 				a_ctx.pServices->pResourceManager->AcquireImmediate(_comp.pipelineHandle, _comp.pipelineGUID);
 			}

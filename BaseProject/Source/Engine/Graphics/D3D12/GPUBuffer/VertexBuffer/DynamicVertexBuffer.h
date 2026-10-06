@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../DynamicBuffer/DynamicBuffer.h"
+#include "Engine/Utility/Debug/DebugLog.h"
 
 namespace Engine::D3D12
 {
@@ -36,7 +37,7 @@ namespace Engine::D3D12
 
 		if (!DynamicBuffer::Create(a_pDevice,a_pHeapManager,_desc))
 		{
-			assert(0 && "リソース作成失敗");
+			ENGINE_ERRLOG(false, "リソース作成失敗");
 			return false;
 		}
 
@@ -59,7 +60,7 @@ namespace Engine::D3D12
 
 		if (!DynamicBuffer::Create(a_pDevice, a_pHeapManager, _desc))
 		{
-			assert(0 && "リソース作成失敗");
+			ENGINE_ERRLOG(false, "リソース作成失敗");
 			return false;
 		}
 

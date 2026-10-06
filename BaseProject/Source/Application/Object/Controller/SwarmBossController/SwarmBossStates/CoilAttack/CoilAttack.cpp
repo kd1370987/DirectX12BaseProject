@@ -308,7 +308,7 @@ namespace App::Object
 			if (!_world.IsAliveEntity(_platoon)) continue;
 
 			// ボイドが残っていなければ SwarmMissileSystem が捨てる
-			_world.GetResource<SwarmMissileResource>().launchRequests.push_back(_platoon);
+			_world.RefResource<SwarmMissileResource>().launchRequests.push_back(_platoon);
 			++m_launchCount;
 			return;
 		}
@@ -319,7 +319,7 @@ namespace App::Object
 		auto& _world = *a_context.pObject->pWorld;
 		if (!_world.HasResource<SwarmMissileResource>()) return;
 
-		auto& _res = _world.GetResource<SwarmMissileResource>();
+		auto& _res = _world.RefResource<SwarmMissileResource>();
 		_res.ringCenter    = m_center;
 		_res.launchSpeed   = m_missileLaunchSpeed;
 		_res.launchTime    = m_missileLaunchTime;

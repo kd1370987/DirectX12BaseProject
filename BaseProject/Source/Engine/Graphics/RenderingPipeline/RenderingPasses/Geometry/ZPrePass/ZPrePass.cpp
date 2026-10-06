@@ -15,7 +15,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 深度だけを書く。あとで SRV としても読めるように TYPELESS で確保する
 		Slot& _depth = DeclareOutput(
-			"Depth", "SceneDepth", DXGI_FORMAT_R32_TYPELESS, EAccessType::Depth_Write);
+			"Depth", "SceneDepth", DXGI_FORMAT_R32_TYPELESS, EAccessType::DepthWrite);
 		_depth.loadOp = ELoadOp::Clear;
 	}
 

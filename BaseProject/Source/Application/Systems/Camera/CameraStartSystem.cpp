@@ -32,7 +32,7 @@ void CameraStartSystem::Init(App::ECS::APPWorld& a_world)
 				ProjMatComponent& _projMatComp = a_projMatArray[_i];
 
 				// カメラパラメーターの初期化
-				const auto& _winOp = Engine::Option::OptionManager::GetInstance().GetWindowOption();
+				const auto& _winOp = Engine::Option::OptionManager::Instance().GetWindowOption();
 				_camParamComp.aspectRatio = (float)_winOp.windowWidth / (float)_winOp.windowHeight;
 
 				// プロジェクション行列の作成

@@ -108,7 +108,7 @@ namespace Engine::Editor::Inspector
 		const std::string _basePath = MakePrefabBasePath(a_name);
 
 		// アセットデータベースに登録済み
-		if (a_assetDB.GetGUIDFromFilePath(_basePath) != Engine::DefaultGUID)
+		if (a_assetDB.GetGUIDFromFilePath(_basePath) != Engine::DEFAULT_GUID)
 		{
 			return true;
 		}

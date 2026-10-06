@@ -28,8 +28,8 @@ namespace Engine::Option::GraphicsOptions
 
 		const std::string& GetName() override
 		{
-			static const std::string _name = "WindowOption";
-			return _name;
+			static const std::string NAME = "WindowOption";
+			return NAME;
 		}
 
 

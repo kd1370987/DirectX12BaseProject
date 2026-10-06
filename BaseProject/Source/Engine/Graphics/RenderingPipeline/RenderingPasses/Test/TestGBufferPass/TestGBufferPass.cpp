@@ -8,11 +8,11 @@ namespace Engine::Graphics::Pipeline
 	{
 		// 事前デプス : つながっていなければ自前で作る想定なので任意入力にする。
 		// 必須にすると、置いただけのパスが検証で止まってしまう
-		DeclareInput("PreDepth", EAccessType::Depth_Write, EPassSlotType::Texture, false);
+		DeclareInput("PreDepth", EAccessType::DepthWrite, EPassSlotType::Texture, false);
 
 		DeclareOutput("Albedo", "GBufferAlbedo", DXGI_FORMAT_R8G8B8A8_UNORM);
 		DeclareOutput("Normal", "GBufferNormal", DXGI_FORMAT_R10G10B10A2_UNORM);
-		DeclareOutput("Depth", "SceneDepth", DXGI_FORMAT_D32_FLOAT, EAccessType::Depth_Write);
+		DeclareOutput("Depth", "SceneDepth", DXGI_FORMAT_D32_FLOAT, EAccessType::DepthWrite);
 	}
 
 	// リソースが揃った後に呼ばれる。

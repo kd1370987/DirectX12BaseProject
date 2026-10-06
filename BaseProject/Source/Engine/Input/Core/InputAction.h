@@ -24,13 +24,13 @@ namespace Engine::Input
 	template<class T>
 	concept ActionName = std::is_convertible_v<const T&, std::string_view>;
 
-	// 文字列 -> アクションID
+	/// 文字列 -> アクションID
 	inline constexpr ActionID ToActionID(std::string_view a_name)
 	{
 		return static_cast<ActionID>(Engine::String::ToHash(a_name));
 	}
 
-	// 列挙値 -> アクションID
+	/// 列挙値 -> アクションID
 	template<ActionEnum T>
 	inline constexpr ActionID ToActionID(T a_action)
 	{

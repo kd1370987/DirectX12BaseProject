@@ -20,8 +20,8 @@ namespace Engine::Option::GraphicsOptions
 
 		const std::string& GetName() override
 		{
-			static const std::string _name = "BloomOption";
-			return _name;
+			static const std::string NAME = "BloomOption";
+			return NAME;
 		}
 
 		EOptionCategory GetCategory() override

@@ -908,8 +908,8 @@ namespace App::Object
 		Engine::Editor::Tooltip("鳴らし直す最短間隔(秒)。縁で揺れて鳴り続けるのを止める");
 
 		// 実行中の状態は表示のみ
-		static const char* _stateName[] = { "Normal", "Hovered", "Pressed", "Disabled" };
-		Engine::Editor::Value("State", "%s", _stateName[static_cast<int>(GetUIState())]);
+		static const char* STATE_NAME[] = { "Normal", "Hovered", "Pressed", "Disabled" };
+		Engine::Editor::Value("State", "%s", STATE_NAME[static_cast<int>(GetUIState())]);
 
 		// 重なりの取り合いの結果。
 		// 「矩形には入っているのに反応しない」の原因がここだと分かるようにする
@@ -1057,11 +1057,11 @@ namespace App::Object
 		_handle.y = a_ctx.viewportPos.y + (m_pixelPos.y / _h) * a_ctx.viewportSize.y;
 
 		// ギズモハンドルの半径 : ピクセル
-		static const float _handleRadius = 9.0f;
+		static const float HANDLE_RADIUS = 9.0f;
 
 		// ドラッグ中はマウス位置からピクセル座標を逆算して更新
 		Math::Vector2 _mouse = {};
-		if (Engine::Editor::ScreenHandle("##UIGizmo", _handle, _handleRadius, _mouse))
+		if (Engine::Editor::ScreenHandle("##UIGizmo", _handle, HANDLE_RADIUS, _mouse))
 		{
 			const float _u = (_mouse.x - a_ctx.viewportPos.x) / a_ctx.viewportSize.x;	// 0..1
 			const float _v = (_mouse.y - a_ctx.viewportPos.y) / a_ctx.viewportSize.y;	// 0..1

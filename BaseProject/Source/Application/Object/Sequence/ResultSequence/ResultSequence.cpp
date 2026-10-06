@@ -95,7 +95,7 @@ namespace App::Object
 		m_isSceneRequested = true;
 
 		Engine::Scene::SceneManager::Instance().SetNextScene(
-			m_titleSceneGUID, Engine::Scene::SceneChangeType::Replace);
+			m_titleSceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 
 	//======================================================================================

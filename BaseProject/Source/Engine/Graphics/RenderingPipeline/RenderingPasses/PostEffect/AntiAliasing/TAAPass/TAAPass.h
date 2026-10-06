@@ -27,7 +27,7 @@ namespace Engine::Graphics::Pipeline
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
 		// 履歴の入出力 : この2つを繋ぐことで前フレームの結果が入ってくる
-		static constexpr const char* kHistoryInName = "History";
-		static constexpr const char* kHistoryOutName = "HistoryOut";
+		static constexpr const char* HISTORY_IN_NAME = "History";
+		static constexpr const char* HISTORY_OUT_NAME = "HistoryOut";
 	};
 }

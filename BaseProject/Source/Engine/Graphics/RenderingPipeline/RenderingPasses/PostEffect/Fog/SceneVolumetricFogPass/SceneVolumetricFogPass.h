@@ -37,15 +37,15 @@ namespace Engine::Graphics::Pipeline
 	private:
 
 		// ルートパラメータの番号 : シェーダー(SceneVolumetricFogCS)の並びと合わせる
-		static constexpr int kRootCameraCB = 0;
-		static constexpr int kRootSceneFogCB = 1;
-		static constexpr int kRootGroundDustCB = 2;
-		static constexpr int kRootInputSRV = 3;
-		static constexpr int kRootOutputUAV = 4;
-		static constexpr int kRootNoiseSRV = 5;
+		static constexpr int ROOT_CAMERA_CB = 0;
+		static constexpr int ROOT_SCENE_FOG_CB = 1;
+		static constexpr int ROOT_GROUND_DUST_CB = 2;
+		static constexpr int ROOT_INPUT_SRV = 3;
+		static constexpr int ROOT_OUTPUT_UAV = 4;
+		static constexpr int ROOT_NOISE_SRV = 5;
 
 		// ノイズが張られていないときに渡す番号(シェーダーの DESCRIPTOR_INDEX_NONE と合わせる)
-		static constexpr UINT kNoiseIndexNone = 0xFFFFFFFF;
+		static constexpr UINT NOISE_INDEX_NONE = 0xFFFFFFFF;
 
 		// パスが回り始めてからの経過時間(秒)。
 		// 実行インスタンスごとに持つので、パイプラインを組み直すと 0 から数え直す

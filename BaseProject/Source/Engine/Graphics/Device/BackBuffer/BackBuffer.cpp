@@ -20,7 +20,7 @@ namespace Engine::Graphics
 		// バックバッファリソース作成
 		for (UINT _i = 0; _i < BACKBUFFER_COUNT; ++_i)
 		{
-			m_backBuffers[_i].Create(a_pHeapManager, m_cpSwapChain.Get(), _i, Resource::TextureUsage::RTV);
+			m_backBuffers[_i].Create(a_pHeapManager, m_cpSwapChain.Get(), _i, Resource::ETextureUsage::RTV);
 		}
 	}
 	void BackBuffer::BeginFrame()

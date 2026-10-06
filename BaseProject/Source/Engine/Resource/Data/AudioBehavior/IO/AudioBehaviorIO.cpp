@@ -9,7 +9,7 @@ namespace Engine::Resource
 		auto _fileDir = Engine::File::GetDirFromPath(a_path);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_path);
 
-		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "audbhv");
+		Persistence::Archive _ar(Persistence::Archive::EMode::Load, _fileDir, _fileName, "audbhv");
 
 		AudioBehavior _behavior = {};
 		_behavior.Archive(_ar);
@@ -19,12 +19,12 @@ namespace Engine::Resource
 	void AudioBehaviorIO::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
 		// ディレクトリ
-		static std::string _dir = "Asset/AudioBehavior/";
-		auto _basePath = _dir + a_path + "/" + a_name;
+		static const std::string ASSET_DIR = "Asset/AudioBehavior/";
+		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
 
 		// すでにないかチェック
 		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DefaultGUID)
+		if (_checkGUID != Engine::DEFAULT_GUID)
 		{
 			ENGINE_LOG("すでに作成済みのオーディオビヘイビアです : %s", _basePath.c_str());
 			return;

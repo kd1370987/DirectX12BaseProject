@@ -31,8 +31,8 @@ namespace Engine::Graphics::Pipeline
 	private:
 
 		// ルートパラメータの番号 : シェーダー(SceneFogCompositeCS)の並びと合わせる
-		static constexpr int kRootCompositeCB = 0;
-		static constexpr int kRootInputSRV = 1;
-		static constexpr int kRootOutputUAV = 2;
+		static constexpr int ROOT_COMPOSITE_CB = 0;
+		static constexpr int ROOT_INPUT_SRV = 1;
+		static constexpr int ROOT_OUTPUT_UAV = 2;
 	};
 }

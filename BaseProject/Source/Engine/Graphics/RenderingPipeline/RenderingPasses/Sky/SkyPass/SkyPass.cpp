@@ -8,7 +8,7 @@ namespace Engine::Graphics::Pipeline
 {
 	void SkyPass::SetupSlots()
 	{
-		DeclareInput("Depth", EAccessType::SRV, EPassSlotType::Texture, true, kRootDepthSRV);
+		DeclareInput("Depth", EAccessType::SRV, EPassSlotType::Texture, true, ROOT_DEPTH_SRV);
 
 		// 描き足す先。
 		// 中身は出力と同じものなので、シェーダーへは張らない(ルート番号を持たせない)。
@@ -18,11 +18,11 @@ namespace Engine::Graphics::Pipeline
 
 		// 色と速度へ書き足す。すでに描かれているぶんは残すので Load
 		Slot& _color = DeclareOutput("Color", "AfterLighting", DXGI_FORMAT_R16G16B16A16_FLOAT,
-			EAccessType::UAV, EPassSlotType::Texture, false, kRootColorUAV);
+			EAccessType::UAV, EPassSlotType::Texture, false, ROOT_COLOR_UAV);
 		_color.loadOp = ELoadOp::Load;
 
 		Slot& _velocity = DeclareOutput("Velocity", "GBufferVelocity", DXGI_FORMAT_R16G16_FLOAT,
-			EAccessType::UAV, EPassSlotType::Texture, false, kRootVelocityUAV);
+			EAccessType::UAV, EPassSlotType::Texture, false, ROOT_VELOCITY_UAV);
 		_velocity.loadOp = ELoadOp::Load;
 	}
 
@@ -47,8 +47,8 @@ namespace Engine::Graphics::Pipeline
 		auto* _pCtx = a_context.pRenderContext;
 		auto* _pGE = a_context.pGraphicsEngine;
 
-		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(a_context.pCmdList, kRootCameraCB, _pGE->GetSceneView()->GetCameraData());
-		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<SkyData>(a_context.pCmdList, kRootSkyCB, _pGE->GetSceneView()->GetSkyData());
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(a_context.pCmdList, ROOT_CAMERA_CB, _pGE->GetSceneView()->GetCameraData());
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<SkyData>(a_context.pCmdList, ROOT_SKY_CB, _pGE->GetSceneView()->GetSkyData());
 
 		// スカイテクスチャはシーン側が差し替えるので、空のフレームは描かない
 		const auto& _skyTexHandle = _pGE->GetSceneView()->GetSkyTexture();
@@ -57,7 +57,7 @@ namespace Engine::Graphics::Pipeline
 
 		// バインドレス : スカイテクスチャの番号をルート定数で渡す
 		const UINT _skyTexIndex = _pSkyTex->GetSRV().GetIndex();
-		_pCtx->ComputeBindDescriptorIndices(kRootSkyTexSRV, std::span<const UINT>(&_skyTexIndex, 1));
+		_pCtx->ComputeBindDescriptorIndices(ROOT_SKY_TEX_SRV, std::span<const UINT>(&_skyTexIndex, 1));
 
 		DispatchFullScreen(a_context);
 	}

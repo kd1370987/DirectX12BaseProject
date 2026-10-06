@@ -118,7 +118,7 @@ namespace Engine::Option
 		~OptionManager() = default;
 	public:
 
-		static OptionManager& GetInstance()
+		static OptionManager& Instance()
 		{
 			static OptionManager _instance;
 			return _instance;

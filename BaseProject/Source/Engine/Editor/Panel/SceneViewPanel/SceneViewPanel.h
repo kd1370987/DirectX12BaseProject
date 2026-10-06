@@ -110,6 +110,6 @@ namespace Engine::Editor
 		// コピー用 : Ctrl+C で詰めて、Ctrl+V のたびに中身から生成する(何度でも貼り付け可)
 		std::vector<EntityCopyData> m_copyBufferVec = {};
 
-		Engine::GUID m_currentSceneGUID = Engine::DefaultGUID;
+		Engine::GUID m_currentSceneGUID = Engine::DEFAULT_GUID;
 	};
 }

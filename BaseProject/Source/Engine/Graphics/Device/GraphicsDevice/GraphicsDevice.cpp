@@ -25,10 +25,10 @@ namespace Engine::Graphics
 		// D3D12_RLDO_IGNORE_INTERNAL でランタイム内部の参照だけのものは除く
 		if (m_isDebug)
 		{
-			ComPtr<ID3D12DebugDevice> _cpDebDev;
-			if (SUCCEEDED(m_cpDevice->QueryInterface(IID_PPV_ARGS(&_cpDebDev))))
+			ComPtr<ID3D12DebugDevice> _cpDebugDevice;
+			if (SUCCEEDED(m_cpDevice->QueryInterface(IID_PPV_ARGS(&_cpDebugDevice))))
 			{
-				_cpDebDev->ReportLiveDeviceObjects(
+				_cpDebugDevice->ReportLiveDeviceObjects(
 					D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL
 				);
 			}
@@ -53,7 +53,7 @@ namespace Engine::Graphics
 		);
 		if (FAILED(_hr))
 		{
-			ENGINE_ERRLOG(FAILED(_hr), "DXGIファクトリの生成に失敗");
+			ENGINE_ERRLOG(SUCCEEDED(_hr), "DXGIファクトリの生成に失敗");
 			return;
 		}
 	}
@@ -79,7 +79,7 @@ namespace Engine::Graphics
 		}
 
 		// 優先度の高いGPUドライバーを使用する
-		GPUTier _guiTier = GPUTier::Kind;
+		EGPUTier _guiTier = EGPUTier::Kind;
 		for (int _i = 0; _i < _adapterDescs.size(); ++_i)
 		{
 			if (std::wstring(_adapterDescs[_i].Description).find(L"NVIDIA") != std::wstring::npos)
@@ -91,37 +91,37 @@ namespace Engine::Graphics
 			else if (std::wstring(_adapterDescs[_i].Description).find(L"Amd") != std::wstring::npos)
 			{
 				// 選択中のGPUがAmdより低優先度なら入れ替え
-				if (_guiTier > GPUTier::Amd)
+				if (_guiTier > EGPUTier::Amd)
 				{
 					m_cpAdapter = _pAdapters[_i];
-					_guiTier = GPUTier::Amd;
+					_guiTier = EGPUTier::Amd;
 				}
 			}
 			else if (std::wstring(_adapterDescs[_i].Description).find(L"Intel") != std::wstring::npos)
 			{
 				// 選択中のGPUがAmdより低優先度なら入れ替え
-				if (_guiTier > GPUTier::Intel)
+				if (_guiTier > EGPUTier::Intel)
 				{
 					m_cpAdapter = _pAdapters[_i];
-					_guiTier = GPUTier::Intel;
+					_guiTier = EGPUTier::Intel;
 				}
 			}
 			else if (std::wstring(_adapterDescs[_i].Description).find(L"Arm") != std::wstring::npos)
 			{
 				// 選択中のGPUがAmdより低優先度なら入れ替え
-				if (_guiTier > GPUTier::Arm)
+				if (_guiTier > EGPUTier::Arm)
 				{
 					m_cpAdapter = _pAdapters[_i];
-					_guiTier = GPUTier::Arm;
+					_guiTier = EGPUTier::Arm;
 				}
 			}
 			else if (std::wstring(_adapterDescs[_i].Description).find(L"Qualcomm") != std::wstring::npos)
 			{
 				// 選択中のGPUがAmdより低優先度なら入れ替え
-				if (_guiTier > GPUTier::Qualcomm)
+				if (_guiTier > EGPUTier::Qualcomm)
 				{
 					m_cpAdapter = _pAdapters[_i];
-					_guiTier = GPUTier::Qualcomm;
+					_guiTier = EGPUTier::Qualcomm;
 				}
 			}
 		}
@@ -155,7 +155,7 @@ namespace Engine::Graphics
 		}
 		if (FAILED(_hr))
 		{
-			ENGINE_ERRLOG(FAILED(_hr), "デバイス生成に失敗");
+			ENGINE_ERRLOG(SUCCEEDED(_hr), "デバイス生成に失敗");
 			return;
 		}
 
@@ -177,10 +177,10 @@ namespace Engine::Graphics
 		// デバッグ設定
 		if (m_isDebug)
 		{
-			ComPtr<ID3D12DebugDevice> _debDev;
-			if (SUCCEEDED(m_cpDevice->QueryInterface(IID_PPV_ARGS(&_debDev))))
+			ComPtr<ID3D12DebugDevice> _cpDebugDevice;
+			if (SUCCEEDED(m_cpDevice->QueryInterface(IID_PPV_ARGS(&_cpDebugDevice))))
 			{
-				_debDev->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
+				_cpDebugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
 			}
 			ENGINE_LOG("Dviceのデバッグ設定ON");
 		}

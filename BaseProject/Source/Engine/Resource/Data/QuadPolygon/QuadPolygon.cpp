@@ -33,7 +33,7 @@ namespace Engine::Resource
 			_vertices
 		))
 		{
-			assert(0 && "いたポリの頂点バッファ作成失敗");
+			ENGINE_ERRLOG(false, "いたポリの頂点バッファ作成失敗");
 		}
 
 		// インデックスバッファ作成
@@ -44,7 +44,7 @@ namespace Engine::Resource
 		_desc.format = DXGI_FORMAT_R32_UINT;
 		if (!m_indexBuffer.Create(a_pHeapManager->RefDevice(),a_pHeapManager,_desc))
 		{
-			assert(0 && "いたポリのインデックスバッファ作成失敗");
+			ENGINE_ERRLOG(false, "いたポリのインデックスバッファ作成失敗");
 		}
 	}
 	void QuadPolygon::Init(D3D12::DescriptorHeapManager* a_pHeapManager, uint32_t a_widthVertNum, uint32_t a_heightVertNum)

@@ -62,8 +62,8 @@ namespace Engine::Editor::Inspector
 		const CompositeGroup* Find(const Engine::GUID& a_passGUID) const;
 	};
 
-	// グラフのパスを札ごとに分ける。
-	// 札が1つしか無いまとまりも作る(段数を1へ減らしたときも合成ノードのまま扱うため)
+	/// グラフのパスを札ごとに分ける。
+	/// 札が1つしか無いまとまりも作る(段数を1へ減らしたときも合成ノードのまま扱うため)
 	CompositeGroupTable BuildCompositeGroups(Graphics::Pipeline::RenderGraph& a_graph);
 
 	//======================================================================================
@@ -75,11 +75,11 @@ namespace Engine::Editor::Inspector
 	//======================================================================================
 	struct CompositeNodeRequest
 	{
-		static constexpr int kNoResize = -1;
+		static constexpr int NO_RESIZE = -1;
 
-		int resizeCount = kNoResize;	// 0以上なら段数をこの数へ変える
+		int resizeCount = NO_RESIZE;	// 0以上なら段数をこの数へ変える
 
-		bool IsEmpty() const { return resizeCount == kNoResize; }
+		bool IsEmpty() const { return resizeCount == NO_RESIZE; }
 	};
 
 	//======================================================================================
@@ -190,14 +190,14 @@ namespace Engine::Editor::Inspector
 	//--------------------------------------------------------------------------------------
 	namespace CompositeUtil
 	{
-		// この入力ピンへ線を引いている相手を探す : 無ければ nullptr
+		/// この入力ピンへ線を引いている相手を探す : 無ければ nullptr
 		Graphics::Pipeline::Pass* FindLinkSource(
 			Graphics::Pipeline::RenderGraph& a_graph,
 			const Engine::GUID& a_dstPassGUID,
 			uint32_t a_dstSlotID,
 			uint32_t* a_pOutSrcSlotID);
 
-		// 同じ入力ピンへ、元と同じ相手を繋ぎ直す(段を増やしたときに共有入力を配る)
+		/// 同じ入力ピンへ、元と同じ相手を繋ぎ直す(段を増やしたときに共有入力を配る)
 		void CopyInputLink(
 			Graphics::Pipeline::RenderGraph& a_graph,
 			const Graphics::Pipeline::Pass& a_srcPass,

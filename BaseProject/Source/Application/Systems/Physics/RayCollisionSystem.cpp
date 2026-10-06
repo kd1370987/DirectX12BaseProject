@@ -92,7 +92,7 @@ void RayCollisionSystem::Init(App::ECS::APPWorld& a_world)
 				// 静的・動くもの(敵・弾・ボイド)のどれにも当たる。自分自身は除く
 				Engine::Physics::RayHit _hit = {};
 				const bool _isHit = _physicsWorld.CastRay(
-					_info, Engine::Physics::kQueryAllLayers, a_pChunk->entityData[_i], _hit);
+					_info, Engine::Physics::QUERY_ALL_LAYERS, a_pChunk->entityData[_i], _hit);
 
 				// プローブのデバッグ表示（緑=接地, 赤=空中。終点に球）
 				a_ctx.pServices->pDebugDraw->DrawRay(

@@ -43,14 +43,14 @@ namespace Engine::Time
 
 	void FPSController::FPSMonitor()
 	{
-		constexpr auto _refresh = std::chrono::milliseconds(500);
+		constexpr auto REFRESH = std::chrono::milliseconds(500);
 
 		m_frameCount++;
 
 		auto _now = std::chrono::steady_clock::now();
 		auto _elapsed = _now - m_countFrameStart;
 
-		if (_elapsed >= _refresh)
+		if (_elapsed >= REFRESH)
 		{
 			double _seconds = std::chrono::duration<double>(_elapsed).count();
 

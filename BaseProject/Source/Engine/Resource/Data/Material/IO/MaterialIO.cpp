@@ -7,7 +7,7 @@ namespace Engine::Resource
 		Material _mat = {};
 		auto _fileDir = Engine::File::GetDirFromPath(a_path);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_path);
-		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "mtrl");
+		Persistence::Archive _ar(Persistence::Archive::EMode::Load, _fileDir, _fileName, "mtrl");
 		_mat.Archive(_ar);
 
 		// 読み込み

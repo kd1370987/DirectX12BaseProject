@@ -130,7 +130,7 @@ namespace Engine::Editor
 			Math::Matrix::CreateTranslation(m_pos);
 
 		// 射影行列。アスペクトはウィンドウ設定から取る(ECS側のカメラと同じ作り方)
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
 		const float _aspect = (_winOp.windowHeight > 0)
 			? static_cast<float>(_winOp.windowWidth) / static_cast<float>(_winOp.windowHeight)
 			: 16.0f / 9.0f;
@@ -180,7 +180,7 @@ namespace Engine::Editor
 	Math::Ray EditorCamera::ScreenPointToRay(const Math::Vector2& a_mousePos, float a_maxDistance)
 	{
 		// スクリーン情報取得
-		const auto& _windowOp = Option::OptionManager::GetInstance().GetWindowOption();
+		const auto& _windowOp = Option::OptionManager::Instance().GetWindowOption();
 
 		// スクリーン座標を逆射影して、近平面と遠平面のワールド座標を取る。
 		// XMVector3Unproject に相当するものは Math 側に無いので、

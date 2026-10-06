@@ -71,27 +71,27 @@ namespace Engine::ECS
 		//==========================================================================================
 
 		// 全エンティティの住所(未使用の枠も含む。pChunk が nullptr なら空き)
-		const std::vector<EntityLocation>& GetEntityList();
+		const std::vector<EntityLocation>& GetEntityList() const;
 
 		// 生存しているエンティティの数
-		UINT GetAliveEntityCount();
+		UINT GetAliveEntityCount() const;
 
 		// 今このワールドで生きているか。
 		// フレームやシーンをまたいで ID を持ち越す側(エディターなど)は、中身を引く前に必ず確かめること
 		bool IsAliveEntity(const Entity& a_entity);
 
 		// 住所の取得 : 居なければ空の住所
-		const EntityLocation& GetLocation(const Entity& a_entity);
+		const EntityLocation& GetLocation(const Entity& a_entity) const;
 
 		// 住所からエンティティを引く : 空の住所なら INVALID_ENTITY
-		const Entity& GetEntity(const EntityLocation& a_location);
+		const Entity& GetEntity(const EntityLocation& a_location) const;
 
 		// GUID からエンティティを探す。
 		// 基盤は識別子を持たないので常に INVALID_ENTITY。GUID を持つ層が override する
 		virtual Entity GetEntity(const Engine::GUID& a_guid);
 
 		// シグネチャの取得 : 居なければ空
-		Signature GetSignature(const Entity& a_entity);
+		Signature GetSignature(const Entity& a_entity) const;
 
 		// コンポーネントを持っているか(未登録の型・居ないエンティティは false)
 		template<typename Comp>
@@ -152,11 +152,11 @@ namespace Engine::ECS
 
 		// タイプIDの取得 : 未登録なら INVALID_COMPONENTTYPEID
 		template<typename Comp>
-		ComponentTypeID GetCompTypeID();
-		ComponentTypeID GetCompTypeID(const std::string& a_name);
+		ComponentTypeID GetCompTypeID() const;
+		ComponentTypeID GetCompTypeID(const std::string& a_name) const;
 
 		// メタ情報(サイズ・名前など)
-		const ComponentMeta& GetComponentMetaData(const ComponentTypeID& a_typeID);
+		const ComponentMeta& GetComponentMetaData(const ComponentTypeID& a_typeID) const;
 		const std::vector<ComponentMeta>& GetAllComponentMetaData() const;	// 添え字がタイプID
 
 		// シグネチャに立っているコンポーネントの名前一覧(保存用。名前が保存データのキー)
@@ -210,7 +210,7 @@ namespace Engine::ECS
 		// チャンクを分けて同時に回すので、書き込みは自分のチャンクの配列だけにする
 		// (別のエンティティは RefData で読むだけ。読む型は TaskAccess::Reads で宣言する)
 		//
-		// 戻り値で、絞り込みに使わない読み書き(RefData / GetResource 越し)を追加で宣言できる(TaskAccess)
+		// 戻り値で、絞り込みに使わない読み書き(RefData / RefResource 越し)を追加で宣言できる(TaskAccess)
 		template<typename... Components, typename... Excludes, typename Func>
 		TaskAccess RegisterTask(
 			ESystemType a_phase,
@@ -234,7 +234,7 @@ namespace Engine::ECS
 		);
 
 		// システム実体の寿命を預ける(生成と Init は上位層が済ませてから渡す)
-		void HoldSystem(std::shared_ptr<ISystem> a_spSystem) { m_systemManager.Hold(std::move(a_spSystem)); }
+		void HoldSystem(std::unique_ptr<ISystem> a_upSystem) { m_systemManager.Hold(std::move(a_upSystem)); }
 
 		// フェーズのタスクを実行順に回す
 		void RunSystem(ESystemType a_type, float a_dt);
@@ -256,9 +256,13 @@ namespace Engine::ECS
 		template<typename ResourceType, typename... Args>
 		void AddResource(Args&&... a_args);
 
-		// 参照 : 無ければ止める
+		// 参照(書き換え可) : 無ければ止める
 		template<typename ResourceType>
-		ResourceType& GetResource();
+		ResourceType& RefResource();
+
+		// 参照(読み取り専用) : 無ければ止める
+		template<typename ResourceType>
+		const ResourceType& GetResource() const;
 
 		template<typename ResourceType>
 		bool HasResource() const;
@@ -417,7 +421,7 @@ namespace Engine::ECS
 	}
 
 	template<typename Comp>
-	inline ComponentTypeID World::GetCompTypeID()
+	inline ComponentTypeID World::GetCompTypeID() const
 	{
 		// 型ごとの置き場所を読むだけ(typeid やハッシュの検索をしない)
 		return ComponentMetaRegistry::GetTypeID<Comp>();
@@ -681,7 +685,13 @@ namespace Engine::ECS
 	}
 
 	template<typename ResourceType>
-	inline ResourceType& World::GetResource()
+	inline ResourceType& World::RefResource()
+	{
+		return m_resourceStore.Ref<ResourceType>();
+	}
+
+	template<typename ResourceType>
+	inline const ResourceType& World::GetResource() const
 	{
 		return m_resourceStore.Get<ResourceType>();
 	}

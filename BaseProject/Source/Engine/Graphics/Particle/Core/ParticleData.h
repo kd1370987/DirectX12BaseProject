@@ -47,7 +47,7 @@ namespace Engine::Particle
 	inline constexpr uint32_t PARTICLE_POOL_HARD_LIMIT = 1u << 20;
 	inline constexpr double PARTICLE_POOL_SHRINK_IDLE_SECONDS = 10.0;
 
-	// ブロック単位に切り上げる(0 なら 1 ブロック。上限で頭打ち)
+	/// ブロック単位に切り上げる(0 なら 1 ブロック。上限で頭打ち)
 	inline uint32_t RoundUpToPoolBlock(uint64_t a_count)
 	{
 		const uint64_t _blocks = (std::max<uint64_t>(a_count, 1) + PARTICLE_POOL_BLOCK_SIZE - 1) / PARTICLE_POOL_BLOCK_SIZE;

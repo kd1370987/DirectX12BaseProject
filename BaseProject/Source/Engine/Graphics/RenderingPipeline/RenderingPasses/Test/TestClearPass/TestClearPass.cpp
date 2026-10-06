@@ -9,7 +9,7 @@ namespace Engine::Graphics::Pipeline
 		// 画面と同じ大きさ・同じフォーマットで作る。
 		// FinalOutputPass はコピーで写すので、最終出力と揃っていないと写せない
 		DeclareOutput(
-			kOutputName,
+			OUTPUT_NAME,
 			"TestColor",
 			DXGI_FORMAT_R8G8B8A8_UNORM,
 			EAccessType::RTV);
@@ -24,7 +24,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		if (!a_context.pCmdList) return;
 
-		const Slot* _pOutSlot = FindOutputSlot(MakeSlotID(kOutputName));
+		const Slot* _pOutSlot = FindOutputSlot(MakeSlotID(OUTPUT_NAME));
 		if (!_pOutSlot) return;
 
 		D3D12::GPUResource* _pResource = a_context.GetResource(*_pOutSlot);

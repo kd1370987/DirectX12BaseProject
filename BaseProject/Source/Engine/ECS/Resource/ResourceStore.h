@@ -2,6 +2,7 @@
 
 #include "ResourceTypeManager.h"
 #include "ResourceWrapper.h"
+#include "Engine/Utility/Debug/DebugLog.h"
 
 namespace Engine::ECS
 {
@@ -19,9 +20,13 @@ namespace Engine::ECS
 		template<typename ResourceType, typename... Args>
 		void Add(Args&&... a_args);
 
-		// リソースの参照 : 無ければ止める
+		// リソースの参照(書き換え可) : 無ければ止める
 		template<typename ResourceType>
-		ResourceType& Get();
+		ResourceType& Ref();
+
+		// リソースの参照(読み取り専用) : 無ければ止める
+		template<typename ResourceType>
+		const ResourceType& Get() const;
 
 		// リソース生存チェック
 		template<typename ResourceType>
@@ -29,6 +34,12 @@ namespace Engine::ECS
 
 		// 登録されている全リソース : 参照のみ(プロファイラ用)
 		const std::unordered_map<ResourceTypeID, std::unique_ptr<IResourceWrapper>>& GetResourceMap() const { return m_resourceMap; }
+
+	private:
+
+		// 型に対応するリソースを探す : 無ければ止める
+		template<typename ResourceType>
+		ResourceType& FindData() const;
 
 	private:
 
@@ -51,7 +62,19 @@ namespace Engine::ECS
 	}
 
 	template<typename ResourceType>
-	inline ResourceType& ResourceStore::Get()
+	inline ResourceType& ResourceStore::Ref()
+	{
+		return FindData<ResourceType>();
+	}
+
+	template<typename ResourceType>
+	inline const ResourceType& ResourceStore::Get() const
+	{
+		return FindData<ResourceType>();
+	}
+
+	template<typename ResourceType>
+	inline ResourceType& ResourceStore::FindData() const
 	{
 		// IDを検索
 		ResourceTypeID _id = ResourceTypeManager::GetID<ResourceType>();
@@ -62,7 +85,7 @@ namespace Engine::ECS
 		if (_it == m_resourceMap.end())
 		{
 			ENGINE_ERROR("ECS::World : Resource not found (%s)", std::string(TypeInfo::GetTypeName<ResourceType>()).c_str());
-			assert(0 && "ECS::World : 登録されていないリソースです");
+			ENGINE_ERRLOG(false, "ECS::World : 登録されていないリソースです");
 			std::abort();
 		}
 

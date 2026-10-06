@@ -208,20 +208,20 @@ namespace Engine::Editor::Inspector
 				auto& _params = a_pass.RefParams();
 
 				// アトラス全体の1辺。タイル(カスケード1枚)はこの半分になる
-				static constexpr const char* kItems[] = { "1024", "2048", "4096", "8192" };
-				static constexpr uint32_t kValues[] = { 1024, 2048, 4096, 8192 };
+				static constexpr const char* ITEMS[] = { "1024", "2048", "4096", "8192" };
+				static constexpr uint32_t VALUES[] = { 1024, 2048, 4096, 8192 };
 
 				int _index = -1;
-				for (int _i = 0; _i < static_cast<int>(std::size(kValues)); ++_i)
+				for (int _i = 0; _i < static_cast<int>(std::size(VALUES)); ++_i)
 				{
-					if (kValues[_i] == _params.resolution) _index = _i;
+					if (VALUES[_i] == _params.resolution) _index = _i;
 				}
 
-				if (!Engine::Editor::Combo("Resolution", _index, kItems)) return EPassEditResult::None;
+				if (!Engine::Editor::Combo("Resolution", _index, ITEMS)) return EPassEditResult::None;
 				if (_index < 0) return EPassEditResult::None;
 
 				// テクスチャを作り直すので組み直しが要る
-				_params.resolution = kValues[_index];
+				_params.resolution = VALUES[_index];
 				a_pass.ApplyResolution();
 				return EPassEditResult::Structure;
 			}
@@ -456,7 +456,7 @@ namespace Engine::Editor::Inspector
 			{
 				Engine::Editor::HelpText("このノードの絵がカメラの最終出力になります");
 
-				const Slot* _pInSlot = a_pass.FindInputSlot(Pass::MakeSlotID(FinalOutputPass::kInputName));
+				const Slot* _pInSlot = a_pass.FindInputSlot(Pass::MakeSlotID(FinalOutputPass::INPUT_NAME));
 				if (_pInSlot && _pInSlot->IsConnected())	Engine::Editor::Value("Input", "%s", _pInSlot->name.c_str());
 				else										Engine::Editor::HelpText("Input : (not connected)");
 
@@ -497,7 +497,7 @@ namespace Engine::Editor::Inspector
 
 				if (Engine::Editor::ComboScope _combo{ "Format", CopyPass::ToFormatName(_params.formatIndex) })
 				{
-					for (int _i = 0; _i < CopyPass::kFormatCount; ++_i)
+					for (int _i = 0; _i < CopyPass::FORMAT_COUNT; ++_i)
 					{
 						const bool _isSelected = (_params.formatIndex == _i);
 						if (ImGui::Selectable(CopyPass::ToFormatName(_i), _isSelected))

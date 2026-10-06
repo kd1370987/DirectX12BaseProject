@@ -1,31 +1,37 @@
 ﻿#include "AnimationEvaluator.h"
 
-/// <summary>
-/// 二分探索で、指定時間から次の配列要素のkeyIndexを求める
-/// </summary>
-/// <param name="a_list">キー配列</param>
-/// <returns>次の配列要素のインデックス</returns>
-template<class T>
-int BinarySearchNextAnimKey(const std::vector<T>& a_list, float a_currentTime)
+namespace Engine::Animation
 {
-	int _low = 0;
-	int _high = static_cast<int>(a_list.size());
-
-	while (_low < _high)
+	namespace
 	{
-		int _mid = (_low + _high) / 2;
-		float _midTime = a_list[_mid].time;
+		/// <summary>
+		/// 二分探索で、指定時間から次の配列要素のkeyIndexを求める
+		/// </summary>
+		/// <param name="a_list">キー配列</param>
+		/// <returns>次の配列要素のインデックス</returns>
+		template<class T>
+		int BinarySearchNextAnimKey(const std::vector<T>& a_list, float a_currentTime)
+		{
+			int _low = 0;
+			int _high = static_cast<int>(a_list.size());
 
-		if (_midTime <= a_currentTime)
-		{
-			_low = _mid + 1;
-		}
-		else
-		{
-			_high = _mid;
+			while (_low < _high)
+			{
+				int _mid = (_low + _high) / 2;
+				float _midTime = a_list[_mid].time;
+
+				if (_midTime <= a_currentTime)
+				{
+					_low = _mid + 1;
+				}
+				else
+				{
+					_high = _mid;
+				}
+			}
+			return _low;
 		}
 	}
-	return _low;
 }
 
 namespace Engine::Animation
@@ -36,16 +42,16 @@ namespace Engine::Animation
 
 		Math::Vector3 _rs = { 1,1,1 };
 		Math::Quaternion _rq = {};
-		Math::Vector3 _rt = {};
+		Math::Vector3 _translation = {};
 		if (Internal::InterpolateScale(a_node, a_currentTime, _rs)) _isChange = true;
 		if (Internal::InterpolateRotations(a_node, a_currentTime, _rq)) _isChange = true;
-		if (Internal::InterpolateTranslations(a_node, a_currentTime, _rt)) _isChange = true;
+		if (Internal::InterpolateTranslations(a_node, a_currentTime, _translation)) _isChange = true;
 
 		if (_isChange)
 		{
 			const Math::Matrix _sMat = Math::Matrix::CreateScale(_rs);
 			const Math::Matrix _rMat = Math::Matrix::CreateFromQuaternion(_rq);
-			const Math::Matrix _tMat = Math::Matrix::CreateTranslation(_rt);
+			const Math::Matrix _tMat = Math::Matrix::CreateTranslation(_translation);
 			a_rDst = _sMat * _rMat * _tMat;
 		}
 	}
@@ -215,10 +221,10 @@ namespace Engine::Animation
 	)
 	{
 		// 【追加】デバッグ用：インデックスが配列の範囲をはみ出していないかチェック
-		assert(a_nodeIdx >= 0 && a_nodeIdx < a_nodePoseVec.size() && "CalcNodeMatrix: a_nodeIdx is OUT OF RANGE!");
+		ENGINE_ERRLOG(a_nodeIdx >= 0 && a_nodeIdx < a_nodePoseVec.size(), "CalcNodeMatrix: a_nodeIdx is OUT OF RANGE!");
 		if (a_parentNodeIdx >= 0)
 		{
-			assert(a_parentNodeIdx < a_nodePoseVec.size() && "CalcNodeMatrix: a_parentNodeIdx is OUT OF RANGE!");
+			ENGINE_ERRLOG(a_parentNodeIdx < a_nodePoseVec.size(), "CalcNodeMatrix: a_parentNodeIdx is OUT OF RANGE!");
 		}
 
 		const auto& _node = a_model->GetOriginalNodeVec()[a_nodeIdx];

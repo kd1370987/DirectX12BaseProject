@@ -25,7 +25,7 @@ void FollowTargetLinkSystem::Init(App::ECS::APPWorld& a_world)
 				FollowTargetComponent& _followComp = a_followArray[_i];
 
 				// ターゲットGUIDがあるのなら
-				if (_followComp.targetGUID != Engine::DefaultGUID)
+				if (_followComp.targetGUID != Engine::DEFAULT_GUID)
 				{
 					_followComp.target = a_ctx.pWorld->GetEntity(_followComp.targetGUID);
 				}

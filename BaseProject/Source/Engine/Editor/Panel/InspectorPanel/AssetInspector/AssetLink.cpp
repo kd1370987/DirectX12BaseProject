@@ -13,7 +13,7 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		bool IsEmptyGUID(const Engine::GUID& a_guid)
 		{
-			return (!a_guid.IsValid() || a_guid == Engine::DefaultGUID);
+			return (!a_guid.IsValid() || a_guid == Engine::DEFAULT_GUID);
 		}
 
 		//-----------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ namespace Engine::Editor::Inspector
 			a_editContext.assetHistoryVec.push_back(a_editContext.selectedAssetGUID);
 
 			// 古いものから捨てる
-			if (a_editContext.assetHistoryVec.size() > EditorContext::kAssetHistoryMax)
+			if (a_editContext.assetHistoryVec.size() > EditorContext::ASSET_HISTORY_MAX)
 			{
 				a_editContext.assetHistoryVec.erase(a_editContext.assetHistoryVec.begin());
 			}

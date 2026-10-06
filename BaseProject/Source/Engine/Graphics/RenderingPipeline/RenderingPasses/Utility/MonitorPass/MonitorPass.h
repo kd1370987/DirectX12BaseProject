@@ -93,8 +93,6 @@ namespace Engine::Graphics::Pipeline
 
 	private:
 
-		Params m_params = {};
-
 		//----------------------------------------------------------------------------------
 		// 写し先に使えるフォーマットへ直す
 		//
@@ -110,6 +108,10 @@ namespace Engine::Graphics::Pipeline
 
 		// モニター用テクスチャを手放す
 		void ReleasePreviewTexture();
+
+	private:
+
+		Params m_params = {};
 
 		//----------------------------------------------------------------------------------
 		// モニター用のテクスチャ(グラフの外の持ち物)

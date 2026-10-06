@@ -31,7 +31,7 @@ void BoidSnapshotSystem::Init(App::ECS::APPWorld& a_world)
 		{
 			if (!a_ctx.pWorld) return;
 
-			BoidSnapshotResource& _snapshot = a_ctx.pWorld->GetResource<BoidSnapshotResource>();
+			BoidSnapshotResource& _snapshot = a_ctx.pWorld->RefResource<BoidSnapshotResource>();
 			_snapshot.Clear();
 
 			a_ctx.pWorld->ForEach<

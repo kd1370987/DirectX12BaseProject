@@ -26,7 +26,7 @@ namespace Engine::Graphics::Pipeline
 			a_context,
 			"Asset/Shader/Source/UI/UIVS.cso",
 			"Asset/Shader/Source/UI/UIPS.cso",
-			D3D12::Input::gParticleInputLayout,
+			D3D12::Input::PARTICLE_INPUT_LAYOUT,
 			"UIPso",
 			[](D3D12::GraphicsPipelineDesc& a_pso)
 			{

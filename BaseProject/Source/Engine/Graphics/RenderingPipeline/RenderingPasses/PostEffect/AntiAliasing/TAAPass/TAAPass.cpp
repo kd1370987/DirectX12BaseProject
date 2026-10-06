@@ -11,14 +11,14 @@ namespace Engine::Graphics::Pipeline
 		DeclareInput("Color", EAccessType::SRV, EPassSlotType::Texture, true, 0);
 		// 履歴は前フレームの結果を読むピン。
 		// 実行順の辺にならないので、自分の出力へそのまま繋いで回せる
-		DeclareInput(kHistoryInName, EAccessType::SRV, EPassSlotType::Texture, true, 0, true);
+		DeclareInput(HISTORY_IN_NAME, EAccessType::SRV, EPassSlotType::Texture, true, 0, true);
 		DeclareInput("Velocity", EAccessType::SRV, EPassSlotType::Texture, true, 0);
 		DeclareInput("Depth", EAccessType::SRV, EPassSlotType::Texture, true, 0);
 		DeclareInput("Normal", EAccessType::SRV, EPassSlotType::Texture, true, 0);
 
 		// フレーム間で入れ替わる履歴。
 		// Temporal を立てると物理を2枚持ち、書く側と読む側が毎フレーム入れ替わる
-		DeclareOutput(kHistoryOutName, "TAAHistory", DXGI_FORMAT_R16G16B16A16_FLOAT,
+		DeclareOutput(HISTORY_OUT_NAME, "TAAHistory", DXGI_FORMAT_R16G16B16A16_FLOAT,
 			EAccessType::UAV, EPassSlotType::Texture, true, 1);
 	}
 

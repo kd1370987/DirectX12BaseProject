@@ -126,7 +126,7 @@ namespace App::Utility
 		const Math::Vector3& a_emitDir,
 		float a_scale)
 	{
-		if (a_effectGUID == Engine::DefaultGUID) return false;
+		if (a_effectGUID == Engine::DEFAULT_GUID) return false;
 
 		Engine::ECS::Signature _sig = {};
 		EffectDataMap _data = {};
@@ -157,7 +157,7 @@ namespace App::Utility
 		const Math::Vector3& a_emitDir,
 		float a_scale)
 	{
-		if (a_effectGUID == Engine::DefaultGUID) return Engine::ECS::Limits::INVALID_ENTITY;
+		if (a_effectGUID == Engine::DEFAULT_GUID) return Engine::ECS::Limits::INVALID_ENTITY;
 
 		Engine::ECS::Signature _sig = {};
 		EffectDataMap _data = {};

@@ -16,7 +16,7 @@ namespace Engine::ECS
 
 	void World::Init(ComponentMetaRegistry* a_pComponentRegistry)
 	{
-		assert(a_pComponentRegistry && "型情報(ComponentMetaRegistry)が渡されていません");
+		ENGINE_ERRLOG(a_pComponentRegistry, "型情報(ComponentMetaRegistry)が渡されていません");
 		m_pComponentRegistry = a_pComponentRegistry;
 
 		m_storage.Init(m_pComponentRegistry, &m_engineServices);
@@ -76,12 +76,12 @@ namespace Engine::ECS
 	// エンティティ : 参照
 	//==============================================================================================
 
-	const std::vector<EntityLocation>& World::GetEntityList()
+	const std::vector<EntityLocation>& World::GetEntityList() const
 	{
 		return m_storage.GetAllEntityLocation();
 	}
 
-	UINT World::GetAliveEntityCount()
+	UINT World::GetAliveEntityCount() const
 	{
 		return m_storage.GetAliveEntityCount();
 	}
@@ -91,12 +91,12 @@ namespace Engine::ECS
 		return m_storage.IsAlive(a_entity);
 	}
 
-	const EntityLocation& World::GetLocation(const Entity& a_entity)
+	const EntityLocation& World::GetLocation(const Entity& a_entity) const
 	{
 		return m_storage.GetLocation(a_entity);
 	}
 
-	const Entity& World::GetEntity(const EntityLocation& a_location)
+	const Entity& World::GetEntity(const EntityLocation& a_location) const
 	{
 		if (!a_location.pChunk) return Limits::INVALID_ENTITY;
 
@@ -110,7 +110,7 @@ namespace Engine::ECS
 		return Limits::INVALID_ENTITY;
 	}
 
-	Signature World::GetSignature(const Entity& a_entity)
+	Signature World::GetSignature(const Entity& a_entity) const
 	{
 		return m_storage.GetSignature(a_entity);
 	}
@@ -243,12 +243,12 @@ namespace Engine::ECS
 	// コンポーネント : 型情報
 	//==============================================================================================
 
-	ComponentTypeID World::GetCompTypeID(const std::string& a_name)
+	ComponentTypeID World::GetCompTypeID(const std::string& a_name) const
 	{
 		return m_pComponentRegistry->GetTypeID(a_name);
 	}
 
-	const ComponentMeta& World::GetComponentMetaData(const ComponentTypeID& a_typeID)
+	const ComponentMeta& World::GetComponentMetaData(const ComponentTypeID& a_typeID) const
 	{
 		return m_pComponentRegistry->GetMetaData(a_typeID);
 	}

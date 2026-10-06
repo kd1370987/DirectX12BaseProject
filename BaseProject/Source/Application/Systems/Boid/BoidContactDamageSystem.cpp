@@ -58,7 +58,7 @@ void BoidContactDamageSystem::Init(App::ECS::APPWorld& a_world)
 			if (!_world.HasResource<HitEventResource>()) return;
 
 			const auto& _res = _world.GetResource<SwarmContactDamageResource>();
-			auto& _hitEvents = _world.GetResource<HitEventResource>();
+			auto& _hitEvents = _world.RefResource<HitEventResource>();
 
 			const float _dt = a_ctx.dt;
 			const bool _isActive = _res.isActive && _res.player != Engine::ECS::Limits::INVALID_ENTITY;

@@ -65,7 +65,7 @@ namespace Engine::Graphics
 
 		// ---- アクセサ ----
 		D3D12::CommandQueue* GetCommandQueue() { return m_cpCmdQueue.Get(); }
-		D3D12_COMMAND_LIST_TYPE GetQueueType() { return m_type; }
+		D3D12_COMMAND_LIST_TYPE GetQueueType() const { return m_type; }
 		D3D12::Fence* GetFence() { return m_cpFence.Get(); }
 	private:
 		

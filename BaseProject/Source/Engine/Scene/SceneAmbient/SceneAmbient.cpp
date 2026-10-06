@@ -244,9 +244,9 @@ namespace Engine::Scene
 			Engine::Editor::Field("HeightFogMaxRange", m_ambient.heightFogMaxRange, 0.1f, 0.0f);
 
 			// どちら側へ濃くしていくか
-			static const char* _denseName[] = { "Upward", "Downward" };
+			static const char* DENSE_NAME[] = { "Upward", "Downward" };
 			int _denseDown = m_ambient.heightFogDenseDown != 0 ? 1 : 0;
-			if (Engine::Editor::Combo("HeightFogDense", _denseDown, _denseName))
+			if (Engine::Editor::Combo("HeightFogDense", _denseDown, DENSE_NAME))
 			{
 				m_ambient.heightFogDenseDown = _denseDown;
 			}

@@ -27,36 +27,8 @@ namespace Engine::Input
 			}
 		}
 
-		// キーが押されていたら
-		if (_isButtonDown)
-		{
-			// ホールドフラグがついていたらそのフレームに押されたわけではないのでフラグを消す
-			if (m_state & EState::Hold)
-			{
-				m_state &= ~EState::Press;
-			}
-			// 押されていない状態なら
-			else
-			{
-				m_state |= EState::Press | EState::Hold;
-			}
-		}
-		// キーが押されていないのなら
-		else
-		{
-			// 押されているのなら離されたフレームにする
-			if (m_state & EState::Hold)
-			{
-				m_state &= ~EState::Press;
-				m_state &= ~EState::Hold;
-				m_state |= EState::Release;
-			}
-			// 離されたフラグ解除
-			else
-			{
-				m_state &= ~EState::Release;
-			}
-		}
+		// Press / Hold / Release の組み立ては基底と同じ
+		UpdateState(_isButtonDown);
 
 		// 更新済み
 		m_needUpdate = false;

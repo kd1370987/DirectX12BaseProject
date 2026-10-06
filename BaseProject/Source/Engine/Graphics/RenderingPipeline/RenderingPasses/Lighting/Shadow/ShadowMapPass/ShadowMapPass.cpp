@@ -18,7 +18,7 @@ namespace Engine::Graphics::Pipeline
 		// 深度だけを書く。後ろのパスが SRV として読むので TYPELESS で確保する。
 		// 大きさは画面の解像度に依らないので、固定で宣言する(ApplyResolution で入れる)
 		Slot& _map = DeclareOutput(
-			"ShadowMap", "SunShadowMap", DXGI_FORMAT_R32_TYPELESS, EAccessType::Depth_Write);
+			"ShadowMap", "SunShadowMap", DXGI_FORMAT_R32_TYPELESS, EAccessType::DepthWrite);
 		_map.loadOp = ELoadOp::Clear;
 
 		ApplyResolution();
@@ -31,7 +31,7 @@ namespace Engine::Graphics::Pipeline
 
 		// タイルに割り切れる大きさにそろえる
 		m_params.resolution = std::clamp(m_params.resolution, 256u, 16384u);
-		m_params.resolution -= m_params.resolution % kAtlasTiles;
+		m_params.resolution -= m_params.resolution % ATLAS_TILES;
 
 		_pOut->width = m_params.resolution;
 		_pOut->height = m_params.resolution;
@@ -88,7 +88,7 @@ namespace Engine::Graphics::Pipeline
 		const VirtualResource* _pRes = a_context.pGraph->GetVirtualResource(_pOut->resourceID);
 		if (!_pRes) return;
 
-		const UINT _tileSize = static_cast<UINT>(_pRes->GetWidth()) / kAtlasTiles;
+		const UINT _tileSize = static_cast<UINT>(_pRes->GetWidth()) / ATLAS_TILES;
 		if (_tileSize == 0) return;
 
 		// 深度バッファの切り替えとクリアはグラフが済ませてある
@@ -103,8 +103,8 @@ namespace Engine::Graphics::Pipeline
 			// このカスケードのタイルへだけ描く。
 			// グラフが張ったビューポートは画面の大きさなので、ここで張り替える
 			// (後ろのパスはレンダーターゲットを切り替えるときに張り直す)
-			const UINT _left = (_i % kAtlasTiles) * _tileSize;
-			const UINT _top = (_i / kAtlasTiles) * _tileSize;
+			const UINT _left = (_i % ATLAS_TILES) * _tileSize;
+			const UINT _top = (_i / ATLAS_TILES) * _tileSize;
 
 			const D3D12_VIEWPORT _viewport = {
 				static_cast<float>(_left), static_cast<float>(_top),

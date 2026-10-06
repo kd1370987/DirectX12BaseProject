@@ -44,18 +44,18 @@ namespace Engine::TypeInfo
 	template<typename T>
 	constexpr std::string_view GetTypeName()
 	{
-		constexpr std::string_view _funcSig = __FUNCSIG__;
-		constexpr std::string_view _prefix = "GetTypeName<";
-		constexpr std::string_view _suffix = ">(void)";
+		constexpr std::string_view FUNC_SIG = __FUNCSIG__;
+		constexpr std::string_view PREFIX = "GetTypeName<";
+		constexpr std::string_view SUFFIX = ">(void)";
 
-		const size_t _begin = _funcSig.find(_prefix);
-		const size_t _end = _funcSig.rfind(_suffix);
-		if (_begin == std::string_view::npos || _end == std::string_view::npos) return _funcSig;
+		const size_t _begin = FUNC_SIG.find(PREFIX);
+		const size_t _end = FUNC_SIG.rfind(SUFFIX);
+		if (_begin == std::string_view::npos || _end == std::string_view::npos) return FUNC_SIG;
 
-		const size_t _nameBegin = _begin + _prefix.size();
-		if (_end <= _nameBegin) return _funcSig;
+		const size_t _nameBegin = _begin + PREFIX.size();
+		if (_end <= _nameBegin) return FUNC_SIG;
 
-		return _funcSig.substr(_nameBegin, _end - _nameBegin);
+		return FUNC_SIG.substr(_nameBegin, _end - _nameBegin);
 	}
 
 	//======================================================================================
@@ -95,14 +95,14 @@ namespace Engine::TypeInfo
 		template<typename T>
 		struct ChainHolder
 		{
-			inline static const TypeChain s_chain{ GetTypeKey<T>(), ChainOf<ChainParent_t<T>>(), GetTypeName<T>() };
+			inline static const TypeChain CHAIN{ GetTypeKey<T>(), ChainOf<ChainParent_t<T>>(), GetTypeName<T>() };
 		};
 
 		template<typename T>
 		constexpr const TypeChain* ChainOf()
 		{
 			if constexpr (std::is_void_v<T>) return nullptr;
-			else return &ChainHolder<T>::s_chain;
+			else return &ChainHolder<T>::CHAIN;
 		}
 	}
 

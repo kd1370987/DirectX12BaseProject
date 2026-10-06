@@ -23,7 +23,7 @@ struct WormGroundEffectResource
 	//--------------------------------------------------------------------------
 	// 調整値(SwarmBossController が毎フレーム書き写す)
 	//--------------------------------------------------------------------------
-	Engine::GUID effectGUID = Engine::DefaultGUID;	// 炊くエフェクト(出し切って消える単発のもの)
+	Engine::GUID effectGUID = Engine::DEFAULT_GUID;	// 炊くエフェクト(出し切って消える単発のもの)
 
 	float maxHeight   = 20.0f;		// 地面からこの高さまでのボイドが炊く(m)
 	float maxDepth    = 150.0f;		// 地表からこの深さまでのボイドが炊く(真上へ打つレイの長さ。m)

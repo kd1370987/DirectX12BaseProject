@@ -274,7 +274,7 @@ namespace App::Object
 		}
 
 		Engine::Scene::SceneManager::Instance().SetNextScene(
-			m_resultSceneGUID, Engine::Scene::SceneChangeType::Replace);
+			m_resultSceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 
 	//======================================================================================
@@ -312,7 +312,7 @@ namespace App::Object
 
 		// 重ねる。実際に積まれるのは次のフレームの初め
 		Engine::Scene::SceneManager::Instance().SetNextScene(
-			m_pauseSceneGUID, Engine::Scene::SceneChangeType::Push);
+			m_pauseSceneGUID, Engine::Scene::ESceneChangeType::Push);
 
 		m_isPauseRequested = true;
 	}
@@ -471,7 +471,7 @@ namespace App::Object
 		// 起きているので、黙って飛ばすと進行が止まったように見える
 		if (a_context.pWorld->HasResource<WaveAnnounceResource>())
 		{
-			a_context.pWorld->GetResource<WaveAnnounceResource>().Push(
+			a_context.pWorld->RefResource<WaveAnnounceResource>().Push(
 				static_cast<int>(a_index), static_cast<int>(m_waves.size()));
 		}
 	}

@@ -60,7 +60,7 @@ void ExplodeOnHitSystem::Init(App::ECS::APPWorld& a_world)
 					_death.entity = _self;
 					_death.pos    = _event.hitPos;
 
-					a_ctx.pWorld->GetResource<DeathEventResource>().Push(_death);
+					a_ctx.pWorld->RefResource<DeathEventResource>().Push(_death);
 				}
 			}
 		},

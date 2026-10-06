@@ -74,7 +74,7 @@ void LockOnTargetSystem::Init(App::ECS::APPWorld& a_world)
 			if (a_ctx.pWorld->HasResource<SingletonEntityResource>())
 			{
 				const Engine::ECS::Entity _camera =
-					a_ctx.pWorld->GetResource<SingletonEntityResource>().mainCamera;
+					a_ctx.pWorld->RefResource<SingletonEntityResource>().mainCamera;
 
 				if (_camera != Engine::ECS::Limits::INVALID_ENTITY &&
 					a_ctx.pWorld->IsAliveEntity(_camera) &&

@@ -30,7 +30,7 @@ void SyncPhysicsBodySystem::Init(App::ECS::APPWorld& a_world)
 			const LocalTransformComponent*		// 行列は親を辿って組むのでここでは使わない
 			)
 		{
-			auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
+			auto& _physicsWorld = a_ctx.pWorld->RefResource<Engine::Physics::PhysicsWorld>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

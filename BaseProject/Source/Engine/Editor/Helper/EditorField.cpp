@@ -493,7 +493,7 @@ namespace Engine::Editor
 	{
 		bool _isChange = false;
 
-		constexpr ImGuiColorEditFlags _kFlags =
+		constexpr ImGuiColorEditFlags FLAGS =
 			ImGuiColorEditFlags_Float |
 			ImGuiColorEditFlags_HDR |
 			ImGuiColorEditFlags_AlphaBar |
@@ -501,7 +501,7 @@ namespace Engine::Editor
 
 		{
 			Row _row(a_label);
-			_isChange |= ImGui::ColorEdit4(_row.ID(), a_value.Data(), _kFlags);
+			_isChange |= ImGui::ColorEdit4(_row.ID(), a_value.Data(), FLAGS);
 		}
 
 		// 数値は2行目、値の列に揃えて出す
@@ -899,16 +899,16 @@ namespace Engine::Editor
 		float a_height
 	)
 	{
-		auto& _resMgr = *a_services.pResourceManager;
+		auto& _resourceManager = *a_services.pResourceManager;
 
 		// 読み込み中はまだ中身が空なので、SRVを引くと不正なディスクリプタを掴む
-		if (!_resMgr.IsReady(a_handle))
+		if (!_resourceManager.IsReady(a_handle))
 		{
 			HelpText("Loading...");
 			return { 0,0 };
 		}
 
-		auto* _pTex = _resMgr.Ref(a_handle);
+		auto* _pTex = _resourceManager.Ref(a_handle);
 		if (!_pTex)
 		{
 			WarningText("Texture not found");

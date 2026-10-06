@@ -81,7 +81,7 @@ namespace App::Systems::MissileSalvo
 		}
 
 		// プレハブ未設定なら撃てない
-		if (_pGun->bulletPrefabGUID == Engine::DefaultGUID)
+		if (_pGun->bulletPrefabGUID == Engine::DEFAULT_GUID)
 		{
 			a_missile.fireRemain = 0;
 			return;

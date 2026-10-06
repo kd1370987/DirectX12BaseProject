@@ -149,7 +149,7 @@ namespace Engine::Graphics
 		auto* _pCopyPool = m_upCommandContext->RefCopyPool();
 
 		// 非同期マネージャーからアロケーターをもらう
-		auto* _allocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, AsyncCommandType::Copy);
+		auto* _allocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, EAsyncCommandType::Copy);
 
 		// コピー用のコマンドプールからリストをもらう (内部で_allocatorを使ってResetされる)
 		D3D12::GraphicsCommandList* _cmdList = _pCopyPool->AcquireList(_pDevice, _allocator);
@@ -166,7 +166,7 @@ namespace Engine::Graphics
 
 		// 非同期マネージャーに監視を依頼する（キュー管理と寿命監視の連携）
 		m_upAsyncGPUManager->RegisterTask(
-			AsyncCommandType::Copy,
+			EAsyncCommandType::Copy,
 			_allocator,
 			_pCopyPool->GetFence(),
 			_fenceValue,
@@ -182,14 +182,14 @@ namespace Engine::Graphics
 		// コピー用
 		if (a_useCopy)
 		{
-			_batch.pCopyAllocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, AsyncCommandType::Copy);
+			_batch.pCopyAllocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, EAsyncCommandType::Copy);
 			_batch.pCopyCmdList = m_upCommandContext->RefCopyPool()->AcquireList(_pDevice, _batch.pCopyAllocator);
 		}
 
 		// コンピュート用
 		if (a_useCompute)
 		{
-			_batch.pComputeAllocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, AsyncCommandType::Compute);
+			_batch.pComputeAllocator = m_upAsyncGPUManager->AcquireAllocator(_pDevice, EAsyncCommandType::Compute);
 			_batch.pComputeCmdList = m_upCommandContext->RefComputePool()->AcquireList(_pDevice, _batch.pComputeAllocator);
 		}
 
@@ -227,7 +227,7 @@ namespace Engine::Graphics
 
 			// 完了通知はGPU処理の最後になるコンピュート側に載せる
 			m_upAsyncGPUManager->RegisterTask(
-				AsyncCommandType::Compute,
+				EAsyncCommandType::Compute,
 				a_batch.pComputeAllocator,
 				_pComputePool->GetFence(),
 				_computeFenceValue,
@@ -242,7 +242,7 @@ namespace Engine::Graphics
 		if (_hasCopy)
 		{
 			m_upAsyncGPUManager->RegisterTask(
-				AsyncCommandType::Copy,
+				EAsyncCommandType::Copy,
 				a_batch.pCopyAllocator,
 				_pCopyPool->GetFence(),
 				_copyFenceValue,

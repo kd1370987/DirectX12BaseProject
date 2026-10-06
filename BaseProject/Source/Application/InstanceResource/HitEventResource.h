@@ -48,7 +48,7 @@ struct HitEvent
 
 	// 生成したいエフェクトのプレハブ(未設定なら生成しない)。
 	// 弾のように「反応する前に自分が消える」側が、産むときに指定しておくために持たせている。
-	Engine::GUID effectPrefabGUID = Engine::DefaultGUID;
+	Engine::GUID effectPrefabGUID = Engine::DEFAULT_GUID;
 };
 
 // ワールドに1つだけ置くヒットイベントの配列

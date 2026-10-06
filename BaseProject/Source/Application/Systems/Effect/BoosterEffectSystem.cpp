@@ -217,7 +217,7 @@ void BoosterEffectSystem::Init(App::ECS::APPWorld& a_world)
 				// RefData は持っていないコンポーネントなら nullptr を返す
 				//--------------------------------------------------------------
 				if (!_justBoosted) continue;
-				if (_booster.sparkEffectGUID == Engine::DefaultGUID) continue;
+				if (_booster.sparkEffectGUID == Engine::DEFAULT_GUID) continue;
 
 				const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 				if (!a_ctx.pWorld->HasComponent<WorldMatrixComponent>(_self)) continue;

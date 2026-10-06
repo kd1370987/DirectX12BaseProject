@@ -8,7 +8,7 @@ namespace Engine::Input
 	{
 	public:
 
-		enum EState : short
+		enum class EState : short
 		{
 			Free,					// 入力がない
 			Press,					// 押されたフレーム
@@ -29,7 +29,7 @@ namespace Engine::Input
 		void NoInput() { m_state = EState::Free; }
 
 		// アクセサ
-		short GetState() const { return m_state; }					// 現在フレームの状態を返す
+		EState GetState() const { return m_state; }					// 現在フレームの状態を返す
 		virtual void GetCode(std::vector<int>& a_ret) const = 0;	// 入力コードを返す
 
 	protected:
@@ -49,7 +49,7 @@ namespace Engine::Input
 			if (a_isDown)
 			{
 				// ホールドフラグがついていたらそのフレームに押されたわけではないのでフラグを消す
-				if (m_state & EState::Hold)
+				if (Utility::HasFlag(m_state, EState::Hold))
 				{
 					m_state &= ~EState::Press;
 				}
@@ -63,7 +63,7 @@ namespace Engine::Input
 			else
 			{
 				// 押されているのなら離されたフレームにする
-				if (m_state & EState::Hold)
+				if (Utility::HasFlag(m_state, EState::Hold))
 				{
 					m_state &= ~EState::Press;
 					m_state &= ~EState::Hold;
@@ -78,7 +78,7 @@ namespace Engine::Input
 		}
 
 		// 入力の状態
-		short m_state = EState::Free;
+		EState m_state = EState::Free;
 
 		// 重複しての更新を防ぐ
 		bool m_needUpdate = true;

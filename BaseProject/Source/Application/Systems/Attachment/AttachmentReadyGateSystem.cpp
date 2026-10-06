@@ -23,8 +23,8 @@ void AttachmentReadyGateSystem::Init(App::ECS::APPWorld& a_world)
 			const HierarchyComponent* a_pHierarchyArray
 		)
 		{
-			auto& _wait = a_ctx.pWorld->GetResource<ResourceWaitResource>();
-			auto& _resMgr = *a_ctx.pServices->pResourceManager;
+			auto& _wait = a_ctx.pWorld->RefResource<ResourceWaitResource>();
+			auto& _resourceManager = *a_ctx.pServices->pResourceManager;
 
 			for (uint32_t _i = 0; _i < a_count; ++_i)
 			{
@@ -46,11 +46,11 @@ void AttachmentReadyGateSystem::Init(App::ECS::APPWorld& a_world)
 				// 親がモデルを持たない構成なら、待つものがない
 				const auto* _pParentModelComp = a_ctx.pWorld->RefData<ModelComponent>(_hierarchyComp.parentID);
 				if (!_pParentModelComp) continue;
-				if (_pParentModelComp->modelGUID == Engine::DefaultGUID) continue;
+				if (_pParentModelComp->modelGUID == Engine::DEFAULT_GUID) continue;
 
 				// 待つのは読込中のときだけ。
 				// Failed をここで待たせると、もう届かないものを永久に待つことになる
-				const auto _state = _resMgr.GetState(_pParentModelComp->handle);
+				const auto _state = _resourceManager.GetState(_pParentModelComp->handle);
 				if (_state != Engine::Resource::EResourceState::Loading) continue;
 
 				_wait.AddWait(a_pChunk->entityData[_i]);

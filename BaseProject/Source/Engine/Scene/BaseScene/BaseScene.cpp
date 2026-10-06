@@ -64,7 +64,7 @@ namespace Engine::Scene
 		// ワールドと同じ寿命にしておけば、シーンを消せば当たり判定も一緒に消える。
 		//
 		// ここで足しているのでプレビュー用のワールドにも必ず1つある。
-		// システムは a_ctx.pWorld->GetResource<Physics::PhysicsWorld>() で引くこと。
+		// システムは a_ctx.pWorld->RefResource<Physics::PhysicsWorld>() で引くこと。
 		// PhysicsSystem::Init で先に確保するので、プレビューは小さくしておく
 		_upWorld->AddResource<Physics::PhysicsWorld>(
 			_upWorld->RefEngineServices()->pPhysicsEngine,
@@ -133,7 +133,7 @@ namespace Engine::Scene
 		//     判定クエリ(Physics フェーズ)は今フレームの位置を見る
 		{
 			ENGINE_PROFILE_SCOPE("Physics_Update");
-			m_upWorld->GetResource<Physics::PhysicsWorld>().Update(a_dt);
+			m_upWorld->RefResource<Physics::PhysicsWorld>().Update(a_dt);
 		}
 
 		m_upWorld->RunSystem(Engine::ECS::ESystemType::Physics, a_dt);
@@ -152,7 +152,7 @@ namespace Engine::Scene
 		// 判定メッシュのボディのAABBをデバッグ表示へ積む(静的=水色、動く=黄色)。
 		// 積む先はエンジン側の置き場で、実際に出すかどうかは
 		// DebugDrawOption(エディターの表示設定)が決める
-		m_upWorld->GetResource<Engine::Physics::PhysicsWorld>()
+		m_upWorld->RefResource<Engine::Physics::PhysicsWorld>()
 			.DrawDebug(m_upWorld->RefEngineServices()->pDebugDraw);
 
 		// このワールドで出てきたアニメーションモデルの BLAS と頂点領域を用意する。
@@ -182,7 +182,7 @@ namespace Engine::Scene
 		// ---------------------------------------------------------
 		// セーブ時のみ：保存対象のエンティティを事前収集
 		// ---------------------------------------------------------
-		if (a_ar.GetMode() == Persistence::Archive::Mode::Save)
+		if (a_ar.GetMode() == Persistence::Archive::EMode::Save)
 		{
 			m_upWorld->ForEach<GUIDComponent>(
 				[&_entityVec](ECS::Chunk* a_pChunk, uint32_t a_count, GUIDComponent* a_guidArray)
@@ -209,7 +209,7 @@ namespace Engine::Scene
 					ECS::Entity _entity;
 
 					// 【セーブ時のみ】エンティティからコンポーネント名リストを作成
-					if (a_ar.GetMode() == Persistence::Archive::Mode::Save)
+					if (a_ar.GetMode() == Persistence::Archive::EMode::Save)
 					{
 						_entity = _entityVec[_i];
 						_compNames = m_upWorld->GetComponentNames(m_upWorld->GetSignature(_entity));
@@ -220,7 +220,7 @@ namespace Engine::Scene
 					a_ar.VectorField("ComponentNames", _compNames);
 
 					// 【ロード時のみ】読み込んだリストからシグネチャを作り、エンティティを生成
-					if (a_ar.GetMode() == Persistence::Archive::Mode::Load)
+					if (a_ar.GetMode() == Persistence::Archive::EMode::Load)
 					{
 						ECS::Signature _sig = {};
 						for (const std::string& _name : _compNames)

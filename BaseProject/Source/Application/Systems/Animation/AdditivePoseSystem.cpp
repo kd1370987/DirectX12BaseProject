@@ -95,8 +95,8 @@ void AdditivePoseSystem::Init(App::ECS::APPWorld& a_world)
 		{
 			if (a_ctx.dt <= 0.0f) return;
 
-			auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
-			auto& _entryPool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
+			auto& _nodePosePool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+			auto& _entryPool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

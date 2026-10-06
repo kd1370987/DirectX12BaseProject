@@ -71,7 +71,7 @@ namespace Engine::Graphics
 
 		// パスが出力先として使うリソース名。
 		// この名前で出力スロットを宣言したパスが、カメラの最終出力へ描くことになる
-		static constexpr const char* kCameraOutputName = "CameraOutput";
+		static constexpr const char* CAMERA_OUTPUT_NAME = "CameraOutput";
 
 		// 持ち主(描画まわりの共有物を引く先)を受け取る
 		void Init(GraphicsEngine* a_pGraphicsEngine);

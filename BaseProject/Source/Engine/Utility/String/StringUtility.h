@@ -79,7 +79,7 @@ namespace Engine::String
 	/// </remarks>
 	inline std::vector<uint32_t> ToCodePoints(std::string_view a_utf8)
 	{
-		constexpr uint32_t _REPLACEMENT = 0xFFFD;	// 壊れたバイトの代わりに使う文字
+		constexpr uint32_t REPLACEMENT = 0xFFFD;	// 壊れたバイトの代わりに使う文字
 
 		std::vector<uint32_t> _result = {};
 		_result.reserve(a_utf8.size());
@@ -99,7 +99,7 @@ namespace Engine::String
 			else
 			{
 				// 先頭バイトとして有り得ない値
-				_result.push_back(_REPLACEMENT);
+				_result.push_back(REPLACEMENT);
 				++_i;
 				continue;
 			}
@@ -107,7 +107,7 @@ namespace Engine::String
 			// 続きのバイトが足りない
 			if (_i + _length > _size)
 			{
-				_result.push_back(_REPLACEMENT);
+				_result.push_back(REPLACEMENT);
 				++_i;
 				continue;
 			}
@@ -123,7 +123,7 @@ namespace Engine::String
 
 			if (!_isValid)
 			{
-				_result.push_back(_REPLACEMENT);
+				_result.push_back(REPLACEMENT);
 				++_i;
 				continue;
 			}

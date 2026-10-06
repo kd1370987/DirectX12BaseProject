@@ -12,7 +12,7 @@ bool Engine::D3D12::DynamicBuffer::Create(D3D12::Device* a_pDevice, DescriptorHe
 
 	if (!GPUBuffer::Create(a_pDevice, _desc))
 	{
-		assert(0 && "インデックスバッファ作成時にリソース作成失敗");
+		ENGINE_ERRLOG(false, "インデックスバッファ作成時にリソース作成失敗");
 		return false;
 	}
 
@@ -45,7 +45,7 @@ void Engine::D3D12::DynamicBuffer::UpdateData(const void* a_data, size_t a_size)
 	// 書けない場合は書かずに止めて、Createの要素数不足として気づけるようにする。
 	if (a_size > GetBufferSize())
 	{
-		assert(0 && "バッファサイズを超える書き込み : Createの要素数が足りていない");
+		ENGINE_ERRLOG(false, "バッファサイズを超える書き込み : Createの要素数が足りていない");
 		return;
 	}
 
@@ -56,7 +56,7 @@ void Engine::D3D12::DynamicBuffer::UpdateDataOffset(const void* a_pData, size_t 
 {
 	if (a_offsetBytes + a_sizeBytes > GetBufferSize())
 	{
-		assert(0 && "バッファサイズを超える書き込み : オフセット指定");
+		ENGINE_ERRLOG(false, "バッファサイズを超える書き込み : オフセット指定");
 		return;
 	}
 

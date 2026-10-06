@@ -42,8 +42,8 @@ namespace Engine::ECS
 
 namespace Engine::Editor
 {
-	// 型安全に値を参照する
-	// コンポーネントのArchive / Editが受け取るvoid*を実体に戻すためのもの
+	/// 型安全に値を参照する
+	/// コンポーネントのArchive / Editが受け取るvoid*を実体に戻すためのもの
 	template<typename T>
 	T& GetValue(void* a_data)
 	{
@@ -74,42 +74,42 @@ namespace Engine::Editor
 	// 文字
 	//======================================================================================
 
-	// 文字列(printf 形式) : 行の形に収まらない自由な文章
+	/// 文字列(printf 形式) : 行の形に収まらない自由な文章
 	void Text(const char* a_fmt, ...);
 
-	// 読み取り専用の値 : 左にラベル、右に値(printf 形式)。Field と同じ並びになる
+	/// 読み取り専用の値 : 左にラベル、右に値(printf 形式)。Field と同じ並びになる
 	void Value(const char* a_label, const char* a_fmt, ...);
 
-	// どの欄にも付かない注意書き : 薄い色で出す
-	// 欄の説明は Tooltip を使うこと
+	/// どの欄にも付かない注意書き : 薄い色で出す
+	/// 欄の説明は Tooltip を使うこと
 	void HelpText(const char* a_fmt, ...);
 
-	// 直前の欄の説明 : 欄(とそのラベル)にカーソルが乗っている間だけ出す
+	/// 直前の欄の説明 : 欄(とそのラベル)にカーソルが乗っている間だけ出す
 	void Tooltip(const char* a_fmt, ...);
 
-	// 警告(黄) : 動くが意図と違うかもしれない状態
+	/// 警告(黄) : 動くが意図と違うかもしれない状態
 	void WarningText(const char* a_fmt, ...);
 
-	// エラー(赤) : このままでは動かない状態
+	/// エラー(赤) : このままでは動かない状態
 	void ErrorText(const char* a_fmt, ...);
 
-	// 行頭に点を付けた文字 : 一覧の表示用
+	/// 行頭に点を付けた文字 : 一覧の表示用
 	void BulletText(const char* a_fmt, ...);
 
 	//======================================================================================
 	// 見出し・区切り・配置
 	//======================================================================================
 
-	// 見出し : 項目のまとまりの頭に置く。上に余白を持つので前後に Line は要らない
+	/// 見出し : 項目のまとまりの頭に置く。上に余白を持つので前後に Line は要らない
 	void Header(const char* a_label);
 
-	// 区切り : 見出しを立てるほどではないまとまりの境目。前後に余白を持つ
+	/// 区切り : 見出しを立てるほどではないまとまりの境目。前後に余白を持つ
 	void Line();
 
-	// 次の項目を同じ行へ置く
+	/// 次の項目を同じ行へ置く
 	void SameLine();
 
-	// 次の項目1つの横幅
+	/// 次の項目1つの横幅
 	void SetNextItemWidth(float a_width);
 
 	//======================================================================================
@@ -118,23 +118,23 @@ namespace Engine::Editor
 	// 数値のドラッグは speed / min / max を省略できる。min と max が両方 0 なら範囲なし
 	//======================================================================================
 
-	// 真偽(チェックボックス)
+	/// 真偽(チェックボックス)
 	bool Field(const char* a_label, bool& a_value);
 
-	// 整数
+	/// 整数
 	bool Field(const char* a_label, int& a_value, float a_speed = 1.0f, int a_min = 0, int a_max = 0);
 	bool Field(const char* a_label, int (&a_values)[2], float a_speed = 1.0f, int a_min = 0, int a_max = 0);
 
-	// 符号なし整数 : 打ち込みで編集する(ドラッグでは大きな値を扱いにくいため)
+	/// 符号なし整数 : 打ち込みで編集する(ドラッグでは大きな値を扱いにくいため)
 	bool Field(const char* a_label, uint32_t& a_value);
 	bool Field(const char* a_label, uint64_t& a_value);
 
-	// 小数 : a_format は表示の書式("%.2f s" など)。nullptr なら既定
+	/// 小数 : a_format は表示の書式("%.2f s" など)。nullptr なら既定
 	bool Field(const char* a_label, float& a_value, float a_speed = 1.0f, float a_min = 0.0f, float a_max = 0.0f, const char* a_format = nullptr);
 	bool Field(const char* a_label, Math::Vector2& a_value, float a_speed = 1.0f, float a_min = 0.0f, float a_max = 0.0f, const char* a_format = nullptr);
 	bool Field(const char* a_label, Math::Vector3& a_value, float a_speed = 1.0f, float a_min = 0.0f, float a_max = 0.0f, const char* a_format = nullptr);
 
-	// 回転 : 度数法のオイラー角として編集する
+	/// 回転 : 度数法のオイラー角として編集する
 	bool Field(const char* a_label, Math::Quaternion& a_value);
 
 	/// <summary>
@@ -156,30 +156,30 @@ namespace Engine::Editor
 	/// <param name="a_defaultMode">初回に表示する形式</param>
 	bool Field(const char* a_label, Math::Matrix& a_value, EMatrixViewMode a_defaultMode = EMatrixViewMode::Raw);
 
-	// 文字列
+	/// 文字列
 	bool Field(const char* a_label, std::string& a_value);
 	bool Field(const char* a_label, char* a_buff, size_t a_buffSize);
 
-	// 複数行の文字列
+	/// 複数行の文字列
 	bool MultilineField(const char* a_label, std::string& a_value);
 
-	// Enter で確定する文字列 : 確定した瞬間だけ true(名前を付けて保存など)
+	/// Enter で確定する文字列 : 確定した瞬間だけ true(名前を付けて保存など)
 	bool ConfirmField(const char* a_label, std::string& a_value);
 
-	// スライダー : 範囲が決まっている値(音量・割合など)
+	/// スライダー : 範囲が決まっている値(音量・割合など)
 	bool Slider(const char* a_label, float& a_value, float a_min, float a_max, const char* a_format = nullptr);
 
-	// 範囲(最小と最大の2つ) : a_lowerLimit / a_upperLimit は両方の動かせる幅
+	/// 範囲(最小と最大の2つ) : a_lowerLimit / a_upperLimit は両方の動かせる幅
 	bool RangeField(const char* a_label, float& a_min, float& a_max, float a_speed, float a_lowerLimit, float a_upperLimit);
 
-	// 色見本(クリックでピッカー) : Field(Color) と違い 0..1 の範囲だけを扱う
+	/// 色見本(クリックでピッカー) : Field(Color) と違い 0..1 の範囲だけを扱う
 	bool ColorField(const char* a_label, Math::Color& a_value, bool a_isAlpha = true);
 	bool ColorField(const char* a_label, Math::Vector3& a_rgb);
 
-	// 常に開いたままのカラーピッカー
+	/// 常に開いたままのカラーピッカー
 	bool ColorPicker(const char* a_label, Math::Color& a_value);
 
-	// 文字列の並びから1つ選ぶ
+	/// 文字列の並びから1つ選ぶ
 	bool Combo(const char* a_label, int& a_index, const char* const a_items[], int a_count);
 	template<size_t N>
 	bool Combo(const char* a_label, int& a_index, const char* const (&a_items)[N])
@@ -187,8 +187,8 @@ namespace Engine::Editor
 		return Combo(a_label, a_index, a_items, static_cast<int>(N));
 	}
 
-	// 直前の項目の編集が終わったか(ドラッグを離した・入力を確定した瞬間だけ true)
-	// 触っている間ずっと保存したくないときに使う
+	/// 直前の項目の編集が終わったか(ドラッグを離した・入力を確定した瞬間だけ true)
+	/// 触っている間ずっと保存したくないときに使う
 	bool IsItemEditFinished();
 
 	//--------------------------------------------------------------------------------------
@@ -211,13 +211,13 @@ namespace Engine::Editor
 		requires std::is_enum_v<Enum>
 	bool Field(const char* a_label, Enum& a_value)
 	{
-		constexpr auto _values = magic_enum::enum_values<Enum>();
-		constexpr auto _names = magic_enum::enum_names<Enum>();
+		constexpr auto VALUES = magic_enum::enum_values<Enum>();
+		constexpr auto NAMES = magic_enum::enum_names<Enum>();
 
-		size_t _index = magic_enum::enum_index(a_value).value_or(_values.size());
-		if (!Internal::EnumCombo(a_label, _index, _names)) return false;
+		size_t _index = magic_enum::enum_index(a_value).value_or(VALUES.size());
+		if (!Internal::EnumCombo(a_label, _index, NAMES)) return false;
 
-		a_value = _values[_index];
+		a_value = VALUES[_index];
 		return true;
 	}
 
@@ -231,17 +231,17 @@ namespace Engine::Editor
 	{
 		using U = std::underlying_type_t<Enum>;
 
-		constexpr auto _values = magic_enum::enum_values<Enum>();
-		constexpr auto _names = magic_enum::enum_names<Enum>();
+		constexpr auto VALUES = magic_enum::enum_values<Enum>();
+		constexpr auto NAMES = magic_enum::enum_names<Enum>();
 
-		std::array<uint64_t, _values.size()> _bits = {};
-		for (size_t _i = 0; _i < _values.size(); ++_i)
+		std::array<uint64_t, VALUES.size()> _bits = {};
+		for (size_t _i = 0; _i < VALUES.size(); ++_i)
 		{
-			_bits[_i] = static_cast<uint64_t>(static_cast<U>(_values[_i]));
+			_bits[_i] = static_cast<uint64_t>(static_cast<U>(VALUES[_i]));
 		}
 
 		uint64_t _raw = static_cast<uint64_t>(static_cast<U>(a_value));
-		if (!Internal::FlagsCombo(a_label, _raw, _bits, _names)) return false;
+		if (!Internal::FlagsCombo(a_label, _raw, _bits, NAMES)) return false;
 
 		a_value = static_cast<Enum>(static_cast<U>(_raw));
 		return true;
@@ -251,7 +251,7 @@ namespace Engine::Editor
 	// ボタン・選択 : 押された(選ばれた)ら true
 	//======================================================================================
 
-	// 通常のボタン : 保存・リセット・表示切り替えなど
+	/// 通常のボタン : 保存・リセット・表示切り替えなど
 	bool Button(const char* a_label, const Math::Vector2& a_size = Math::Vector2(0.0f, 0.0f));
 	bool SmallButton(const char* a_label);
 	bool ArrowButton(const char* a_id, EArrowDir a_dir);
@@ -268,23 +268,23 @@ namespace Engine::Editor
 	bool DeleteButton(const char* a_label, const Math::Vector2& a_size = Math::Vector2(0.0f, 0.0f));
 	bool DeleteSmallButton(const char* a_label);
 
-	// ラジオボタン : a_isActive は今選ばれているか
+	/// ラジオボタン : a_isActive は今選ばれているか
 	bool RadioButton(const char* a_label, bool a_isActive);
 
-	// 一覧の1行
+	/// 一覧の1行
 	bool Selectable(const char* a_label, bool a_isSelected);
 
-	// コンボを開いたときに、直前の項目までスクロールしてフォーカスを当てる
+	/// コンボを開いたときに、直前の項目までスクロールしてフォーカスを当てる
 	void SetItemDefaultFocus();
 
-	// 折りたたみ見出し : 開いていたら true
+	/// 折りたたみ見出し : 開いていたら true
 	bool CollapsingHeader(const char* a_label, bool a_isDefaultOpen = false);
 
 	//======================================================================================
 	// 表示
 	//======================================================================================
 
-	// 進捗バー : 値の列いっぱいに出す。a_overlay は中に出す文字(nullptr なら割合)
+	/// 進捗バー : 値の列いっぱいに出す。a_overlay は中に出す文字(nullptr なら割合)
 	void ProgressBar(const char* a_label, float a_fraction, const char* a_overlay = nullptr);
 
 	/// <summary>
@@ -299,7 +299,7 @@ namespace Engine::Editor
 		float a_height = 0
 	);
 
-	// ハンドルの中身
+	/// ハンドルの中身
 	template<typename T>
 	void HandleInfo(const Handle<T>& a_handle)
 	{
@@ -377,7 +377,7 @@ namespace Engine::Editor
 	// モデルが持つデータの選択
 	//--------------------------------------------------------------------------------------
 
-	// モデルのノードをインデックスで選択する
+	/// モデルのノードをインデックスで選択する
 	bool ModelNodeField(
 		const char* a_label,
 		const Resource::Model* a_pModel,
@@ -385,8 +385,8 @@ namespace Engine::Editor
 		UINT& a_inoutNodeNameHash
 	);
 
-	// モデルのノードを名前で選択する
-	// ノードの並びが変わっても壊れないよう、名前で持ちたい側が使う
+	/// モデルのノードを名前で選択する
+	/// ノードの並びが変わっても壊れないよう、名前で持ちたい側が使う
 	bool ModelNodeField(
 		const char* a_label,
 		const Resource::Model* a_pModel,
@@ -394,14 +394,14 @@ namespace Engine::Editor
 		UINT& a_inoutNodeNameHash
 	);
 
-	// モデルが持つボーンレイヤーを名前のハッシュで選択する(0 は未選択)
+	/// モデルが持つボーンレイヤーを名前のハッシュで選択する(0 は未選択)
 	bool ModelBoneMaskField(
 		const char* a_label,
 		const Resource::Model* a_pModel,
 		UINT& a_inoutNameHash
 	);
 
-	// モデルが持つアニメーションを選択する
+	/// モデルが持つアニメーションを選択する
 	bool ModelAnimationField(
 		const ECS::EngineServices& a_services,
 		const char* a_label,
@@ -409,7 +409,7 @@ namespace Engine::Editor
 		Handle<Resource::AnimationData>& a_inoutHandle
 	);
 
-	// モデルが持つアニメーションを選択する(参照カウント付きハンドル版)
+	/// モデルが持つアニメーションを選択する(参照カウント付きハンドル版)
 	bool ModelAnimationField(
 		const ECS::EngineServices& a_services,
 		const char* a_label,
@@ -469,11 +469,11 @@ namespace Engine::Editor
 	// 入力の状態
 	//======================================================================================
 
-	// Ctrl を押しているか : 「押しながらで確定」「押しながらでスナップ」に使う
+	/// Ctrl を押しているか : 「押しながらで確定」「押しながらでスナップ」に使う
 	bool IsCtrlDown();
 
-	// エディターの文字入力欄にフォーカスがあるか(=文字入力中か)
-	// エディターが無い(コンテキストが無い)ときは false
+	/// エディターの文字入力欄にフォーカスがあるか(=文字入力中か)
+	/// エディターが無い(コンテキストが無い)ときは false
 	bool IsTextInputActive();
 
 	//======================================================================================
@@ -501,7 +501,7 @@ namespace Engine::Editor
 	// ノードエディタ
 	//======================================================================================
 
-	// ノード間の線を登録する : ノードエディタの描画中に呼ぶ
+	/// ノード間の線を登録する : ノードエディタの描画中に呼ぶ
 	void NodeLink(int a_linkID, int a_srcOutPinID, int a_dstInPinID);
 
 	//======================================================================================

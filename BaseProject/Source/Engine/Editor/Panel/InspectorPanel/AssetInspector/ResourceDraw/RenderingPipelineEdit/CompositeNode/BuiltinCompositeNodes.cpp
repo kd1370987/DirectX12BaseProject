@@ -96,9 +96,9 @@ namespace Engine::Editor::Inspector
 				int _count = static_cast<int>(a_group.members.size());
 
 				Engine::Editor::SetNextItemWidth(120.0f);
-				if (!Engine::Editor::Field("Count", _count, 0.1f, 1, kMaxCount)) return EPassEditResult::None;
+				if (!Engine::Editor::Field("Count", _count, 0.1f, 1, MAX_COUNT)) return EPassEditResult::None;
 
-				_count = std::clamp(_count, 1, kMaxCount);
+				_count = std::clamp(_count, 1, MAX_COUNT);
 				if (_count == static_cast<int>(a_group.members.size())) return EPassEditResult::None;
 
 				// ここで増減させると、ノードを回している最中にパス配列が変わる。
@@ -153,7 +153,7 @@ namespace Engine::Editor::Inspector
 				Engine::Editor::Line();
 				const int _count = static_cast<int>(a_group.members.size());
 
-				if (CreateButton("Add Stage") && _count < kMaxCount)
+				if (CreateButton("Add Stage") && _count < MAX_COUNT)
 				{
 					a_outRequest.resizeCount = _count + 1;
 					_result = EPassEditResult::Structure;
@@ -183,7 +183,7 @@ namespace Engine::Editor::Inspector
 				if (!_pHead) return;
 
 				const uint32_t _sourceSlotID = Pass::MakeSlotID(m_pSourcePin);
-				const uint32_t _resultSlotID = Pass::MakeSlotID(kResultPin);
+				const uint32_t _resultSlotID = Pass::MakeSlotID(RESULT_PIN);
 
 				for (size_t _i = 1; _i < a_group.members.size(); ++_i)
 				{
@@ -195,7 +195,7 @@ namespace Engine::Editor::Inspector
 					a_graph.Link(_pPrev->GetGUID(), _resultSlotID, _pCur->GetGUID(), _sourceSlotID);
 
 					// 全段が要る共有入力は1段目と同じ相手から取る
-					for (const char* _pPin : kSharedPins)
+					for (const char* _pPin : SHARED_PINS)
 					{
 						CompositeUtil::CopyInputLink(a_graph, *_pHead, *_pCur, _pPin);
 					}
@@ -218,14 +218,14 @@ namespace Engine::Editor::Inspector
 				return _pPass;
 			}
 
-			static constexpr int kMaxCount = 8;
+			static constexpr int MAX_COUNT = 8;
 
 		private:
 
-			static constexpr const char* kResultPin = "Result";
+			static constexpr const char* RESULT_PIN = "Result";
 
 			// 段が増えても外から取り直す入力
-			static constexpr const char* kSharedPins[] = { "Depth", "Normal" };
+			static constexpr const char* SHARED_PINS[] = { "Depth", "Normal" };
 
 			// 段ごとの値を決める。
 			// StepSize は 1, 2, 4, 8... と倍にしていくのが本来の使い方
@@ -256,7 +256,7 @@ namespace Engine::Editor::Inspector
 				if (!_pOldTail) return false;
 
 				// 最終段の結果を受け取っていた相手を控える(繋ぎ直しに要る)
-				const uint32_t _resultSlotID = Pass::MakeSlotID(kResultPin);
+				const uint32_t _resultSlotID = Pass::MakeSlotID(RESULT_PIN);
 				std::vector<std::pair<Engine::GUID, uint32_t>> _consumerVec = {};
 				for (const auto& [_srcGUID, _connectionVec] : _pGraph->GetConnections())
 				{
@@ -344,7 +344,7 @@ namespace Engine::Editor::Inspector
 		{
 		public:
 
-			const char* GetDisplayName() const override { return kTypeName; }
+			const char* GetDisplayName() const override { return TYPE_NAME; }
 
 			std::string MakeTitle(const CompositeGroup& a_group) const override
 			{
@@ -378,7 +378,7 @@ namespace Engine::Editor::Inspector
 					// Bloom ピンは Kawase から中で来るので見せない
 					for (Slot& _in : _pComposite->RefInputSlots())
 					{
-						if (_in.pinName == kBloomPin) continue;
+						if (_in.pinName == BLOOM_PIN) continue;
 						a_outInputVec.push_back(&_in);
 					}
 					for (Slot& _out : _pComposite->RefOutputSlots()) a_outOutputVec.push_back(&_out);
@@ -455,12 +455,12 @@ namespace Engine::Editor::Inspector
 				auto* _pComposite = FindMember<BloomCompositePass>(a_group);
 				if (!_pExtract || !_pKawase || !_pComposite) return;
 
-				const uint32_t _resultSlotID = Pass::MakeSlotID(kResultPin);
-				const uint32_t _colorSlotID = Pass::MakeSlotID(kColorPin);
+				const uint32_t _resultSlotID = Pass::MakeSlotID(RESULT_PIN);
+				const uint32_t _colorSlotID = Pass::MakeSlotID(COLOR_PIN);
 
 				// 抽出 -> 縮小1段目 -> 2段目 ... と数珠つなぎ
 				Pass* _pPrev = _pExtract;
-				for (int _i = 0; _i < kDownCount; ++_i)
+				for (int _i = 0; _i < DOWN_COUNT; ++_i)
 				{
 					Pass* _pDown = FindDownStage(a_group, _i);
 					if (!_pDown) return;
@@ -476,7 +476,7 @@ namespace Engine::Editor::Inspector
 				}
 
 				// Kawase の結果を合成へ
-				a_graph.Link(_pKawase->GetGUID(), _resultSlotID, _pComposite->GetGUID(), Pass::MakeSlotID(kBloomPin));
+				a_graph.Link(_pKawase->GetGUID(), _resultSlotID, _pComposite->GetGUID(), Pass::MakeSlotID(BLOOM_PIN));
 			}
 
 			//------------------------------------------------------------------------------
@@ -491,26 +491,26 @@ namespace Engine::Editor::Inspector
 				_groupGUID.Create();
 
 				int _index = 0;
-				auto* _pExtract = AddGroupedPass<BloomExtractPass>(a_asset, kTypeName, _groupGUID, _index++, "BloomExtractPass");
+				auto* _pExtract = AddGroupedPass<BloomExtractPass>(a_asset, TYPE_NAME, _groupGUID, _index++, "BloomExtractPass");
 				if (!_pExtract) return nullptr;
 
 				// 各段の解像度スケールとブラーの広がり。
 				// すべて縮小後の低解像度で回るので広め(5x5)に取れる
-				constexpr float kScales[kDownCount] = { 0.5f, 0.25f, 0.125f, 0.0625f };
-				constexpr float kSigma = 1.2f;
-				constexpr int   kTapRadius = 2;
+				constexpr float SCALES[DOWN_COUNT] = { 0.5f, 0.25f, 0.125f, 0.0625f };
+				constexpr float SIGMA = 1.2f;
+				constexpr int   TAP_RADIUS = 2;
 
-				for (int _i = 0; _i < kDownCount; ++_i)
+				for (int _i = 0; _i < DOWN_COUNT; ++_i)
 				{
 					auto* _pDown = AddGroupedPass<GaussianBlurPass>(
-						a_asset, kTypeName, _groupGUID, _index++, "BloomBlurDownPass" + std::to_string(_i));
+						a_asset, TYPE_NAME, _groupGUID, _index++, "BloomBlurDownPass" + std::to_string(_i));
 					if (!_pDown) return nullptr;
 
-					_pDown->Configure("BloomBlurDown" + std::to_string(_i), kScales[_i], kSigma, kTapRadius);
+					_pDown->Configure("BloomBlurDown" + std::to_string(_i), SCALES[_i], SIGMA, TAP_RADIUS);
 				}
 
-				if (!AddGroupedPass<KawaseBlurPass>(a_asset, kTypeName, _groupGUID, _index++, "KawaseBlurPass")) return nullptr;
-				if (!AddGroupedPass<BloomCompositePass>(a_asset, kTypeName, _groupGUID, _index++, "BloomCompositePass")) return nullptr;
+				if (!AddGroupedPass<KawaseBlurPass>(a_asset, TYPE_NAME, _groupGUID, _index++, "KawaseBlurPass")) return nullptr;
+				if (!AddGroupedPass<BloomCompositePass>(a_asset, TYPE_NAME, _groupGUID, _index++, "BloomCompositePass")) return nullptr;
 
 				// 中の配線は組み直しに任せる
 				CompositeGroupTable _table = BuildCompositeGroups(*_pGraph);
@@ -521,14 +521,14 @@ namespace Engine::Editor::Inspector
 				return _pExtract;
 			}
 
-			static constexpr const char* kTypeName = "Bloom";
+			static constexpr const char* TYPE_NAME = "Bloom";
 
 		private:
 
-			static constexpr int kDownCount = 4;
-			static constexpr const char* kResultPin = "Result";
-			static constexpr const char* kColorPin = "Color";
-			static constexpr const char* kBloomPin = "Bloom";
+			static constexpr int DOWN_COUNT = 4;
+			static constexpr const char* RESULT_PIN = "Result";
+			static constexpr const char* COLOR_PIN = "Color";
+			static constexpr const char* BLOOM_PIN = "Bloom";
 
 			// 段の番号は EditorGroupIndex で決まる(抽出が0なので +1)
 			static Pass* FindDownStage(const CompositeGroup& a_group, int a_downIndex)
@@ -566,6 +566,6 @@ namespace Engine::Editor::Inspector
 		a_registry.Register<SpatialDenoiseComposite<ShadowSpatialDenoisePass>>(
 			"ShadowSpatialDenoise", "ShadowSpatialDenoise", "Shadow", "DenoisedShadow");
 
-		a_registry.Register<BloomComposite>(BloomComposite::kTypeName);
+		a_registry.Register<BloomComposite>(BloomComposite::TYPE_NAME);
 	}
 }

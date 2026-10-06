@@ -35,7 +35,7 @@ void CommitHierarchyWorldMatrixSystem::Init(App::ECS::APPWorld& a_world)
 			);
 
 			// 深度ごとに親子階層の更新をする
-			auto& _hRes = a_ctx.pWorld->GetResource<HierarchyResource>();
+			auto& _hRes = a_ctx.pWorld->RefResource<HierarchyResource>();
 			for (int _depth = 0; _depth <= _hRes.maxDepth; ++_depth)
 			{
 				a_ctx.pWorld->ForEach<LocalTransformComponent, WorldMatrixComponent, HierarchyComponent>(

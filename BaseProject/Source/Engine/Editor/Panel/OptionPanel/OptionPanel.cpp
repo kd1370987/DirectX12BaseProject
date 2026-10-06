@@ -13,5 +13,5 @@
 void Engine::Editor::OptionPanel::OnDrawImGui(EditorContext& a_editContext)
 {
 	// オプションマネジャー
-	if (a_editContext.pServices) Option::OptionManager::GetInstance().DrawEdit(*a_editContext.pServices);
+	if (a_editContext.pServices) Option::OptionManager::Instance().DrawEdit(*a_editContext.pServices);
 }

@@ -21,7 +21,7 @@ namespace
 		a_layer.clipTime = 0.0f;
 
 		// 設計図をGUIDから取得してロードした結果のハンドルを取得
-		if (a_layer.animatorGUID != Engine::DefaultGUID)
+		if (a_layer.animatorGUID != Engine::DEFAULT_GUID)
 		{
 			// 設計図ロード
 			a_ctx.pServices->pResourceManager->AcquireImmediate(
@@ -31,7 +31,7 @@ namespace
 			// 入り直しで前の実体がまだ残っていれば(Release フェーズを通らなかった)、
 			// 作り直さずに中身だけ初期化して使い回す
 			auto& _stateInstancePool =
-				a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
+				a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
 			if (auto* _pInstance = _stateInstancePool.Ref(a_layer.instanceHandle))
 			{
 				*_pInstance = {};

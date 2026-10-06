@@ -39,7 +39,7 @@ namespace Engine::ECS
 		/// <summary>
 		/// エンティティを指定してロケーションを取得
 		/// </summary>
-		const EntityLocation& GetLocation(const Entity& a_entity);
+		const EntityLocation& GetLocation(const Entity& a_entity) const;
 
 		/// <summary>
 		/// そのエンティティが今このワールドで生きているか
@@ -54,8 +54,8 @@ namespace Engine::ECS
 		EntityLocation& RefEntityLocation(const Entity& a_entity);
 
 		// アクセサ
-		const std::vector<EntityLocation>& GetAllEntityLocation();	// エンティティの場所配列を返す
-		UINT GetAliveEntityCount();									// 生存しているエンティティの数
+		const std::vector<EntityLocation>& GetAllEntityLocation() const;	// エンティティの場所配列を返す
+		UINT GetAliveEntityCount() const;									// 生存しているエンティティの数
 
 		// 参照のみ(プロファイラ用)
 		size_t GetSlotCount() const { return m_entityLocationVec.size(); }			// 確保済みの枠数(未使用含む)
@@ -63,14 +63,14 @@ namespace Engine::ECS
 		UINT GetAliveCount() const { return m_aliveCount; }						// 生存しているエンティティの数
 
 		// エンティティとシグネチャ
-		const Signature& GetSignature(const Entity& a_entity);					// シグネチャの取得
+		const Signature& GetSignature(const Entity& a_entity) const;					// シグネチャの取得
 		void SetSignature(const Entity& a_entity, const Signature& a_sig);		// シグネチャのセット
 
 	private:
 
 		// ヘルパー関数
-		uint32_t GetGeneration(const Entity& a_entity);		// 世代取得
-		uint32_t GetIndex(const Entity& a_entity);			// インデックス取得
+		uint32_t GetGeneration(const Entity& a_entity) const;		// 世代取得
+		uint32_t GetIndex(const Entity& a_entity) const;			// インデックス取得
 
 	private:
 

@@ -34,7 +34,7 @@ namespace Engine::Graphics
 			return _it->second; // すでに完成していればそれを返す
 		}
 
-		auto& _resMgr = a_resourceManager;
+		auto& _resourceManager = a_resourceManager;
 
 		D3D12::RenderPipelineBuilder _builder;
 
@@ -80,14 +80,14 @@ namespace Engine::Graphics
 
 			// MSのセットとルートシグネチャの抽出。
 			// ルートシグネチャはブロブから起こすので、非constで引く
-			auto* _pMS = _resMgr.Ref(_targetMSHandle);
+			auto* _pMS = _resourceManager.Ref(_targetMSHandle);
 			if (!_pMS || !_pMS->Get()) return {};
 
 			_builder.SetRootSignature(a_pPSOManager->Request(_pMS->Get()));
 			_builder.SetMS(_pMS->GetByteCode());
 
 			// ASのセット（存在する場合のみ）
-			if (auto* _pAS = _resMgr.Get(_targetASHandle))
+			if (auto* _pAS = _resourceManager.Get(_targetASHandle))
 			{
 				_builder.SetAS(_pAS->GetByteCode());
 			}
@@ -101,7 +101,7 @@ namespace Engine::Graphics
 			if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned)
 			{
 				_targetVSHandle = m_vsMap[EShaderPermutationFlags::Skinned];
-				_builder.SetInputLayout(D3D12::Input::AnimationInputLayout);
+				_builder.SetInputLayout(D3D12::Input::ANIMATION_INPUT_LAYOUT);
 			}
 			else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing)
 			{
@@ -109,12 +109,12 @@ namespace Engine::Graphics
 			}
 			else {
 				_targetVSHandle = m_vsMap[EShaderPermutationFlags::Static];
-				_builder.SetInputLayout(D3D12::Input::StaticLayout);
+				_builder.SetInputLayout(D3D12::Input::STATIC_LAYOUT);
 			}
 
 			// VSのセットとルートシグネチャの抽出。
 			// ルートシグネチャはブロブから起こすので、非constで引く
-			auto* _pVS = _resMgr.Ref(_targetVSHandle);
+			auto* _pVS = _resourceManager.Ref(_targetVSHandle);
 			if (!_pVS || !_pVS->Get()) return {};
 
 			_builder.SetRootSignature(a_pPSOManager->Request(_pVS->Get()));
@@ -132,7 +132,7 @@ namespace Engine::Graphics
 		{
 			// どのPSで描くかはパス自身が持っている。
 			// 持っていないパス(深度だけ書くパス)はPSを張らずに組む
-			if (auto* _pPassPS = _resMgr.Get(a_key.psHandle))
+			if (auto* _pPassPS = _resourceManager.Get(a_key.psHandle))
 			{
 				_builder.SetPS(_pPassPS->GetByteCode());
 			}

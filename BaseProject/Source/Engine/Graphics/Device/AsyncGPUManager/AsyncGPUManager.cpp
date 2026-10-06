@@ -24,18 +24,18 @@ namespace Engine::Graphics
 		m_inFlightTasks.clear();
 	}
 
-	ID3D12CommandAllocator* AsyncGPUManager::AcquireAllocator(D3D12::Device* a_pDevice, AsyncCommandType a_type)
+	ID3D12CommandAllocator* AsyncGPUManager::AcquireAllocator(D3D12::Device* a_pDevice, EAsyncCommandType a_type)
 	{
 		std::lock_guard<std::mutex> _lock(m_mutex);
 
 		// フリーリストがあれば、所有権を剥奪（Detach）してそのまま返す
-		if (a_type == AsyncCommandType::Copy && !m_freeCopyAllocators.empty())
+		if (a_type == EAsyncCommandType::Copy && !m_freeCopyAllocators.empty())
 		{
 			auto _alloc = m_freeCopyAllocators.back();
 			m_freeCopyAllocators.pop_back();
 			return _alloc.Detach(); 
 		}
-		else if (a_type == AsyncCommandType::Compute && !m_freeComputeAllocators.empty())
+		else if (a_type == EAsyncCommandType::Compute && !m_freeComputeAllocators.empty())
 		{
 			auto _alloc = m_freeComputeAllocators.back();
 			m_freeComputeAllocators.pop_back();
@@ -44,7 +44,7 @@ namespace Engine::Graphics
 
 		// フリーリストがなければ新規作成
 		ComPtr<ID3D12CommandAllocator> _newAllocator;
-		D3D12_COMMAND_LIST_TYPE _d3dType = (a_type == AsyncCommandType::Copy) ? D3D12_COMMAND_LIST_TYPE_COPY : D3D12_COMMAND_LIST_TYPE_COMPUTE;
+		D3D12_COMMAND_LIST_TYPE _d3dType = (a_type == EAsyncCommandType::Copy) ? D3D12_COMMAND_LIST_TYPE_COPY : D3D12_COMMAND_LIST_TYPE_COMPUTE;
 
 		a_pDevice->CreateCommandAllocator(_d3dType, IID_PPV_ARGS(_newAllocator.ReleaseAndGetAddressOf()));
 
@@ -52,7 +52,7 @@ namespace Engine::Graphics
 		return _newAllocator.Detach();
 	}
 
-	void AsyncGPUManager::RegisterTask(AsyncCommandType a_type, ID3D12CommandAllocator* a_pAllocator, D3D12::Fence* a_pFence, UINT64 a_targetFenceValue, std::function<void()> a_onComplete)
+	void AsyncGPUManager::RegisterTask(EAsyncCommandType a_type, ID3D12CommandAllocator* a_pAllocator, D3D12::Fence* a_pFence, UINT64 a_targetFenceValue, std::function<void()> a_onComplete)
 	{
 		std::lock_guard<std::mutex> _lock(m_mutex);
 
@@ -79,7 +79,7 @@ namespace Engine::Graphics
 
 						// ② アロケーターをリセットしてフリーリストに返却
 						_it->cpAllocator->Reset();
-						if (_it->type == AsyncCommandType::Copy)
+						if (_it->type == EAsyncCommandType::Copy)
 						{
 							m_freeCopyAllocators.push_back(_it->cpAllocator);
 						}

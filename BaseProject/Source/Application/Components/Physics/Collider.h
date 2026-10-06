@@ -20,7 +20,7 @@
 // 相手側の弾のレイヤーだけを collideLayer へ入れておけば、
 // 敵のミサイルは今までどおり撃ち落とせて、自分の弾同士は素通りする。
 //==========================================================================================
-enum class Layer : uint32_t
+enum class ECollisionLayer : uint32_t
 {
 	None			= 0,
 	StaticObject	= 1 << 0,
@@ -40,8 +40,8 @@ enum class Layer : uint32_t
 
 struct ColliderComponent
 {
-	Layer layer = Layer::StaticObject;		// 自分が属するレイヤー
-	Layer collideLayer = Layer::None;		// 衝突したいレイヤー
+	ECollisionLayer layer = ECollisionLayer::StaticObject;		// 自分が属するレイヤー
+	ECollisionLayer collideLayer = ECollisionLayer::None;		// 衝突したいレイヤー
 	Engine::ECS::Flg isPhysical = 1;		// 物理解決するかどうか(衝突時にイベントだけほしいとか)
 
 	// 形状の種類。Mesh は判定メッシュ、それ以外は描画メッシュのAABBの箱になる
@@ -52,29 +52,29 @@ struct ColliderComponent
 	Engine::Physics::BodyHandle physicsBody = {};
 };
 
-inline Layer operator|(Layer a, Layer b)
+inline ECollisionLayer operator|(ECollisionLayer a, ECollisionLayer b)
 {
-	return static_cast<Layer>(
+	return static_cast<ECollisionLayer>(
 		static_cast<uint32_t>(a) | static_cast<uint32_t>(b)
 		);
 }
 
-inline Layer operator&(Layer a, Layer b)
+inline ECollisionLayer operator&(ECollisionLayer a, ECollisionLayer b)
 {
-	return static_cast<Layer>(
+	return static_cast<ECollisionLayer>(
 		static_cast<uint32_t>(a) & static_cast<uint32_t>(b)
 		);
 }
 
-inline Layer& operator|=(Layer& a, Layer b)
+inline ECollisionLayer& operator|=(ECollisionLayer& a, ECollisionLayer b)
 {
 	a = a | b;
 	return a;
 }
 
-inline bool HasLayer(Layer value, Layer test)
+inline bool HasLayer(ECollisionLayer value, ECollisionLayer test)
 {
-	return (value & test) != Layer::None;
+	return (value & test) != ECollisionLayer::None;
 }
 
 //------------------------------------------------------------------------------------------
@@ -85,11 +85,11 @@ inline bool HasLayer(Layer value, Layer test)
 // == Layer::DiynamicObject で見たままにしておくと、弾が静的ボディとして登録され、
 // 撃った瞬間の場所に当たり判定が置き去りになる(絵だけ飛んでいく)。
 //------------------------------------------------------------------------------------------
-inline bool IsDynamicLayer(Layer a_layer)
+inline bool IsDynamicLayer(ECollisionLayer a_layer)
 {
 	return HasLayer(a_layer,
-		Layer::DiynamicObject | Layer::PlayerProjectile | Layer::EnemyProjectile |
-		Layer::Enemy);
+		ECollisionLayer::DiynamicObject | ECollisionLayer::PlayerProjectile | ECollisionLayer::EnemyProjectile |
+		ECollisionLayer::Enemy);
 }
 
 // 形状情報、質量。動く、動かない。衝突時の挙動などは持たせない。

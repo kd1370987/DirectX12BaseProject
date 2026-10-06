@@ -26,7 +26,7 @@ namespace Engine::Scene
 {
 	class BaseScene;
 
-	enum class SceneChangeType
+	enum class ESceneChangeType
 	{
 		Push,		// 重ねる
 		Pop,		// 一つ消去
@@ -94,7 +94,7 @@ namespace Engine::Scene
 		/// </summary>
 		/// <param name="a_nextScene">切り替え先のシーンタイプ</param>
 		/// <param name="a_changeType">切り替え方法</param>
-		void SetNextScene(const Engine::GUID& a_guid, const SceneChangeType& a_changeType);
+		void SetNextScene(const Engine::GUID& a_guid, const ESceneChangeType& a_changeType);
 
 		/// <summary>
 		/// 更新するのを一番上のシーンだけにするか
@@ -165,8 +165,8 @@ namespace Engine::Scene
 
 		struct SceneChangeCmd
 		{
-			Engine::GUID sceneGUID = Engine::DefaultGUID;
-			SceneChangeType changeType = SceneChangeType::Replace;
+			Engine::GUID sceneGUID = Engine::DEFAULT_GUID;
+			ESceneChangeType changeType = ESceneChangeType::Replace;
 		};
 
 		// シーンスタック

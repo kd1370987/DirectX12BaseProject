@@ -32,7 +32,7 @@ void PlatoonAxisSystem::Init(App::ECS::APPWorld& a_world)
 		{
 			if (!a_ctx.pWorld) return;
 
-			PlatoonAxisResource& _axisRes = a_ctx.pWorld->GetResource<PlatoonAxisResource>();
+			PlatoonAxisResource& _axisRes = a_ctx.pWorld->RefResource<PlatoonAxisResource>();
 			_axisRes.Clear();
 
 			a_ctx.pWorld->ForEach<const ActiveTag, const PlatoonLeaderComponent,

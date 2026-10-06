@@ -100,14 +100,14 @@ namespace Engine::Resource
 	{
 		auto _fileDir = Engine::File::GetDirFromPath(a_filePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
-		Persistence::Archive _archi(Persistence::Archive::Mode::Save, _fileDir, _fileName, "ptic");
+		Persistence::Archive _archi(Persistence::Archive::EMode::Save, _fileDir, _fileName, "ptic");
 
 		Archive(_archi);
 	}
 
 	void ParticlesAsset::Load(const std::string& a_fileDir, const std::string& a_fileName, ResourceManager& a_resourceManager)
 	{
-		Persistence::Archive _archi(Persistence::Archive::Mode::Load, a_fileDir, a_fileName, "ptic");
+		Persistence::Archive _archi(Persistence::Archive::EMode::Load, a_fileDir, a_fileName, "ptic");
 
 		Archive(_archi);
 		OnLoaded(a_resourceManager);

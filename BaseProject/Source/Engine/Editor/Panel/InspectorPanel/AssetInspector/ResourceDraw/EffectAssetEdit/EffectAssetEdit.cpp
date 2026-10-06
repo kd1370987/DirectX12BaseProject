@@ -20,7 +20,7 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		void DrawAssignedName(EditorContext* a_pEditContext, const Engine::GUID& a_guid)
 		{
-			if (a_guid == Engine::DefaultGUID)
+			if (a_guid == Engine::DEFAULT_GUID)
 			{
 				// 空欄はエラーではないことを明示しておく
 				Engine::Editor::HelpText("(empty : このパーツは出ない)");
@@ -80,7 +80,7 @@ namespace Engine::Editor::Inspector
 				Engine::Editor::SameLine();
 				if (DeleteButton("Clear"))
 				{
-					a_part.particleGUID = Engine::DefaultGUID;
+					a_part.particleGUID = Engine::DEFAULT_GUID;
 					_isChanged = true;
 				}
 			}
@@ -202,7 +202,7 @@ namespace Engine::Editor::Inspector
 				Engine::Editor::SameLine();
 				if (DeleteButton("Clear"))
 				{
-					a_part.modelGUID = Engine::DefaultGUID;
+					a_part.modelGUID = Engine::DEFAULT_GUID;
 					_isChanged = true;
 				}
 			}
@@ -254,7 +254,7 @@ namespace Engine::Editor::Inspector
 				Engine::Editor::SameLine();
 				if (DeleteButton("Clear"))
 				{
-					a_part.soundGUID = Engine::DefaultGUID;
+					a_part.soundGUID = Engine::DEFAULT_GUID;
 					_isChanged = true;
 				}
 			}

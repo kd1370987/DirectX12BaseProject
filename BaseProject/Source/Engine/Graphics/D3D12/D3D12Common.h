@@ -1,6 +1,10 @@
 ﻿#pragma once
 
-struct SAMPLER {};
+namespace Engine::D3D12
+{
+	// サンプラーのハンドル(Handle<SamplerTag>)を区別するための型
+	struct SamplerTag {};
+}
 
 // d3dx12.h のうち、ここで使うのはパイプラインステートストリームだけ。
 // 一式を読むとプリコンパイル済みヘッダー経由で全翻訳単位に広がるため分割ヘッダーで読む
@@ -14,7 +18,7 @@ struct SAMPLER {};
 namespace Engine::D3D12::Input
 {
 	// 静的用
-	constexpr D3D12_INPUT_ELEMENT_DESC StaticElement[5] =
+	constexpr D3D12_INPUT_ELEMENT_DESC STATIC_ELEMENT[5] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -22,13 +26,13 @@ namespace Engine::D3D12::Input
 		{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
-	constexpr D3D12_INPUT_LAYOUT_DESC StaticLayout = {
-		.pInputElementDescs = StaticElement,
+	constexpr D3D12_INPUT_LAYOUT_DESC STATIC_LAYOUT = {
+		.pInputElementDescs = STATIC_ELEMENT,
 		.NumElements = 5
 	};
 
 	// アニメーション用
-	constexpr D3D12_INPUT_ELEMENT_DESC AnimationInputElement[7] =
+	constexpr D3D12_INPUT_ELEMENT_DESC ANIMATION_INPUT_ELEMENT[7] =
 	{
 		{ "POSITION",   0, DXGI_FORMAT_R32G32B32_FLOAT,		0, D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "NORMAL",     0, DXGI_FORMAT_R32G32B32_FLOAT,		0, D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -38,42 +42,42 @@ namespace Engine::D3D12::Input
 		{ "SKININDEX",  0, DXGI_FORMAT_R16G16B16A16_UINT,	0, D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
 		{ "SKINWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
 	};
-	constexpr D3D12_INPUT_LAYOUT_DESC AnimationInputLayout =
+	constexpr D3D12_INPUT_LAYOUT_DESC ANIMATION_INPUT_LAYOUT =
 	{
-		.pInputElementDescs = AnimationInputElement,
+		.pInputElementDescs = ANIMATION_INPUT_ELEMENT,
 		.NumElements = 7
 	};
 
 	// 2D描画用
-	constexpr D3D12_INPUT_ELEMENT_DESC Static2DElement[2] =
+	constexpr D3D12_INPUT_ELEMENT_DESC STATIC_2D_ELEMENT[2] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
-	constexpr D3D12_INPUT_LAYOUT_DESC Static2DLayout = {
-		.pInputElementDescs = Static2DElement,
+	constexpr D3D12_INPUT_LAYOUT_DESC STATIC_2D_LAYOUT = {
+		.pInputElementDescs = STATIC_2D_ELEMENT,
 		.NumElements = 2
 	};
 
 	// ポジションオンリー
-	constexpr D3D12_INPUT_ELEMENT_DESC gPosOnryElement[2] =
+	constexpr D3D12_INPUT_ELEMENT_DESC POS_ONLY_ELEMENT[2] =
 	{
 		{ "POSITION",   0, DXGI_FORMAT_R32G32B32_FLOAT,		0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "COLOR",      0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
-	constexpr D3D12_INPUT_LAYOUT_DESC gPosOnryLayout = {
-		.pInputElementDescs = gPosOnryElement,
+	constexpr D3D12_INPUT_LAYOUT_DESC POS_ONLY_LAYOUT = {
+		.pInputElementDescs = POS_ONLY_ELEMENT,
 		.NumElements = 2
 	};
 
 	// パーティクル描画用
-	constexpr D3D12_INPUT_ELEMENT_DESC gParticleInputElement[2] =
+	constexpr D3D12_INPUT_ELEMENT_DESC PARTICLE_INPUT_ELEMENT[2] =
 	{
 		{ "POSITION",   0, DXGI_FORMAT_R32G32B32A32_FLOAT,		0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD",   0, DXGI_FORMAT_R32G32_FLOAT,	    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
-	constexpr D3D12_INPUT_LAYOUT_DESC gParticleInputLayout = {
-		.pInputElementDescs = gParticleInputElement,
+	constexpr D3D12_INPUT_LAYOUT_DESC PARTICLE_INPUT_LAYOUT = {
+		.pInputElementDescs = PARTICLE_INPUT_ELEMENT,
 		.NumElements = 2
 	};
 
@@ -83,7 +87,7 @@ namespace Engine::D3D12::Input
 	// StaticLayout などを宣言してしまうと、IA が頂点バッファを要求し、
 	// 直前のパスが残したバッファ(例: パーティクルのクアッド)を読もうとして
 	// 「頂点バッファが小さすぎる(#210)」警告が大量に出るため、こちらを使う。
-	constexpr D3D12_INPUT_LAYOUT_DESC gEmptyLayout = {
+	constexpr D3D12_INPUT_LAYOUT_DESC EMPTY_LAYOUT = {
 		.pInputElementDescs = nullptr,
 		.NumElements = 0
 	};
@@ -93,7 +97,7 @@ namespace Engine::D3D12::Input
 namespace Engine::D3D12
 {
 	// ルートレンジ指定
-	enum class RangeType
+	enum class ERangeType
 	{
 		CBV,
 		SRV,
@@ -102,7 +106,7 @@ namespace Engine::D3D12
 	};
 
 	// ルートパラメーター指定
-	enum class RootParameterType
+	enum class ERootParameterType
 	{
 		DescriptorTable,
 		RootCBV,
@@ -113,14 +117,14 @@ namespace Engine::D3D12
 	// ルートレンジ用中間構造体
 	struct RootRangeInit
 	{
-		RangeType type;				// レンジタイプ
+		ERangeType type;				// レンジタイプ
 		UINT shaderRegisterIndex;	// ルート定数などを使用する際のシェーダーインデックス
 	};
 
 	// ルートパラメター用中間構造体
 	struct RootParamInit
 	{
-		RootParameterType paramType;				// パラメーター
+		ERootParameterType paramType;				// パラメーター
 		std::vector<RootRangeInit> rangeVec = {};	// レンジタイプ・インデックス
 		UINT shaderRegisterIndex;					// ルート定数などを使用する際のシェーダーインデックス
 	};

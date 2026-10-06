@@ -130,7 +130,7 @@ namespace Engine::Resource
 
 	private:
 		// 参照モデル(アニメ選択用)
-		Engine::GUID	m_modelGUID = Engine::DefaultGUID;
+		Engine::GUID	m_modelGUID = Engine::DEFAULT_GUID;
 		Handle<Model>	m_modelHandle = {};
 
 		// 識別子

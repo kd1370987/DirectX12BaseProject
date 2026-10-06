@@ -23,7 +23,7 @@
 struct DebrisEmitterComponent
 {
 	// ---- 撒くもの(保存) ----
-	Engine::GUID debrisGUID = Engine::DefaultGUID;							// 破片(EffectPrefab)
+	Engine::GUID debrisGUID = Engine::DEFAULT_GUID;							// 破片(EffectPrefab)
 	Engine::Handle<Engine::Resource::EffectPrefab> debrisHandle = {};		// ランタイム用(Fixup が取る)
 
 	// ---- 撒き方(保存) ----
@@ -76,7 +76,7 @@ struct Engine::ECS::ComponentTraits<DebrisEmitterComponent>
 
 		Engine::Editor::AssetField(
 			*a_context.pWorld->RefEngineServices(), "Debris", "EffectPrefab", _comp.debrisGUID);
-		if (_comp.debrisGUID == Engine::DefaultGUID)
+		if (_comp.debrisGUID == Engine::DEFAULT_GUID)
 		{
 			Engine::Editor::HelpText("(未設定 : 何も撒かない)");
 		}

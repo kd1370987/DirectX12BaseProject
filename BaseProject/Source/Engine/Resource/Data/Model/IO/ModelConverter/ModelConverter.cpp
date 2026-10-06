@@ -179,15 +179,15 @@ namespace Engine::Resource::Converter
 				// アルファ
 				if (_srcMaterial.alphaMode == "OPAQUE")
 				{
-					_dstMaterial.alphaMode = Engine::Resource::Alpha::Opaque;
+					_dstMaterial.alphaMode = Engine::Resource::EAlpha::Opaque;
 				}
 				else if (_srcMaterial.alphaMode == "MASK")
 				{
-					_dstMaterial.alphaMode = Engine::Resource::Alpha::Mask;
+					_dstMaterial.alphaMode = Engine::Resource::EAlpha::Mask;
 				}
 				else if (_srcMaterial.alphaMode == "BLEND")
 				{
-					_dstMaterial.alphaMode = Engine::Resource::Alpha::Blend;
+					_dstMaterial.alphaMode = Engine::Resource::EAlpha::Blend;
 				}
 
 				// 材質データ
@@ -333,7 +333,7 @@ namespace Engine::Resource::Converter
 	{
 		auto _dir = Engine::File::GetDirFromPath(a_filePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
-		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _dir, _fileName, "mdl");
+		Persistence::Archive _ar(Persistence::Archive::EMode::Save, _dir, _fileName, "mdl");
 		_ar.StringField("ModelName", a_asset.name);
 
 		_ar.GUIDVectorField("MaterialGUID", a_asset.materialGUIDs);
@@ -384,7 +384,7 @@ namespace Engine::Resource::Converter
 			a_asset.materialGUIDs[_i] = a_resourceManager.RefAssetDatabase().AddMetaData(_fullPath, "Material");
 
 			// マテリアルのセーブ
-			Persistence::Archive _ar(Persistence::Archive::Mode::Save, _convertDir, _fileName, "mtrl");
+			Persistence::Archive _ar(Persistence::Archive::EMode::Save, _convertDir, _fileName, "mtrl");
 			_pMaterial->Archive(_ar);
 		}
 	}
@@ -438,7 +438,7 @@ namespace Engine::Resource::Converter
 		if (!_pTex) return;
 
 		auto _guid = a_resourceManager.GetCache(a_ref.GetRaw());
-		if (_guid == Engine::DefaultGUID) return;
+		if (_guid == Engine::DEFAULT_GUID) return;
 
 		auto _path = a_resourceManager.RefAssetDatabase().GetFilePathFromGUID(_guid);
 

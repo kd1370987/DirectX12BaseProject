@@ -158,7 +158,7 @@ void AimTargetSystem::Init(App::ECS::APPWorld& a_world)
 			bool _isHit = false;
 			{
 				ENGINE_PROFILE_SCOPE("Physics_AimRay");
-				_isHit = _physicsWorld.CastRay(_info, Engine::Physics::kQueryAllLayers, _target, _hit);
+				_isHit = _physicsWorld.CastRay(_info, Engine::Physics::QUERY_ALL_LAYERS, _target, _hit);
 			}
 
 			//============================================================

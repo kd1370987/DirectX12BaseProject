@@ -25,7 +25,7 @@ void Engine::Resource::Material::SetTexture2D(
 )
 {
 	// 参照するマネージャーはコンテキストから引く
-	assert(a_ctx.pResourceManager && "ResourceBuildContext.pResourceManager が空です");
+	ENGINE_ERRLOG(a_ctx.pResourceManager, "ResourceBuildContext.pResourceManager が空です");
 	auto& _assetDb = a_ctx.pAssetDatabase ? *a_ctx.pAssetDatabase : a_ctx.pResourceManager->RefAssetDatabase();
 
 	baseColorTexGUID	= _assetDb.GetGUIDFromFilePath(a_fileDir + a_baseColorTexFileName);

@@ -159,6 +159,9 @@ namespace Engine::Editor
 		// 目安になる格子をデバッグ線で描く(大きさの把握用)
 		void DrawGrid() const;
 
+		// プレビューの持ち主の位置と向きを、上の設定から書き込む(エフェクトのときだけ)
+		void ApplyPreviewTransform(ECS::Entity a_entity, float a_dt);
+
 	private:
 
 		//----------------------------------------------------------------------------------
@@ -175,7 +178,7 @@ namespace Engine::Editor
 		};
 		EMode m_mode = EMode::Effect;
 
-		Engine::GUID m_effectGUID = Engine::DefaultGUID;
+		Engine::GUID m_effectGUID = Engine::DEFAULT_GUID;
 		Engine::Handle<Resource::EffectAsset> m_effectHandle = {};
 		Engine::Handle<Resource::EffectPrefab> m_effectPrefabHandle = {};
 
@@ -238,7 +241,5 @@ namespace Engine::Editor
 		float m_previewOrbitSpeed = 90.0f;	// 回す速さ(度/秒)
 		float m_previewOrbitAngle = 0.0f;	// いまの角度(度)
 
-		// プレビューの持ち主の位置と向きを、上の設定から書き込む(エフェクトのときだけ)
-		void ApplyPreviewTransform(ECS::Entity a_entity, float a_dt);
 	};
 }

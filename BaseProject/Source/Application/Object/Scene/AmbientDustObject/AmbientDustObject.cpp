@@ -46,7 +46,7 @@ namespace App::Object
 		if (!a_context.pWorld) return;
 
 		// 未設定なら出しているものを片付けて終わり
-		if (m_dast.effectGUID == Engine::DefaultGUID)
+		if (m_dast.effectGUID == Engine::DEFAULT_GUID)
 		{
 			ReleaseDastEntity(a_context);
 			return;
@@ -117,7 +117,7 @@ namespace App::Object
 
 			// チリのエフェクト。実体を使うのはエンティティ側(EffectAssetComponent)なので、
 			// こちらが握るのはインスペクターの表示用 ＋ 読み込みを始めさせるため
-			if (m_dast.effectGUID != Engine::DefaultGUID)
+			if (m_dast.effectGUID != Engine::DEFAULT_GUID)
 			{
 				m_dast.m_effectAsset =
 					a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_dast.effectGUID);
@@ -138,7 +138,7 @@ namespace App::Object
 		if (!a_context.pWorld->HasResource<SingletonEntityResource>()) return false;
 
 		const Engine::ECS::Entity _camera =
-			a_context.pWorld->GetResource<SingletonEntityResource>().mainCamera;
+			a_context.pWorld->RefResource<SingletonEntityResource>().mainCamera;
 
 		if (!a_context.pWorld->IsAliveEntity(_camera)) return false;
 		if (!a_context.pWorld->HasComponent<WorldMatrixComponent>(_camera)) return false;
@@ -186,7 +186,7 @@ namespace App::Object
 
 		m_dastSpawnedGUID = (m_dastEntity != Engine::ECS::Limits::INVALID_ENTITY)
 			? m_dast.effectGUID
-			: Engine::DefaultGUID;
+			: Engine::DEFAULT_GUID;
 	}
 
 	//======================================================================================
@@ -243,7 +243,7 @@ namespace App::Object
 		}
 
 		m_dastEntity = Engine::ECS::Limits::INVALID_ENTITY;
-		m_dastSpawnedGUID = Engine::DefaultGUID;
+		m_dastSpawnedGUID = Engine::DEFAULT_GUID;
 	}
 
 	//======================================================================================
@@ -275,7 +275,7 @@ namespace App::Object
 			*a_context.pServices,
 			"Dast Effect", "EffectAsset", m_dast.effectGUID))
 		{
-			m_dast.m_effectAsset = (m_dast.effectGUID != Engine::DefaultGUID)
+			m_dast.m_effectAsset = (m_dast.effectGUID != Engine::DEFAULT_GUID)
 				? a_context.pServices->pResourceManager->RequestLoad<Engine::Resource::EffectAsset>(m_dast.effectGUID)
 				: Engine::ResourceRef<Engine::Resource::EffectAsset>{};
 
@@ -283,7 +283,7 @@ namespace App::Object
 			m_isDastCentered = false;
 		}
 
-		if (m_dast.effectGUID == Engine::DefaultGUID)
+		if (m_dast.effectGUID == Engine::DEFAULT_GUID)
 		{
 			Engine::Editor::HelpText("(未設定 : チリは出ません)");
 			return;

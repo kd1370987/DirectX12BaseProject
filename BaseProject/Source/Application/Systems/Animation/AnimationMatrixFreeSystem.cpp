@@ -43,14 +43,14 @@ void AnimationMatrixFreeSystem::Init(App::ECS::APPWorld& a_world)
 				NodePoseComponent& _nodeComp = a_nodeArray[_i];
 				SkeletonPoseComponent& _poseComp = a_poseArray[_i];
 
-				auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
-				auto& _boneMatPool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
+				auto& _nodePosePool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto& _boneMatPool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 
 				_nodePosePool.FreeRange(_nodeComp.nodePoseHandle);
 				_boneMatPool.FreeRange(_poseComp.skeletonPoseHandle);
 
 				// アニメーション用頂点データの解放
-				auto& _dynamicRaytracingData = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
+				auto& _dynamicRaytracingData = a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
 				auto* _pAnimData = _dynamicRaytracingData.Ref(_rayComp.dynamicInstanceHandle);
 				if (!_pAnimData) continue;
 

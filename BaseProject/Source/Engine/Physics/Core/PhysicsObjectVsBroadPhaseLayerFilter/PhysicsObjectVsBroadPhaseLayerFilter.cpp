@@ -10,7 +10,7 @@ namespace Engine::Physics
 		// それ以外の細かい絞り込み(group と mask)は ObjectLayerPairFilter が受け持つ
 		if (!Layer::IsMoving(a_layer1))
 		{
-			return a_layer2 == EBroadPhaseLayer::Dynamic;
+			return a_layer2 == EBroadPhaseLayer::DYNAMIC;
 		}
 		return true;
 	}

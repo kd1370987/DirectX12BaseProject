@@ -116,7 +116,7 @@ namespace Engine::Resource
 			std::filesystem::create_directories(_dir, _ec);
 		}
 
-		Persistence::Archive _arch(Persistence::Archive::Mode::Save, _dir, _fileName, "prfb");
+		Persistence::Archive _arch(Persistence::Archive::EMode::Save, _dir, _fileName, "prfb");
 		Archive(_arch, a_pWorld);
 	}
 
@@ -133,7 +133,7 @@ namespace Engine::Resource
 		// Development までは .ojprfb があればそちらを読むので、コンポーネントに
 		// フィールドを足しても保存済みのプレハブが壊れない。Shipping は .obprfb のみ
 		Persistence::Archive _arch(
-			Persistence::Archive::Mode::Load, _dir, _fileName, "prfb");
+			Persistence::Archive::EMode::Load, _dir, _fileName, "prfb");
 
 		Archive(_arch, a_pWorld);
 	}
@@ -235,10 +235,10 @@ namespace Engine::Resource
 		if (!a_pData || a_guidMap.empty()) return;
 		if (a_size < sizeof(Engine::GUID)) return;
 
-		constexpr size_t _kStride = 4;
+		constexpr size_t STRIDE = 4;
 		const size_t _end = a_size - sizeof(Engine::GUID);
 
-		for (size_t _offset = 0; _offset <= _end; _offset += _kStride)
+		for (size_t _offset = 0; _offset <= _end; _offset += STRIDE)
 		{
 			Engine::GUID _guid = {};
 			std::memcpy(&_guid, a_pData + _offset, sizeof(_guid));
@@ -325,12 +325,12 @@ namespace Engine::Resource
 
 	void Prefab::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
-		static std::string _dir = "Asset/Prefab/";
-		auto _basePath = _dir + a_path + "/" + a_name;
+		static const std::string ASSET_DIR = "Asset/Prefab/";
+		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
 
 		// すでに存在するなら作らない
 		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DefaultGUID)
+		if (_checkGUID != Engine::DEFAULT_GUID)
 		{
 			ENGINE_LOG("すでに作成されたプレハブです : %s", _basePath.c_str());
 			return;
@@ -352,7 +352,7 @@ namespace Engine::Resource
 		std::vector<std::string> _compNames = {};
 
 		// 【セーブ時のみ】シグネチャからコンポーネント名リストを作成
-		if (a_ar.GetMode() == Persistence::Archive::Mode::Save)
+		if (a_ar.GetMode() == Persistence::Archive::EMode::Save)
 		{
 			if (a_pWorld)
 			{
@@ -364,7 +364,7 @@ namespace Engine::Resource
 		a_ar.VectorField("ComponentNames", _compNames);
 
 		// 【ロード時のみ】読み込んだ名前からシグネチャを作り、既定値バッファを確保
-		if (a_ar.GetMode() == Persistence::Archive::Mode::Load)
+		if (a_ar.GetMode() == Persistence::Archive::EMode::Load)
 		{
 			if (!a_pWorld) return;
 
@@ -434,14 +434,14 @@ namespace Engine::Resource
 
 			// この子が持つコンポーネント名
 			std::vector<std::string> _childCompNames = {};
-			if (a_ar.GetMode() == Persistence::Archive::Mode::Save)
+			if (a_ar.GetMode() == Persistence::Archive::EMode::Save)
 			{
 				_childCompNames = a_pWorld->GetComponentNames(_child.sig);
 			}
 			a_ar.VectorField("ComponentNames", _childCompNames);
 
 			// 【ロード時のみ】名前からシグネチャを作り、既定値バッファを確保する
-			if (a_ar.GetMode() == Persistence::Archive::Mode::Load)
+			if (a_ar.GetMode() == Persistence::Archive::EMode::Load)
 			{
 				_child.sig = {};
 				_child.dataMap.clear();

@@ -6,10 +6,14 @@
 
 namespace Engine::Input
 {
+	InputAxisForWindowsMouse::InputAxisForWindowsMouse() = default;
+
 	InputAxisForWindowsMouse::InputAxisForWindowsMouse(int a_fixCode)
 	{
-		m_spFixButton = std::make_shared<InputButtonForWindows>(a_fixCode);
+		m_upFixButton = std::make_unique<InputButtonForWindows>(a_fixCode);
 	}
+
+	InputAxisForWindowsMouse::~InputAxisForWindowsMouse() = default;
 
 	void InputAxisForWindowsMouse::ResetInput()
 	{
@@ -21,15 +25,15 @@ namespace Engine::Input
 		m_isBeginFrame  = true;
 		m_prevMousePos  = {};
 
-		if (m_spFixButton) m_spFixButton->NoInput();
+		if (m_upFixButton) m_upFixButton->NoInput();
 	}
 
 	void InputAxisForWindowsMouse::PreUpdate()
 	{
-		if (!m_spFixButton) return;
+		if (!m_upFixButton) return;
 
 		// 軸キーがあれば
-		m_spFixButton->PreUpdate();
+		m_upFixButton->PreUpdate();
 	}
 
 	void InputAxisForWindowsMouse::Update(InputContext& a_inputContext)
@@ -38,11 +42,11 @@ namespace Engine::Input
 		bool _needUpdatePrevPos = true;
 
 		// 軸固定モードで固定ボタンが押されているときは軸情報を作成し、軸の中心を更新しない
-		if (m_spFixButton)
+		if (m_upFixButton)
 		{
-			m_spFixButton->Update(a_inputContext);
+			m_upFixButton->Update(a_inputContext);
 
-			if (m_spFixButton->GetState())
+			if (m_upFixButton->GetState() != InputButtonBase::EState::Free)
 			{
 				_needUpdatePrevPos = false;
 			}

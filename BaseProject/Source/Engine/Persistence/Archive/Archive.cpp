@@ -11,7 +11,7 @@
 
 namespace Engine::Persistence
 {
-	Archive::Archive(Mode a_mode, const std::string& a_fileDir, const std::string& a_fileName, const std::string& a_ext, ArchiveFormat a_format)
+	Archive::Archive(EMode a_mode, const std::string& a_fileDir, const std::string& a_fileName, const std::string& a_ext, EArchiveFormat a_format)
 	{
 		// 中身は null のまま。JSON を使うかどうかは下の分岐で決まる
 		m_upJson = std::make_unique<nlohmann::json>();
@@ -25,17 +25,17 @@ namespace Engine::Persistence
 		// シーンも各アセットもこの Archive を通るため、ここで出すことで
 		// 「ログが出るものと出ないもの」のばらつきを無くす。
 		ENGINE_LOG("[Archive] %s : %s (.%s)",
-			(a_mode == Mode::Save) ? "セーブ" : "ロード",
+			(a_mode == EMode::Save) ? "セーブ" : "ロード",
 			a_fileName.c_str(),
 			a_ext.c_str());
 
 		switch (a_mode)
 		{
-		case Engine::Persistence::Archive::Mode::Save:
+		case Engine::Persistence::Archive::EMode::Save:
 			// 親ディレクトリの作成
 			std::filesystem::create_directories(m_fileDir);
 
-			if (a_format == ArchiveFormat::Auto || a_format == ArchiveFormat::Binary)
+			if (a_format == EArchiveFormat::Auto || a_format == EArchiveFormat::Binary)
 			{
 				m_ofs.open(m_binPath, std::ios::binary);
 				if (!m_ofs.is_open())
@@ -44,19 +44,19 @@ namespace Engine::Persistence
 				}
 			}
 
-			if (a_format == ArchiveFormat::Auto || a_format == ArchiveFormat::Json)
+			if (a_format == EArchiveFormat::Auto || a_format == EArchiveFormat::Json)
 			{
 				*m_upJson = nlohmann::json::object(); // JSONモードを初期化
 			}
 			break;
 
-		case Engine::Persistence::Archive::Mode::Load:
+		case Engine::Persistence::Archive::EMode::Load:
 		{
 			bool _loadJson = false;
 			bool _loadBin = false;
 
-			if (a_format == ArchiveFormat::Json) _loadJson = true;
-			else if (a_format == ArchiveFormat::Binary) _loadBin = true;
+			if (a_format == EArchiveFormat::Json) _loadJson = true;
+			else if (a_format == EArchiveFormat::Binary) _loadBin = true;
 			else
 			{
 				// Auto : ビルドモードで決める(下の ShouldLoadJson を参照)
@@ -133,15 +133,15 @@ namespace Engine::Persistence
 	// ファイルを開かないので、m_ofs / m_ifs はどちらも閉じたまま。
 	// 各 Field はストリームが開いているかを見てから書くので、JSON側だけが動く
 	//======================================================================================
-	Archive::Archive(Mode a_mode, nlohmann::json& a_json)
+	Archive::Archive(EMode a_mode, nlohmann::json& a_json)
 	{
 		m_upJson = std::make_unique<nlohmann::json>();
 
 		m_mode = a_mode;
-		m_format = ArchiveFormat::Json;
+		m_format = EArchiveFormat::Json;
 		m_isMemory = true;
 
-		if (a_mode == Mode::Save)
+		if (a_mode == EMode::Save)
 		{
 			m_pMemoryJson = &a_json;
 			*m_upJson = nlohmann::json::object();

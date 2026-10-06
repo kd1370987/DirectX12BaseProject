@@ -9,7 +9,7 @@ namespace App::Systems::HierarchyTransform
 	{
 		// 辿る深さの上限。
 		// ヒエラルキーが輪になっていた場合の保険で、実運用の階層はせいぜい数段
-		constexpr int kMaxDepth = 32;
+		constexpr int MAX_DEPTH = 32;
 
 		//------------------------------------------------------------------------------
 		// 親のワールド行列から、継承フラグで指定された成分だけを取り出す
@@ -66,7 +66,7 @@ namespace App::Systems::HierarchyTransform
 				_pTrs->scale);
 
 			// これ以上辿らない条件。自分のローカルだけ返す
-			if (a_depth >= kMaxDepth) return _localMat;
+			if (a_depth >= MAX_DEPTH) return _localMat;
 			if (!a_world.HasComponent<HierarchyComponent>(a_entity)) return _localMat;
 
 			const auto* _pHierarchy = a_world.RefData<HierarchyComponent>(a_entity);

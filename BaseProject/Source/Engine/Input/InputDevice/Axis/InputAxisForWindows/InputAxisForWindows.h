@@ -15,12 +15,14 @@ namespace Engine::Input
 	public:
 
 		InputAxisForWindows(int a_upCode, int a_rightCode, int a_downCode, int a_leftCode);
+		~InputAxisForWindows() override;
 
 		void PreUpdate() override;
 		void Update(InputContext& a_inputContext) override;
 
 	private:
-		enum EDir
+
+		enum class EDir
 		{
 			Up,
 			Right,
@@ -28,6 +30,13 @@ namespace Engine::Input
 			Left,
 			Max
 		};
-		std::vector<std::shared_ptr<InputButtonBase>> m_spDirButtons;
+
+		// 方向を配列の添え字にする
+		static constexpr size_t ToIndex(EDir a_dir) { return static_cast<size_t>(a_dir); }
+
+	private:
+
+		// 方向ごとのボタン(EDir の順)
+		std::array<std::unique_ptr<InputButtonBase>, static_cast<size_t>(EDir::Max)> m_upDirButtons;
 	};
 }

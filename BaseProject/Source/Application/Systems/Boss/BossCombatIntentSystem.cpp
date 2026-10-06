@@ -157,9 +157,9 @@ namespace
 	//======================================================================================
 	EBossPattern PickPattern(const BossParamsComponent& a_boss, EBossPattern a_current)
 	{
-		constexpr int _kCount = static_cast<int>(EBossPattern::Max);
+		constexpr int COUNT = static_cast<int>(EBossPattern::Max);
 
-		const float _weights[_kCount] =
+		const float _weights[COUNT] =
 		{
 			a_boss.weightStandoff,
 			a_boss.weightRush,
@@ -175,7 +175,7 @@ namespace
 			const bool _isExcludeCurrent = (_pass == 0);
 
 			float _total = 0.0f;
-			for (int _i = 0; _i < _kCount; ++_i)
+			for (int _i = 0; _i < COUNT; ++_i)
 			{
 				if (_weights[_i] <= 0.0f) continue;
 				if (_isExcludeCurrent && _i == static_cast<int>(a_current)) continue;
@@ -186,7 +186,7 @@ namespace
 
 			float _roll = Math::Random::Float(0.0f, _total);
 
-			for (int _i = 0; _i < _kCount; ++_i)
+			for (int _i = 0; _i < COUNT; ++_i)
 			{
 				if (_weights[_i] <= 0.0f) continue;
 				if (_isExcludeCurrent && _i == static_cast<int>(a_current)) continue;

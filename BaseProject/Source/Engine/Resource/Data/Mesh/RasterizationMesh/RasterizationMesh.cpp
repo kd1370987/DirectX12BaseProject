@@ -17,7 +17,7 @@ namespace Engine::Resource
 			a_vertices.data()
 		))
 		{
-			assert(0 && "頂点バッファの生成に失敗");
+			ENGINE_ERRLOG(false, "頂点バッファの生成に失敗");
 			return;
 		}
 
@@ -37,7 +37,7 @@ namespace Engine::Resource
 		_desc.format = a_indexFormat;
 		if (!indexBuffer.Create(a_pDevice, a_pHeapManager, _desc))
 		{
-			assert(0 && "インデックスバッファの生成に失敗");
+			ENGINE_ERRLOG(false, "インデックスバッファの生成に失敗");
 			return;
 		}
 	}

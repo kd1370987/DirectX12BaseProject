@@ -10,11 +10,8 @@ namespace Engine
 	};
 
 	// フレームバッファ数
-	enum : UINT
-	{
-		BACKBUFFER_COUNT = 3,	// バックバッファ数
-		CPU_FRAME_COUNT = 3		// CPUカウント数
-	};
+	inline constexpr UINT BACKBUFFER_COUNT = 3;	// バックバッファ数
+	inline constexpr UINT CPU_FRAME_COUNT = 3;	// CPUカウント数
 
 	// ビルド構成
 	enum class EBuildConfiguration : UINT

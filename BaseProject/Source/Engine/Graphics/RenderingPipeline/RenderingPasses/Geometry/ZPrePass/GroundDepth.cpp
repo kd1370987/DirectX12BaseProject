@@ -14,7 +14,7 @@ namespace Engine::Graphics::Pipeline
 		m_geometryQueue = EGeometryQueue::Ground;
 
 		// 深度だけ書く
-		Slot& _depth = DeclareOutput("Depth", "GroundDepth", DXGI_FORMAT_R32_TYPELESS, EAccessType::Depth_Write);
+		Slot& _depth = DeclareOutput("Depth", "GroundDepth", DXGI_FORMAT_R32_TYPELESS, EAccessType::DepthWrite);
 		_depth.loadOp = ELoadOp::Clear;
 	}
 	void GroundDepthPass::Compile(const PassContext & a_context)

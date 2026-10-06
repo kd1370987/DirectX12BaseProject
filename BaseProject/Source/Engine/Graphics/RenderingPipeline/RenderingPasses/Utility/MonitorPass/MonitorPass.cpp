@@ -157,7 +157,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 読むだけの持ち物なので SRV だけでよい。
 		// ここで DSV や RTV を立てると、要らないビューとクリアバリューまで抱える
-		_desc.usage = Resource::TextureUsage::SRV;
+		_desc.usage = Resource::ETextureUsage::SRV;
 
 		m_upPreviewTex = std::make_unique<Resource::Texture>();
 		m_upPreviewTex->Create(a_pHeapManager, _desc);

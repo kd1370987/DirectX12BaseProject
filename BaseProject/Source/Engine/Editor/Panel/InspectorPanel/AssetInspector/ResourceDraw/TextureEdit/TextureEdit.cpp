@@ -11,14 +11,14 @@ namespace Engine::Editor::Inspector
 		//-----------------------------------------------------------------------------------------
 		// 使用フラグを文字列化
 		//-----------------------------------------------------------------------------------------
-		std::string MakeUsageString(Resource::TextureUsage a_usage)
+		std::string MakeUsageString(Resource::ETextureUsage a_usage)
 		{
-			if (a_usage == Resource::TextureUsage::None) { return "None"; }
+			if (a_usage == Resource::ETextureUsage::None) { return "None"; }
 
 			std::string _usageStr;
-			for (auto _flag : magic_enum::enum_values<Resource::TextureUsage>())
+			for (auto _flag : magic_enum::enum_values<Resource::ETextureUsage>())
 			{
-				if (_flag == Resource::TextureUsage::None) { continue; }
+				if (_flag == Resource::ETextureUsage::None) { continue; }
 
 				// 立っているフラグのみ連結
 				bool _hasFlag = (static_cast<uint32_t>(a_usage) & static_cast<uint32_t>(_flag)) != 0;
@@ -66,7 +66,7 @@ namespace Engine::Editor::Inspector
 		Engine::Editor::Line();
 
 		// ---- 画像の描画 ----
-		auto _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		auto _winOp = Option::OptionManager::Instance().GetWindowOption();
 		auto _gpuHandle = EditorHelper::GetImGuiTexHandle(a_pTexture->GetImGuiSRV());
 		EditorHelper::DrawSRVView(_gpuHandle, _winOp.windowWidth, _winOp.windowHeight);
 	}

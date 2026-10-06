@@ -11,18 +11,18 @@ namespace Engine::Graphics::Pipeline
 	{
 		// 同じ番号を指定した入力は、宣言した順にルート定数へ並ぶ(シェーダーの b100 と合わせる)。
 		// シーン全体の深度 : レイの終点
-		DeclareInput("SceneDepth", EAccessType::SRV, EPassSlotType::Texture, true, kRootInputSRV);
+		DeclareInput("SceneDepth", EAccessType::SRV, EPassSlotType::Texture, true, ROOT_INPUT_SRV);
 		// 地面だけの深度(GroundDepthPass の出力。任意) : ダストの高さの基準。
 		// 繋がないとダストは出ない
-		DeclareInput("GroundDepth", EAccessType::SRV, EPassSlotType::Texture, false, kRootInputSRV);
+		DeclareInput("GroundDepth", EAccessType::SRV, EPassSlotType::Texture, false, ROOT_INPUT_SRV);
 		// グラウンドフィールド(GroundFieldPass の出力。任意) : 衝撃で払われた・寄せられたチリ。
 		// 繋がないとチリは衝撃で動かない
-		DeclareInput("GroundField", EAccessType::SRV, EPassSlotType::Texture, false, kRootInputSRV);
+		DeclareInput("GroundField", EAccessType::SRV, EPassSlotType::Texture, false, ROOT_INPUT_SRV);
 
 		// フォグ。rgb = 色 / a = 濃さ。
 		// 全画素を書き潰すのでクリアは不要
 		DeclareOutput("Fog", "SceneFog", DXGI_FORMAT_R16G16B16A16_FLOAT,
-			EAccessType::UAV, EPassSlotType::Texture, false, kRootOutputUAV);
+			EAccessType::UAV, EPassSlotType::Texture, false, ROOT_OUTPUT_UAV);
 	}
 
 	void SceneVolumetricFogPass::Compile(const PassContext& a_context)
@@ -42,21 +42,21 @@ namespace Engine::Graphics::Pipeline
 
 		// カメラ : 深度からワールド座標を戻す
 		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(
-			_pCmd, kRootCameraCB, _pSceneView->GetCameraData());
+			_pCmd, ROOT_CAMERA_CB, _pSceneView->GetCameraData());
 
 		// シーンのフォグ
-		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, kRootSceneFogCB, _pSceneView->GetSceneFogData());
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, ROOT_SCENE_FOG_CB, _pSceneView->GetSceneFogData());
 
 		// グラウンドダスト : 経過時間だけはパスが進める
 		m_elapsedTime += MainEngine::Instance().GetDeltaTime();
 
 		GroundDustCB _dustCB = _pSceneView->GetGroundDustData();
 		_dustCB.time = m_elapsedTime;
-		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, kRootGroundDustCB, _dustCB);
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, ROOT_GROUND_DUST_CB, _dustCB);
 
 		// ノイズテクスチャ : 読み込みはシーンが始めている。
 		// 届くまでのフレーム(と未設定のとき)はノイズなしで描く
-		UINT _noiseIndex = kNoiseIndexNone;
+		UINT _noiseIndex = NOISE_INDEX_NONE;
 		const auto& _noiseHandle = _pSceneView->GetFogNoiseTexture();
 		if (_resManager.IsReady(_noiseHandle))
 		{
@@ -65,7 +65,7 @@ namespace Engine::Graphics::Pipeline
 				_noiseIndex = _pNoiseTex->GetSRV().GetIndex();
 			}
 		}
-		_pCtx->ComputeBindDescriptorIndices(kRootNoiseSRV, std::span<const UINT>(&_noiseIndex, 1));
+		_pCtx->ComputeBindDescriptorIndices(ROOT_NOISE_SRV, std::span<const UINT>(&_noiseIndex, 1));
 
 		DispatchFullScreen(a_context);
 	}

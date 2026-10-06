@@ -20,7 +20,7 @@ void GUIDFixupSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				GUIDComponent& _guidComp = a_guidArray[_i];
 
-				if (_guidComp.guid == Engine::DefaultGUID)
+				if (_guidComp.guid == Engine::DEFAULT_GUID)
 				{
 					auto _func = a_ctx.pWorld->GetCompFunc<GUIDComponent>();
 					_func.construct(&_guidComp);

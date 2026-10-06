@@ -15,8 +15,8 @@ namespace Engine::Option::GraphicsOptions
 
 		const std::string& GetName() override
 		{
-			static const std::string _name = "LightingOption";
-			return _name;
+			static const std::string NAME = "LightingOption";
+			return NAME;
 		}
 
 		EOptionCategory GetCategory() override

@@ -76,7 +76,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 				// isPlay は保存されないので、誰かが立てないと何も出ない
 				_request.isPlay = _effectComp.playOnStart;
 
-				if (_effectComp.effectGUID == Engine::DefaultGUID)
+				if (_effectComp.effectGUID == Engine::DEFAULT_GUID)
 				{
 					_runtime.effectHandle = {};
 					continue;
@@ -128,7 +128,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 				_boosterComp.wasBoosting = false;
 				_boosterComp.boostBlend = 0.0f;
 
-				if (_boosterComp.sparkEffectGUID == Engine::DefaultGUID)
+				if (_boosterComp.sparkEffectGUID == Engine::DEFAULT_GUID)
 				{
 					_boosterComp.sparkHandle = {};
 					continue;
@@ -162,7 +162,7 @@ void EffectFixupSystem::Init(App::ECS::APPWorld& a_world)
 			{
 				GunStateComponent& _gunComp = a_gunArray[_i];
 
-				if (_gunComp.muzzleEffectGUID == Engine::DefaultGUID)
+				if (_gunComp.muzzleEffectGUID == Engine::DEFAULT_GUID)
 				{
 					_gunComp.muzzleEffectHandle = {};
 					continue;

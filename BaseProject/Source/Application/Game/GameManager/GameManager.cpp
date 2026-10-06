@@ -49,9 +49,9 @@ namespace App::Game
 	//======================================================================================
 	namespace
 	{
-		constexpr const char* GameSettingDir  = "Asset/Data/Game";
-		constexpr const char* GameSettingName = "GameData";
-		constexpr const char* GameSettingExt  = "gmdt";
+		constexpr const char* GAME_SETTING_DIR  = "Asset/Data/Game";
+		constexpr const char* GAME_SETTING_NAME = "GameData";
+		constexpr const char* GAME_SETTING_EXT  = "gmdt";
 	}
 
 	void App::Game::GameManager::Init()
@@ -129,7 +129,7 @@ namespace App::Game
 		// 最初のシーンを挿入
 		if (m_farstScene.IsValid())
 		{
-			Engine::Scene::SceneManager::Instance().SetNextScene(m_farstScene, Engine::Scene::SceneChangeType::Push);
+			Engine::Scene::SceneManager::Instance().SetNextScene(m_farstScene, Engine::Scene::ESceneChangeType::Push);
 		}
 		else
 		{
@@ -197,16 +197,16 @@ namespace App::Game
 	void GameManager::LoadGameSetting()
 	{
 		Engine::Persistence::Archive _arch(
-			Engine::Persistence::Archive::Mode::Load,
-			GameSettingDir, GameSettingName, GameSettingExt);
+			Engine::Persistence::Archive::EMode::Load,
+			GAME_SETTING_DIR, GAME_SETTING_NAME, GAME_SETTING_EXT);
 
 		_arch.Field("m_farstScene", m_farstScene);
 	}
 	void GameManager::SaveGameSetting()
 	{
 		Engine::Persistence::Archive _arch(
-			Engine::Persistence::Archive::Mode::Save,
-			GameSettingDir, GameSettingName, GameSettingExt);
+			Engine::Persistence::Archive::EMode::Save,
+			GAME_SETTING_DIR, GAME_SETTING_NAME, GAME_SETTING_EXT);
 
 		_arch.Field("m_farstScene", m_farstScene);
 	}

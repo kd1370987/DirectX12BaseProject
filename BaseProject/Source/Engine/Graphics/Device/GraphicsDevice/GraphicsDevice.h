@@ -37,7 +37,7 @@ namespace Engine::Graphics
 		void CreateDevice();		// デバイス作成
 
 		// 優先度順デバイスメーカー
-		enum class GPUTier
+		enum class EGPUTier
 		{
 			NVIDIA,
 			Amd,

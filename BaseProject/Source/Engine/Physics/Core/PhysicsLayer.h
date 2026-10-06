@@ -23,37 +23,37 @@ namespace Engine::Physics
 {
 	namespace Layer
 	{
-		inline constexpr uint32_t kGroupBits	= 7;
-		inline constexpr uint32_t kGroupMask	= (1u << kGroupBits) - 1u;	// 0x7F
-		inline constexpr uint32_t kMovingBit	= 1u << 7;
-		inline constexpr uint32_t kMaskShift	= 8;
+		inline constexpr uint32_t GROUP_BITS	= 7;
+		inline constexpr uint32_t GROUP_MASK	= (1u << GROUP_BITS) - 1u;	// 0x7F
+		inline constexpr uint32_t MOVING_BIT	= 1u << 7;
+		inline constexpr uint32_t MASK_SHIFT	= 8;
 
 		// group / mask に使えるビット(アプリのレイヤーはこの範囲に収めること)
-		inline constexpr uint32_t kAllGroups	= kGroupMask;
+		inline constexpr uint32_t ALL_GROUPS	= GROUP_MASK;
 
 		constexpr JPH::ObjectLayer Make(uint32_t a_group, uint32_t a_mask, bool a_isMoving) noexcept
 		{
 			return static_cast<JPH::ObjectLayer>(
-				(a_group & kGroupMask) |
-				(a_isMoving ? kMovingBit : 0u) |
-				((a_mask & kGroupMask) << kMaskShift));
+				(a_group & GROUP_MASK) |
+				(a_isMoving ? MOVING_BIT : 0u) |
+				((a_mask & GROUP_MASK) << MASK_SHIFT));
 		}
 
-		constexpr uint32_t GetGroup(JPH::ObjectLayer a_layer) noexcept { return a_layer & kGroupMask; }
-		constexpr uint32_t GetMask(JPH::ObjectLayer a_layer) noexcept { return (a_layer >> kMaskShift) & kGroupMask; }
-		constexpr bool IsMoving(JPH::ObjectLayer a_layer) noexcept { return (a_layer & kMovingBit) != 0; }
+		constexpr uint32_t GetGroup(JPH::ObjectLayer a_layer) noexcept { return a_layer & GROUP_MASK; }
+		constexpr uint32_t GetMask(JPH::ObjectLayer a_layer) noexcept { return (a_layer >> MASK_SHIFT) & GROUP_MASK; }
+		constexpr bool IsMoving(JPH::ObjectLayer a_layer) noexcept { return (a_layer & MOVING_BIT) != 0; }
 
-		// 値がビット幅に収まっているか(収まらない分は Make で黙って落ちる)
-		constexpr bool IsInRange(uint32_t a_bits) noexcept { return (a_bits & ~kGroupMask) == 0; }
+		/// 値がビット幅に収まっているか(収まらない分は Make で黙って落ちる)
+		constexpr bool IsInRange(uint32_t a_bits) noexcept { return (a_bits & ~GROUP_MASK) == 0; }
 	}
 
 	// ブロードフェーズの分け方 : 動かないもの / 動くもの の2本
 	namespace EBroadPhaseLayer
 	{
-		inline constexpr JPH::BroadPhaseLayer Static{ 0 };
-		inline constexpr JPH::BroadPhaseLayer Dynamic{ 1 };
+		inline constexpr JPH::BroadPhaseLayer STATIC{ 0 };
+		inline constexpr JPH::BroadPhaseLayer DYNAMIC{ 1 };
 
-		inline constexpr JPH::uint NumLayers = 2;
+		inline constexpr JPH::uint NUM_LAYERS = 2;
 	}
 
 	//--------------------------------------------------------------------------------------
@@ -74,6 +74,6 @@ namespace Engine::Physics
 		}
 
 	private:
-		uint32_t m_queryMask = Layer::kAllGroups;
+		uint32_t m_queryMask = Layer::ALL_GROUPS;
 	};
 }

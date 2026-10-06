@@ -21,7 +21,7 @@ namespace Engine::Raytracing
 		const RayPSO*				pRayPSO = nullptr;
 		std::vector<RayShaderData>	shaderData = {};
 		std::vector<HitGroup>		hitGroup = {};
-		UINT						maxInstance = kMaxInstanceNum;
+		UINT						maxInstance = MAX_INSTANCE_NUM;
 
 		uint32_t maxLocalRootSize = 0;		// ローカルルートシグネチャの最大サイズ
 	};
@@ -48,7 +48,7 @@ namespace Engine::Raytracing
 		);
 
 		// ディスパッチレイ構造体取得
-		const D3D12_DISPATCH_RAYS_DESC& GetDispatchDesc();
+		const D3D12_DISPATCH_RAYS_DESC& GetDispatchDesc() const;
 
 	private:
 

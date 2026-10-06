@@ -60,6 +60,13 @@ namespace Engine
 		a_l = a_l & a_r;
 		return a_l;
 	}
+	// not
+	template<EnumFlag T>
+	constexpr T operator~(T a_value)
+	{
+		using U = std::underlying_type_t<T>;
+		return static_cast<T>(~static_cast<U>(a_value));
+	}
 
 	namespace Utility
 	{

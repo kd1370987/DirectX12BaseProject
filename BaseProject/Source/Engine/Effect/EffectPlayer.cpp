@@ -19,7 +19,7 @@ namespace Engine::Effect
 		{
 			a_audioManager.ReleaseSoundInstance(a_inst.soundHandles[a_index]);
 			a_inst.soundHandles[a_index] = {};
-			a_inst.soundSourceGUID[a_index] = Engine::DefaultGUID;
+			a_inst.soundSourceGUID[a_index] = Engine::DEFAULT_GUID;
 			a_inst.soundSource3D[a_index] = false;
 		}
 
@@ -78,7 +78,7 @@ namespace Engine::Effect
 			// パーツが無い/音が空のスロットは「声なし」が正しい姿。
 			// エディターでパーツを消したり、音や 3D 指定を差し替えたときに、古い声が残らないようにする
 			//----------------------------------------------------------
-			Engine::GUID _wantGUID = Engine::DefaultGUID;
+			Engine::GUID _wantGUID = Engine::DEFAULT_GUID;
 			bool _want3D = false;
 			if (_i < _soundParts.size() && _soundParts[_i].IsValid())
 			{

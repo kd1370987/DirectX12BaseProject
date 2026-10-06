@@ -63,12 +63,12 @@ struct Engine::ECS::ComponentTraits<BossBrainStateComponent>
 		BossBrainStateComponent& _comp = Engine::Editor::GetValue<BossBrainStateComponent>(a_context.pData);
 
 		// 毎フレーム上書きされるので表示のみ
-		static const char* _patternName[] = {
+		static const char* PATTERN_NAME[] = {
 			"Standoff", "Rush", "HighGround", "LowGround", "Orbit", "Retreat" };
-		static const char* _maneuverName[] = { "Wait", "Approach", "Keep", "Back", "Hold" };
+		static const char* MANEUVER_NAME[] = { "Wait", "Approach", "Keep", "Back", "Hold" };
 
-		Engine::Editor::Value("Pattern", "%s (next %.2f s)", _patternName[static_cast<int>(_comp.pattern)], _comp.patternTimer);
-		Engine::Editor::Value("Maneuver", "%s", _maneuverName[static_cast<int>(_comp.maneuver)]);
+		Engine::Editor::Value("Pattern", "%s (next %.2f s)", PATTERN_NAME[static_cast<int>(_comp.pattern)], _comp.patternTimer);
+		Engine::Editor::Value("Maneuver", "%s", MANEUVER_NAME[static_cast<int>(_comp.maneuver)]);
 		Engine::Editor::Value("Distance", "%.2f m", _comp.distance);
 		Engine::Editor::Value("Strafe", "%+.0f (next %.2f s)", _comp.strafeSign, _comp.strafeTimer);
 		Engine::Editor::Value("Hold", "%.2f s", _comp.strafeHoldTimer);

@@ -17,7 +17,7 @@ void HitEventClearSystem::Init(App::ECS::APPWorld& a_world)
 			if (!a_ctx.pWorld) return;
 			if (!a_ctx.pWorld->HasResource<HitEventResource>()) return;
 
-			a_ctx.pWorld->GetResource<HitEventResource>().Clear();
+			a_ctx.pWorld->RefResource<HitEventResource>().Clear();
 		}
 	)
 	.WritesResource<HitEventResource>();

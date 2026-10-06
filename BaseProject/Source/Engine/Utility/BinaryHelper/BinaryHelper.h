@@ -9,7 +9,7 @@ namespace Engine::BinaryHelper
 		a_ofs.write(reinterpret_cast<const char*>(&a_data),sizeof(T));
 	}
 
-	// ロード
+	/// ロード
 	template<typename T>
 	inline void Read(std::ifstream& a_ifs,T& a_outData)
 	{
@@ -29,7 +29,7 @@ namespace Engine::BinaryHelper
 			a_ofs.write(a_str.data(), _len);
 		}
 	}
-	// ロード
+	/// ロード
 	inline std::string ReadString(std::ifstream& a_ifs)
 	{
 		uint32_t _len = 0;
@@ -55,7 +55,7 @@ namespace Engine::BinaryHelper
 			a_ofs.write(reinterpret_cast<const char*>(a_vec.data()), sizeof(T) * _size);
 		}
 	}
-	// ロード
+	/// ロード
 	template<typename T>
 	inline void ReadVector(std::ifstream& a_ifs, std::vector<T>& a_outVec)
 	{

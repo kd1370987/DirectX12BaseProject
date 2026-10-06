@@ -18,7 +18,7 @@ void AdditivePoseFreeSystem::Init(App::ECS::APPWorld& a_world)
 			AdditivePoseComponent* a_additiveArray
 		)
 		{
-			auto& _entryPool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
+			auto& _entryPool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<AdditiveBoneEntry>>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

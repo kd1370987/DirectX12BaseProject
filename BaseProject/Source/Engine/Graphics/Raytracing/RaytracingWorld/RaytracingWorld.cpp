@@ -97,7 +97,7 @@ namespace Engine::Raytracing
 	)
 	{
 		// ノード行列取得
-		auto& _nodePosePool = a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+		auto& _nodePosePool = a_world.RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 		const auto& _nodePoseMatVec = _nodePosePool.GetRange(a_nodeposeMatHandle);
 
 		// モデルのノードとメッシュを参照してインスタンスに変換
@@ -105,7 +105,7 @@ namespace Engine::Raytracing
 		if (!_model) return;
 
 		// アニメーション用BLASを取得
-		auto& _pool = a_world.GetResource<Pool::ItemPool<DynamicRaytracingData>>();
+		auto& _pool = a_world.RefResource<Pool::ItemPool<DynamicRaytracingData>>();
 
 
 		auto& _nodes = _model->GetOriginalNodeVec();
@@ -181,24 +181,22 @@ namespace Engine::Raytracing
 		m_pResourceManager = a_pResourceManager;
 
 		// TLAS・インスタンス・マテリアルのバッファはどれも同じ上限で作る
-		constexpr UINT _maxInstanceNum = kMaxInstanceNum;
-
 		// レイワールド構築
 		if (!m_upTLAS)
 		{
 			m_upTLAS = std::make_unique<TLAS>();
 		}
-		m_upTLAS->Create(a_pDevice, a_pHeapManager, a_pCmdList, _maxInstanceNum);
+		m_upTLAS->Create(a_pDevice, a_pHeapManager, a_pCmdList, MAX_INSTANCE_NUM);
 
 		// インスタンスデータ作成
 		m_instanceDataVec.clear();
-		m_instanceDataVec.resize(_maxInstanceNum);
-		m_instanceDataBuffer.Create(a_pDevice, a_pHeapManager, a_pCmdList, _maxInstanceNum, m_instanceDataVec.data());
+		m_instanceDataVec.resize(MAX_INSTANCE_NUM);
+		m_instanceDataBuffer.Create(a_pDevice, a_pHeapManager, a_pCmdList, MAX_INSTANCE_NUM, m_instanceDataVec.data());
 
 		// マテリアルデータ作成
 		m_materialVec.clear();
-		m_materialVec.resize(_maxInstanceNum);
-		m_materialDataBuffer.Create(a_pDevice, a_pHeapManager, a_pCmdList, _maxInstanceNum, m_materialVec.data());
+		m_materialVec.resize(MAX_INSTANCE_NUM);
+		m_materialDataBuffer.Create(a_pDevice, a_pHeapManager, a_pCmdList, MAX_INSTANCE_NUM, m_materialVec.data());
 	}
 
 	void RayWorld::Release()
@@ -261,42 +259,42 @@ namespace Engine::Raytracing
 		m_instanceVec.clear();
 	}
 
-	D3D12_GPU_VIRTUAL_ADDRESS Engine::Raytracing::RayWorld::GetTLAS()
+	D3D12_GPU_VIRTUAL_ADDRESS Engine::Raytracing::RayWorld::GetTLAS() const
 	{
 		return m_upTLAS->GetGPUAddress();
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetSRVTLAS()
+	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetSRVTLAS() const
 	{
 		return m_upTLAS->GetGPUHandle();
 	}
 
-	Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetInstanceBufferSRV()
+	Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetInstanceBufferSRV() const
 	{
 		return m_instanceDataBuffer.GetSRVHandle();
 	}
 
-	Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetMaterialBufferSRV()
+	Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetMaterialBufferSRV() const
 	{
 		return m_materialDataBuffer.GetSRVHandle();
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRV()
+	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRV() const
 	{
 		return m_pHeapManager->GetGPU(m_instanceDataBuffer.GetSRVHandle());
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRVCPU()
+	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRVCPU() const
 	{
 		return m_pHeapManager->GetCPU(m_instanceDataBuffer.GetSRVHandle());
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRV()
+	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRV() const
 	{
 		return m_pHeapManager->GetGPU(m_materialDataBuffer.GetSRVHandle());
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRVCPU()
+	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRVCPU() const
 	{
 		return m_pHeapManager->GetCPU(m_materialDataBuffer.GetSRVHandle());
 	}

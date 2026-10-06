@@ -44,7 +44,7 @@ namespace Engine::Resource
 		Handle<Mesh> meshHandle;			// 描画するメッシュ
 		Handle<Material> materialHandle;	// 使用するマテリアル
 		uint8_t  subIdx;
-		Engine::Resource::Alpha alphaMode;
+		Engine::Resource::EAlpha alphaMode;
 	};
 
 	// ボーンレイヤー1つ分の、ノード1つへの効き
@@ -64,8 +64,8 @@ namespace Engine::Resource
 		std::vector<BoneWeight> bones;	// ノード番号の昇順。載っていないノードは重み0
 	};
 
-	// ボーンレイヤーの保存・読込(.mdl の末尾)
-	// 読込時は名前のハッシュも作り直す
+	/// ボーンレイヤーの保存・読込(.mdl の末尾)
+	/// 読込時は名前のハッシュも作り直す
 	void ArchiveBoneMasks(Persistence::Archive& a_ar, std::vector<BoneMask>& a_masks);
 
 	struct ModelAssetData

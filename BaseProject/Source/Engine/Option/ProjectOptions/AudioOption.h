@@ -36,8 +36,8 @@ namespace Engine::Option::ProjectOptions
 
 		const std::string& GetName() override
 		{
-			static const std::string _name = "AudioOption";
-			return _name;
+			static const std::string NAME = "AudioOption";
+			return NAME;
 		}
 
 		EOptionCategory GetCategory() override

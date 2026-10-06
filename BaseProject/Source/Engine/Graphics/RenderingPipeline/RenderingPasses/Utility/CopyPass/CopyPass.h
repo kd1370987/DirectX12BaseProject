@@ -63,12 +63,15 @@ namespace Engine::Graphics::Pipeline
 
 		// 選べるフォーマット : よく使うものだけ並べてある
 		static const char* ToFormatName(int a_index);
-		static constexpr int kFormatCount = 5;
+		static constexpr int FORMAT_COUNT = 5;
+
+	private:
+
+		// 選択番号からフォーマットへ
+		static DXGI_FORMAT ToFormat(int a_index);
 
 	private:
 
 		Params m_params = {};
-
-		static DXGI_FORMAT ToFormat(int a_index);
 	};
 }

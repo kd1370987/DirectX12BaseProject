@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Engine/Utility/Debug/DebugLog.h"
+
 namespace Engine::D3D12
 {
 
@@ -59,14 +61,14 @@ namespace Engine::D3D12
 		void Release();
 
 		// ハンドル確保
-		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(UINT a_index);
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(UINT a_index);
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(UINT a_index) const;
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(UINT a_index) const;
 
 		// ヒープの生ポインタ取得
 		ID3D12DescriptorHeap* GetHeap() const;
 
 		// ヒープサイズ確保
-		UINT GetMaxSize();
+		UINT GetMaxSize() const;
 
 	private:
 
@@ -92,7 +94,7 @@ namespace Engine::D3D12
 		m_pDevice = a_pDevice;
 		if (!m_pDevice)
 		{
-			assert(0 && "デバイスがありません");
+			ENGINE_ERRLOG(false, "デバイスがありません");
 			return false;
 		}
 
@@ -110,7 +112,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "ディスクリプタヒープ作成失敗");
+			ENGINE_ERRLOG(false, "ディスクリプタヒープ作成失敗");
 			return false;
 		}
 
@@ -130,7 +132,7 @@ namespace Engine::D3D12
 	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
 	inline D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap<HeapType>::GetCPU(
 		UINT a_index
-	)
+	) const
 	{
 		D3D12_CPU_DESCRIPTOR_HANDLE _handle = m_cpHeap->GetCPUDescriptorHandleForHeapStart();
 		_handle.ptr += m_incrementSize * static_cast<UINT>(a_index);
@@ -139,7 +141,7 @@ namespace Engine::D3D12
 	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
 	inline D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap<HeapType>::GetGPU(
 		UINT a_index
-	)
+	) const
 	{
 		D3D12_GPU_DESCRIPTOR_HANDLE _handle = m_cpHeap->GetGPUDescriptorHandleForHeapStart();
 		_handle.ptr += m_incrementSize * static_cast<UINT>(a_index);
@@ -151,7 +153,7 @@ namespace Engine::D3D12
 		return m_cpHeap.Get();
 	}
 	template<D3D12_DESCRIPTOR_HEAP_TYPE HeapType>
-	inline UINT DescriptorHeap<HeapType>::GetMaxSize()
+	inline UINT DescriptorHeap<HeapType>::GetMaxSize() const
 	{
 		return m_maxSize;
 	}

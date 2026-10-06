@@ -15,7 +15,7 @@ namespace Engine::Raytracing
 	{
 		RayPSODesc() {};
 
-		void AddShader(const wchar_t* a_entryName, LocalRootSignature a_rootSigType, ShaderCategory a_category)
+		void AddShader(const wchar_t* a_entryName, ELocalRootSignature a_rootSigType, EShaderCategory a_category)
 		{
 			shaderDataVec.push_back({ a_entryName,a_rootSigType,a_category });
 		}

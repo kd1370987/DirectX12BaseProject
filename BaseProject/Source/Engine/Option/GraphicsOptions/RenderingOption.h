@@ -16,8 +16,8 @@ namespace Engine::Option::GraphicsOptions
 
 		const std::string& GetName() override
 		{
-			static const std::string _name = "RenderingOption";
-			return _name;
+			static const std::string NAME = "RenderingOption";
+			return NAME;
 		}
 
 		// カテゴリー

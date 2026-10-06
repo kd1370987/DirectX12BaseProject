@@ -7,47 +7,47 @@ namespace Engine::Resource { class Prefab; }
 
 namespace Engine::Editor::Inspector
 {
-	// モデル
+	/// モデル
 	void ModelDraw(EditorContext& a_editContext);
 
-	// テクスチャ
+	/// テクスチャ
 	void TextureDraw(EditorContext& a_editContext);
 
-	// ステートマシン
+	/// ステートマシン
 	void AnimatorDraw(EditorContext& a_editContext);
 
-	// パーティクル
+	/// パーティクル
 	void ParticleDraw(EditorContext& a_editContext);
 
-	// マテリアル
+	/// マテリアル
 	void MaterialDraw(EditorContext& a_editContext);
 
-	// メッシュ
+	/// メッシュ
 	void MeshDraw(EditorContext& a_editContext);
 
-	// アニメーション
+	/// アニメーション
 	void AnimationDraw(EditorContext& a_editContext);
 
-	// シェーダー
+	/// シェーダー
 	void ShaderDraw(EditorContext& a_editContext);
 
 	// シェーディングモデル
 
-	// プレハブ
+	/// プレハブ
 	void PrefabDraw(EditorContext& a_editContext);
 
-	// プレハブのコンポーネントの羅列・編集・追加。
-	// プレハブ / エフェクトプレハブ / エフェクトエディターで同じものを使う
-	// (片方だけ直し忘れないように、UIは1か所にしておく)
+	/// プレハブのコンポーネントの羅列・編集・追加。
+	/// プレハブ / エフェクトプレハブ / エフェクトエディターで同じものを使う
+	/// (片方だけ直し忘れないように、UIは1か所にしておく)
 	void PrefabComponentsEdit(ECS::World* a_pWorld, Resource::Prefab* a_pPrefab);
 
-	// エフェクトプレハブ
+	/// エフェクトプレハブ
 	void EffectPrefabDraw(EditorContext& a_editContext);
 
-	// オーディオビヘイビア
+	/// オーディオビヘイビア
 	void AudioBehaviorDraw(EditorContext& a_editContext);
 
-	// エフェクト
+	/// エフェクト
 	void EffectAssetDraw(EditorContext& a_editContext);
 
 	// レンダリングパイプライン(レンダーグラフの設計図)は

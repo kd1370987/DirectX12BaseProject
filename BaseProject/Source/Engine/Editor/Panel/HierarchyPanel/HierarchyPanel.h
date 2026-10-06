@@ -31,7 +31,7 @@ namespace Engine::Editor
 		void DrawEntityNode(EditorContext& a_editContext,Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity, bool a_isDrawChildren = true);
 
 		// 一覧に出す名前(NameComponent が無ければエンティティID)
-		std::string GetEntityLabel(Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity);
+		std::string GetEntityLabel(Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity) const;
 
 		// ドラッグアンドドロップの制御
 		void HandleDragAndDrop(ECS::World* a_pWorld, const ECS::Entity& a_entity, const std::string& a_label);
@@ -40,7 +40,7 @@ namespace Engine::Editor
 		void AttachChild(ECS::World* a_pWorld, const ECS::Entity& a_parent, const ECS::Entity& a_child);
 
 		// 子供の取得
-		std::vector<ECS::Entity> GetChildEntities(Engine::ECS::World* a_pWorld, ECS::Entity a_parent);
+		std::vector<ECS::Entity> GetChildEntities(Engine::ECS::World* a_pWorld, ECS::Entity a_parent) const;
 
 	private:
 		// 検索時のフィルター

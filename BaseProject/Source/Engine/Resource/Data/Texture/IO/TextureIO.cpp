@@ -84,13 +84,13 @@ namespace Engine::Resource
 			ENGINE_ERRLOG(false, "[TextureIO] 読み込み先(ResourceManager)が渡されていません");
 			return {};
 		}
-		auto& _resMgr = *a_pContext->pResourceManager;
-		auto& _assetDb = a_pContext->pAssetDatabase ? *a_pContext->pAssetDatabase : _resMgr.RefAssetDatabase();
+		auto& _resourceManager = *a_pContext->pResourceManager;
+		auto& _assetDb = a_pContext->pAssetDatabase ? *a_pContext->pAssetDatabase : _resourceManager.RefAssetDatabase();
 
 		// AssetDatabaseに存在する有効なGUIDなら、統合ロード処理へ投げる
 		if (_assetDb.IsValid(a_guid))
 		{
-			return _resMgr.LoadImmediate<Texture>(a_guid, a_pContext);
+			return _resourceManager.LoadImmediate<Texture>(a_guid, a_pContext);
 		}
 
 		// ---- 無効なGUIDフォールバック処理 ----
@@ -98,7 +98,7 @@ namespace Engine::Resource
 		Engine::GUID _colorGuid = GetColorGUID(a_defaultColor);
 
 		// すでに同じ色のテクスチャが作られていないかキャッシュをチェック
-		Handle<Texture> _handle = _resMgr.GetCache<Texture>(_colorGuid);
+		Handle<Texture> _handle = _resourceManager.GetCache<Texture>(_colorGuid);
 
 		if (_handle == Handle<Texture>())
 		{
@@ -107,7 +107,7 @@ namespace Engine::Resource
 			Texture _newTex = CreateColorTexture(a_defaultColor, _scope.GetContext());
 
 			// 生成した実体を、色専用のGUIDと一緒にResourceManagerに登録する
-			_handle = _resMgr.AddResourceAndGUID(std::move(_newTex), _colorGuid);
+			_handle = _resourceManager.AddResourceAndGUID(std::move(_newTex), _colorGuid);
 		}
 
 		return _handle;

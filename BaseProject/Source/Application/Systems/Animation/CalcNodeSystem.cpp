@@ -34,7 +34,7 @@ void CalcNodeSystem::Init(App::ECS::APPWorld& a_world)
 				if (!_pModel) continue;
 
 				// ノードポーズ行列配列取得
-				auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto& _nodePosePool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 				auto _nodePoseVec = _nodePosePool.RefRange(_nodeComp.nodePoseHandle);
 				if (_nodePoseVec.empty()) continue;
 

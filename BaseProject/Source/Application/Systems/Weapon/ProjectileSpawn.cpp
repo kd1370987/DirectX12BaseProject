@@ -27,17 +27,17 @@ namespace App::Systems::ProjectileSpawn
 		// (撃った本体が渡ってくる前提だが、辿っておけば銃を直接渡されても壊れない)。
 		// 見つからなければプレイヤー側とみなす。
 		//------------------------------------------------------------------------------
-		Layer ResolveProjectileLayer(Engine::ECS::World& a_world, Engine::ECS::Entity a_shooter)
+		ECollisionLayer ResolveProjectileLayer(Engine::ECS::World& a_world, Engine::ECS::Entity a_shooter)
 		{
-			constexpr int _kMaxDepth = 8;
+			constexpr int MAX_DEPTH = 8;
 
 			Engine::ECS::Entity _entity = a_shooter;
 
-			for (int _d = 0; _d < _kMaxDepth; ++_d)
+			for (int _d = 0; _d < MAX_DEPTH; ++_d)
 			{
 				if (_entity == Engine::ECS::Limits::INVALID_ENTITY) break;
 
-				if (a_world.HasComponent<EnemyTag>(_entity)) return Layer::EnemyProjectile;
+				if (a_world.HasComponent<EnemyTag>(_entity)) return ECollisionLayer::EnemyProjectile;
 
 				if (!a_world.HasComponent<HierarchyComponent>(_entity)) break;
 				const auto* _pHierarchy = a_world.RefData<HierarchyComponent>(_entity);
@@ -45,7 +45,7 @@ namespace App::Systems::ProjectileSpawn
 				_entity = _pHierarchy->parentID;
 			}
 
-			return Layer::PlayerProjectile;
+			return ECollisionLayer::PlayerProjectile;
 		}
 
 		//------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ namespace App::Systems::ProjectileSpawn
 		// 強さ(emissiveIntensity)はプレハブの値をそのまま使う。色だけ差し替えれば
 		// 弾ごとの光り方(バレットは強め/ミサイルは弱め)の作り分けが残る。
 		//------------------------------------------------------------------------------
-		constexpr Math::Vector3 kEnemyProjectileEmissive = { 0.60f, 0.15f, 1.00f };	// 紫
+		constexpr Math::Vector3 ENEMY_PROJECTILE_EMISSIVE = { 0.60f, 0.15f, 1.00f };	// 紫
 
 		//------------------------------------------------------------------------------
 		// その弾が当たりに行く相手
@@ -66,19 +66,19 @@ namespace App::Systems::ProjectileSpawn
 		// 斉射したミサイルが発射直後にぶつかって消える。
 		// 相手側は残してあるので、敵のミサイルは今までどおり撃ち落とせる。
 		//------------------------------------------------------------------------------
-		Layer MakeProjectileCollideLayer(Layer a_myLayer)
+		ECollisionLayer MakeProjectileCollideLayer(ECollisionLayer a_myLayer)
 		{
-			const bool _isEnemySide = (a_myLayer == Layer::EnemyProjectile);
+			const bool _isEnemySide = (a_myLayer == ECollisionLayer::EnemyProjectile);
 
-			const Layer _otherSide = _isEnemySide
-				? Layer::PlayerProjectile
-				: Layer::EnemyProjectile;
+			const ECollisionLayer _otherSide = _isEnemySide
+				? ECollisionLayer::PlayerProjectile
+				: ECollisionLayer::EnemyProjectile;
 
-			Layer _result = Layer::StaticObject | Layer::DiynamicObject | _otherSide;
+			ECollisionLayer _result = ECollisionLayer::StaticObject | ECollisionLayer::DiynamicObject | _otherSide;
 
 			// Enemy(群れのボスのボイドなど)はプレイヤー側の攻撃でだけ落ちる。
 			// 敵の弾にも当てると、敵同士の流れ弾でボスの体力が減ってしまう
-			if (!_isEnemySide) _result |= Layer::Enemy;
+			if (!_isEnemySide) _result |= ECollisionLayer::Enemy;
 
 			return _result;
 		}
@@ -89,12 +89,12 @@ namespace App::Systems::ProjectileSpawn
 		Engine::ECS::Entity a_gunEntity)
 	{
 		// 親を辿る深さの上限。親子が循環していても止まるように付けておく
-		constexpr int _kMaxDepth = 8;
+		constexpr int MAX_DEPTH = 8;
 
 		Engine::ECS::Entity _entity = a_gunEntity;
 		Engine::ECS::Entity _last   = a_gunEntity;
 
-		for (int _d = 0; _d < _kMaxDepth; ++_d)
+		for (int _d = 0; _d < MAX_DEPTH; ++_d)
 		{
 			if (_entity == Engine::ECS::Limits::INVALID_ENTITY) break;
 			_last = _entity;
@@ -197,7 +197,7 @@ namespace App::Systems::ProjectileSpawn
 
 		// この弾がどちら側のものか。レイヤーと発光色の両方で使う
 		const bool _isEnemySide =
-			(ResolveProjectileLayer(a_world, a_shooter) == Layer::EnemyProjectile);
+			(ResolveProjectileLayer(a_world, a_shooter) == ECollisionLayer::EnemyProjectile);
 
 		// 撃った側でレイヤーを入れ替える。
 		// プレハブに書いてあるレイヤーは、どちらが撃ったか分からない状態の値なので
@@ -211,7 +211,7 @@ namespace App::Systems::ProjectileSpawn
 				ColliderComponent _coll = {};
 				std::memcpy(&_coll, _it->second.data(), sizeof(_coll));
 
-				_coll.layer        = _isEnemySide ? Layer::EnemyProjectile : Layer::PlayerProjectile;
+				_coll.layer        = _isEnemySide ? ECollisionLayer::EnemyProjectile : ECollisionLayer::PlayerProjectile;
 				_coll.collideLayer = MakeProjectileCollideLayer(_coll.layer);
 
 				std::memcpy(_it->second.data(), &_coll, sizeof(_coll));
@@ -228,7 +228,7 @@ namespace App::Systems::ProjectileSpawn
 				ModelComponent _model = {};
 				std::memcpy(&_model, _it->second.data(), sizeof(_model));
 
-				_model.emissiveColor = kEnemyProjectileEmissive;
+				_model.emissiveColor = ENEMY_PROJECTILE_EMISSIVE;
 
 				std::memcpy(_it->second.data(), &_model, sizeof(_model));
 			}

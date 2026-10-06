@@ -15,7 +15,7 @@ namespace Engine::Graphics::Pipeline
 
 		// ZPre が前に居るなら、その深度をそのまま受け取って描く。
 		// 繋がっていなければ自分でクリアして書く(OnLinksResolved で切り替える)
-		DeclareInput("PreDepth", EAccessType::Depth_Write, EPassSlotType::Texture, false);
+		DeclareInput("PreDepth", EAccessType::DepthWrite, EPassSlotType::Texture, false);
 
 		//----------------------------------------------------------------------------------
 		// 出力
@@ -39,7 +39,7 @@ namespace Engine::Graphics::Pipeline
 
 		// 深度 : あとで SRV としても読めるように TYPELESS で確保する
 		Slot& _depth = DeclareOutput(
-			"Depth", "SceneDepth", DXGI_FORMAT_R32_TYPELESS, EAccessType::Depth_Write);
+			"Depth", "SceneDepth", DXGI_FORMAT_R32_TYPELESS, EAccessType::DepthWrite);
 		_depth.loadOp = ELoadOp::Clear;
 	}
 

@@ -33,12 +33,12 @@ namespace Engine
 		
 		bool IsValid() const {
 			// valueが全て0でないことをチェック
-			static const UUID zero = {};
-			return memcmp(&value, &zero, sizeof(UUID)) != 0;
+			static const UUID ZERO = {};
+			return memcmp(&value, &ZERO, sizeof(UUID)) != 0;
 		}
 	};
 
-	inline GUID DefaultGUID = {};
+	inline const GUID DEFAULT_GUID = {};
 }
 
 namespace std

@@ -74,7 +74,7 @@ namespace Engine::Raytracing
 		void EndFrame();
 
 		// インスタンス配列取得
-		const std::vector<Instance>& GetInstanceVec();
+		const std::vector<Instance>& GetInstanceVec() const;
 	private:
 
 		// レイトレ用クラス

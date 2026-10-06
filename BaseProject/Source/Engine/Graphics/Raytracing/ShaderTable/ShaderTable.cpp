@@ -49,7 +49,7 @@ void Engine::Raytracing::ShaderTable::Init(D3D12::Device* a_pDevice, const Shade
 	if (SUCCEEDED(_hr) && m_cpShaderTable) m_cpShaderTable->SetName(L"ShaderTable");	// リーク調査用
 	if (FAILED(_hr))
 	{
-		assert(0 && "シェーダーテーブル作成に失敗");
+		ENGINE_ERRLOG(false, "シェーダーテーブル作成に失敗");
 		return;
 	}
 
@@ -102,13 +102,13 @@ void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(
 {
 
 	// レイジェネレーションシェーダー
-	assert(m_rayGenID);
+	ENGINE_ERRLOG(m_rayGenID, "ShaderTable : レイ生成シェーダーの識別子がありません");
 	memcpy(m_pShaderTableData + m_rayGenOffset, m_rayGenID, D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 
 	// ミスシェーダーID
 	for (UINT _i = 0; _i < m_missIDVec.size(); ++_i)
 	{
-		assert(m_missIDVec[_i]);
+		ENGINE_ERRLOG(m_missIDVec[_i], "ShaderTable : ミスシェーダーの識別子がありません");
 		uint8_t* _missPtr = m_pShaderTableData + m_missOffset + _i * m_recordSize;	// アドレス
 		memcpy(_missPtr, m_missIDVec[_i], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 	}
@@ -116,7 +116,7 @@ void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(
 	// ヒットシェーダー
 	for (size_t _h = 0; _h < m_hitIDVec.size(); ++_h)
 	{
-		assert(m_hitIDVec[_h]);
+		ENGINE_ERRLOG(m_hitIDVec[_h], "ShaderTable : ヒットシェーダーの識別子がありません");
 		uint8_t* _hitPtr = m_pShaderTableData + m_hitOffset + (_h * m_recordSize);
 		memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 	}
@@ -124,7 +124,7 @@ void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(
 	m_dispatchDesc = CreateDispatchDesc(a_instanceVec.size(),a_width,a_height);
 }
 
-const D3D12_DISPATCH_RAYS_DESC& Engine::Raytracing::ShaderTable::GetDispatchDesc()
+const D3D12_DISPATCH_RAYS_DESC& Engine::Raytracing::ShaderTable::GetDispatchDesc() const
 {
 	return m_dispatchDesc;
 }
@@ -206,18 +206,18 @@ void Engine::Raytracing::ShaderTable::CalucShaderNum(
 	{
 		switch (_shader.category)
 		{
-		case ShaderCategory::RayGenerator:
+		case EShaderCategory::RayGenerator:
 			m_rayGenID =  a_rayPSO->GetShaderID(_shader.entryName);
 			break;
-		case ShaderCategory::Miss:
+		case EShaderCategory::Miss:
 			m_missIDVec.push_back(a_rayPSO->GetShaderID(_shader.entryName));
 			break;
-		case ShaderCategory::ClosestHit:
+		case EShaderCategory::ClosestHit:
 			break;
-		case ShaderCategory::AnyHit:
+		case EShaderCategory::AnyHit:
 			break;
 		default:
-			assert(0 && "不正なシェーダーカテゴリー");
+			ENGINE_ERRLOG(false, "不正なシェーダーカテゴリー");
 			break;
 		}
 	}

@@ -154,7 +154,7 @@ void Engine::Raytracing::TLAS::Release()
 void Engine::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList, const std::vector<Instance>& a_instanceVec, UINT a_frameIndex)
 {
 	if (!m_pInstanceDesc || m_maxInstanceCount == 0) return;
-	assert(a_frameIndex < CPU_FRAME_COUNT && "TLAS::Update : フレーム番号が範囲外です");
+	ENGINE_ERRLOG(a_frameIndex < CPU_FRAME_COUNT, "TLAS::Update : フレーム番号が範囲外です");
 
 	// 今のフレームの区画 : 前のフレームのビルドが読んでいる区画には触らない
 	const UINT _slot = a_frameIndex % CPU_FRAME_COUNT;
@@ -239,7 +239,7 @@ void Engine::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList, co
 }
 
 
-D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::TLAS::GetGPUHandle()
+D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::TLAS::GetGPUHandle() const
 {
 	return m_pHeapManager->GetGPU(m_srvHandle);
 }

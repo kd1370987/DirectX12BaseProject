@@ -27,20 +27,20 @@ namespace Engine::Graphics
 	{
 		// 描く順のインスタンス番号の表の容量(要素数)。
 		// アイテムはインスタンスデータ(最大 100000)をパスの数だけ指すので、その数倍を見ておく
-		constexpr UINT kDrawInstanceIndexCapacity = 400000;
+		constexpr UINT DRAW_INSTANCE_INDEX_CAPACITY = 400000;
 
 		//------------------------------------------------------------------------------------------
 		// メッシュシェーダーのルートパラメーター番号(MeshCommon.hlsli の MESHGLOBAL_ROOT_SIG と合わせる)
 		//------------------------------------------------------------------------------------------
-		constexpr UINT kMeshRootBaseInstance = 9;			// RootConstants(b1) : 表を引く土台
-		constexpr UINT kMeshRootDrawInstanceIndex = 11;		// SRV(t9) : 描く順のインスタンス番号の表
+		constexpr UINT MESH_ROOT_BASE_INSTANCE = 9;			// RootConstants(b1) : 表を引く土台
+		constexpr UINT MESH_ROOT_DRAW_INSTANCE_INDEX = 11;		// SRV(t9) : 描く順のインスタンス番号の表
 
 		//------------------------------------------------------------------------------------------
 		// DispatchMesh の上限
 		// 1次元あたり 65535 グループ、3次元の積で 2^22 グループまで
 		//------------------------------------------------------------------------------------------
-		constexpr UINT kMaxDispatchMeshDim = 65535;
-		constexpr UINT kMaxDispatchMeshTotal = 1u << 22;
+		constexpr UINT MAX_DISPATCH_MESH_DIM = 65535;
+		constexpr UINT MAX_DISPATCH_MESH_TOTAL = 1u << 22;
 	}
 
 	void RenderContext::Init(
@@ -66,7 +66,7 @@ namespace Engine::Graphics
 		m_pBackBuffer = a_desc.pBackBuffer;
 
 		// ルート定数バッファアロケーター
-		m_upCBAllocator = std::make_unique<CBAllocator>();
+		m_upCBAllocator = std::make_unique<D3D12::CBAllocator>();
 		m_upCBAllocator->RootCBVCreate(
 			m_pDevice, a_desc.cbAllocatorMemSize
 		);
@@ -82,7 +82,7 @@ namespace Engine::Graphics
 		// 描く順のインスタンス番号の表。
 		// 1つのインスタンスデータを複数のパス(ZPre・GBuffer・影など)のアイテムが指すので、
 		// インスタンスデータより多めに取っておく
-		m_drawInstanceIndexBuffer.Create(a_desc.pDevice, m_pHeapManager, kDrawInstanceIndexCapacity);
+		m_drawInstanceIndexBuffer.Create(a_desc.pDevice, m_pHeapManager, DRAW_INSTANCE_INDEX_CAPACITY);
 
 		// UIインスタンス
 		m_uiInstanceBuffer.Create(a_desc.pDevice, m_pHeapManager, 10000);
@@ -135,7 +135,7 @@ namespace Engine::Graphics
 	//============================================================================================
 
 
-	CBAllocator* RenderContext::BindCB()
+	D3D12::CBAllocator* RenderContext::BindCB()
 	{
 		return m_upCBAllocator.get();
 	}
@@ -168,7 +168,7 @@ namespace Engine::Graphics
 		m_pCmdList->SetComputeRootDescriptorTable(a_rootIdx, m_pHeapManager->GetGPU(a_handle));
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandleBindLess(Handle<D3D12::SRV> a_handle)
+	D3D12_GPU_DESCRIPTOR_HANDLE RenderContext::GetGPUHandleBindLess(Handle<D3D12::SRV> a_handle) const
 	{
 		return m_pHeapManager->GetGPU(a_handle);
 	}
@@ -180,7 +180,7 @@ namespace Engine::Graphics
 		// もしテクスチャのステートがレンダーターゲットでなければリターン
 		if (
 			_tex->GetState() != D3D12_RESOURCE_STATE_RENDER_TARGET && 
-			!Resource::HasFlag(_tex->GetUsage(),Resource::TextureUsage::RTV)
+			!Resource::HasFlag(_tex->GetUsage(),Resource::ETextureUsage::RTV)
 		)
 		{
 			return;
@@ -302,14 +302,14 @@ namespace Engine::Graphics
 		// 容量を超えたぶんは上げない。
 		// 丸ごと書き込もうとすると AllocateAndWrite が何も書かずに失敗して全部が描けなくなるので、
 		// 入るところまでは描き、溢れたアイテムだけ描画ループで弾く
-		const UINT _count = (std::min)(static_cast<UINT>(a_indexVec.size()), kDrawInstanceIndexCapacity);
+		const UINT _count = (std::min)(static_cast<UINT>(a_indexVec.size()), DRAW_INSTANCE_INDEX_CAPACITY);
 
 		// 溢れる状態は毎フレーム続くので、知らせるのは最初の1回だけ
 		static bool s_isOverflowReported = false;
 		if (_count < a_indexVec.size() && !s_isOverflowReported)
 		{
 			ENGINE_ERROR("描く順のインスタンス番号の表が容量(%u)を超えました(%zu)。溢れたアイテムは描かれません",
-				kDrawInstanceIndexCapacity, a_indexVec.size());
+				DRAW_INSTANCE_INDEX_CAPACITY, a_indexVec.size());
 			s_isOverflowReported = true;
 		}
 
@@ -341,7 +341,7 @@ namespace Engine::Graphics
 	{
 		m_pCmdList->SetGraphicsRootShaderResourceView(1, m_meshInstanceBuffer.GetGPUVirtualAddress());
 		m_pCmdList->SetGraphicsRootShaderResourceView(2,m_meshMaterialBuffer.GetGPUVirtualAddress());
-		m_pCmdList->SetGraphicsRootShaderResourceView(kMeshRootDrawInstanceIndex, m_drawInstanceIndexBuffer.GetGPUVirtualAddress());
+		m_pCmdList->SetGraphicsRootShaderResourceView(MESH_ROOT_DRAW_INSTANCE_INDEX, m_drawInstanceIndexBuffer.GetGPUVirtualAddress());
 	}
 
 	void RenderContext::BindMeshlet()
@@ -518,14 +518,14 @@ namespace Engine::Graphics
 			const UINT _groupX = (_head.subsetMeshletCount + 31) / 32;
 			if (_groupX > 0)
 			{
-				const UINT _maxY = (std::min)(kMaxDispatchMeshDim, kMaxDispatchMeshTotal / _groupX);
+				const UINT _maxY = (std::min)(MAX_DISPATCH_MESH_DIM, MAX_DISPATCH_MESH_TOTAL / _groupX);
 				size_t _chunkStart = _runStart;
 				while (_chunkStart < _runEnd)
 				{
 					const UINT _groupY = static_cast<UINT>((std::min)(static_cast<size_t>(_maxY), _runEnd - _chunkStart));
 					const UINT _baseIndex = _firstIndex + static_cast<UINT>(_chunkStart);
 
-					m_pCmdList->SetGraphicsRoot32BitConstant(kMeshRootBaseInstance, _baseIndex, 0);
+					m_pCmdList->SetGraphicsRoot32BitConstant(MESH_ROOT_BASE_INSTANCE, _baseIndex, 0);
 					m_pCmdList->DispatchMesh(_groupX, _groupY, 1);
 
 					_chunkStart += _groupY;

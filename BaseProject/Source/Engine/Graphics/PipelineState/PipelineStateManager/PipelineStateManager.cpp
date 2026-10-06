@@ -117,7 +117,7 @@ namespace Engine::Graphics
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "ルートシグネチャ生成用のシェーダーファイル読み込みに失敗");
+			ENGINE_ERRLOG(false, "ルートシグネチャ生成用のシェーダーファイル読み込みに失敗");
 			return {};
 		}
 
@@ -151,7 +151,7 @@ namespace Engine::Graphics
 		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(m_pDevice, _cpRootSigBlob);
 		if (!_rootSig)
 		{
-			assert(0 && ".cso内にRootSignatureが見つかりませんでした");
+			ENGINE_ERRLOG(false, ".cso内にRootSignatureが見つかりませんでした");
 			return {};
 		}
 
@@ -196,7 +196,7 @@ namespace Engine::Graphics
 		ComPtr<ID3D12RootSignature> _rootSig = D3D12::RootSignatureBuilder::Create(m_pDevice, _cpRootSigBlob);
 		if (!_rootSig)
 		{
-			assert(0 && ".cso内にRootSignatureが見つかりませんでした");
+			ENGINE_ERRLOG(false, ".cso内にRootSignatureが見つかりませんでした");
 			return {};
 		}
 
@@ -226,7 +226,7 @@ namespace Engine::Graphics
 		auto _hr = m_pDevice->CreateGraphicsPipelineState(&a_desc.desc,IID_PPV_ARGS(&_pso));
 		if (FAILED(_hr))
 		{
-			assert(0 && "PSOの作成失敗");
+			ENGINE_ERRLOG(false, "PSOの作成失敗");
 			return nullptr;
 		}
 
@@ -267,7 +267,7 @@ namespace Engine::Graphics
 		auto _hr = m_pDevice->CreateComputePipelineState(&a_desc.desc, IID_PPV_ARGS(&_pso));
 		if (FAILED(_hr))
 		{
-			assert(0 && "PSOの作成失敗");
+			ENGINE_ERRLOG(false, "PSOの作成失敗");
 			return nullptr;
 		}
 
@@ -438,7 +438,7 @@ namespace Engine::Graphics
 		return RegisterPSO(_hash, _pPSO);
 	}
 
-	ID3D12PipelineState* PipelineStateManager::GetPSO(Handle<ID3D12PipelineState> a_handle)
+	ID3D12PipelineState* PipelineStateManager::GetPSO(Handle<ID3D12PipelineState> a_handle) const
 	{
 		if (m_psoHandlePool.IsValid(a_handle))
 		{
@@ -447,7 +447,7 @@ namespace Engine::Graphics
 		return nullptr;
 	}
 
-	ID3D12PipelineState* PipelineStateManager::GetPSO(uint16_t a_rawIndex)
+	ID3D12PipelineState* PipelineStateManager::GetPSO(uint16_t a_rawIndex) const
 	{
 		// 生添字は描画アイテムのソートキーから来る。
 		// 無効ハンドルの添字(0xFFFF)がそのまま届くので、範囲外はここで止める。

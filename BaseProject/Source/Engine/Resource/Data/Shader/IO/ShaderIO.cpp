@@ -16,7 +16,7 @@ namespace Engine::Resource
 	{
 		// アセットデータベースに問い合わせ
 		auto _guid = a_resourceManager.RefAssetDatabase().GetGUIDFromFilePath(a_path);
-		if (_guid != Engine::DefaultGUID)
+		if (_guid != Engine::DEFAULT_GUID)
 		{
 			// 見つかれば
 			auto _shader = LoadShaderFromFile(a_path);

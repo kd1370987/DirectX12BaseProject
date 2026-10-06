@@ -50,7 +50,7 @@ namespace Engine::Physics
 		bool isFirstFlush = true;
 	};
 
-	static_assert(kQueryAllLayers == Layer::kAllGroups, "クエリの全レイヤーとレイヤーの詰め方がずれている");
+	static_assert(QUERY_ALL_LAYERS == Layer::ALL_GROUPS, "クエリの全レイヤーとレイヤーの詰め方がずれている");
 
 	namespace
 	{
@@ -180,13 +180,13 @@ namespace Engine::Physics
 
 			int _front = 0;
 			int _back = 0;
-			constexpr int _div = 5;
-			for (int _z = 0; _z < _div; ++_z)
+			constexpr int DIV = 5;
+			for (int _z = 0; _z < DIV; ++_z)
 			{
-				for (int _x = 0; _x < _div; ++_x)
+				for (int _x = 0; _x < DIV; ++_x)
 				{
-					const float _fx = (static_cast<float>(_x) + 0.5f) / _div;
-					const float _fz = (static_cast<float>(_z) + 0.5f) / _div;
+					const float _fx = (static_cast<float>(_x) + 0.5f) / DIV;
+					const float _fz = (static_cast<float>(_z) + 0.5f) / DIV;
 					const JPH::Vec3 _origin(
 						_min.GetX() + _size.GetX() * _fx,
 						_startY,
@@ -286,9 +286,9 @@ namespace Engine::Physics
 			}
 
 			// 厚みが0の箱は作れないので最小値を入れる
-			constexpr float _minHalf = 1e-3f;
+			constexpr float MIN_HALF = 1e-3f;
 			const JPH::Vec3 _half = JPH::Vec3::sMax(
-				JPH::Vec3(_box.Extents.x, _box.Extents.y, _box.Extents.z), JPH::Vec3::sReplicate(_minHalf));
+				JPH::Vec3(_box.Extents.x, _box.Extents.y, _box.Extents.z), JPH::Vec3::sReplicate(MIN_HALF));
 
 			// 角の丸め(convex radius)は箱の薄い方の辺を超えられない
 			const float _convexRadius = (std::min)(JPH::cDefaultConvexRadius, _half.ReduceMin());
@@ -347,11 +347,11 @@ namespace Engine::Physics
 
 		// ボディの排他はしない(ECS はシングルスレッドで、ボディを触るのはメインだけ)。
 		// 0 を渡すと Jolt が既定の数を選ぶ
-		constexpr JPH::uint _numBodyMutexes = 0;
+		constexpr JPH::uint NUM_BODY_MUTEXES = 0;
 
 		m_upPhysicsSystem->Init(
 			a_desc.maxBodies,
-			_numBodyMutexes,
+			NUM_BODY_MUTEXES,
 			a_desc.maxBodyPairs,
 			a_desc.maxContactConstraints,
 			*m_upBroadPhaseLayerInterface,
@@ -397,10 +397,10 @@ namespace Engine::Physics
 		// ボディが1つも無ければ何もしない(プレビューや、まだ登録が無いシーン)
 		if (m_upPhysicsSystem->GetNumBodies() == 0) return;
 
-		constexpr int _collisionSteps = 1;
+		constexpr int COLLISION_STEPS = 1;
 		const JPH::EPhysicsUpdateError _error = m_upPhysicsSystem->Update(
 			a_dt,
-			_collisionSteps,
+			COLLISION_STEPS,
 			m_pEngine->RefTempAllocator(),
 			m_pEngine->RefJobSystem());
 
@@ -425,10 +425,10 @@ namespace Engine::Physics
 		// まとまった数(シーン読み込み直後の地形・ボイドの群れ)を入れたときだけ、木を組み直して残す。
 		// 弾のように毎フレーム少しずつ入るものは、PhysicsSystem::Update の差分更新に任せる
 		// (毎回組み直すと、ボイド4000体ぶんの木を毎フレーム作り直すことになる)
-		constexpr int _batchThreshold = 32;
+		constexpr int BATCH_THRESHOLD = 32;
 		const bool _isFirst = m_upDetail->isFirstFlush;
 		m_upDetail->isFirstFlush = false;
-		if (_isFirst || _count >= _batchThreshold)
+		if (_isFirst || _count >= BATCH_THRESHOLD)
 		{
 			m_upPhysicsSystem->OptimizeBroadPhase();
 			ENGINE_LOG("[Physics] %d bodies added (total %u)", _count, m_upPhysicsSystem->GetNumBodies());
@@ -574,8 +574,8 @@ namespace Engine::Physics
 				_pShape = _pScaled->GetInnerShape();
 			}
 
-			constexpr float _scaleToleranceSq = 1e-8f;
-			_isScaleChanged = !_scale.IsClose(_currentScale, _scaleToleranceSq);
+			constexpr float SCALE_TOLERANCE_SQ = 1e-8f;
+			_isScaleChanged = !_scale.IsClose(_currentScale, SCALE_TOLERANCE_SQ);
 			if (_isScaleChanged) _innerShape = _pShape;
 		}
 
@@ -681,8 +681,8 @@ namespace Engine::Physics
 		if (!(a_radius > 0.0f) || !IsFinite(a_pointA) || !IsFinite(a_pointB)) return false;
 
 		// めり込みの許容と、離しきるための余白
-		constexpr float _minDepth = 1e-4f;	// これ以下のめり込みは無視
-		constexpr float _bias = 1e-3f;		// 完全に離すための微小バイアス
+		constexpr float MIN_DEPTH = 1e-4f;	// これ以下のめり込みは無視
+		constexpr float BIAS = 1e-3f;		// 完全に離すための微小バイアス
 
 		// 三角形は表裏どちらにも当たる(判定メッシュの巻きの向きに頼らない)
 		JPH::CollideShapeSettings _settings;
@@ -711,8 +711,8 @@ namespace Engine::Physics
 
 			const JPH::Shape* _pShape = &_sphere;
 			JPH::Quat _rotation = JPH::Quat::sIdentity();
-			constexpr float _minLength = 1e-5f;
-			if (_length > _minLength)
+			constexpr float MIN_LENGTH = 1e-5f;
+			if (_length > MIN_LENGTH)
 			{
 				_capsule.emplace(_length * 0.5f, a_radius);
 				_capsule->SetEmbedded();
@@ -730,14 +730,14 @@ namespace Engine::Physics
 			if (!_collector.HadHit()) break;
 
 			const JPH::CollideShapeResult& _hit = _collector.mHit;
-			if (_hit.mPenetrationDepth < _minDepth) break;
+			if (_hit.mPenetrationDepth < MIN_DEPTH) break;
 
 			// mPenetrationAxis は「相手(形状2)を押し出す向き」。こちらはその逆へ動く
 			const JPH::Vec3 _penetrationAxis = _hit.mPenetrationAxis;
 			if (_penetrationAxis.LengthSq() < 1e-12f) break;
 			const Math::Vector3 _normal = Internal::ToMath(-_penetrationAxis.Normalized());
 
-			const Math::Vector3 _push = _normal * (_hit.mPenetrationDepth + _bias);
+			const Math::Vector3 _push = _normal * (_hit.mPenetrationDepth + BIAS);
 			a_pointA += _push;
 			a_pointB += _push;
 			_total += _push;
@@ -856,8 +856,8 @@ namespace Engine::Physics
 		if (!a_pDebugDraw->IsEnabled()) return;
 
 		// 静的と動くものを色で分ける
-		constexpr Math::Color _staticColor = { 0.0f, 1.0f, 1.0f, 1.0f };	// 水色 : 静的
-		constexpr Math::Color _movingColor = { 1.0f, 1.0f, 0.0f, 1.0f };	// 黄色 : 動く
+		constexpr Math::Color STATIC_COLOR = { 0.0f, 1.0f, 1.0f, 1.0f };	// 水色 : 静的
+		constexpr Math::Color MOVING_COLOR = { 1.0f, 1.0f, 0.0f, 1.0f };	// 黄色 : 動く
 
 		JPH::BodyIDVector _ids;
 		m_upPhysicsSystem->GetBodies(_ids);
@@ -873,7 +873,7 @@ namespace Engine::Physics
 			// 箱で概算しているもの(弾・ボイド)は描かない。数が多く線の上限(1万本)を食い潰す
 			if (!IsMeshShape(_body.GetShape())) continue;
 
-			const Math::Color& _color = _body.IsStatic() ? _staticColor : _movingColor;
+			const Math::Color& _color = _body.IsStatic() ? STATIC_COLOR : MOVING_COLOR;
 			const JPH::AABox _bounds = _body.GetWorldSpaceBounds();
 			const JPH::Vec3 _center = _bounds.GetCenter();
 			const JPH::Vec3 _extent = _bounds.GetExtent();

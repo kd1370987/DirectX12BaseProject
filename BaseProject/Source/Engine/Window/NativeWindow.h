@@ -78,7 +78,7 @@ namespace Engine::Window
 
 		// メモリ使用率取得
 		// バイト単位での取得
-		double GetMemoryUsage();
+		double GetMemoryUsage() const;
 
 		//----------------------------------------------------------------------------------
 		// メッセージの横取り

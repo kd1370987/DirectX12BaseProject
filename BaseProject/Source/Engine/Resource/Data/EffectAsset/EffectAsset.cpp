@@ -434,7 +434,7 @@ namespace Engine::Resource
 		auto _fileDir = Engine::File::GetDirFromPath(a_baseFilePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_baseFilePath);
 
-		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _fileDir, _fileName, "effect");
+		Persistence::Archive _ar(Persistence::Archive::EMode::Save, _fileDir, _fileName, "effect");
 		Archive(_ar);
 	}
 

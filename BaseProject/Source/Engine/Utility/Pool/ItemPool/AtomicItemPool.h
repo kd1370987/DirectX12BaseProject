@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Engine/Utility/Debug/DebugLog.h"
+
 namespace Engine::Pool
 {
 	//==========================================================================================
@@ -215,7 +217,7 @@ namespace Engine::Pool
 		else
 		{
 			// インデックスが16bitの上限を超えていないかチェック
-			assert(m_data.size() < 0xFFFF && "AtomicItemPoolの最大値が uint16_t のサイズを超えています");
+			ENGINE_ERRLOG(m_data.size() < 0xFFFF, "AtomicItemPoolの最大値が uint16_t のサイズを超えています");
 
 			// assert が消える構成でも、超えたまま進めると別スロットを指すハンドルができる。
 			// 無効なハンドルを返して打ち切る

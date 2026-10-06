@@ -40,7 +40,7 @@ void SkinningSystem::Init(App::ECS::APPWorld& a_world)
 				const auto& _dataNodes = _pModel->GetOriginalNodeVec();
 
 				// 全スケルタルポーズを初期化
-				auto& _boneMatPool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
+				auto& _boneMatPool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>();
 				auto _boneMatVec = _boneMatPool.RefRange(_skeComp.skeletonPoseHandle);
 				for (auto& _mat : _boneMatVec)
 				{
@@ -48,7 +48,7 @@ void SkinningSystem::Init(App::ECS::APPWorld& a_world)
 				}
 
 				// 全ノードポーズを再帰計算
-				auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto& _nodePosePool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 				auto _nodePoseMatVec = _nodePosePool.RefRange(_nodeComp.nodePoseHandle);
 
 				// ボーンノード

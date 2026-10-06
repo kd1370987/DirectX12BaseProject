@@ -86,15 +86,15 @@ namespace Engine::ECS
 		}
 	}
 
-	void SystemManager::Hold(std::shared_ptr<ISystem> a_spSystem)
+	void SystemManager::Hold(std::unique_ptr<ISystem> a_upSystem)
 	{
-		if (!a_spSystem) return;
-		m_systemVec.push_back(std::move(a_spSystem));
+		if (!a_upSystem) return;
+		m_upSystemVec.push_back(std::move(a_upSystem));
 	}
 
 	void SystemManager::Init()
 	{
-		m_systemVec.clear();
+		m_upSystemVec.clear();
 	}
 
 	void SystemManager::RunSystem(const ESystemType& a_type, const SystemContext& a_context, ECSWorldProfiler* a_pProfiler)

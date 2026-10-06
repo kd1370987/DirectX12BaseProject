@@ -243,7 +243,7 @@ namespace Engine::Graphics
 	private:
 
 		// テクスチャハンドルからSRVのインデックスを取得する(引けなければ -1)
-		int GetSRVIndexFromTextureHandle(const Handle<Resource::Texture>& a_texHandle);
+		int GetSRVIndexFromTextureHandle(const Handle<Resource::Texture>& a_texHandle) const;
 
 		// 描画コマンドからメッシュ・マテリアルをまとめて取得する。
 		// いずれかが取得できなければ false(呼び出し側はスキップする)。

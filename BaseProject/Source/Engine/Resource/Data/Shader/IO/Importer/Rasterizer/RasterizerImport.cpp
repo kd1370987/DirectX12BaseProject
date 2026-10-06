@@ -274,7 +274,7 @@ namespace Engine::Resource::Import
 
 		if (FAILED(_hr))
 		{
-			assert(0 && "シェーダーの読み込みに失敗");
+			ENGINE_ERRLOG(false, "シェーダーの読み込みに失敗");
 			return _cpBlob;
 		}
 

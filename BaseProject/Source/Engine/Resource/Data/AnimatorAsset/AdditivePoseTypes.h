@@ -31,7 +31,7 @@ namespace Engine::Resource
 		Count,
 	};
 
-	// 表示用
+	/// 表示用
 	inline const char* ToString(EAdditiveChannel a_channel)
 	{
 		switch (a_channel)

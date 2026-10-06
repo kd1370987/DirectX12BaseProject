@@ -13,7 +13,7 @@
 //==========================================================================================
 struct SpawnerComponent
 {
-	Engine::GUID spawnerGUID = Engine::DefaultGUID;	// 生成元(GameObject)のGUID
+	Engine::GUID spawnerGUID = Engine::DEFAULT_GUID;	// 生成元(GameObject)のGUID
 	int          waveIndex   = -1;					// 生成元の中での区分(ウェーブ番号)
 };
 

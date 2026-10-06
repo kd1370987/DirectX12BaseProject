@@ -67,18 +67,18 @@ namespace Engine::Raytracing
 		void Clear();
 
 		// TLASアドレス取得
-		D3D12_GPU_VIRTUAL_ADDRESS GetTLAS();
-		D3D12_GPU_DESCRIPTOR_HANDLE GetSRVTLAS();
+		D3D12_GPU_VIRTUAL_ADDRESS GetTLAS() const;
+		D3D12_GPU_DESCRIPTOR_HANDLE GetSRVTLAS() const;
 
-		Handle<D3D12::SRV> GetInstanceBufferSRV();
-		Handle<D3D12::SRV> GetMaterialBufferSRV();
+		Handle<D3D12::SRV> GetInstanceBufferSRV() const;
+		Handle<D3D12::SRV> GetMaterialBufferSRV() const;
 
 		// インスタンス配列取得
-		D3D12_GPU_DESCRIPTOR_HANDLE GetInstanceDataSRV();
-		D3D12_CPU_DESCRIPTOR_HANDLE GetInstanceDataSRVCPU();
+		D3D12_GPU_DESCRIPTOR_HANDLE GetInstanceDataSRV() const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetInstanceDataSRVCPU() const;
 
-		D3D12_GPU_DESCRIPTOR_HANDLE GetMaterialSRV();
-		D3D12_CPU_DESCRIPTOR_HANDLE GetMaterialSRVCPU();
+		D3D12_GPU_DESCRIPTOR_HANDLE GetMaterialSRV() const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetMaterialSRVCPU() const;
 
 		// インスタンス取得
 		const std::vector<Instance>& GetInstanceVec() const { return m_instanceVec; }

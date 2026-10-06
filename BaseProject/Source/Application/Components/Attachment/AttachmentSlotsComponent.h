@@ -115,7 +115,7 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 		{
 			// 現在の選択表示。同名の候補があるならGUIDの頭まで出す
 			std::string _current = "None";
-			if (a_slot.guid != Engine::DefaultGUID)
+			if (a_slot.guid != Engine::DEFAULT_GUID)
 			{
 				_current = Engine::Editor::MakeUniqueLabel(
 					_duplicatedSet, _entityLabel(a_slot.id, a_slot.guid), _guidHint(a_slot.guid));
@@ -124,7 +124,7 @@ struct Engine::ECS::ComponentTraits<AttachmentSlotsComponent>
 			if (Engine::Editor::ComboScope _combo{ a_label, _current.c_str() })
 			{
 				// クリア用
-				if (Engine::Editor::Selectable("None", a_slot.guid == Engine::DefaultGUID))
+				if (Engine::Editor::Selectable("None", a_slot.guid == Engine::DEFAULT_GUID))
 				{
 					a_slot.guid = {};
 					a_slot.id = Engine::ECS::Limits::INVALID_ENTITY;

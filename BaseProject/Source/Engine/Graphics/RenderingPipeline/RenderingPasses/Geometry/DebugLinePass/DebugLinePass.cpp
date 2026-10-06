@@ -11,7 +11,7 @@ namespace Engine::Graphics::Pipeline
 		// 任意にしてあるのは、このパスだけを置いた構成を作れるようにするため。
 		// 必須にすると深度を作るパスが無い構成が検証で落ち、
 		// パイプラインごとコンパイルされず、そのカメラは何も描かなくなる
-		DeclareInput("Depth", EAccessType::Depth_Read, EPassSlotType::Texture, false);
+		DeclareInput("Depth", EAccessType::DepthRead, EPassSlotType::Texture, false);
 
 		// 描き足す先 : 「前段が描いた絵の上に重ねる」という順序をこの線で表す
 		DeclareInput("Color", EAccessType::RTV, EPassSlotType::Texture, false);
@@ -41,7 +41,7 @@ namespace Engine::Graphics::Pipeline
 			"Asset/Shader/Source/Debug/DebugLine/DebugLinePS.cso",
 			// このVSは SV_VertexID / SV_InstanceID だけで頂点を作り、頂点バッファを読まない。
 			// レイアウトを宣言すると IA が直前のパスの残したバッファを読もうとして警告が出る
-			D3D12::Input::gEmptyLayout,
+			D3D12::Input::EMPTY_LAYOUT,
 			"DebugLinePSO",
 			[_isDepth](D3D12::GraphicsPipelineDesc& a_pso)
 			{

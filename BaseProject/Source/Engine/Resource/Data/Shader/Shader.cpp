@@ -56,7 +56,7 @@ const D3D12_SHADER_BYTECODE& Engine::Resource::Shader::GetByteCode() const
 	return m_byteCode;
 }
 
-ID3DBlob* Engine::Resource::Shader::Get()
+ID3DBlob* Engine::Resource::Shader::Get() const
 {
 	return m_cpBlob.Get();
 }

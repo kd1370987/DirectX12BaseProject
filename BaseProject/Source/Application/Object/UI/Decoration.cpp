@@ -128,8 +128,8 @@ namespace App::Object::Decoration
 		//----------------------------------------------------------------------------------
 		float WaveSigned(float a_frequency, float a_phase, float a_time)
 		{
-			constexpr float _TWO_PI = 6.283185307f;
-			return std::sin(_TWO_PI * (a_frequency * a_time + a_phase));
+			constexpr float TWO_PI = 6.283185307f;
+			return std::sin(TWO_PI * (a_frequency * a_time + a_phase));
 		}
 
 		// 足すチャンネル(位置・回転)の値を出す
@@ -607,18 +607,18 @@ namespace App::Object::Decoration
 		case EEase::OutBack:
 		{
 			// 行き過ぎてから戻る。定数は一般的なイージング表の値
-			constexpr float _C1 = 1.70158f;
-			constexpr float _C3 = _C1 + 1.0f;
+			constexpr float C1 = 1.70158f;
+			constexpr float C3 = C1 + 1.0f;
 			const float _inv = _t - 1.0f;
-			return 1.0f + _C3 * _inv * _inv * _inv + _C1 * _inv * _inv;
+			return 1.0f + C3 * _inv * _inv * _inv + C1 * _inv * _inv;
 		}
 		case EEase::OutElastic:
 		{
 			if (_t <= 0.0f) return 0.0f;
 			if (_t >= 1.0f) return 1.0f;
 
-			constexpr float _C4 = 6.283185307f / 3.0f;
-			return std::pow(2.0f, -10.0f * _t) * std::sin((_t * 10.0f - 0.75f) * _C4) + 1.0f;
+			constexpr float C4 = 6.283185307f / 3.0f;
+			return std::pow(2.0f, -10.0f * _t) * std::sin((_t * 10.0f - 0.75f) * C4) + 1.0f;
 		}
 
 		case EEase::Linear:

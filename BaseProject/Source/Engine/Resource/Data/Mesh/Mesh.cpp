@@ -299,7 +299,7 @@ void Engine::Resource::Mesh::Release()
 
 void Engine::Resource::Mesh::Save(const std::string& a_fileDir, const std::string& a_name)
 {
-	Persistence::Archive _ar(Persistence::Archive::Mode::Save, a_fileDir, a_name, "mesh");
+	Persistence::Archive _ar(Persistence::Archive::EMode::Save, a_fileDir, a_name, "mesh");
 
 	// 頂点数の保存
 	size_t _vertexCount = m_vertices.size();
@@ -375,7 +375,7 @@ void Engine::Resource::Mesh::Save(const std::string& a_fileDir, const std::strin
 
 void Engine::Resource::Mesh::Load(const ResourceBuildContext& a_ctx, const std::string& a_fileDir, const std::string& a_name)
 {
-	Persistence::Archive _ar(Persistence::Archive::Mode::Load, a_fileDir, a_name, "mesh");
+	Persistence::Archive _ar(Persistence::Archive::EMode::Load, a_fileDir, a_name, "mesh");
 
 	// 頂点数を読み込んでリサイズ
 	size_t _vertexCount = 0;

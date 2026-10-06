@@ -64,7 +64,7 @@ namespace App::Game
 		m_isDraw = false;
 
 		const auto& _cursorOp = m_pServices->pOptionManager->GetCursorOption();
-		auto& _resMgr = *m_pServices->pResourceManager;
+		auto& _resourceManager = *m_pServices->pResourceManager;
 
 		// 切られている / 画像が未設定なら、OSのカーソルをそのまま出す
 		if (!_cursorOp.isEnable || !_cursorOp.textureGUID.IsValid())
@@ -81,7 +81,7 @@ namespace App::Game
 		// エディター中も読み込みだけは進めておき、ゲームへ切り替えた瞬間から出せるようにする
 		if (!(m_loadedGUID == _cursorOp.textureGUID))
 		{
-			m_texRef = _resMgr.RequestLoad<Engine::Resource::Texture>(_cursorOp.textureGUID);
+			m_texRef = _resourceManager.RequestLoad<Engine::Resource::Texture>(_cursorOp.textureGUID);
 			m_loadedGUID = _cursorOp.textureGUID;
 		}
 
@@ -91,7 +91,7 @@ namespace App::Game
 
 		// 読み込みが終わるまではOSのカーソルを消さない。
 		// 消してから絵が出るまでの間、カーソルが1つも無い状態になってしまうため
-		if (!_resMgr.IsReady(m_texRef)) return;
+		if (!_resourceManager.IsReady(m_texRef)) return;
 
 		// ここまで来たら自前の絵を出せる
 		m_isHideOSCursor = true;
@@ -171,7 +171,7 @@ namespace App::Game
 		// 画像の中の尖端がそのままカーソル位置に重なる
 		// カーソルはどのUIよりも手前。
 		// レイヤーは並べ替えのための値なので、大きくしても絵が消えることはない
-		constexpr float _CURSOR_LAYER = 10000.0f;
+		constexpr float CURSOR_LAYER = 10000.0f;
 
 		a_pDrawSubmitter->SubmitUI(
 			m_texRef,
@@ -179,7 +179,7 @@ namespace App::Game
 			Math::Vector2(_cursorOp.sizePixel, _cursorOp.sizePixel),
 			_cursorOp.color,
 			0.0f,
-			_CURSOR_LAYER,
+			CURSOR_LAYER,
 			Math::Vector2(0.0f, 0.0f),
 			_cursorOp.hotspot
 		);

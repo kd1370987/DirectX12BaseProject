@@ -44,7 +44,7 @@ void FaceTargetSystem::Init(App::ECS::APPWorld& a_world)
 		)
 		{
 			// 旋回速度(1秒あたりの補間強度。RotationSystem に合わせた値)
-			constexpr float _kTurnSpeed = 10.0f;
+			constexpr float TURN_SPEED = 10.0f;
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -79,7 +79,7 @@ void FaceTargetSystem::Init(App::ECS::APPWorld& a_world)
 					Math::Quaternion::CreateFromYawPitchRoll(_targetYaw, 0.0f, 0.0f);
 
 				// 現在の姿勢から Slerp で滑らかに追従
-				const float _t = std::min(_kTurnSpeed * a_ctx.dt, 1.0f);
+				const float _t = std::min(TURN_SPEED * a_ctx.dt, 1.0f);
 				_trs.quat = Math::Quaternion::Slerp(_trs.quat, _targetQuat, _t);
 				_trs.isDirty = true;	// 停止中でも行列を再構築させる
 			}

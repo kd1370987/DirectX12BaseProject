@@ -53,7 +53,7 @@ void MuzzleFlashSystem::Init(App::ECS::APPWorld& a_world)
 				if (!_fireComp.isFired) continue;
 
 				const GunStateComponent& _gun = a_gunArray[_i];
-				if (_gun.muzzleEffectGUID == Engine::DefaultGUID) continue;
+				if (_gun.muzzleEffectGUID == Engine::DEFAULT_GUID) continue;
 
 				EffectRuntimeComponent& _runtime = a_runtimeArray[_i];
 				EffectOverrideComponent& _override = a_overrideArray[_i];

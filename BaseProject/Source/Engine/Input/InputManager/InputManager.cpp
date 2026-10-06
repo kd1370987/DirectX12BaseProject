@@ -64,7 +64,7 @@ namespace Engine::Input
 		// 保存されている設定を反映する
 		// この時点ではまだウィンドウが生成されていないため、
 		// 中心座標はここでは求めず、固定を行うフレームごとに実測する
-		SetCursorCentered(Option::OptionManager::GetInstance().GetInputOption().isCursorLockedToCenter);
+		SetCursorCentered(Option::OptionManager::Instance().GetInputOption().isCursorLockedToCenter);
 
 		// システム用の入力を用意する
 		RegisterSystemDevice();
@@ -89,7 +89,7 @@ namespace Engine::Input
 
 		_upSystem->AddButton(
 			SYSTEM_ACTION_TOGGLE_APPMODE,
-			std::make_shared<InputButtonForWindowsChord>('P', std::initializer_list<int>{ VK_CONTROL }));
+			std::make_unique<InputButtonForWindowsChord>('P', std::initializer_list<int>{ VK_CONTROL }));
 
 		// 切り替えの瞬間に走る入力リセットで、この束だけは捨てない
 		// (捨てると押しっぱなしが押した瞬間へ戻り、押している間ずっと切り替わる)
@@ -204,7 +204,7 @@ namespace Engine::Input
 			_pWind->ConsumeRawMouseDelta(_rawX, _rawY);
 
 			// 感度はここでしか掛からない(Windows側の設定を通っていないため)
-			const auto& _inputOption = Option::OptionManager::GetInstance().GetInputOption();
+			const auto& _inputOption = Option::OptionManager::Instance().GetInputOption();
 
 			m_deltaX = static_cast<float>(_rawX) * _inputOption.lookSensitivityX;
 			m_deltaY = static_cast<float>(_rawY) * _inputOption.lookSensitivityY;
@@ -324,7 +324,7 @@ namespace Engine::Input
 	}
 
 	// 任意のアプリケーションボタンの入力状態を取得
-	short InputManager::GetButtonState(ActionKey a_action) const
+	InputButtonBase::EState InputManager::GetButtonState(ActionKey a_action) const
 	{
 		if (!m_isActive) return InputButtonBase::EState::Free;
 		// プレイモード以外はゲーム入力を渡さない
@@ -333,7 +333,7 @@ namespace Engine::Input
 		// エディタ操作中(テキスト入力など)はゲーム入力を無効化
 		if (IsUICapturingInput()) return InputButtonBase::EState::Free;
 
-		short _buttonState = InputButtonBase::EState::Free;
+		InputButtonBase::EState _buttonState = InputButtonBase::EState::Free;
 		for (auto& _device : m_upInputDeviceMap)
 		{
 			// 有効な時のみ入力に影響を与える
@@ -354,17 +354,17 @@ namespace Engine::Input
 	bool InputManager::IsPress(ActionKey a_action) const
 	{
 		if (!m_isActive) return false;
-		return (GetButtonState(a_action) & InputButtonBase::EState::Press);
+		return Utility::HasFlag(GetButtonState(a_action), InputButtonBase::EState::Press);
 	}
 	bool InputManager::IsHold(ActionKey a_action) const
 	{
 		if (!m_isActive) return false;
-		return (GetButtonState(a_action) & InputButtonBase::EState::Hold);
+		return Utility::HasFlag(GetButtonState(a_action), InputButtonBase::EState::Hold);
 	}
 	bool InputManager::IsRelease(ActionKey a_action) const
 	{
 		if (!m_isActive) return false;
-		return (GetButtonState(a_action) & InputButtonBase::EState::Release);
+		return Utility::HasFlag(GetButtonState(a_action), InputButtonBase::EState::Release);
 	}
 
 	//======================================================================================
@@ -374,11 +374,11 @@ namespace Engine::Input
 	// (モードの切り替え)を拾うためのもの。
 	// 反対に「エディター操作に反応してほしくないもの」はこちらを使わないこと。
 	//======================================================================================
-	short InputManager::GetSystemButtonState(ActionKey a_action) const
+	InputButtonBase::EState InputManager::GetSystemButtonState(ActionKey a_action) const
 	{
 		if (!m_isActive) return InputButtonBase::EState::Free;
 
-		short _buttonState = InputButtonBase::EState::Free;
+		InputButtonBase::EState _buttonState = InputButtonBase::EState::Free;
 		for (auto& _device : m_upInputDeviceMap)
 		{
 			if (!_device.second) continue;
@@ -394,12 +394,12 @@ namespace Engine::Input
 
 	bool InputManager::IsSystemPress(ActionKey a_action) const
 	{
-		return (GetSystemButtonState(a_action) & InputButtonBase::EState::Press);
+		return Utility::HasFlag(GetSystemButtonState(a_action), InputButtonBase::EState::Press);
 	}
 
 	bool InputManager::IsSystemHold(ActionKey a_action) const
 	{
-		return (GetSystemButtonState(a_action) & InputButtonBase::EState::Hold);
+		return Utility::HasFlag(GetSystemButtonState(a_action), InputButtonBase::EState::Hold);
 	}
 
 	// 任意の軸の入力状態を取得
@@ -477,7 +477,7 @@ namespace Engine::Input
 
 		if (_device == m_upInputDeviceMap.end())
 		{
-			assert(0 && "未登録のデバイスです");
+			ENGINE_ERRLOG(false, "未登録のデバイスです");
 		}
 		return _device->second;
 	}
@@ -487,7 +487,7 @@ namespace Engine::Input
 
 		if (_device == m_upInputDeviceMap.end())
 		{
-			assert(0 && "未登録のデバイスです");
+			ENGINE_ERRLOG(false, "未登録のデバイスです");
 		}
 		return _device->second;
 	}

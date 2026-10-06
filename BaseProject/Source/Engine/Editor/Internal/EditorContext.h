@@ -104,7 +104,7 @@ namespace Engine::Editor
 		std::vector<Engine::GUID> assetHistoryVec = {};
 
 		// 履歴の上限。これを超えたら古いものから捨てる
-		static constexpr size_t kAssetHistoryMax = 32;
+		static constexpr size_t ASSET_HISTORY_MAX = 32;
 
 		// 選択中のエンティティ
 		std::vector<ECS::Entity> selectedEntities = { ECS::Limits::INVALID_ENTITY };	// 一番先頭が単体選択、インスペクター表示

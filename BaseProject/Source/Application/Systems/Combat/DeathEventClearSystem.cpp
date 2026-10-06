@@ -28,7 +28,7 @@ void DeathEventClearSystem::Init(App::ECS::APPWorld& a_world)
 			if (!a_ctx.pWorld) return;
 			if (!a_ctx.pWorld->HasResource<DeathEventResource>()) return;
 
-			a_ctx.pWorld->GetResource<DeathEventResource>().Clear();
+			a_ctx.pWorld->RefResource<DeathEventResource>().Clear();
 		}
 	)
 	.WritesResource<DeathEventResource>();

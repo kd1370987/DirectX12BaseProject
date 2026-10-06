@@ -16,8 +16,8 @@ namespace Engine::Option::DebugOptions
 
 		const std::string& GetName() override
 		{
-			static const std::string _name = "DebugDrawOption";
-			return _name;
+			static const std::string NAME = "DebugDrawOption";
+			return NAME;
 		}
 
 		EOptionCategory GetCategory() override

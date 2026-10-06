@@ -40,7 +40,7 @@
 namespace
 {
 	// 攻撃可能距離の可視化色(黄)。Engine::Color には無いのでここで作る
-	constexpr Math::Color kAttackRangeColor = { 1.0f, 0.85f, 0.1f, 1.0f };
+	constexpr Math::Color ATTACK_RANGE_COLOR = { 1.0f, 0.85f, 0.1f, 1.0f };
 
 	// 索敵範囲を水平の円でデバッグ描画する
 	void DrawRangeCircle(
@@ -52,12 +52,12 @@ namespace
 		if (!a_pDebugDraw)         return;
 		if (a_radius <= 1e-4f)  return;
 
-		constexpr int _kSeg = 32;	// 円周の分割数
+		constexpr int SEG = 32;	// 円周の分割数
 
 		Math::Vector3 _prev = {};
-		for (int _s = 0; _s <= _kSeg; ++_s)
+		for (int _s = 0; _s <= SEG; ++_s)
 		{
-			float _t = (DirectX::XM_2PI * _s) / _kSeg;
+			float _t = (DirectX::XM_2PI * _s) / SEG;
 			Math::Vector3 _p = a_center + Math::Vector3(std::sin(_t), 0.0f, std::cos(_t)) * a_radius;
 
 			if (_s > 0) a_pDebugDraw->DrawLine(_prev, _p, a_color);
@@ -95,7 +95,7 @@ void SearchPlayerSystem::Init(App::ECS::APPWorld& a_world)
 
 				if (_playerEntity == Engine::ECS::Limits::INVALID_ENTITY)
 				{
-					if (_target.targetGUID != Engine::DefaultGUID)
+					if (_target.targetGUID != Engine::DEFAULT_GUID)
 					{
 						_playerEntity = a_ctx.pWorld->GetEntity(_target.targetGUID);
 					}
@@ -183,7 +183,7 @@ void SearchPlayerSystem::Init(App::ECS::APPWorld& a_world)
 				if (_target.isFind)
 				{
 					DrawRangeCircle(_pDebugDraw, _selfPos, _detectExit, Engine::Color::BLUE);
-					DrawRangeCircle(_pDebugDraw, _selfPos, _attack, kAttackRangeColor);
+					DrawRangeCircle(_pDebugDraw, _selfPos, _attack, ATTACK_RANGE_COLOR);
 				}
 			}
 		}

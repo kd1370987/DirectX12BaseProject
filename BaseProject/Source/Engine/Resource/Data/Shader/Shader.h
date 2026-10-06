@@ -54,7 +54,7 @@ namespace Engine::Resource
 		// バイトコード取得
 		const D3D12_SHADER_BYTECODE& GetByteCode() const;
 
-		ID3DBlob* Get();
+		ID3DBlob* Get() const;
 		EShaderStage GetStage() const { return m_stage; }
 	private:
 

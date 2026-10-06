@@ -422,7 +422,7 @@ namespace Engine::Editor::Inspector
 				{
 					const Engine::GUID _animGUID = (_i < _assetData.animationGUIDs.size())
 						? _assetData.animationGUIDs[_i]
-						: Engine::DefaultGUID;
+						: Engine::DEFAULT_GUID;
 
 					const std::string _index = "[" + std::to_string(_i) + "]";
 					DrawAssetLink(&a_editContext, _index.c_str(), _animGUID);
@@ -473,7 +473,7 @@ namespace Engine::Editor::Inspector
 			{
 				const Engine::GUID _meshGUID = (_i < _assetData.meshGUIDs.size())
 					? _assetData.meshGUIDs[_i]
-					: Engine::DefaultGUID;
+					: Engine::DEFAULT_GUID;
 
 				ImGui::PushID(static_cast<int>(_i));
 
@@ -507,7 +507,7 @@ namespace Engine::Editor::Inspector
 			{
 				const Engine::GUID _materialGUID = (_i < _assetData.materialGUIDs.size())
 					? _assetData.materialGUIDs[_i]
-					: Engine::DefaultGUID;
+					: Engine::DEFAULT_GUID;
 
 				ImGui::PushID(static_cast<int>(_i));
 

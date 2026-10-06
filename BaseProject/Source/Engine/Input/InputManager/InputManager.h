@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../Core/InputAction.h"
+#include "../InputDevice/Button/InputButtonBase.h"
 
 namespace Engine::Input
 {
@@ -87,7 +88,7 @@ namespace Engine::Input
 		bool GetCursorClientPos(Math::Vector2& a_outPos) const;
 
 		// すべての有効な入力装置からのボタン入力状態を取得
-		short GetButtonState(ActionKey a_action) const;
+		InputButtonBase::EState GetButtonState(ActionKey a_action) const;
 
 		bool IsFree(ActionKey a_action) const;
 		bool IsPress(ActionKey a_action) const;
@@ -106,7 +107,7 @@ namespace Engine::Input
 		/// こちらはその一段外側で、アプリのモードを見ずに状態を返す。
 		/// ゲームの操作には使わないこと(エディター操作中にも反応してしまう)。
 		/// </remarks>
-		short GetSystemButtonState(ActionKey a_action) const;
+		InputButtonBase::EState GetSystemButtonState(ActionKey a_action) const;
 		bool IsSystemPress(ActionKey a_action) const;
 		bool IsSystemHold(ActionKey a_action) const;
 

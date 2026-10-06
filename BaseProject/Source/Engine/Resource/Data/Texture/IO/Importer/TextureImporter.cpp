@@ -104,7 +104,7 @@ namespace Engine::Resource
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "リソース生成に失敗中間バッファ");
+			ENGINE_ERRLOG(false, "リソース生成に失敗中間バッファ");
 			return Engine::Resource::UploadBuffer();
 		}
 		if (_uploadBuffer.pResource) _uploadBuffer.pResource->SetName(L"Texture_UploadBuffer");	// リーク調査用
@@ -197,8 +197,8 @@ namespace Engine::Resource
 		// 操作の終了
 		_uploadBuffer.pResource->Unmap(0, nullptr);
 
-		// Uploadヒープのポインタを std::shared_ptr に包んで寿命管理用にする
-		auto _spUploadRes = std::make_shared<ComPtr<ID3D12Resource>>(_uploadBuffer.pResource);
+		// Uploadヒープは完了コールバックが捕獲して寿命を延ばす(ComPtr 自体が参照カウントを持つ)
+		ComPtr<ID3D12Resource> _cpUploadRes = _uploadBuffer.pResource;
 
 		// UploadBuffer構造体もキャプチャ用に値コピーしておく
 		Engine::Resource::UploadBuffer _capturedUploadBuf = _uploadBuffer;
@@ -212,10 +212,10 @@ namespace Engine::Resource
 				CopyTexRegion(a_pCmdList, a_cpRes.Get(), _capturedUploadBuf);
 			},
 			// 完了時のコールバック
-			[_spUploadRes]()
+			[_cpUploadRes]()
 			{
 				// ここに到達した時点でGPUのコピーは完全に終わっているので
-				// このラムダ式がスコープを抜ける瞬間に_spUploadResが解放される
+				// このラムダ式がスコープを抜ける瞬間に_cpUploadResが解放される
 			}
 		);
 

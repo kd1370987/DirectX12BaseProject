@@ -24,7 +24,7 @@ std::optional<D3D12_CLEAR_VALUE> Engine::Resource::BuildTextureClearValue(
 {
 	D3D12_CLEAR_VALUE _clearValue = {};
 
-	if (HasFlag(a_desc.usage, TextureUsage::DSV))
+	if (HasFlag(a_desc.usage, ETextureUsage::DSV))
 	{
 		_clearValue.Format = DXGI_FORMAT_D32_FLOAT;
 		_clearValue.DepthStencil.Depth = 1.0f;
@@ -33,7 +33,7 @@ std::optional<D3D12_CLEAR_VALUE> Engine::Resource::BuildTextureClearValue(
 		return _clearValue;
 	}
 
-	if (HasFlag(a_desc.usage, TextureUsage::RTV))
+	if (HasFlag(a_desc.usage, ETextureUsage::RTV))
 	{
 		// 既定は透明な黒。Texture::m_clearValue の初期値と必ず揃えること。
 		// ここと食い違うと、実際のクリア色が生成時のクリアバリューと合わず、

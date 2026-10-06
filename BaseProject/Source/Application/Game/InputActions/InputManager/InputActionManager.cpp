@@ -30,14 +30,14 @@ namespace App::Input
 			{
 				a_collector.AddAxis(
 					a_action,
-					std::make_shared<Engine::Input::InputAxisForWindows>(
+					std::make_unique<Engine::Input::InputAxisForWindows>(
 						_pAxis->up, _pAxis->right, _pAxis->down, _pAxis->left));
 			}
 			else if (const auto* _pButton = std::get_if<Game::ButtonInputData>(&a_binding))
 			{
 				a_collector.AddButton(
 					a_action,
-					std::make_shared<Engine::Input::InputButtonForWindows>(_pButton->key));
+					std::make_unique<Engine::Input::InputButtonForWindows>(_pButton->key));
 			}
 		}
 
@@ -50,7 +50,7 @@ namespace App::Input
 		//==================================================================================
 		const std::vector<std::pair<int, std::string>>& KeyTable()
 		{
-			static const std::vector<std::pair<int, std::string>> s_keyTable = []
+			static const std::vector<std::pair<int, std::string>> KEY_TABLE = []
 				{
 					std::vector<std::pair<int, std::string>> _table;
 
@@ -95,7 +95,7 @@ namespace App::Input
 					return _table;
 				}();
 
-			return s_keyTable;
+			return KEY_TABLE;
 		}
 
 		// キーコードの表示名。一覧に無いものは番号のまま出す
@@ -228,7 +228,7 @@ namespace App::Input
 			// 視点はマウスの移動量そのものなので、キーの割り当てとは無関係に積む
 			_upMouse->AddAxis(
 				Game::EGameAction::Look,
-				std::make_shared<Engine::Input::InputAxisForWindowsMouse>());
+				std::make_unique<Engine::Input::InputAxisForWindowsMouse>());
 
 			_inputManager.AddDevice(DEVICE_MOUSE, std::move(_upMouse));
 		}

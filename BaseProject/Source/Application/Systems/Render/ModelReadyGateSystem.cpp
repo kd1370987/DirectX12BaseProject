@@ -20,20 +20,20 @@ void ModelReadyGateSystem::Init(App::ECS::APPWorld& a_world)
 			const ModelComponent* a_pModelArray
 		)
 		{
-			auto& _wait = a_ctx.pWorld->GetResource<ResourceWaitResource>();
-			auto& _resMgr = *a_ctx.pServices->pResourceManager;
+			auto& _wait = a_ctx.pWorld->RefResource<ResourceWaitResource>();
+			auto& _resourceManager = *a_ctx.pServices->pResourceManager;
 
 			for (uint32_t _i = 0; _i < a_count; ++_i)
 			{
 				const ModelComponent& _modelComp = a_pModelArray[_i];
 
 				// そもそもモデルを使わないエンティティは待たせない
-				if (_modelComp.modelGUID == Engine::DefaultGUID) continue;
+				if (_modelComp.modelGUID == Engine::DEFAULT_GUID) continue;
 
 				// 待つのは読込中のときだけ。
 				// Failed をここで待たせると、もう届かないものを永久に待って
 				// Start が一生走らなくなる
-				const auto _state = _resMgr.GetState(_modelComp.handle);
+				const auto _state = _resourceManager.GetState(_modelComp.handle);
 				if (_state != Engine::Resource::EResourceState::Loading) continue;
 
 				_wait.AddWait(a_pChunk->entityData[_i]);

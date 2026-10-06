@@ -36,7 +36,7 @@ void HitDetectSystem::Init(App::ECS::APPWorld& a_world)
 			HitEventResource* _pHitEvents = nullptr;
 			if (a_ctx.pWorld->HasResource<HitEventResource>())
 			{
-				_pHitEvents = &a_ctx.pWorld->GetResource<HitEventResource>();
+				_pHitEvents = &a_ctx.pWorld->RefResource<HitEventResource>();
 			}
 
 			for (size_t _i = 0; _i < a_count; ++_i)

@@ -12,13 +12,13 @@ namespace Engine::Graphics::Pipeline
 		DeclareInput("Shadow", EAccessType::UAV, EPassSlotType::Texture, false);
 
 		// テーブルの並びはシェーダーの t0.. と同じ順にすること
-		DeclareInput("Depth", EAccessType::SRV, EPassSlotType::Texture, true, kRootInputSRV);
-		DeclareInput("Normal", EAccessType::SRV, EPassSlotType::Texture, true, kRootInputSRV);
-		DeclareInput("ShadowMap", EAccessType::SRV, EPassSlotType::Texture, true, kRootInputSRV);
+		DeclareInput("Depth", EAccessType::SRV, EPassSlotType::Texture, true, ROOT_INPUT_SRV);
+		DeclareInput("Normal", EAccessType::SRV, EPassSlotType::Texture, true, ROOT_INPUT_SRV);
+		DeclareInput("ShadowMap", EAccessType::SRV, EPassSlotType::Texture, true, ROOT_INPUT_SRV);
 
 		// レイトレの影と同じ形。レイトレの影が来ていれば、そのリソースへ書く(OnLinksResolved)
 		Slot& _out = DeclareOutput("Shadow", "SunShadowMask", DXGI_FORMAT_R8G8B8A8_UNORM,
-			EAccessType::UAV, EPassSlotType::Texture, false, kRootOutputUAV);
+			EAccessType::UAV, EPassSlotType::Texture, false, ROOT_OUTPUT_UAV);
 		_out.loadOp = ELoadOp::Load;
 	}
 
@@ -52,12 +52,12 @@ namespace Engine::Graphics::Pipeline
 
 		// カメラ : 深度からワールド座標とビュー空間の奥行きを戻す
 		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<CameraData>(
-			a_context.pCmdList, kRootCameraCB, _pGE->GetSceneView()->GetCameraData());
+			a_context.pCmdList, ROOT_CAMERA_CB, _pGE->GetSceneView()->GetCameraData());
 
 		// カスケードの行列・区切り・バイアス。
 		// ShadowMapPass が描いたときと同じもの(どちらも LightManager が組んだものを読む)
 		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(
-			a_context.pCmdList, kRootShadowCB, _pLightManager->GetSunShadowCB());
+			a_context.pCmdList, ROOT_SHADOW_CB, _pLightManager->GetSunShadowCB());
 
 		DispatchFullScreen(a_context);
 	}

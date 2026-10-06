@@ -56,12 +56,12 @@ namespace Engine
 		void EndDraw();
 
 		// デルタタイム取得
-		UINT GetFPS();
-		float GetDeltaTime();
+		UINT GetFPS() const;
+		float GetDeltaTime() const;
 
 		// モード切替
 		void ChangeMode(EAppMode a_mode);
-		EAppMode GetMode() { return m_appMode; }
+		EAppMode GetMode() const { return m_appMode; }
 
 		// グラフィックス関係
 		void ExecuteDrawCmd();

@@ -17,135 +17,138 @@ DECLARE_HANDLE(DPI_AWARENESS_CONTEXT);
 #define DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 ((DPI_AWARENESS_CONTEXT)-4)
 #endif
 
-namespace
+namespace Engine::Window
 {
-	/// <summary>
-	/// マニフェストを使わずにDPI対応を有効化する
-	///
-	/// 必ずウィンドウ作成より前に呼ぶこと。
-	/// ウィンドウのDPI意識レベルは生成時のスレッド設定で決まるため、
-	/// 後から有効化しても既存のウィンドウには反映されず、
-	/// OSによる拡大(DPI仮想化)が掛かったままになる。
-	/// そうなるとGetClientRectが返す値と実際のピクセル数が食い違い、
-	/// ImGuiのレイアウトが画面外へはみ出す。
-	/// </summary>
-	void EnableDpiAwareness()
+	namespace
 	{
-		using PFN_SetProcessDpiAwarenessContext = BOOL(WINAPI*)(DPI_AWARENESS_CONTEXT);
-
-		// Windows10 1703以降ならモニター単位で追従できる
-		// (user32はGUIアプリなら必ずロード済みなのでモジュールを引くだけ)
-		if (HMODULE _user32 = GetModuleHandleW(L"user32.dll"))
+		/// <summary>
+		/// マニフェストを使わずにDPI対応を有効化する
+		///
+		/// 必ずウィンドウ作成より前に呼ぶこと。
+		/// ウィンドウのDPI意識レベルは生成時のスレッド設定で決まるため、
+		/// 後から有効化しても既存のウィンドウには反映されず、
+		/// OSによる拡大(DPI仮想化)が掛かったままになる。
+		/// そうなるとGetClientRectが返す値と実際のピクセル数が食い違い、
+		/// ImGuiのレイアウトが画面外へはみ出す。
+		/// </summary>
+		void EnableDpiAwareness()
 		{
-			auto _setContextFunc = reinterpret_cast<PFN_SetProcessDpiAwarenessContext>(
-				GetProcAddress(_user32, "SetProcessDpiAwarenessContext")
-			);
-			if (_setContextFunc && _setContextFunc(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2))
+			using PFN_SetProcessDpiAwarenessContext = BOOL(WINAPI*)(DPI_AWARENESS_CONTEXT);
+
+			// Windows10 1703以降ならモニター単位で追従できる
+			// (user32はGUIアプリなら必ずロード済みなのでモジュールを引くだけ)
+			if (HMODULE _user32 = GetModuleHandleW(L"user32.dll"))
 			{
-				return;
+				auto _setContextFunc = reinterpret_cast<PFN_SetProcessDpiAwarenessContext>(
+					GetProcAddress(_user32, "SetProcessDpiAwarenessContext")
+				);
+				if (_setContextFunc && _setContextFunc(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2))
+				{
+					return;
+				}
 			}
+
+			// 取れなければシステムDPI基準で妥協する
+			SetProcessDPIAware();
 		}
 
-		// 取れなければシステムDPI基準で妥協する
-		SetProcessDPIAware();
-	}
-}
-
-/// <summary>
-/// 各種メッセージを処理する関数
-/// </summary>
-/// <param name="a_hWnd">ウィンドウハンドル</param>
-/// <param name="a_message">メッセージID</param>
-/// <param name="a_wParam">メッセージの追加情報</param>
-/// <param name="a_lParam">メッセージの追加情報</param>
-/// <returns>処理結果</returns>
-LRESULT CALLBACK WndProc(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_lParam)
-{
-	// CreateWindowExで渡した this をウィンドウ側へ保存する
-	// (WM_NCCREATEはCreateWindowExの中で最初に届くので、以降のメッセージで使える)
-	if (a_message == WM_NCCREATE)
-	{
-		auto* _pCreateStruct = reinterpret_cast<CREATESTRUCT*>(a_lParam);
-		SetWindowLongPtr(a_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(_pCreateStruct->lpCreateParams));
-	}
-	auto* _pWindow = reinterpret_cast<Engine::Window::NativeWindow*>(GetWindowLongPtr(a_hWnd, GWLP_USERDATA));
-
-	//==============================================================================
-	// OSのカーソルを消す
-	//------------------------------------------------------------------------------
-	// クライアント領域の上だけ消して、代わりに自前の画像をカーソル位置へ描く
-	// (描くのはアプリ側。ゲームモードの間だけ)。枠やリサイズの境目はOSに任せるので
-	// ヒットテストが HTCLIENT のときだけ止める。
-	//
-	// 横取り先(エディターの ImGui)より前に置くこと。あちらも WM_SETCURSOR を拾って
-	// カーソルの形を設定するので、後ろに回すと上書きされて消えなくなる。
-	//
-	// 消してよいかどうかはアプリ側のカーソルが SetCursorHidden で決める(画像を出せているフレームだけ true)。
-	// 出せないうちから消すと、カーソルが1つも無い状態になってしまう。
-	//==============================================================================
-	if (a_message == WM_SETCURSOR &&
-		_pWindow && _pWindow->IsCursorHidden() &&
-		LOWORD(a_lParam) == HTCLIENT)
-	{
-		SetCursor(nullptr);
-		return TRUE;
-	}
-
-	// エディターが先に受け取る(ImGui の入力)
-	if (_pWindow && _pWindow->CallMessageHook(a_hWnd, a_message, a_wParam, a_lParam))
-		return true;
-
-	// ウィンドウズからのメッセージを処理
-	switch (a_message)
-	{
-	case WM_SIZE:					// クライアント領域のサイズが変わった
-		// 最小化はクライアント領域が0になるだけなので無視する
-		if (a_wParam != SIZE_MINIMIZED && _pWindow)
+		/// <summary>
+		/// 各種メッセージを処理する関数
+		/// </summary>
+		/// <param name="a_hWnd">ウィンドウハンドル</param>
+		/// <param name="a_message">メッセージID</param>
+		/// <param name="a_wParam">メッセージの追加情報</param>
+		/// <param name="a_lParam">メッセージの追加情報</param>
+		/// <returns>処理結果</returns>
+		LRESULT CALLBACK WndProc(HWND a_hWnd, UINT a_message, WPARAM a_wParam, LPARAM a_lParam)
 		{
-			_pWindow->RefreshClientSize();
-		}
-		break;
-	case WM_DPICHANGED:				// モニター間の移動や表示スケール変更でDPIが変わった
-	{
-		// OSが提案してくるサイズへ合わせる
-		// (無視すると新しいDPIの枠と中身の大きさがずれる)
-		const RECT* _pSuggestedRect = reinterpret_cast<const RECT*>(a_lParam);
-		SetWindowPos(
-			a_hWnd,
-			nullptr,
-			_pSuggestedRect->left,
-			_pSuggestedRect->top,
-			_pSuggestedRect->right - _pSuggestedRect->left,
-			_pSuggestedRect->bottom - _pSuggestedRect->top,
-			SWP_NOZORDER | SWP_NOACTIVATE
-		);
-		break;
-	}
-	case WM_INPUT:					// 生のマウス移動量が届いた
-		if (_pWindow)
-		{
-			_pWindow->OnRawInput(a_lParam);
-		}
-		break;
-	case WM_DESTROY:				// OSに対して終了を伝える
-		PostQuitMessage(0);
-		break;
-	case WM_SETFOCUS:				// ウィンドウが選択された際
-	{
-		Engine::Input::InputManager::Instance().SetActive(true);
-		break;
-	}
-	case WM_KILLFOCUS:				// ウィンドウの選択が外された際
-	{
-		Engine::Input::InputManager::Instance().SetActive(false);
-		break;
-	}
-	default:
-		break;
-	}
+			// CreateWindowExで渡した this をウィンドウ側へ保存する
+			// (WM_NCCREATEはCreateWindowExの中で最初に届くので、以降のメッセージで使える)
+			if (a_message == WM_NCCREATE)
+			{
+				auto* _pCreateStruct = reinterpret_cast<CREATESTRUCT*>(a_lParam);
+				SetWindowLongPtr(a_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(_pCreateStruct->lpCreateParams));
+			}
+			auto* _pWindow = reinterpret_cast<Engine::Window::NativeWindow*>(GetWindowLongPtr(a_hWnd, GWLP_USERDATA));
 
-	// メッセージの基本的な処理
-	return DefWindowProc(a_hWnd, a_message, a_wParam, a_lParam);
+			//==============================================================================
+			// OSのカーソルを消す
+			//------------------------------------------------------------------------------
+			// クライアント領域の上だけ消して、代わりに自前の画像をカーソル位置へ描く
+			// (描くのはアプリ側。ゲームモードの間だけ)。枠やリサイズの境目はOSに任せるので
+			// ヒットテストが HTCLIENT のときだけ止める。
+			//
+			// 横取り先(エディターの ImGui)より前に置くこと。あちらも WM_SETCURSOR を拾って
+			// カーソルの形を設定するので、後ろに回すと上書きされて消えなくなる。
+			//
+			// 消してよいかどうかはアプリ側のカーソルが SetCursorHidden で決める(画像を出せているフレームだけ true)。
+			// 出せないうちから消すと、カーソルが1つも無い状態になってしまう。
+			//==============================================================================
+			if (a_message == WM_SETCURSOR &&
+				_pWindow && _pWindow->IsCursorHidden() &&
+				LOWORD(a_lParam) == HTCLIENT)
+			{
+				SetCursor(nullptr);
+				return TRUE;
+			}
+
+			// エディターが先に受け取る(ImGui の入力)
+			if (_pWindow && _pWindow->CallMessageHook(a_hWnd, a_message, a_wParam, a_lParam))
+				return true;
+
+			// ウィンドウズからのメッセージを処理
+			switch (a_message)
+			{
+			case WM_SIZE:					// クライアント領域のサイズが変わった
+				// 最小化はクライアント領域が0になるだけなので無視する
+				if (a_wParam != SIZE_MINIMIZED && _pWindow)
+				{
+					_pWindow->RefreshClientSize();
+				}
+				break;
+			case WM_DPICHANGED:				// モニター間の移動や表示スケール変更でDPIが変わった
+			{
+				// OSが提案してくるサイズへ合わせる
+				// (無視すると新しいDPIの枠と中身の大きさがずれる)
+				const RECT* _pSuggestedRect = reinterpret_cast<const RECT*>(a_lParam);
+				SetWindowPos(
+					a_hWnd,
+					nullptr,
+					_pSuggestedRect->left,
+					_pSuggestedRect->top,
+					_pSuggestedRect->right - _pSuggestedRect->left,
+					_pSuggestedRect->bottom - _pSuggestedRect->top,
+					SWP_NOZORDER | SWP_NOACTIVATE
+				);
+				break;
+			}
+			case WM_INPUT:					// 生のマウス移動量が届いた
+				if (_pWindow)
+				{
+					_pWindow->OnRawInput(a_lParam);
+				}
+				break;
+			case WM_DESTROY:				// OSに対して終了を伝える
+				PostQuitMessage(0);
+				break;
+			case WM_SETFOCUS:				// ウィンドウが選択された際
+			{
+				Engine::Input::InputManager::Instance().SetActive(true);
+				break;
+			}
+			case WM_KILLFOCUS:				// ウィンドウの選択が外された際
+			{
+				Engine::Input::InputManager::Instance().SetActive(false);
+				break;
+			}
+			default:
+				break;
+			}
+
+			// メッセージの基本的な処理
+			return DefWindowProc(a_hWnd, a_message, a_wParam, a_lParam);
+		}
+	}
 }
 
 //==================================================================================
@@ -166,7 +169,7 @@ namespace Engine::Window
 		m_hInst = GetModuleHandle(nullptr);
 		if (!m_hInst)
 		{
-			assert(0 && "インスタンスハンドルの取得に失敗");
+			ENGINE_ERRLOG(false, "インスタンスハンドルの取得に失敗");
 			return false;
 		}
 
@@ -187,7 +190,7 @@ namespace Engine::Window
 		// ウィンドウクラスの登録（同じクラス名は使わないこと）
 		if (!RegisterClassEx(&_wc))
 		{
-			assert(0 && "ウィンドウクラスの登録失敗");
+			ENGINE_ERRLOG(false, "ウィンドウクラスの登録失敗");
 			return false;
 		}
 
@@ -241,7 +244,7 @@ namespace Engine::Window
 		);
 		if (!m_hWnd) {
 			DWORD err = GetLastError();
-			assert(0 && "CreateWindowEx failed");
+			ENGINE_ERRLOG(false, "CreateWindowEx failed");
 			return false;
 		}
 
@@ -522,7 +525,7 @@ namespace Engine::Window
 		// (WM_SIZE でも更新されるが、切替直後から正しい値を返せるようにしておく)
 		RefreshClientSize();
 	}
-	double NativeWindow::GetMemoryUsage()
+	double NativeWindow::GetMemoryUsage() const
 	{
 		PROCESS_MEMORY_COUNTERS_EX _pmc;
 		if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&_pmc, sizeof(_pmc)))

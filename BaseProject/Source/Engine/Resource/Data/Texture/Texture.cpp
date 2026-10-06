@@ -19,7 +19,7 @@ namespace Engine::Resource
 	)
 	{
 		// SRVとして使用
-		m_useFlg = TextureUsage::SRV;
+		m_usage = ETextureUsage::SRV;
 		// テクスチャの読み込み
 		ComPtr<ID3D12Resource> _cpRes = Engine::Resource::ImportTexture(a_ctx, a_filePath);
 		if (_cpRes)
@@ -52,7 +52,7 @@ namespace Engine::Resource
 		m_name = a_name;
 
 		// SRVとして使用
-		m_useFlg = TextureUsage::SRV;
+		m_usage = ETextureUsage::SRV;
 
 		// ビューの登録
 		CreateView(a_ctx.pHeapManager);
@@ -63,7 +63,7 @@ namespace Engine::Resource
 		// デバイスの取得
 		// デバイスはビューの置き場と同じもの : ヒープマネージャーから借りる
 		auto* _pDevice = a_pHeapManager ? a_pHeapManager->RefDevice() : nullptr;
-		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
+		if (!_pDevice) { ENGINE_ERRLOG(false, "Not fined Device"); return; }
 
 		// 仕様書とクリアバリューを組む : 組むのは Creater の役
 		m_desc = BuildTextureResourceDesc(a_desc);
@@ -85,7 +85,7 @@ namespace Engine::Resource
 		SetupFromDesc(a_pHeapManager, a_desc);
 	}
 
-	void Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, IDXGISwapChain* a_pSwapChain, UINT a_backBufferIndex, TextureUsage a_texUsage)
+	void Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, IDXGISwapChain* a_pSwapChain, UINT a_backBufferIndex, ETextureUsage a_texUsage)
 	{
 		// スワップチェインからバックバッファを生成
 		a_pSwapChain->GetBuffer(
@@ -99,7 +99,7 @@ namespace Engine::Resource
 
 		// メンバ作成
 		m_name = _name;
-		m_useFlg = a_texUsage;
+		m_usage = a_texUsage;
 		CreateView(a_pHeapManager);
 	}
 
@@ -108,7 +108,7 @@ namespace Engine::Resource
 		// デバイスの取得
 		// デバイスはビューの置き場と同じもの : ヒープマネージャーから借りる
 		auto* _pDevice = a_pHeapManager ? a_pHeapManager->RefDevice() : nullptr;
-		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
+		if (!_pDevice) { ENGINE_ERRLOG(false, "Not fined Device"); return; }
 
 		// 仕様書とクリアバリューを組む。
 		// 席を確保したときの見積もりと同じものでなければ収まらないので、
@@ -139,7 +139,7 @@ namespace Engine::Resource
 	{
 		// 変数保存
 		m_name = a_desc.name;
-		m_useFlg = a_desc.usage;
+		m_usage = a_desc.usage;
 		m_srvComponentMapping = a_desc.srvComponentMapping;
 		if (a_desc.optClearValue.has_value())
 		{
@@ -220,13 +220,13 @@ namespace Engine::Resource
 		// デバイスの取得
 		// デバイスはビューの置き場と同じもの : ヒープマネージャーから借りる
 		auto* _pDevice = a_pHeapManager->RefDevice();
-		if (!_pDevice) { assert(0 && "Not fined Device"); return; }
+		if (!_pDevice) { ENGINE_ERRLOG(false, "Not fined Device"); return; }
 
 		// 返却先を控える : Release() でここへ返す
 		m_pHeapManager = a_pHeapManager;
 
 		// テクスチャの使用方法にRTが含まれているのならRTVを登録
-		if (HasFlag(m_useFlg, TextureUsage::RTV))
+		if (HasFlag(m_usage, ETextureUsage::RTV))
 		{
 			// レンダーターゲットビュー情報の作成
 			D3D12_RENDER_TARGET_VIEW_DESC _rtvDesc = {};
@@ -239,7 +239,7 @@ namespace Engine::Resource
 		}
 
 		// テクスチャの使用方法にDSが含まれているのなら
-		if (HasFlag(m_useFlg, TextureUsage::DSV))
+		if (HasFlag(m_usage, ETextureUsage::DSV))
 		{
 			// 深度ステンシルビュー作成
 			D3D12_DEPTH_STENCIL_VIEW_DESC _dsvDesc = {};
@@ -257,18 +257,18 @@ namespace Engine::Resource
 		}
 
 		// テクスチャの使用方法にUAが含まれているのなら
-		if (HasFlag(m_useFlg, TextureUsage::UAV))
+		if (HasFlag(m_usage, ETextureUsage::UAV))
 		{
 			m_uavHandle =
 				a_pHeapManager->Allocate<D3D12::UAV>(_pDevice, m_cpResource.Get(), nullptr);
 		}
 
 		// テクスチャの仕様方法SRが含まれているのなら
-		if (HasFlag(m_useFlg, TextureUsage::SRV))
+		if (HasFlag(m_usage, ETextureUsage::SRV))
 		{
 			// シェーダーリソースビュー作成
 			D3D12_SHADER_RESOURCE_VIEW_DESC _srvDesc = {};
-			_srvDesc.Format = HasFlag(m_useFlg, TextureUsage::DSV) ? DXGI_FORMAT_R32_FLOAT : m_desc.Format;
+			_srvDesc.Format = HasFlag(m_usage, ETextureUsage::DSV) ? DXGI_FORMAT_R32_FLOAT : m_desc.Format;
 			_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 			_srvDesc.Texture2D.MipLevels = m_desc.MipLevels;
 			_srvDesc.Shader4ComponentMapping = m_srvComponentMapping;
@@ -295,9 +295,9 @@ namespace Engine::Resource
 	}
 
 
-	const Engine::Resource::TextureUsage& Engine::Resource::Texture::GetUsage() const
+	const Engine::Resource::ETextureUsage& Engine::Resource::Texture::GetUsage() const
 	{
-		return m_useFlg;
+		return m_usage;
 	}
 
 	const D3D12_RESOURCE_DESC& Engine::Resource::Texture::GetDesc() const

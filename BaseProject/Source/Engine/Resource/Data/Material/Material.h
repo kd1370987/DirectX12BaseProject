@@ -2,7 +2,7 @@
 
 namespace Engine::Resource
 {
-	enum class Alpha : uint8_t
+	enum class EAlpha : uint8_t
 	{
 		Opaque = 0,			// アルファ値を無視してすべてを不透明としてレンダリング
 		Mask = 1,			// アルファ値が閾値以下なら描画しない
@@ -50,7 +50,7 @@ namespace Engine::Resource
 		std::string					name;
 
 		// アルファデータ
-		Alpha alphaMode = Alpha::Opaque;
+		EAlpha alphaMode = EAlpha::Opaque;
 
 		// 参照テクスチャGUID
 		Engine::GUID baseColorTexGUID = {};

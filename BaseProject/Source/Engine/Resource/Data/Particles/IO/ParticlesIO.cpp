@@ -15,12 +15,12 @@ namespace Engine::Resource
 	void ParticlesAssetIO::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
 		// ディレクトリ
-		static std::string _dir = "Asset/ParticlesAsset/";
-		auto _basePath = _dir + a_path +"/" + a_name;
+		static const std::string ASSET_DIR = "Asset/ParticlesAsset/";
+		auto _basePath = ASSET_DIR + a_path +"/" + a_name;
 
 		// すでにないかチェック
 		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DefaultGUID)
+		if (_checkGUID != Engine::DEFAULT_GUID)
 		{
 			// すでに作成されていた場合
 			ENGINE_LOG("すでに作成済みのパーティクルです : %s",_basePath.c_str());

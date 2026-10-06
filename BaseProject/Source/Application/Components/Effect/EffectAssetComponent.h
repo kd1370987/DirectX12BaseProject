@@ -28,7 +28,7 @@
 struct EffectAssetComponent
 {
 	// エフェクトアセットのGUID
-	Engine::GUID effectGUID = Engine::DefaultGUID;
+	Engine::GUID effectGUID = Engine::DEFAULT_GUID;
 
 	// 生成された時点から再生するか。
 	// 爆発のように出しっぱなしで完結するものはこれを立てる。
@@ -87,7 +87,7 @@ struct Engine::ECS::ComponentTraits<EffectAssetComponent>
 		Engine::Editor::Field("DestroyOnFinish", _comp.destroyOnFinish);
 		Engine::Editor::Tooltip("出し切ったら自分ごと消す(出しっぱなしのパーツがあると消えない)");
 
-		if (_comp.effectGUID == Engine::DefaultGUID)
+		if (_comp.effectGUID == Engine::DEFAULT_GUID)
 		{
 			Engine::Editor::HelpText("(未設定 : 何も出ない)");
 		}

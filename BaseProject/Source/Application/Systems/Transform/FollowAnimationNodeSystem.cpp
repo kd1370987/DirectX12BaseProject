@@ -38,7 +38,7 @@ void FollowAnimationNodeSystem::Init(App::ECS::APPWorld& a_world)
 				if (!_pNodePoseComp) continue;
 
 				// ノード行列配列取得
-				auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+				auto& _nodePosePool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 				auto _nodePoseVec = _nodePosePool.RefRange(_pNodePoseComp->nodePoseHandle);
 				if (_nodePoseVec.empty()) continue;
 				if (_followComp.targetNodeIdx >= _nodePoseVec.size()) continue;

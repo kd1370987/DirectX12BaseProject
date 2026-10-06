@@ -43,14 +43,14 @@ void BoidGroundEffectSystem::Init(App::ECS::APPWorld& a_world)
 		)
 		{
 			if (!a_ctx.pWorld->HasResource<WormGroundEffectResource>()) return;
-			auto& _res = a_ctx.pWorld->GetResource<WormGroundEffectResource>();
-			if (!_res.isActive || _res.effectGUID == Engine::DefaultGUID) return;
+			auto& _res = a_ctx.pWorld->RefResource<WormGroundEffectResource>();
+			if (!_res.isActive || _res.effectGUID == Engine::DEFAULT_GUID) return;
 
 			ENGINE_PROFILE_SCOPE("Physics_BoidGroundEffectRay");
 			const auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
 
 			const float _dt = a_ctx.dt;
-			const uint32_t _queryMask = static_cast<uint32_t>(Layer::StaticObject);
+			const uint32_t _queryMask = static_cast<uint32_t>(ECollisionLayer::StaticObject);
 			const float _interval = std::max(_res.interval, 0.01f);
 
 			for (size_t _i = 0; _i < a_count; ++_i)

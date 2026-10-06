@@ -13,8 +13,9 @@ namespace Engine::Input
 	{
 	public:
 
-		InputAxisForWindowsMouse() {};
+		InputAxisForWindowsMouse();
 		InputAxisForWindowsMouse(int a_fixCode);
+		~InputAxisForWindowsMouse() override;
 
 		void PreUpdate() override;
 
@@ -35,6 +36,6 @@ namespace Engine::Input
 		// マウスで議事ジョイスティックを操作したり、スマホの議事コントローラーのような
 		// 動作をさせたいときに使用する。
 		// 押している間、軸の中心位置が固定される
-		std::shared_ptr<InputButtonBase> m_spFixButton = nullptr;
+		std::unique_ptr<InputButtonBase> m_upFixButton = nullptr;
 	};
 }

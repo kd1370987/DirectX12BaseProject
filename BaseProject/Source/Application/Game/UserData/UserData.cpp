@@ -134,7 +134,7 @@ namespace App::Game
 	void UserData::Load()
 	{
 		Engine::Persistence::Archive _ar(
-			Engine::Persistence::Archive::Mode::Load, FILE_DIR, FILE_NAME, FILE_EXT);
+			Engine::Persistence::Archive::EMode::Load, FILE_DIR, FILE_NAME, FILE_EXT);
 
 		Archive(_ar);
 	}
@@ -142,7 +142,7 @@ namespace App::Game
 	void UserData::Save()
 	{
 		Engine::Persistence::Archive _ar(
-			Engine::Persistence::Archive::Mode::Save, FILE_DIR, FILE_NAME, FILE_EXT);
+			Engine::Persistence::Archive::EMode::Save, FILE_DIR, FILE_NAME, FILE_EXT);
 
 		Archive(_ar);
 	}

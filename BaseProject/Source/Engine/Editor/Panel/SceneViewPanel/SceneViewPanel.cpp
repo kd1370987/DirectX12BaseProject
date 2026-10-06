@@ -149,12 +149,12 @@ namespace
 			Math::Vector3 _u, _v;
 			MakeBasis(a_axis, _u, _v);
 
-			constexpr int _segments = 24;
+			constexpr int SEGMENTS = 24;
 			ImVec2 _prev;
 			bool _hasPrev = false;
-			for (int _i = 0; _i <= _segments; ++_i)
+			for (int _i = 0; _i <= SEGMENTS; ++_i)
 			{
-				const float _rad = DirectX::XM_2PI * static_cast<float>(_i) / static_cast<float>(_segments);
+				const float _rad = DirectX::XM_2PI * static_cast<float>(_i) / static_cast<float>(SEGMENTS);
 				const Math::Vector3 _p = a_center + (_u * std::cos(_rad) + _v * std::sin(_rad)) * a_radius;
 
 				ImVec2 _sp;
@@ -181,10 +181,10 @@ namespace
 			MakeBasis(a_dir, _u, _v);
 
 			// 母線(4本だけ描いて円錐と分かる程度に留める)
-			constexpr int _lines = 4;
-			for (int _i = 0; _i < _lines; ++_i)
+			constexpr int LINES = 4;
+			for (int _i = 0; _i < LINES; ++_i)
 			{
-				const float _rad = DirectX::XM_2PI * static_cast<float>(_i) / static_cast<float>(_lines);
+				const float _rad = DirectX::XM_2PI * static_cast<float>(_i) / static_cast<float>(LINES);
 				Line(a_apex, _center + (_u * std::cos(_rad) + _v * std::sin(_rad)) * _radius, a_col, 1.0f);
 			}
 
@@ -250,7 +250,7 @@ namespace Engine::Editor
 		auto _gpuHandle = EditorHelper::GetImGuiTexHandle(_pTex->GetImGuiSRV());
 		// 表示アスペクトは実解像度(カメラ/アンプロジェクトが使う windowWidth/Height)に合わせる。
 		// ここがずれるとスクリーン→ゲーム座標のスケールが X/Y で食い違い、ピッキングが横方向にずれる。
-		const auto& _winOp = Option::OptionManager::GetInstance().GetWindowOption();
+		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
 		ImVec2 _actualRenderSize = EditorHelper::DrawSRVView(
 			_gpuHandle,
 			static_cast<float>(_winOp.windowWidth),
@@ -299,7 +299,7 @@ namespace Engine::Editor
 		if (ImGuizmo::IsUsing() || ImGuizmo::IsOver()) return;
 
 		// スクリーン情報取得
-		const auto& _windowOp = Option::OptionManager::GetInstance().GetWindowOption();
+		const auto& _windowOp = Option::OptionManager::Instance().GetWindowOption();
 
 		// 画像左上を基準にしたローカルマウス座標
 		ImVec2 _mousePos = ImGui::GetMousePos();
@@ -492,10 +492,10 @@ namespace Engine::Editor
 				_worldFloat4x4.Translation() - _mWorld.Translation();
 
 			// 動いていないフレームは何もしない(isDirtyを立て続けないため)
-			constexpr float _MOVE_EPS = 1e-8f;
-			if (std::fabs(_worldDelta.x) <= _MOVE_EPS &&
-				std::fabs(_worldDelta.y) <= _MOVE_EPS &&
-				std::fabs(_worldDelta.z) <= _MOVE_EPS)
+			constexpr float MOVE_EPS = 1e-8f;
+			if (std::fabs(_worldDelta.x) <= MOVE_EPS &&
+				std::fabs(_worldDelta.y) <= MOVE_EPS &&
+				std::fabs(_worldDelta.z) <= MOVE_EPS)
 			{
 				return;
 			}
@@ -559,10 +559,10 @@ namespace Engine::Editor
 		if (!a_pWorld) return false;
 
 		// 親子関係が万が一循環していても止まらなくならないよう、たどる深さに上限を設ける
-		constexpr int _maxDepth = 64;
+		constexpr int MAX_DEPTH = 64;
 
 		ECS::Entity _current = a_entity;
-		for (int _i = 0; _i < _maxDepth; ++_i)
+		for (int _i = 0; _i < MAX_DEPTH; ++_i)
 		{
 			if (!a_pWorld->HasComponent<HierarchyComponent>(_current)) return false;
 
@@ -699,12 +699,12 @@ namespace Engine::Editor
 				else                                  _emitDir = Math::Vector3(0.0f, 0.0f, 1.0f);
 
 				// 矢印の長さは見やすさ優先の固定値
-				constexpr float _arrowLength = 1.5f;
+				constexpr float ARROW_LENGTH = 1.5f;
 
 				// オブジェクト本体からどれだけずれた位置で出るのかを線で見せる
 				_hud.Line(_originPos, _emitPos, HUD_COL_OFFSET, 1.0f);
 				_hud.Marker(_emitPos, HUD_COL_PARTICLE, "Emit", 5.0f);
-				_hud.Arrow(_emitPos, _emitDir, _arrowLength, HUD_COL_PARTICLE, "EmitDir");
+				_hud.Arrow(_emitPos, _emitDir, ARROW_LENGTH, HUD_COL_PARTICLE, "EmitDir");
 			}
 		}
 
@@ -1004,7 +1004,7 @@ namespace Engine::Editor
 					if (_pScene)
 					{
 						// ロード処理
-						Engine::Scene::SceneManager::Instance().SetNextScene(_sceneMeta.guid, Scene::SceneChangeType::Replace);
+						Engine::Scene::SceneManager::Instance().SetNextScene(_sceneMeta.guid, Scene::ESceneChangeType::Replace);
 						ENGINE_LOG("シーンを読み込みました : %s", _sceneMeta.fileName.c_str());
 
 						m_currentSceneGUID = _sceneMeta.guid; // 現在のGUIDを更新
@@ -1091,7 +1091,7 @@ namespace Engine::Editor
 			{
 				// 作った先をこのまま開く。
 				// 中身は空なので、上書き保存の行き先もここになる
-				Engine::Scene::SceneManager::Instance().SetNextScene(_guid, Scene::SceneChangeType::Replace);
+				Engine::Scene::SceneManager::Instance().SetNextScene(_guid, Scene::ESceneChangeType::Replace);
 
 				m_currentSceneGUID = _guid;
 				m_canOverwrite = true;
@@ -1136,7 +1136,7 @@ namespace Engine::Editor
 		// どのシーンを保存するかをログ出力する
 		ENGINE_LOG("[Scene] セーブ : %s", _path.c_str());
 
-		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _fileDir, _fileName, "scene");
+		Persistence::Archive _ar(Persistence::Archive::EMode::Save, _fileDir, _fileName, "scene");
 		_pScene->Archive(_ar);
 	}
 	void SceneViewPanel::CopyEntities(EditorContext& a_editContext, Engine::ECS::World* a_pWorld)

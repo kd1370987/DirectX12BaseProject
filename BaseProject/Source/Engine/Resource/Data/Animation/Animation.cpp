@@ -72,13 +72,13 @@ void Engine::Resource::AnimationData::Release()
 
 void Engine::Resource::AnimationData::Save(const std::string& a_fileDir, const std::string& a_name)
 {
-	Persistence::Archive _ar(Persistence::Archive::Mode::Save, a_fileDir, a_name, "anim");
+	Persistence::Archive _ar(Persistence::Archive::EMode::Save, a_fileDir, a_name, "anim");
 	Archive(_ar);
 }
 
 void Engine::Resource::AnimationData::Load(const std::string& a_fileDir, const std::string& a_name)
 {
-	Persistence::Archive _ar(Persistence::Archive::Mode::Load, a_fileDir, a_name, "anim");
+	Persistence::Archive _ar(Persistence::Archive::EMode::Load, a_fileDir, a_name, "anim");
 	Archive(_ar);
 }
 
@@ -86,7 +86,7 @@ void Engine::Resource::AnimationData::Load(const std::string& a_filePath)
 {
 	auto _fileDir = Engine::File::GetDirFromPath(a_filePath);
 	auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
-	Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "anim");
+	Persistence::Archive _ar(Persistence::Archive::EMode::Load, _fileDir, _fileName, "anim");
 	Archive(_ar);
 }
 

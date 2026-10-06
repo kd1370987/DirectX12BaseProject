@@ -143,7 +143,7 @@ namespace Engine::ECS
 		// タスクの登録(Init)は上位層が済ませてから渡す。基盤はシステムが
 		// 何を引数に取るかを知らないので、生成と初期化には関与しない。
 		//----------------------------------------------------------------------------------
-		void Hold(std::shared_ptr<ISystem> a_spSystem);
+		void Hold(std::unique_ptr<ISystem> a_upSystem);
 
 		// システムの更新
 		// システムのフェーズを指定、コンテキストを入れる。
@@ -167,6 +167,15 @@ namespace Engine::ECS
 			static uint32_t _id = s_systemCounter++;
 			return _id;
 		}
+
+		// ---- アクセサ ----
+		const std::unordered_map<ESystemType, std::vector<SystemTask*>>& GetCompileTaskMap() const;
+
+		// 実行時の待ち合わせまで組んだもの(待つ相手の並び位置を持つ)
+		const std::unordered_map<ESystemType, std::vector<CompileTask>>& GetCompiledTaskMap() const { return m_compiledTaskMap; }
+
+		// 並びの診断
+		const std::unordered_map<ESystemType, PhaseScheduleReport>& GetScheduleReportMap() const { return m_scheduleReportMap; }
 
 	private:
 
@@ -197,23 +206,12 @@ namespace Engine::ECS
 			PhaseScheduleReport& a_report
 		);
 
-	public:
-
-		// ---- アクセサ ----
-		const std::unordered_map<ESystemType, std::vector<SystemTask*>>& GetCompileTaskMap() const;
-
-		// 実行時の待ち合わせまで組んだもの(待つ相手の並び位置を持つ)
-		const std::unordered_map<ESystemType, std::vector<CompileTask>>& GetCompiledTaskMap() const { return m_compiledTaskMap; }
-
-		// 並びの診断
-		const std::unordered_map<ESystemType, PhaseScheduleReport>& GetScheduleReportMap() const { return m_scheduleReportMap; }
-
 	private:
 
 		inline static uint32_t s_systemCounter = 0;
 
 		// 登録されているシステム実体(寿命の保持のみ)
-		std::vector<std::shared_ptr<ISystem>> m_systemVec;
+		std::vector<std::unique_ptr<ISystem>> m_upSystemVec;
 
 		// 登録されているタスク
 		//

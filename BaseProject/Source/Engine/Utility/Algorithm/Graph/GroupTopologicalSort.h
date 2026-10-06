@@ -1,4 +1,7 @@
 ﻿#pragma once
+
+#include "Engine/Utility/Debug/DebugLog.h"
+
 namespace Engine::Algorithm
 {
 	namespace Graph
@@ -94,7 +97,7 @@ namespace Engine::Algorithm
 			// 黙って消えると原因が追えないのでここで検出する
 			if (_sortedCount != _nodeCount)
 			{
-				assert(0 && "グループトポロジカルソート失敗 : 循環参照");
+				ENGINE_ERRLOG(false, "グループトポロジカルソート失敗 : 循環参照");
 				return false;
 			}
 
@@ -189,7 +192,7 @@ namespace Engine::Algorithm
 			// そのぶんだけ結果から抜け落ちる(=実行されないパスが出る)
 			if (_sortedCount != _nodeCount)
 			{
-				assert(0 && "グループトポロジカルソート失敗 : 循環参照");
+				ENGINE_ERRLOG(false, "グループトポロジカルソート失敗 : 循環参照");
 				return false;
 			}
 

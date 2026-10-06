@@ -56,7 +56,7 @@ void SphereCollisionSystem::Init(App::ECS::APPWorld& a_world)
 				Math::Vector3 _correction = {};
 				bool _isHit = _physicsWorld.ResolveSphere(
 					_center, _sphere.radius,
-					Engine::Physics::kQueryAllLayers, _self, _correction, 4);
+					Engine::Physics::QUERY_ALL_LAYERS, _self, _correction, 4);
 
 				// 補正をトランスフォームへ反映
 				if (_isHit)

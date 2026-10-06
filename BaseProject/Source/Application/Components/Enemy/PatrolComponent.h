@@ -125,13 +125,13 @@ struct Engine::ECS::ComponentTraits<PatrolComponent>
 		Engine::Editor::Field("LookAroundSpeedDeg", _comp.lookAroundSpeedDeg, 1.0f, 0.0f);
 
 		Engine::Editor::Line();
-		static const char* _patrolPhaseName[] = { "Move", "Pause" };
-		Engine::Editor::Value("PatrolPhase", "%s", _patrolPhaseName[static_cast<int>(_comp.patrolPhase)]);
+		static const char* PATROL_PHASE_NAME[] = { "Move", "Pause" };
+		Engine::Editor::Value("PatrolPhase", "%s", PATROL_PHASE_NAME[static_cast<int>(_comp.patrolPhase)]);
 		Engine::Editor::Value("WanderDir", "%.2f, %.2f, %.2f", _comp.wanderDir.x, _comp.wanderDir.y, _comp.wanderDir.z);
 		Engine::Editor::Value("WanderTimer", "%.2f", _comp.wanderTimer);
 
-		static const char* _lostPhaseName[] = { "None", "MoveTo", "LookAround" };
-		Engine::Editor::Value("LostPhase", "%s", _lostPhaseName[static_cast<int>(_comp.lostPhase)]);
+		static const char* LOST_PHASE_NAME[] = { "None", "MoveTo", "LookAround" };
+		Engine::Editor::Value("LostPhase", "%s", LOST_PHASE_NAME[static_cast<int>(_comp.lostPhase)]);
 		Engine::Editor::Value("LastSeenPos", "%.2f, %.2f, %.2f", _comp.lastSeenPos.x, _comp.lastSeenPos.y, _comp.lastSeenPos.z);
 		Engine::Editor::Value("LostTimer", "%.2f", _comp.lostTimer);
 	}

@@ -15,7 +15,7 @@ namespace Engine::Resource
 	{
 		// アセットデータベースからメタファイルを検索。
 		// コンテキストが無い経路では、読み込みを受け持つリソースマネージャーの持ち物を使う
-		assert(a_pContext && a_pContext->pResourceManager && "ResourceBuildContext.pResourceManager が空です");
+		ENGINE_ERRLOG(a_pContext && a_pContext->pResourceManager, "ResourceBuildContext.pResourceManager が空です");
 		auto& _assetDB = a_pContext->pAssetDatabase
 			? *a_pContext->pAssetDatabase
 			: a_pContext->pResourceManager->RefAssetDatabase();
@@ -55,7 +55,7 @@ namespace Engine::Resource
 	{
 		auto _dir = Engine::File::GetDirFromPath(a_filePath);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
-		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _dir, _fileName, "mdl");
+		Persistence::Archive _ar(Persistence::Archive::EMode::Load, _dir, _fileName, "mdl");
 
 		ModelAssetData _assetData = {};
 
@@ -90,21 +90,21 @@ namespace Engine::Resource
 
 		// ---- 参照しているデータの復元 ----
 		// コンテキストを渡すことで、配下のリソースも同じバッチへ積まれる
-		auto& _resMgr = *a_ctx.pResourceManager;
+		auto& _resourceManager = *a_ctx.pResourceManager;
 
 		for (const auto& _guid : _assetData.materialGUIDs)
 		{
-			auto _handle = _resMgr.LoadImmediate<Material>(_guid, &a_ctx);
+			auto _handle = _resourceManager.LoadImmediate<Material>(_guid, &a_ctx);
 			_runtimeData.materials.push_back(std::move(_handle));
 		}
 		for (const auto& _guid : _assetData.meshGUIDs)
 		{
-			auto _handle = _resMgr.LoadImmediate<Mesh>(_guid, &a_ctx);
+			auto _handle = _resourceManager.LoadImmediate<Mesh>(_guid, &a_ctx);
 			_runtimeData.meshes.push_back(std::move(_handle));
 		}
 		for (const auto& _guid : _assetData.animationGUIDs)
 		{
-			auto _handle = _resMgr.LoadImmediate<AnimationData>(_guid, &a_ctx);
+			auto _handle = _resourceManager.LoadImmediate<AnimationData>(_guid, &a_ctx);
 			_runtimeData.animations.push_back(std::move(_handle));
 		}
 
@@ -141,7 +141,7 @@ namespace Engine::Resource
 		//----------------------------------------------------------------
 		// 登録 : ResourceManagerへ実体を預けてハンドル化する
 		//----------------------------------------------------------------
-		auto& _resMgr = *a_ctx.pResourceManager;
+		auto& _resourceManager = *a_ctx.pResourceManager;
 
 		ModelAssetData _assetData = {};
 		_assetData.name = Engine::File::GetFileName(a_filePath);
@@ -155,17 +155,17 @@ namespace Engine::Resource
 		ModelRuntimeData _runtimeData = {};
 		for (auto& _material : _model.MaterialVec)
 		{
-			auto _handle = _resMgr.Add(std::move(_material));
+			auto _handle = _resourceManager.Add(std::move(_material));
 			_runtimeData.materials.push_back(_handle);
 		}
 		for (auto& _mesh : _model.MeshVec)
 		{
-			auto _handle = _resMgr.Add(std::move(_mesh));
+			auto _handle = _resourceManager.Add(std::move(_mesh));
 			_runtimeData.meshes.push_back(_handle);
 		}
 		for (auto& _ani : _model.AnimationVec)
 		{
-			auto _handle = _resMgr.Add(std::move(_ani));
+			auto _handle = _resourceManager.Add(std::move(_ani));
 			_runtimeData.animations.push_back(_handle);
 		}
 
@@ -183,7 +183,7 @@ namespace Engine::Resource
 
 	void ModelIO::CreateDrawCmd(const ResourceBuildContext& a_ctx, const ModelAssetData& a_modelAssetData, ModelRuntimeData& a_runtimeData)
 	{
-		auto& _resMgr = *a_ctx.pResourceManager;
+		auto& _resourceManager = *a_ctx.pResourceManager;
 
 		// 描画時用に事前コマンド構築
 		for (auto& _meshNodeIdx : a_modelAssetData.drawMeshNodeIndices)
@@ -193,7 +193,7 @@ namespace Engine::Resource
 			{
 				// 描画メッシュハンドルを取得
 				const auto& _meshHandle = a_runtimeData.meshes[_meshIdx];
-				auto* _pMesh = _resMgr.Ref(_meshHandle);
+				auto* _pMesh = _resourceManager.Ref(_meshHandle);
 				if (!_pMesh)
 				{
 					ENGINE_ERRLOG(false, "メッシュが読み込まれていません");
@@ -208,7 +208,7 @@ namespace Engine::Resource
 
 					// マテリアルハンドル取得
 					const auto& _materialHandle = a_runtimeData.materials[_pMesh->GetMetaData().subsets[_subIdx].materialNumber];
-					auto* _pMate = _resMgr.Ref(_materialHandle);
+					auto* _pMate = _resourceManager.Ref(_materialHandle);
 					if (!_pMate)
 					{
 						ENGINE_ERRLOG(false, "マテリアルが読み込まれていません");

@@ -160,8 +160,8 @@ namespace Engine::Graphics
 				a_pCtx->ComputeBindDescriptorIndices(0, _growParam);
 
 				// シェーダーの numthreads(64) と合わせる
-				constexpr UINT _kGrowThreadGroupSize = 64u;
-				a_pCtx->Dispatch((_addCount + _kGrowThreadGroupSize - 1u) / _kGrowThreadGroupSize, 1, 1);
+				constexpr UINT GROW_THREAD_GROUP_SIZE = 64u;
+				a_pCtx->Dispatch((_addCount + GROW_THREAD_GROUP_SIZE - 1u) / GROW_THREAD_GROUP_SIZE, 1, 1);
 
 				D3D12::UAVBarrier(
 					_pCmd,
@@ -244,8 +244,8 @@ namespace Engine::Graphics
 			// 実行
 			// 1スレッド = 1粒。シェーダーの numthreads(64) と合わせる。
 			// 大きなバースト(1命令で数百粒)を1スレッドで順番に作らずに済む
-			constexpr UINT _kEmitThreadGroupSize = 64u;
-			const UINT _dispatchNum = (_cbEmit.emitTotal + _kEmitThreadGroupSize - 1u) / _kEmitThreadGroupSize;
+			constexpr UINT EMIT_THREAD_GROUP_SIZE = 64u;
+			const UINT _dispatchNum = (_cbEmit.emitTotal + EMIT_THREAD_GROUP_SIZE - 1u) / EMIT_THREAD_GROUP_SIZE;
 			a_pCtx->Dispatch(_dispatchNum, 1, 1);
 
 			// ★UAVバリア必須。
@@ -353,8 +353,8 @@ namespace Engine::Graphics
 			{
 				// GravityPow は「重力をどれだけ受けるか」の倍率。
 				// 1 で普通に落ち、0 で無重力、負にすると浮き上がる(煙向き)
-				constexpr float _kGravity = 9.81f;
-				_cbData.gravity = { 0.0f, -_kGravity * _pParticle->GetGravityPow(), 0.0f };
+				constexpr float GRAVITY = 9.81f;
+				_cbData.gravity = { 0.0f, -GRAVITY * _pParticle->GetGravityPow(), 0.0f };
 
 				_cbData.drag = _pParticle->GetDrag();
 			}

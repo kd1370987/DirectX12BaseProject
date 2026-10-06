@@ -33,10 +33,10 @@ namespace Engine::Graphics::Pipeline
 	private:
 
 		// ルートパラメータの番号 : シェーダー(GroundFieldCS)の並びと合わせる
-		static constexpr int kRootCameraCB = 0;
-		static constexpr int kRootGroundFieldCB = 1;
-		static constexpr int kRootOutputUAV = 2;
-		static constexpr int kRootImpulseSRV = 3;
+		static constexpr int ROOT_CAMERA_CB = 0;
+		static constexpr int ROOT_GROUND_FIELD_CB = 1;
+		static constexpr int ROOT_OUTPUT_UAV = 2;
+		static constexpr int ROOT_IMPULSE_SRV = 3;
 
 		// パスが回り始めてからの経過時間(秒)。
 		// 実行インスタンスごとに持つので、パイプラインを組み直すと 0 から数え直す

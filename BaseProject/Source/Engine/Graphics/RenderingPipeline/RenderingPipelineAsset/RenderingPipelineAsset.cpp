@@ -120,8 +120,8 @@ namespace Engine::Graphics::Pipeline
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_baseFilePath);
 
 		// 読み込みと同じくJSON固定(理由は RenderingPipelineAssetIO::LoadFromFile を参照)
-		Persistence::Archive _arch(Persistence::Archive::Mode::Save, _fileDir, _fileName, kExtension,
-			Persistence::Archive::ArchiveFormat::Json);
+		Persistence::Archive _arch(Persistence::Archive::EMode::Save, _fileDir, _fileName, EXTENSION,
+			Persistence::Archive::EArchiveFormat::Json);
 		Archive(_arch);
 	}
 }

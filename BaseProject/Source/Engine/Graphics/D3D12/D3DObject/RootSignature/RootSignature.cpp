@@ -14,7 +14,7 @@ namespace Engine::D3D12
 	}
 	bool RootSignature::Create(
 		D3D12::Device* a_pDevice,
-		const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec,
+		const std::vector<std::pair<ERootParameterType, std::vector<ERangeType>>>& a_rootParamsVec,
 		bool a_isUseStaticSampler,
 		const D3D12_ROOT_SIGNATURE_FLAGS* a_pFlags
 	)
@@ -48,7 +48,7 @@ namespace Engine::D3D12
 		{
 			switch (a_rootParamsVec[_i].first)
 			{
-			case RootParameterType::RootCBV:
+			case ERootParameterType::RootCBV:
 				m_rootParameters[_i].first = {};
 				m_rootParameters[_i].first.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 				m_rootParameters[_i].first.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -56,7 +56,7 @@ namespace Engine::D3D12
 				m_rootParameters[_i].first.Descriptor.RegisterSpace = 0;
 				++_cbvCount;
 				break;
-			case RootParameterType::RootSRV:
+			case ERootParameterType::RootSRV:
 				m_rootParameters[_i].first = {};
 				m_rootParameters[_i].first.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 				m_rootParameters[_i].first.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
@@ -64,7 +64,7 @@ namespace Engine::D3D12
 				m_rootParameters[_i].first.Descriptor.RegisterSpace = 0;
 				++_srvCount;
 				break;
-			case RootParameterType::DescriptorTable:
+			case ERootParameterType::DescriptorTable:
 			{
 				std::vector<D3D12_DESCRIPTOR_RANGE> _ranges(a_rootParamsVec[_i].second.size());
 				// レンジ作成
@@ -75,25 +75,25 @@ namespace Engine::D3D12
 					_ranges[j].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 					switch (a_rootParamsVec[_i].second[j])
 					{
-					case RangeType::CBV:		// 定数バッファビュー
+					case ERangeType::CBV:		// 定数バッファビュー
 						_ranges[j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 						_ranges[j].BaseShaderRegister = _cbvCount;
 						_ranges[j].RegisterSpace = 0;
 						++_cbvCount;
 						break;
-					case RangeType::SRV:		// シェーダーリソースビュー
+					case ERangeType::SRV:		// シェーダーリソースビュー
 						_ranges[j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 						_ranges[j].BaseShaderRegister = _srvCount;
 						_ranges[j].RegisterSpace = 0;
 						++_srvCount;
 						break;
-					case RangeType::UAV:		// アンオーダーアクセスビュー
+					case ERangeType::UAV:		// アンオーダーアクセスビュー
 						_ranges[j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
 						_ranges[j].BaseShaderRegister = _uavCount;
 						_ranges[j].RegisterSpace = 0;
 						++_uavCount;
 						break;
-					case RangeType::Sampler:
+					case ERangeType::Sampler:
 						_ranges[j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
 						_ranges[j].BaseShaderRegister = _samplerCount;
 						_ranges[j].RegisterSpace = 0;
@@ -162,7 +162,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "ルートシグネチャシリアライズに失敗");
+			ENGINE_ERRLOG(false, "ルートシグネチャシリアライズに失敗");
 			return false;
 		}
 
@@ -175,14 +175,14 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "ルートシグネチャの生成に失敗\n");
+			ENGINE_ERRLOG(false, "ルートシグネチャの生成に失敗");
 			return false;
 		}
 
 		return true;
 	}
 
-	bool RootSignature::Create(D3D12::Device* a_pDevice, const std::vector<std::pair<RootParameterType, std::vector<RangeType>>>& a_rootParamsVec, D3D12_ROOT_SIGNATURE_FLAGS a_flags, bool a_isUseStaticSampler)
+	bool RootSignature::Create(D3D12::Device* a_pDevice, const std::vector<std::pair<ERootParameterType, std::vector<ERangeType>>>& a_rootParamsVec, D3D12_ROOT_SIGNATURE_FLAGS a_flags, bool a_isUseStaticSampler)
 	{
 		D3D12_ROOT_SIGNATURE_FLAGS _flags;
 		_flags = a_flags;
@@ -200,7 +200,7 @@ namespace Engine::D3D12
 		return m_isValid;
 	}
 
-	ID3D12RootSignature* RootSignature::Get()
+	ID3D12RootSignature* RootSignature::Get() const
 	{
 		return m_pRootSignatrue.Get();
 	}

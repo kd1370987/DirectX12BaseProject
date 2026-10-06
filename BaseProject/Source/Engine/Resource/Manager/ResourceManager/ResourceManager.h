@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Engine/Utility/Debug/DebugLog.h"
+
 // アセットデータベース
 #include "../AssetDatabase/AssetDatabase.h"
 
@@ -444,7 +446,7 @@ namespace Engine::Resource
 
 		static ResourceManager& Instance()
 		{
-			assert(s_pInstance && "ResourceManager がまだ作られていないか、すでに壊れています");
+			ENGINE_ERRLOG(s_pInstance, "ResourceManager がまだ作られていないか、すでに壊れています");
 			return *s_pInstance;
 		}
 

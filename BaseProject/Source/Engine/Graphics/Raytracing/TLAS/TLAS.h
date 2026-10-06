@@ -33,7 +33,7 @@ namespace Engine::Raytracing
 			return m_cpResource->GetGPUVirtualAddress();
 		}
 
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle();
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle() const;
 
 	private:
 

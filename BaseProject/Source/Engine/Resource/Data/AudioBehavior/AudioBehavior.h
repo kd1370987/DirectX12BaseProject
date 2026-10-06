@@ -27,7 +27,7 @@ namespace Engine::Resource
 	};
 	inline constexpr size_t AUDIO_PHASE_COUNT = static_cast<size_t>(EAudioPhase::Count);
 
-	// 表示・ログ用のフェーズ名
+	/// 表示・ログ用のフェーズ名
 	const char* ToString(EAudioPhase a_phase);
 
 	//==========================================================
@@ -40,14 +40,14 @@ namespace Engine::Resource
 	struct SoundPart
 	{
 		// 音源データ
-		Engine::GUID soundGUID = Engine::DefaultGUID;
+		Engine::GUID soundGUID = Engine::DEFAULT_GUID;
 
 		// 鳴らし方
 		float vol = 1.0f;
 		bool is3DSound = false;
 
 		// 音が設定されているか : false なら鳴らす側は何もしない
-		bool IsValid() const { return soundGUID != Engine::DefaultGUID; }
+		bool IsValid() const { return soundGUID != Engine::DEFAULT_GUID; }
 
 		void Archive(Persistence::Archive& a_ar);
 	};

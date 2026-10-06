@@ -31,11 +31,11 @@ namespace
 	// -π〜π に丸める
 	float WrapAngle(float a_rad)
 	{
-		constexpr float _pi = DirectX::XM_PI;
-		constexpr float _twoPi = DirectX::XM_2PI;
-		a_rad = std::fmod(a_rad + _pi, _twoPi);
-		if (a_rad < 0.0f) a_rad += _twoPi;
-		return a_rad - _pi;
+		constexpr float PI = DirectX::XM_PI;
+		constexpr float TWO_PI = DirectX::XM_2PI;
+		a_rad = std::fmod(a_rad + PI, TWO_PI);
+		if (a_rad < 0.0f) a_rad += TWO_PI;
+		return a_rad - PI;
 	}
 
 	// 名前のハッシュからノード番号を引く。無ければ -1
@@ -95,7 +95,7 @@ void LowerBodyTurnSystem::Init(App::ECS::APPWorld& a_world)
 			NodePoseComponent* a_nodePoseArray
 		)
 		{
-			auto& _nodePosePool = a_ctx.pWorld->GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
+			auto& _nodePosePool = a_ctx.pWorld->RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

@@ -14,12 +14,12 @@ namespace Engine::Resource
 	void AnimatorAssetIO::Create(ResourceManager& a_resourceManager, const std::string& a_path, const std::string& a_name)
 	{
 		// ディレクトリ(既存資産の場所はそのまま)
-		static std::string _dir = "Asset/StateMachine/";
-		auto _basePath = _dir + a_path + "/" + a_name;
+		static const std::string ASSET_DIR = "Asset/StateMachine/";
+		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
 
 		// すでにないかチェック
 		Engine::GUID _checkGUID = a_resourceManager.RefAssetDatabase().GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DefaultGUID)
+		if (_checkGUID != Engine::DEFAULT_GUID)
 		{
 			ENGINE_LOG("すでに作成されたアニメーターです : %s", _basePath.c_str());
 			return;

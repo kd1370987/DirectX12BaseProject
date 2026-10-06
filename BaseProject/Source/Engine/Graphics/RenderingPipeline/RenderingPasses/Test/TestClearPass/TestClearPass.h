@@ -28,7 +28,7 @@ namespace Engine::Graphics::Pipeline
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
 		// 出力スロット名
-		static constexpr const char* kOutputName = "Color";
+		static constexpr const char* OUTPUT_NAME = "Color";
 
 		//----------------------------------------------------------------------------------
 		// 編集対象の値 : エディターはここだけを触る

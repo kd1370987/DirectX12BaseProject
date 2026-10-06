@@ -160,12 +160,12 @@ namespace Engine::D3D12
 	}
 
 	
-	UINT DescriptorHeapManager::GetCBVSRVUAVHeapSize()
+	UINT DescriptorHeapManager::GetCBVSRVUAVHeapSize() const
 	{
 		return m_cbv_srv_uavHeap.GetMaxSize();
 	}
 
-	ID3D12DescriptorHeap* DescriptorHeapManager::GetCBVSRVUAVHeap()
+	ID3D12DescriptorHeap* DescriptorHeapManager::GetCBVSRVUAVHeap() const
 	{
 		return m_cbv_srv_uavHeap.GetHeap();
 	}
@@ -260,32 +260,32 @@ namespace Engine::D3D12
 		m_ImGuiSRVAllocator.Remove(a_handle);
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVCPUHandle(Engine::Handle<ImGuiSRV> a_range)
+	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVCPUHandle(Engine::Handle<ImGuiSRV> a_range) const
 	{
 		return m_ImGuiSRVAllocator.GetCPU(a_range);
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVGPUHandle(Engine::Handle<ImGuiSRV> a_range)
+	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetImGuiSRVGPUHandle(Engine::Handle<ImGuiSRV> a_range) const
 	{
 		return m_ImGuiSRVAllocator.GetGPU(a_range);
 	}
 
-	Engine::Handle<SAMPLER> DescriptorHeapManager::CreateSampler(D3D12::Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
+	Engine::Handle<SamplerTag> DescriptorHeapManager::CreateSampler(D3D12::Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
 	{
 		return m_upSamplerAllocator->Allocate(a_pDevice, a_desc);
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetLinearWrap()
+	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetLinearWrap() const
 	{
 		return m_upSamplerAllocator->GetGPU(m_linearWrap);;
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetPointClamp()
+	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetPointClamp() const
 	{
 		return m_upSamplerAllocator->GetGPU(m_pointClamp);;
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetShadow()
+	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetShadow() const
 	{
 		return m_upSamplerAllocator->GetGPU(m_shadow);;
 	}

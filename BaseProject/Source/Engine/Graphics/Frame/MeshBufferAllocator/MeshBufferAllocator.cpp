@@ -30,12 +30,12 @@ namespace Engine::Graphics
 		// カリングバッファはメッシュレットバッファと必ず同じ要素数で確保する。
 		// (別々の値にしていると CullData 側だけ 100 倍確保するような取り違えが起きる。
 		//  sizeof(DirectX::CullData) は 24 バイトなので 1000万要素だと 229MiB を無駄に常駐させることになる)
-		constexpr size_t kMaxMeshletNum = 100000;
+		constexpr size_t MAX_MESHLET_NUM = 100000;
 
-		m_meshletBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,kMaxMeshletNum);
+		m_meshletBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,MAX_MESHLET_NUM);
 		m_uniqueVertexIndicesBuffer.Create(a_pDevice, a_pHeapManager, a_pCmdList, 10000000);
 		m_meshTriangleBuffer.Create(a_pDevice, a_pHeapManager, a_pCmdList, 10000000);
-		m_meshletCullDataBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,kMaxMeshletNum);
+		m_meshletCullDataBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,MAX_MESHLET_NUM);
 	}
 
 	void MeshBufferAllocator::Release()

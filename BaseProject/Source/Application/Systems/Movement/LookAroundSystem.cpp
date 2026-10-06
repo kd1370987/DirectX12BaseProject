@@ -61,7 +61,7 @@ void LookAroundSystem::Init(App::ECS::APPWorld& a_world)
 		)
 		{
 			// 方向転換の旋回速度(1秒あたりの補間強度。FaceTargetSystem に合わせた値)
-			constexpr float _kTurnSpeed = 10.0f;
+			constexpr float TURN_SPEED = 10.0f;
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -135,7 +135,7 @@ void LookAroundSystem::Init(App::ECS::APPWorld& a_world)
 
 				if (_isSmooth)
 				{
-					const float _t = std::min(_kTurnSpeed * a_ctx.dt, 1.0f);
+					const float _t = std::min(TURN_SPEED * a_ctx.dt, 1.0f);
 					_targetQuat = Math::Quaternion::Slerp(_trs.quat, _targetQuat, _t);
 				}
 

@@ -28,7 +28,7 @@ namespace Engine::Resource
 			// 保存
 			auto _fullBasePath = basePath + "/" + _fileName;													// 拡張子なしのパス
 			m_AssetData.materialGUIDs[_i] = _assetDB.AddMetaData(_fullBasePath, "Material");	// メタファイルを作成
-			Persistence::Archive _ar(Persistence::Archive::Mode::Save, basePath, _fileName, "mtrl");
+			Persistence::Archive _ar(Persistence::Archive::EMode::Save, basePath, _fileName, "mtrl");
 			_matrial->Archive(_ar);
 			//_matrial->Save(basePath, _fileName);														// メタファイルの隣にデータ作成
 
@@ -74,7 +74,7 @@ namespace Engine::Resource
 		// モデルデータの保存
 		auto _dir = Engine::File::GetDirFromPath(a_fileDir);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_fileDir);
-		Persistence::Archive _ar(Persistence::Archive::Mode::Save, _dir, _fileName, "mdl");
+		Persistence::Archive _ar(Persistence::Archive::EMode::Save, _dir, _fileName, "mdl");
 		_ar.StringField("ModelName", m_AssetData.name);
 
 		_ar.GUIDVectorField("MaterialGUID", m_AssetData.materialGUIDs);

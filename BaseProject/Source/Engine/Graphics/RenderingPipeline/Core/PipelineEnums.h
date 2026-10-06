@@ -38,8 +38,8 @@ namespace Engine::Graphics::Pipeline
 		None,
 		SRV,
 		RTV,
-		Depth_Read,
-		Depth_Write,
+		DepthRead,
+		DepthWrite,
 		UAV,
 		CopySrc,
 		CopyDst

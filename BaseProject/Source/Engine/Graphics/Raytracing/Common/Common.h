@@ -6,10 +6,10 @@ namespace Engine::Raytracing
 	// TLAS・インスタンス/マテリアルのバッファ・シェーダーテーブルの大きさはすべてこれで決まる。
 	// どれか1つだけ違う数にすると、多いほうのデータが少ないほうのバッファをはみ出すので、
 	// 数を直接書かず必ずこれを使うこと
-	inline constexpr UINT kMaxInstanceNum = 1000;
+	inline constexpr UINT MAX_INSTANCE_NUM = 1000;
 
 	// レイ用シェーダーのカテゴリ
-	enum ShaderCategory
+	enum class EShaderCategory
 	{
 		RayGenerator,		// レイを生成するシェーダー
 		Miss,				// レイが当たらなかったときに走るシェーダー
@@ -18,7 +18,7 @@ namespace Engine::Raytracing
 	};
 
 	//ローカルルートシグネチャ
-	enum LocalRootSignature
+	enum class ELocalRootSignature
 	{
 		Empty,				//空のローカルルートシグネチャ。
 		RayGen,				//レイ生成シェーダー用のローカルルートシグネチャ。
@@ -29,8 +29,8 @@ namespace Engine::Raytracing
 	struct RayShaderData
 	{
 		const wchar_t* entryName;		// エントリーポイント名
-		LocalRootSignature rootsigType;	// ローカルルートシグネチャの種類
-		ShaderCategory category;		// シェーダーのカテゴリ
+		ELocalRootSignature rootsigType;	// ローカルルートシグネチャの種類
+		EShaderCategory category;		// シェーダーのカテゴリ
 	};
 
 	// ヒットグループ

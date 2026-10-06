@@ -30,7 +30,7 @@ namespace Engine::Resource
 		// (コンテキストは ScopedResourceBuild が必ず埋めるが、念のため落とさないようにしておく)
 		ResourceManager& PickResourceManager(const ResourceBuildContext* a_pContext)
 		{
-			assert(a_pContext && a_pContext->pResourceManager && "ResourceBuildContext.pResourceManager が空です");
+			ENGINE_ERRLOG(a_pContext && a_pContext->pResourceManager, "ResourceBuildContext.pResourceManager が空です");
 			return *a_pContext->pResourceManager;
 		}
 
@@ -79,7 +79,7 @@ namespace Engine::Resource
 		_desc.width = m_size;
 		_desc.height = m_size;
 		_desc.format = DXGI_FORMAT_R8_UNORM;
-		_desc.usage = TextureUsage::SRV;
+		_desc.usage = ETextureUsage::SRV;
 
 		// 1成分しか持たないので、rgba すべてに R を配る。
 		// こうしておくと UIシェーダーが「白い文字 × 頂点カラー」として

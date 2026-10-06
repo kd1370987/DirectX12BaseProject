@@ -52,7 +52,7 @@ struct GunStateComponent
 	// ・発砲音もこのエフェクトのサウンドパーツに入れておけば、
 	//   銃側は「撃った」と伝えるだけで絵と音が揃う。
 	//---------------------------------------------------------------------------
-	Engine::GUID muzzleEffectGUID = Engine::DefaultGUID;						// 記録用(セーブされる)
+	Engine::GUID muzzleEffectGUID = Engine::DEFAULT_GUID;						// 記録用(セーブされる)
 	Engine::Handle<Engine::Resource::EffectAsset> muzzleEffectHandle = {};		// EffectFixupSystem が解決する
 	float muzzleEffectScale = 1.0f;	// 大きさ倍率(アセットは共有なので個体差はここで付ける)
 
@@ -186,7 +186,7 @@ struct Engine::ECS::ComponentTraits<GunStateComponent>
 			_comp.muzzleEffectGUID,
 			_comp.muzzleEffectHandle);
 		Engine::Editor::Field("Muzzle Effect Scale", _comp.muzzleEffectScale, 0.01f, 0.0f);
-		if (_comp.muzzleEffectGUID == Engine::DefaultGUID)
+		if (_comp.muzzleEffectGUID == Engine::DEFAULT_GUID)
 		{
 			Engine::Editor::HelpText("(未設定 : 撃っても何も出ない)");
 		}

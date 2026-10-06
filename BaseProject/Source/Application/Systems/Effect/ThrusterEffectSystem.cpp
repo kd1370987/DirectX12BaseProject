@@ -64,8 +64,8 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 			)
 		{
 			// 微小な速度ノイズで点火しないための閾値
-			constexpr float kMoveEps = 0.1f;	// 水平移動とみなす速さ
-			constexpr float kRiseEps = 0.1f;	// 上昇とみなす速度
+			constexpr float MOVE_EPS = 0.1f;	// 水平移動とみなす速さ
+			constexpr float RISE_EPS = 0.1f;	// 上昇とみなす速度
 
 			// ブースター子へ噴射の ON/OFF とダッシュ中かを配る。
 			// RefData は持っていないコンポーネントなら nullptr を返す。
@@ -112,8 +112,8 @@ void ThrusterEffectSystem::Init(App::ECS::APPWorld& a_world)
 					_velocity.value.x * _velocity.value.x +
 					_velocity.value.z * _velocity.value.z;
 
-				bool _moving = _inputMoving || (_hSpeedSq > kMoveEps * kMoveEps);	// 水平移動
-				bool _rising = _velocity.value.y > kRiseEps;						// 上昇(ジャンプ/上昇ブースト)
+				bool _moving = _inputMoving || (_hSpeedSq > MOVE_EPS * MOVE_EPS);	// 水平移動
+				bool _rising = _velocity.value.y > RISE_EPS;						// 上昇(ジャンプ/上昇ブースト)
 
 				// ブースト中か : 入力が入っていて、かつ燃料が使用量を上回っている
 				// (RobotBoostSystem の推力適用条件に合わせている)

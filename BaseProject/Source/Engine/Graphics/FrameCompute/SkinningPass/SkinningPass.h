@@ -21,6 +21,6 @@ namespace Engine::Graphics
 	// a_resourceManager : シェーダーを読み込む先
 	void SetupSkinning(PipelineStateManager* a_pPSOManager, Resource::ResourceManager& a_resourceManager);
 
-	// 実行(毎フレーム1回)
+	/// 実行(毎フレーム1回)
 	void ExecuteSkinning(GraphicsEngine* a_pGE, RenderContext* a_pCtx);
 }

@@ -1,27 +1,30 @@
 ﻿#pragma once
 
-class Application
+namespace App
 {
-public:
+	class Application
+	{
+	public:
 
-	Application();
-	~Application();
+		Application();
+		~Application();
 
-	// アプリケーション実行
-	void Execute();
+		// アプリケーション実行
+		void Execute();
 
-private:
+	private:
 
-	// 初期化
-	bool Init();
+		// 初期化
+		bool Init();
 
-	// 解放
-	void Release();
+		// 解放
+		void Release();
 
-	// メインループ
-	void MainLoop();
+		// メインループ
+		void MainLoop();
 
-	// エディターとゲームの切り替え(Ctrl+P)
-	void ToggleAppMode();
+		// エディターとゲームの切り替え(Ctrl+P)
+		void ToggleAppMode();
 
-};
+	};
+}

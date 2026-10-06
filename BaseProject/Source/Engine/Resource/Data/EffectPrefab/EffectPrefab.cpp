@@ -35,7 +35,7 @@ namespace Engine::Resource
 			std::filesystem::create_directories(_dir, _ec);
 		}
 
-		Persistence::Archive _arch(Persistence::Archive::Mode::Save, _dir, _fileName, FILE_EXT);
+		Persistence::Archive _arch(Persistence::Archive::EMode::Save, _dir, _fileName, FILE_EXT);
 		Archive(_arch, a_pWorld);
 	}
 
@@ -45,7 +45,7 @@ namespace Engine::Resource
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_filePath);
 
 		// 形式はビルドモード任せ(Development までは .oj があればそちらを読む)
-		Persistence::Archive _arch(Persistence::Archive::Mode::Load, _dir, _fileName, FILE_EXT);
+		Persistence::Archive _arch(Persistence::Archive::EMode::Load, _dir, _fileName, FILE_EXT);
 		Archive(_arch, a_pWorld);
 	}
 
@@ -58,7 +58,7 @@ namespace Engine::Resource
 	void EffectPrefab::Archive(Persistence::Archive& a_ar, ECS::World* a_pWorld)
 	{
 		a_ar.Field("LifeTime", m_lifeTime);
-		if (a_ar.GetMode() == Persistence::Archive::Mode::Load)
+		if (a_ar.GetMode() == Persistence::Archive::EMode::Load)
 		{
 			m_lifeTime = (std::max)(m_lifeTime, MIN_LIFE_TIME);
 		}
@@ -88,11 +88,11 @@ namespace Engine::Resource
 
 	void EffectPrefab::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
-		static std::string _dir = "Asset/EffectPrefab/";
-		auto _basePath = _dir + a_path + "/" + a_name;
+		static const std::string ASSET_DIR = "Asset/EffectPrefab/";
+		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
 
 		// すでに存在するなら作らない
-		if (a_assetDB.GetGUIDFromFilePath(_basePath) != Engine::DefaultGUID)
+		if (a_assetDB.GetGUIDFromFilePath(_basePath) != Engine::DEFAULT_GUID)
 		{
 			ENGINE_LOG("すでに作成されたエフェクトプレハブです : %s", _basePath.c_str());
 			return;

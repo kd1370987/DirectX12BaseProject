@@ -27,7 +27,7 @@ void ModelFixupSystem::Init(App::ECS::APPWorld& a_world)
 				// 実体の到着は待たない : ここで待つとシーン読み込みでメインスレッドが止まる。
 				// 届くまでは ModelReadyGateSystem がこのエンティティを
 				// Start フェーズへ進めないので、Start 系は揃ってから1回だけ走る
-				if(_modelComp.modelGUID != Engine::DefaultGUID)
+				if(_modelComp.modelGUID != Engine::DEFAULT_GUID)
 				{
 					a_ctx.pServices->pResourceManager->AcquireRequest(_modelComp.handle, _modelComp.modelGUID);
 				}

@@ -40,8 +40,8 @@
 namespace
 {
 	// 旋回速度(1秒あたりの補間強度)
-	constexpr float kDefaultTurnSpeed = 12.0f;	// 進行方向を向くとき(従来の RotationSystem と同じ)
-	constexpr float kAimTurnSpeed     = 14.0f;	// 撃っている間。狙いに遅れないよう少し速くする
+	constexpr float DEFAULT_TURN_SPEED = 12.0f;	// 進行方向を向くとき(従来の RotationSystem と同じ)
+	constexpr float AIM_TURN_SPEED     = 14.0f;	// 撃っている間。狙いに遅れないよう少し速くする
 
 	//--------------------------------------------------------------------------
 	// 水平方向のベクトルから Yaw を作る。
@@ -124,7 +124,7 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 				// 腰から下を別に回す機体は、進行方向を脚に任せて常に狙い方向を向く
 				const bool	_isLowerBodyTurn = a_ctx.pWorld->HasComponent<LowerBodyTurnComponent>(_self);
 				const bool	_isAim		= _actionIntent.IsAnyWeaponShoot() || _isLowerBodyTurn;
-				const float	_turnSpeed	= _isAim ? kAimTurnSpeed : kDefaultTurnSpeed;
+				const float	_turnSpeed	= _isAim ? AIM_TURN_SPEED : DEFAULT_TURN_SPEED;
 
 				//==============================================================
 				// 目標 Yaw を求める
@@ -242,7 +242,7 @@ void LockOnRotationSystem::Init(App::ECS::APPWorld& a_world)
 				float _targetYaw = 0.0f;
 				if (!CalcYawFromDir(Math::Vector3(_velComp.value), _targetYaw)) continue;
 
-				ApplyYawSlerp(_trs, _targetYaw, kDefaultTurnSpeed, a_ctx.dt);
+				ApplyYawSlerp(_trs, _targetYaw, DEFAULT_TURN_SPEED, a_ctx.dt);
 			}
 		},
 		Engine::ECS::Exclude<ActionIntentComponent>()

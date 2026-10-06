@@ -2,7 +2,7 @@
 namespace Engine::D3D12
 {
 	// 優先度順デバイスメーカー
-	enum class GPUTier
+	enum class EGPUTier
 	{
 		NVIDIA,
 		Amd,

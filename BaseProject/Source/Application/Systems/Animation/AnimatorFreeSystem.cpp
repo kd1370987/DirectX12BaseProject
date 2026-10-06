@@ -32,7 +32,7 @@ void AnimatorFreeSystem::Init(App::ECS::APPWorld& a_world)
 			AnimatorComponent* a_animatorArray
 		)
 		{
-			auto& _instancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
+			auto& _instancePool = a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
 
 			for (uint32_t _i = 0; _i < a_count; ++_i)
 			{
@@ -55,7 +55,7 @@ void AnimatorFreeSystem::Init(App::ECS::APPWorld& a_world)
 			UpperAnimatorComponent* a_animatorArray
 		)
 		{
-			auto& _instancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
+			auto& _instancePool = a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
 
 			for (uint32_t _i = 0; _i < a_count; ++_i)
 			{

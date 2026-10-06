@@ -100,17 +100,17 @@ namespace Engine::Graphics
 		}
 
 		// 各ビューの席数。SRVはテクスチャ1枚につき1つ取るので、ここだけ桁が違う
-		constexpr UINT kCBVCount = 1000;
-		constexpr UINT kSRVCount = 4000;
-		constexpr UINT kUAVCount = 1000;
-		constexpr UINT kRTVCount = 100;
-		constexpr UINT kDSVCount = 10;
+		constexpr UINT CBV_COUNT = 1000;
+		constexpr UINT SRV_COUNT = 4000;
+		constexpr UINT UAV_COUNT = 1000;
+		constexpr UINT RTV_COUNT = 100;
+		constexpr UINT DSV_COUNT = 10;
 
 		m_upDescriptorHeapManager = std::make_unique<D3D12::DescriptorHeapManager>();
 
 		if (!m_upDescriptorHeapManager->Init(
 			_pDevice,
-			kCBVCount, kSRVCount, kUAVCount, kRTVCount, kDSVCount))
+			CBV_COUNT, SRV_COUNT, UAV_COUNT, RTV_COUNT, DSV_COUNT))
 		{
 			return false;
 		}
@@ -143,7 +143,7 @@ namespace Engine::Graphics
 		// 画面の大きさが要る所(カメラの既定サイズ・ジッター・UIの座標変換)はすべてこれを使う
 		m_renderWidth = a_desc.width;
 		m_renderHeight = a_desc.height;
-		assert(m_pResourceManager && "GraphicsEngineDesc.pResourceManager が渡されていません");
+		ENGINE_ERRLOG(m_pResourceManager, "GraphicsEngineDesc.pResourceManager が渡されていません");
 
 
 		auto* _pDevice = m_upRenderDevice ? m_upRenderDevice->RefDevice() : nullptr;
@@ -196,7 +196,7 @@ namespace Engine::Graphics
 		m_upQuadPolygon->Init(m_upDescriptorHeapManager.get());
 
 		m_upCurvedQuadPolygon = std::make_unique<Resource::QuadPolygon>();
-		m_upCurvedQuadPolygon->Init(m_upDescriptorHeapManager.get(), kCurveDivision + 1, 2);
+		m_upCurvedQuadPolygon->Init(m_upDescriptorHeapManager.get(), CURVE_DIVISION + 1, 2);
 
 		//------------------------------------------------------------------
 		// 間接描画のコマンドシグネチャ

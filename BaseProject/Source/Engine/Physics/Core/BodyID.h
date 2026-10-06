@@ -11,10 +11,10 @@ namespace Engine::Physics
 	//======================================================================================
 	struct BodyHandle
 	{
-		static constexpr uint32_t kInvalid = 0xFFFFFFFFu;
+		static constexpr uint32_t INVALID = 0xFFFFFFFFu;
 
-		uint32_t id = kInvalid;
+		uint32_t id = INVALID;
 
-		bool IsValid() const noexcept { return id != kInvalid; }
+		bool IsValid() const noexcept { return id != INVALID; }
 	};
 }

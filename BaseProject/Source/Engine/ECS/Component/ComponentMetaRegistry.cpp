@@ -46,7 +46,7 @@ namespace Engine::ECS
 			return m_metaVec[a_id];
 		}
 
-		assert(0 && "登録していないコンポーネントです");
+		ENGINE_ERRLOG(false, "登録していないコンポーネントです");
 		return s_emptyMeta;
 	}
 

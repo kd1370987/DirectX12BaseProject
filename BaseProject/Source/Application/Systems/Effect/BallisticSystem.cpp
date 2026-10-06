@@ -56,7 +56,7 @@ void BallisticSystem::Init(App::ECS::APPWorld& a_world)
 			auto& _world = *a_ctx.pWorld;
 			const auto& _physicsWorld = _world.GetResource<Engine::Physics::PhysicsWorld>();
 			const float _dt = a_ctx.dt;
-			const uint32_t _queryMask = static_cast<uint32_t>(Layer::StaticObject);
+			const uint32_t _queryMask = static_cast<uint32_t>(ECollisionLayer::StaticObject);
 
 			// 寿命とエフェクトを持つかはチャンク(同じ組み合わせ)で揃っているので、先頭で1回だけ見る
 			const Engine::ECS::Entity _first = a_pChunk->entityData[0];

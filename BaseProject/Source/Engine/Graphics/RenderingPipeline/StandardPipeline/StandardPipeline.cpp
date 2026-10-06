@@ -37,12 +37,12 @@ namespace Engine::Graphics::Pipeline
 	namespace
 	{
 		// ノードの置き場所 : 左から右へ流れるように、列と行で並べる
-		constexpr float kColumnWidth = 360.0f;
-		constexpr float kRowHeight = 250.0f;
+		constexpr float COLUMN_WIDTH = 360.0f;
+		constexpr float ROW_HEIGHT = 250.0f;
 
 		Math::Vector2 NodePos(int a_column, int a_row)
 		{
-			return Math::Vector2(40.0f + kColumnWidth * a_column, 40.0f + kRowHeight * a_row);
+			return Math::Vector2(40.0f + COLUMN_WIDTH * a_column, 40.0f + ROW_HEIGHT * a_row);
 		}
 
 		// パスを1つ足して、表示名と置き場所まで決める
@@ -213,11 +213,11 @@ namespace Engine::Graphics::Pipeline
 		auto* _pBloomExtract = AddPass<BloomExtractPass>(_graph, a_registry, "BloomExtractPass", 12, 0);
 
 		// 各段の解像度スケール
-		constexpr float kBloomScales[4] = { 0.5f, 0.25f, 0.125f, 0.0625f };
+		constexpr float BLOOM_SCALES[4] = { 0.5f, 0.25f, 0.125f, 0.0625f };
 
 		// ブラーの広がり。すべて縮小後の低解像度で回るので広め(5x5)に取れる
-		constexpr float kBlurSigma = 1.2f;
-		constexpr int   kBlurTapRadius = 2;
+		constexpr float BLUR_SIGMA = 1.2f;
+		constexpr int   BLUR_TAP_RADIUS = 2;
 
 		GaussianBlurPass* _pBloomDown[4] = {};
 		for (int _i = 0; _i < 4; ++_i)
@@ -227,7 +227,7 @@ namespace Engine::Graphics::Pipeline
 			if (!_pBloomDown[_i]) continue;
 
 			_pBloomDown[_i]->Configure(
-				"BloomBlurDown" + std::to_string(_i), kBloomScales[_i], kBlurSigma, kBlurTapRadius);
+				"BloomBlurDown" + std::to_string(_i), BLOOM_SCALES[_i], BLUR_SIGMA, BLUR_TAP_RADIUS);
 		}
 
 		auto* _pKawase = AddPass<KawaseBlurPass>(_graph, a_registry, "KawaseBlurPass", 14, 0);
@@ -385,7 +385,7 @@ namespace Engine::Graphics::Pipeline
 
 		// ---- 提示 ----
 		Link(_graph, _pUI, "Color", _pToneMap, "Color");
-		Link(_graph, _pToneMap, "Result", _pFinal, FinalOutputPass::kInputName);
+		Link(_graph, _pToneMap, "Result", _pFinal, FinalOutputPass::INPUT_NAME);
 
 		//----------------------------------------------------------------------------------
 		// 並べ替えまで通しておく

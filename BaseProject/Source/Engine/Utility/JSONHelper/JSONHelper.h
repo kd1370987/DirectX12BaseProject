@@ -9,7 +9,7 @@
 //==========================================================================================
 namespace Engine::JSONHelper
 {
-	// JSONに値をセットする関数
+	/// JSONに値をセットする関数
 	template<typename T>
 	inline void SetValue(const std::string& a_key, nlohmann::json& a_json, const T& a_srcData)
 	{
@@ -54,7 +54,7 @@ namespace Engine::JSONHelper
 		}
 	}
 
-	// JSONから値を取得してくる関数
+	/// JSONから値を取得してくる関数
 	template <typename T>
 	inline T GetValue(const std::string& a_key, const nlohmann::json& a_json, const T& a_default)
 	{
@@ -182,7 +182,7 @@ namespace Engine::JSONHelper
 		}
 	}
 
-	// ベクター２用
+	/// ベクター２用
 	inline Math::Vector2 GetVec2(const std::string& a_key, const nlohmann::json& a_json, Math::Vector2 a_default)
 	{
 		if (!a_json.contains(a_key))
@@ -206,7 +206,7 @@ namespace Engine::JSONHelper
 		}
 	}
 
-	// ベクター3用
+	/// ベクター3用
 	inline Math::Vector3 GetVec3(const std::string& a_key, const nlohmann::json& a_json, Math::Vector3 a_default)
 	{
 		if (!a_json.contains(a_key))
@@ -231,7 +231,7 @@ namespace Engine::JSONHelper
 		}
 	}
 
-	// ベクター4用
+	/// ベクター4用
 	inline Math::Vector4 GetVec4(const std::string& a_key, const nlohmann::json& a_json, Math::Vector4 a_default)
 	{
 		if (!a_json.contains(a_key))

@@ -134,7 +134,7 @@ namespace Engine::Editor
 				if (_pWorld->HasComponent<HierarchyComponent>(_entity))
 				{
 					auto* _pHieComp = _pWorld->RefData<HierarchyComponent>(_entity);
-					if (_pHieComp->parentGUID != Engine::DefaultGUID)
+					if (_pHieComp->parentGUID != Engine::DEFAULT_GUID)
 					{
 						continue;
 					}
@@ -292,7 +292,7 @@ namespace Engine::Editor
 		}
 	}
 
-	std::string Engine::Editor::HierarchyPanel::GetEntityLabel(Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity)
+	std::string Engine::Editor::HierarchyPanel::GetEntityLabel(Engine::ECS::World* a_pWorld, const Engine::ECS::Entity& a_entity) const
 	{
 		if (a_pWorld->HasComponent<NameComponent>(a_entity))
 		{
@@ -361,7 +361,7 @@ namespace Engine::Editor
 			// コンポーネントの追加
 			auto _compTypeID = a_pWorld->GetCompTypeID<HierarchyComponent>();
 			HierarchyComponent _initData = {};
-			_initData.parentGUID = Engine::DefaultGUID;
+			_initData.parentGUID = Engine::DEFAULT_GUID;
 			_initData.parentID = ECS::Limits::INVALID_ENTITY;
 			_initData.depth = 0;
 			// 内部でディープコピーしてるのでローカルでいい
@@ -385,7 +385,7 @@ namespace Engine::Editor
 		}
 	}
 
-	std::vector<Engine::ECS::Entity> Engine::Editor::HierarchyPanel::GetChildEntities(Engine::ECS::World* a_pWorld, ECS::Entity a_parent)
+	std::vector<Engine::ECS::Entity> Engine::Editor::HierarchyPanel::GetChildEntities(Engine::ECS::World* a_pWorld, ECS::Entity a_parent) const
 	{
 		std::vector<ECS::Entity> _children;
 		if (!a_pWorld->HasComponent<GUIDComponent>(a_parent)) return _children;

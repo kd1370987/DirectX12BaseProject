@@ -44,13 +44,13 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 			)
 		{
 			// 毎フレーム計算するのは無駄なので、パラメータ名のハッシュ値はstaticで保持しておく
-			static const UINT s_speedHash = Engine::String::ToHash("Speed");
-			static const UINT s_jumpHash = Engine::String::ToHash("Jump");
-			static const UINT s_isGroundHash = Engine::String::ToHash("IsGround");
-			static const UINT s_isShootHash = Engine::String::ToHash("IsShoot");
-			static const UINT s_isBoostHash = Engine::String::ToHash("IsBoost");
+			static const UINT SPEED_HASH = Engine::String::ToHash("Speed");
+			static const UINT JUMP_HASH = Engine::String::ToHash("Jump");
+			static const UINT IS_GROUND_HASH = Engine::String::ToHash("IsGround");
+			static const UINT IS_SHOOT_HASH = Engine::String::ToHash("IsShoot");
+			static const UINT IS_BOOST_HASH = Engine::String::ToHash("IsBoost");
 
-			auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
+			auto& _stateInstancePool = a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{
@@ -125,13 +125,13 @@ void PlayerIntentSystem::Init(App::ECS::APPWorld& a_world)
 						auto* _pAnimator = a_ctx.pServices->pResourceManager->Ref(a_layer.animatorHandle);
 						if (!_pAnimator) return;
 
-						_pAnimator->SetFloatParam(*_pInstance, s_speedHash, "Speed", _speed);
-						_pAnimator->SetBoolParam(*_pInstance, s_jumpHash, "Jump", _isJump);
-						_pAnimator->SetBoolParam(*_pInstance, s_isGroundHash, "IsGround", _isGround);
-						_pAnimator->SetBoolParam(*_pInstance, s_isBoostHash, "IsBoost", _isBoost);
+						_pAnimator->SetFloatParam(*_pInstance, SPEED_HASH, "Speed", _speed);
+						_pAnimator->SetBoolParam(*_pInstance, JUMP_HASH, "Jump", _isJump);
+						_pAnimator->SetBoolParam(*_pInstance, IS_GROUND_HASH, "IsGround", _isGround);
+						_pAnimator->SetBoolParam(*_pInstance, IS_BOOST_HASH, "IsBoost", _isBoost);
 						if (_pActionIntent)
 						{
-							_pAnimator->SetBoolParam(*_pInstance, s_isShootHash, "IsShoot", _pActionIntent->IsAnyWeaponShoot());
+							_pAnimator->SetBoolParam(*_pInstance, IS_SHOOT_HASH, "IsShoot", _pActionIntent->IsAnyWeaponShoot());
 						}
 					};
 

@@ -590,23 +590,23 @@ namespace App::ECS
 		a_world.AddResource<SwarmMissileResource>();
 
 		// 初期化
-		a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);
-		a_world.GetResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>().Init(10000);
-		a_world.GetResource<Engine::Pool::RangePool<AdditiveBoneEntry>>().Init(10000);
+		a_world.RefResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);
+		a_world.RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>().Init(10000);
+		a_world.RefResource<Engine::Pool::RangePool<AdditiveBoneEntry>>().Init(10000);
 
-		a_world.GetResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>().Reserve(100);
-		a_world.GetResource<Engine::Pool::ItemPool<Engine::Animation::SkinningMeshData>>().Reserve(100);
-		a_world.GetResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+		a_world.RefResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>().Reserve(100);
+		a_world.RefResource<Engine::Pool::ItemPool<Engine::Animation::SkinningMeshData>>().Reserve(100);
+		a_world.RefResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
 
-		a_world.GetResource<HierarchyResource>().isDirty = true;
+		a_world.RefResource<HierarchyResource>().isDirty = true;
 
 		// 1フレーム分のヒット数はたかが知れているので少なめに確保
-		a_world.GetResource<HitEventResource>().Reserve(256);
-		a_world.GetResource<DeathEventResource>().Reserve(64);
+		a_world.RefResource<HitEventResource>().Reserve(256);
+		a_world.RefResource<DeathEventResource>().Reserve(64);
 
 		// 同時に走るウェーブは数本(SwarmBossController の Max Wave)
-		a_world.GetResource<WormWaveResource>().Reserve(16);
+		a_world.RefResource<WormWaveResource>().Reserve(16);
 		// 切り離しの要求は1フレームに数件
-		a_world.GetResource<SwarmMissileResource>().Reserve(16);
+		a_world.RefResource<SwarmMissileResource>().Reserve(16);
 	}
 }

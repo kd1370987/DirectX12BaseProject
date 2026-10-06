@@ -9,161 +9,164 @@
 #include "../Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
 
 #include "Engine/Editor/Editor.h"
-//==================================================================================
-// 
-// 初回呼び出し
-// 
-//==================================================================================
-void Application::Execute()
+namespace App
 {
-	// アプリケーション初期化
-	Init();
-
-	// メインループ（更新処理・描画処理）
-	MainLoop();
-
-	// 解放
-	Release();
-}
-
-//==================================================================================
-// 
-// アプリケーション初期化
-// 
-//==================================================================================
-bool Application::Init()
-{
-	// エンジンの初期化
-	Engine::MainEngine::Instance().Init();
-
-	// ゲームの初期化
-	App::Game::GameManager::Instance().Init();
-
-	return true;
-}
-
-void Application::Release()
-{
-	// シーン解放
-	Engine::Scene::SceneManager::Instance().Release();
-
-	// ゲーム解放 : リソースの参照を握っているので、エンジンより先に手放す
-	App::Game::GameManager::Instance().Release();
-
-	// エンジン解放
-	Engine::MainEngine::Instance().Release();
-}
-
-//==================================================================================
-// 
-// メインループ
-// 
-//==================================================================================
-void Application::MainLoop()
-{
-	while (true)
+	//==================================================================================
+	// 
+	// 初回呼び出し
+	// 
+	//==================================================================================
+	void Application::Execute()
 	{
-		//===========================================================================
-		// このフレームぶんの計測
-		//
-		// 計測は ENGINE_PROFILE_SCOPE を置くだけ。スコープを抜けた時点で
-		// 結果がエディター(Profiler)へ飛ぶので、集計する EndProfileFrame よりは
-		// 内側で閉じておくこと
-		//===========================================================================
-		{
-			ENGINE_PROFILE_SCOPE("MainLoop");
+		// アプリケーション初期化
+		Init();
 
-			{
-				ENGINE_PROFILE_SCOPE("MainLoop_Update");
+		// メインループ（更新処理・描画処理）
+		MainLoop();
 
-				// フレーム開始
-				if (!Engine::MainEngine::Instance().BeginFrame())
-				{
-					break;
-				}
-
-				// モード切替
-				ToggleAppMode();
-
-				// ゲームの更新
-				App::Game::GameManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
-			}
-
-			{
-				ENGINE_PROFILE_SCOPE("MainLoop_Draw");
-
-				// 描画開始
-				{
-					ENGINE_PROFILE_SCOPE("BeginDraw");
-					Engine::MainEngine::Instance().BeginDraw();
-				}
-
-				{
-					// ゲームの描画 : 描画命令(カメラ・モデル・UI・ライト)を積むだけで実行はしない。
-					// BeginDraw でフレームが切り替わった後、ExecuteDrawCmd より前に呼ぶこと
-					App::Game::GameManager::Instance().Draw();
-				}
-
-				{
-					// 命令の実行
-					ENGINE_PROFILE_SCOPE("RGDraw");
-					Engine::MainEngine::Instance().ExecuteDrawCmd();
-				}
-
-				// 描画終了
-				{
-					ENGINE_PROFILE_SCOPE("EndDraw");
-					Engine::MainEngine::Instance().EndDraw();
-				}
-			}
-
-			// フレーム終了
-			Engine::MainEngine::Instance().EndFrame();
-		}
-
-		// プロファイラのフレーム終了
-		// ここで受け取った結果の集計・平均の確定・表示用の並べ替えが行われ、
-		// 次フレームのパネル描画で使われる
-		Engine::Editor::MainEditor::Instance().EndProfileFrame();
+		// 解放
+		Release();
 	}
-}
 
-//==================================================================================
-//
-// エディターとゲームの切り替え
-//
-//----------------------------------------------------------------------------------
-// キーは InputManager が持っている(Ctrl+P / SYSTEM_ACTION_TOGGLE_APPMODE)。
-// 割り当てを変えたいときはあちらを触ること。
-//
-//   エディター    → ゲーム
-//   ゲーム        → エディター
-//   デバッグプレイ → エディター(抜ける)
-//
-//==================================================================================
-void Application::ToggleAppMode()
-{
-	// エディターがモーダルな画面(エフェクトエディター)を出している間は切り替えない。
-	// あちらが開いている間はゲームのシーンが止まっているので、
-	// ここで切り替えると「プレイモードなのに何も動かない」状態になってしまう
-	if (Engine::Editor::MainEditor::Instance().IsModalActive()) return;
+	//==================================================================================
+	// 
+	// アプリケーション初期化
+	// 
+	//==================================================================================
+	bool Application::Init()
+	{
+		// エンジンの初期化
+		Engine::MainEngine::Instance().Init();
 
-	// プレイモードでなくても拾う取り方。エディターに居るときに押すため
-	if (!Engine::Input::InputManager::Instance().IsSystemPress(
-		Engine::Input::InputManager::SYSTEM_ACTION_TOGGLE_APPMODE)) return;
+		// ゲームの初期化
+		App::Game::GameManager::Instance().Init();
 
-	auto& _engine = Engine::MainEngine::Instance();
+		return true;
+	}
 
-	// ゲームからでもデバッグプレイからでも、行き先はエディター
-	const bool _isPlaying = (_engine.GetMode() != Engine::EAppMode::Editor);
+	void Application::Release()
+	{
+		// シーン解放
+		Engine::Scene::SceneManager::Instance().Release();
 
-	_engine.ChangeMode(_isPlaying ? Engine::EAppMode::Editor : Engine::EAppMode::Game);
-}
+		// ゲーム解放 : リソースの参照を握っているので、エンジンより先に手放す
+		App::Game::GameManager::Instance().Release();
 
-Application::Application()
-{
-}
+		// エンジン解放
+		Engine::MainEngine::Instance().Release();
+	}
 
-Application::~Application()
-{
+	//==================================================================================
+	// 
+	// メインループ
+	// 
+	//==================================================================================
+	void Application::MainLoop()
+	{
+		while (true)
+		{
+			//===========================================================================
+			// このフレームぶんの計測
+			//
+			// 計測は ENGINE_PROFILE_SCOPE を置くだけ。スコープを抜けた時点で
+			// 結果がエディター(Profiler)へ飛ぶので、集計する EndProfileFrame よりは
+			// 内側で閉じておくこと
+			//===========================================================================
+			{
+				ENGINE_PROFILE_SCOPE("MainLoop");
+
+				{
+					ENGINE_PROFILE_SCOPE("MainLoop_Update");
+
+					// フレーム開始
+					if (!Engine::MainEngine::Instance().BeginFrame())
+					{
+						break;
+					}
+
+					// モード切替
+					ToggleAppMode();
+
+					// ゲームの更新
+					App::Game::GameManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
+				}
+
+				{
+					ENGINE_PROFILE_SCOPE("MainLoop_Draw");
+
+					// 描画開始
+					{
+						ENGINE_PROFILE_SCOPE("BeginDraw");
+						Engine::MainEngine::Instance().BeginDraw();
+					}
+
+					{
+						// ゲームの描画 : 描画命令(カメラ・モデル・UI・ライト)を積むだけで実行はしない。
+						// BeginDraw でフレームが切り替わった後、ExecuteDrawCmd より前に呼ぶこと
+						App::Game::GameManager::Instance().Draw();
+					}
+
+					{
+						// 命令の実行
+						ENGINE_PROFILE_SCOPE("RGDraw");
+						Engine::MainEngine::Instance().ExecuteDrawCmd();
+					}
+
+					// 描画終了
+					{
+						ENGINE_PROFILE_SCOPE("EndDraw");
+						Engine::MainEngine::Instance().EndDraw();
+					}
+				}
+
+				// フレーム終了
+				Engine::MainEngine::Instance().EndFrame();
+			}
+
+			// プロファイラのフレーム終了
+			// ここで受け取った結果の集計・平均の確定・表示用の並べ替えが行われ、
+			// 次フレームのパネル描画で使われる
+			Engine::Editor::MainEditor::Instance().EndProfileFrame();
+		}
+	}
+
+	//==================================================================================
+	//
+	// エディターとゲームの切り替え
+	//
+	//----------------------------------------------------------------------------------
+	// キーは InputManager が持っている(Ctrl+P / SYSTEM_ACTION_TOGGLE_APPMODE)。
+	// 割り当てを変えたいときはあちらを触ること。
+	//
+	//   エディター    → ゲーム
+	//   ゲーム        → エディター
+	//   デバッグプレイ → エディター(抜ける)
+	//
+	//==================================================================================
+	void Application::ToggleAppMode()
+	{
+		// エディターがモーダルな画面(エフェクトエディター)を出している間は切り替えない。
+		// あちらが開いている間はゲームのシーンが止まっているので、
+		// ここで切り替えると「プレイモードなのに何も動かない」状態になってしまう
+		if (Engine::Editor::MainEditor::Instance().IsModalActive()) return;
+
+		// プレイモードでなくても拾う取り方。エディターに居るときに押すため
+		if (!Engine::Input::InputManager::Instance().IsSystemPress(
+			Engine::Input::InputManager::SYSTEM_ACTION_TOGGLE_APPMODE)) return;
+
+		auto& _engine = Engine::MainEngine::Instance();
+
+		// ゲームからでもデバッグプレイからでも、行き先はエディター
+		const bool _isPlaying = (_engine.GetMode() != Engine::EAppMode::Editor);
+
+		_engine.ChangeMode(_isPlaying ? Engine::EAppMode::Editor : Engine::EAppMode::Game);
+	}
+
+	Application::Application()
+	{
+	}
+
+	Application::~Application()
+	{
+	}
 }

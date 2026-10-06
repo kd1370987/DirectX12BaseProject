@@ -25,14 +25,14 @@ namespace Engine::Persistence
 		// 強制指定はビルドモードを無視するので、モードに関係なく形式を固定したいとき
 		// (エンジン設定のように .ob が出来る前から読む必要があるもの)だけに使う。
 		//----------------------------------------------------------------------------------
-		enum class ArchiveFormat
+		enum class EArchiveFormat
 		{
 			Auto,	// 基本設定（ビルドモードに依存）
 			Binary,	// 強制的にバイナリ(.ob)を使用
 			Json	// 強制的にJSON(.oj)を使用
 		};
 
-		enum class Mode
+		enum class EMode
 		{
 			Save,		// 書き込み
 			Load		// 読み込み
@@ -40,11 +40,11 @@ namespace Engine::Persistence
 
 		// モード、ファイルディレクトリを指定して開く
 		Archive(
-			Mode a_mode, 
+			EMode a_mode, 
 			const std::string& a_fileDir,
 			const std::string& a_fileName,
 			const std::string& a_ext,
-			ArchiveFormat a_format = ArchiveFormat::Auto
+			EArchiveFormat a_format = EArchiveFormat::Auto
 		);
 		//----------------------------------------------------------------------------------
 		// メモリ上のJSONだけを相手にするアーカイブ
@@ -54,14 +54,14 @@ namespace Engine::Persistence
 		//   Save : a_json へ書き出す(デストラクタで反映)
 		//   Load : a_json から読み込む
 		//----------------------------------------------------------------------------------
-		Archive(Mode a_mode, nlohmann::json& a_json);
+		Archive(EMode a_mode, nlohmann::json& a_json);
 
 		// クローズ処理を実行
 		~Archive();
 
 		// 現在の実行モード
-		bool IsSaving() const { return m_mode == Mode::Save; }
-		bool IsLoading() const { return m_mode == Mode::Load; }
+		bool IsSaving() const { return m_mode == EMode::Save; }
+		bool IsLoading() const { return m_mode == EMode::Load; }
 
 		// 基本型のシリアライズ : 構造体はしないように
 		template<typename T>
@@ -97,7 +97,7 @@ namespace Engine::Persistence
 		void GUIDVectorField(const std::string& a_name, std::vector<Engine::GUID>& a_guid);
 
 		// モード取得
-		Mode GetMode() const { return m_mode; }
+		EMode GetMode() const { return m_mode; }
 
 		//----------------------------------------------------------------------------------
 		// この拡張子が「重いデータ」かどうか
@@ -144,9 +144,9 @@ namespace Engine::Persistence
 
 	private:
 		// 実行モード
-		Mode m_mode;
+		EMode m_mode;
 
-		ArchiveFormat m_format = ArchiveFormat::Auto;
+		EArchiveFormat m_format = EArchiveFormat::Auto;
 
 		// 本番用ストリーム
 		std::ofstream m_ofs;

@@ -17,7 +17,7 @@ namespace Engine::Editor::Inspector
 		// 編集中のアセット1つぶんだけインスタンスを持っておく。
 		// 別のアセットへ移ったら作り直す(同時に鳴るのは常に1つ)
 		//-----------------------------------------------------------------------------------------
-		Engine::GUID						g_previewGUID = Engine::DefaultGUID;
+		Engine::GUID						g_previewGUID = Engine::DEFAULT_GUID;
 		Resource::AudioBehaviorInstance		g_previewInstance = {};
 
 		// 試聴用インスタンスを、今編集しているアセットのものに合わせる
@@ -63,7 +63,7 @@ namespace Engine::Editor::Inspector
 				Engine::Editor::SameLine();
 				if (DeleteButton("Clear"))
 				{
-					a_part.soundGUID = Engine::DefaultGUID;
+					a_part.soundGUID = Engine::DEFAULT_GUID;
 					_isChanged = true;
 				}
 			}

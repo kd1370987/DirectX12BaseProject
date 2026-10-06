@@ -39,7 +39,7 @@ void SerchGroundSystem::Init(App::ECS::APPWorld& a_world)
 			const auto& _physicsWorld = a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>();
 
 			// 地面として見るのは静的なものだけ
-			const uint32_t _queryMask = static_cast<uint32_t>(Layer::StaticObject);
+			const uint32_t _queryMask = static_cast<uint32_t>(ECollisionLayer::StaticObject);
 
 			for (size_t _i = 0; _i < a_count; ++_i)
 			{

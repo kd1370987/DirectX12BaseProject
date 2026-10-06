@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../MegaBuffer.h"
+#include "Engine/Utility/Debug/DebugLog.h"
 
 namespace Engine::D3D12
 {
@@ -64,7 +65,7 @@ namespace Engine::D3D12
 		_desc.heapType = D3D12_HEAP_TYPE_DEFAULT;
 		if (!GPUBuffer::Create(a_pDevice, _desc))
 		{
-			assert(0 && "RWStructredBufferの作成に失敗");
+			ENGINE_ERRLOG(false, "RWStructredBufferの作成に失敗");
 			return false;
 		}
 

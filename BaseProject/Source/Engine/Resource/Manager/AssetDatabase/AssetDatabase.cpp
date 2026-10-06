@@ -106,7 +106,7 @@ namespace Engine::Resource
 			std::ifstream _ifs(_metaPath.string());
 			_ifs >> _json;
 			_ifs.close(); // 念のためcloseを追加
-			_guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, Engine::DefaultGUID.String()));
+			_guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, Engine::DEFAULT_GUID.String()));
 		}
 		else
 		{
@@ -405,7 +405,7 @@ namespace Engine::Resource
 					std::ifstream _ifs(_metaPath.string());
 					_ifs >> _json;
 					_ifs.close();
-					_guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, Engine::DefaultGUID.String()));
+					_guid.FromString(JSONHelper::GetValue<std::string>("GUID", _json, Engine::DEFAULT_GUID.String()));
 
 					//--------------------------------------------------------------
 					// 書いてある拡張子リストを土台にする
@@ -695,7 +695,7 @@ namespace Engine::Resource
 			}
 		}
 
-		return Engine::DefaultGUID;
+		return Engine::DEFAULT_GUID;
 	}
 
 	const std::unordered_map<std::string, TypeExtension>& AssetDatabase::GetAssetTypeExtensionsMap() const
@@ -703,7 +703,7 @@ namespace Engine::Resource
 		return m_assetTypeExtensionsMap;
 	}
 
-	std::span<const AssetProperty> AssetDatabase::GetTypeMetaVec(const std::string& a_type)
+	std::span<const AssetProperty> AssetDatabase::GetTypeMetaVec(const std::string& a_type) const
 	{
 		auto _it = m_typeMetaMap.find(a_type);
 		if (_it != m_typeMetaMap.end())
@@ -1065,7 +1065,7 @@ namespace Engine::Resource
 	{
 		ENGINE_LOG("ファイル名の変更を検出しました : %s", a_filePath.string().c_str());
 	}
-	std::string AssetDatabase::GetAssetType(const std::filesystem::path& a_filePath)
+	std::string AssetDatabase::GetAssetType(const std::filesystem::path& a_filePath) const
 	{
 		std::string _fileExt = a_filePath.extension().string();
 

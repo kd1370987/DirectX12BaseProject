@@ -109,11 +109,11 @@ namespace Engine::Graphics::Pipeline
 			// 設計図側を書き出して、実行用側で読み直す
 			nlohmann::json _json = {};
 			{
-				Persistence::Archive _saveArch(Persistence::Archive::Mode::Save, _json);
+				Persistence::Archive _saveArch(Persistence::Archive::EMode::Save, _json);
 				_upSrcPass->ArchivePass(_saveArch);
 			}
 
-			Persistence::Archive _loadArch(Persistence::Archive::Mode::Load, _json);
+			Persistence::Archive _loadArch(Persistence::Archive::EMode::Load, _json);
 			std::unique_ptr<Pass> _upPass = CreatePassFromArchive(a_registry, _upSrcPass->GetTypeID(), _loadArch);
 			if (!_upPass) continue;
 
@@ -139,11 +139,11 @@ namespace Engine::Graphics::Pipeline
 
 			nlohmann::json _json = {};
 			{
-				Persistence::Archive _saveArch(Persistence::Archive::Mode::Save, _json);
+				Persistence::Archive _saveArch(Persistence::Archive::EMode::Save, _json);
 				_upSrcPass->ArchivePass(_saveArch);
 			}
 
-			Persistence::Archive _loadArch(Persistence::Archive::Mode::Load, _json);
+			Persistence::Archive _loadArch(Persistence::Archive::EMode::Load, _json);
 			_pDst->ArchivePass(_loadArch);
 		}
 	}
@@ -635,7 +635,7 @@ namespace Engine::Graphics::Pipeline
 		{
 		case EAccessType::RTV:
 		case EAccessType::UAV:
-		case EAccessType::Depth_Write:
+		case EAccessType::DepthWrite:
 		case EAccessType::CopyDst:
 			return true;
 		default:
@@ -649,7 +649,7 @@ namespace Engine::Graphics::Pipeline
 		{
 		case EAccessType::SRV:
 		case EAccessType::UAV:
-		case EAccessType::Depth_Read:
+		case EAccessType::DepthRead:
 		case EAccessType::CopySrc:
 			return true;
 		default:
@@ -918,10 +918,10 @@ namespace Engine::Graphics::Pipeline
 		// 占有サイズの見積もりに使う(コンパイラが仮想リソースへ渡す)
 		m_pCompileDevice = a_pDevice;
 
-		RenderGraphCompiler _rg(this);
+		RenderGraphCompiler _compiler(this);
 
 		// パスのコンパイル
-		CompileResult _result = _rg.Compile();
+		CompileResult _result = _compiler.Compile();
 		if (!_result.isSuccess) return false;
 
 		m_compilePasses = std::move(_result.compiledPassVec);
@@ -935,7 +935,7 @@ namespace Engine::Graphics::Pipeline
 		m_upResourceAllocator->CalcAllocation(m_upResourceRegistry->RefVirtualResources());
 
 		// エイリアシングバリアを作成
-		_rg.BuildAliasingBarriers(m_compilePasses);
+		_compiler.BuildAliasingBarriers(m_compilePasses);
 
 		// ヒープの実体はここでは作らない。
 		// この関数はGPUに触らない約束(設計図側のグラフもここを通るので、
@@ -1111,17 +1111,17 @@ namespace Engine::Graphics::Pipeline
 				D3D12::GPUResource* _pResource = RefGPUResource(_resourceID, _slice);
 				if (!_pResource) continue;
 
-				if (_virtual.HasUsage(Resource::TextureUsage::RTV))
+				if (_virtual.HasUsage(Resource::ETextureUsage::RTV))
 				{
 					_pResource->Barrier(_pCmdList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 					a_pRenderContext->ClearRenderTarget(_heapManager.GetCPU(_pResource->GetRTV()));
 				}
-				else if (_virtual.HasUsage(Resource::TextureUsage::DSV))
+				else if (_virtual.HasUsage(Resource::ETextureUsage::DSV))
 				{
 					_pResource->Barrier(_pCmdList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 					a_pRenderContext->ClearDSV(_heapManager.GetCPU(_pResource->GetDSV()));
 				}
-				else if (_virtual.HasUsage(Resource::TextureUsage::UAV))
+				else if (_virtual.HasUsage(Resource::ETextureUsage::UAV))
 				{
 					// 履歴(TAA・デノイズ)はどれもUAVのテクスチャ。
 					// ここを消さないと、割り当て直後の1枚目が前に使われていた絵のまま残り、
@@ -1244,7 +1244,7 @@ namespace Engine::Graphics::Pipeline
 						const DXGI_FORMAT _format = _pVirtual ? _pVirtual->GetFormat() : DXGI_FORMAT_UNKNOWN;
 
 						if (_out.accessType == EAccessType::RTV)				_rtvFormatVec.push_back(_format);
-						else if (_out.accessType == EAccessType::Depth_Write)	_dsvFormat = _format;
+						else if (_out.accessType == EAccessType::DepthWrite)	_dsvFormat = _format;
 					}
 
 					D3D12::GPUResource* _pResource = _refResource(_out, _parity);
@@ -1267,7 +1267,7 @@ namespace Engine::Graphics::Pipeline
 								_pClearTarget ? _pClearTarget->GetClearColor() : _out.clearColor);
 						}
 					}
-					else if (_out.accessType == EAccessType::Depth_Write)
+					else if (_out.accessType == EAccessType::DepthWrite)
 					{
 						_compiledPass.dsvHandle[_parity] = _heapManager.GetCPU(_pResource->GetDSV());
 						_compiledPass.hasDSV = true;
@@ -1289,7 +1289,7 @@ namespace Engine::Graphics::Pipeline
 
 				for (const Slot& _in : _pPass->GetInputSlots())
 				{
-					if (_in.accessType != EAccessType::Depth_Read) continue;
+					if (_in.accessType != EAccessType::DepthRead) continue;
 
 					D3D12::GPUResource* _pResource = _refResource(_in, _parity);
 					if (!_pResource) continue;
@@ -1347,7 +1347,7 @@ namespace Engine::Graphics::Pipeline
 						D3D12::GPUResource* _pResource = _refResource(*_pSlot, _parity);
 						if (!_pResource)
 						{
-							_compiledPass.descriptorIndex[_parity].push_back(CompiledPass::kInvalidDescriptorIndex);
+							_compiledPass.descriptorIndex[_parity].push_back(CompiledPass::INVALID_DESCRIPTOR_INDEX);
 							continue;
 						}
 
@@ -1359,7 +1359,7 @@ namespace Engine::Graphics::Pipeline
 
 						// 深度を読むときも、シェーダーからは SRV として引く
 						case EAccessType::SRV:
-						case EAccessType::Depth_Read:
+						case EAccessType::DepthRead:
 						default:
 							_compiledPass.descriptorIndex[_parity].push_back(_pResource->GetSRV().GetIndex());
 							break;

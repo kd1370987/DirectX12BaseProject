@@ -38,7 +38,7 @@ namespace Engine::Editor
 		}
 
 		// 用途フラグを短く並べる
-		std::string ToUsageText(Resource::TextureUsage a_usage)
+		std::string ToUsageText(Resource::ETextureUsage a_usage)
 		{
 			std::string _text = {};
 			auto _add = [&_text](const char* a_name)
@@ -47,10 +47,10 @@ namespace Engine::Editor
 					_text += a_name;
 				};
 
-			if (HasFlag(a_usage, Resource::TextureUsage::RTV)) _add("RTV");
-			if (HasFlag(a_usage, Resource::TextureUsage::DSV)) _add("DSV");
-			if (HasFlag(a_usage, Resource::TextureUsage::SRV)) _add("SRV");
-			if (HasFlag(a_usage, Resource::TextureUsage::UAV)) _add("UAV");
+			if (HasFlag(a_usage, Resource::ETextureUsage::RTV)) _add("RTV");
+			if (HasFlag(a_usage, Resource::ETextureUsage::DSV)) _add("DSV");
+			if (HasFlag(a_usage, Resource::ETextureUsage::SRV)) _add("SRV");
+			if (HasFlag(a_usage, Resource::ETextureUsage::UAV)) _add("UAV");
 
 			if (_text.empty()) _text = "-";
 			return _text;
@@ -374,14 +374,14 @@ namespace Engine::Editor
 			return;
 		}
 
-		constexpr float _kGutterW = 104.f;		// 左端の席ラベル
-		constexpr float _kHeaderH = 20.f;		// 上端のパス番号
-		constexpr float _kByteViewH = 340.f;	// バイト実寸のときの高さ
+		constexpr float GUTTER_W = 104.f;		// 左端の席ラベル
+		constexpr float HEADER_H = 20.f;		// 上端のパス番号
+		constexpr float BYTE_VIEW_H = 340.f;	// バイト実寸のときの高さ
 
 		const float _trackW = _passCount * m_passWidth;
-		const float _tracksH = m_isByteScale ? _kByteViewH : (_slotCount * m_slotHeight);
+		const float _tracksH = m_isByteScale ? BYTE_VIEW_H : (_slotCount * m_slotHeight);
 
-		const ImVec2 _canvasSize(_kGutterW + _trackW, _kHeaderH + _tracksH);
+		const ImVec2 _canvasSize(GUTTER_W + _trackW, HEADER_H + _tracksH);
 
 		// 縦横どちらもはみ出るので、専用の枠に入れてスクロールさせる
 		const float _viewH = std::min(_canvasSize.y + 20.f, 460.f);
@@ -396,8 +396,8 @@ namespace Engine::Editor
 			const bool _isCanvasHovered = ImGui::IsItemHovered();
 			const ImVec2 _mousePos = ImGui::GetIO().MousePos;
 
-			const float _trackX = _origin.x + _kGutterW;
-			const float _trackY = _origin.y + _kHeaderH;
+			const float _trackX = _origin.x + GUTTER_W;
+			const float _trackY = _origin.y + HEADER_H;
 
 			// バイト数を高さへ。実寸表示のときだけ使う
 			auto _bytesToY = [&](uint64_t a_bytes) -> float

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Engine/Utility/Debug/DebugLog.h"
+
 namespace Engine::Pool
 {
 	template<typename T>
@@ -111,7 +113,7 @@ namespace Engine::Pool
 		else
 		{
 			// インデックスが16bitの上限を超えていないかチェック
-			assert(m_data.size() < 0xFFFF && "ItemPoolの最大値が uint16_t のサイズを超えています");
+			ENGINE_ERRLOG(m_data.size() < 0xFFFF, "ItemPoolの最大値が uint16_t のサイズを超えています");
 
 			// 新規追加
 			_index = static_cast<uint16_t>(m_data.size());

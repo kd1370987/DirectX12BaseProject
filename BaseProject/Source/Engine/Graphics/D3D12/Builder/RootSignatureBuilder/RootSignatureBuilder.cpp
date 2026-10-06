@@ -28,17 +28,17 @@ namespace Engine::D3D12
 			// パラメタータイプによってパラメターを作成
 			switch (_paramInit.paramType)
 			{
-			case RootParameterType::RootCBV:			// ルート定数
+			case ERootParameterType::RootCBV:			// ルート定数
 				_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 				_rootParams[_i].Descriptor.ShaderRegister = _paramInit.shaderRegisterIndex;
 				_rootParams[_i].Descriptor.RegisterSpace = 0;
 				break;
-			case RootParameterType::RootSRV:			// ルートSRV
+			case ERootParameterType::RootSRV:			// ルートSRV
 				_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
 				_rootParams[_i].Descriptor.ShaderRegister = _paramInit.shaderRegisterIndex;
 				_rootParams[_i].Descriptor.RegisterSpace = 0;
 				break;
-			case RootParameterType::DescriptorTable:	// ディスクリプタテーブル
+			case ERootParameterType::DescriptorTable:	// ディスクリプタテーブル
 			{
 				// レンジ配列参照
 				auto& _ranges = _rangeStoreage[_i];
@@ -58,16 +58,16 @@ namespace Engine::D3D12
 					// レンジタイプごとにレンジ構造体を作成
 					switch (_rangeInit.type)
 					{
-					case RangeType::CBV:		// 定数バッファビュー
+					case ERangeType::CBV:		// 定数バッファビュー
 						_ranges[_j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 						break;
-					case RangeType::SRV:		// シェーダーリソースビュー
+					case ERangeType::SRV:		// シェーダーリソースビュー
 						_ranges[_j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 						break;
-					case RangeType::UAV:		// アンオーダーアクセスビュー
+					case ERangeType::UAV:		// アンオーダーアクセスビュー
 						_ranges[_j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
 						break;
-					case RangeType::Sampler:	// サンプラー
+					case ERangeType::Sampler:	// サンプラー
 						_ranges[_j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
 						break;
 					}
@@ -119,7 +119,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "ルートシグネチャシリアライズに失敗");
+			ENGINE_ERRLOG(false, "ルートシグネチャシリアライズに失敗");
 			return nullptr;
 		}
 
@@ -133,7 +133,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "ルートシグネチャの生成に失敗\n");
+			ENGINE_ERRLOG(false, "ルートシグネチャの生成に失敗");
 			return nullptr;
 		}
 
@@ -157,17 +157,17 @@ namespace Engine::D3D12
 			// パラメタータイプによってパラメターを作成
 			switch (_paramInit.paramType)
 			{
-			case RootParameterType::RootCBV:			// ルート定数
+			case ERootParameterType::RootCBV:			// ルート定数
 				_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 				_rootParams[_i].Descriptor.ShaderRegister = _paramInit.shaderRegisterIndex;
 				_rootParams[_i].Descriptor.RegisterSpace = 0;
 				break;
-			case RootParameterType::RootSRV:			// ルートSRV
+			case ERootParameterType::RootSRV:			// ルートSRV
 				_rootParams[_i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
 				_rootParams[_i].Descriptor.ShaderRegister = _paramInit.shaderRegisterIndex;
 				_rootParams[_i].Descriptor.RegisterSpace = 0;
 				break;
-			case RootParameterType::DescriptorTable:	// ディスクリプタテーブル
+			case ERootParameterType::DescriptorTable:	// ディスクリプタテーブル
 			{
 				// レンジ配列参照
 				auto& _ranges = _rangeStoreage[_i];
@@ -187,16 +187,16 @@ namespace Engine::D3D12
 					// レンジタイプごとにレンジ構造体を作成
 					switch (_rangeInit.type)
 					{
-					case RangeType::CBV:		// 定数バッファビュー
+					case ERangeType::CBV:		// 定数バッファビュー
 						_ranges[_j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 						break;
-					case RangeType::SRV:		// シェーダーリソースビュー
+					case ERangeType::SRV:		// シェーダーリソースビュー
 						_ranges[_j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 						break;
-					case RangeType::UAV:		// アンオーダーアクセスビュー
+					case ERangeType::UAV:		// アンオーダーアクセスビュー
 						_ranges[_j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
 						break;
-					case RangeType::Sampler:	// サンプラー
+					case ERangeType::Sampler:	// サンプラー
 						_ranges[_j].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
 						break;
 					}
@@ -245,7 +245,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "ルートシグネチャシリアライズに失敗");
+			ENGINE_ERRLOG(false, "ルートシグネチャシリアライズに失敗");
 			return nullptr;
 		}
 
@@ -259,7 +259,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "ルートシグネチャの生成に失敗\n");
+			ENGINE_ERRLOG(false, "ルートシグネチャの生成に失敗");
 			return nullptr;
 		}
 
@@ -278,7 +278,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "ルートシグネチャ生成用のシェーダーファイル読み込みに失敗");
+			ENGINE_ERRLOG(false, "ルートシグネチャ生成用のシェーダーファイル読み込みに失敗");
 			return nullptr;
 		}
 
@@ -293,7 +293,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "ルートシグネチャの生成に失敗\n");
+			ENGINE_ERRLOG(false, "ルートシグネチャの生成に失敗");
 			return nullptr;
 		}
 
@@ -313,7 +313,7 @@ namespace Engine::D3D12
 		);
 		if (FAILED(_hr))
 		{
-			assert(0 && "ルートシグネチャの生成に失敗\n");
+			ENGINE_ERRLOG(false, "ルートシグネチャの生成に失敗");
 			return nullptr;
 		}
 

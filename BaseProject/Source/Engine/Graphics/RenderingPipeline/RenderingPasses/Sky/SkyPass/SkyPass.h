@@ -28,11 +28,11 @@ namespace Engine::Graphics::Pipeline
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
 		// ルートパラメータ
-		static constexpr UINT kRootCameraCB = 0;
-		static constexpr UINT kRootSkyCB = 1;
-		static constexpr UINT kRootDepthSRV = 2;
-		static constexpr UINT kRootSkyTexSRV = 3;
-		static constexpr UINT kRootColorUAV = 4;
-		static constexpr UINT kRootVelocityUAV = 5;
+		static constexpr UINT ROOT_CAMERA_CB = 0;
+		static constexpr UINT ROOT_SKY_CB = 1;
+		static constexpr UINT ROOT_DEPTH_SRV = 2;
+		static constexpr UINT ROOT_SKY_TEX_SRV = 3;
+		static constexpr UINT ROOT_COLOR_UAV = 4;
+		static constexpr UINT ROOT_VELOCITY_UAV = 5;
 	};
 }

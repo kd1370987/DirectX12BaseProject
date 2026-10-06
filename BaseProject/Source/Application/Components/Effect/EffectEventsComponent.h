@@ -40,11 +40,11 @@ inline constexpr size_t EFFECT_EVENT_MAX = 4;
 struct EffectEventEntry
 {
 	EEffectEvent event = EEffectEvent::OnSpawn;
-	Engine::GUID effectGUID = Engine::DefaultGUID;							// 出すエフェクト(未設定なら何もしない)
+	Engine::GUID effectGUID = Engine::DEFAULT_GUID;							// 出すエフェクト(未設定なら何もしない)
 	Engine::Handle<Engine::Resource::EffectAsset> effectHandle = {};		// ランタイム用(Fixup が解決する)
 	float scale = 1.0f;														// エフェクト全体の大きさ倍率
 
-	bool IsValid() const { return effectGUID != Engine::DefaultGUID; }
+	bool IsValid() const { return effectGUID != Engine::DEFAULT_GUID; }
 };
 
 struct EffectEventsComponent

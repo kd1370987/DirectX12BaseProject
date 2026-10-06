@@ -38,9 +38,9 @@ namespace Engine::Graphics::Pipeline
 	private:
 
 		// ルートパラメータの番号 : シェーダー(ShadowMapMaskCS)の並びと合わせる
-		static constexpr int kRootCameraCB = 0;
-		static constexpr int kRootShadowCB = 1;
-		static constexpr int kRootInputSRV = 2;
-		static constexpr int kRootOutputUAV = 3;
+		static constexpr int ROOT_CAMERA_CB = 0;
+		static constexpr int ROOT_SHADOW_CB = 1;
+		static constexpr int ROOT_INPUT_SRV = 2;
+		static constexpr int ROOT_OUTPUT_UAV = 3;
 	};
 }

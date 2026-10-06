@@ -9,7 +9,7 @@ namespace Engine::Resource
 		auto _fileDir = Engine::File::GetDirFromPath(a_path);
 		auto _fileName = Engine::File::GetFileNameWithoutExtension(a_path);
 
-		Persistence::Archive _ar(Persistence::Archive::Mode::Load, _fileDir, _fileName, "effect");
+		Persistence::Archive _ar(Persistence::Archive::EMode::Load, _fileDir, _fileName, "effect");
 
 		EffectAsset _effect = {};
 		_effect.Archive(_ar);
@@ -23,12 +23,12 @@ namespace Engine::Resource
 	void EffectAssetIO::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
 	{
 		// ディレクトリ
-		static std::string _dir = "Asset/Effect/";
-		auto _basePath = _dir + a_path + "/" + a_name;
+		static const std::string ASSET_DIR = "Asset/Effect/";
+		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
 
 		// すでにないかチェック
 		Engine::GUID _checkGUID = a_assetDB.GetGUIDFromFilePath(_basePath);
-		if (_checkGUID != Engine::DefaultGUID)
+		if (_checkGUID != Engine::DEFAULT_GUID)
 		{
 			ENGINE_LOG("すでに作成済みのエフェクトです : %s", _basePath.c_str());
 			return;

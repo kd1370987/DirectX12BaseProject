@@ -71,7 +71,7 @@ void DebrisEmitterSystem::Init(App::ECS::APPWorld& a_world)
 				DebrisEmitterComponent& _emitter = a_emitterArray[_i];
 				_emitter.isEmitted = false;
 
-				if (_emitter.debrisGUID == Engine::DefaultGUID)
+				if (_emitter.debrisGUID == Engine::DEFAULT_GUID)
 				{
 					_emitter.debrisHandle = {};
 					continue;

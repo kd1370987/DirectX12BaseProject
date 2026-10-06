@@ -120,10 +120,10 @@ namespace Engine::Editor
 		}
 
 		// 描画
-		constexpr ImGuiTableFlags _tableFlags =
+		constexpr ImGuiTableFlags TABLE_FLAGS =
 			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp;
 
-		if (ImGui::BeginTable("TimerTable", 7, _tableFlags))
+		if (ImGui::BeginTable("TimerTable", 7, TABLE_FLAGS))
 		{
 			ImGui::TableSetupColumn("Title");
 			ImGui::TableSetupColumn("CPU(ms)");
@@ -365,7 +365,7 @@ namespace Engine::Editor
 			[](const PoolRow& a_l, const PoolRow& a_r) { return a_l.name < a_r.name; });
 
 		// 粒本体 + デッドリスト。命令バッファとカウンターは小さいので数えない
-		constexpr size_t _bytesPerParticle = sizeof(Particle::ParticleData) + sizeof(uint32_t);
+		constexpr size_t BYTES_PER_PARTICLE = sizeof(Particle::ParticleData) + sizeof(uint32_t);
 
 		Engine::Editor::Value("Pools", "%u  (Ready %u / Loading %u)",
 			static_cast<unsigned>(_rows.size()),
@@ -373,7 +373,7 @@ namespace Engine::Editor
 			static_cast<unsigned>(_rows.size() - _readyCount));
 		Engine::Editor::Value("Total Capacity", "%u particles  (%.1f MB)",
 			static_cast<unsigned>(_totalCapacity),
-			static_cast<double>(_totalCapacity * _bytesPerParticle) / (1024.0 * 1024.0));
+			static_cast<double>(_totalCapacity * BYTES_PER_PARTICLE) / (1024.0 * 1024.0));
 		Engine::Editor::Value("Awake", "%u pools  (%u particles)",
 			static_cast<unsigned>(_awakeCount),
 			static_cast<unsigned>(_awakeCapacity));
@@ -390,10 +390,10 @@ namespace Engine::Editor
 
 		if (_rows.empty()) return;
 
-		constexpr ImGuiTableFlags _tableFlags =
+		constexpr ImGuiTableFlags TABLE_FLAGS =
 			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp;
 
-		if (ImGui::BeginTable("ParticlePoolTable", 10, _tableFlags))
+		if (ImGui::BeginTable("ParticlePoolTable", 10, TABLE_FLAGS))
 		{
 			ImGui::TableSetupColumn("Asset");
 			ImGui::TableSetupColumn("Capacity");

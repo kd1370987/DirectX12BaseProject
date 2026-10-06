@@ -22,7 +22,7 @@ namespace Engine::Resource
 	};
 
 	// テクスチャの使用方法
-	enum class TextureUsage : uint32_t
+	enum class ETextureUsage : uint32_t
 	{
 		None = 0,
 		RTV = 1 << 0,
@@ -31,49 +31,49 @@ namespace Engine::Resource
 		UAV = 1 << 3,
 	};
 
-	inline TextureUsage operator|(TextureUsage a, TextureUsage b)
+	inline ETextureUsage operator|(ETextureUsage a, ETextureUsage b)
 	{
-		return static_cast<TextureUsage>(
+		return static_cast<ETextureUsage>(
 			static_cast<uint32_t>(a) | static_cast<uint32_t>(b)
 			);
 	}
 
-	inline TextureUsage operator&(TextureUsage a, TextureUsage b)
+	inline ETextureUsage operator&(ETextureUsage a, ETextureUsage b)
 	{
-		return static_cast<TextureUsage>(
+		return static_cast<ETextureUsage>(
 			static_cast<uint32_t>(a) & static_cast<uint32_t>(b)
 			);
 	}
 
-	inline TextureUsage& operator|=(TextureUsage& a, TextureUsage b)
+	inline ETextureUsage& operator|=(ETextureUsage& a, ETextureUsage b)
 	{
 		a = a | b;
 		return a;
 	}
 
-	inline bool HasFlag(TextureUsage value, TextureUsage flag)
+	inline bool HasFlag(ETextureUsage value, ETextureUsage flag)
 	{
 		return (static_cast<uint32_t>(value) &
 			static_cast<uint32_t>(flag)) != 0;
 	}
 
-	inline D3D12_RESOURCE_FLAGS GetResourceFlags(TextureUsage a_value)
+	inline D3D12_RESOURCE_FLAGS GetResourceFlags(ETextureUsage a_value)
 	{
 		D3D12_RESOURCE_FLAGS _flags = D3D12_RESOURCE_FLAG_NONE;
 
-		if (HasFlag(a_value, TextureUsage::RTV))
+		if (HasFlag(a_value, ETextureUsage::RTV))
 		{
 			_flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 		}
-		if (HasFlag(a_value, TextureUsage::DSV))
+		if (HasFlag(a_value, ETextureUsage::DSV))
 		{
 			_flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 		}
-		if (HasFlag(a_value, TextureUsage::UAV))
+		if (HasFlag(a_value, ETextureUsage::UAV))
 		{
 			_flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		}
-		if (!HasFlag(a_value, TextureUsage::SRV) && HasFlag(a_value,TextureUsage::DSV))
+		if (!HasFlag(a_value, ETextureUsage::SRV) && HasFlag(a_value,ETextureUsage::DSV))
 		{
 			_flags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
 		}

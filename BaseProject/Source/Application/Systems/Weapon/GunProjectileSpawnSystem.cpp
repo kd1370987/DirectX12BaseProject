@@ -49,10 +49,10 @@ namespace
 		const AimResultComponent* a_pAim)
 	{
 		// 親を辿る深さの上限。親子が循環していても止まるように付けておく
-		constexpr int _kMaxDepth = 8;
+		constexpr int MAX_DEPTH = 8;
 
 		Engine::ECS::Entity _entity = a_shooter;
-		for (int _d = 0; _d < _kMaxDepth; ++_d)
+		for (int _d = 0; _d < MAX_DEPTH; ++_d)
 		{
 			if (_entity == Engine::ECS::Limits::INVALID_ENTITY) break;
 

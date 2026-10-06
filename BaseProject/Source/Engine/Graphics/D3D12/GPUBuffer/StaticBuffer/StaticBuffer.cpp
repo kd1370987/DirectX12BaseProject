@@ -34,7 +34,7 @@ namespace Engine::D3D12
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
 		if (!DynamicBuffer::Create(a_pDevice, a_pHeapManager, _desc))
 		{
-			assert(0 && "リソース作成失敗");
+			ENGINE_ERRLOG(false, "リソース作成失敗");
 			return false;
 		}
 
@@ -67,7 +67,7 @@ namespace Engine::D3D12
 		_gpuDesc.heapType = D3D12_HEAP_TYPE_DEFAULT;
 		if (!m_gpuBuffer.Create(a_pDevice, _gpuDesc))
 		{
-			assert(0 && "GPUバッファ作成失敗");
+			ENGINE_ERRLOG(false, "GPUバッファ作成失敗");
 			return false;
 		}
 
@@ -100,7 +100,7 @@ namespace Engine::D3D12
 		// デバイスロストになり、これも原因が追いにくい形で表面化する
 		if (a_destOffsetBytes + a_sizeBytes > GetBufferSize())
 		{
-			assert(0 && "バッファサイズを超える部分更新 : Createの要素数が足りていない");
+			ENGINE_ERRLOG(false, "バッファサイズを超える部分更新 : Createの要素数が足りていない");
 			return;
 		}
 
@@ -128,10 +128,10 @@ namespace Engine::D3D12
 		const size_t _slotSize = GetBufferSize();
 		if (a_sizeBytes > _slotSize)
 		{
-			assert(0 && "バッファサイズを超える書き込み : Createの要素数が足りていない");
+			ENGINE_ERRLOG(false, "バッファサイズを超える書き込み : Createの要素数が足りていない");
 			return;
 		}
-		assert(a_frameIndex < CPU_FRAME_COUNT && "UploadFrame : フレーム番号が範囲外です");
+		ENGINE_ERRLOG(a_frameIndex < CPU_FRAME_COUNT, "UploadFrame : フレーム番号が範囲外です");
 
 		if (!m_pFrameUploadMap && !CreateFrameUploadBuffer()) return;
 

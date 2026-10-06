@@ -32,8 +32,10 @@ namespace Engine::Graphics::Pipeline
 		void Archive(Engine::Persistence::Archive& a_arch) override;
 
 		// 入口のスロット名 : 常駐ノードなので固定でよい
-		static constexpr const char* kInputName = "Color";
-		
+		static constexpr const char* INPUT_NAME = "Color";
+
+	private:
+
 		// 形が合っていない警告は1回だけ(毎フレーム出すとログが埋まる)
 		bool m_isMismatchReported = false;
 	};

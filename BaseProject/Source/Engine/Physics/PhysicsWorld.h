@@ -50,7 +50,7 @@ namespace Engine::Physics
 
 	// クエリで全レイヤーを相手にするときのマスク。
 	// アプリの Layer のビットはこの範囲(7ビット)に収めること
-	inline constexpr uint32_t kQueryAllLayers = 0x7Fu;
+	inline constexpr uint32_t QUERY_ALL_LAYERS = 0x7Fu;
 
 	// レイが当たったところ
 	struct RayHit
@@ -97,7 +97,7 @@ namespace Engine::Physics
 	// シーン(ECSワールド)ごとの物理空間
 	//
 	// World のリソースとして持つ(CreateSceneWorld で足す)。
-	// システムからは a_ctx.pWorld->GetResource<Engine::Physics::PhysicsWorld>() で引く。
+	// システムからは a_ctx.pWorld->RefResource<Engine::Physics::PhysicsWorld>() で引く。
 	//
 	// Jolt の型は外へ出さない。ボディの出し入れやクエリはここに口を足していく
 	//======================================================================================

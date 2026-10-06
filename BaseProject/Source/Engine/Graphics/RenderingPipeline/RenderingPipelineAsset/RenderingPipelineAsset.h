@@ -54,7 +54,7 @@ namespace Engine::Graphics::Pipeline
 		void SetName(const std::string& a_name) { m_name = a_name; }
 
 		// このアセットの拡張子(.oj / .ob の後ろに付く)
-		static constexpr const char* kExtension = "rpipe";
+		static constexpr const char* EXTENSION = "rpipe";
 
 		// 生成できるパスの一覧をもらい受ける : 持ち主から渡す(シングルトン直引きはしない)
 		void SetMetaRegistry(PassMetaRegistry* a_pRegistry) { m_pMetaRegistry = a_pRegistry; }

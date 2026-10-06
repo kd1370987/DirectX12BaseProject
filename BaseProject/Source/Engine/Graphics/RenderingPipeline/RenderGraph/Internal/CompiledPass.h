@@ -54,7 +54,7 @@ namespace Engine::Graphics::Pipeline
 		// つながっていないスロットは kInvalidDescriptorIndex
 		//----------------------------------------------------------------------------------
 		std::vector<PassBind> binds = {};
-		static constexpr UINT kInvalidDescriptorIndex = 0xFFFFFFFFu;
+		static constexpr UINT INVALID_DESCRIPTOR_INDEX = 0xFFFFFFFFu;
 		std::vector<UINT> descriptorIndex[2] = {};
 	};
 }

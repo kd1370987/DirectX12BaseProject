@@ -135,7 +135,7 @@ void GunTriggerSystem::Init(App::ECS::APPWorld& a_world)
 				}
 
 				// プレハブ未設定なら撃たない(間隔と熱だけは進めてある)
-				if (_gun.bulletPrefabGUID == Engine::DefaultGUID) continue;
+				if (_gun.bulletPrefabGUID == Engine::DEFAULT_GUID) continue;
 
 				// ---- 銃の位置と、銃自身のローカル +Z 軸 ----
 				const Math::Matrix& _m = a_worldMatArray[_i].worldMat;

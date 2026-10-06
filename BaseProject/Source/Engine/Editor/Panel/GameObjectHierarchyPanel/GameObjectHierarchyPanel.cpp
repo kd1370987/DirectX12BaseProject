@@ -236,11 +236,11 @@ namespace Engine::Editor
 		if (a_pObject == nullptr) return;
 
 		// 子の一覧(持っていなければ空)
-		static const std::vector<GameObject::BaseObject*> _EMPTY = {};
+		static const std::vector<GameObject::BaseObject*> EMPTY = {};
 
 		const auto _it = a_childMap.find(a_pObject->GetGUID());
 		const std::vector<GameObject::BaseObject*>& _children =
-			(_it != a_childMap.end()) ? _it->second : _EMPTY;
+			(_it != a_childMap.end()) ? _it->second : EMPTY;
 
 		ImGuiTreeNodeFlags _flags =
 			ImGuiTreeNodeFlags_OpenOnArrow |
@@ -373,11 +373,11 @@ namespace Engine::Editor
 		if (a_pManager == nullptr || a_pParent == nullptr || a_pChild == nullptr) return false;
 
 		// 万一すでに輪になっていても抜けられるようにする
-		constexpr int _DEPTH_LIMIT = 256;
+		constexpr int DEPTH_LIMIT = 256;
 
 		const GameObject::BaseObject* _pCurrent = a_pParent;
 
-		for (int _i = 0; _i < _DEPTH_LIMIT; ++_i)
+		for (int _i = 0; _i < DEPTH_LIMIT; ++_i)
 		{
 			if (_pCurrent == a_pChild) return true;
 

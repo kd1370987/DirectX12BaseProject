@@ -108,8 +108,8 @@ namespace Engine::Graphics::Pipeline
 		UINT GetHeight() const { return m_height; }
 		float GetScale() const { return m_scale; }
 
-		Resource::TextureUsage GetUsage() const { return m_usage; }
-		bool HasUsage(Resource::TextureUsage a_usage) const;
+		Resource::ETextureUsage GetUsage() const { return m_usage; }
+		bool HasUsage(Resource::ETextureUsage a_usage) const;
 
 		const Math::Color& GetClearColor() const { return m_clearColor; }
 		bool IsClear() const { return m_isClear; }
@@ -290,7 +290,7 @@ namespace Engine::Graphics::Pipeline
 		// スロットのアクセスタイプ -> テクスチャの用途フラグ
 		//----------------------------------------------------------------------------------
 		// 書き込み側は、あとから読めるように SRV も一緒に立てる
-		static Resource::TextureUsage ToUsage(EAccessType a_accessType, bool a_isWrite);
+		static Resource::ETextureUsage ToUsage(EAccessType a_accessType, bool a_isWrite);
 
 		//----------------------------------------------------------------------------------
 		// スロットのアクセスタイプ -> リソースステート(バリア構築用)
@@ -334,7 +334,7 @@ namespace Engine::Graphics::Pipeline
 
 		// --- 要件(出力スロットから起こす) ---
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
-		Resource::TextureUsage m_usage = Resource::TextureUsage::None;
+		Resource::ETextureUsage m_usage = Resource::ETextureUsage::None;
 
 		//----------------------------------------------------------------------------------
 		// サイズ : 宣言値と実サイズを分けて持つ

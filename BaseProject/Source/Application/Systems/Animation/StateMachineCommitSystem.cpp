@@ -16,7 +16,7 @@ namespace
 
 		// 入力されたステートマシンの値を使って、現在のステートを更新
 		// インスタンスの実体を取得
-		auto& _stateInstancePool = a_ctx.pWorld->GetResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
+		auto& _stateInstancePool = a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
 		auto* _pInstanceData = _stateInstancePool.Ref(a_layer.instanceHandle);
 		if (!_pInstanceData) return;
 		

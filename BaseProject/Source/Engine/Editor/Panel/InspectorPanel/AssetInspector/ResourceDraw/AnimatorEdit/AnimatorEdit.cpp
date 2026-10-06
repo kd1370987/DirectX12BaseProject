@@ -83,12 +83,12 @@ namespace Engine::Editor::Inspector
 			auto& _bones = a_animator.RefAdditiveBones();
 
 			// チャンネルごとの配分合計。1.0から大きく外れていると見た目が破綻するので目安として出す。
-			constexpr size_t _channelCount = static_cast<size_t>(Resource::EAdditiveChannel::Count);
-			float _shareSum[_channelCount] = {};
+			constexpr size_t CHANNEL_COUNT = static_cast<size_t>(Resource::EAdditiveChannel::Count);
+			float _shareSum[CHANNEL_COUNT] = {};
 			for (const auto& _def : _bones)
 			{
 				size_t _chIdx = static_cast<size_t>(_def.channel);
-				if (_chIdx < _channelCount) _shareSum[_chIdx] += _def.share;
+				if (_chIdx < CHANNEL_COUNT) _shareSum[_chIdx] += _def.share;
 			}
 			Engine::Editor::Value("Share sum", "Aim %.2f / LagArm %.2f / LagLeg %.2f", _shareSum[0], _shareSum[1], _shareSum[2]);
 			// 空中用 : AimArm は腕1本ごとに効かせるので、左右で 2.0 が目安

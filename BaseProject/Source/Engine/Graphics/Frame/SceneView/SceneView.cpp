@@ -186,13 +186,13 @@ namespace Engine::Graphics
 		if (m_isJitterEnabled && m_renderWidth > 0 && m_renderHeight > 0)
 		{
 			// ハルトンシーケンスのテーブル（ピクセル中心地からのオフセット値 -0.5f ～ 0.5f）
-			static const float _sHaltonX[16] = {
+			static const float HALTON_X[16] = {
 				0.000000f, -0.250000f,  0.250000f, -0.375000f,
 				0.125000f, -0.125000f,  0.375000f, -0.437500f,
 				0.062500f, -0.187500f,  0.312500f, -0.312500f,
 				0.187500f, -0.062500f,  0.437500f, -0.468750f
 			};
-			static const float _sHaltonY[16] = {
+			static const float HALTON_Y[16] = {
 				0.000000f,  0.166667f, -0.166667f,  0.500000f,
 			   -0.500000f, -0.277778f,  0.055556f,  0.388889f,
 			   -0.388889f, -0.055556f,  0.277778f,  0.444444f,
@@ -201,8 +201,8 @@ namespace Engine::Graphics
 			uint32_t _sampleIndex = m_totalFrameCount % 16;
 
 			// プロジェクション空間（NDC）のサイズに変換 : NDCは幅が２(-1～1)だから2倍
-			_jitterX = (_sHaltonX[_sampleIndex] / static_cast<float>(m_renderWidth)) * 2.0f;
-			_jitterY = (_sHaltonY[_sampleIndex] / static_cast<float>(m_renderHeight)) * 2.0f;
+			_jitterX = (HALTON_X[_sampleIndex] / static_cast<float>(m_renderWidth)) * 2.0f;
+			_jitterY = (HALTON_Y[_sampleIndex] / static_cast<float>(m_renderHeight)) * 2.0f;
 		}
 
 		// カメラの行列を一時的に取得
