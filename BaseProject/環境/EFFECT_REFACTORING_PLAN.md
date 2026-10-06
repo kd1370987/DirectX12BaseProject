@@ -92,7 +92,7 @@ Phase1 即効のバグ修正 ─┐
 | 3 | ローカルで形状を作り、最後に行列を掛ける。粒の回転 | 中 | **3-A〜3-D 実装済み・動作確認待ち**(2026-10-05)。向きは EmitterAxis / EmitterFacing の2つを追加。3-D に合わせて Booster_Jett / BoostSpark / MazleFlash / Worm_GroundDust のパーツの向きを +Y → +Z に変更。Local のオフセットに持ち主のスケールを掛けるかは保留 |
 | 4 | GPU の回し方(prefix sum・alive list・間接描画) | 中〜大 | **完了・動作確認待ち**(2026-10-05)。4-A〜4-D と 4-E の1・2段目を実装。4-E の3段目と 4-F は「重くなったらやること」として [EFFECT_DEFERRED_TASKS.md](EFFECT_DEFERRED_TASKS.md) へ |
 | 5 | EffectAsset の拡張(統一の前提条件) | 大 | 実装済み・動作確認待ち (2026-10-05) |
-| 6 | ParticlesComponent・音のコンポーネント群を移行して削除 | 中 | **実装済み・動作確認待ち**(2026-10-05)。データ移行とコードの登録解除まで。古いソースファイルの削除とバイナリの作り直しは手作業で残っている(下の「Phase 6 の結果」) |
+| 6 | ParticlesComponent・音のコンポーネント群を移行して削除 | 中 | **実装済み・動作確認待ち**(2026-10-05)。データ移行・古いソースの削除(2026-10-06)まで。バイナリの作り直しは手作業で残っている(下の「Phase 6 の結果」) |
 
 Phase 2 と 3 は、どちらも EmitterData・ParticleData・シェーダーを触る。
 **続けて(できれば同じブランチで)やる**と、シェーダーとの並び合わせを 1 回で済ませられる。
@@ -331,11 +331,7 @@ Phase 6(移行と削除)に要る順に並べる。5-E・5-F は無くても Pha
 
 **手作業で残っていること**
 
-1. ソースファイルの削除(プロジェクトからは外してある。`git rm` で消す)
-   `Components/Combat/DeathEffectComponent.h`、`Components/Audio/{SoundComponent, HitSoundComponent, AudioBehaviorComponent, FlyingSound}.h`、
-   `Components/Effect/{ParticlesComponent, ExplosionComponent}.h`、`InstanceResource/FlyingSoundResource.h`、
-   `Systems/Effect/{DeathEffectSystem, ParticleEmitSystem, EmitParticlesSystem, ParticleFixupSystem, ExplosionSystem}.{h,cpp}`、
-   `Systems/Audio/{HitSoundSystem, SpawnSoundSystem, SoundFixupSystem, FlyingSoundSystem}.{h,cpp}`
+1. ~~ソースファイルの削除~~ → 2026-10-06 に `git rm` で 26 ファイル削除済み
 2. バイナリの作り直し : 書き換えたプレハブ 14・シーン 4、新しいエフェクト 6 をエディターで保存し直す(`.ob*` が出来る)
 3. 要らなければ削除 : Explosion_Enemy / Ex_Fier プレハブ、AudioBehavior のリソース型と BoosterAudio、
    どこからも GUID で参照されていないプレハブ(Player / Player_01 / RazerBullet / Booster_01 / Booster_02 / FootBooster)
