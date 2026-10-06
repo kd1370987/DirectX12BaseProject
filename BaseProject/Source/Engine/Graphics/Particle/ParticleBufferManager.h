@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <deque>
+
 #include "Core/EmitterData.h"
 #include "Core/ParticleData.h"
 
@@ -26,7 +28,7 @@ namespace Engine::Particle
 
 		// このフレームの発生命令のうち、あるプールのぶんが共通の1本のどこからどこまでか。
 		// 発生の Dispatch は offset から count 件だけを読む(count = 0 なら出す命令が無い)。
-		// emitTotal はその命令で出す粒の合計(= 発生のスレッド数)。プールの容量で頭打ちにしてある
+		// emitTotal はその命令で出す粒の合計(= 発生のスレッド数)。プールの容量(伸ばす先を含む)で頭打ちにしてある
 		struct EmitRange
 		{
 			uint32_t offset = 0;
@@ -121,8 +123,23 @@ namespace Engine::Particle
 		// (共通の命令バッファの上限 EMIT_BUFFER_MAX_CAPACITY を超えて、命令を捨てたことがあるか)
 		bool HasOverflowed(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_overflowWarned.contains(a_handle); }
 
-		// アセットの Capacity が変わり、作り直しを待っているか(デバッグ表示用)
-		bool IsResizePending(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_capacityMismatch.contains(a_handle); }
+		//----------------------------------------------------------------------------------
+		// 容量を伸ばす
+		//
+		// 要る数は CPU 側で数える :「生きている粒の数 ≦ 直近の最大寿命の間に出した粒の合計」。
+		// UploadEmitData が足りないと見たら伸ばす先を決めておき、
+		// シミュレーションが発生の前に BeginGrowPool → 増えた範囲を埋める CS → EndGrow と進める
+		//----------------------------------------------------------------------------------
+		bool HasGrowTarget(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_growTargets.contains(a_handle); }
+
+		// 伸ばす先の容量で作り直し、古い中身を写す(GPUParticlePool::BeginGrow)。
+		// 伸ばしたら true。そのあと呼ぶ側が増えた範囲を埋めて、GPUParticlePool::EndGrow を呼ぶ
+		bool BeginGrowPool(const Handle<Resource::ParticlesAsset>& a_handle, D3D12::GraphicsCommandList* a_pCmdList);
+
+		// デバッグ表示用
+		uint64_t GetEstimatedLive(const Handle<Resource::ParticlesAsset>& a_handle) const;		// 直近の最大寿命の間に出した数(生きている数の上限)
+		uint32_t GetGrowCount(const Handle<Resource::ParticlesAsset>& a_handle) const;			// 伸ばした回数
+		bool HasHitHardLimit(const Handle<Resource::ParticlesAsset>& a_handle) const { return m_limitWarned.contains(a_handle); }
 
 		//----------------------------------------------------------------------------------
 		// 起きているか(更新と描画を回す必要があるか)
@@ -155,8 +172,16 @@ namespace Engine::Particle
 	private:
 
 		// 使われなくなったプールを捨てる(BeginFrame から呼ぶ)。
-		// アセットが破棄されて取り残されたプールと、Capacity が変わったプール(後者は作り直す)
+		// アセットが破棄されて取り残されたプールと、眠ったまま大きく伸びているプール(後者は小さく作り直す)。
+		// アセットの Capacity(最初に用意する数)が今の容量より大きくなっていたら伸ばす
 		void ReleaseUnusedPools();
+
+		// 粒の寿命の最大値 + 余裕(秒)。この間に出した粒の合計が、生きている粒の数の上限になる。
+		// アセットが引けなければ負
+		double GetLifeWindow(const Handle<Resource::ParticlesAsset>& a_handle) const;
+
+		// 直近の窓より古い発生の記録を捨てて、窓の中の合計を返す
+		uint64_t CountRecentEmits(const Handle<Resource::ParticlesAsset>& a_handle);
 
 		// プールを登録から外し、GPU が使い終わってからバッファを返す。
 		// 外した後は誰も参照しないので、次に必要になれば RequestEmit / Warmup が作り直す。
@@ -194,14 +219,25 @@ namespace Engine::Particle
 		double m_elapsedTime = 0.0;
 		std::unordered_map<Handle<Resource::ParticlesAsset>, double> m_lastEmitTime;
 
-		// アセットの Capacity とプールの容量の食い違い(メインスレッドのみ)。
-		// 最初に見つけた時刻と、そのときのアセットの値。同じ値のまま待ちが過ぎたら作り直す
-		struct CapacityMismatch
+		//----------------------------------------------------------------------------------
+		// 容量(メインスレッドのみ)
+		//----------------------------------------------------------------------------------
+		// プールごとの発生の記録 : いつ何粒出したか(容量で頭打ちにした数。実際に出たのはこれ以下)
+		struct EmitRecord
 		{
-			double since = 0.0;
-			UINT capacity = 0;
+			double time = 0.0;
+			uint64_t count = 0;
 		};
-		std::unordered_map<Handle<Resource::ParticlesAsset>, CapacityMismatch> m_capacityMismatch;
+		std::unordered_map<Handle<Resource::ParticlesAsset>, std::deque<EmitRecord>> m_emitHistory;
+
+		// 伸ばす先の容量(シミュレーションが伸ばしたら消える)
+		std::unordered_map<Handle<Resource::ParticlesAsset>, UINT> m_growTargets;
+
+		// 伸ばした回数(デバッグ表示用)
+		std::unordered_map<Handle<Resource::ParticlesAsset>, uint32_t> m_growCounts;
+
+		// 上限(PARTICLE_POOL_HARD_LIMIT)に届いたことを警告済みのアセット(1回だけ)
+		std::unordered_set<Handle<Resource::ParticlesAsset>> m_limitWarned;
 
 		// フレームで一本の発生命令バッファ。全プールの命令をつなげて送る
 		std::vector<EmitterData> m_frameEmitData;											//CPU側の写し : 毎フレーム作り直す

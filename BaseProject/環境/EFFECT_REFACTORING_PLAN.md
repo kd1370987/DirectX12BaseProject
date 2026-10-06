@@ -361,6 +361,26 @@ Local の粒は席番号を持ち、VS で席の行列を pos / velocity / orien
 
 ---
 
+## 追補 : パーティクルのプールを伸ばせるようにした(2026-10-06)
+
+アセットの Capacity で決め打ちしていたプールの容量を、足りなくなったら伸ばすようにした。
+1本のバッファを大きく作り直して中身を GPU 上で写す(EmitterSlotPool と同じ考え方)。
+
+| 段 | 内容 | 場所 |
+|---|---|---|
+| 1 | プールは渡された容量で作る。アセットの Capacity は「最初に用意しておく数」(ブロック単位に切り上げ) | `GPUParticlePool::Init` / `ToInitialCapacity` |
+| 2 | 要る数を CPU で数える :「生きている粒 ≦ 直近の(最大寿命 + 0.5 秒)の間に出した粒の合計」。読み戻さないので同じフレームの爆発にも間に合う | `ParticleBufferManager::CountRecentEmits` / `UploadEmitData` |
+| 3 | 伸ばす : 粒・デッドリスト・生存リストを作り直し、粒とデッドリストを先頭へ写す。増えた範囲は CS で 0 埋め + 空き番号を積み、カウンターを足す(2回に分けて UAV バリア) | `GPUParticlePool::BeginGrow / EndGrow`、`GrowParticlePool.hlsl`、`ExecuteParticleSimulation` の頭 |
+| 4 | 足りないと見たら伸ばす先を決め(余裕 25%、1024 粒単位)、その容量で今回の発生数を頭打ちにする | `UploadEmitData` |
+| 5 | 「Capacity が変わったら捨てて作り直す」を廃止。Capacity を今の容量より大きくしたら伸ばす(粒は消えない) | `ReleaseUnusedPools` |
+| 6 | 上限 2^20 粒(暴走対策。届いたら1回警告)。眠ってから 10 秒経ったプールは最初の容量へ作り直して縮める | `PARTICLE_POOL_HARD_LIMIT` / `PARTICLE_POOL_SHRINK_IDLE_SECONDS` |
+
+- 発生・更新・描画のシェーダーと ParticlePass は変えていない(容量は GetDimensions で読み、ディスクリプタ番号は毎フレーム引き直している)
+- Profiler の Particles に Estimated(見積もり)と Grows(伸ばした回数)、状態 Growing を足した
+- 更新の Dispatch は容量ぶん走るまま(4-F)。大きく伸びたプールは縮むまで更新が重い
+
+---
+
 ## 付録 : 作成中の EmitterSlotPool へのコメント(2026-10-05 時点)
 
 方向性(全体共通の表・世代付きハンドル・足りなければ伸ばす)は合っている。変えた方がよい点:

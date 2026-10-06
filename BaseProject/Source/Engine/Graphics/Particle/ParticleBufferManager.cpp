@@ -86,7 +86,10 @@ namespace Engine::Particle
 		m_readyHandles.clear();
 		m_overflowWarned.clear();
 		m_lastEmitTime.clear();
-		m_capacityMismatch.clear();
+		m_emitHistory.clear();
+		m_growTargets.clear();
+		m_growCounts.clear();
+		m_limitWarned.clear();
 		m_elapsedTime = 0.0;
 
 		// 座席データの解放
@@ -132,10 +135,10 @@ namespace Engine::Particle
 	//   別のプールを作るので、シーンを行き来するたびにプールが増えていく。
 	//   アセットが引けないプールは描くこともできないので捨てる。
 	//
-	// 容量が変わったプール : プールのバッファは作るときのアセットの Capacity で確保している。
-	//   エディターで Capacity を変えても今のプールには効かないので、捨てて作り直す(中の粒は消える)。
-	//   値をドラッグしている間は毎フレーム変わるので、同じ値のまま
-	//   PARTICLE_POOL_REBUILD_DELAY_SECONDS 落ち着いてから作り直す。
+	// 容量 : 足りなくなったら UploadEmitData が伸ばす。ここでは2つだけ見る。
+	//   ・アセットの Capacity(最初に用意する数)が今の容量より大きい → 伸ばす(中の粒はそのまま)
+	//   ・眠ってから PARTICLE_POOL_SHRINK_IDLE_SECONDS 経ち、最初に用意する数より大きく伸びている
+	//     → 捨てて小さく作り直す(中に粒は無いので失うものは無い)。VRAM を返すため
 	//
 	// ロード中のプールは捨てない : コピーキューがまだバッファへ書いているかもしれない
 	//======================================================================================
@@ -146,7 +149,7 @@ namespace Engine::Particle
 
 		// 回しながら消すとイテレーターが壊れるので、先に集める
 		std::vector<Handle<Resource::ParticlesAsset>> _orphans;
-		std::vector<Handle<Resource::ParticlesAsset>> _resized;
+		std::vector<Handle<Resource::ParticlesAsset>> _shrinks;
 		{
 			std::lock_guard<std::mutex> _lock(m_mutex);
 			for (const auto& [_handle, _upPool] : m_pools)
@@ -161,29 +164,27 @@ namespace Engine::Particle
 					continue;
 				}
 
-				//----------------------------------------------------------------------
-				// 容量の食い違い
-				//
-				// 食い違いを最初に見つけた時刻と、そのときの値を覚えておく。
-				// 値がまた変わったら待ち直し、同じ値のまま待ちが過ぎたら作り直す
-				//----------------------------------------------------------------------
-				const UINT _assetCapacity = GPUParticlePool::ToPoolCapacity(_pParticle->GetCapacity());
-				if (_assetCapacity == _upPool->GetMaxCapacity())
+				const UINT _initial = GPUParticlePool::ToInitialCapacity(_pParticle->GetCapacity());
+				const UINT _capacity = _upPool->GetMaxCapacity();
+
+				// 最初に用意する数が増えた : 伸ばす(作り直さないので中の粒は消えない)
+				if (_initial > _capacity)
 				{
-					m_capacityMismatch.erase(_handle);
+					UINT& _target = m_growTargets[_handle];
+					_target = (std::max)(_target, _initial);
 					continue;
 				}
 
-				auto _it = m_capacityMismatch.find(_handle);
-				if (_it == m_capacityMismatch.end() || _it->second.capacity != _assetCapacity)
+				// 眠ったまま大きく伸びている : 小さく作り直す。
+				// 伸ばす予定があるものは触らない(すぐまた要る)
+				if (_capacity > _initial && !m_growTargets.contains(_handle))
 				{
-					m_capacityMismatch[_handle] = { m_elapsedTime, _assetCapacity };
-					continue;
-				}
-
-				if ((m_elapsedTime - _it->second.since) >= PARTICLE_POOL_REBUILD_DELAY_SECONDS)
-				{
-					_resized.push_back(_handle);
+					const double _since = GetSecondsSinceLastEmit(_handle);
+					const double _window = GetLifeWindow(_handle);
+					if (_since >= 0.0 && _window >= 0.0 && _since >= _window + PARTICLE_POOL_SHRINK_IDLE_SECONDS)
+					{
+						_shrinks.push_back(_handle);
+					}
 				}
 			}
 		}
@@ -196,9 +197,9 @@ namespace Engine::Particle
 		// 作り直しはすぐ依頼しておく。
 		// 出しっぱなしのもの(ブースター等)は次の RequestEmit でも作られるが、
 		// Warmup で先に作っておいたプールは、次に出すまで無いままになってしまうため
-		for (const auto& _handle : _resized)
+		for (const auto& _handle : _shrinks)
 		{
-			DestroyPool(_handle, "容量の変更");
+			DestroyPool(_handle, "眠っている間に小さく作り直す");
 			CreateParticleDataAsync(_handle);
 		}
 	}
@@ -223,7 +224,10 @@ namespace Engine::Particle
 		m_readyHandles.erase(a_handle);
 		m_overflowWarned.erase(a_handle);
 		m_lastEmitTime.erase(a_handle);
-		m_capacityMismatch.erase(a_handle);
+		m_emitHistory.erase(a_handle);
+		m_growTargets.erase(a_handle);
+		m_limitWarned.erase(a_handle);
+		// 伸ばした回数は残す(作り直しても同じアセットの記録として見たい)
 
 		// GPU が使い終わってからバッファを返す。
 		// BeginFrame から呼ぶので、引数の印(IsArgsReady)は前のフレームの FinishFrame で下りていて、
@@ -348,9 +352,55 @@ namespace Engine::Particle
 				_emitTotal += m_frameEmitData[_r].emitCount;
 			}
 
+			//----------------------------------------------------------------------
+			// 容量が足りるか
+			//
+			// 生きている粒の数は「直近の最大寿命の間に出した粒の合計」を超えない。
+			// それに今回出すぶんを足したものが今の容量を超えるなら、伸ばす先を決めておく
+			// (伸ばすのはこのあとのシミュレーション。発生の Dispatch より前)。
+			// 今回出す数は伸ばした後の容量で頭打ちにする
+			//----------------------------------------------------------------------
 			const auto _poolIt = m_pools.find(_handle);
 			const uint64_t _capacity = (_poolIt != m_pools.end() && _poolIt->second) ? _poolIt->second->GetMaxCapacity() : 0;
-			_range.emitTotal = static_cast<uint32_t>((std::min)(_emitTotal, _capacity));
+
+			uint64_t _usable = _capacity;
+			if (auto _it = m_growTargets.find(_handle); _it != m_growTargets.end())
+			{
+				_usable = (std::max<uint64_t>)(_usable, _it->second);
+			}
+
+			const uint64_t _need = CountRecentEmits(_handle) + _emitTotal;
+			if (_capacity > 0 && _need > _usable)
+			{
+				const uint64_t _withHeadroom = static_cast<uint64_t>(std::ceil(static_cast<double>(_need) * (1.0 + PARTICLE_POOL_GROW_HEADROOM)));
+				const UINT _target = RoundUpToPoolBlock(_withHeadroom);
+				if (_target > _usable)
+				{
+					m_growTargets[_handle] = _target;
+					_usable = _target;
+				}
+
+				// 上限に届いた : 超えたぶんはこのフレームでは出ない(アセットごとに1回だけ知らせる)
+				if (_need > PARTICLE_POOL_HARD_LIMIT && !m_limitWarned.contains(_handle))
+				{
+					m_limitWarned.insert(_handle);
+
+					const auto* _pResourceManager = m_pGraphicsEngine ? m_pGraphicsEngine->RefResourceManager() : nullptr;
+					const auto* _pParticle = _pResourceManager ? _pResourceManager->Get(_handle) : nullptr;
+					ENGINE_WARNING(
+						"[Particle] プールの上限(%u 粒)に届きました : %s。超えたぶんは出ません(寿命か発生数を見直すこと)",
+						PARTICLE_POOL_HARD_LIMIT,
+						_pParticle ? _pParticle->GetName().c_str() : "(不明)");
+				}
+			}
+
+			_range.emitTotal = static_cast<uint32_t>((std::min)(_emitTotal, _usable));
+
+			// 発生の記録(頭打ちにした数。実際に出たのはこれ以下なので、見積もりは安全側になる)
+			if (_range.emitTotal > 0)
+			{
+				m_emitHistory[_handle].push_back({ m_elapsedTime, _range.emitTotal });
+			}
 
 			m_emitRanges[_handle] = _range;
 
@@ -397,6 +447,99 @@ namespace Engine::Particle
 			m_frameEmitData.data(),
 			sizeof(EmitterData) * m_frameEmitData.size(),
 			a_frameIndex);
+	}
+
+	//======================================================================================
+	// 容量の見積もり
+	//======================================================================================
+	double ParticleBufferManager::GetLifeWindow(const Handle<Resource::ParticlesAsset>& a_handle) const
+	{
+		const auto* _pResourceManager = m_pGraphicsEngine ? m_pGraphicsEngine->RefResourceManager() : nullptr;
+		const auto* _pParticle = _pResourceManager ? _pResourceManager->Get(a_handle) : nullptr;
+		if (!_pParticle) return -1.0;
+
+		// IsAwake と同じ窓。寿命の下限は発生シェーダーが 0.0001 秒に丸めるので、0 でも余裕のぶんはある。
+		// 余裕はフレーム時間のぶれと、発生したフレームにも1回更新されるぶんを見込んでいる
+		const double _lifeMax = static_cast<double>((std::max)(_pParticle->GetLifeTimeMax(), _pParticle->GetLifeTimeMin()));
+		return _lifeMax + PARTICLE_POOL_SLEEP_MARGIN_SECONDS;
+	}
+
+	uint64_t ParticleBufferManager::CountRecentEmits(const Handle<Resource::ParticlesAsset>& a_handle)
+	{
+		auto _it = m_emitHistory.find(a_handle);
+		if (_it == m_emitHistory.end()) return 0;
+
+		// アセットが引けなければ寿命が分からないので、捨てずに全部数える(安全側)
+		const double _window = GetLifeWindow(a_handle);
+		auto& _records = _it->second;
+		if (_window >= 0.0)
+		{
+			while (!_records.empty() && (m_elapsedTime - _records.front().time) > _window)
+			{
+				_records.pop_front();
+			}
+		}
+
+		uint64_t _sum = 0;
+		for (const auto& _record : _records) _sum += _record.count;
+		return _sum;
+	}
+
+	uint64_t ParticleBufferManager::GetEstimatedLive(const Handle<Resource::ParticlesAsset>& a_handle) const
+	{
+		auto _it = m_emitHistory.find(a_handle);
+		if (_it == m_emitHistory.end()) return 0;
+
+		// 表示用なので捨てずに、窓の中だけを数える
+		const double _window = GetLifeWindow(a_handle);
+		uint64_t _sum = 0;
+		for (const auto& _record : _it->second)
+		{
+			if (_window >= 0.0 && (m_elapsedTime - _record.time) > _window) continue;
+			_sum += _record.count;
+		}
+		return _sum;
+	}
+
+	uint32_t ParticleBufferManager::GetGrowCount(const Handle<Resource::ParticlesAsset>& a_handle) const
+	{
+		auto _it = m_growCounts.find(a_handle);
+		return (_it != m_growCounts.end()) ? _it->second : 0u;
+	}
+
+	bool ParticleBufferManager::BeginGrowPool(const Handle<Resource::ParticlesAsset>& a_handle, D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		if (!a_pCmdList || !m_pGraphicsEngine) return false;
+
+		auto _itTarget = m_growTargets.find(a_handle);
+		if (_itTarget == m_growTargets.end()) return false;
+
+		// ロード中(コピーキューがまだ書いているかもしれない)なら次のフレームまで待つ
+		if (!IsReady(a_handle)) return false;
+
+		auto _itPool = m_pools.find(a_handle);
+		if (_itPool == m_pools.end() || !_itPool->second) return false;
+
+		const UINT _target = _itTarget->second;
+		const UINT _before = _itPool->second->GetMaxCapacity();
+		m_growTargets.erase(_itTarget);
+
+		if (!_itPool->second->BeginGrow(
+			m_pGraphicsEngine->RefRenderDevice()->RefDevice(),
+			m_pHeapManager,
+			a_pCmdList,
+			_target))
+		{
+			return false;
+		}
+
+		++m_growCounts[a_handle];
+
+		const auto* _pResourceManager = m_pGraphicsEngine->RefResourceManager();
+		const auto* _pParticle = _pResourceManager ? _pResourceManager->Get(a_handle) : nullptr;
+		ENGINE_LOG("[Particle] プールを伸ばしました : %s %u -> %u",
+			_pParticle ? _pParticle->GetName().c_str() : "(不明)", _before, _target);
+		return true;
 	}
 
 	bool ParticleBufferManager::IsAwake(const Handle<Resource::ParticlesAsset>& a_handle) const
@@ -488,8 +631,17 @@ namespace Engine::Particle
 			// ロード処理
 			[this,_pDevice,a_handle,&_isCreated](D3D12::GraphicsCommandList* a_pCmdList)
 			{
-				// 発生命令のバッファは全プール共通の1本(UploadEmitData が持つ)なので、ここではプール本体だけ作る
-				if (!m_pools[a_handle]->Init(_pDevice, m_pHeapManager, a_pCmdList, a_handle, *m_pGraphicsEngine->RefResourceManager()))
+				// 発生命令のバッファは全プール共通の1本(UploadEmitData が持つ)なので、ここではプール本体だけ作る。
+				// アセットの Capacity は「最初に用意しておく数」。足りなくなったら伸ばす
+				const auto* _pParticle = m_pGraphicsEngine->RefResourceManager()->Get(a_handle);
+				if (!_pParticle)
+				{
+					ENGINE_WARNING("パーティクルプールの作成に失敗 : パーティクルアセットが読み込めませんでした");
+					return;
+				}
+
+				const UINT _capacity = GPUParticlePool::ToInitialCapacity(_pParticle->GetCapacity());
+				if (!m_pools[a_handle]->Init(_pDevice, m_pHeapManager, a_pCmdList, a_handle, _capacity))
 				{
 					return;
 				}

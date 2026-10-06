@@ -311,7 +311,10 @@ namespace Engine::Editor
 			bool isReady = false;
 			bool isAwake = false;
 			bool isOverflowed = false;
-			bool isResizePending = false;
+			bool isGrowPending = false;		// 伸ばす予定がある(次のシミュレーションで伸びる)
+			bool isHitLimit = false;		// 上限に届いたことがある
+			uint64_t estimated = 0;			// 直近の最大寿命の間に出した数(生きている数の上限)
+			uint32_t growCount = 0;			// 伸ばした回数
 			int sortOrder = 0;
 			double sinceEmit = -1.0;
 			bool isLocal = false;
@@ -338,7 +341,10 @@ namespace Engine::Editor
 			_row.isReady = _pPM->IsReady(_handle);
 			_row.isAwake = _pPM->IsAwake(_handle);
 			_row.isOverflowed = _pPM->HasOverflowed(_handle);
-			_row.isResizePending = _pPM->IsResizePending(_handle);
+			_row.isGrowPending = _pPM->HasGrowTarget(_handle);
+			_row.isHitLimit = _pPM->HasHitHardLimit(_handle);
+			_row.estimated = _pPM->GetEstimatedLive(_handle);
+			_row.growCount = _pPM->GetGrowCount(_handle);
 			_row.sortOrder = _pAsset ? _pAsset->GetSortOrder() : 0;
 			_row.sinceEmit = _pPM->GetSecondsSinceLastEmit(_handle);
 			_row.isLocal = _pAsset && _pAsset->IsLocalSpace();
@@ -387,10 +393,12 @@ namespace Engine::Editor
 		constexpr ImGuiTableFlags _tableFlags =
 			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp;
 
-		if (ImGui::BeginTable("ParticlePoolTable", 8, _tableFlags))
+		if (ImGui::BeginTable("ParticlePoolTable", 10, _tableFlags))
 		{
 			ImGui::TableSetupColumn("Asset");
 			ImGui::TableSetupColumn("Capacity");
+			ImGui::TableSetupColumn("Estimated");
+			ImGui::TableSetupColumn("Grows");
 			ImGui::TableSetupColumn("Space");
 			ImGui::TableSetupColumn("Blend");
 			ImGui::TableSetupColumn("Order");
@@ -409,18 +417,33 @@ namespace Engine::Editor
 				ImGui::TableSetColumnIndex(1);
 				ImGui::Text("%u", _row.capacity);
 
+				// 生きている数の上限の見積もり(直近の最大寿命の間に出した数)。容量に近いほど伸びやすい
 				ImGui::TableSetColumnIndex(2);
-				ImGui::Text("%s", _row.isLocal ? "Local" : "World");
+				ImGui::Text("%llu", static_cast<unsigned long long>(_row.estimated));
 
+				// 伸ばした回数。上限に届いたことがあれば色を変える
 				ImGui::TableSetColumnIndex(3);
-				ImGui::Text("%s", _row.isAlphaBlend ? "Alpha" : "Add");
+				if (_row.isHitLimit)
+				{
+					ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "%u (limit)", _row.growCount);
+				}
+				else
+				{
+					ImGui::Text("%u", _row.growCount);
+				}
 
 				ImGui::TableSetColumnIndex(4);
+				ImGui::Text("%s", _row.isLocal ? "Local" : "World");
+
+				ImGui::TableSetColumnIndex(5);
+				ImGui::Text("%s", _row.isAlphaBlend ? "Alpha" : "Add");
+
+				ImGui::TableSetColumnIndex(6);
 				ImGui::Text("%d", _row.sortOrder);
 
 				// 表示した時点で積まれている命令の数(フレームのどこで描くかで 0 にもなる)。
 				// 準備中のプールで上限に届いていたら、溜めきれずに捨てている
-				ImGui::TableSetColumnIndex(5);
+				ImGui::TableSetColumnIndex(7);
 				if (!_row.isReady && _row.requests >= Particle::EMIT_PENDING_REQUEST_MAX)
 				{
 					ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), "%u", static_cast<unsigned>(_row.requests));
@@ -431,7 +454,7 @@ namespace Engine::Editor
 				}
 
 				// 最後に粒を出してからの秒数
-				ImGui::TableSetColumnIndex(6);
+				ImGui::TableSetColumnIndex(8);
 				if (_row.sinceEmit < 0.0)
 				{
 					ImGui::TextDisabled("-");
@@ -441,15 +464,15 @@ namespace Engine::Editor
 					ImGui::Text("%.1f s", _row.sinceEmit);
 				}
 
-				ImGui::TableSetColumnIndex(7);
+				ImGui::TableSetColumnIndex(9);
 				if (!_row.isReady)
 				{
 					ImGui::TextDisabled("Loading");
 				}
-				else if (_row.isResizePending)
+				else if (_row.isGrowPending)
 				{
-					// Capacity が変わり、値が落ち着くのを待ってから作り直す
-					ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Resizing");
+					// 足りないと見て、次のシミュレーションで伸ばす
+					ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Growing");
 				}
 				else if (!_row.isAwake)
 				{

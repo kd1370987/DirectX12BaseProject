@@ -13,18 +13,13 @@ namespace Engine::Particle
 		D3D12::DescriptorHeapManager* a_pHeapManager,
 		D3D12::GraphicsCommandList* a_pCmdList,
 		Engine::Handle<Resource::ParticlesAsset> a_particleHandle,
-		const Resource::ResourceManager& a_resourceManager
+		UINT a_capacity
 	)
 	{
-		auto* _pParticleAsset = a_resourceManager.Get(a_particleHandle);
-		if (!_pParticleAsset)
-		{
-			ENGINE_WARNING("パーティクルプールの作成に失敗 : パーティクルアセットが読み込めませんでした");
-			return false;
-		}
-
-		// パーティクルデータの確保(容量は ToPoolCapacity で丸める。作り直しの判定と同じ丸め方)
-		m_maxCapacity = ToPoolCapacity(_pParticleAsset->GetCapacity());
+		// 容量は呼ぶ側が ToInitialCapacity で決める(0 個のバッファは作らない)
+		m_maxCapacity = (std::max)(a_capacity, 1u);
+		m_initialCapacity = m_maxCapacity;
+		m_growFromCapacity = m_maxCapacity;
 		m_assetHandle = a_particleHandle;
 
 		// バッファの作成
@@ -107,6 +102,106 @@ namespace Engine::Particle
 			});
 
 		return true;
+	}
+
+	//======================================================================================
+	// 容量を伸ばす : 作り直して古い中身を先頭へ写す
+	//
+	// 状態の約束 : フレームの頭は COMMON(粒・デッドリスト・カウンターは、発生と更新が
+	// 暗黙の昇格で使っている)。ここでは写す・埋めるのに明示して遷移させ、EndGrow で COMMON へ戻す
+	//======================================================================================
+	bool GPUParticlePool::BeginGrow(
+		D3D12::Device* a_pDevice,
+		D3D12::DescriptorHeapManager* a_pHeapManager,
+		D3D12::GraphicsCommandList* a_pCmdList,
+		UINT a_newCapacity)
+	{
+		if (!a_pDevice || !a_pHeapManager || !a_pCmdList) return false;
+		if (a_newCapacity <= m_maxCapacity) return false;
+		if (!m_particlePool.GetResource() || !m_deadList.GetResource() || !m_counterBuffer.GetResource()) return false;
+
+		//------------------------------------------------------------------
+		// 新しい3本を作る
+		//------------------------------------------------------------------
+		D3D12::RWStructuredBuffer<ParticleData> _newPool;
+		D3D12::RWStructuredBuffer<uint32_t> _newDeadList;
+		D3D12::RWStructuredBuffer<uint32_t> _newAliveList;
+		_newPool.Create(a_pDevice, a_pHeapManager, a_newCapacity);
+		_newDeadList.Create(a_pDevice, a_pHeapManager, a_newCapacity);
+		_newAliveList.Create(a_pDevice, a_pHeapManager, a_newCapacity);
+
+		if (!_newPool.GetResource() || !_newDeadList.GetResource() || !_newAliveList.GetResource())
+		{
+			// 作れたぶんも返す(ディスクリプタが漏れないように)
+			_newPool.Release();
+			_newDeadList.Release();
+			_newAliveList.Release();
+			return false;
+		}
+		_newAliveList.GetResource()->SetName(L"ParticleAliveList");
+
+		//------------------------------------------------------------------
+		// 古い粒とデッドリストを、新しい先頭へ写す。
+		// デッドリストは [0, カウンター) が空き番号のスタック。全部写しておけば、
+		// その上へ新しい空き番号を積むだけで済む(カウンターは GPU にしか無いので、積むのは CS)
+		//------------------------------------------------------------------
+		m_particlePool.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		_newPool.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
+		_newDeadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
+
+		a_pCmdList->CopyBufferRegion(
+			_newPool.GetResource(), 0,
+			m_particlePool.GetResource(), 0,
+			static_cast<UINT64>(m_maxCapacity) * sizeof(ParticleData));
+		a_pCmdList->CopyBufferRegion(
+			_newDeadList.GetResource(), 0,
+			m_deadList.GetResource(), 0,
+			static_cast<UINT64>(m_maxCapacity) * sizeof(uint32_t));
+
+		// 増えた範囲は埋める CS が書くので UAV へ。カウンターも CS が足す
+		_newPool.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		_newDeadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		m_counterBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+		//------------------------------------------------------------------
+		// 古い3本は、このフレームのコピーと前のフレームの描画が読み終わってから返す。
+		// 壊すだけではディスクリプタが返らないので Release() を呼ぶ
+		//------------------------------------------------------------------
+		struct OldBuffers
+		{
+			D3D12::RWStructuredBuffer<ParticleData> pool;
+			D3D12::RWStructuredBuffer<uint32_t> deadList;
+			D3D12::RWStructuredBuffer<uint32_t> aliveList;
+		};
+		auto _spOld = std::make_shared<OldBuffers>();
+		_spOld->pool = std::move(m_particlePool);
+		_spOld->deadList = std::move(m_deadList);
+		_spOld->aliveList = std::move(m_aliveList);
+		MainEngine::Instance().RegisterDeferredResource([_spOld]()
+			{
+				_spOld->pool.Release();
+				_spOld->deadList.Release();
+				_spOld->aliveList.Release();
+			});
+
+		m_particlePool = std::move(_newPool);
+		m_deadList = std::move(_newDeadList);
+		m_aliveList = std::move(_newAliveList);
+
+		m_growFromCapacity = m_maxCapacity;
+		m_maxCapacity = a_newCapacity;
+		return true;
+	}
+
+	void GPUParticlePool::EndGrow(D3D12::GraphicsCommandList* a_pCmdList)
+	{
+		if (!a_pCmdList) return;
+
+		// 遷移のバリアが、埋める CS の書き込みの完了待ちも兼ねる
+		m_particlePool.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
+		m_deadList.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
+		m_counterBuffer.Barrier(a_pCmdList, D3D12_RESOURCE_STATE_COMMON);
 	}
 
 	void GPUParticlePool::Release()

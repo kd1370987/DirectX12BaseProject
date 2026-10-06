@@ -36,6 +36,10 @@ namespace
 		Engine::Handle<ID3D12RootSignature> resetRootSig = {};
 		Engine::Handle<ID3D12PipelineState> resetPSO = {};
 
+		// プールを伸ばしたあと、増えた範囲を使えるようにする
+		Engine::Handle<ID3D12RootSignature> growRootSig = {};
+		Engine::Handle<ID3D12PipelineState> growPSO = {};
+
 		// このフレームの乱数の種
 		uint32_t frameCounter = 0;
 	};
@@ -98,6 +102,13 @@ namespace Engine::Graphics
 			"Asset/Shader/Source/Particle/Update/ResetDrawArgs.cso",
 			"ResetDrawArgsShader",
 			g_particle.resetRootSig, g_particle.resetPSO);
+
+		SetupComputeShader(
+			a_pPSOManager,
+			a_resourceManager,
+			"Asset/Shader/Source/Particle/Update/GrowParticlePool.cso",
+			"GrowParticlePoolShader",
+			g_particle.growRootSig, g_particle.growPSO);
 	}
 
 	void ExecuteParticleSimulation(GraphicsEngine* a_pGE, RenderContext* a_pCtx)
@@ -110,6 +121,66 @@ namespace Engine::Graphics
 
 		auto* _pParticleManager = a_pGE->RefParticleManager();
 		if (!_pParticleManager) return;
+
+		//----------------------------------------------------------------------------------
+		// 容量を伸ばす(発生より前)
+		//
+		// UploadEmitData が「足りない」と見たプールだけ。
+		// 作り直して古い中身を写し(BeginGrowPool)、増えた範囲を CS で使えるようにする :
+		//   mode 0 : 増えた粒を 0 で埋め、その番号をデッドリストの上へ積む(カウンターは読むだけ)
+		//   mode 1 : カウンターを増えたぶん足す(1スレッド)
+		// 2つの間は UAV バリアで区切る(読み終わる前に足すと積む位置がずれる)。
+		// 伸ばす CS が読めていなければ伸ばさない(出す数は空きが無いぶん減るだけで、壊れはしない)
+		//----------------------------------------------------------------------------------
+		const bool _isGrowReady = g_particle.growRootSig.IsValid() && g_particle.growPSO.IsValid();
+		if (_isGrowReady)
+		{
+			for (auto& [_handle, _pool] : _pParticleManager->GetPoolMap())
+			{
+				if (!_pool) continue;
+				if (!_pParticleManager->HasGrowTarget(_handle)) continue;
+				if (!_pParticleManager->BeginGrowPool(_handle, _pCmd)) continue;
+
+				const UINT _oldCapacity = _pool->GetGrowFromCapacity();
+				const UINT _addCount = _pool->GetMaxCapacity() - _oldCapacity;
+
+				a_pCtx->BindBindlessHeaps();
+				a_pCtx->SetComputeRootSignature(g_particle.growRootSig);
+				a_pCtx->SetComputePSO(g_particle.growPSO);
+
+				// ※ HLSL 側 GrowParam(GrowParticlePool.hlsl)と並びを合わせること
+				UINT _growParam[] = {
+					_pool->GetParticlePoolUAV().GetIndex(),
+					_pool->GetDeadListUAV().GetIndex(),
+					_pool->GetCounterUAV().GetIndex(),
+					_oldCapacity,
+					_addCount,
+					0u,		// mode 0 : 埋めて積む
+				};
+				a_pCtx->ComputeBindDescriptorIndices(0, _growParam);
+
+				// シェーダーの numthreads(64) と合わせる
+				constexpr UINT _kGrowThreadGroupSize = 64u;
+				a_pCtx->Dispatch((_addCount + _kGrowThreadGroupSize - 1u) / _kGrowThreadGroupSize, 1, 1);
+
+				D3D12::UAVBarrier(
+					_pCmd,
+					{
+						_pool->GetParticlePoolResource(),
+						_pool->GetDeadListResource(),
+						_pool->GetCounterResource()
+					}
+				);
+
+				_growParam[5] = 1u;		// mode 1 : カウンターを足す
+				a_pCtx->ComputeBindDescriptorIndices(0, _growParam);
+				a_pCtx->Dispatch(1, 1, 1);
+
+				// COMMON へ戻す(遷移が CS の書き込みの完了待ちも兼ねる)。
+				// この下の発生と更新は今まで通り COMMON から使う
+				_pool->EndGrow(_pCmd);
+			}
+		}
 
 		//----------------------------------------------------------------------------------
 		// 発生

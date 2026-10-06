@@ -62,7 +62,7 @@ namespace Engine::Resource
 		float GetGravityPow() const { return m_gravityPow; }				// 重力影響度
 		float GetLifeTimeMin() const { return m_lifeTimeMin; }				// 最小生存時間
 		float GetLifeTimeMax() const { return m_lifeTimeMax; }				// 最大生存時間
-		int GetCapacity() const { return m_capacity; }						// 最大生成数
+		int GetCapacity() const { return m_capacity; }						// 最初に用意しておく粒の数(足りなければプールが伸びる)
 		int GetEmissionRate() const { return m_emissionRate; }				// 発生レート
 		Particle::EParticleOrientation GetOrientation() const { return m_orientation; }	// 板ポリの向き
 		float GetStretch() const { return m_stretch; }						// 進行方向への伸ばし倍率
@@ -136,7 +136,9 @@ namespace Engine::Resource
 		float m_lifeTimeMin = 0.5f;
 		float m_lifeTimeMax = 2.0f;
 
-		// 最大パーティクル発生数
+		// 最初に用意しておく粒の数(目安)。
+		// 以前は上限だったが、今はプールが足りなくなったら自動で伸びる(PARTICLE_POOL_BLOCK_SIZE 単位)。
+		// 大きく伸びたプールは、眠ってしばらくするとこの数まで縮む。保存のキーは m_capacity のまま
 		int m_capacity = 10000;
 
 		// 発生レート / s

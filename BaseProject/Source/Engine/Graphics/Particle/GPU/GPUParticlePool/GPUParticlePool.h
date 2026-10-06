@@ -19,14 +19,35 @@ namespace Engine::Particle
 		/// <param name="a_pDevice">デバイスポインタ</param>
 		/// <param name="a_pCmdList">コマンドリストポインタ</param>
 		/// <param name="a_particleHandle">パーティクルアセットのハンドル</param>
-		/// <param name="a_resourceManager">アセットの値を引く先</param>
+		/// <param name="a_capacity">最初の容量(ToInitialCapacity で決めたもの)。足りなくなったら BeginGrow で伸ばす</param>
 		bool Init(
 			D3D12::Device* a_pDevice,
 			D3D12::DescriptorHeapManager* a_pHeapManager,
 			D3D12::GraphicsCommandList* a_pCmdList,
 			Engine::Handle<Resource::ParticlesAsset> a_particleHandle,
-			const Resource::ResourceManager& a_resourceManager
+			UINT a_capacity
 		);
+
+		//------------------------------------------------------------------
+		// 容量を伸ばす(フレームの中、発生の Dispatch より前に呼ぶ)
+		//
+		//   BeginGrow : 粒バッファ・デッドリスト・生存リストを大きく作り直し、
+		//               古い粒とデッドリストを新しい先頭へ写す。古い3本は GPU が使い終わってから返す。
+		//               カウンターと間接描画の引数は大きさが変わらないので作り直さない。
+		//               終わると粒・デッドリスト・カウンターは UAV の状態
+		//   (呼ぶ側)   : 増えた範囲を 0 で埋め、その番号をデッドリストへ積み、カウンターを足す(GrowParticlePool CS)
+		//   EndGrow   : 3本を COMMON へ戻す(フレームの残りは今まで通り COMMON から使う)
+		//
+		// 粒の番号は変わらない(先頭へそのまま写す)ので、生きている粒はそのまま動き続ける
+		//------------------------------------------------------------------
+		bool BeginGrow(
+			D3D12::Device* a_pDevice,
+			D3D12::DescriptorHeapManager* a_pHeapManager,
+			D3D12::GraphicsCommandList* a_pCmdList,
+			UINT a_newCapacity
+		);
+		void EndGrow(D3D12::GraphicsCommandList* a_pCmdList);
+		UINT GetGrowFromCapacity() const { return m_growFromCapacity; }		// 直近の BeginGrow の前の容量
 
 		/// <summary>
 		/// 持っているバッファをすべて返す(ディスクリプタヒープの席も返す)
@@ -43,12 +64,15 @@ namespace Engine::Particle
 		const Handle<D3D12::SRV>& GetParticlePoolSRV() const { return m_particlePool.GetSRV(); }
 		const Handle<D3D12::UAV>& GetDeadListUAV() const { return m_deadList.GetUAV(); }
 		const Handle<D3D12::UAV>& GetCounterUAV() const { return m_counterBuffer.GetUAV(); }
-		UINT GetMaxCapacity() const { return m_maxCapacity; }
+		UINT GetMaxCapacity() const { return m_maxCapacity; }			// いまの容量(伸びる)
+		UINT GetInitialCapacity() const { return m_initialCapacity; }	// 作ったときの容量(縮めるときの戻り先)
 
-		// アセットの Capacity から、プールの容量を決める(1 以上)。
-		// エディターでは 0 にもできるので、0 個のバッファを作らないよう下限を付ける。
-		// プールを作るときと「アセットの値と食い違っているか」を比べるときで、必ず同じ丸め方にすること
-		static UINT ToPoolCapacity(int a_assetCapacity) { return static_cast<UINT>((std::max)(a_assetCapacity, 1)); }
+		// アセットの Capacity(最初に用意しておく数の目安)から、最初の容量を決める。
+		// ブロック単位に切り上げる。0 でも 1 ブロックは用意する
+		static UINT ToInitialCapacity(int a_assetCapacity)
+		{
+			return RoundUpToPoolBlock(static_cast<uint64_t>((std::max)(a_assetCapacity, 0)));
+		}
 
 		//------------------------------------------------------------------
 		// 間接描画の引数
@@ -100,8 +124,14 @@ namespace Engine::Particle
 		// 生存リスト : 容量ぶん(生きている粒は容量を超えない)
 		D3D12::RWStructuredBuffer<uint32_t> m_aliveList;
 
-		// 最大容量 (アセットから取得したキャパシティ) 
-		UINT m_maxCapacity = 10000;
+		// いまの容量。足りなくなったら BeginGrow でブロック単位に伸びる
+		UINT m_maxCapacity = 0;
+
+		// 作ったときの容量(眠っている間に縮めるときの戻り先)
+		UINT m_initialCapacity = 0;
+
+		// 直近の BeginGrow の前の容量(増えた範囲を埋める CS が使う)
+		UINT m_growFromCapacity = 0;
  
 
 

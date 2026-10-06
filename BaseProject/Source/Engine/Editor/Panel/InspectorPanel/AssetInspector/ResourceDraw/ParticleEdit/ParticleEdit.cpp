@@ -69,7 +69,9 @@ namespace Engine::Editor::Inspector
 
 		Engine::Editor::Line();
 
-		Engine::Editor::Field("Capacity", a_pParticles->RefCapacity(), 1, 0);
+		Engine::Editor::Field("Initial Capacity", a_pParticles->RefCapacity(), 1, 0);
+		Engine::Editor::Tooltip("最初に用意しておく粒の数(目安)。足りなくなったら自動で伸びる。"
+			"大きく伸びたプールは、使われなくなってしばらくするとこの数まで縮む");
 		Engine::Editor::Field("EmissionRate", a_pParticles->RefEmissionRate(), 1, 0);
 
 		Engine::Editor::Header("Over Lifetime");

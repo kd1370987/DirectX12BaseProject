@@ -30,13 +30,29 @@ namespace Engine::Particle
 	inline constexpr double PARTICLE_POOL_SLEEP_MARGIN_SECONDS = 0.5;
 
 	//======================================================================================
-	// アセットの Capacity が変わってから、プールを作り直すまでの待ち(秒)
+	// プールの容量(足りなくなったら伸ばす)
 	//
-	// エディターで Capacity をドラッグしている間は毎フレーム値が変わる。
-	// そのたびに作り直すと、GPU のバッファの確保とコピーが毎フレーム走るので、
-	// 同じ値のまま少し落ち着いてから作り直す(作り直すと中の粒は消える)
+	// 容量はアセットで決め打ちにせず、要る数に合わせて伸ばす。
+	// 要る数は CPU 側で数える :「生きている粒の数 ≦ 直近の最大寿命の間に出した粒の合計」
+	// (どの粒も最大寿命のうちに消えるので必ず成り立つ。GPU から読み戻さないので遅れが無い)。
+	// 伸ばすときは1本のバッファを大きく作り直して、中身を GPU 上で写す(EmitterSlotPool と同じ)。
+	//
+	//   BLOCK_SIZE     : 伸ばす単位(粒)。1ブロック = 粒 64KB + デッドリスト 4KB + 生存リスト 4KB
+	//   GROW_HEADROOM  : 伸ばすときに要る数へ足す余裕(割合)。少しずつ増える演出で毎フレーム伸ばさないため
+	//   HARD_LIMIT     : 1プールの上限(暴走対策)。粒 64MB + リスト 8MB。超えたぶんはそのフレームでは出ない
+	//   SHRINK_IDLE    : 眠ってから(最後の粒が消えてから)これだけ経ったら、初期の容量へ縮める(秒)
 	//======================================================================================
-	inline constexpr double PARTICLE_POOL_REBUILD_DELAY_SECONDS = 0.5;
+	inline constexpr uint32_t PARTICLE_POOL_BLOCK_SIZE = 1024;
+	inline constexpr double PARTICLE_POOL_GROW_HEADROOM = 0.25;
+	inline constexpr uint32_t PARTICLE_POOL_HARD_LIMIT = 1u << 20;
+	inline constexpr double PARTICLE_POOL_SHRINK_IDLE_SECONDS = 10.0;
+
+	// ブロック単位に切り上げる(0 なら 1 ブロック。上限で頭打ち)
+	inline uint32_t RoundUpToPoolBlock(uint64_t a_count)
+	{
+		const uint64_t _blocks = (std::max<uint64_t>(a_count, 1) + PARTICLE_POOL_BLOCK_SIZE - 1) / PARTICLE_POOL_BLOCK_SIZE;
+		return static_cast<uint32_t>((std::min<uint64_t>)(_blocks * PARTICLE_POOL_BLOCK_SIZE, PARTICLE_POOL_HARD_LIMIT));
+	}
 
 	//======================================================================================
 	// プールの準備中に溜めておく発生命令の上限(1アセットあたり)
