@@ -5,7 +5,7 @@
 
 #include "Application/Utility/PrefabSpawnHelper.h"
 #include "Application/Components/Transform/LocalTransformComponent.h"
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 
 namespace App::Component
 {

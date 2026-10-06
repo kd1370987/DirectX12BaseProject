@@ -13,7 +13,7 @@
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 
 // HUD表示に使うコンポーネント群(オフセット・パーティクルの発生方向など)
 #include "Application/Components/Transform/FollowAnimationNodeComponent.h"
@@ -1194,9 +1194,9 @@ namespace Editor
 			}
 
 			// 貼り付け時に親子関係を貼り直すため、コピー元のGUIDを覚えておく
-			if (a_pWorld->HasComponent<App::Component::GUIDComponent>(_entity))
+			if (a_pWorld->HasComponent<Engine::ECS::GUIDComponent>(_entity))
 			{
-				if (const auto* _pGUIDComp = a_pWorld->RefData<App::Component::GUIDComponent>(_entity))
+				if (const auto* _pGUIDComp = a_pWorld->RefData<Engine::ECS::GUIDComponent>(_entity))
 				{
 					_copyData.srcGUID = _pGUIDComp->guid;
 				}
@@ -1226,7 +1226,7 @@ namespace Editor
 			_guidMap.emplace(_copyData.srcGUID, _newGUID);
 		}
 
-		const auto _guidTypeID			= a_pWorld->GetCompTypeID<App::Component::GUIDComponent>();
+		const auto _guidTypeID			= a_pWorld->GetCompTypeID<Engine::ECS::GUIDComponent>();
 		const auto _hierarchyTypeID		= a_pWorld->GetCompTypeID<App::Component::HierarchyComponent>();
 		const auto _localTransformTypeID = a_pWorld->GetCompTypeID<App::Component::LocalTransformComponent>();
 
@@ -1244,9 +1244,9 @@ namespace Editor
 
 			// GUIDは一意でなければならないので、配り直したものへ差し替える
 			auto _guidIt = _dataMap.find(_guidTypeID);
-			if (_guidIt != _dataMap.end() && _guidIt->second.size() >= sizeof(App::Component::GUIDComponent))
+			if (_guidIt != _dataMap.end() && _guidIt->second.size() >= sizeof(Engine::ECS::GUIDComponent))
 			{
-				auto* _pGUIDComp = reinterpret_cast<App::Component::GUIDComponent*>(_guidIt->second.data());
+				auto* _pGUIDComp = reinterpret_cast<Engine::ECS::GUIDComponent*>(_guidIt->second.data());
 
 				auto _found = _guidMap.find(_pGUIDComp->guid);
 				if (_found != _guidMap.end()) _pGUIDComp->guid = _found->second;

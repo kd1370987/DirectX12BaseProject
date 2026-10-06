@@ -482,6 +482,25 @@ Core   → Engine / App / Editor
 App からも Engine からも使われる、ライブラリのような道具(数学・文字列・ファイル・型情報・GUID・ログ・アルゴリズムなど)。
 Core は上の層の型を一切知らない。Engine の型(`Handle` など)に依存するものは Engine 側に置く(例 : `Engine/Utility/Pool`)。
 
+### 上の層を呼びたいとき(窓口と組み立て)
+
+下の層から上の層の機能を呼ぶ必要があるときは、下の層に窓口(インターフェース)を置き、上の層がそれを実装する。
+実装を差し込むのは、全部の層を知っている最上位の `main.cpp`(組み立ての場所)だけ。
+
+```cpp
+// Engine : 窓口だけを知る
+namespace Engine::DevTool { class IDevTool { public: virtual void Update(float a_deltaTime) = 0; ... }; }
+
+// Editor : 実装する
+class MainEditor : public Engine::DevTool::IDevTool { ... };
+
+// main.cpp : つなぐ
+Engine::MainEngine::Instance().SetDevTool(&Editor::MainEditor::Instance());
+```
+
+エディター(開発ツール)は `Engine::DevTool::IDevTool` を通してだけ呼ぶ。差し込まれていなければ nullptr なので、
+呼ぶ側は必ず確かめる(Shipping ではエディター無しで動かすため)。
+
 ### 編集UIの窓口(EditorField)
 
 コンポーネントの Edit・オプション・ゲームオブジェクトなど、エディターの外から編集UIを組むときは

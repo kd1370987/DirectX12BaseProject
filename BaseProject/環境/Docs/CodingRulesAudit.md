@@ -28,9 +28,9 @@
 | 優先度 | 項目 | 修正前 | 修正後 |
 | --- | --- | ---: | ---: |
 | Critical | `ENGINE_ERRLOG` の条件反転 | 2 | **0** |
-| Critical | 層の逆流 Engine → App(ファイル数) | 7 | 3 |
-| Critical | 層の逆流 Engine → Editor(ファイル数) | 3 | 3 |
-| Critical | 層の逆流 App → Editor(ファイル数) | 3 | 3 |
+| Critical | 層の逆流 Engine → App(ファイル数) | 7 | **0** |
+| Critical | 層の逆流 Engine → Editor(ファイル数) | 3 | **0** |
+| Critical | 層の逆流 App → Editor(ファイル数) | 3 | **0** |
 | Critical | PCH 構造(トップ PCH が Engine 全体を読む) | 1 | **0**(第3回で分類別 PCH に分割) |
 | Critical | 描画の global state(`g_skinning` / `g_particle`) | 2 | **0** |
 | High | global namespace への直接定義 | 269 | **0** |
@@ -79,7 +79,7 @@ Medium   372
 Low      509
 
 修正後:
-Critical    9   (層の逆流 9。今回は対象外)
+Critical    0
 High       23
 Medium     32
 Low       411   (うち役割コメント無し 307)
@@ -354,9 +354,6 @@ ECS の良い点(適合を確認したもの) :
 
 | ファイル | 内容 | 修正しなかった理由 | 推奨対応 |
 | --- | --- | --- | --- |
-| Engine/MainEngine.cpp, Engine/Scene/BaseScene/BaseScene.cpp, Engine/Scene/SceneManager/SceneManager.cpp | Engine → Editor(MainEditor の駆動・通知) | REFACTORING_PLAN フェーズ1 の残り。駆動の付け替えが必要 | エディターの駆動を App(最上位)へ移し、Engine からの通知はコールバックに |
-| Engine/MainEngine.cpp, Engine/Scene/BaseScene/BaseScene.cpp, Engine/Resource/Data/Prefab/Prefab.cpp | Engine → App(`App.h` / `GUIDComponent` / `CombatReticleHUD`) | Engine が App の型を直接使っている設計 | GUID の扱いを Engine 側の仕組みへ、HUD は App 側から登録 |
-| Application/App.cpp, GameManager.cpp, InputActionManager.cpp | App → Editor(`::Editor::MainEditor`) | 同上(エディターの起動・ログ表示) | App を最上位の組み立て役にし、MainEditor への依存は main 側へ |
 | Editor/Helper/EditorField.cpp ほか | エディターの即時モード状態を global に持つ(10 件) | 置き場所(EditorContext 等)を決める必要がある | EditorContext に持たせる。ImGui の C コールバック用 `g_pImGuiHeapManager` は外部ライブラリ都合の例外 |
 | Application/Object/SequenceBgm.cpp | `g_globalDuck` / `g_livingBgmVec` | BGM の管理者を決める設計変更 | AudioManager か Sequence 側の管理者へ |
 | ResourceManager.h / DescriptorHeapManager.h ほか | const にできない `Get` 13 件 | 内部で非 const 関数を呼ぶ・可変ポインタを返す | const 版の内部取得関数を足す / 書き込み用途は `Ref*` に改名 |
@@ -376,7 +373,21 @@ ECS の良い点(適合を確認したもの) :
 * 分割で表面化した include 漏れは 1 件 : Engine の `BaseScene.cpp` が読む App のヘッダー `Decoration.h` が
   App の Core 取り込み(AppCommon.h)に頼っていたので、ヘッダー自身に include を足した。
 
-### 6.5 Build Result
+### 6.5 第4回の変更(層の逆流の解消)
+
+* 開発ツールの窓口 `Engine::DevTool::IDevTool`(`Engine/DevTool/IDevTool.h`)を追加し、`Editor::MainEditor` が実装する。
+  MainEngine は `SetDevTool` で受け取ったものだけを呼ぶ(初期化・解放・更新・描画・入力リセット・カメラの割り込み)。
+  カメラの割り込み(エフェクトエディター → フリーカメラ)の判定は MainEngine から MainEditor へ移した。
+* SceneManager はシーン切り替えの通知と、エフェクトエディターの確認用シーン(`IsScenePreviewActive` / `UpdateScenePreview` / `DrawScenePreview`)を窓口経由で呼ぶ。
+* App(App.cpp・GameManager・InputActionManager)は `MainEngine::RefDevTool()` 経由でプロファイラの締め・モーダル判定・編集UIの登録を行う。
+* 組み立ては最上位の `main.cpp` : `MainEngine::Instance().SetDevTool(&Editor::MainEditor::Instance())`。
+  差し込まなければ Engine と App はエディター無しで動く(呼ぶ側はすべて nullptr を確かめる)。
+* `GUIDComponent` はエンジンのシーン保存・プレハブ展開が前提にしている永続IDなので `Engine/ECS/Component`(`Engine::ECS`)へ移した。保存キー "GUIDComponent" は不変。
+* 使っていなかった include を削除(MainEngine.cpp の App.h、BaseScene.cpp の Editor.h / CombatReticleHUD.h、EngineCommon.h のコメントアウト行)。
+* 以前 Editor.h 経由で間接的に読めていた `MainEngine.h` を InputActionManager.cpp で明示的に include。
+* ルール文書 4.1 に「上の層を呼びたいときは下に窓口、実装は上、つなぐのは main.cpp」を追記。
+
+### 6.6 Build Result
 
 ```text
 Debug|x64 フルリビルド
@@ -390,6 +401,10 @@ PCH 分割後(第3回)
   Debug|x64   フルリビルド : Success / Warning: 2164(重複除去 420。種類は修正前と同じ) / Error: 0
   Release|x64 フルリビルド : Success / Warning: 2136 / Error: 0
   ※ 総数の +8 は PCH を作る .cpp が増え、同じヘッダーの警告が重複して数えられた分
+
+層の逆流の解消後(第4回)
+  Debug|x64   フルリビルド : Success / Warning: 2164(種類は修正前と同じ) / Error: 0
+  Release|x64 フルリビルド : Success / Warning: 2136 / Error: 0
 ```
 
 実行(起動・シーン読み込み・ゲームモード往復・エディター操作)は確認していない。

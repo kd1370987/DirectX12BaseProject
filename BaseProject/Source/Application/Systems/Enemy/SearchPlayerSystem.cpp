@@ -8,7 +8,7 @@
 
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
 #include "Engine/Common/Color.h"
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 
 namespace App::System
 {
@@ -191,6 +191,6 @@ namespace App::System
 			}
 		)
 		// 絞り込みに使わない読み : GUID からの解決とプレイヤーの自動検索、プレイヤーの位置
-		.Reads<Component::GUIDComponent, Component::PlayerControllTag, Component::WorldMatrixComponent>();
+		.Reads<Engine::ECS::GUIDComponent, Component::PlayerControllTag, Component::WorldMatrixComponent>();
 	}
 }

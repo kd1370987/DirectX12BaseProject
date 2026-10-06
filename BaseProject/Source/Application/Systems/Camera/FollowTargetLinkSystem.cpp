@@ -2,14 +2,14 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 #include "Application/Components/Camera/FollowTargetComponent.h"
 
 namespace App::System
 {
 	void FollowTargetLinkSystem::Init(App::ECS::APPWorld& a_world)
 	{
-		a_world.AwakeTask<const Component::GUIDComponent,Component::FollowTargetComponent>(
+		a_world.AwakeTask<const Engine::ECS::GUIDComponent,Component::FollowTargetComponent>(
 			// AwakeTag を見るので Awake フェーズで回す
 			Engine::ECS::ESystemType::Awake,
 			"FollowTargetLinkSystem",
@@ -18,7 +18,7 @@ namespace App::System
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
 				Component::AwakeTag* a_tag,
-				const Component::GUIDComponent* a_guidArray,
+				const Engine::ECS::GUIDComponent* a_guidArray,
 				Component::FollowTargetComponent* a_followArray
 				)
 			{

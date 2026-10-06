@@ -2,14 +2,14 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
 
 namespace App::System
 {
 	void HierarchyLinkSystem::Init(App::ECS::APPWorld& a_world)
 	{
-		a_world.AwakeTask<const Component::GUIDComponent, Component::HierarchyComponent>(
+		a_world.AwakeTask<const Engine::ECS::GUIDComponent, Component::HierarchyComponent>(
 			// AwakeTag を見るので Awake フェーズで回す。
 			// 親IDを解決する側なので、これを待つ AttachmentReadyGateSystem より前に
 			// 走る必要がある(HierarchyComponent の読み書きで順序が確定する)
@@ -20,7 +20,7 @@ namespace App::System
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
 				Component::AwakeTag* a_tag,
-				const Component::GUIDComponent* a_guidArray,
+				const Engine::ECS::GUIDComponent* a_guidArray,
 				Component::HierarchyComponent* a_hierarchyArray
 				)
 			{

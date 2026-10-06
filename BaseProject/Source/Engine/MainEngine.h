@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+namespace Engine::DevTool
+{
+	class IDevTool;
+}
+
 namespace Engine
 {
 	// 前方宣言
@@ -70,6 +75,12 @@ namespace Engine
 		const Window::NativeWindow* GetNativeWindow() const;
 		Window::NativeWindow* RefNativeWindow();
 
+		// 開発ツール(エディター)の差し込み : 最上位(main.cpp)が Init より前に渡す。借り物
+		void SetDevTool(DevTool::IDevTool* a_pDevTool) { m_pDevTool = a_pDevTool; }
+
+		// 差し込まれていなければ nullptr(ツール無しで動く)
+		DevTool::IDevTool* RefDevTool() { return m_pDevTool; }
+
 		// グラフィックスエンジンアクセス
 		Graphics::GraphicsEngine* RefGraphicsEngine();
 
@@ -136,6 +147,7 @@ namespace Engine
 		std::unique_ptr<ECS::EngineServices> m_upEngineServices = nullptr;				// アプリ寿命のサービス一式(正本)
 
 		// エンジン設定
+		DevTool::IDevTool* m_pDevTool = nullptr;								// 開発ツール(借り物。無くてもよい)
 		EAppMode m_appMode = EAppMode::Editor;								// アプリケーションのモード
 		EBuildConfiguration m_buildMode = EBuildConfiguration::Debug;		// ビルドモード
 

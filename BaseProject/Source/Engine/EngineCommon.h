@@ -214,7 +214,6 @@ namespace Engine::Resource
 // エディター
 // 
 //==========================================================================================
-//#include "Editor/Editor.h"
 #include "Engine/EditorField/EditorField.h"		// 編集UIの入口(エディターの外はこれだけを使う)
 // エディター内部の描画ヘルパー(EditorHelper.h)は ImGui を使うので EditorPCH.h にある
 

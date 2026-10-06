@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Editor/EditorCommon.h"
+#include "Engine/DevTool/IDevTool.h"
 
 namespace Engine::D3D12
 {
@@ -28,22 +29,23 @@ namespace Editor
 	// メインエディタクラス
 	// 
 	//=======================================================================
-	class MainEditor
+	// Engine へは開発ツールの窓口(IDevTool)として差し込まれる(main.cpp)
+	class MainEditor : public Engine::DevTool::IDevTool
 	{
 	public:
 
 		// 初期化
 		// a_pServices : アプリ寿命のサービス一式(借り物)。パネルへはここから配る
-		bool Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager, ECS::EngineServices* a_pServices);
+		bool Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager, ECS::EngineServices* a_pServices) override;
 
 		// 解放
-		void Release();
+		void Release() override;
 
 		// 更新
-		void Update(float a_dt);
+		void Update(float a_dt) override;
 
 		// 描画
-		void Draw(D3D12::GraphicsCommandList* a_pCmdList);
+		void Draw(D3D12::GraphicsCommandList* a_pCmdList) override;
 
 		/// <summary>
 		/// エディター側に残っている入力を捨てる
@@ -52,7 +54,7 @@ namespace Editor
 		/// アプリのモードを切り替えるときに呼ぶ。押しっぱなしのキー・溜まった入力イベント・
 		/// フリーカメラの操作中フラグを、切り替えの向こう側へ持ち越さないようにする。
 		/// </remarks>
-		void ResetInput();
+		void ResetInput() override;
 
 		/// <summary>
 		/// シーンが切り替わることをエディターへ知らせる
@@ -63,7 +65,15 @@ namespace Editor
 		/// 存在しないので、ここで捨てる。持ち越すと解放済みのオブジェクトを
 		/// インスペクターが描きにいって落ちる。
 		/// </remarks>
-		void OnSceneChanged();
+		void OnSceneChanged() override;
+
+		// カメラの割り込み : エフェクトエディターのカメラが最優先、次にエディターモードのフリーカメラ
+		bool TryGetCameraOverride(EAppMode a_mode, Math::Matrix& a_outWorld, Math::Matrix& a_outProj) const override;
+
+		// エフェクトエディターの確認用シーン(開いている間はゲームのシーンの代わりに回す)
+		bool IsScenePreviewActive() const override;
+		void UpdateScenePreview(float a_deltaTime) override;
+		void DrawScenePreview() override;
 
 		//=======================================================================
 		// ログについて
@@ -92,7 +102,7 @@ namespace Editor
 		//=======================================================================
 		// フレームの終わり : メインループの末尾で呼ぶ
 		// 受け取った結果の集計と表示用データの作成はここで走る
-		void EndProfileFrame();
+		void EndProfileFrame() override;
 
 		//=======================================================================
 		// デバッグ描画について
@@ -121,7 +131,7 @@ namespace Editor
 		//
 		// 登録は Init のあとに行うこと(Init が登録済みのものを捨てる)
 		//=======================================================================
-		void RegisterEditFunc(std::function<void()> a_func);
+		void RegisterEditFunc(std::function<void()> a_func) override;
 
 		//=======================================================================
 		// エディター用フリーカメラ
@@ -146,7 +156,7 @@ namespace Editor
 		/// ImGui を通らない操作(アプリのモード切り替え・フリーカメラ)は
 		/// 呼ぶ側でここを見て止めること。
 		/// </remarks>
-		bool IsModalActive() const;
+		bool IsModalActive() const override;
 
 	private:
 
@@ -176,7 +186,7 @@ namespace Editor
 
 	private:
 		MainEditor();
-		~MainEditor();
+		~MainEditor() override;
 	public:
 		// コピー禁止
 		MainEditor(const MainEditor&) = delete;

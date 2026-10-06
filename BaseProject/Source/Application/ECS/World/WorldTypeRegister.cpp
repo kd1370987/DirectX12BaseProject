@@ -40,7 +40,7 @@
 #include "Application/Components/Animation/SkeletonPoseComponent.h"
 #include "Application/Components/Animation/NodePoseComponent.h"
 #include "Application/Components/Render/UIComponent.h"
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 #include "Application/Components/Core/NameComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
 #include "Application/Components/Transform/FollowAnimationNodeComponent.h"
@@ -270,7 +270,7 @@ namespace App::ECS
 		a_world.RegisterComponent<Component::NodePoseComponent>("NodePoseComponent");
 		a_world.RegisterComponent<Component::UIComponent>("UIComponent");
 		a_world.RegisterComponent<Component::NameComponent>("NameComponent");
-		a_world.RegisterComponent<Component::GUIDComponent>("GUIDComponent");
+		a_world.RegisterComponent<Engine::ECS::GUIDComponent>("GUIDComponent");
 		a_world.RegisterComponent<Component::HierarchyComponent>("HierarchyComponent");
 		// 出現させた側(SceneSequence)の印。ウェーブの全滅判定に使う
 		a_world.RegisterComponent<Component::SpawnerComponent>("SpawnerComponent");

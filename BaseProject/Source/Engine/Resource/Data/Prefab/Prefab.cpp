@@ -9,7 +9,7 @@
 
 // 実体化のたびにGUIDを振り直すために触る。
 // (World.h がフェーズタグを取り込んでいるのと同じで、ここも土台側のコンポーネント)
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 
 namespace Engine::Resource
 {
@@ -193,7 +193,7 @@ namespace Engine::Resource
 		//----------------------------------------------------------------------
 		// 参照の張り替えと、自分自身のGUIDの書き込み
 		//----------------------------------------------------------------------
-		const ECS::ComponentTypeID _guidTypeID = a_pWorld->GetCompTypeID<App::Component::GUIDComponent>();
+		const ECS::ComponentTypeID _guidTypeID = a_pWorld->GetCompTypeID<Engine::ECS::GUIDComponent>();
 
 		for (size_t _i = 0; _i < _instanceVec.size(); ++_i)
 		{
@@ -209,12 +209,12 @@ namespace Engine::Resource
 			if (!_instanceVec[_i].sig.test(_guidTypeID)) continue;
 
 			auto _it = _instanceVec[_i].dataMap.find(_guidTypeID);
-			if (_it == _instanceVec[_i].dataMap.end() || _it->second.size() < sizeof(App::Component::GUIDComponent))
+			if (_it == _instanceVec[_i].dataMap.end() || _it->second.size() < sizeof(Engine::ECS::GUIDComponent))
 			{
 				continue;
 			}
 
-			App::Component::GUIDComponent _guidComp = {};
+			Engine::ECS::GUIDComponent _guidComp = {};
 			std::memcpy(&_guidComp, _it->second.data(), sizeof(_guidComp));
 			_guidComp.guid = _newGUIDVec[_i];
 			std::memcpy(_it->second.data(), &_guidComp, sizeof(_guidComp));

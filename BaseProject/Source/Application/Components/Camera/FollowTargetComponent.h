@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/Scene/SceneManager/SceneManager.h"
 #include "Engine/ECS/World/World.h"
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 
 namespace App::Component
 {
@@ -33,9 +33,9 @@ struct Engine::ECS::ComponentTraits<App::Component::FollowTargetComponent>
 		if (_entity != _comp.target)
 		{
 			auto* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
-			auto _typeID = _pWorld->GetCompTypeID<App::Component::GUIDComponent>();
+			auto _typeID = _pWorld->GetCompTypeID<Engine::ECS::GUIDComponent>();
 			uint8_t* _data = _pWorld->NRefData(_entity, _typeID);
-			App::Component::GUIDComponent& _targetGUIDComp = *reinterpret_cast<App::Component::GUIDComponent*>(_data);
+			Engine::ECS::GUIDComponent& _targetGUIDComp = *reinterpret_cast<Engine::ECS::GUIDComponent*>(_data);
 			_comp.targetGUID = _targetGUIDComp.guid;
 			_comp.target = _pWorld->GetEntity(_comp.targetGUID);
 		}

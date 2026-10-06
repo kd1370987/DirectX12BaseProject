@@ -1,5 +1,8 @@
 ﻿#include "InputActionManager.h"
 
+#include "Engine/MainEngine.h"
+#include "Engine/DevTool/IDevTool.h"
+
 #include "../../UserData/UserData.h"
 
 // エンジン側
@@ -12,7 +15,6 @@
 #include "Engine/Input/InputDevice/Button/InputButtonForWindows/InputButtonForWindows.h"
 #include "Engine/Input/InputDevice/Button/InputButtonForXInput/InputButtonForXInput.h"
 
-#include "Editor/Editor.h"
 
 namespace App::Input
 {
@@ -180,7 +182,8 @@ namespace App::Input
 		Apply();
 
 		// エディター登録
-		::Editor::MainEditor::Instance().RegisterEditFunc(
+		if (auto* _pDevTool = Engine::MainEngine::Instance().RefDevTool())
+			_pDevTool->RegisterEditFunc(
 			[this]()
 			{
 				if (Engine::EditorField::WindowScope _window{ "InputSetting" })

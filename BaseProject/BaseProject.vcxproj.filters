@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
+  <ItemGroup>    <Filter Include="Source\Engine\DevTool">
+      <UniqueIdentifier>{b2813b74-4575-435e-a7ab-c43bfabe561d}</UniqueIdentifier>
+    </Filter>
+
     <Filter Include="Source\Editor">
       <UniqueIdentifier>{9993d5dd-e269-41d9-8858-2cb01e00e967}</UniqueIdentifier>
     </Filter>
@@ -2570,6 +2573,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\DevTool\IDevTool.h">
+      <Filter>Source\Engine\DevTool</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\AppPCH.h">
       <Filter>Source\Application</Filter>
     </ClInclude>
@@ -2810,8 +2816,8 @@
     <ClInclude Include="Source\Application\Components\Movement\MoveIntentComponent.h">
       <Filter>Source\Application\Components\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Application\Components\Core\GUIDComponent.h">
-      <Filter>Source\Application\Components\Core</Filter>
+    <ClInclude Include="Source\Engine\ECS\Component\GUIDComponent.h">
+      <Filter>Source\Engine\ECS\Component</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Core\NameComponent.h">
       <Filter>Source\Application\Components\Core</Filter>

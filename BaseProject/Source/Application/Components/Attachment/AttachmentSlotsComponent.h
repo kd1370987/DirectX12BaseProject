@@ -3,7 +3,7 @@
 #include "Engine/ECS/World/World.h"
 #include "Engine/Scene/SceneManager/SceneManager.h"
 #include "Engine/EditorField/EditorField.h"
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 #include "Application/Components/Core/NameComponent.h"
 
 namespace App::Component
@@ -96,9 +96,9 @@ struct Engine::ECS::ComponentTraits<App::Component::AttachmentSlotsComponent>
 		{
 			Engine::ECS::Entity _e = _pWorld->GetEntity(_loc);
 			if (_e == Engine::ECS::Limits::INVALID_ENTITY) continue;
-			if (!_pWorld->HasComponent<App::Component::GUIDComponent>(_e)) continue;
+			if (!_pWorld->HasComponent<Engine::ECS::GUIDComponent>(_e)) continue;
 
-			auto* _pGuid = _pWorld->RefData<App::Component::GUIDComponent>(_e);
+			auto* _pGuid = _pWorld->RefData<Engine::ECS::GUIDComponent>(_e);
 			if (!_pGuid) continue;
 
 			_candidateVec.push_back({ _e, _pGuid->guid, _entityLabel(_e, _pGuid->guid) });

@@ -1583,6 +1583,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Engine\DevTool\IDevTool.h" />
     <ClInclude Include="Source\Application\AppPCH.h" />
     <ClInclude Include="Source\Engine\EnginePCH.h" />
     <ClInclude Include="Source\Core\CorePCH.h" />
@@ -1693,7 +1694,7 @@
     <ClInclude Include="Source\Application\Components\Core\SpawnerComponent.h" />
     <ClInclude Include="Source\Application\Components\Combat\ActionIntentComponent.h" />
     <ClInclude Include="Source\Application\Components\Movement\MoveIntentComponent.h" />
-    <ClInclude Include="Source\Application\Components\Core\GUIDComponent.h" />
+    <ClInclude Include="Source\Engine\ECS\Component\GUIDComponent.h" />
     <ClInclude Include="Source\Application\Components\Core\NameComponent.h" />
     <ClInclude Include="Source\Application\Components\Animation\AnimatorComponent.h" />
     <ClInclude Include="Source\Application\Components\Animation\UpperAnimatorComponent.h" />

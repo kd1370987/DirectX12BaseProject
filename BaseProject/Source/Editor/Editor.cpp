@@ -225,6 +225,50 @@ namespace Editor
 	}
 
 	//======================================================================================
+	// カメラの割り込み
+	//--------------------------------------------------------------------------------------
+	// エフェクトエディターが開いているなら、そちらのカメラが最優先。
+	// 描いているのがあちらの確認用ワールドなので、フリーカメラで見ても何も映らない。
+	// それ以外はエディターモードのときだけフリーカメラを割り込ませる
+	// (実際の上書きは GraphicsEngine::Execute() 内、ECS側のカメラ設定が終わった後)
+	//======================================================================================
+	bool MainEditor::TryGetCameraOverride(EAppMode a_mode, Math::Matrix& a_outWorld, Math::Matrix& a_outProj) const
+	{
+		if (m_upEffectEditor && m_upEffectEditor->TryGetCameraOverride(a_outWorld, a_outProj)) return true;
+
+		if (a_mode == EAppMode::Editor && m_upEditorCamera && m_upEditorCamera->IsEnable())
+		{
+			a_outWorld = m_upEditorCamera->GetWorldMatrix();
+			a_outProj = m_upEditorCamera->GetProjMatrix();
+			return true;
+		}
+		return false;
+	}
+
+	//======================================================================================
+	// エフェクトエディターの確認用シーン
+	//--------------------------------------------------------------------------------------
+	// エフェクト単体を見るための画面なので、後ろでゲームが動いていると
+	// 描画も当たり判定も混ざってしまう。開いている間は SceneManager がゲームのシーンの代わりにこちらを回す
+	//======================================================================================
+	bool MainEditor::IsScenePreviewActive() const
+	{
+		return m_upEffectEditor && m_upEffectEditor->IsOpen();
+	}
+
+	void MainEditor::UpdateScenePreview(float a_deltaTime)
+	{
+		if (!IsScenePreviewActive()) return;
+		m_upEffectEditor->UpdateScene(a_deltaTime);
+	}
+
+	void MainEditor::DrawScenePreview()
+	{
+		if (!IsScenePreviewActive()) return;
+		m_upEffectEditor->DrawScene();
+	}
+
+	//======================================================================================
 	// エディター側に残っている入力を捨てる
 	//--------------------------------------------------------------------------------------
 	// モードの切り替え時に呼ぶ。切り替えを跨いで押しっぱなし扱いが残らないようにする。

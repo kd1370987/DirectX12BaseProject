@@ -4,7 +4,7 @@
 #include "Engine/Scene/SceneManager/SceneManager.h"					// シーンマネージャー
 
 // コンポーネント
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 
 // エンジン系
 #include "../../MainEngine.h"
@@ -13,7 +13,6 @@
 #include "../../Option/OptionManager.h"
 #include "../../Physics/PhysicsWorld.h"
 #include "../../Input/InputManager/InputManager.h"
-#include "Editor/Editor.h"
 #include "../../Graphics/GraphicsEngine.h"
 #include "../../Graphics/DebugDraw/DebugDraw.h"
 #include "../../Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
@@ -21,7 +20,6 @@
 #include "../../GameObject/GameObjectManager/GameObjectManager.h"
 
 // アプリ側UIオブジェクト
-#include "Application/Object/UI/CombatReticleHUD/CombatReticleHUD.h"
 
 // リソースマネージャー
 #include "../../Resource/Manager/ResourceManager/ResourceManager.h"
@@ -184,8 +182,8 @@ namespace Engine::Scene
 		// ---------------------------------------------------------
 		if (a_ar.GetMode() == Persistence::Archive::EMode::Save)
 		{
-			m_upWorld->ForEach<App::Component::GUIDComponent>(
-				[&_entityVec](ECS::Chunk* a_pChunk, uint32_t a_count, App::Component::GUIDComponent* a_guidArray)
+			m_upWorld->ForEach<Engine::ECS::GUIDComponent>(
+				[&_entityVec](ECS::Chunk* a_pChunk, uint32_t a_count, Engine::ECS::GUIDComponent* a_guidArray)
 				{
 					for (size_t _i = 0; _i < a_count; ++_i)
 					{

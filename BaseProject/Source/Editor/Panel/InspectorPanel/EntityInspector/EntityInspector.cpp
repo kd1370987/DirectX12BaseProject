@@ -11,7 +11,7 @@
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Core/NameComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 
 #include "Application/Components/Animation/AnimatorComponent.h"
 #include "Application/Components/Animation/NodePoseComponent.h"
@@ -174,9 +174,9 @@ namespace Editor::Inspector
 	// エンティティのGUIDを引く(持っていなければ既定値)
 	Core::GUID GetEntityGUID(ECS::World* a_pWorld, const ECS::Entity& a_entity)
 	{
-		if (!a_pWorld->HasComponent<App::Component::GUIDComponent>(a_entity)) return Core::GUID{};
+		if (!a_pWorld->HasComponent<Engine::ECS::GUIDComponent>(a_entity)) return Core::GUID{};
 
-		const auto* _pGUIDComp = a_pWorld->RefData<App::Component::GUIDComponent>(a_entity);
+		const auto* _pGUIDComp = a_pWorld->RefData<Engine::ECS::GUIDComponent>(a_entity);
 		return _pGUIDComp ? _pGUIDComp->guid : Core::GUID{};
 	}
 
@@ -267,9 +267,9 @@ namespace Editor::Inspector
 		// ただし子から親を指す鍵として必要なので、元のGUIDはプレハブ側に覚えさせる
 		_prefab.SetSavedGUID(GetEntityGUID(a_pWorld, a_entity));
 
-		if (uint8_t* _pGUIDData = _prefab.RefData(a_pWorld->GetCompTypeID<App::Component::GUIDComponent>()))
+		if (uint8_t* _pGUIDData = _prefab.RefData(a_pWorld->GetCompTypeID<Engine::ECS::GUIDComponent>()))
 		{
-			App::Component::GUIDComponent _guidComp = {};
+			Engine::ECS::GUIDComponent _guidComp = {};
 			std::memcpy(_pGUIDData, &_guidComp, sizeof(_guidComp));
 		}
 		// 親はシーン上のエンティティを指しているので、ルート扱いへ戻す

@@ -14,7 +14,7 @@
 
 #include "Application/Components/Core/NameComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 
 #include "../../EditorCamera/EditorCamera.h"
 #include "../../Helper/EditorHelper.h"
@@ -159,7 +159,7 @@ namespace Editor
 		_sig.set(_trsCompTypeID);
 		_sig.set(a_pWorld->GetCompTypeID<App::Component::WorldMatrixComponent>());
 		_sig.set(a_pWorld->GetCompTypeID<App::Component::NameComponent>());
-		_sig.set(a_pWorld->GetCompTypeID<App::Component::GUIDComponent>());
+		_sig.set(a_pWorld->GetCompTypeID<Engine::ECS::GUIDComponent>());
 		_sig.set(a_pWorld->GetCompTypeID<App::Component::PostDeserializeTag>());
 		
 		// ---- カメラの正面にエンティティを出現させる ----
@@ -339,10 +339,10 @@ namespace Editor
 	void Editor::HierarchyPanel::AttachChild(ECS::World* a_pWorld, const ECS::Entity& a_parent, const ECS::Entity& a_child)
 	{
 		// 安全チェック: 必要なGUIDコンポーネントがあるか
-		if (!a_pWorld->HasComponent<App::Component::GUIDComponent>(a_parent) || !a_pWorld->HasComponent<App::Component::GUIDComponent>(a_child)) return;
+		if (!a_pWorld->HasComponent<Engine::ECS::GUIDComponent>(a_parent) || !a_pWorld->HasComponent<Engine::ECS::GUIDComponent>(a_child)) return;
 
-		auto* _pParentGUID = a_pWorld->RefData<App::Component::GUIDComponent>(a_parent);
-		auto* _pChildGUID = a_pWorld->RefData<App::Component::GUIDComponent>(a_child);
+		auto* _pParentGUID = a_pWorld->RefData<Engine::ECS::GUIDComponent>(a_parent);
+		auto* _pChildGUID = a_pWorld->RefData<Engine::ECS::GUIDComponent>(a_child);
 
 		// 新たな親子関係の構築
 		Core::GUID _parentGUID = _pParentGUID->guid;
@@ -388,10 +388,10 @@ namespace Editor
 	std::vector<Engine::ECS::Entity> Editor::HierarchyPanel::GetChildEntities(Engine::ECS::World* a_pWorld, ECS::Entity a_parent) const
 	{
 		std::vector<ECS::Entity> _children;
-		if (!a_pWorld->HasComponent<App::Component::GUIDComponent>(a_parent)) return _children;
+		if (!a_pWorld->HasComponent<Engine::ECS::GUIDComponent>(a_parent)) return _children;
 
 		// 親のGUIDを取得
-		Core::GUID _parentGUID = a_pWorld->RefData<App::Component::GUIDComponent>(a_parent)->guid;
+		Core::GUID _parentGUID = a_pWorld->RefData<Engine::ECS::GUIDComponent>(a_parent)->guid;
 
 		a_pWorld->ForEach<App::Component::HierarchyComponent>(
 			[&](ECS::Chunk* a_pChunk, UINT a_count, App::Component::HierarchyComponent* a_hieArray)

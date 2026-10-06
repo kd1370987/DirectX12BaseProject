@@ -17,7 +17,7 @@
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Movement/MovementParamsComponent.h"
 #include "Application/Components/Movement/DesiredVelocityComponent.h"
-#include "Application/Components/Core/GUIDComponent.h"
+#include "Engine/ECS/Component/GUIDComponent.h"
 #include "Application/Components/Core/SpawnerComponent.h"
 #include "Application/Components/Boid/SwarmBossBoidTag.h"
 #include "Application/Components/Physics/Collider.h"
@@ -161,8 +161,8 @@ namespace App::Object
 		// エンティティのGUID(持っていなければ無効)
 		Core::GUID GetEntityGUID(Engine::ECS::World& a_world, Engine::ECS::Entity a_entity)
 		{
-			if (!a_world.HasComponent<Component::GUIDComponent>(a_entity)) return Core::DEFAULT_GUID;
-			return a_world.RefData<Component::GUIDComponent>(a_entity)->guid;
+			if (!a_world.HasComponent<Engine::ECS::GUIDComponent>(a_entity)) return Core::DEFAULT_GUID;
+			return a_world.RefData<Engine::ECS::GUIDComponent>(a_entity)->guid;
 		}
 
 		//----------------------------------------------------------------------

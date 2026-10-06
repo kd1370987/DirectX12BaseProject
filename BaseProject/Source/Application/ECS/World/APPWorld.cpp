@@ -1,7 +1,7 @@
 #include "APPWorld.h"
 
 // エンティティに初めからつけるもの
-#include "Application/Components/Core/GUIDComponent.h"		// GUID
+#include "Engine/ECS/Component/GUIDComponent.h"		// GUID
 #include "Application/Components/Transform/HierarchyComponent.h"	// 親子関係(解放を子へ広げるのに使う)
 
 // シングルトンリソース
@@ -208,8 +208,8 @@ namespace App::ECS
 	{
 		m_guidIndexMap.clear();
 
-		ForEach<const Component::GUIDComponent>(
-			[this](Chunk* a_pChunk, uint32_t a_count, const Component::GUIDComponent* a_guidArray)
+		ForEach<const Engine::ECS::GUIDComponent>(
+			[this](Chunk* a_pChunk, uint32_t a_count, const Engine::ECS::GUIDComponent* a_guidArray)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
 				{
@@ -229,8 +229,8 @@ namespace App::ECS
 	{
 		Entity _res = Engine::ECS::Limits::INVALID_ENTITY;
 
-		ForEach<const Component::GUIDComponent>(
-			[&a_guid, &_res](Chunk* a_pChunk, uint32_t a_count, const Component::GUIDComponent* a_guidArray)
+		ForEach<const Engine::ECS::GUIDComponent>(
+			[&a_guid, &_res](Chunk* a_pChunk, uint32_t a_count, const Engine::ECS::GUIDComponent* a_guidArray)
 			{
 				if (_res != Engine::ECS::Limits::INVALID_ENTITY) return;
 
@@ -250,9 +250,9 @@ namespace App::ECS
 	bool APPWorld::IsGuidIndexEntryValid(const Entity& a_entity, const Core::GUID& a_guid)
 	{
 		if (!IsAliveEntity(a_entity)) return false;
-		if (!HasComponent<Component::GUIDComponent>(a_entity)) return false;
+		if (!HasComponent<Engine::ECS::GUIDComponent>(a_entity)) return false;
 
-		const Component::GUIDComponent* _pGuid = RefData<Component::GUIDComponent>(a_entity);
+		const Engine::ECS::GUIDComponent* _pGuid = RefData<Engine::ECS::GUIDComponent>(a_entity);
 		return _pGuid && _pGuid->guid == a_guid;
 	}
 

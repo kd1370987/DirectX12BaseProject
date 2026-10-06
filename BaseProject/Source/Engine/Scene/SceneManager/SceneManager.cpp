@@ -11,15 +11,14 @@
 
 #include "../../Audio/AudioManager.h"
 
-#include "Editor/Editor.h"
-#include "Editor/EffectEditor/EffectEditor.h"
+#include "Engine/DevTool/IDevTool.h"
 
 namespace Engine::Scene
 {
 	void SceneManager::Release()
 	{
 		// エディターが覚えている選択はここで消えるシーンのもの
-		Editor::MainEditor::Instance().OnSceneChanged();
+		if (auto* _pDevTool = MainEngine::Instance().RefDevTool()) _pDevTool->OnSceneChanged();
 
 		//----------------------------------------------------------------------------------
 		// 上のシーンから順に、PopScene と同じく後始末を通して消す
@@ -57,11 +56,12 @@ namespace Engine::Scene
 	//======================================================================================
 	namespace
 	{
-		Editor::EffectEditor* GetActiveEffectEditor()
+		// 開発ツールが確認用シーン(エフェクトの確認など)を回しているなら、その窓口を返す
+		DevTool::IDevTool* GetActiveScenePreview()
 		{
-			auto* _pEffectEditor = Editor::MainEditor::Instance().RefEffectEditor();
-			if (!_pEffectEditor || !_pEffectEditor->IsOpen()) return nullptr;
-			return _pEffectEditor;
+			auto* _pDevTool = MainEngine::Instance().RefDevTool();
+			if (!_pDevTool || !_pDevTool->IsScenePreviewActive()) return nullptr;
+			return _pDevTool;
 		}
 	}
 
@@ -69,9 +69,9 @@ namespace Engine::Scene
 	{
 		// エフェクト確認中はゲームのシーンを止める。
 		// シーンの切り替え命令もここで消化しないので、閉じたあとに順番どおり流れる
-		if (auto* _pEffectEditor = GetActiveEffectEditor())
+		if (auto* _pDevTool = GetActiveScenePreview())
 		{
-			_pEffectEditor->UpdateScene(a_dt);
+			_pDevTool->UpdateScenePreview(a_dt);
 			return;
 		}
 
@@ -111,9 +111,9 @@ namespace Engine::Scene
 	{
 		// エフェクト確認中は、あちらのワールドの描画命令だけをレンダーグラフへ流す。
 		// レンダーグラフ自体はゲームと同じものを通るので、見え方は本番と揃う
-		if (auto* _pEffectEditor = GetActiveEffectEditor())
+		if (auto* _pDevTool = GetActiveScenePreview())
 		{
-			_pEffectEditor->DrawScene();
+			_pDevTool->DrawScenePreview();
 			return;
 		}
 
@@ -441,7 +441,7 @@ namespace Engine::Scene
 			// 変わるため、どの切り替え方でも持ち越してはいけない。
 			// (パネル側の検証は描画時にしか回らないので、ここで先に断つ)
 			//----------------------------------------------------------------------
-			Editor::MainEditor::Instance().OnSceneChanged();
+			if (auto* _pDevTool = MainEngine::Instance().RefDevTool()) _pDevTool->OnSceneChanged();
 
 			switch (_cmd.changeType)
 			{

@@ -48,6 +48,6 @@ namespace App::System
 			}
 		)
 		// 絞り込みに使わない読み : GUID からの解決
-		.Reads<Component::GUIDComponent>();
+		.Reads<Engine::ECS::GUIDComponent>();
 	}
 }

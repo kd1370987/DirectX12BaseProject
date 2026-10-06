@@ -1,5 +1,7 @@
 ﻿#include "MainEngine.h"
 
+#include "Engine/DevTool/IDevTool.h"
+
 #include "Engine/Window/NativeWindow.h"
 #include "Engine/Time/TimeManager.h"
 #include "Resource/Manager/AssetDatabase/AssetDatabase.h"
@@ -15,12 +17,9 @@
 
 #include "Engine/Graphics/Particle/ParticleBufferManager.h"
 
-#include "Application/App.h"
 
 #include "Option/OptionManager.h"
 
-#include "Editor/EditorCamera/EditorCamera.h"
-#include "Editor/EffectEditor/EffectEditor.h"
 
 #include "Audio/AudioManager.h"
 
@@ -33,7 +32,6 @@
 
 #include "ECS/Component/ComponentMetaRegistry.h"
 
-#include "Editor/Editor.h"
 
 // DXGIのデバッグ機能(ライブオブジェクト報告)はここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
@@ -194,8 +192,8 @@ namespace Engine
 		// アプリ寿命のサービス一式 : エディターもワールドもここを見る
 		BuildEngineServices();
 
-		// エディター初期化
-		if (!Editor::MainEditor::Instance().Init(m_upWindow->GetWindowHandle(), _pHeapManager, m_upEngineServices.get()))
+		// 開発ツール(エディター)初期化 : 差し込まれていなければツール無しで動く
+		if (m_pDevTool && !m_pDevTool->Init(m_upWindow->GetWindowHandle(), _pHeapManager, m_upEngineServices.get()))
 		{
 			ENGINE_ERRLOG(false, "エディターの初期化に失敗");
 			return;
@@ -235,13 +233,13 @@ namespace Engine
 		// シングルトンの破棄順は保証されないので、ここで明示的に解放しておくこと。
 		Audio::AudioManager::Instance().Release();
 
-		// エディター（ImGui）解放
-		Editor::MainEditor::Instance().Release();
+		// 開発ツール(エディター・ImGui)解放
+		if (m_pDevTool) m_pDevTool->Release();
 
 		// Jolt 全体の解放。
 		// すべての PhysicsWorld が消えた後でないといけない : シーンのワールドは
 		// SceneManager::Release(このRelease より前)、エフェクトエディターのプレビューは
-		// 直前の MainEditor::Release で消えている
+		// 直前の開発ツールの Release で消えている
 		if (m_upPhysicsEngine)
 		{
 			m_upPhysicsEngine->Release();
@@ -375,7 +373,7 @@ namespace Engine
 	void MainEngine::BeginDraw()
 	{
 		// エディターの更新を入れる
-		Editor::MainEditor::Instance().Update(GetDeltaTime());
+		if (m_pDevTool) m_pDevTool->Update(GetDeltaTime());
 
 		// 描画開始 : ここでフレームインデックスが更新され、そのフレームのGPU完了を待機する
 		{
@@ -412,7 +410,7 @@ namespace Engine
 			ENGINE_PROFILE_SCOPE("EditorPhase");
 
 			// ゲームモード以外の処理
-			if (m_appMode != EAppMode::Game)
+			if (m_pDevTool && m_appMode != EAppMode::Game)
 			{
 				auto* _pCmdList = m_upGraphicsEngine->RefRenderDevice()->AcquireDirectCommandList();
 				auto* _pHeapManager = m_upGraphicsEngine->RefDescriptorHeapManager();
@@ -443,7 +441,7 @@ namespace Engine
 				_pCmdList->RSSetScissorRects(1, &_pBackBuffer->GetScissorRect());
 
 				// エディター描画
-				Editor::MainEditor::Instance().Draw(_pCmdList);
+				m_pDevTool->Draw(_pCmdList);
 				m_upGraphicsEngine->RefRenderDevice()->SubmitDirectCommandList(_pCmdList);
 			}
 
@@ -484,43 +482,21 @@ namespace Engine
 
 		m_appMode = a_mode;
 
-		Editor::MainEditor::Instance().ResetInput();
+		if (m_pDevTool) m_pDevTool->ResetInput();
 		Input::InputManager::Instance().ResetInput();
 	}
 	void MainEngine::ExecuteDrawCmd()
 	{
-		// エディターモードならフリーカメラを割り込ませる
-		// (実際の上書きは GraphicsEngine::Execute() 内、ECS側のカメラ設定が終わった後)
-		bool _isOverride = false;
-
-		// エフェクトエディターが開いているなら、そちらのカメラが最優先。
-		// 描いているのがあちらの確認用ワールドなので、フリーカメラで見ても何も映らない
+		// 開発ツールが見せたいカメラ(エフェクトの確認・エディターのフリーカメラ)があれば割り込ませる。
+		// 実際の上書きは GraphicsEngine::Execute() 内、ECS側のカメラ設定が終わった後
+		Math::Matrix _camWorld = {};
+		Math::Matrix _camProj = {};
+		if (m_pDevTool && m_pDevTool->TryGetCameraOverride(m_appMode, _camWorld, _camProj))
 		{
-			auto* _pEffectEditor = Editor::MainEditor::Instance().RefEffectEditor();
-			Math::Matrix _camWorld = {};
-			Math::Matrix _camProj = {};
-			if (_pEffectEditor && _pEffectEditor->TryGetCameraOverride(_camWorld, _camProj))
-			{
-				m_upGraphicsEngine->RefSceneView()->SetCameraOverride(_camWorld, _camProj);
-				_isOverride = true;
-			}
+			m_upGraphicsEngine->RefSceneView()->SetCameraOverride(_camWorld, _camProj);
 		}
-
-		if (!_isOverride && m_appMode == EAppMode::Editor)
-		{
-			auto* _pEditorCam = Editor::MainEditor::Instance().RefEditorCamera();
-			if (_pEditorCam && _pEditorCam->IsEnable())
-			{
-				m_upGraphicsEngine->RefSceneView()->SetCameraOverride(
-					_pEditorCam->GetWorldMatrix(),
-					_pEditorCam->GetProjMatrix()
-				);
-				_isOverride = true;
-			}
-		}
-
-		// ゲームモード、またはフリーカメラ無効ならECSのカメラをそのまま使う
-		if (!_isOverride)
+		// 割り込みが無ければECSのカメラをそのまま使う
+		else
 		{
 			m_upGraphicsEngine->RefSceneView()->ClearCameraOverride();
 		}

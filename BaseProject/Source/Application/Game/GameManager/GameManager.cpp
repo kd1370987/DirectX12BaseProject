@@ -1,5 +1,7 @@
 ﻿#include "GameManager.h"
 
+#include "Engine/DevTool/IDevTool.h"
+
 // エンジン
 #include "../../../Engine/MainEngine.h"
 #include "../../../Engine/Graphics/GraphicsEngine.h"
@@ -37,7 +39,6 @@
 #include "../MouseCursor/MouseCursor.h"
 
 // エディター
-#include "Editor/Editor.h"
 
 namespace App::Game
 {
@@ -137,7 +138,8 @@ namespace App::Game
 		}
 
 		// エディター関数登録
-		::Editor::MainEditor::Instance().RegisterEditFunc(
+		if (auto* _pDevTool = Engine::MainEngine::Instance().RefDevTool())
+			_pDevTool->RegisterEditFunc(
 			[&]()
 			{
 				if (Engine::EditorField::WindowScope _window{ "GameSetting" })
