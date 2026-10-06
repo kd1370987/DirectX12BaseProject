@@ -53,7 +53,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoostParamsComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::BoostParamsComponent& _comp = Engine::EditorField::GetValue<App::Component::BoostParamsComponent>(a_pData);
+		App::Component::BoostParamsComponent& _comp = Engine::EditorField::RefValue<App::Component::BoostParamsComponent>(a_pData);
 		a_ar.Field("maxFuel", _comp.maxFuel);
 		a_ar.Field("boostPower", _comp.boostPower);
 		a_ar.Field("tapBoostScale", _comp.tapBoostScale);
@@ -66,7 +66,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoostParamsComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		using namespace Engine;
-		App::Component::BoostParamsComponent& _comp = Engine::EditorField::GetValue<App::Component::BoostParamsComponent>(a_context.pData);
+		App::Component::BoostParamsComponent& _comp = Engine::EditorField::RefValue<App::Component::BoostParamsComponent>(a_context.pData);
 
 		Engine::EditorField::Header("Boost Parameters");
 		Engine::EditorField::Field("Max Fuel", _comp.maxFuel, 1.0f, 0.0f);

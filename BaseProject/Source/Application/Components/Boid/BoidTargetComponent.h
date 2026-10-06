@@ -24,7 +24,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoidTargetComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BoidTargetComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidTargetComponent>(a_context.pData);
+		App::Component::BoidTargetComponent& _comp = Engine::EditorField::RefValue<App::Component::BoidTargetComponent>(a_context.pData);
 
 		// 毎フレーム書き直される値なので表示のみ
 		Engine::EditorField::Value("TargetPos", "%.2f, %.2f, %.2f", _comp.targetPos.x, _comp.targetPos.y, _comp.targetPos.z);

@@ -117,7 +117,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoosterEffectComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		App::Component::BoosterEffectComponent& _comp = Engine::EditorField::GetValue<App::Component::BoosterEffectComponent>(a_pData);
+		App::Component::BoosterEffectComponent& _comp = Engine::EditorField::RefValue<App::Component::BoosterEffectComponent>(a_pData);
 		auto& _resourceManager = *a_services.pResourceManager;
 
 		_resourceManager.ReleaseHandle(_comp.sparkHandle);
@@ -125,7 +125,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoosterEffectComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::BoosterEffectComponent& _comp = Engine::EditorField::GetValue<App::Component::BoosterEffectComponent>(a_pData);
+		App::Component::BoosterEffectComponent& _comp = Engine::EditorField::RefValue<App::Component::BoosterEffectComponent>(a_pData);
 
 		a_ar.Field("posOffset", _comp.posOffset);
 		a_ar.Field("emitDir", _comp.emitDir);
@@ -147,7 +147,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoosterEffectComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BoosterEffectComponent& _comp = Engine::EditorField::GetValue<App::Component::BoosterEffectComponent>(a_context.pData);
+		App::Component::BoosterEffectComponent& _comp = Engine::EditorField::RefValue<App::Component::BoosterEffectComponent>(a_context.pData);
 
 		Engine::EditorField::Header("Mount");
 		Engine::EditorField::HelpText("このエンティティの行列基準。エフェクトの置き方だけを決める");

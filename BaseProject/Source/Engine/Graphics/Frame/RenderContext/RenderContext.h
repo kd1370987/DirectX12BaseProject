@@ -7,7 +7,7 @@ namespace Engine::Resource
 	class QuadPolygon;
 }
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class RootSignature;
 	class DescriptorHeapManager;
@@ -67,7 +67,7 @@ namespace Engine::Graphics
 		void Clear();
 
 		// 現在のコマンドリストを取得
-		D3D12::GraphicsCommandList* GetCurrentCmdList();
+		D3D12::GraphicsCommandList* RefCurrentCmdList();
 
 		void SetDirectCommandList(D3D12::GraphicsCommandList* a_pCmdList);
 

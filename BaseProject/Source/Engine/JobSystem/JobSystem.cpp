@@ -77,7 +77,7 @@ namespace Engine::Thread
 		// ほかのワーカーが引き取れないまま捨てることになる
 		for (auto& _worker : m_jobWorkers)
 		{
-			_worker->RequestStop();
+			_worker->ReserveStop();
 		}
 		for (auto& _worker : m_jobWorkers)
 		{

@@ -31,7 +31,7 @@ struct Engine::ECS::ComponentTraits<App::Component::LocalTransformComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::LocalTransformComponent& _comp = Engine::EditorField::GetValue<App::Component::LocalTransformComponent>(a_pData);
+		App::Component::LocalTransformComponent& _comp = Engine::EditorField::RefValue<App::Component::LocalTransformComponent>(a_pData);
 		a_ar.Field("pos",_comp.pos);
 		a_ar.Field("quat",_comp.quat);
 		a_ar.Field("scale",_comp.scale);
@@ -41,7 +41,7 @@ struct Engine::ECS::ComponentTraits<App::Component::LocalTransformComponent>
 	}
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::LocalTransformComponent& _comp = Engine::EditorField::GetValue<App::Component::LocalTransformComponent>(a_context.pData);
+		App::Component::LocalTransformComponent& _comp = Engine::EditorField::RefValue<App::Component::LocalTransformComponent>(a_context.pData);
 
 		Engine::EditorField::FlagsField("ETransformInheritance",_comp.inheritance);
 

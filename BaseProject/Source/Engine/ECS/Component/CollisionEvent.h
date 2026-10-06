@@ -18,7 +18,7 @@ struct Engine::ECS::ComponentTraits<Engine::ECS::CollisionEvent>
 	static void Edit(CompEditContext& a_context)
 	{
 		Engine::ECS::CollisionEvent& _comp =
-			Engine::EditorField::GetValue<Engine::ECS::CollisionEvent>(a_context.pData);
+			Engine::EditorField::RefValue<Engine::ECS::CollisionEvent>(a_context.pData);
 
 		if (_comp.other == Engine::ECS::Limits::INVALID_ENTITY)
 		{

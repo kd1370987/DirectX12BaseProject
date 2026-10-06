@@ -55,7 +55,7 @@ namespace Engine::Resource
 		if (!m_is3D)
 		{
 			// 3Dなしで作られたインスタンスに Apply3D を掛けると DirectXTK が例外を投げる。
-			// 3Dで鳴らしたい場合は RequestSoundInstance(..., true) で発行すること
+			// 3Dで鳴らしたい場合は CreateSoundInstance(..., true) で発行すること
 			ENGINE_WARNING("3D指定なしで作成されたサウンドインスタンスに Play3D が呼ばれました");
 			Play(a_isLoop);
 			return;

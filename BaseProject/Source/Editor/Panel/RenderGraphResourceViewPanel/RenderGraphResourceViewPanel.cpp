@@ -258,7 +258,7 @@ namespace Editor
 
 		for (uint32_t _slice = 0; _slice < _sliceCount; ++_slice)
 		{
-			D3D12::GPUResource* _pResource = a_graph.RefGPUResource(_resourceID, _slice);
+			Graphics::D3D12::GPUResource* _pResource = a_graph.RefGPUResource(_resourceID, _slice);
 			if (!_pResource)
 			{
 				Engine::EditorField::HelpText("実体がありません");

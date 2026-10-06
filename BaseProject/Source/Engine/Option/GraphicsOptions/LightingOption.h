@@ -13,7 +13,7 @@ namespace Engine::Option::GraphicsOptions
 		float directionalIntensity = 1.0f;	// 平行光(直接光)の強さ
 		float dielectricF0 = 0.04f;			// 非金属の基本反射率(スペキュラF0)
 
-		const std::string& GetName() override
+		const std::string& GetName() const override
 		{
 			static const std::string NAME = "LightingOption";
 			return NAME;

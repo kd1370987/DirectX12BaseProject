@@ -43,7 +43,7 @@ namespace App::System
 					// ノードポーズのワールド行列を求める
 					for (int _rootIdx : _pModel->GetRootNodeVec())
 					{
-						Engine::Animation::CalcNodeMatrix(
+						Engine::Graphics::Animation::CalcNodeMatrix(
 							_rootIdx,
 							-1,
 							_pModel,

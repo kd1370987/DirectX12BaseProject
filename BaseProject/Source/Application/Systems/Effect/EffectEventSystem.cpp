@@ -22,7 +22,7 @@ namespace App::System
 	//   OnDeath : DeathEventResource に積まれた死亡について、死んだ位置へ出す
 	//   OnHit   : HitEventResource の victim について、当たった位置へ出す
 	//
-	// ・出すのは SpawnEffectAt(遅延生成。実体化は次の BeginFrame)。出したものは出し切ったら自分から消える。
+	// ・出すのは ReserveSpawnEffectAt(遅延生成。実体化は次の BeginFrame)。出したものは出し切ったら自分から消える。
 	// ・死亡と被弾は、出来事を積む側(HealthSystem / ExplodeOnHitSystem / HitDetectSystem)が
 	//   エフェクトの存在を知らなくて済むよう、リソース経由で受け取る。
 	//   読むと宣言しておかないと、積まれる前に読んで毎フレーム空振りする。
@@ -40,7 +40,7 @@ namespace App::System
 			{
 				if (_entry.event != a_event || !_entry.IsValid()) continue;
 
-				if (!App::Utility::SpawnEffectAt(a_world, _entry.effectGUID, a_pos, true, {}, _entry.scale))
+				if (!App::Utility::ReserveSpawnEffectAt(a_world, _entry.effectGUID, a_pos, true, {}, _entry.scale))
 				{
 					ENGINE_LOG("[EffectEvent] エフェクトを出せなかった : %s", _entry.effectGUID.String().c_str());
 				}

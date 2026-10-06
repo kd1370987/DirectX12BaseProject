@@ -17,7 +17,7 @@ namespace Engine::Thread
 		// 停止は「全ワーカーへ要求」->「全ワーカーをJoin」の2段で行うこと。
 		// 1つずつ 要求->Join とすると、止めたワーカーのキューに残った仕事を
 		// ほかのワーカーが引き取れないまま捨てることになる
-		void RequestStop();
+		void ReserveStop();
 
 		void Join();									// スレッドの終了待ち
 

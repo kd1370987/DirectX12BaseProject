@@ -18,14 +18,14 @@ struct Engine::ECS::ComponentTraits<App::Component::HomingComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::HomingComponent& _comp = Engine::EditorField::GetValue<App::Component::HomingComponent>(a_pData);
+		App::Component::HomingComponent& _comp = Engine::EditorField::RefValue<App::Component::HomingComponent>(a_pData);
 		a_ar.Field("turnSpeed",_comp.turnSpeed);
 		a_ar.Field("searchRange",_comp.searchRange);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::HomingComponent& _comp = Engine::EditorField::GetValue<App::Component::HomingComponent>(a_context.pData);
+		App::Component::HomingComponent& _comp = Engine::EditorField::RefValue<App::Component::HomingComponent>(a_context.pData);
 		Engine::EditorField::Field("turnSpeed", _comp.turnSpeed, 0.1f);
 		Engine::EditorField::Field("searchRange", _comp.searchRange, 0.1f);
 

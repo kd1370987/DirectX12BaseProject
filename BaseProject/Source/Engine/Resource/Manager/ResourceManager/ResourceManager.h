@@ -360,7 +360,7 @@ namespace Engine::Resource
 		/// </summary>
 		/// <param name="a_outIsOwner">このスロットを新規に押さえた(=ビルド担当)なら true</param>
 		template<typename T>
-		Handle<T> ReserveSlot(const Core::GUID& a_guid, bool& a_outIsOwner);
+		Handle<T> RequestSlot(const Core::GUID& a_guid, bool& a_outIsOwner);
 
 		/// <summary>
 		/// 押さえておいたスロットへ実体をビルドして流し込む
@@ -460,7 +460,7 @@ namespace Engine::Resource
 	inline ResourceRef<T> ResourceManager::RequestLoad(const Core::GUID& a_guid)
 	{
 		bool _isOwner = false;
-		const Handle<T> _handle = ReserveSlot<T>(a_guid, _isOwner);
+		const Handle<T> _handle = RequestSlot<T>(a_guid, _isOwner);
 
 		// 既に読込中 / 読込済み : 何もしない
 		if (!_isOwner) return ResourceRef<T>(_handle);
@@ -493,7 +493,7 @@ namespace Engine::Resource
 	inline ResourceRef<T> ResourceManager::LoadImmediate(const Core::GUID& a_guid, const ResourceBuildContext* a_pBuildContext)
 	{
 		bool _isOwner = false;
-		const Handle<T> _handle = ReserveSlot<T>(a_guid, _isOwner);
+		const Handle<T> _handle = RequestSlot<T>(a_guid, _isOwner);
 
 		if (_isOwner)
 		{
@@ -511,7 +511,7 @@ namespace Engine::Resource
 
 	// スロットの確保
 	template<typename T>
-	inline Handle<T> ResourceManager::ReserveSlot(const Core::GUID& a_guid, bool& a_outIsOwner)
+	inline Handle<T> ResourceManager::RequestSlot(const Core::GUID& a_guid, bool& a_outIsOwner)
 	{
 		auto& _data = RefData<T>();
 

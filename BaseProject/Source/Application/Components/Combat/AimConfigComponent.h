@@ -30,14 +30,14 @@ struct Engine::ECS::ComponentTraits<App::Component::AimConfigComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::AimConfigComponent& _comp = Engine::EditorField::GetValue<App::Component::AimConfigComponent>(a_pData);
+		App::Component::AimConfigComponent& _comp = Engine::EditorField::RefValue<App::Component::AimConfigComponent>(a_pData);
 		a_ar.Field("maxDistance", _comp.maxDistance);
 		a_ar.Field("startOffset", _comp.startOffset);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::AimConfigComponent& _comp = Engine::EditorField::GetValue<App::Component::AimConfigComponent>(a_context.pData);
+		App::Component::AimConfigComponent& _comp = Engine::EditorField::RefValue<App::Component::AimConfigComponent>(a_context.pData);
 		Engine::EditorField::Field("MaxDistance", _comp.maxDistance, 1.0f, 0.0f);
 		Engine::EditorField::Field("StartOffset", _comp.startOffset, 0.1f, 0.0f);
 	}

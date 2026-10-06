@@ -2,7 +2,7 @@
 
 #include "../DynamicBuffer/DynamicBuffer.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	struct IndexBufferDesc
 	{
@@ -19,7 +19,7 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(DynamicIndexBuffer);
 
 		// 作成
-		bool Create(D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,const IndexBufferDesc& a_desc);
+		bool Create(Graphics::D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,const IndexBufferDesc& a_desc);
 
 		// アクセサ
 		const D3D12_INDEX_BUFFER_VIEW& GetView() const;

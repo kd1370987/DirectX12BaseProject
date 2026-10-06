@@ -173,7 +173,7 @@ namespace App::Object
 		int GetClearedWaveCount() const;
 
 		// 記録をグローバルへ移してリザルトシーンを読み込む
-		void RequestResultScene();
+		void ReserveResultScene();
 
 		//-------------------------------------------------------------------
 		// ポーズ

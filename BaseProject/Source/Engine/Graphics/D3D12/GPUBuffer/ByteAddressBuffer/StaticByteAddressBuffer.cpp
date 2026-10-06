@@ -1,7 +1,7 @@
 ﻿#include "StaticByteAddressBuffer.h"
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
-	bool StaticByteAddressBuffer::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, D3D12::GraphicsCommandList* a_pCmdList, UINT a_elementNum, size_t a_strideSize, const void* a_pData)
+	bool StaticByteAddressBuffer::Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_elementNum, size_t a_strideSize, const void* a_pData)
 	{
 		StaticBufferDesc _desc = {};
 		_desc.elementNum = a_elementNum;
@@ -29,7 +29,7 @@ namespace Engine::D3D12
 
 		return true;
 	}
-	void StaticByteAddressBuffer::UploadDataRange(D3D12::GraphicsCommandList* a_pCmdList, UINT a_startIndex, UINT a_count, const void* a_pData)
+	void StaticByteAddressBuffer::UploadDataRange(Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_startIndex, UINT a_count, const void* a_pData)
 	{
 		StaticBuffer::UploadDataRange(
 			a_pCmdList,

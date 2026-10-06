@@ -36,7 +36,7 @@ struct Engine::ECS::ComponentTraits<App::Component::PlatoonLeaderComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::PlatoonLeaderComponent& _comp = Engine::EditorField::GetValue<App::Component::PlatoonLeaderComponent>(a_pData);
+		App::Component::PlatoonLeaderComponent& _comp = Engine::EditorField::RefValue<App::Component::PlatoonLeaderComponent>(a_pData);
 		a_ar.Field("distance", _comp.distance);
 		a_ar.Field("followGain", _comp.followGain);
 		a_ar.Field("turnSpeedDeg", _comp.turnSpeedDeg);
@@ -44,7 +44,7 @@ struct Engine::ECS::ComponentTraits<App::Component::PlatoonLeaderComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::PlatoonLeaderComponent& _comp = Engine::EditorField::GetValue<App::Component::PlatoonLeaderComponent>(a_context.pData);
+		App::Component::PlatoonLeaderComponent& _comp = Engine::EditorField::RefValue<App::Component::PlatoonLeaderComponent>(a_context.pData);
 		Engine::EditorField::Field("Distance", _comp.distance, 0.1f, 0.0f);
 		Engine::EditorField::Field("FollowGain", _comp.followGain, 0.05f, 0.0f);
 		Engine::EditorField::Field("TurnSpeedDeg", _comp.turnSpeedDeg, 1.0f, 0.0f);

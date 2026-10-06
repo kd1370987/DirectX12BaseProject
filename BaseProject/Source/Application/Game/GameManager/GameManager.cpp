@@ -130,7 +130,7 @@ namespace App::Game
 		// 最初のシーンを挿入
 		if (m_farstScene.IsValid())
 		{
-			Engine::Scene::SceneManager::Instance().SetNextScene(m_farstScene, Engine::Scene::ESceneChangeType::Push);
+			Engine::Scene::SceneManager::Instance().ReserveChangeScene(m_farstScene, Engine::Scene::ESceneChangeType::Push);
 		}
 		else
 		{

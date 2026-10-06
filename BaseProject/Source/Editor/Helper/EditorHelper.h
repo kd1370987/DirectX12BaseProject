@@ -78,7 +78,7 @@ namespace Editor
 		/// パネルごとにこの経路を書くと同じ辿り方が散るため、ここへ寄せてある。
 		/// まだ描画周りが出来ていない・ハンドルが無効なときは ptr==0 が返る
 		/// </remarks>
-		static D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiTexHandle(const Handle<D3D12::ImGuiSRV>& a_imguiSRVHandle);
+		static D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiTexHandle(const Handle<Graphics::D3D12::ImGuiSRV>& a_imguiSRVHandle);
 
 		//--------------------------------------------------------------------------------------
 		// ノードエディタ部品

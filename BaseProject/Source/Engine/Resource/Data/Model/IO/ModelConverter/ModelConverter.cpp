@@ -434,7 +434,7 @@ namespace Engine::Resource::Converter
 	}
 	void ModelConverter::ConvertTexture(ResourceManager& a_resourceManager, const ResourceRef<Texture>& a_ref)
 	{
-		auto* _pTex = GetTexture(a_resourceManager, a_ref);
+		auto* _pTex = RefTexture(a_resourceManager, a_ref);
 		if (!_pTex) return;
 
 		auto _guid = a_resourceManager.GetCache(a_ref.GetRaw());
@@ -444,7 +444,7 @@ namespace Engine::Resource::Converter
 
 		_pTex->Save(_path);
 	}
-	Texture* ModelConverter::GetTexture(ResourceManager& a_resourceManager, const ResourceRef<Texture>& a_ref)
+	Texture* ModelConverter::RefTexture(ResourceManager& a_resourceManager, const ResourceRef<Texture>& a_ref)
 	{
 		return a_resourceManager.Ref(a_ref);
 	}

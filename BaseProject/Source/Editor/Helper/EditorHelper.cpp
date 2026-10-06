@@ -57,7 +57,7 @@ namespace Editor
 			_isSameChar) != a_text.end();
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE EditorHelper::GetImGuiTexHandle(const Handle<D3D12::ImGuiSRV>& a_imguiSRVHandle)
+	D3D12_GPU_DESCRIPTOR_HANDLE EditorHelper::GetImGuiTexHandle(const Handle<Graphics::D3D12::ImGuiSRV>& a_imguiSRVHandle)
 	{
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGE) return {};

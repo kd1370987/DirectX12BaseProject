@@ -29,7 +29,7 @@ struct Engine::ECS::ComponentTraits<App::Component::EmissiveOverrideComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::EmissiveOverrideComponent& _comp = Engine::EditorField::GetValue<App::Component::EmissiveOverrideComponent>(a_context.pData);
+		App::Component::EmissiveOverrideComponent& _comp = Engine::EditorField::RefValue<App::Component::EmissiveOverrideComponent>(a_context.pData);
 
 		// 毎フレーム書き換わる値なので表示のみ
 		Engine::EditorField::Value("IsOverride", "%s", _comp.isOverride ? "true" : "false");

@@ -145,7 +145,7 @@ namespace Engine::StateGraph
 			auto _it = m_nodeMap.find(a_hash);
 			return (_it != m_nodeMap.end()) ? &_it->second : nullptr;
 		}
-		TNode* GetStateNode(UINT a_hash)
+		TNode* RefStateNode(UINT a_hash)
 		{
 			auto _it = m_nodeMap.find(a_hash);
 			return (_it != m_nodeMap.end()) ? &_it->second : nullptr;

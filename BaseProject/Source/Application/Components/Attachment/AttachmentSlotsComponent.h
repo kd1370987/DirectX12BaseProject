@@ -43,7 +43,7 @@ struct Engine::ECS::ComponentTraits<App::Component::AttachmentSlotsComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::AttachmentSlotsComponent& _comp = Engine::EditorField::GetValue<App::Component::AttachmentSlotsComponent>(a_pData);
+		App::Component::AttachmentSlotsComponent& _comp = Engine::EditorField::RefValue<App::Component::AttachmentSlotsComponent>(a_pData);
 
 		// 各スロットは GUID のみ保存する(id はランタイムで解決)
 		a_ar.Field("rightShoulderBoostGUID", _comp.rightShoulderBoost.guid);
@@ -58,7 +58,7 @@ struct Engine::ECS::ComponentTraits<App::Component::AttachmentSlotsComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		using namespace Engine;
-		App::Component::AttachmentSlotsComponent& _comp = Engine::EditorField::GetValue<App::Component::AttachmentSlotsComponent>(a_context.pData);
+		App::Component::AttachmentSlotsComponent& _comp = Engine::EditorField::RefValue<App::Component::AttachmentSlotsComponent>(a_context.pData);
 
 		auto* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
 		if (!_pWorld)

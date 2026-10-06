@@ -1,7 +1,7 @@
 ﻿#include "ByteAddressBuffer.h"
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
-	bool Engine::D3D12::ByteAddressBuffer::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, const ByteAddressBufferDesc& a_desc)
+	bool Engine::Graphics::D3D12::ByteAddressBuffer::Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, const ByteAddressBufferDesc& a_desc)
 	{
 		// リソース作成
 		DynamicBufferDesc _desc = {};

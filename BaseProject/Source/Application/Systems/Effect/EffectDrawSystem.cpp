@@ -136,7 +136,7 @@ namespace App::System
 					Math::Matrix _placeRot = {};
 					if (_override.isOverrideTransform)
 					{
-						_placeRot = Engine::Particle::MakeEmitMatrix(
+						_placeRot = Engine::Graphics::Particle::MakeEmitMatrix(
 							Math::Vector3(0.0f, 0.0f, 0.0f),
 							Math::Vector3(_override.overrideEmitDir),
 							Math::Vector3(0.0f, 1.0f, 0.0f));
@@ -164,7 +164,7 @@ namespace App::System
 						Math::Matrix::CreateScale(_effectScale) *
 						_placeRot *
 						Math::Matrix::CreateTranslation(_override.overridePosOffset);
-					const Math::Matrix _ownerRT = Engine::Particle::EmitterSlotPool::StripScale(_ownerWorld);
+					const Math::Matrix _ownerRT = Engine::Graphics::Particle::EmitterSlotPool::StripScale(_ownerWorld);
 
 					//----------------------------------------------------------
 					// パーティクル
@@ -209,7 +209,7 @@ namespace App::System
 							UINT _emitterIndex = 0;
 							if (_isLocal)
 							{
-								_emitterIndex = Engine::Particle::EmitterSlotPool::ToGPUIndex(_runtime.emitterSlot);
+								_emitterIndex = Engine::Graphics::Particle::EmitterSlotPool::ToGPUIndex(_runtime.emitterSlot);
 							}
 
 							// 持ち主の座標系 → 粒を保存する空間(Local は席の座標系のままなので単位行列)
@@ -281,12 +281,12 @@ namespace App::System
 							// エミットデータ構築
 							// 散らばり方はエフェクト側、速度と寿命と板の回転はパーティクルアセット側
 							//--------------------------------------------------
-							Engine::Particle::EmitterData _emitData = {};
+							Engine::Graphics::Particle::EmitterData _emitData = {};
 
 							// 発生行列と、その回転(粒の板の向きに使う)を一緒に入れる。
 							// 形状はシェーダーがローカル(+Z が噴き出す向き)で作って、この行列を掛ける。
 							// 方向の正規化と 0 ベクトルの安全策もここが持つ
-							Engine::Particle::SetEmitTransform(_emitData, _pos, _dir, _up);
+							Engine::Graphics::Particle::SetEmitTransform(_emitData, _pos, _dir, _up);
 							_emitData.emitCount     = static_cast<UINT>(_emitCount);
 
 							// 大きさとばらつき半径も一緒に拡縮する。
@@ -316,7 +316,7 @@ namespace App::System
 							_emitData.minAngularVelocity = DirectX::XMConvertToRadians(_pParticle->GetAngularVelocityMin());
 							_emitData.maxAngularVelocity = DirectX::XMConvertToRadians(_pParticle->GetAngularVelocityMax());
 
-							_pParticleManager->RequestEmit(_part.particleHandle, _emitData);
+							_pParticleManager->ReserveEmit(_part.particleHandle, _emitData);
 						}
 					}
 

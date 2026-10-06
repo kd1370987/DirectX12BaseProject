@@ -289,7 +289,7 @@ namespace Editor
 			Engine::EditorField::Tooltip("足りなくなると block 単位で伸びる。GPU側はそのとき作り直す");
 
 			Engine::EditorField::Value("GPU Size", "%.1f KB",
-				static_cast<double>(_pSlots->GetGPUCapacity()) * sizeof(Particle::EmitterTransform) / 1024.0);
+				static_cast<double>(_pSlots->GetGPUCapacity()) * sizeof(Graphics::Particle::EmitterTransform) / 1024.0);
 		}
 		else
 		{
@@ -348,7 +348,7 @@ namespace Editor
 			_row.sortOrder = _pAsset ? _pAsset->GetSortOrder() : 0;
 			_row.sinceEmit = _pPM->GetSecondsSinceLastEmit(_handle);
 			_row.isLocal = _pAsset && _pAsset->IsLocalSpace();
-			_row.isAlphaBlend = _pAsset && (_pAsset->GetBlendMode() == Particle::EParticleBlendMode::AlphaBlend);
+			_row.isAlphaBlend = _pAsset && (_pAsset->GetBlendMode() == Graphics::Particle::EParticleBlendMode::AlphaBlend);
 
 			_totalCapacity += _row.capacity;
 			if (_row.isReady) ++_readyCount;
@@ -365,7 +365,7 @@ namespace Editor
 			[](const PoolRow& a_l, const PoolRow& a_r) { return a_l.name < a_r.name; });
 
 		// 粒本体 + デッドリスト。命令バッファとカウンターは小さいので数えない
-		constexpr size_t BYTES_PER_PARTICLE = sizeof(Particle::ParticleData) + sizeof(uint32_t);
+		constexpr size_t BYTES_PER_PARTICLE = sizeof(Graphics::Particle::ParticleData) + sizeof(uint32_t);
 
 		Engine::EditorField::Value("Pools", "%u  (Ready %u / Loading %u)",
 			static_cast<unsigned>(_rows.size()),
@@ -385,7 +385,7 @@ namespace Editor
 		Engine::EditorField::Value("Emit Buffer", "%u / %u requests  (max %u)",
 			static_cast<unsigned>(_pPM->GetFrameEmitCount()),
 			static_cast<unsigned>(_pPM->GetEmitBufferCapacity()),
-			static_cast<unsigned>(Particle::EMIT_BUFFER_MAX_CAPACITY));
+			static_cast<unsigned>(Graphics::Particle::EMIT_BUFFER_MAX_CAPACITY));
 		Engine::EditorField::Tooltip("このフレームに送った発生命令の数 / 命令バッファの容量。全プール共通の1本");
 
 		if (_rows.empty()) return;
@@ -444,7 +444,7 @@ namespace Editor
 				// 表示した時点で積まれている命令の数(フレームのどこで描くかで 0 にもなる)。
 				// 準備中のプールで上限に届いていたら、溜めきれずに捨てている
 				ImGui::TableSetColumnIndex(7);
-				if (!_row.isReady && _row.requests >= Particle::EMIT_PENDING_REQUEST_MAX)
+				if (!_row.isReady && _row.requests >= Graphics::Particle::EMIT_PENDING_REQUEST_MAX)
 				{
 					ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), "%u", static_cast<unsigned>(_row.requests));
 				}
@@ -483,7 +483,7 @@ namespace Editor
 					ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), "Overflowed");
 					if (ImGui::IsItemHovered())
 					{
-						ImGui::SetTooltip("1フレームの発生命令が全体の上限(%u 件)を超えて、捨てたことがある", static_cast<unsigned>(Particle::EMIT_BUFFER_MAX_CAPACITY));
+						ImGui::SetTooltip("1フレームの発生命令が全体の上限(%u 件)を超えて、捨てたことがある", static_cast<unsigned>(Graphics::Particle::EMIT_BUFFER_MAX_CAPACITY));
 					}
 				}
 				else

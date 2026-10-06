@@ -59,7 +59,7 @@ namespace Engine::ECS
 
 	EntityLocation ArchetypeManager::AllocationEntity(const Entity& a_entity, const Signature& a_sig)
 	{
-		Archetype* _pArchetype = GetOrCreateArchetype(a_sig);
+		Archetype* _pArchetype = RequestArchetype(a_sig);
 
 		// 空いているチャンクを探す。
 		// 途中まで埋まっているチャンクを優先し、無ければ空きチャンク、それも無ければ足す
@@ -169,7 +169,7 @@ namespace Engine::ECS
 		return _swapEntity;
 	}
 
-	Archetype* ArchetypeManager::GetOrCreateArchetype(const Signature& a_sig)
+	Archetype* ArchetypeManager::RequestArchetype(const Signature& a_sig)
 	{
 		auto _it = m_pArchetypeMap.find(a_sig);
 		if (_it != m_pArchetypeMap.end()) return _it->second;

@@ -77,7 +77,7 @@ namespace Editor
 		// Load直後に呼ぶ。ここでは ImNodes を触らず「次のDrawで座標反映する」フラグだけ立てる。
 		// (リソースロードは非同期の可能性があり、ImNodesのグローバル状態を
 		//  メインスレッド外から触らないための遅延反映)
-		void RequestApplyLoadedPositions()
+		void ReserveApplyLoadedPositions()
 		{
 			m_applyPositions = true;
 		}

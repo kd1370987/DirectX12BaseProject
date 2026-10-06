@@ -33,7 +33,7 @@ namespace Engine::ECS
 		// コンポーネント配置 : チャンク内の並び順(タイプID順)
 		std::vector<std::pair<ECS::ComponentTypeID, Layout>> layoutVec;
 
-		// タイプID → layoutVec の添え字。RefData / GetComponentArray のたびに引くので、
+		// タイプID → layoutVec の添え字。RefData / RefComponentArray のたびに引くので、
 		// ハッシュを引かずに添え字1回で届くよう平らな表で持つ
 		std::array<uint16_t, Limits::MAX_COMPONENT_TYPES> layoutIndexTable;
 

@@ -103,7 +103,7 @@ namespace Engine::Graphics
 
 	D3D12::CommandQueue* RenderDevice::RefDirectCommandQueue()
 	{
-		return m_upCommandContext ? m_upCommandContext->RefDirectPool()->GetCommandQueue() : nullptr;
+		return m_upCommandContext ? m_upCommandContext->RefDirectPool()->RefCommandQueue() : nullptr;
 	}
 
 	UINT RenderDevice::GetCurrentFrameIndex() const
@@ -168,7 +168,7 @@ namespace Engine::Graphics
 		m_upAsyncGPUManager->RegisterTask(
 			EAsyncCommandType::Copy,
 			_allocator,
-			_pCopyPool->GetFence(),
+			_pCopyPool->RefFence(),
 			_fenceValue,
 			a_onComplete
 		);
@@ -219,7 +219,7 @@ namespace Engine::Graphics
 			// コピーの完了をコンピュートキュー側で待たせる
 			if (_hasCopy)
 			{
-				_pComputePool->GetCommandQueue()->Wait(_pCopyPool->GetFence(), _copyFenceValue);
+				_pComputePool->RefCommandQueue()->Wait(_pCopyPool->RefFence(), _copyFenceValue);
 			}
 
 			_pComputePool->SubmitList(a_batch.pComputeCmdList);
@@ -229,7 +229,7 @@ namespace Engine::Graphics
 			m_upAsyncGPUManager->RegisterTask(
 				EAsyncCommandType::Compute,
 				a_batch.pComputeAllocator,
-				_pComputePool->GetFence(),
+				_pComputePool->RefFence(),
 				_computeFenceValue,
 				a_onComplete
 			);
@@ -244,7 +244,7 @@ namespace Engine::Graphics
 			m_upAsyncGPUManager->RegisterTask(
 				EAsyncCommandType::Copy,
 				a_batch.pCopyAllocator,
-				_pCopyPool->GetFence(),
+				_pCopyPool->RefFence(),
 				_copyFenceValue,
 				[_keepAlive = std::move(a_batch.keepAliveResources), _onComplete = std::move(a_onComplete)]()
 				{
@@ -274,6 +274,6 @@ namespace Engine::Graphics
 
 		// 積んだリストを流して、フレーム終了のシグナルを打つ
 		_pDirectPool->ExecutePendingLists();
-		m_upFrameManager->EndFrame(_pDirectPool->GetCommandQueue());
+		m_upFrameManager->EndFrame(_pDirectPool->RefCommandQueue());
 	}
 }

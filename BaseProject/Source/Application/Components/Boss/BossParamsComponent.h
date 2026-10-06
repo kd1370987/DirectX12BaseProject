@@ -127,7 +127,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BossParamsComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::BossParamsComponent& _comp = Engine::EditorField::GetValue<App::Component::BossParamsComponent>(a_pData);
+		App::Component::BossParamsComponent& _comp = Engine::EditorField::RefValue<App::Component::BossParamsComponent>(a_pData);
 
 		a_ar.Field("startOnSpawn", _comp.startOnSpawn);
 
@@ -185,7 +185,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BossParamsComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BossParamsComponent& _comp = Engine::EditorField::GetValue<App::Component::BossParamsComponent>(a_context.pData);
+		App::Component::BossParamsComponent& _comp = Engine::EditorField::RefValue<App::Component::BossParamsComponent>(a_context.pData);
 
 		Engine::EditorField::Header("Combat Start");
 		Engine::EditorField::Field("StartOnSpawn", _comp.startOnSpawn);

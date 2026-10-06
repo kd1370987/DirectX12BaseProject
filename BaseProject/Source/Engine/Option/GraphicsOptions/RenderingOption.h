@@ -14,7 +14,7 @@ namespace Engine::Option::GraphicsOptions
 		// OFFにするとジッターが止まり、TAAはブレンドのみ(空間的なAA効果は無くなる)になる。デバッグ用。
 		bool useJitter = true;
 
-		const std::string& GetName() override
+		const std::string& GetName() const override
 		{
 			static const std::string NAME = "RenderingOption";
 			return NAME;

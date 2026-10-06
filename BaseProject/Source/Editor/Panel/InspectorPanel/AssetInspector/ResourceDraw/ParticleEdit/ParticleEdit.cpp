@@ -117,7 +117,7 @@ namespace Editor::Inspector
 		// 加算のまま煙を出すと背景ごと明るくなってしまう
 		Engine::EditorField::Header("Blend");
 		EditorField::Field("BlendMode", a_pParticles->RefBlendMode());
-		if (a_pParticles->GetBlendMode() == Particle::EParticleBlendMode::Additive)
+		if (a_pParticles->GetBlendMode() == Graphics::Particle::EParticleBlendMode::Additive)
 		{
 			Engine::EditorField::HelpText("重ねるほど明るくなる。火花・炎・爆発の芯向き");
 		}
@@ -142,21 +142,21 @@ namespace Editor::Inspector
 		bool _isRotate = false;		// 板を面の中で回せるか
 		switch (a_pParticles->GetOrientation())
 		{
-		case Particle::EParticleOrientation::Billboard:
+		case Graphics::Particle::EParticleOrientation::Billboard:
 			Engine::EditorField::HelpText("Always faces camera (texture up = screen up)");
 			_isRotate = true;
 			break;
-		case Particle::EParticleOrientation::VelocityBillboard:
-		case Particle::EParticleOrientation::VelocityAxis:
+		case Graphics::Particle::EParticleOrientation::VelocityBillboard:
+		case Graphics::Particle::EParticleOrientation::VelocityAxis:
 			Engine::EditorField::HelpText("Texture up (V=0) points along velocity");
 			_isStretch = true;
 			break;
-		case Particle::EParticleOrientation::EmitterAxis:
+		case Graphics::Particle::EParticleOrientation::EmitterAxis:
 			Engine::EditorField::HelpText("Texture up (V=0) points along emit direction (emitter +Z)");
 			_isStretch = true;
 			_isRotate = true;
 			break;
-		case Particle::EParticleOrientation::EmitterFacing:
+		case Graphics::Particle::EParticleOrientation::EmitterFacing:
 			Engine::EditorField::HelpText("Faces emit direction (texture up = emitter +Y)");
 			_isRotate = true;
 			break;

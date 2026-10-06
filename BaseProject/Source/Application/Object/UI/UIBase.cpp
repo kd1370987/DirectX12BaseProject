@@ -406,7 +406,7 @@ namespace App::Object
 		{
 			// 画面に出す音なので 2D で発行する(定位を付けない)。
 			// UI の札を付けておくと、設定画面の UI 音量がそのまま効く
-			a_inoutHandle = _pAudioManager->RequestSoundInstance(
+			a_inoutHandle = _pAudioManager->CreateSoundInstance(
 				a_guid, false, Engine::Audio::ESoundGroup::Ui);
 		}
 

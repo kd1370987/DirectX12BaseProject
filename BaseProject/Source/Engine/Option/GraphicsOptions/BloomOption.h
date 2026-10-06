@@ -18,7 +18,7 @@ namespace Engine::Option::GraphicsOptions
 		float intensity = 0.6f;		// 合成時のブルームの強さ
 		bool  enable    = true;		// false ならブルームを掛けない
 
-		const std::string& GetName() override
+		const std::string& GetName() const override
 		{
 			static const std::string NAME = "BloomOption";
 			return NAME;

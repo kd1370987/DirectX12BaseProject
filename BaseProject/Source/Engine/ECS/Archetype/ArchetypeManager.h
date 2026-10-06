@@ -91,7 +91,7 @@ namespace Engine::ECS
 	private:
 
 		// シグネチャに対応するアーキタイプを返す。無ければ作る
-		Archetype* GetOrCreateArchetype(const Signature& a_sig);
+		Archetype* RequestArchetype(const Signature& a_sig);
 
 		// アーキタイプの生成(レイアウト計算まで)
 		Archetype* CreateArchetype(const Signature& a_sig);

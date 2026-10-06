@@ -182,7 +182,7 @@ namespace Engine::Resource
 		// Hemisphere : emitDir 側の半球だけ。地面での爆発
 		// ※ Cone の角度を 360 にしても全方向にはならない(円錐の半頂角なので)。
 		//    四方八方へ飛び散らせたいときは Sphere を選ぶこと
-		Particle::EParticleEmitShape emitShape = Particle::EParticleEmitShape::Cone;
+		Graphics::Particle::EParticleEmitShape emitShape = Graphics::Particle::EParticleEmitShape::Cone;
 
 		// ---- どれだけ出すか ----
 		int   emitCount = 8;		// 1回の発生数

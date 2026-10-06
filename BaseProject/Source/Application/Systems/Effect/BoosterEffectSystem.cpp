@@ -242,7 +242,7 @@ namespace App::System
 					}
 
 					// 反復中なので即時生成はされない。実体化は次の BeginFrame
-					App::Utility::SpawnEffectAt(
+					App::Utility::ReserveSpawnEffectAt(
 						*a_ctx.pWorld,
 						_booster.sparkEffectGUID,
 						_sparkPos,

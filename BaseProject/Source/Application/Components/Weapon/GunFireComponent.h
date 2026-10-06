@@ -30,7 +30,7 @@ struct Engine::ECS::ComponentTraits<App::Component::GunFireComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::GunFireComponent& _comp = Engine::EditorField::GetValue<App::Component::GunFireComponent>(a_context.pData);
+		App::Component::GunFireComponent& _comp = Engine::EditorField::RefValue<App::Component::GunFireComponent>(a_context.pData);
 		Engine::EditorField::Value("Fired", "%s", _comp.isFired ? "true" : "false");
 	}
 };

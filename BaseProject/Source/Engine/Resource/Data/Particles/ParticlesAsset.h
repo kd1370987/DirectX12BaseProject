@@ -45,7 +45,7 @@ namespace Engine::Resource
 		float GetLifeTimeMax() const { return m_lifeTimeMax; }				// 最大生存時間
 		int GetCapacity() const { return m_capacity; }						// 最初に用意しておく粒の数(足りなければプールが伸びる)
 		int GetEmissionRate() const { return m_emissionRate; }				// 発生レート
-		Particle::EParticleOrientation GetOrientation() const { return m_orientation; }	// 板ポリの向き
+		Graphics::Particle::EParticleOrientation GetOrientation() const { return m_orientation; }	// 板ポリの向き
 		float GetStretch() const { return m_stretch; }						// 進行方向への伸ばし倍率
 		float GetDrag() const { return m_drag; }							// 速度の減衰
 		float GetEndSizeScale() const { return m_endSizeScale; }			// 寿命の終わりでのサイズ倍率
@@ -53,9 +53,9 @@ namespace Engine::Resource
 		const Math::Color& GetEndColor() const { return m_endColor; }		// 消える直前の色
 		float GetFadeInRatio() const { return m_fadeInRatio; }				// フェードインの割合
 		float GetFadeOutRatio() const { return m_fadeOutRatio; }			// フェードアウトの割合
-		Particle::EParticleBlendMode GetBlendMode() const { return m_blendMode; }	// 色の重ね方
-		Particle::EParticleSimulationSpace GetSimulationSpace() const { return m_simulationSpace; }	// どの座標系で回すか
-		bool IsLocalSpace() const { return m_simulationSpace == Particle::EParticleSimulationSpace::Local; }
+		Graphics::Particle::EParticleBlendMode GetBlendMode() const { return m_blendMode; }	// 色の重ね方
+		Graphics::Particle::EParticleSimulationSpace GetSimulationSpace() const { return m_simulationSpace; }	// どの座標系で回すか
+		bool IsLocalSpace() const { return m_simulationSpace == Graphics::Particle::EParticleSimulationSpace::Local; }
 		float GetRotationMin() const { return m_rotationMin; }					// 板の初期角の下限(度)
 		float GetRotationMax() const { return m_rotationMax; }					// 板の初期角の上限(度)
 		float GetAngularVelocityMin() const { return m_angularVelocityMin; }	// 板の回転速度の下限(度/秒)
@@ -71,7 +71,7 @@ namespace Engine::Resource
 		float& RefLifeTimeMax() { return m_lifeTimeMax; }
 		int& RefCapacity() { return m_capacity; }
 		int& RefEmissionRate() { return m_emissionRate; }
-		Particle::EParticleOrientation& RefOrientation() { return m_orientation; }
+		Graphics::Particle::EParticleOrientation& RefOrientation() { return m_orientation; }
 		float& RefStretch() { return m_stretch; }
 		float& RefDrag() { return m_drag; }
 		float& RefEndSizeScale() { return m_endSizeScale; }
@@ -79,8 +79,8 @@ namespace Engine::Resource
 		Math::Color& RefEndColor() { return m_endColor; }
 		float& RefFadeInRatio() { return m_fadeInRatio; }
 		float& RefFadeOutRatio() { return m_fadeOutRatio; }
-		Particle::EParticleBlendMode& RefBlendMode() { return m_blendMode; }
-		Particle::EParticleSimulationSpace& RefSimulationSpace() { return m_simulationSpace; }
+		Graphics::Particle::EParticleBlendMode& RefBlendMode() { return m_blendMode; }
+		Graphics::Particle::EParticleSimulationSpace& RefSimulationSpace() { return m_simulationSpace; }
 		float& RefRotationMin() { return m_rotationMin; }
 		float& RefRotationMax() { return m_rotationMax; }
 		float& RefAngularVelocityMin() { return m_angularVelocityMin; }
@@ -143,7 +143,7 @@ namespace Engine::Resource
 		int m_emissionRate = 0;
 
 		// 板ポリの向き : 進行方向へ画像を回すかどうか
-		Particle::EParticleOrientation m_orientation = Particle::EParticleOrientation::Billboard;
+		Graphics::Particle::EParticleOrientation m_orientation = Graphics::Particle::EParticleOrientation::Billboard;
 
 		// 進行方向への伸ばし倍率 : 1 で伸ばさない。速い火花や弾道を線にしたいときに上げる
 		// (Billboard 指定のときは使わない)
@@ -178,13 +178,13 @@ namespace Engine::Resource
 		// 色の重ね方。光り物は加算、煙や破片は半透明。
 		// 既定を加算にしてあるのは、これを入れる前が加算固定だったため
 		// (既存のアセットの見え方を変えない)
-		Particle::EParticleBlendMode m_blendMode = Particle::EParticleBlendMode::Additive;
+		Graphics::Particle::EParticleBlendMode m_blendMode = Graphics::Particle::EParticleBlendMode::Additive;
 
 		// どの座標系で回すか。
 		// 既定をワールドにしてあるのは、これを入れる前がワールド固定だったため
 		// (既存のアセットの見え方を変えない)。
 		// ブースターの噴射のように発生源へくっついてほしいものは Local にする
-		Particle::EParticleSimulationSpace m_simulationSpace = Particle::EParticleSimulationSpace::World;
+		Graphics::Particle::EParticleSimulationSpace m_simulationSpace = Graphics::Particle::EParticleSimulationSpace::World;
 
 		//----------------------------------------------------------------------------------
 		// 板を面の中で回す

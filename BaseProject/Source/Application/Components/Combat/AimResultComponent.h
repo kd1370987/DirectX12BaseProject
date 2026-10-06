@@ -29,7 +29,7 @@ struct Engine::ECS::ComponentTraits<App::Component::AimResultComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::AimResultComponent& _comp = Engine::EditorField::GetValue<App::Component::AimResultComponent>(a_context.pData);
+		App::Component::AimResultComponent& _comp = Engine::EditorField::RefValue<App::Component::AimResultComponent>(a_context.pData);
 
 		// システムが毎フレーム上書きするので表示のみ
 		Engine::EditorField::Value("AimPos", "%.2f, %.2f, %.2f", _comp.pos.x, _comp.pos.y, _comp.pos.z);

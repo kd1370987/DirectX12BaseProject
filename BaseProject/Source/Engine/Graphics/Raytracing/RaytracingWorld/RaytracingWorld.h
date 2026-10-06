@@ -10,12 +10,12 @@ namespace Engine
 	}
 }
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }
 
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 	class TLAS;
 
@@ -47,9 +47,9 @@ namespace Engine::Raytracing
 
 		// 初期化
 		void Init(
-			D3D12::Device* a_pDevice,
-			D3D12::DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::Device* a_pDevice,
+			Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			Resource::ResourceManager* a_pResourceManager
 		);
 
@@ -61,7 +61,7 @@ namespace Engine::Raytracing
 
 		// レイトレワールド構築
 		// 毎フレーム構築。a_frameIndex は今のCPUフレーム番号(TLASのインスタンス区画の選択に使う)
-		void Commit(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex);
+		void Commit(Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex);
 
 		// インスタンスのクリア
 		void Clear();
@@ -70,8 +70,8 @@ namespace Engine::Raytracing
 		D3D12_GPU_VIRTUAL_ADDRESS GetTLAS() const;
 		D3D12_GPU_DESCRIPTOR_HANDLE GetSRVTLAS() const;
 
-		Handle<D3D12::SRV> GetInstanceBufferSRV() const;
-		Handle<D3D12::SRV> GetMaterialBufferSRV() const;
+		Handle<Graphics::D3D12::SRV> GetInstanceBufferSRV() const;
+		Handle<Graphics::D3D12::SRV> GetMaterialBufferSRV() const;
 
 		// インスタンス配列取得
 		D3D12_GPU_DESCRIPTOR_HANDLE GetInstanceDataSRV() const;
@@ -89,13 +89,13 @@ namespace Engine::Raytracing
 	private:
 
 		// GPU送信用データ
-		Engine::D3D12::StaticStructuredBuffer<InstanceData> m_instanceDataBuffer;
+		Engine::Graphics::D3D12::StaticStructuredBuffer<InstanceData> m_instanceDataBuffer;
 		std::vector<InstanceData> m_instanceDataVec = {};
-		Engine::D3D12::StaticStructuredBuffer<Material>     m_materialDataBuffer;
+		Engine::Graphics::D3D12::StaticStructuredBuffer<Material>     m_materialDataBuffer;
 		std::vector<Material> m_materialVec = {};
 
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている
-		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
+		Graphics::D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
 
 		// リソースの持ち主(借り物)。実体は MainEngine が持っている
 		Resource::ResourceManager* m_pResourceManager = nullptr;

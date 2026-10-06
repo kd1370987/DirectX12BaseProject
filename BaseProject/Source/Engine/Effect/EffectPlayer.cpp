@@ -37,7 +37,7 @@ namespace Engine::Effect
 
 			// 3D で鳴らすかは借りるときにしか決められない
 			// (2Dで作ったインスタンスに Apply3D を掛けると DirectXTK が例外を投げる)
-			a_inst.soundHandles[a_index] = a_audioManager.RequestSoundInstance(a_part.soundGUID, a_part.is3DSound);
+			a_inst.soundHandles[a_index] = a_audioManager.CreateSoundInstance(a_part.soundGUID, a_part.is3DSound);
 			a_inst.soundSourceGUID[a_index] = a_part.soundGUID;
 			a_inst.soundSource3D[a_index] = a_part.is3DSound;
 

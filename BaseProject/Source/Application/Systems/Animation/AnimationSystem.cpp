@@ -49,7 +49,7 @@ namespace App::System
 				// アニメーションを指したままのことがある。範囲外のチャンネルは適用せずスキップする
 				if (_idx >= a_nodeCount) continue;
 
-				Engine::Animation::Interpolate(a_ani.nodes[_j], a_clipTime, a_refLocal(_idx));
+				Engine::Graphics::Animation::Interpolate(a_ani.nodes[_j], a_clipTime, a_refLocal(_idx));
 			}
 		}
 
@@ -162,7 +162,7 @@ namespace App::System
 					{
 						const float _weight = a_boneWeight * _layerWeight;
 						if (_weight <= 0.0f) return;
-						_nodePoseVec[a_idx].local = Engine::Animation::BlendLocalMatrix(_nodePoseVec[a_idx].local, t_layerLocalVec[a_idx], _weight);
+						_nodePoseVec[a_idx].local = Engine::Graphics::Animation::BlendLocalMatrix(_nodePoseVec[a_idx].local, t_layerLocalVec[a_idx], _weight);
 					};
 
 				if (_pMask)

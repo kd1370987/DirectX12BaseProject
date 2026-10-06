@@ -57,7 +57,7 @@ namespace Engine::Scene
 	namespace
 	{
 		// 開発ツールが確認用シーン(エフェクトの確認など)を回しているなら、その窓口を返す
-		DevTool::IDevTool* GetActiveScenePreview()
+		DevTool::IDevTool* RefActiveScenePreview()
 		{
 			auto* _pDevTool = MainEngine::Instance().RefDevTool();
 			if (!_pDevTool || !_pDevTool->IsScenePreviewActive()) return nullptr;
@@ -69,14 +69,14 @@ namespace Engine::Scene
 	{
 		// エフェクト確認中はゲームのシーンを止める。
 		// シーンの切り替え命令もここで消化しないので、閉じたあとに順番どおり流れる
-		if (auto* _pDevTool = GetActiveScenePreview())
+		if (auto* _pDevTool = RefActiveScenePreview())
 		{
 			_pDevTool->UpdateScenePreview(a_dt);
 			return;
 		}
 
 		// シーンの切り替え
-		ChangeScenen(a_resourceManager);
+		ApplyReservedSceneChanges(a_resourceManager);
 
 		//==================================================================
 		// シーンの更新
@@ -111,7 +111,7 @@ namespace Engine::Scene
 	{
 		// エフェクト確認中は、あちらのワールドの描画命令だけをレンダーグラフへ流す。
 		// レンダーグラフ自体はゲームと同じものを通るので、見え方は本番と揃う
-		if (auto* _pDevTool = GetActiveScenePreview())
+		if (auto* _pDevTool = RefActiveScenePreview())
 		{
 			_pDevTool->DrawScenePreview();
 			return;
@@ -369,7 +369,7 @@ namespace Engine::Scene
 		return m_upBaseSceneVec.back()->RefWorld();
 	}
 
-	BaseScene* SceneManager::GetCurrentTopScene()
+	BaseScene* SceneManager::RefCurrentTopScene()
 	{
 		// シーンが1つも無い間(起動直後・全消去後)もここは呼ばれる。
 		// 空のまま back() を取るとその場で落ちるので、呼び出し側へ nullptr を返す
@@ -385,7 +385,7 @@ namespace Engine::Scene
 		return m_upBaseSceneVec.back()->RefGameObjectManager();
 	}
 
-	BaseScene* SceneManager::GetAmbientSourceScene()
+	BaseScene* SceneManager::RefAmbientSourceScene()
 	{
 		// 上から見て、最初に環境設定を使うシーン
 		for (auto _it = m_upBaseSceneVec.rbegin(); _it != m_upBaseSceneVec.rend(); ++_it)
@@ -410,7 +410,7 @@ namespace Engine::Scene
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGE) return;
 
-		if (BaseScene* _pScene = GetAmbientSourceScene())
+		if (BaseScene* _pScene = RefAmbientSourceScene())
 		{
 			_pScene->GetAmbient().Apply(*_pGE, m_ambientDLHandle);
 		}
@@ -420,12 +420,12 @@ namespace Engine::Scene
 		}
 	}
 
-	void SceneManager::SetNextScene(const Core::GUID& a_guid, const ESceneChangeType& a_changeType)
+	void SceneManager::ReserveChangeScene(const Core::GUID& a_guid, const ESceneChangeType& a_changeType)
 	{
 		m_sceneChangeCmd.push({ a_guid,a_changeType });
 	}
 
-	void SceneManager::ChangeScenen(Resource::ResourceManager& a_resourceManager)
+	void SceneManager::ApplyReservedSceneChanges(Resource::ResourceManager& a_resourceManager)
 	{
 		// 命令がある間
 		while (!m_sceneChangeCmd.empty())

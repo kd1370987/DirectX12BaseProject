@@ -151,7 +151,7 @@ namespace App::Object
 			m_resultTimer = (std::max)(0.0f, m_resultTimer - a_context.dt);
 			if (m_resultTimer > 0.0f) return;
 
-			RequestResultScene();
+			ReserveResultScene();
 			return;
 		}
 
@@ -254,7 +254,7 @@ namespace App::Object
 	// スコアは倒すたびに ScoreSystem がグローバルへ足しているので、
 	// ここで移すのはこのシーンでしか分からないもの(タイム・結末・ウェーブ数)だけ。
 	//======================================================================================
-	void SceneSequence::RequestResultScene()
+	void SceneSequence::ReserveResultScene()
 	{
 		m_isSceneRequested = true;
 
@@ -273,7 +273,7 @@ namespace App::Object
 			return;
 		}
 
-		Engine::Scene::SceneManager::Instance().SetNextScene(
+		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
 			m_resultSceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 
@@ -311,7 +311,7 @@ namespace App::Object
 		if (!a_context.pServices->pInputManager->IsPress(m_pauseAction)) return;
 
 		// 重ねる。実際に積まれるのは次のフレームの初め
-		Engine::Scene::SceneManager::Instance().SetNextScene(
+		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
 			m_pauseSceneGUID, Engine::Scene::ESceneChangeType::Push);
 
 		m_isPauseRequested = true;

@@ -60,7 +60,7 @@ struct Engine::ECS::ComponentTraits<App::Component::ModelComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		App::Component::ModelComponent& _comp = Engine::EditorField::GetValue<App::Component::ModelComponent>(a_pData);
+		App::Component::ModelComponent& _comp = Engine::EditorField::RefValue<App::Component::ModelComponent>(a_pData);
 		auto& _resourceManager = *a_services.pResourceManager;
 
 		_resourceManager.ReleaseHandle(_comp.handle);
@@ -68,7 +68,7 @@ struct Engine::ECS::ComponentTraits<App::Component::ModelComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::ModelComponent& _comp = Engine::EditorField::GetValue<App::Component::ModelComponent>(a_pData);
+		App::Component::ModelComponent& _comp = Engine::EditorField::RefValue<App::Component::ModelComponent>(a_pData);
 		a_ar.Field("colorScale", _comp.colorScale);
 		a_ar.Field("emissiveScale", _comp.emissiveScale);
 		a_ar.Field("emissiveColor", _comp.emissiveColor);
@@ -78,7 +78,7 @@ struct Engine::ECS::ComponentTraits<App::Component::ModelComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::ModelComponent& _comp = Engine::EditorField::GetValue<App::Component::ModelComponent>(a_context.pData);
+		App::Component::ModelComponent& _comp = Engine::EditorField::RefValue<App::Component::ModelComponent>(a_context.pData);
 
 		// ---------------------------------------------------------
 		// モデルの選択UI

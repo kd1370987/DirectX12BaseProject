@@ -28,10 +28,10 @@ namespace Editor
 		// Init で受け取ったものをここへ置いてコールバックから引く。
 		// ImGuiのコンテキストはアプリに1つしか無いので実体も1つで足りる
 		//--------------------------------------------------------------------------------------
-		D3D12::DescriptorHeapManager* g_pImGuiHeapManager = nullptr;
+		Graphics::D3D12::DescriptorHeapManager* g_pImGuiHeapManager = nullptr;
 	}
 
-	bool ImGuiContext::Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager)
+	bool ImGuiContext::Init(HWND a_hwnd, Graphics::D3D12::DescriptorHeapManager* a_pHeapManager)
 	{
 		if (!a_pHeapManager)
 		{
@@ -154,7 +154,7 @@ namespace Editor
 		ImGuiIO& _io = ImGui::GetIO();
 		const auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine();
 		const auto* _pBackBuffer = _pGE ? _pGE->GetBackBuffer() : nullptr;
-		const D3D12::Viewport _backBufferViewport = _pBackBuffer ? _pBackBuffer->GetViewport() : D3D12::Viewport{};
+		const Graphics::D3D12::Viewport _backBufferViewport = _pBackBuffer ? _pBackBuffer->GetViewport() : Graphics::D3D12::Viewport{};
 		if (_io.DisplaySize.x > 0.0f && _io.DisplaySize.y > 0.0f &&
 			_backBufferViewport.Width > 0.0f && _backBufferViewport.Height > 0.0f)
 		{
@@ -199,7 +199,7 @@ namespace Editor
 		ImGui::End();
 	}
 
-	void ImGuiContext::End(D3D12::GraphicsCommandList * a_pCmdList)
+	void ImGuiContext::End(Graphics::D3D12::GraphicsCommandList * a_pCmdList)
 	{
 		// ImGui描画
 		ImGui::Render();

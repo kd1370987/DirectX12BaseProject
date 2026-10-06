@@ -843,7 +843,7 @@ namespace Editor
 		// 実際に積まれているシーンが自分のGUIDを持っているので、毎フレーム
 		// そこから取り直す。これで表示も保存先も必ず今のシーンを指す。
 		//------------------------------------------------------------------
-		auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
+		auto* _pScene = Engine::Scene::SceneManager::Instance().RefCurrentTopScene();
 		if (!_pScene) return;
 
 		if (!(m_currentSceneGUID == _pScene->GetGUID()))
@@ -1003,11 +1003,11 @@ namespace Editor
 
 				if (ImGui::Selectable(_label.c_str(), m_currentSceneGUID == _sceneMeta.guid))
 				{
-					auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
+					auto* _pScene = Engine::Scene::SceneManager::Instance().RefCurrentTopScene();
 					if (_pScene)
 					{
 						// ロード処理
-						Engine::Scene::SceneManager::Instance().SetNextScene(_sceneMeta.guid, Scene::ESceneChangeType::Replace);
+						Engine::Scene::SceneManager::Instance().ReserveChangeScene(_sceneMeta.guid, Scene::ESceneChangeType::Replace);
 						ENGINE_LOG("シーンを読み込みました : %s", _sceneMeta.fileName.c_str());
 
 						m_currentSceneGUID = _sceneMeta.guid; // 現在のGUIDを更新
@@ -1049,7 +1049,7 @@ namespace Editor
 					// 名前を付けて保存した先が、このシーンの新しい置き場所になる。
 					// シーン本体にも覚えさせておかないと、上のGUID取り直しで
 					// 保存前のGUIDへ戻ってしまう
-					if (auto* _pCurrentScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene())
+					if (auto* _pCurrentScene = Engine::Scene::SceneManager::Instance().RefCurrentTopScene())
 					{
 						_pCurrentScene->SetGUID(_guid);
 					}
@@ -1094,7 +1094,7 @@ namespace Editor
 			{
 				// 作った先をこのまま開く。
 				// 中身は空なので、上書き保存の行き先もここになる
-				Engine::Scene::SceneManager::Instance().SetNextScene(_guid, Scene::ESceneChangeType::Replace);
+				Engine::Scene::SceneManager::Instance().ReserveChangeScene(_guid, Scene::ESceneChangeType::Replace);
 
 				m_currentSceneGUID = _guid;
 				m_canOverwrite = true;
@@ -1118,7 +1118,7 @@ namespace Editor
 	void SceneViewPanel::SaveScene(EditorContext& a_editContext, const Core::GUID & a_guid)
 	{
 		// 現在のシーンを取得
-		auto* _pScene = Engine::Scene::SceneManager::Instance().GetCurrentTopScene();
+		auto* _pScene = Engine::Scene::SceneManager::Instance().RefCurrentTopScene();
 		if (!_pScene)
 		{
 			ENGINE_LOG("シーンのセーブに失敗しました");

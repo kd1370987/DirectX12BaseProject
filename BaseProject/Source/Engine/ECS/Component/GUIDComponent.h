@@ -19,13 +19,13 @@ struct Engine::ECS::ComponentTraits<Engine::ECS::GUIDComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		Engine::ECS::GUIDComponent& _comp = Engine::EditorField::GetValue<Engine::ECS::GUIDComponent>(a_pData);
+		Engine::ECS::GUIDComponent& _comp = Engine::EditorField::RefValue<Engine::ECS::GUIDComponent>(a_pData);
 		a_ar.Field("guid", _comp.guid);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		Engine::ECS::GUIDComponent& _comp = Engine::EditorField::GetValue<Engine::ECS::GUIDComponent>(a_context.pData);
+		Engine::ECS::GUIDComponent& _comp = Engine::EditorField::RefValue<Engine::ECS::GUIDComponent>(a_context.pData);
 		Engine::EditorField::Text("%s", _comp.guid.String().c_str());
 	}
 };

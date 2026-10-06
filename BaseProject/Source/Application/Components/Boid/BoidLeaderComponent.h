@@ -29,13 +29,13 @@ struct Engine::ECS::ComponentTraits<App::Component::BoidLeaderComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::BoidLeaderComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidLeaderComponent>(a_pData);
+		App::Component::BoidLeaderComponent& _comp = Engine::EditorField::RefValue<App::Component::BoidLeaderComponent>(a_pData);
 		a_ar.Field("turnSpeedDeg", _comp.turnSpeedDeg);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BoidLeaderComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidLeaderComponent>(a_context.pData);
+		App::Component::BoidLeaderComponent& _comp = Engine::EditorField::RefValue<App::Component::BoidLeaderComponent>(a_context.pData);
 		Engine::EditorField::Field("TurnSpeedDeg", _comp.turnSpeedDeg, 1.0f, 0.0f);
 	}
 };

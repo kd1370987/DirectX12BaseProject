@@ -14,7 +14,7 @@
 #include "d3dx12.h"
 #pragma warning(pop)
 
-void Engine::Raytracing::ShaderTable::Init(D3D12::Device* a_pDevice, const ShaderTableInit& a_shaderInit)
+void Engine::Graphics::Raytracing::ShaderTable::Init(D3D12::Device* a_pDevice, const ShaderTableInit& a_shaderInit)
 {
 	m_maxLocalRootSigSize = a_shaderInit.maxLocalRootSize;
 
@@ -57,7 +57,7 @@ void Engine::Raytracing::ShaderTable::Init(D3D12::Device* a_pDevice, const Shade
 	m_cpShaderTable->Map(0, nullptr, (void**)&m_pShaderTableData);
 }
 
-void Engine::Raytracing::ShaderTable::Release()
+void Engine::Graphics::Raytracing::ShaderTable::Release()
 {
 	// リソースがマップされていればアンマップする
 	if (m_cpShaderTable && m_pShaderTableData)
@@ -93,7 +93,7 @@ void Engine::Raytracing::ShaderTable::Release()
 	m_recordSize = 0;
 }
 
-void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(
+void Engine::Graphics::Raytracing::ShaderTable::CommitInstanceBindLess(
 	const std::vector<Instance>& a_instanceVec, 
 	Graphics::RenderContext* a_pRCT,
 	UINT a_width,
@@ -124,12 +124,12 @@ void Engine::Raytracing::ShaderTable::CommitInstanceBindLess(
 	m_dispatchDesc = CreateDispatchDesc(a_instanceVec.size(),a_width,a_height);
 }
 
-const D3D12_DISPATCH_RAYS_DESC& Engine::Raytracing::ShaderTable::GetDispatchDesc() const
+const D3D12_DISPATCH_RAYS_DESC& Engine::Graphics::Raytracing::ShaderTable::GetDispatchDesc() const
 {
 	return m_dispatchDesc;
 }
 
-D3D12_DISPATCH_RAYS_DESC Engine::Raytracing::ShaderTable::CreateDispatchDesc(
+D3D12_DISPATCH_RAYS_DESC Engine::Graphics::Raytracing::ShaderTable::CreateDispatchDesc(
 	UINT a_instanceNum,
 	UINT a_width,
 	UINT a_height
@@ -158,7 +158,7 @@ D3D12_DISPATCH_RAYS_DESC Engine::Raytracing::ShaderTable::CreateDispatchDesc(
 	return _dispatchDesc;
 }
 
-void Engine::Raytracing::ShaderTable::CalucShaderTableSize(UINT a_instanceNum)
+void Engine::Graphics::Raytracing::ShaderTable::CalucShaderTableSize(UINT a_instanceNum)
 {
 	// シェーダーIDのサイズ
 	uint32_t _shaderIDSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
@@ -195,7 +195,7 @@ void Engine::Raytracing::ShaderTable::CalucShaderTableSize(UINT a_instanceNum)
 	m_tableSize = _offset;
 }
 
-void Engine::Raytracing::ShaderTable::CalucShaderNum(
+void Engine::Graphics::Raytracing::ShaderTable::CalucShaderNum(
 	const RayPSO* a_rayPSO,
 	const std::vector<RayShaderData>& a_shaderData, 
 	const std::vector<HitGroup>& a_hitGroup

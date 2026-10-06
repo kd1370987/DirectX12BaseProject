@@ -77,7 +77,7 @@ namespace App::Object
 		// 確認ボックス
 		if (auto* _pYes = Picker::Find<UIButton>(m_pObjectManager, m_yesButtonGUID))
 		{
-			_pYes->SetOnClick([this]() { RequestSortie(); });
+			_pYes->SetOnClick([this]() { ReserveSortie(); });
 		}
 		if (auto* _pNo = Picker::Find<UIButton>(m_pObjectManager, m_noButtonGUID))
 		{
@@ -270,7 +270,7 @@ namespace App::Object
 	//======================================================================================
 	// 確認しているミッションへ出撃する
 	//======================================================================================
-	void MissionSelect::RequestSortie()
+	void MissionSelect::ReserveSortie()
 	{
 		// 連打で何度も積まないようにする
 		if (m_isSceneRequested) return;
@@ -292,7 +292,7 @@ namespace App::Object
 
 		// シーンの切り替えは SceneManager が持っている
 		// (ObjectContext のサービス群には載っていないので、ここだけ直接触る)
-		Engine::Scene::SceneManager::Instance().SetNextScene(
+		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
 			_sceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 

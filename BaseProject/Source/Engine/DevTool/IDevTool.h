@@ -4,7 +4,7 @@
 #include "Engine/Graphics/D3D12/D3D12Types.h"
 #include "Core/Math/Matrix.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }
@@ -34,7 +34,7 @@ namespace Engine::DevTool
 		//------------------------------------------------------------------------------
 
 		// 初期化 : デバイス・ウィンドウ・サービスが揃った後に1回
-		virtual bool Init(HWND a_hWnd, D3D12::DescriptorHeapManager* a_pHeapManager, ECS::EngineServices* a_pServices) = 0;
+		virtual bool Init(HWND a_hWnd, Graphics::D3D12::DescriptorHeapManager* a_pHeapManager, ECS::EngineServices* a_pServices) = 0;
 
 		// 解放
 		virtual void Release() = 0;
@@ -43,7 +43,7 @@ namespace Engine::DevTool
 		virtual void Update(float a_deltaTime) = 0;
 
 		// 描画 : ゲーム以外のモードで、バックバッファへ重ねて描く
-		virtual void Draw(D3D12::GraphicsCommandList* a_pCmdList) = 0;
+		virtual void Draw(Graphics::D3D12::GraphicsCommandList* a_pCmdList) = 0;
 
 		// モード切り替えをまたいで入力を持ち越さないよう、溜まっている入力を捨てる
 		virtual void ResetInput() = 0;

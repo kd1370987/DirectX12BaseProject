@@ -2,7 +2,7 @@
 
 #include "Engine/MainEngine.h"
 
-namespace Engine::Particle
+namespace Engine::Graphics::Particle
 {
 	void EmitterSlotPool::Init(uint32_t a_blockSize)
 	{
@@ -38,8 +38,8 @@ namespace Engine::Particle
 		// 壊すだけではディスクリプタ(SRV)が返らないので Release() を呼ぶ
 		if (m_upGPUBuffer)
 		{
-			std::shared_ptr<D3D12::StaticStructuredBuffer<EmitterTransform>> _spOld(std::move(m_upGPUBuffer));
-			MainEngine::Instance().RegisterDeferredResource([_spOld]() { _spOld->Release(); });
+			std::shared_ptr<Graphics::D3D12::StaticStructuredBuffer<EmitterTransform>> _spOld(std::move(m_upGPUBuffer));
+			MainEngine::Instance().ReserveRelease([_spOld]() { _spOld->Release(); });
 		}
 		m_gpuCapacity = 0;
 	}
@@ -122,9 +122,9 @@ namespace Engine::Particle
 		}
 	}
 	void EmitterSlotPool::Upload(
-		D3D12::Device* a_pDevice,
-		D3D12::DescriptorHeapManager* a_pHeapManager,
-		D3D12::GraphicsCommandList* a_pCmdList,
+		Graphics::D3D12::Device* a_pDevice,
+		Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+		Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 		UINT a_frameIndex
 	)
 	{
@@ -142,12 +142,12 @@ namespace Engine::Particle
 		{
 			if (m_upGPUBuffer)
 			{
-				std::shared_ptr<D3D12::StaticStructuredBuffer<EmitterTransform>> _spOld(std::move(m_upGPUBuffer));
+				std::shared_ptr<Graphics::D3D12::StaticStructuredBuffer<EmitterTransform>> _spOld(std::move(m_upGPUBuffer));
 				// 壊すだけではディスクリプタ(SRV)が返らないので、Release() を呼んでから手放す
-				MainEngine::Instance().RegisterDeferredResource([_spOld]() { _spOld->Release(); });
+				MainEngine::Instance().ReserveRelease([_spOld]() { _spOld->Release(); });
 			}
 
-			m_upGPUBuffer = std::make_unique<D3D12::StaticStructuredBuffer<EmitterTransform>>();
+			m_upGPUBuffer = std::make_unique<Graphics::D3D12::StaticStructuredBuffer<EmitterTransform>>();
 			m_upGPUBuffer->Create(a_pDevice, a_pHeapManager, a_pCmdList, _needCapacity, nullptr);
 			m_gpuCapacity = _needCapacity;
 		}

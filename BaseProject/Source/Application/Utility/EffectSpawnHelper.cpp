@@ -55,7 +55,7 @@ namespace App::Utility
 		//----------------------------------------------------------------------
 		// エフェクト1体ぶんのシグネチャと初期データを組む。
 		// 「エフェクトのエンティティとは何で出来ているか」をここ1か所に閉じておき、
-		// 遅延生成(SpawnEffectAt)と即時生成(SpawnEffectAtNow)で同じものを使う。
+		// 遅延生成(ReserveSpawnEffectAt)と即時生成(SpawnEffectAtNow)で同じものを使う。
 		//----------------------------------------------------------------------
 		bool BuildEffectEntity(
 			Engine::ECS::World& a_world,
@@ -118,7 +118,7 @@ namespace App::Utility
 		}
 	}
 
-	bool SpawnEffectAt(
+	bool ReserveSpawnEffectAt(
 		Engine::ECS::World& a_world,
 		const Core::GUID& a_effectGUID,
 		const Math::Vector3& a_pos,
@@ -198,7 +198,7 @@ namespace App::Utility
 
 		// エフェクトからとれるパーツのプールを作成する。
 		// パーティクル未設定のパーツや、アセットがまだ読めていないものは
-		// CreateParticleDataAsync の側で弾かれる(後で RequestEmit が作り直しに来る)
+		// CreateParticleDataAsync の側で弾かれる(後で ReserveEmit が作り直しに来る)
 		for (auto& _part : _pEffect->GetParticleParts())
 		{
 			if (!_part.IsValid()) continue;
@@ -208,7 +208,7 @@ namespace App::Utility
 	void ReserveReturnEffectEmitterSlot(
 		const Engine::ECS::EngineServices& a_services,
 		Engine::Handle<Engine::Resource::EffectAsset> a_effectHandle,
-		Engine::Handle<Engine::Particle::EmitterTransform>& a_emitterSlot)
+		Engine::Handle<Engine::Graphics::Particle::EmitterTransform>& a_emitterSlot)
 	{
 		if (!a_emitterSlot.IsValid()) return;
 
@@ -254,7 +254,7 @@ namespace App::Utility
 		}
 		if (!_isKnown)
 		{
-			_holdSeconds = (std::max)(_holdSeconds, Engine::Particle::EMITTER_SLOT_FALLBACK_HOLD_SECONDS);
+			_holdSeconds = (std::max)(_holdSeconds, Engine::Graphics::Particle::EMITTER_SLOT_FALLBACK_HOLD_SECONDS);
 		}
 
 		_pSlotPool->ReserveReturn(_slot, _holdSeconds);

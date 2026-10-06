@@ -14,7 +14,7 @@ namespace Engine::Option::DebugOptions
 	{
 		bool drawWire = true;	// false ならデバッグワイヤーを一切描かない
 
-		const std::string& GetName() override
+		const std::string& GetName() const override
 		{
 			static const std::string NAME = "DebugDrawOption";
 			return NAME;

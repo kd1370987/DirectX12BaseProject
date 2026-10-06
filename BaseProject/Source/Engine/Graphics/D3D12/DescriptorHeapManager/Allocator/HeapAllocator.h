@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	// 制約(IsHeapType)を満たす型のTのみを受け付ける
 	template<IsHeapType T>
@@ -19,7 +19,7 @@ namespace Engine::D3D12
 		void Release();
 
 		// ビュー操作
-		Handle<T> Allocate(D3D12::Device* a_pDevice,ID3D12Resource* a_pRes,const typename T::DescType* a_desc);
+		Handle<T> Allocate(Graphics::D3D12::Device* a_pDevice,ID3D12Resource* a_pRes,const typename T::DescType* a_desc);
 
 		// ビュー消去
 		void Remove(Handle<T> a_handle);
@@ -84,7 +84,7 @@ namespace Engine::D3D12
 		m_pShaderVisibleHeap = nullptr;
 	}
 	template<IsHeapType T>
-	inline Handle<T> HeapAllocator<T>::Allocate(D3D12::Device* a_pDevice, ID3D12Resource* a_pRes, const typename T::DescType* a_desc)
+	inline Handle<T> HeapAllocator<T>::Allocate(Graphics::D3D12::Device* a_pDevice, ID3D12Resource* a_pRes, const typename T::DescType* a_desc)
 	{
 		// ハンドルをアロケート。
 		// ビューの書き込みは取った席にしか触らないので、ロックは席を取る間だけでよい

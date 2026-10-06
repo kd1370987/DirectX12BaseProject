@@ -59,7 +59,7 @@ struct Engine::ECS::ComponentTraits<App::Component::HealthComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::HealthComponent& _comp = Engine::EditorField::GetValue<App::Component::HealthComponent>(a_pData);
+		App::Component::HealthComponent& _comp = Engine::EditorField::RefValue<App::Component::HealthComponent>(a_pData);
 
 		// 現在体力と死亡状態は保存しない。読み込み直したら満タンの生存から始まる
 		a_ar.Field("maxHealth", _comp.maxHealth);
@@ -68,7 +68,7 @@ struct Engine::ECS::ComponentTraits<App::Component::HealthComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::HealthComponent& _comp = Engine::EditorField::GetValue<App::Component::HealthComponent>(a_context.pData);
+		App::Component::HealthComponent& _comp = Engine::EditorField::RefValue<App::Component::HealthComponent>(a_context.pData);
 
 		if (Engine::EditorField::Field("MaxHealth", _comp.maxHealth, 1.0f, 0.0f))
 		{

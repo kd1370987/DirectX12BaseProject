@@ -2,9 +2,9 @@
 
 #include "Allocator/SamplerAllocator/SamplerAllocator.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
-	bool DescriptorHeapManager::Init(D3D12::Device* a_pDevice, UINT a_cbvCount, UINT a_srvCount, UINT a_uavCount, UINT a_rtvCount, UINT a_dsvCount)
+	bool DescriptorHeapManager::Init(Graphics::D3D12::Device* a_pDevice, UINT a_cbvCount, UINT a_srvCount, UINT a_uavCount, UINT a_rtvCount, UINT a_dsvCount)
 	{
 		if (!a_pDevice)
 		{
@@ -13,7 +13,7 @@ namespace Engine::D3D12
 		}
 
 		m_pDevice = a_pDevice;
-		D3D12::Device* _device = m_pDevice;
+		Graphics::D3D12::Device* _device = m_pDevice;
 
 		//------------------------------------------------------------------------------------------
 		// CBV / SRV / UAV は同じ大きさのヒープを2枚持つ
@@ -100,7 +100,7 @@ namespace Engine::D3D12
 		}
 
 		// Sampler
-		m_upSamplerAllocator = std::make_unique<Engine::D3D12::SamplerAllocator>();
+		m_upSamplerAllocator = std::make_unique<Engine::Graphics::D3D12::SamplerAllocator>();
 		m_upSamplerAllocator->Create(&m_samplerHeap);
 
 		// 主要サンプラー作成
@@ -133,7 +133,7 @@ namespace Engine::D3D12
 	{
 		// 預かっている席は全部返す。
 		// ここへ来るのは全キューの完了を待った後(ReleaseDescriptorHeap)なので、もう誰も読んでいない
-		ProcessDeferredFrees((std::numeric_limits<UINT64>::max)());
+		ApplyReservedFrees((std::numeric_limits<UINT64>::max)());
 		m_nextFenceValueProvider = nullptr;
 
 		// アロケーターのリンク解除
@@ -180,7 +180,7 @@ namespace Engine::D3D12
 		m_nextFenceValueProvider = std::move(a_provider);
 	}
 
-	void DescriptorHeapManager::ProcessDeferredFrees(UINT64 a_completedFenceValue)
+	void DescriptorHeapManager::ApplyReservedFrees(UINT64 a_completedFenceValue)
 	{
 		// 戻すものを取り出してから戻す : 戻す処理(アロケーターのロック)を預かりのロックの外で行う
 		std::vector<PendingFree> _ready = {};
@@ -270,7 +270,7 @@ namespace Engine::D3D12
 		return m_ImGuiSRVAllocator.GetGPU(a_range);
 	}
 
-	Engine::Handle<SamplerTag> DescriptorHeapManager::CreateSampler(D3D12::Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
+	Engine::Handle<SamplerTag> DescriptorHeapManager::CreateSampler(Graphics::D3D12::Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
 	{
 		return m_upSamplerAllocator->Allocate(a_pDevice, a_desc);
 	}

@@ -48,7 +48,7 @@ struct Engine::ECS::ComponentTraits<App::Component::CloseCombatComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::CloseCombatComponent& _comp = Engine::EditorField::GetValue<App::Component::CloseCombatComponent>(a_pData);
+		App::Component::CloseCombatComponent& _comp = Engine::EditorField::RefValue<App::Component::CloseCombatComponent>(a_pData);
 		a_ar.Field("fireTime", _comp.fireTime);
 		a_ar.Field("moveTime", _comp.moveTime);
 		a_ar.Field("moveThrottle", _comp.moveThrottle);
@@ -58,7 +58,7 @@ struct Engine::ECS::ComponentTraits<App::Component::CloseCombatComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::CloseCombatComponent& _comp = Engine::EditorField::GetValue<App::Component::CloseCombatComponent>(a_context.pData);
+		App::Component::CloseCombatComponent& _comp = Engine::EditorField::RefValue<App::Component::CloseCombatComponent>(a_context.pData);
 		Engine::EditorField::Field("FireTime", _comp.fireTime, 0.1f, 0.0f);
 		Engine::EditorField::Field("MoveTime", _comp.moveTime, 0.1f, 0.0f);
 		Engine::EditorField::Field("MoveThrottle", _comp.moveThrottle, 0.01f, 0.0f, 1.0f);

@@ -63,7 +63,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BossBrainStateComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BossBrainStateComponent& _comp = Engine::EditorField::GetValue<App::Component::BossBrainStateComponent>(a_context.pData);
+		App::Component::BossBrainStateComponent& _comp = Engine::EditorField::RefValue<App::Component::BossBrainStateComponent>(a_context.pData);
 
 		// 毎フレーム上書きされるので表示のみ
 		static const char* PATTERN_NAME[] = {

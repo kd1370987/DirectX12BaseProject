@@ -22,7 +22,7 @@ struct Engine::ECS::ComponentTraits<App::Component::FollowTargetComponent>
 
 	static void Edit(CompEditContext& a_context) {
 		using namespace Engine;
-		App::Component::FollowTargetComponent& _comp = Engine::EditorField::GetValue<App::Component::FollowTargetComponent>(a_context.pData);
+		App::Component::FollowTargetComponent& _comp = Engine::EditorField::RefValue<App::Component::FollowTargetComponent>(a_context.pData);
 
 		ECS::Entity _entity = _comp.target;
 

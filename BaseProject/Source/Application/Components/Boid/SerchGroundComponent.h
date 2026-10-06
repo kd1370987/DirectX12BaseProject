@@ -35,13 +35,13 @@ struct Engine::ECS::ComponentTraits<App::Component::SerchGroundComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::SerchGroundComponent& _comp = Engine::EditorField::GetValue<App::Component::SerchGroundComponent>(a_pData);
+		App::Component::SerchGroundComponent& _comp = Engine::EditorField::RefValue<App::Component::SerchGroundComponent>(a_pData);
 		a_ar.Field("maxDistance", _comp.maxDistance);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::SerchGroundComponent& _comp = Engine::EditorField::GetValue<App::Component::SerchGroundComponent>(a_context.pData);
+		App::Component::SerchGroundComponent& _comp = Engine::EditorField::RefValue<App::Component::SerchGroundComponent>(a_context.pData);
 		Engine::EditorField::Field("MaxDistance", _comp.maxDistance, 1.0f, 0.0f);
 
 		// 毎フレーム書き直される値なので表示のみ

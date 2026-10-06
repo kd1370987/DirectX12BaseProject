@@ -31,7 +31,7 @@ struct Engine::ECS::ComponentTraits<App::Component::SwarmBurstComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::SwarmBurstComponent& _comp = Engine::EditorField::GetValue<App::Component::SwarmBurstComponent>(a_context.pData);
+		App::Component::SwarmBurstComponent& _comp = Engine::EditorField::RefValue<App::Component::SwarmBurstComponent>(a_context.pData);
 
 		// 毎フレーム書き換わる値なので表示のみ
 		Engine::EditorField::Value("Velocity", "%.1f, %.1f, %.1f", _comp.velocity.x, _comp.velocity.y, _comp.velocity.z);

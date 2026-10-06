@@ -2,7 +2,7 @@
 
 #include "../../DescriptorHeapManager/DescriptorHeapManager.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	void StaticBuffer::Release()
 	{
@@ -20,7 +20,7 @@ namespace Engine::D3D12
 		m_frameUploadBuffer.Release();
 	}
 	bool StaticBuffer::Create(
-		D3D12::Device* a_pDevice, 
+		Graphics::D3D12::Device* a_pDevice, 
 		DescriptorHeapManager* a_pHeapManager,
 		GraphicsCommandList* a_pCmdList,
 		const StaticBufferDesc& a_desc,
@@ -49,7 +49,7 @@ namespace Engine::D3D12
 		//------------------------------------------------------------------------------------------
 		if (m_pHeapManager)
 		{
-			m_pHeapManager->Free(m_srvHandle);
+			m_pHeapManager->ReserveFree(m_srvHandle);
 		}
 		m_srvHandle = {};
 
@@ -91,7 +91,7 @@ namespace Engine::D3D12
 		m_isDirty = true;
 	}
 
-	void StaticBuffer::UploadDataRange(D3D12::GraphicsCommandList* a_pCmdList, size_t a_destOffsetBytes, const void* a_pData, size_t a_sizeBytes)
+	void StaticBuffer::UploadDataRange(Graphics::D3D12::GraphicsCommandList* a_pCmdList, size_t a_destOffsetBytes, const void* a_pData, size_t a_sizeBytes)
 	{
 		if (!a_pData || a_sizeBytes == 0) return;
 
@@ -158,7 +158,7 @@ namespace Engine::D3D12
 		// 作成時と同じデバイスをリソースから引く(呼び出し側に持ち回らせないため)
 		if (!m_cpResource) return false;
 
-		ComPtr<D3D12::Device> _cpDevice = nullptr;
+		ComPtr<Graphics::D3D12::Device> _cpDevice = nullptr;
 		if (FAILED(m_cpResource->GetDevice(IID_PPV_ARGS(_cpDevice.ReleaseAndGetAddressOf()))))
 		{
 			ENGINE_ERRLOG(false, "UploadFrame : デバイスを取得できませんでした");
@@ -182,7 +182,7 @@ namespace Engine::D3D12
 		return m_pFrameUploadMap != nullptr;
 	}
 
-	void StaticBuffer::UploadDataRange(D3D12::GraphicsCommandList* a_pCmdList, UINT a_startIndex, UINT a_count, const void* a_pData)
+	void StaticBuffer::UploadDataRange(Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_startIndex, UINT a_count, const void* a_pData)
 	{
 		UploadDataRange(
 			a_pCmdList,
@@ -192,7 +192,7 @@ namespace Engine::D3D12
 		);
 	}
 
-	void StaticBuffer::Barrier(D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
+	void StaticBuffer::Barrier(Graphics::D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
 	{
 		m_gpuBuffer.Barrier(a_pCmdList, a_nextState);
 	}
@@ -207,7 +207,7 @@ namespace Engine::D3D12
 		return m_gpuBuffer.GetGPUVirtualAddress();
 	}
 
-	void StaticBuffer::CreateSRVInternal(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager)
+	void StaticBuffer::CreateSRVInternal(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager)
 	{
 		if (!a_pHeapManager)
 		{

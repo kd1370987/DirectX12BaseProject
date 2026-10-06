@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	// ルートシグネチャ作成構造体
 	struct RootSignatureDesc
@@ -49,9 +49,9 @@ namespace Engine::D3D12
 	public:
 
 		static D3D12_ROOT_SIGNATURE_DESC CreateDesc(const RootSignatureDesc& a_desc);
-		static ComPtr<ID3D12RootSignature> CreateRootSignature(D3D12::Device* a_pDevice, const D3D12_ROOT_SIGNATURE_DESC& a_desc);
-		static ComPtr<ID3D12RootSignature> Create(D3D12::Device* a_pDevice, const RootSignatureDesc& a_desc);
-		static ComPtr<ID3D12RootSignature> Create(D3D12::Device* a_pDevice, const std::string& a_path);
-		static ComPtr<ID3D12RootSignature> Create(D3D12::Device* a_pDevice, ComPtr<ID3DBlob> a_cpBlob);
+		static ComPtr<ID3D12RootSignature> CreateRootSignature(Graphics::D3D12::Device* a_pDevice, const D3D12_ROOT_SIGNATURE_DESC& a_desc);
+		static ComPtr<ID3D12RootSignature> Create(Graphics::D3D12::Device* a_pDevice, const RootSignatureDesc& a_desc);
+		static ComPtr<ID3D12RootSignature> Create(Graphics::D3D12::Device* a_pDevice, const std::string& a_path);
+		static ComPtr<ID3D12RootSignature> Create(Graphics::D3D12::Device* a_pDevice, ComPtr<ID3DBlob> a_cpBlob);
 	};
 }

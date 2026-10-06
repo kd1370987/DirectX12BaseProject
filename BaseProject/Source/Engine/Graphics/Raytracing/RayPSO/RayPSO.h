@@ -8,7 +8,7 @@ namespace Engine::Graphics
 	class PipelineStateManager;
 }
 
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 	// レイ用PSO作成構造体
 	struct RayPSODesc
@@ -64,12 +64,12 @@ namespace Engine::Raytracing
 		// パイプラインステート作成
 		// ルートシグネチャの実体はサブオブジェクトの組み立てに要るので、
 		// ここでマネージャーから引く(保持するのはハンドルのまま)
-		bool Init(D3D12::Device* a_pDevice, Graphics::PipelineStateManager* a_pPSOManager, RayPSODesc& a_desc);
+		bool Init(Graphics::D3D12::Device* a_pDevice, Graphics::PipelineStateManager* a_pPSOManager, RayPSODesc& a_desc);
 
 		const void* GetShaderID(const std::string& a_shaderEntry) const;
 		const void* GetShaderID(const wchar_t* a_shaderEntry) const;
 
-		ID3D12StateObject* Get()
+		ID3D12StateObject* Get() const
 		{
 			return m_cpPSO.Get();
 		}

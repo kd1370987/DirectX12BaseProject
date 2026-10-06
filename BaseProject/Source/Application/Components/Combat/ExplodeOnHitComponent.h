@@ -19,13 +19,13 @@ struct Engine::ECS::ComponentTraits<App::Component::ExplodeOnHitComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::ExplodeOnHitComponent& _comp = Engine::EditorField::GetValue<App::Component::ExplodeOnHitComponent>(a_pData);
+		App::Component::ExplodeOnHitComponent& _comp = Engine::EditorField::RefValue<App::Component::ExplodeOnHitComponent>(a_pData);
 		a_ar.Field("destroySelf", _comp.destroySelf);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::ExplodeOnHitComponent& _comp = Engine::EditorField::GetValue<App::Component::ExplodeOnHitComponent>(a_context.pData);
+		App::Component::ExplodeOnHitComponent& _comp = Engine::EditorField::RefValue<App::Component::ExplodeOnHitComponent>(a_context.pData);
 
 		Engine::EditorField::Field("DestroySelf", _comp.destroySelf);
 		Engine::EditorField::Tooltip("Effect is EffectEventsComponent (OnDeath).");

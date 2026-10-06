@@ -49,7 +49,7 @@ namespace Editor
 		// 次の Draw で、保存されている座標を ImNodes へ流し込ませる。
 		// ImNodes はコンテキストが有効なメインスレッドでしか触れないので、
 		// 読み込んだその場では反映できない
-		void RequestApplyNodePositions() { m_isApplyPositionsPending = true; }
+		void ReserveApplyNodePositions() { m_isApplyPositionsPending = true; }
 
 	protected:
 

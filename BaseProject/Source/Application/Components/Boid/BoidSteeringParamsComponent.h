@@ -44,7 +44,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoidSteeringParamsComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::BoidSteeringParamsComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidSteeringParamsComponent>(a_pData);
+		App::Component::BoidSteeringParamsComponent& _comp = Engine::EditorField::RefValue<App::Component::BoidSteeringParamsComponent>(a_pData);
 
 		a_ar.Field("slowRadius", _comp.slowRadius);
 		a_ar.Field("maxSpeed", _comp.maxSpeed);
@@ -63,7 +63,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoidSteeringParamsComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BoidSteeringParamsComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidSteeringParamsComponent>(a_context.pData);
+		App::Component::BoidSteeringParamsComponent& _comp = Engine::EditorField::RefValue<App::Component::BoidSteeringParamsComponent>(a_context.pData);
 		Engine::EditorField::Field("slowRadius", _comp.slowRadius);
 		Engine::EditorField::Field("maxSpeed", _comp.maxSpeed);
 		Engine::EditorField::Field("seekWeight", _comp.seekWeight);

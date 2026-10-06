@@ -25,14 +25,14 @@ struct Engine::ECS::ComponentTraits<App::Component::SpawnerComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::SpawnerComponent& _comp = Engine::EditorField::GetValue<App::Component::SpawnerComponent>(a_pData);
+		App::Component::SpawnerComponent& _comp = Engine::EditorField::RefValue<App::Component::SpawnerComponent>(a_pData);
 		a_ar.GUIDField("spawnerGUID", _comp.spawnerGUID);
 		a_ar.Field("waveIndex", _comp.waveIndex);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::SpawnerComponent& _comp = Engine::EditorField::GetValue<App::Component::SpawnerComponent>(a_context.pData);
+		App::Component::SpawnerComponent& _comp = Engine::EditorField::RefValue<App::Component::SpawnerComponent>(a_context.pData);
 
 		// 生成時に書き込まれる値なので表示のみ
 		Engine::EditorField::Value("SpawnerGUID", "%s", _comp.spawnerGUID.String().c_str());

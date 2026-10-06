@@ -466,7 +466,7 @@ namespace Engine::Graphics
 		// 次のフレームでグラフが書きに来るときは、リソースが自分で持っている
 		// 今のステートから遷移し直すので、ここで変えておいても食い違わない
 		//----------------------------------------------------------------------------------
-		auto* _pCmdList = _pRenderContext->GetCurrentCmdList();
+		auto* _pCmdList = _pRenderContext->RefCurrentCmdList();
 		if (_pCmdList)
 		{
 			for (CameraPipelineData* _pCamera : m_sortedCameras)

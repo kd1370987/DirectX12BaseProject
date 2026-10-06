@@ -52,13 +52,13 @@ struct Engine::ECS::ComponentTraits<App::Component::DebrisEmitterComponent>
 	// コンポーネントはデストラクタが走らないので、参照を返すのはここの仕事
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		App::Component::DebrisEmitterComponent& _comp = Engine::EditorField::GetValue<App::Component::DebrisEmitterComponent>(a_pData);
+		App::Component::DebrisEmitterComponent& _comp = Engine::EditorField::RefValue<App::Component::DebrisEmitterComponent>(a_pData);
 		a_services.pResourceManager->ReleaseHandle(_comp.debrisHandle);
 	}
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::DebrisEmitterComponent& _comp = Engine::EditorField::GetValue<App::Component::DebrisEmitterComponent>(a_pData);
+		App::Component::DebrisEmitterComponent& _comp = Engine::EditorField::RefValue<App::Component::DebrisEmitterComponent>(a_pData);
 		a_ar.GUIDField("debrisGUID", _comp.debrisGUID);
 		a_ar.Field("count", _comp.count);
 		a_ar.Field("speedMin", _comp.speedMin);
@@ -75,7 +75,7 @@ struct Engine::ECS::ComponentTraits<App::Component::DebrisEmitterComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::DebrisEmitterComponent& _comp = Engine::EditorField::GetValue<App::Component::DebrisEmitterComponent>(a_context.pData);
+		App::Component::DebrisEmitterComponent& _comp = Engine::EditorField::RefValue<App::Component::DebrisEmitterComponent>(a_context.pData);
 
 		Engine::EditorField::AssetField(
 			*a_context.pWorld->RefEngineServices(), "Debris", "EffectPrefab", _comp.debrisGUID);

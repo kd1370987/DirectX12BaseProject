@@ -14,7 +14,7 @@ struct Engine::ECS::ComponentTraits<App::Component::ProjMatComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::ProjMatComponent& _comp = Engine::EditorField::GetValue<App::Component::ProjMatComponent>(a_context.pData);
+		App::Component::ProjMatComponent& _comp = Engine::EditorField::RefValue<App::Component::ProjMatComponent>(a_context.pData);
 		Engine::EditorField::Field("projMat", _comp.projMat);
 		Engine::EditorField::Field("projInvMat", _comp.projInvMat);
 	}

@@ -41,7 +41,7 @@ namespace Engine::Option::ProjectOptions
 		// 「何cmで振り向けるか」で感度を決められる。
 		int mouseDpi = 800;
 
-		const std::string& GetName() override
+		const std::string& GetName() const override
 		{
 			static const std::string NAME = "InputOption";
 			return NAME;

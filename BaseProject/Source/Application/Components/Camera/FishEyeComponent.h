@@ -43,7 +43,7 @@ struct Engine::ECS::ComponentTraits<App::Component::FishEyeComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::FishEyeComponent& _comp = Engine::EditorField::GetValue<App::Component::FishEyeComponent>(a_pData);
+		App::Component::FishEyeComponent& _comp = Engine::EditorField::RefValue<App::Component::FishEyeComponent>(a_pData);
 		a_ar.Field("center",   _comp.center);
 		a_ar.Field("strength", _comp.strength);
 		a_ar.Field("enable",   _comp.enable);
@@ -51,7 +51,7 @@ struct Engine::ECS::ComponentTraits<App::Component::FishEyeComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::FishEyeComponent& _comp = Engine::EditorField::GetValue<App::Component::FishEyeComponent>(a_context.pData);
+		App::Component::FishEyeComponent& _comp = Engine::EditorField::RefValue<App::Component::FishEyeComponent>(a_context.pData);
 
 		Engine::EditorField::Field("FishEye Enable", _comp.enable);
 		Engine::EditorField::Field("Center (UV)", _comp.center, 0.01f, 0.0f, 1.0f);

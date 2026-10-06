@@ -15,7 +15,7 @@ namespace App::Component
 	//==========================================================================================
 	struct DynamicRaytracingComponent
 	{
-		Engine::Handle<Engine::Raytracing::DynamicRaytracingData> dynamicInstanceHandle = {};
+		Engine::Handle<Engine::Graphics::Raytracing::DynamicRaytracingData> dynamicInstanceHandle = {};
 	};
 }
 
@@ -24,7 +24,7 @@ struct Engine::ECS::ComponentTraits<App::Component::DynamicRaytracingComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::DynamicRaytracingComponent& _comp = Engine::EditorField::GetValue<App::Component::DynamicRaytracingComponent>(a_context.pData);
+		App::Component::DynamicRaytracingComponent& _comp = Engine::EditorField::RefValue<App::Component::DynamicRaytracingComponent>(a_context.pData);
 		Engine::EditorField::HandleInfo(_comp.dynamicInstanceHandle);
 	}
 };

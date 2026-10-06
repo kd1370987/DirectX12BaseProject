@@ -32,7 +32,7 @@ namespace App::Object
 		void PostUpdate(SwarmBossStateContext& a_context);
 
 		// 切り替え要求。実際に切り替わるのは次の PreUpdate
-		void RequestChangeState(ESwarmBossState a_state);
+		void ReserveChangeState(ESwarmBossState a_state);
 
 		ESwarmBossState GetCurrentState() const { return m_currentState; }
 

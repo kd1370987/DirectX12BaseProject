@@ -43,7 +43,7 @@ struct Engine::ECS::ComponentTraits<App::Component::TargetEntityComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::TargetEntityComponent& _comp = Engine::EditorField::GetValue<App::Component::TargetEntityComponent>(a_pData);
+		App::Component::TargetEntityComponent& _comp = Engine::EditorField::RefValue<App::Component::TargetEntityComponent>(a_pData);
 		a_ar.Field("targetGUID",_comp.targetGUID);
 
 		// 索敵距離。旧データにキーが無い場合は既定値のまま読み飛ばされる。
@@ -55,7 +55,7 @@ struct Engine::ECS::ComponentTraits<App::Component::TargetEntityComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::TargetEntityComponent& _comp = Engine::EditorField::GetValue<App::Component::TargetEntityComponent>(a_context.pData);
+		App::Component::TargetEntityComponent& _comp = Engine::EditorField::RefValue<App::Component::TargetEntityComponent>(a_context.pData);
 		Engine::EditorField::Header("Detect");
 		Engine::EditorField::Field("DetectDistance", _comp.detectDistance, 0.1f, 0.0f);
 		Engine::EditorField::Field("DetectExitDistance", _comp.detectExitDistance, 0.1f, 0.0f);

@@ -253,7 +253,7 @@ namespace Engine::GameObject
 		/// <summary>
 		/// 次フレームの初めにこのオブジェクトを破棄するよう要求する。
 		/// </summary>
-		void RequestDestroy() { m_isExpired = true; }
+		void ReserveDestroy() { m_isExpired = true; }
 
 		bool IsExpired() const { return m_isExpired; }
 

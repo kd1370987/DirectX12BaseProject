@@ -52,7 +52,7 @@ struct Engine::ECS::ComponentTraits<App::Component::EffectAssetComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::EffectAssetComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectAssetComponent>(a_pData);
+		App::Component::EffectAssetComponent& _comp = Engine::EditorField::RefValue<App::Component::EffectAssetComponent>(a_pData);
 		a_ar.Field("EffectGUID", _comp.effectGUID);
 		a_ar.Field("PlayOnStart", _comp.playOnStart);
 		a_ar.Field("DestroyOnFinish", _comp.destroyOnFinish);
@@ -60,7 +60,7 @@ struct Engine::ECS::ComponentTraits<App::Component::EffectAssetComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::EffectAssetComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectAssetComponent>(a_context.pData);
+		App::Component::EffectAssetComponent& _comp = Engine::EditorField::RefValue<App::Component::EffectAssetComponent>(a_context.pData);
 
 		if (Engine::EditorField::AssetField(
 			*a_context.pWorld->RefEngineServices(),

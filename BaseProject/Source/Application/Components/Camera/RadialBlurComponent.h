@@ -83,7 +83,7 @@ struct Engine::ECS::ComponentTraits<App::Component::RadialBlurComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::RadialBlurComponent& _comp = Engine::EditorField::GetValue<App::Component::RadialBlurComponent>(a_pData);
+		App::Component::RadialBlurComponent& _comp = Engine::EditorField::RefValue<App::Component::RadialBlurComponent>(a_pData);
 		a_ar.Field("blurCenter",      _comp.blurCenter);
 		a_ar.Field("sampleCount",     _comp.sampleCount);
 		a_ar.Field("radius",          _comp.radius);
@@ -97,7 +97,7 @@ struct Engine::ECS::ComponentTraits<App::Component::RadialBlurComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::RadialBlurComponent& _comp = Engine::EditorField::GetValue<App::Component::RadialBlurComponent>(a_context.pData);
+		App::Component::RadialBlurComponent& _comp = Engine::EditorField::RefValue<App::Component::RadialBlurComponent>(a_context.pData);
 
 		Engine::EditorField::Field("RadialBlur Enable", _comp.enable);
 		Engine::EditorField::Field("BlurCenter (UV)", _comp.blurCenter, 0.01f, 0.0f, 1.0f);

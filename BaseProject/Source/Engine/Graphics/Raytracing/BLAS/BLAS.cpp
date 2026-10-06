@@ -10,13 +10,13 @@
 #include "d3dx12.h"
 #pragma warning(pop)
 
-Engine::Raytracing::BLAS::~BLAS()
+Engine::Graphics::Raytracing::BLAS::~BLAS()
 {
 	// Release() を通っていれば空なので何もしない
 	DeferReleaseResources("デストラクタ");
 }
 
-Engine::Raytracing::BLAS& Engine::Raytracing::BLAS::operator=(BLAS&& a_other) noexcept
+Engine::Graphics::Raytracing::BLAS& Engine::Graphics::Raytracing::BLAS::operator=(BLAS&& a_other) noexcept
 {
 	if (this == &a_other) return *this;
 
@@ -32,7 +32,7 @@ Engine::Raytracing::BLAS& Engine::Raytracing::BLAS::operator=(BLAS&& a_other) no
 	return *this;
 }
 
-void Engine::Raytracing::BLAS::DeferReleaseResources(const char* a_pUnexpected)
+void Engine::Graphics::Raytracing::BLAS::DeferReleaseResources(const char* a_pUnexpected)
 {
 	if (!m_cpResource && !m_cpUpdateScratch) return;
 
@@ -55,7 +55,7 @@ void Engine::Raytracing::BLAS::DeferReleaseResources(const char* a_pUnexpected)
 	// TLASがこのBLASのGPUアドレスを参照したまま実行中の可能性があるため、
 	// ここでは解放せず、ComPtrをゴミ箱にムーブして寿命だけを延ばす。
 	// ラムダは中身が空でよく、キューがクリアされた時点でリソースが解放される
-	MainEngine::Instance().RegisterDeferredResource(
+	MainEngine::Instance().ReserveRelease(
 		[_cpResource = std::move(m_cpResource), _cpUpdateScratch = std::move(m_cpUpdateScratch)]() {}
 	);
 
@@ -64,7 +64,7 @@ void Engine::Raytracing::BLAS::DeferReleaseResources(const char* a_pUnexpected)
 	m_cpUpdateScratch.Reset();
 }
 
-void Engine::Raytracing::BLAS::Release()
+void Engine::Graphics::Raytracing::BLAS::Release()
 {
 	DeferReleaseResources(nullptr);
 
@@ -72,7 +72,7 @@ void Engine::Raytracing::BLAS::Release()
 	m_isDynamic = false;
 }
 
-void Engine::Raytracing::BLAS::UAVBarrier(D3D12::GraphicsCommandList* a_pCmdList) const
+void Engine::Graphics::Raytracing::BLAS::UAVBarrier(D3D12::GraphicsCommandList* a_pCmdList) const
 {
 	if (!m_cpResource) return;
 	D3D12_RESOURCE_BARRIER _barrier = {};
@@ -82,12 +82,12 @@ void Engine::Raytracing::BLAS::UAVBarrier(D3D12::GraphicsCommandList* a_pCmdList
 	a_pCmdList->ResourceBarrier(1, &_barrier);
 }
 
-void Engine::Raytracing::BLAS::SetName(LPCWSTR a_name)
+void Engine::Graphics::Raytracing::BLAS::SetName(LPCWSTR a_name)
 {
 	m_cpResource->SetName(a_name);
 }
 
-bool Engine::Raytracing::BLAS::BuildInternal(
+bool Engine::Graphics::Raytracing::BLAS::BuildInternal(
 	D3D12::Device* a_pDevice,
 	D3D12::GraphicsCommandList* a_pCmdList, 
 	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec,
@@ -180,7 +180,7 @@ bool Engine::Raytracing::BLAS::BuildInternal(
 	return true;
 }
 
-void Engine::Raytracing::BLAS::CreateStatic(
+void Engine::Graphics::Raytracing::BLAS::CreateStatic(
 	D3D12::Device* a_pDevice, 
 	D3D12::GraphicsCommandList* a_pCmdList,
 	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec,
@@ -193,7 +193,7 @@ void Engine::Raytracing::BLAS::CreateStatic(
 	BuildInternal(a_pDevice, a_pCmdList, a_geometryDescVec, a_buildFlags, false);
 }
 
-void Engine::Raytracing::BLAS::CreateDynamic(
+void Engine::Graphics::Raytracing::BLAS::CreateDynamic(
 	D3D12::Device* a_pDevice, 
 	D3D12::GraphicsCommandList* a_pCmdList, 
 	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_animatedGeometries
@@ -212,7 +212,7 @@ void Engine::Raytracing::BLAS::CreateDynamic(
 	BuildInternal(a_pDevice, a_pCmdList, a_animatedGeometries, _flags, false);
 }
 
-void Engine::Raytracing::BLAS::Update(D3D12::GraphicsCommandList* a_pCmdList)
+void Engine::Graphics::Raytracing::BLAS::Update(D3D12::GraphicsCommandList* a_pCmdList)
 {
 	if (!m_isDynamic) 
 	{

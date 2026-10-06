@@ -2,8 +2,8 @@
 namespace Engine::Resource
 {
 	void Engine::Resource::RasterizationMesh::Create(
-		D3D12::Device* a_pDevice,
-		D3D12::DescriptorHeapManager* a_pHeapManager,
+		Graphics::D3D12::Device* a_pDevice,
+		Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
 		const std::vector<MeshVertexFloat>& a_vertices,
 		const std::vector<MeshFace>& a_face, 
 		DXGI_FORMAT a_indexFormat
@@ -31,7 +31,7 @@ namespace Engine::Resource
 			_indices.push_back(_f.idx[2]);
 		}
 
-		D3D12::IndexBufferDesc _desc = {};
+		Graphics::D3D12::IndexBufferDesc _desc = {};
 		_desc.count = _indices.size();
 		_desc.pData = _indices.data();
 		_desc.format = a_indexFormat;

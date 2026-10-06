@@ -28,7 +28,7 @@ namespace App::System
 	// ・1 フレームに出す数が上限に達したら、そのフレームは打たずに時間だけ戻す(炊き損ねは捨てる)。
 	//   待たせると、先に並んだチャンクのボイドばかりが毎回炊くことになるため。
 	// ・地面として見るのは StaticObject だけ(SerchGroundSystem と同じ)。
-	// ・エフェクトは遅延生成(SpawnEffectAt)。出し切ったら自分から消える。
+	// ・エフェクトは遅延生成(ReserveSpawnEffectAt)。出し切ったら自分から消える。
 	//==============================================================================
 	void BoidGroundEffectSystem::Init(App::ECS::APPWorld& a_world)
 	{
@@ -116,7 +116,7 @@ namespace App::System
 
 					if (!_isSpawn || _scale <= 0.0f) continue;
 
-					if (App::Utility::SpawnEffectAt(*a_ctx.pWorld, _res.effectGUID, _spawnPos, true, _emitDir, _scale))
+					if (App::Utility::ReserveSpawnEffectAt(*a_ctx.pWorld, _res.effectGUID, _spawnPos, true, _emitDir, _scale))
 					{
 						++_res.spawnedThisFrame;
 					}

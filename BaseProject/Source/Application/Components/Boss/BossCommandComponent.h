@@ -26,7 +26,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BossCommandComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BossCommandComponent& _comp = Engine::EditorField::GetValue<App::Component::BossCommandComponent>(a_context.pData);
+		App::Component::BossCommandComponent& _comp = Engine::EditorField::RefValue<App::Component::BossCommandComponent>(a_context.pData);
 
 		// 命令はランタイム値。動きを確かめたいときのためにエディターからも叩けるようにしておく
 		Engine::EditorField::Value("CombatStarted", "%s", _comp.isCombatStarted ? "yes" : "no");

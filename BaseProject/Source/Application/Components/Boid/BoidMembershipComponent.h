@@ -24,7 +24,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoidMembershipComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BoidMembershipComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidMembershipComponent>(a_context.pData);
+		App::Component::BoidMembershipComponent& _comp = Engine::EditorField::RefValue<App::Component::BoidMembershipComponent>(a_context.pData);
 
 		if (_comp.platoonID == Engine::ECS::Limits::INVALID_ENTITY)
 		{

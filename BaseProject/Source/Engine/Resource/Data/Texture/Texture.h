@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }
@@ -42,7 +42,7 @@ namespace Engine::Resource
 		std::optional<Math::Color> optClearValue;
 	};
 
-	class Texture : public D3D12::GPUResource
+	class Texture : public Graphics::D3D12::GPUResource
 	{
 	public:
 		Texture() = default;
@@ -60,8 +60,8 @@ namespace Engine::Resource
 		// (転送の依頼先とビューの置き場はコンテキストが持っている)
 		void Import(const ResourceBuildContext& a_ctx,const std::string& a_filePath,const Math::Color& a_defoltData = { 255,255,255,255 });
 		void Create(const ResourceBuildContext& a_ctx,const std::string& a_name, const Math::Color& a_defoltData);
-		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,const TextureCreateDesc& a_desc);
-		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,ETextureUsage a_texUsage = ETextureUsage::RTV);
+		void Create(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,const TextureCreateDesc& a_desc);
+		void Create(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,IDXGISwapChain* a_pSwapChain,UINT a_backBufferIndex,ETextureUsage a_texUsage = ETextureUsage::RTV);
 
 		/// <summary>
 		/// 指定のヒープ上に作成する(placed)
@@ -72,7 +72,7 @@ namespace Engine::Resource
 		/// 大きさと詰め方は BuildTextureResourceDesc() から起こした仕様書を
 		/// GetResourceAllocationInfo へ渡して求める : 同じ仕様書でないと席に収まらない
 		/// </remarks>
-		void Create(D3D12::DescriptorHeapManager* a_pHeapManager,ID3D12Heap* a_pHeap,UINT64 a_heapOffset,const TextureCreateDesc& a_desc);
+		void Create(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,ID3D12Heap* a_pHeap,UINT64 a_heapOffset,const TextureCreateDesc& a_desc);
 
 		/// <summary>
 		/// 元のPNGなどのパスを基準に横にDDSテクスチャを作成する
@@ -97,10 +97,10 @@ namespace Engine::Resource
 
 		// 実体が出来たあとの共通処理 : 要件の控え・デバッグ名・ビューの登録。
 		// committed / placed のどちらから来ても同じでないといけないので1箇所に寄せる
-		void SetupFromDesc(D3D12::DescriptorHeapManager* a_pHeapManager, const TextureCreateDesc& a_desc);
+		void SetupFromDesc(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager, const TextureCreateDesc& a_desc);
 
 		// ビューの作成
-		void CreateView(D3D12::DescriptorHeapManager* a_pHeapManager);
+		void CreateView(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager);
 	private:
 
 		// リソース

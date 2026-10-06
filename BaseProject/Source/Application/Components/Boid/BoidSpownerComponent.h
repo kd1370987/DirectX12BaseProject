@@ -32,20 +32,20 @@ struct Engine::ECS::ComponentTraits<App::Component::BoidSpownerComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		App::Component::BoidSpownerComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidSpownerComponent>(a_pData);
+		App::Component::BoidSpownerComponent& _comp = Engine::EditorField::RefValue<App::Component::BoidSpownerComponent>(a_pData);
 		a_services.pResourceManager->ReleaseHandle(_comp.prefab);
 	}
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::BoidSpownerComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidSpownerComponent>(a_pData);
+		App::Component::BoidSpownerComponent& _comp = Engine::EditorField::RefValue<App::Component::BoidSpownerComponent>(a_pData);
 		a_ar.GUIDField("boidPrefabGUID", _comp.boidPrefabGUID);
 		a_ar.Field("spawnRadius", _comp.spawnRadius);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BoidSpownerComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidSpownerComponent>(a_context.pData);
+		App::Component::BoidSpownerComponent& _comp = Engine::EditorField::RefValue<App::Component::BoidSpownerComponent>(a_context.pData);
 		auto& _services = *a_context.pWorld->RefEngineServices();
 
 		if (Engine::EditorField::AssetField(_services, "Boid Prefab", "Prefab", _comp.boidPrefabGUID))

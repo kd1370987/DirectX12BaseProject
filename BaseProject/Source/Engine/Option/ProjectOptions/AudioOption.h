@@ -34,7 +34,7 @@ namespace Engine::Option::ProjectOptions
 		// 音量を AudioManager へ流し込む(鳴っている音にもその場で効く)
 		void Apply() const;
 
-		const std::string& GetName() override
+		const std::string& GetName() const override
 		{
 			static const std::string NAME = "AudioOption";
 			return NAME;

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }
@@ -15,15 +15,15 @@ namespace Engine::Resource
 		~QuadPolygon() = default;
 		NON_COPYABLE_MOVABLE(QuadPolygon);
 		// ビューの置き場(借り物)は呼び出し側から渡す。実体は GraphicsEngine の持ち物
-		void Init(D3D12::DescriptorHeapManager* a_pHeapManager);
-		void Init(D3D12::DescriptorHeapManager* a_pHeapManager,uint32_t a_widthVertNum,uint32_t a_heightVertNum);
+		void Init(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager);
+		void Init(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,uint32_t a_widthVertNum,uint32_t a_heightVertNum);
 
-		const D3D12_VERTEX_BUFFER_VIEW& GetVBView()
+		const D3D12_VERTEX_BUFFER_VIEW& GetVBView() const
 		{
 			return m_vertexBuffer.GetView();
 		}
 
-		const D3D12_INDEX_BUFFER_VIEW& GetIBView()
+		const D3D12_INDEX_BUFFER_VIEW& GetIBView() const
 		{
 			return m_indexBuffer.GetView();
 		}
@@ -39,7 +39,7 @@ namespace Engine::Resource
 
 	private:
 
-		D3D12::DynamicVertexBuffer<SimpleVertex> m_vertexBuffer;
-		D3D12::DynamicIndexBuffer m_indexBuffer;
+		Graphics::D3D12::DynamicVertexBuffer<SimpleVertex> m_vertexBuffer;
+		Graphics::D3D12::DynamicIndexBuffer m_indexBuffer;
 	};
 }

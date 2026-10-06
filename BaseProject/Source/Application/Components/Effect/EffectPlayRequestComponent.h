@@ -24,7 +24,7 @@ struct Engine::ECS::ComponentTraits<App::Component::EffectPlayRequestComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::EffectPlayRequestComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectPlayRequestComponent>(a_context.pData);
+		App::Component::EffectPlayRequestComponent& _comp = Engine::EditorField::RefValue<App::Component::EffectPlayRequestComponent>(a_context.pData);
 		Engine::EditorField::Field("IsPlay", _comp.isPlay);
 	}
 };

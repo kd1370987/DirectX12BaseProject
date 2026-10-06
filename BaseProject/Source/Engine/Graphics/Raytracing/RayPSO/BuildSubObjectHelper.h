@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 	//==========================================================================================
 	// 

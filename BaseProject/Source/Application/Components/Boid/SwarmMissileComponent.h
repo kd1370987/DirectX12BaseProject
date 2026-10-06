@@ -32,7 +32,7 @@ struct Engine::ECS::ComponentTraits<App::Component::SwarmMissileComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::SwarmMissileComponent& _comp = Engine::EditorField::GetValue<App::Component::SwarmMissileComponent>(a_context.pData);
+		App::Component::SwarmMissileComponent& _comp = Engine::EditorField::RefValue<App::Component::SwarmMissileComponent>(a_context.pData);
 
 		// 毎フレーム書き換わる値なので表示のみ
 		Engine::EditorField::Value("Dir", "%.2f, %.2f, %.2f", _comp.dir.x, _comp.dir.y, _comp.dir.z);

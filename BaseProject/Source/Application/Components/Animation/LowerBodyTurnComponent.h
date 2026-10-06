@@ -48,7 +48,7 @@ struct Engine::ECS::ComponentTraits<App::Component::LowerBodyTurnComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::LowerBodyTurnComponent& _comp = Engine::EditorField::GetValue<App::Component::LowerBodyTurnComponent>(a_pData);
+		App::Component::LowerBodyTurnComponent& _comp = Engine::EditorField::RefValue<App::Component::LowerBodyTurnComponent>(a_pData);
 		a_ar.Field("pivotNodeHash", _comp.pivotNodeHash);
 		a_ar.Field("counterNodeHash", _comp.counterNodeHash);
 		a_ar.Field("turnRate", _comp.turnRate);
@@ -72,7 +72,7 @@ struct Engine::ECS::ComponentTraits<App::Component::LowerBodyTurnComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::LowerBodyTurnComponent& _comp = Engine::EditorField::GetValue<App::Component::LowerBodyTurnComponent>(a_context.pData);
+		App::Component::LowerBodyTurnComponent& _comp = Engine::EditorField::RefValue<App::Component::LowerBodyTurnComponent>(a_context.pData);
 
 		// ノードは自身のモデルが持つものから選ぶ
 		const auto* _pModelComp = a_context.pWorld->RefData<App::Component::ModelComponent>(a_context.entity);

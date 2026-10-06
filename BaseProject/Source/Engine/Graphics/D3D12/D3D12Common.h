@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	// サンプラーのハンドル(Handle<SamplerTag>)を区別するための型
 	struct SamplerTag {};
@@ -15,7 +15,7 @@ namespace Engine::D3D12
 #include "Engine/Graphics/D3D12/D3DObject/DescriptorHeap/DescriptorHeap.h"
 
 // インプットレイアウト
-namespace Engine::D3D12::Input
+namespace Engine::Graphics::D3D12::Input
 {
 	// 静的用
 	constexpr D3D12_INPUT_ELEMENT_DESC STATIC_ELEMENT[5] =
@@ -94,7 +94,7 @@ namespace Engine::D3D12::Input
 }
 
 // ルートシグネチャ
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	// ルートレンジ指定
 	enum class ERangeType

@@ -1,12 +1,12 @@
 ﻿#include "MegaBuffer.h"
 
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
-	bool Engine::D3D12::MegaBuffer::Create(
-		D3D12::Device* a_pDevice,
+	bool Engine::Graphics::D3D12::MegaBuffer::Create(
+		Graphics::D3D12::Device* a_pDevice,
 		DescriptorHeapManager* a_pHeapManager,
-		D3D12::GraphicsCommandList* a_pCmdList,
+		Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 		size_t a_elemetNum,
 		size_t a_strideSize
 	)

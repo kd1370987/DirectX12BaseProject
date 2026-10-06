@@ -60,7 +60,7 @@ struct Engine::ECS::ComponentTraits<App::Component::EffectOverrideComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::EffectOverrideComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectOverrideComponent>(a_context.pData);
+		App::Component::EffectOverrideComponent& _comp = Engine::EditorField::RefValue<App::Component::EffectOverrideComponent>(a_context.pData);
 
 		// 制御側のシステムが毎フレーム書くので表示だけ
 		Engine::EditorField::Value("Scale", "%.2f", _comp.effectScale);

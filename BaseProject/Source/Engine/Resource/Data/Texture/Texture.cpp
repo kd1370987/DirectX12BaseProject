@@ -58,7 +58,7 @@ namespace Engine::Resource
 		CreateView(a_ctx.pHeapManager);
 	}
 
-	void Engine::Resource::Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, const TextureCreateDesc& a_desc)
+	void Engine::Resource::Texture::Create(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager, const TextureCreateDesc& a_desc)
 	{
 		// デバイスの取得
 		// デバイスはビューの置き場と同じもの : ヒープマネージャーから借りる
@@ -70,7 +70,7 @@ namespace Engine::Resource
 		std::optional<D3D12_CLEAR_VALUE> _opClearValue = BuildTextureClearValue(a_desc, m_desc);
 
 		// GPUリソースDesc作成
-		D3D12::GPUResourceDesc _resourceDesc = {};
+		Graphics::D3D12::GPUResourceDesc _resourceDesc = {};
 		_resourceDesc.heapType		= D3D12_HEAP_TYPE_DEFAULT;
 		_resourceDesc.resourceDesc	= m_desc;
 		_resourceDesc.initialState	= D3D12_RESOURCE_STATE_COMMON;
@@ -85,7 +85,7 @@ namespace Engine::Resource
 		SetupFromDesc(a_pHeapManager, a_desc);
 	}
 
-	void Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, IDXGISwapChain* a_pSwapChain, UINT a_backBufferIndex, ETextureUsage a_texUsage)
+	void Texture::Create(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager, IDXGISwapChain* a_pSwapChain, UINT a_backBufferIndex, ETextureUsage a_texUsage)
 	{
 		// スワップチェインからバックバッファを生成
 		a_pSwapChain->GetBuffer(
@@ -103,7 +103,7 @@ namespace Engine::Resource
 		CreateView(a_pHeapManager);
 	}
 
-	void Texture::Create(D3D12::DescriptorHeapManager* a_pHeapManager, ID3D12Heap* a_pHeap, UINT64 a_heapOffset, const TextureCreateDesc& a_desc)
+	void Texture::Create(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager, ID3D12Heap* a_pHeap, UINT64 a_heapOffset, const TextureCreateDesc& a_desc)
 	{
 		// デバイスの取得
 		// デバイスはビューの置き場と同じもの : ヒープマネージャーから借りる
@@ -135,7 +135,7 @@ namespace Engine::Resource
 
 	// 実体が出来たあとの共通処理。
 	// committed / placed で食い違うと、置き場所を変えただけで絵が変わることになる
-	void Texture::SetupFromDesc(D3D12::DescriptorHeapManager* a_pHeapManager, const TextureCreateDesc& a_desc)
+	void Texture::SetupFromDesc(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager, const TextureCreateDesc& a_desc)
 	{
 		// 変数保存
 		m_name = a_desc.name;
@@ -209,7 +209,7 @@ namespace Engine::Resource
 		GPUResource::Release();
 	}
 
-	void Texture::CreateView(D3D12::DescriptorHeapManager* a_pHeapManager)
+	void Texture::CreateView(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager)
 	{
 		if (!a_pHeapManager)
 		{
@@ -235,7 +235,7 @@ namespace Engine::Resource
 
 			// ディスクリプタヒープに登録
 			m_rtvHandle =
-				a_pHeapManager->Allocate<D3D12::RTV>(_pDevice, m_cpResource.Get(), &_rtvDesc);
+				a_pHeapManager->Allocate<Graphics::D3D12::RTV>(_pDevice, m_cpResource.Get(), &_rtvDesc);
 		}
 
 		// テクスチャの使用方法にDSが含まれているのなら
@@ -248,19 +248,19 @@ namespace Engine::Resource
 
 			// ディスクリプタヒープに登録
 			m_dsvHandle =
-				a_pHeapManager->Allocate<D3D12::DSV>(_pDevice, m_cpResource.Get(), &_dsvDesc);
+				a_pHeapManager->Allocate<Graphics::D3D12::DSV>(_pDevice, m_cpResource.Get(), &_dsvDesc);
 
 			// リードオンリーのDSV作成
 			_dsvDesc.Flags = D3D12_DSV_FLAG_READ_ONLY_DEPTH;
 			m_readOnlyDsvHandle =
-				a_pHeapManager->Allocate<D3D12::DSV>(_pDevice, m_cpResource.Get(), &_dsvDesc);
+				a_pHeapManager->Allocate<Graphics::D3D12::DSV>(_pDevice, m_cpResource.Get(), &_dsvDesc);
 		}
 
 		// テクスチャの使用方法にUAが含まれているのなら
 		if (HasFlag(m_usage, ETextureUsage::UAV))
 		{
 			m_uavHandle =
-				a_pHeapManager->Allocate<D3D12::UAV>(_pDevice, m_cpResource.Get(), nullptr);
+				a_pHeapManager->Allocate<Graphics::D3D12::UAV>(_pDevice, m_cpResource.Get(), nullptr);
 		}
 
 		// テクスチャの仕様方法SRが含まれているのなら
@@ -275,7 +275,7 @@ namespace Engine::Resource
 
 			// 登録
 			m_srvHandle = 
-				a_pHeapManager->Allocate<D3D12::SRV>(_pDevice, m_cpResource.Get(), &_srvDesc);
+				a_pHeapManager->Allocate<Graphics::D3D12::SRV>(_pDevice, m_cpResource.Get(), &_srvDesc);
 
 			// 同時にImGuiも登録
 			m_imguiSRVHandle = 

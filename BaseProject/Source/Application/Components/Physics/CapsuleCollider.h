@@ -18,7 +18,7 @@ struct Engine::ECS::ComponentTraits<App::Component::CapsuleColliderComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::CapsuleColliderComponent& _comp = Engine::EditorField::GetValue<App::Component::CapsuleColliderComponent>(a_pData);
+		App::Component::CapsuleColliderComponent& _comp = Engine::EditorField::RefValue<App::Component::CapsuleColliderComponent>(a_pData);
 		a_ar.Field("radius", _comp.radius);
 		a_ar.Field("height", _comp.height);
 		a_ar.Field("offset", _comp.offset);
@@ -26,7 +26,7 @@ struct Engine::ECS::ComponentTraits<App::Component::CapsuleColliderComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::CapsuleColliderComponent& _comp = Engine::EditorField::GetValue<App::Component::CapsuleColliderComponent>(a_context.pData);
+		App::Component::CapsuleColliderComponent& _comp = Engine::EditorField::RefValue<App::Component::CapsuleColliderComponent>(a_context.pData);
 		Engine::EditorField::Field("Radius", _comp.radius, 0.05f, 0.0f, 100.0f);
 		Engine::EditorField::Field("Height", _comp.height, 0.05f, 0.0f, 100.0f);
 		Engine::EditorField::Field("Offset", _comp.offset, 0.05f);

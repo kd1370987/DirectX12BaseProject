@@ -8,7 +8,7 @@
 #include "d3dx12.h"
 #pragma warning(pop)
 
-void Engine::Raytracing::TLAS::Create(
+void Engine::Graphics::Raytracing::TLAS::Create(
 	D3D12::Device* a_pDevice,
 	D3D12::DescriptorHeapManager* a_pHeapManager,
 	D3D12::GraphicsCommandList* a_pCmdList,
@@ -134,7 +134,7 @@ void Engine::Raytracing::TLAS::Create(
 
 }
 
-void Engine::Raytracing::TLAS::Release()
+void Engine::Graphics::Raytracing::TLAS::Release()
 {
 
 	m_pInstanceDesc = nullptr;
@@ -145,13 +145,13 @@ void Engine::Raytracing::TLAS::Release()
 
 	if (m_pHeapManager)
 	{
-		m_pHeapManager->Free(m_srvHandle);
+		m_pHeapManager->ReserveFree(m_srvHandle);
 		m_srvHandle = {};
 		m_pHeapManager = nullptr;
 	}
 }
 
-void Engine::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList, const std::vector<Instance>& a_instanceVec, UINT a_frameIndex)
+void Engine::Graphics::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList, const std::vector<Instance>& a_instanceVec, UINT a_frameIndex)
 {
 	if (!m_pInstanceDesc || m_maxInstanceCount == 0) return;
 	ENGINE_ERRLOG(a_frameIndex < CPU_FRAME_COUNT, "TLAS::Update : フレーム番号が範囲外です");
@@ -239,12 +239,12 @@ void Engine::Raytracing::TLAS::Update(D3D12::GraphicsCommandList* a_pCmdList, co
 }
 
 
-D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::TLAS::GetGPUHandle() const
+D3D12_GPU_DESCRIPTOR_HANDLE Engine::Graphics::Raytracing::TLAS::GetGPUHandle() const
 {
 	return m_pHeapManager->GetGPU(m_srvHandle);
 }
 
-void Engine::Raytracing::TLAS::CreateBuffer(
+void Engine::Graphics::Raytracing::TLAS::CreateBuffer(
 	D3D12::Device * a_pDevice, 
 	D3D12::GraphicsCommandList* a_pCmdList,
 	ComPtr<ID3D12Resource>& a_cpRes,

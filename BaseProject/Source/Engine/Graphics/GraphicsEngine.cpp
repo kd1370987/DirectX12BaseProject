@@ -390,7 +390,7 @@ namespace Engine::Graphics
 		}
 
 		// GPUが使い終わったビューの席を空きへ戻す(ここまでで前のフレームの完了は待ってある)
-		m_upDescriptorHeapManager->ProcessDeferredFrees(m_upRenderDevice->GetCompletedFenceValue());
+		m_upDescriptorHeapManager->ApplyReservedFrees(m_upRenderDevice->GetCompletedFenceValue());
 
 		// 今フレームに描くバックバッファの番号を引き直す
 		m_upBackBuffer->BeginFrame();

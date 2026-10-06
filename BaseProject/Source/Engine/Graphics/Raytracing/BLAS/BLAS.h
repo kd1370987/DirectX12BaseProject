@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 	/// <summary>
 	/// メッシュのポリゴン情報を空間分割ツリーとして保持するリソース
@@ -35,8 +35,8 @@ namespace Engine::Raytracing
 		/// ビルド完了後、構築用スクラッチバッファは破棄可能
 		/// </summary>
 		void CreateStatic(
-			D3D12::Device* a_pDevice,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::Device* a_pDevice,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec,
 			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS a_buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE
 		);
@@ -53,8 +53,8 @@ namespace Engine::Raytracing
 		/// <param name="a_sourceBLAS">元となる静的モデルのBLAS</param>
 		/// <param name="a_animatedGeometries">変形後の頂点バッファアドレスをセットしたGeometryDesc配列</param>
 		void CreateDynamic(
-			D3D12::Device* a_pDevice,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::Device* a_pDevice,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_animatedGeometries
 		);
 
@@ -63,7 +63,7 @@ namespace Engine::Raytracing
 		/// 毎フレームの SkinningPass 完了後、TLAS構築の前に呼び出す
 		/// 事前に ALLOW_UPDATE フラグ付きで作成(CloneAsDynamic等)されている必要がある
 		/// </summary>
-		void Update(D3D12::GraphicsCommandList* a_pCmdList);
+		void Update(Graphics::D3D12::GraphicsCommandList* a_pCmdList);
 
 		// ===================================================================================
 		// ユーティリティ
@@ -77,7 +77,7 @@ namespace Engine::Raytracing
 		/// BLASの構築または更新完了を待機するUAVバリアを発行
 		/// これを呼んでからTLASの構築を行わないと、GPU側で不完全なツリーを参照しクラッシュする
 		/// </summary>
-		void UAVBarrier(D3D12::GraphicsCommandList* a_pCmdList) const;
+		void UAVBarrier(Graphics::D3D12::GraphicsCommandList* a_pCmdList) const;
 
 		/// <summary>
 		/// デバッグ用途 ： PIXやNsightでリソースを識別しやすくする名前付け
@@ -100,8 +100,8 @@ namespace Engine::Raytracing
 
 		// 内部のビルド/アップデート共通処理
 		bool BuildInternal(
-			D3D12::Device* a_pDevice,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::Device* a_pDevice,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec,
 			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS a_buildFlags,
 			bool a_isUpdate

@@ -350,9 +350,9 @@ namespace Engine::Graphics
 	{
 		// 必須リソースの存在チェック
 		if (!a_world.HasResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>()) return;
-		if (!a_world.HasResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>()) return;
+		if (!a_world.HasResource<std::vector<Engine::Graphics::Raytracing::DynamicRaytracingInitRequest>>()) return;
 
-		auto& _initRequestVec = a_world.RefResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+		auto& _initRequestVec = a_world.RefResource<std::vector<Engine::Graphics::Raytracing::DynamicRaytracingInitRequest>>();
 		if (_initRequestVec.empty()) return;
 
 		auto& _dynamicPool = a_world.RefResource<Pool::ItemPool<Raytracing::DynamicRaytracingData>>();

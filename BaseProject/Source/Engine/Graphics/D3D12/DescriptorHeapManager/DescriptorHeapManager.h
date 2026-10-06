@@ -2,7 +2,7 @@
 
 #include "Allocator/HeapAllocator.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	// 前方宣言
 	class SamplerAllocator;
@@ -26,7 +26,7 @@ namespace Engine::D3D12
 		// デバイスはここで受け取って保持する(持ち主は GraphicsEngine)。
 		// どこかのシングルトンから引くと、持ち主との間で循環になる
 		bool Init(
-			D3D12::Device* a_pDevice,
+			Graphics::D3D12::Device* a_pDevice,
 			UINT a_cbvCount,
 			UINT a_srvCount,
 			UINT a_uavCount,
@@ -38,11 +38,11 @@ namespace Engine::D3D12
 		// ビューを作るのに使っているデバイス(借り物)。
 		// ヒープを受け取ってリソースを作る側(テクスチャ・板ポリなど)は、
 		// デバイスを別に引かずここから借りる
-		D3D12::Device* RefDevice() const { return m_pDevice; }
+		Graphics::D3D12::Device* RefDevice() const { return m_pDevice; }
 
 		// リソースのビュー作成
 		template<IsHeapType T>
-		Handle<T> Allocate(D3D12::Device* a_pDevice,ID3D12Resource* a_pResource,const typename T::DescType* a_desc);
+		Handle<T> Allocate(Graphics::D3D12::Device* a_pDevice,ID3D12Resource* a_pResource,const typename T::DescType* a_desc);
 
 		// ビューの解放
 		//
@@ -50,9 +50,9 @@ namespace Engine::D3D12
 		// シェーダーは可視ヒープの席を番号で直接引くので、まだ走っているフレームが
 		// 読んでいる席を使い回すと、そのフレームの描画が別のビューを読んでしまう。
 		// 「今記録しているフレームが終わる値」を付けて預かり、GPUがそこまで進んだら戻す
-		// (ProcessDeferredFrees)。RTV / DSV は記録の時点で読まれるのですぐ戻す
+		// (ApplyReservedFrees)。RTV / DSV は記録の時点で読まれるのですぐ戻す
 		template<IsHeapType T>
-		void Free(const Handle<T>& a_handle);
+		void ReserveFree(const Handle<T>& a_handle);
 
 		//--------------------------------------------------------------------------------------------
 		// 解放の遅延
@@ -63,7 +63,7 @@ namespace Engine::D3D12
 
 		// GPUが a_completedFenceValue まで進んだので、それ以前に預かった席を空きへ戻す。
 		// フレームの頭(前のフレームの完了を待った後)に呼ぶ
-		void ProcessDeferredFrees(UINT64 a_completedFenceValue);
+		void ApplyReservedFrees(UINT64 a_completedFenceValue);
 
 		// ハンドルの取得
 		template<IsHeapType T>
@@ -126,7 +126,7 @@ namespace Engine::D3D12
 		//==========================================================================================
 		// 作成
 		Engine::Handle<SamplerTag> CreateSampler(
-			D3D12::Device* a_pDevice,
+			Graphics::D3D12::Device* a_pDevice,
 			const D3D12_SAMPLER_DESC& a_desc
 		);
 
@@ -146,16 +146,16 @@ namespace Engine::D3D12
 		HeapAllocator<T>& RefAllocator();
 
 		// 借り物。Init で受け取ったものを持ち続ける
-		D3D12::Device* m_pDevice = nullptr;
+		Graphics::D3D12::Device* m_pDevice = nullptr;
 
 		// ヒープ本体
-		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_cbv_srv_uavHeap;					// CPU専用(ビューを作る先)
-		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_cbv_srv_uavShaderVisibleHeap;	// シェーダー可視(同じ番号の写し)
-		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_DSV>			m_dsvHeap;
-		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_RTV>			m_rtvHeap;
+		Engine::Graphics::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_cbv_srv_uavHeap;					// CPU専用(ビューを作る先)
+		Engine::Graphics::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_cbv_srv_uavShaderVisibleHeap;	// シェーダー可視(同じ番号の写し)
+		Engine::Graphics::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_DSV>			m_dsvHeap;
+		Engine::Graphics::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_RTV>			m_rtvHeap;
 
-		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>		m_samplerHeap;
-		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_imguiHeap;
+		Engine::Graphics::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>		m_samplerHeap;
+		Engine::Graphics::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV>	m_imguiHeap;
 
 		// ヒープアロケーター
 		HeapAllocator<CBV>		m_CBVAllocator;
@@ -195,7 +195,7 @@ namespace Engine::D3D12
 	//==========================================================================================
 	// ビューの種類 → アロケーター
 	//
-	// Allocate / Free / GetCPU / GetGPU はどれも「種類に合ったアロケーターへ回す」だけなので、
+	// Allocate / ReserveFree / GetCPU / GetGPU はどれも「種類に合ったアロケーターへ回す」だけなので、
 	// 振り分けはここ1か所に置く。対応していない種類はコンパイル時に弾く
 	//==========================================================================================
 	namespace Internal
@@ -217,13 +217,13 @@ namespace Engine::D3D12
 	}
 
 	template<IsHeapType T>
-	inline Handle<T> DescriptorHeapManager::Allocate(D3D12::Device* a_pDevice, ID3D12Resource* a_pResource, const typename T::DescType* a_desc)
+	inline Handle<T> DescriptorHeapManager::Allocate(Graphics::D3D12::Device* a_pDevice, ID3D12Resource* a_pResource, const typename T::DescType* a_desc)
 	{
 		return RefAllocator<T>().Allocate(a_pDevice, a_pResource, a_desc);
 	}
 
 	template<IsHeapType T>
-	inline void DescriptorHeapManager::Free(const Handle<T>& a_handle)
+	inline void DescriptorHeapManager::ReserveFree(const Handle<T>& a_handle)
 	{
 		if (!a_handle.IsValid()) return;
 

@@ -118,13 +118,13 @@ struct Engine::ECS::ComponentTraits<App::Component::AnimatorComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		App::Component::AnimatorComponent& _comp = Engine::EditorField::GetValue<App::Component::AnimatorComponent>(a_pData);
+		App::Component::AnimatorComponent& _comp = Engine::EditorField::RefValue<App::Component::AnimatorComponent>(a_pData);
 		a_services.pResourceManager->ReleaseHandle(_comp.baseLayer.animatorHandle);
 	}
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::AnimatorComponent& _comp = Engine::EditorField::GetValue<App::Component::AnimatorComponent>(a_pData);
+		App::Component::AnimatorComponent& _comp = Engine::EditorField::RefValue<App::Component::AnimatorComponent>(a_pData);
 
 		if (a_ar.BeginGroup("baseLayer"))
 		{
@@ -135,7 +135,7 @@ struct Engine::ECS::ComponentTraits<App::Component::AnimatorComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::AnimatorComponent& _comp = Engine::EditorField::GetValue<App::Component::AnimatorComponent>(a_context.pData);
+		App::Component::AnimatorComponent& _comp = Engine::EditorField::RefValue<App::Component::AnimatorComponent>(a_context.pData);
 
 		// 基本レイヤーは全身にかかるので、ボーンレイヤーは選ばせない
 		EditAnimatorLayer(a_context, "Base Layer", _comp.baseLayer, false);

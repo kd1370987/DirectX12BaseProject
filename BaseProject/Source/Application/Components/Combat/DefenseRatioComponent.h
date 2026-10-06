@@ -26,13 +26,13 @@ struct Engine::ECS::ComponentTraits<App::Component::DefenseRatioComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::DefenseRatioComponent& _comp = Engine::EditorField::GetValue<App::Component::DefenseRatioComponent>(a_pData);
+		App::Component::DefenseRatioComponent& _comp = Engine::EditorField::RefValue<App::Component::DefenseRatioComponent>(a_pData);
 		a_ar.Field("ratio", _comp.ratio);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::DefenseRatioComponent& _comp = Engine::EditorField::GetValue<App::Component::DefenseRatioComponent>(a_context.pData);
+		App::Component::DefenseRatioComponent& _comp = Engine::EditorField::RefValue<App::Component::DefenseRatioComponent>(a_context.pData);
 		Engine::EditorField::Field("Ratio", _comp.ratio, 0.01f, 0.0f);
 		Engine::EditorField::Tooltip("Damage x ratio (1 : as is / 0 : invincible)");
 	}

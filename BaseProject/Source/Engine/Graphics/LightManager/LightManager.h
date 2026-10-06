@@ -4,7 +4,7 @@
 #include "Core/Shadow.h"
 #include "../CBData.h"		// シャドウマップを描くカメラ(CameraData)
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }

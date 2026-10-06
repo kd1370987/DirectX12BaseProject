@@ -14,7 +14,7 @@ struct Engine::ECS::ComponentTraits<App::Component::SkeletonPoseComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		using namespace Engine;
-		App::Component::SkeletonPoseComponent& _comp = Engine::EditorField::GetValue<App::Component::SkeletonPoseComponent>(a_context.pData);
+		App::Component::SkeletonPoseComponent& _comp = Engine::EditorField::RefValue<App::Component::SkeletonPoseComponent>(a_context.pData);
 		Engine::EditorField::HandleInfo(_comp.skeletonPoseHandle);
 	}
 };

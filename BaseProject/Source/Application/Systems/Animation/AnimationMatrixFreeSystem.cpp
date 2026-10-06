@@ -52,7 +52,7 @@ namespace App::System
 					_boneMatPool.FreeRange(_poseComp.skeletonPoseHandle);
 
 					// アニメーション用頂点データの解放
-					auto& _dynamicRaytracingData = a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
+					auto& _dynamicRaytracingData = a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Graphics::Raytracing::DynamicRaytracingData>>();
 					auto* _pAnimData = _dynamicRaytracingData.Ref(_rayComp.dynamicInstanceHandle);
 					if (!_pAnimData) continue;
 
@@ -60,7 +60,7 @@ namespace App::System
 					for (auto& _data : _pAnimData->meshDataVec)
 					{
 						_data.instanceBLAS.Release();
-						_pMeshBufferAllocator->AnimatedVertexFree(_data.animatedVertexHandle);
+						_pMeshBufferAllocator->ReserveFreeAnimatedVertex(_data.animatedVertexHandle);
 					}
 
 					// ダイナミックデータの解放

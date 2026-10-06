@@ -26,13 +26,13 @@ struct Engine::ECS::ComponentTraits<App::Component::CameraFocusTargetComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::CameraFocusTargetComponent& _comp = Engine::EditorField::GetValue<App::Component::CameraFocusTargetComponent>(a_pData);
+		App::Component::CameraFocusTargetComponent& _comp = Engine::EditorField::RefValue<App::Component::CameraFocusTargetComponent>(a_pData);
 		a_ar.Field("offsetPos", _comp.offsetPos);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::CameraFocusTargetComponent& _comp = Engine::EditorField::GetValue<App::Component::CameraFocusTargetComponent>(a_context.pData);
+		App::Component::CameraFocusTargetComponent& _comp = Engine::EditorField::RefValue<App::Component::CameraFocusTargetComponent>(a_context.pData);
 		Engine::EditorField::Field("OffsetPos", _comp.offsetPos, 0.01f);
 	}
 };

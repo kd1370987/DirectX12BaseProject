@@ -74,7 +74,7 @@ namespace App::Object
 
 		// 押されたらタイトルへ。
 		// this を掴むが、ボタンは同じシーンに居るので寿命は一緒に尽きる
-		_pButton->SetOnClick([this]() { RequestBackToTitle(); });
+		_pButton->SetOnClick([this]() { ReserveBackToTitle(); });
 
 		m_isBound = true;
 	}
@@ -82,7 +82,7 @@ namespace App::Object
 	//======================================================================================
 	// タイトルへ戻る
 	//======================================================================================
-	void ResultSequence::RequestBackToTitle()
+	void ResultSequence::ReserveBackToTitle()
 	{
 		// 連打で何度も積まないようにする
 		if (m_isSceneRequested) return;
@@ -94,7 +94,7 @@ namespace App::Object
 
 		m_isSceneRequested = true;
 
-		Engine::Scene::SceneManager::Instance().SetNextScene(
+		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
 			m_titleSceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 

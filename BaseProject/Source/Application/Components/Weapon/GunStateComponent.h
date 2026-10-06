@@ -109,7 +109,7 @@ struct Engine::ECS::ComponentTraits<App::Component::GunStateComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		App::Component::GunStateComponent& _comp = Engine::EditorField::GetValue<App::Component::GunStateComponent>(a_pData);
+		App::Component::GunStateComponent& _comp = Engine::EditorField::RefValue<App::Component::GunStateComponent>(a_pData);
 		auto& _resourceManager = *a_services.pResourceManager;
 
 		_resourceManager.ReleaseHandle(_comp.muzzleEffectHandle);
@@ -118,7 +118,7 @@ struct Engine::ECS::ComponentTraits<App::Component::GunStateComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::GunStateComponent& _comp = Engine::EditorField::GetValue<App::Component::GunStateComponent>(a_pData);
+		App::Component::GunStateComponent& _comp = Engine::EditorField::RefValue<App::Component::GunStateComponent>(a_pData);
 		a_ar.Field("speed", _comp.speed);
 		a_ar.Field("fireMode", _comp.fireMode);
 		a_ar.Field("fireRate", _comp.fireRate);
@@ -140,7 +140,7 @@ struct Engine::ECS::ComponentTraits<App::Component::GunStateComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::GunStateComponent& _comp = Engine::EditorField::GetValue<App::Component::GunStateComponent>(a_context.pData);
+		App::Component::GunStateComponent& _comp = Engine::EditorField::RefValue<App::Component::GunStateComponent>(a_context.pData);
 
 		Engine::EditorField::Field("Speed", _comp.speed, 0.1f, 0.0f);
 

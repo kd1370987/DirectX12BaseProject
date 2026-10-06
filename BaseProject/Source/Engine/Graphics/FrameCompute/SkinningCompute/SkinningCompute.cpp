@@ -19,7 +19,7 @@ void Engine::Graphics::SkinningCompute::Setup(PipelineStateManager* a_pPSOManage
 	m_pPSOManager = a_pPSOManager;
 
 	// シェーダーからルートシグネチャとコンピュートPSOを起こす
-	auto _csHandle = Resource::ShaderIO::Request(a_resourceManager, "Asset/Shader/Source/Geometry/Skinning/Skinning.cso");
+	auto _csHandle = Resource::ShaderIO::Load(a_resourceManager, "Asset/Shader/Source/Geometry/Skinning/Skinning.cso");
 	auto* _pShader = a_resourceManager.Ref(_csHandle);
 	if (!_pShader || !_pShader->Get()) return;
 
@@ -44,7 +44,7 @@ void Engine::Graphics::SkinningCompute::Execute(GraphicsEngine* a_pGE, RenderCon
 	// このフレームに積まれたスキニング命令
 	const auto& _skinningItems = a_pGE->GetDrawLists()->GetSkinningItems();
 	{
-			auto* _pCmdList = a_pCtx->GetCurrentCmdList();
+			auto* _pCmdList = a_pCtx->RefCurrentCmdList();
 			auto* _pPso = m_pPSOManager->GetPSO(m_psoHandle);
 
 			auto* _pMA = a_pGE->RefMeshBufferAllocator();

@@ -221,7 +221,7 @@ namespace App::Object
 			m_launchTimer -= _dt;
 			while (m_launchTimer <= 0.0f)
 			{
-				RequestLaunch(a_context);
+				ReserveLaunch(a_context);
 				m_launchTimer += std::max(m_launchInterval, 0.01f);	// 0だと止まらないので下限を入れる
 			}
 
@@ -289,7 +289,7 @@ namespace App::Object
 		return _amp * _omega * std::cos(_omega * a_time);
 	}
 
-	void SwarmBossCoilAttackState::RequestLaunch(SwarmBossStateContext& a_context)
+	void SwarmBossCoilAttackState::ReserveLaunch(SwarmBossStateContext& a_context)
 	{
 		if (!a_context.pPlatoonLeaders || a_context.pPlatoonLeaders->empty()) return;
 		auto& _world = *a_context.pObject->pWorld;
@@ -361,7 +361,7 @@ namespace App::Object
 
 		if (a_context.pMachine)
 		{
-			a_context.pMachine->RequestChangeState(ESwarmBossState::RandomWalk);
+			a_context.pMachine->ReserveChangeState(ESwarmBossState::RandomWalk);
 		}
 	}
 

@@ -26,13 +26,13 @@ struct Engine::ECS::ComponentTraits<App::Component::LifeTimeComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::LifeTimeComponent& _comp = Engine::EditorField::GetValue<App::Component::LifeTimeComponent>(a_pData);
+		App::Component::LifeTimeComponent& _comp = Engine::EditorField::RefValue<App::Component::LifeTimeComponent>(a_pData);
 		a_ar.Field("value", _comp.value);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::LifeTimeComponent& _comp = Engine::EditorField::GetValue<App::Component::LifeTimeComponent>(a_context.pData);
+		App::Component::LifeTimeComponent& _comp = Engine::EditorField::RefValue<App::Component::LifeTimeComponent>(a_context.pData);
 		Engine::EditorField::Field("LifeTime", _comp.value, 0.1f);
 		Engine::EditorField::Tooltip("0 以下で消滅 / 負の値は無期限");
 	}

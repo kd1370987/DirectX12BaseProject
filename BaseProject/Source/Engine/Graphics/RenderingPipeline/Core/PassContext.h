@@ -20,7 +20,7 @@ namespace Engine
 	class MainEngine;
 }
 
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 	class RayEngine;
 }
@@ -31,12 +31,12 @@ namespace Engine::Resource
 	class AssetDatabase;
 }
 
-namespace Engine::Particle
+namespace Engine::Graphics::Particle
 {
 	class ParticleBufferManager;
 }
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }

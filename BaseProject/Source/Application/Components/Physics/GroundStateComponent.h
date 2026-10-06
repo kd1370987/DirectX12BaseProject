@@ -27,7 +27,7 @@ struct Engine::ECS::ComponentTraits<App::Component::GroundStateComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::GroundStateComponent& _comp = Engine::EditorField::GetValue<App::Component::GroundStateComponent>(a_context.pData);
+		App::Component::GroundStateComponent& _comp = Engine::EditorField::RefValue<App::Component::GroundStateComponent>(a_context.pData);
 
 		// 毎フレーム計算される値なので表示のみ
 		Engine::EditorField::Value("IsGround", "%s", _comp.isGround ? "true" : "false");

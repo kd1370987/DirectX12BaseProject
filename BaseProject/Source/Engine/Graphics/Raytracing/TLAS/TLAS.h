@@ -1,11 +1,11 @@
 ﻿#pragma once
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }
 
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 
 	class TLAS
@@ -14,9 +14,9 @@ namespace Engine::Raytracing
 
 		// 作成
 		void Create(
-			D3D12::Device* a_pDevice,
-			D3D12::DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::Device* a_pDevice,
+			Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			UINT a_maxInstanceNum
 		);
 
@@ -26,7 +26,7 @@ namespace Engine::Raytracing
 		// 更新
 		// a_frameIndex : 今のCPUフレーム番号(0 ～ CPU_FRAME_COUNT-1)。
 		// インスタンスバッファはフレームごとに区画を分けてあり、この番号の区画へ書く
-		void Update(D3D12::GraphicsCommandList* a_pCmdList, const std::vector<Instance>& a_instanceVec, UINT a_frameIndex);
+		void Update(Graphics::D3D12::GraphicsCommandList* a_pCmdList, const std::vector<Instance>& a_instanceVec, UINT a_frameIndex);
 
 		D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const
 		{
@@ -38,8 +38,8 @@ namespace Engine::Raytracing
 	private:
 
 		void CreateBuffer(
-			D3D12::Device* a_pDevice,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::Device* a_pDevice,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			ComPtr<ID3D12Resource>& a_cpRes,
 			uint64_t a_size,
 			D3D12_RESOURCE_FLAGS a_flags,
@@ -72,7 +72,7 @@ namespace Engine::Raytracing
 
 		// SRVハンドルと、その置き場(借り物)。
 		// 実体は GraphicsEngine が持っているので、Create で受け取ったものを控えて Release で返す
-		Engine::Handle<D3D12::SRV> m_srvHandle = {};
-		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
+		Engine::Handle<Graphics::D3D12::SRV> m_srvHandle = {};
+		Graphics::D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
 	};
 }

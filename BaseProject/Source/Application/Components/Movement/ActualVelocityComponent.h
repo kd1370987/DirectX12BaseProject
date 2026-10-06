@@ -26,7 +26,7 @@ struct Engine::ECS::ComponentTraits<App::Component::ActualVelocityComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::ActualVelocityComponent& _comp = Engine::EditorField::GetValue<App::Component::ActualVelocityComponent>(a_context.pData);
+		App::Component::ActualVelocityComponent& _comp = Engine::EditorField::RefValue<App::Component::ActualVelocityComponent>(a_context.pData);
 		Engine::EditorField::Value("Velocity", "%.2f, %.2f , %.2f", _comp.value.x, _comp.value.y, _comp.value.z);
 	}
 };

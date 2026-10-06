@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "../GPUBuffer.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	/// <summary>
 	/// シーンに一つ持つような巨大なバッファ
@@ -22,9 +22,9 @@ namespace Engine::D3D12
 		/// <param name="a_strideSize">要素サイズ</param>
 		/// <returns></returns>
 		bool Create(
-			D3D12::Device* a_pDevice,
+			Graphics::D3D12::Device* a_pDevice,
 			DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			size_t a_elemetNum,
 			size_t a_strideSize
 		);
@@ -54,6 +54,6 @@ namespace Engine::D3D12
 		bool m_isDirty = false;
 
 		// 中間バッファを作るデバイス(借り物)。Create で受け取ったものを持ち続ける
-		D3D12::Device* m_pDevice = nullptr;
+		Graphics::D3D12::Device* m_pDevice = nullptr;
 	};
 }

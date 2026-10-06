@@ -48,7 +48,7 @@ namespace App::Object
 		void TryBindButton(Engine::GameObject::ObjectContext& a_context);
 
 		// 遷移先のシーンを読み込む
-		void RequestChangeScene();
+		void ReserveChangeScene();
 
 	private:
 

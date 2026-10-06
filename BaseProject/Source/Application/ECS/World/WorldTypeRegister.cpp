@@ -566,9 +566,9 @@ namespace App::ECS
 		a_world.AddResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
 		a_world.AddResource<Engine::Pool::RangePool<InstanceResource::AdditiveBoneEntry>>();
 
-		a_world.AddResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
-		a_world.AddResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
-		a_world.AddResource<Engine::Pool::ItemPool<Engine::Animation::SkinningMeshData>>();
+		a_world.AddResource<Engine::Pool::ItemPool<Engine::Graphics::Raytracing::DynamicRaytracingData>>();
+		a_world.AddResource<std::vector<Engine::Graphics::Raytracing::DynamicRaytracingInitRequest>>();
+		a_world.AddResource<Engine::Pool::ItemPool<Engine::Graphics::Animation::SkinningMeshData>>();
 	
 
 		// シングルトンインスタンスの登録
@@ -594,9 +594,9 @@ namespace App::ECS
 		a_world.RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>().Init(10000);
 		a_world.RefResource<Engine::Pool::RangePool<InstanceResource::AdditiveBoneEntry>>().Init(10000);
 
-		a_world.RefResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>().Reserve(100);
-		a_world.RefResource<Engine::Pool::ItemPool<Engine::Animation::SkinningMeshData>>().Reserve(100);
-		a_world.RefResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
+		a_world.RefResource<Engine::Pool::ItemPool<Engine::Graphics::Raytracing::DynamicRaytracingData>>().Reserve(100);
+		a_world.RefResource<Engine::Pool::ItemPool<Engine::Graphics::Animation::SkinningMeshData>>().Reserve(100);
+		a_world.RefResource<std::vector<Engine::Graphics::Raytracing::DynamicRaytracingInitRequest>>();
 
 		a_world.RefResource<InstanceResource::HierarchyResource>().isDirty = true;
 

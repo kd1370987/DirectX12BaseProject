@@ -140,7 +140,7 @@ namespace Editor::Inspector
 				BuildStandardPipeline(*m_pAsset, *_pRegistry);
 
 				// パスが総入れ替えになるので、次の Draw で座標を配り直す
-				RequestApplyNodePositions();
+				ReserveApplyNodePositions();
 				ImGui::CloseCurrentPopup();
 			}
 			Engine::EditorField::SameLine();
@@ -254,7 +254,7 @@ namespace Editor::Inspector
 	// まとまりを解いた直後は、今まで描いていなかったパスがノードとして出てくる。
 	// ImNodes はその場所を知らないので原点に重なって出る。
 	//
-	// 全体を配り直す(RequestApplyNodePositions)と、動かしてあった他のノードまで
+	// 全体を配り直す(ReserveApplyNodePositions)と、動かしてあった他のノードまで
 	// 保存された位置へ巻き戻るので、増えたぶんだけを置く
 	//======================================================================================
 	void RenderingPipelineEditor::HandlePendingApplyPos()
@@ -338,7 +338,7 @@ namespace Editor::Inspector
 
 			// ここで座標を配り直さないこと。
 			//
-			// RequestApplyNodePositions() は「全ノードを保存された位置へ戻す」もので、
+			// ReserveApplyNodePositions() は「全ノードを保存された位置へ戻す」もので、
 			// 配線を整えただけなのに動かしていない他のノードまで巻き戻ってしまう。
 			// 増えた段はノードとして出さない(代表しか描かない)ので、
 			// そもそも ImNodes へ座標を配る必要が無い

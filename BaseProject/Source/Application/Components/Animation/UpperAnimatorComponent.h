@@ -36,13 +36,13 @@ struct Engine::ECS::ComponentTraits<App::Component::UpperAnimatorComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		App::Component::UpperAnimatorComponent& _comp = Engine::EditorField::GetValue<App::Component::UpperAnimatorComponent>(a_pData);
+		App::Component::UpperAnimatorComponent& _comp = Engine::EditorField::RefValue<App::Component::UpperAnimatorComponent>(a_pData);
 		a_services.pResourceManager->ReleaseHandle(_comp.layer.animatorHandle);
 	}
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::UpperAnimatorComponent& _comp = Engine::EditorField::GetValue<App::Component::UpperAnimatorComponent>(a_pData);
+		App::Component::UpperAnimatorComponent& _comp = Engine::EditorField::RefValue<App::Component::UpperAnimatorComponent>(a_pData);
 
 		if (a_ar.BeginGroup("layer"))
 		{
@@ -55,7 +55,7 @@ struct Engine::ECS::ComponentTraits<App::Component::UpperAnimatorComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::UpperAnimatorComponent& _comp = Engine::EditorField::GetValue<App::Component::UpperAnimatorComponent>(a_context.pData);
+		App::Component::UpperAnimatorComponent& _comp = Engine::EditorField::RefValue<App::Component::UpperAnimatorComponent>(a_context.pData);
 
 		Engine::EditorField::Slider("Weight", _comp.weight, 0.0f, 1.0f, "%.2f");
 		EditAnimatorLayer(a_context, "Upper Layer", _comp.layer, true);

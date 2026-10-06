@@ -27,7 +27,7 @@ namespace Editor
 	MainEditor::~MainEditor()
 	{}
 
-	bool MainEditor::Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager, ECS::EngineServices* a_pServices)
+	bool MainEditor::Init(HWND a_hwnd, Graphics::D3D12::DescriptorHeapManager* a_pHeapManager, ECS::EngineServices* a_pServices)
 	{
 		if (m_isInit) return true;
 
@@ -297,7 +297,7 @@ namespace Editor
 		m_upPanelManager->ClearSceneContext();
 	}
 
-	void MainEditor::Draw(D3D12::GraphicsCommandList * a_pCmdList)
+	void MainEditor::Draw(Graphics::D3D12::GraphicsCommandList * a_pCmdList)
 	{
 		// ImGui描画開始
 		m_upImGuiContext->Begin();

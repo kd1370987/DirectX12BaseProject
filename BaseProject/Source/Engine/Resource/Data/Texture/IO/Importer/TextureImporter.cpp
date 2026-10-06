@@ -13,7 +13,7 @@
 namespace Engine::Resource
 {
 	void CopyTexRegion(
-		Engine::D3D12::GraphicsCommandList* a_pCmdList,
+		Engine::Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 		ID3D12Resource* a_pResource,
 		const Engine::Resource::UploadBuffer& a_uploadBuffer
 	)
@@ -45,7 +45,7 @@ namespace Engine::Resource
 		}
 	}
 
-	Engine::Resource::UploadBuffer CreateUploadHeap(D3D12::Device* a_pDevice, const D3D12_RESOURCE_DESC& a_texDesc, const DirectX::TexMetadata& a_meta)
+	Engine::Resource::UploadBuffer CreateUploadHeap(Graphics::D3D12::Device* a_pDevice, const D3D12_RESOURCE_DESC& a_texDesc, const DirectX::TexMetadata& a_meta)
 	{
 		Engine::Resource::UploadBuffer _uploadBuffer = {};
 
@@ -206,7 +206,7 @@ namespace Engine::Resource
 		// グラフィックスエンジンに非同期タスクとして登録
 		_pGraphicsEngine->RefRenderDevice()->ExecuteAsyncCopy(
 			// コマンドを積む
-			[a_cpRes, _capturedUploadBuf](Engine::D3D12::GraphicsCommandList* a_pCmdList)
+			[a_cpRes, _capturedUploadBuf](Engine::Graphics::D3D12::GraphicsCommandList* a_pCmdList)
 			{
 				// 引数でもらったコマンドリストを使ってコピー命令を積む
 				CopyTexRegion(a_pCmdList, a_cpRes.Get(), _capturedUploadBuf);

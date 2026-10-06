@@ -299,7 +299,7 @@ namespace App::Object
 		// 体力が一定値を切ったら死亡へ(まとめる体が無ければ入らない)
 		if (!_isDying && m_deathHp > 0 && m_currentBoids > 0 && m_currentBoids <= m_deathHp)
 		{
-			m_stateMachine.RequestChangeState(ESwarmBossState::Death);
+			m_stateMachine.ReserveChangeState(ESwarmBossState::Death);
 			_isDying = true;
 		}
 
@@ -437,7 +437,7 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		if (m_burstEffectGUID != Core::DEFAULT_GUID && m_burstEffectScale > 0.0f)
 		{
-			App::Utility::SpawnEffectAt(_world, m_burstEffectGUID, a_request.center, true, {}, m_burstEffectScale);
+			App::Utility::ReserveSpawnEffectAt(_world, m_burstEffectGUID, a_request.center, true, {}, m_burstEffectScale);
 		}
 
 		m_isBurst = true;
@@ -463,7 +463,7 @@ namespace App::Object
 		if (_steps <= m_reorganizeCount) return;
 
 		m_reorganizeCount = _steps;
-		m_stateMachine.RequestChangeState(ESwarmBossState::Reorganize);
+		m_stateMachine.ReserveChangeState(ESwarmBossState::Reorganize);
 	}
 
 	//======================================================================================

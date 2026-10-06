@@ -36,7 +36,7 @@ namespace Engine::Option::ProjectOptions
 		// 乗算する色
 		Math::Color color = Engine::Color::WHITE;
 
-		const std::string& GetName() override
+		const std::string& GetName() const override
 		{
 			static const std::string NAME = "CursorOption";
 			return NAME;

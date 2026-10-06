@@ -21,7 +21,7 @@ namespace Engine::Option
 		virtual ~IOption() = default;
 
 		// 名前取得
-		virtual const std::string& GetName() = 0;
+		virtual const std::string& GetName() const = 0;
 
 		// カテゴリー取得
 		virtual EOptionCategory GetCategory() = 0;

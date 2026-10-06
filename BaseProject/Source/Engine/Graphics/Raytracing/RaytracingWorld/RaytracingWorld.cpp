@@ -9,17 +9,17 @@
 
 #include "../../../ECS/World/World.h"
 
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
-	Engine::Raytracing::RayWorld::RayWorld()
+	Engine::Graphics::Raytracing::RayWorld::RayWorld()
 	{
 	}
-	Engine::Raytracing::RayWorld::~RayWorld()
+	Engine::Graphics::Raytracing::RayWorld::~RayWorld()
 	{
 	}
 
 
-	void Engine::Raytracing::RayWorld::Register(
+	void Engine::Graphics::Raytracing::RayWorld::Register(
 		const Math::Matrix& a_worldMat,
 		const Engine::Handle<Engine::Resource::Model>& a_modelHandle,
 		const Math::Color& a_colorScale,
@@ -45,7 +45,7 @@ namespace Engine::Raytracing
 				Math::Matrix _nodeMat = _node.worldTransform;
 
 				// インスタンス作成
-				Engine::Raytracing::Instance _rayInst = {};
+				Engine::Graphics::Raytracing::Instance _rayInst = {};
 				_rayInst.worldMat = _nodeMat * a_worldMat;
 				if (!_pMesh->HasRtData()) continue;
 				_rayInst.pBLAS = &_pMesh->GetRtData().blas;
@@ -119,7 +119,7 @@ namespace Engine::Raytracing
 				if (!_pMesh) continue;
 
 				// インスタンス作成
-				Engine::Raytracing::Instance _rayInst = {};
+				Engine::Graphics::Raytracing::Instance _rayInst = {};
 				_rayInst.worldMat = a_worldMat;
 				if (!_pMesh->HasRtData()) continue;
 				auto* _item = _pool.Ref(a_dynamicDataHandle);
@@ -169,10 +169,10 @@ namespace Engine::Raytracing
 		}
 	}
 
-	void Engine::Raytracing::RayWorld::Init(
-		D3D12::Device* a_pDevice,
-		D3D12::DescriptorHeapManager* a_pHeapManager,
-		D3D12::GraphicsCommandList* a_pCmdList,
+	void Engine::Graphics::Raytracing::RayWorld::Init(
+		Graphics::D3D12::Device* a_pDevice,
+		Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+		Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 		Resource::ResourceManager* a_pResourceManager
 	)
 	{
@@ -217,7 +217,7 @@ namespace Engine::Raytracing
 	}
 
 
-	void Engine::Raytracing::RayWorld::Commit(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex)
+	void Engine::Graphics::Raytracing::RayWorld::Commit(Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex)
 	{
 		// TLAS更新
 		m_upTLAS->Update(a_pCmdList, m_instanceVec, a_frameIndex);
@@ -254,47 +254,47 @@ namespace Engine::Raytracing
 		m_materialDataBuffer.UploadFrame(a_pCmdList, m_materialVec.data(), m_materialVec.size() * sizeof(Material), a_frameIndex);
 	}
 
-	void Engine::Raytracing::RayWorld::Clear()
+	void Engine::Graphics::Raytracing::RayWorld::Clear()
 	{
 		m_instanceVec.clear();
 	}
 
-	D3D12_GPU_VIRTUAL_ADDRESS Engine::Raytracing::RayWorld::GetTLAS() const
+	D3D12_GPU_VIRTUAL_ADDRESS Engine::Graphics::Raytracing::RayWorld::GetTLAS() const
 	{
 		return m_upTLAS->GetGPUAddress();
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetSRVTLAS() const
+	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Graphics::Raytracing::RayWorld::GetSRVTLAS() const
 	{
 		return m_upTLAS->GetGPUHandle();
 	}
 
-	Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetInstanceBufferSRV() const
+	Handle<Graphics::D3D12::SRV> Engine::Graphics::Raytracing::RayWorld::GetInstanceBufferSRV() const
 	{
 		return m_instanceDataBuffer.GetSRVHandle();
 	}
 
-	Handle<D3D12::SRV> Engine::Raytracing::RayWorld::GetMaterialBufferSRV() const
+	Handle<Graphics::D3D12::SRV> Engine::Graphics::Raytracing::RayWorld::GetMaterialBufferSRV() const
 	{
 		return m_materialDataBuffer.GetSRVHandle();
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRV() const
+	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Graphics::Raytracing::RayWorld::GetInstanceDataSRV() const
 	{
 		return m_pHeapManager->GetGPU(m_instanceDataBuffer.GetSRVHandle());
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetInstanceDataSRVCPU() const
+	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Graphics::Raytracing::RayWorld::GetInstanceDataSRVCPU() const
 	{
 		return m_pHeapManager->GetCPU(m_instanceDataBuffer.GetSRVHandle());
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRV() const
+	D3D12_GPU_DESCRIPTOR_HANDLE Engine::Graphics::Raytracing::RayWorld::GetMaterialSRV() const
 	{
 		return m_pHeapManager->GetGPU(m_materialDataBuffer.GetSRVHandle());
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Raytracing::RayWorld::GetMaterialSRVCPU() const
+	D3D12_CPU_DESCRIPTOR_HANDLE Engine::Graphics::Raytracing::RayWorld::GetMaterialSRVCPU() const
 	{
 		return m_pHeapManager->GetCPU(m_materialDataBuffer.GetSRVHandle());
 	}

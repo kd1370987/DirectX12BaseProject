@@ -42,13 +42,13 @@ struct Engine::ECS::ComponentTraits<App::Component::ScoreTargetComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::ScoreTargetComponent& _comp = Engine::EditorField::GetValue<App::Component::ScoreTargetComponent>(a_pData);
+		App::Component::ScoreTargetComponent& _comp = Engine::EditorField::RefValue<App::Component::ScoreTargetComponent>(a_pData);
 		a_ar.Field("score", _comp.score);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::ScoreTargetComponent& _comp = Engine::EditorField::GetValue<App::Component::ScoreTargetComponent>(a_context.pData);
+		App::Component::ScoreTargetComponent& _comp = Engine::EditorField::RefValue<App::Component::ScoreTargetComponent>(a_context.pData);
 
 		Engine::EditorField::HelpText("プレイヤーが倒す相手であることの印");
 		Engine::EditorField::Field("Score", _comp.score, 1, 0, 1000000);

@@ -35,7 +35,7 @@ struct Engine::ECS::ComponentTraits<App::Component::GroundImpulseEmitterComponen
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::GroundImpulseEmitterComponent& _comp = Engine::EditorField::GetValue<App::Component::GroundImpulseEmitterComponent>(a_pData);
+		App::Component::GroundImpulseEmitterComponent& _comp = Engine::EditorField::RefValue<App::Component::GroundImpulseEmitterComponent>(a_pData);
 
 		// 発射済みフラグと経過時間はランタイム状態なので保存しない
 		a_ar.Field("radius", _comp.radius);
@@ -47,7 +47,7 @@ struct Engine::ECS::ComponentTraits<App::Component::GroundImpulseEmitterComponen
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::GroundImpulseEmitterComponent& _comp = Engine::EditorField::GetValue<App::Component::GroundImpulseEmitterComponent>(a_context.pData);
+		App::Component::GroundImpulseEmitterComponent& _comp = Engine::EditorField::RefValue<App::Component::GroundImpulseEmitterComponent>(a_context.pData);
 
 		Engine::EditorField::Field("radius", _comp.radius, 0.05f, 0.0f);
 		Engine::EditorField::Tooltip("波の厚み");

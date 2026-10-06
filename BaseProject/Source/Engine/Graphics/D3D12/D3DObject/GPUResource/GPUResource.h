@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	// 前方宣言
 	class DescriptorHeapManager;
@@ -31,7 +31,7 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(GPUResource);
 
 		// 作成
-		bool Create(D3D12::Device* a_pDevice ,const GPUResourceDesc& a_desc);
+		bool Create(Graphics::D3D12::Device* a_pDevice ,const GPUResourceDesc& a_desc);
 
 		// 指定のヒープ上に作成する(placed)
 		//
@@ -40,16 +40,16 @@ namespace Engine::D3D12
 		//
 		// a_pClearValue は RTV / DSV のときだけ渡す(バッファは必ず nullptr)。
 		// 渡さないとクリアのたびにドライバ側で最適化が効かず警告も出る
-		bool Create(D3D12::Device* a_pDevice,ID3D12Heap* a_pHeap, uint64_t a_heapOffset,const D3D12_RESOURCE_DESC& a_resDesc,D3D12_RESOURCE_STATES a_initialState,size_t a_strideSize,size_t a_elementNum,const D3D12_CLEAR_VALUE* a_pClearValue = nullptr);
+		bool Create(Graphics::D3D12::Device* a_pDevice,ID3D12Heap* a_pHeap, uint64_t a_heapOffset,const D3D12_RESOURCE_DESC& a_resDesc,D3D12_RESOURCE_STATES a_initialState,size_t a_strideSize,size_t a_elementNum,const D3D12_CLEAR_VALUE* a_pClearValue = nullptr);
 
 		// 解放
 		virtual void Release();
 
 		// ステート遷移
-		virtual void Barrier(D3D12::GraphicsCommandList* a_pCmdList,D3D12_RESOURCE_STATES a_nextState);
+		virtual void Barrier(Graphics::D3D12::GraphicsCommandList* a_pCmdList,D3D12_RESOURCE_STATES a_nextState);
 
 		// エイリアシングバリア
-		void AliasingBarrier(D3D12::GraphicsCommandList* a_pCmdList, GPUResource* a_pBeforeResource);
+		void AliasingBarrier(Graphics::D3D12::GraphicsCommandList* a_pCmdList, GPUResource* a_pBeforeResource);
 
 		// アクセサ
 		virtual ID3D12Resource* GetResource() const;
@@ -62,12 +62,12 @@ namespace Engine::D3D12
 		// =========================================================
 		// ハンドルのアクセサ
 		// =========================================================
-		const Handle<D3D12::SRV>& GetSRV() const { return m_srvHandle; }
-		const Handle<D3D12::UAV>& GetUAV() const { return m_uavHandle; }
-		const Handle<D3D12::RTV>& GetRTV() const { return m_rtvHandle; }
-		const Handle<D3D12::DSV>& GetDSV() const { return m_dsvHandle; }
-		const Handle<D3D12::DSV>& GetReadOnlyDSV() const { return m_readOnlyDsvHandle; }
-		const Handle<D3D12::ImGuiSRV>& GetImGuiSRV() const { return m_imguiSRVHandle; }
+		const Handle<Graphics::D3D12::SRV>& GetSRV() const { return m_srvHandle; }
+		const Handle<Graphics::D3D12::UAV>& GetUAV() const { return m_uavHandle; }
+		const Handle<Graphics::D3D12::RTV>& GetRTV() const { return m_rtvHandle; }
+		const Handle<Graphics::D3D12::DSV>& GetDSV() const { return m_dsvHandle; }
+		const Handle<Graphics::D3D12::DSV>& GetReadOnlyDSV() const { return m_readOnlyDsvHandle; }
+		const Handle<Graphics::D3D12::ImGuiSRV>& GetImGuiSRV() const { return m_imguiSRVHandle; }
 
 		const DXGI_FORMAT& GetFormat() const { return m_format; }
 
@@ -94,12 +94,12 @@ namespace Engine::D3D12
 		size_t m_elementNum = 0;
 
 		// ビューハンドル
-		Handle<D3D12::SRV> m_srvHandle = {};
-		Handle<D3D12::UAV> m_uavHandle = {};
-		Handle<D3D12::RTV> m_rtvHandle = {};
-		Handle<D3D12::DSV> m_dsvHandle = {};
-		Handle<D3D12::DSV> m_readOnlyDsvHandle = {};
-		// ImGui用SRV : SRVと別型にしておかないと Free() が本体のSRVアロケーターへ飛ぶ
-		Handle<D3D12::ImGuiSRV> m_imguiSRVHandle = {};
+		Handle<Graphics::D3D12::SRV> m_srvHandle = {};
+		Handle<Graphics::D3D12::UAV> m_uavHandle = {};
+		Handle<Graphics::D3D12::RTV> m_rtvHandle = {};
+		Handle<Graphics::D3D12::DSV> m_dsvHandle = {};
+		Handle<Graphics::D3D12::DSV> m_readOnlyDsvHandle = {};
+		// ImGui用SRV : SRVと別型にしておかないと ReserveFree() が本体のSRVアロケーターへ飛ぶ
+		Handle<Graphics::D3D12::ImGuiSRV> m_imguiSRVHandle = {};
 	};
 }

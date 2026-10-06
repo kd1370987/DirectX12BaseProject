@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::Particle
+namespace Engine::Graphics::Particle
 {
 	// 出現位置のワールド行列 : HLSL側(Common/RootParameters/Particle.hlsli)とそろえる
 	struct EmitterTransform
@@ -58,9 +58,9 @@ namespace Engine::Particle
 
 		// バッファの更新 : GPUに上げる。足りなければ作り直す
 		void Upload(
-			D3D12::Device* a_pDevice,
-			D3D12::DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::Device* a_pDevice,
+			Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			UINT a_frameIndex
 		);
 
@@ -108,7 +108,7 @@ namespace Engine::Particle
 		uint32_t m_pendingCount = 0;	// 返却待ちの数
 
 		// GPU側は１本 : 足りなくなったら作り直して古いほうは遅延開放
-		std::unique_ptr<D3D12::StaticStructuredBuffer<EmitterTransform>> m_upGPUBuffer;
+		std::unique_ptr<Graphics::D3D12::StaticStructuredBuffer<EmitterTransform>> m_upGPUBuffer;
 		uint32_t m_gpuCapacity = 0;
 	};
 }

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "../MegaBuffer.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	/// <summary>
 	/// シーンに一つ持つような巨大なバッファ
@@ -23,9 +23,9 @@ namespace Engine::D3D12
 		/// <param name="a_elemetNum">要素数</param>
 		/// <returns></returns>
 		bool Create(
-			D3D12::Device* a_pDevice,
+			Graphics::D3D12::Device* a_pDevice,
 			DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			size_t a_elemetNum
 		);
 
@@ -50,7 +50,7 @@ namespace Engine::D3D12
 		/// 今フレームの終わりにシグナルされるフェンス値。
 		/// 今フレームがまだこの領域を読んでいるかもしれないので、それが終わるまで空けない
 		/// </param>
-		void Free(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue);
+		void ReserveFree(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue);
 
 		/// <summary>
 		/// バッファの更新
@@ -63,7 +63,7 @@ namespace Engine::D3D12
 		RangeAllocator<T> m_rangeAllocator;
 	};
 	template<typename T>
-	inline bool MegaStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, D3D12::GraphicsCommandList* a_pCmdList, size_t a_elemetNum)
+	inline bool MegaStructuredBuffer<T>::Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, Graphics::D3D12::GraphicsCommandList* a_pCmdList, size_t a_elemetNum)
 	{
 		// アロケーターの作成
 		m_rangeAllocator.Init(a_elemetNum);
@@ -93,17 +93,17 @@ namespace Engine::D3D12
 	}
 
 	template<typename T>
-	inline void MegaStructuredBuffer<T>::Free(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue)
+	inline void MegaStructuredBuffer<T>::ReserveFree(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue)
 	{
 		if (!a_handle.IsValid()) return;
 
 		// 今フレームがこの領域を参照している可能性があるため、
 		// 今フレーム完了時のフェンス値でタグ付けして遅延解放を予約する
-		m_rangeAllocator.FreeRange(a_handle, a_releaseFenceValue);
+		m_rangeAllocator.ReserveFreeRange(a_handle, a_releaseFenceValue);
 	}
 	template<typename T>
 	inline void MegaStructuredBuffer<T>::Update(uint64_t a_currentFrameFence)
 	{
-		m_rangeAllocator.UpdateFrees(a_currentFrameFence);
+		m_rangeAllocator.ApplyReservedFrees(a_currentFrameFence);
 	}
 }

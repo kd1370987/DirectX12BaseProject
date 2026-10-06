@@ -5,7 +5,7 @@ namespace Engine::Graphics
 	class RenderContext;
 }
 
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 	class RayWorld;
 	class RayPSO;
@@ -34,7 +34,7 @@ namespace Engine::Raytracing
 		~ShaderTable() { Release(); }
 
 		// シェーダーテーブル初期化
-		void Init(D3D12::Device* a_pDevice, const ShaderTableInit& a_shaderInit);
+		void Init(Graphics::D3D12::Device* a_pDevice, const ShaderTableInit& a_shaderInit);
 
 		// 解放
 		void Release();

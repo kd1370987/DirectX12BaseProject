@@ -58,10 +58,10 @@ namespace App::Object
 		void TryBindButtons(Engine::GameObject::ObjectContext& a_context);
 
 		// ポーズを閉じて後ろのゲームへ戻る
-		void RequestResume();
+		void ReserveResume();
 
 		// ポーズを閉じてから、ゲームのシーンを行き先へ差し替える
-		void RequestExitScene();
+		void ReserveExitScene();
 
 	private:
 

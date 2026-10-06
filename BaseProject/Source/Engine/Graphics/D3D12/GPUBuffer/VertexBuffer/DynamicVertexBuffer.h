@@ -3,7 +3,7 @@
 #include "../DynamicBuffer/DynamicBuffer.h"
 #include "Core/Debug/DebugLog.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	template<typename T>
 	class DynamicVertexBuffer : public DynamicBuffer
@@ -15,8 +15,8 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(DynamicVertexBuffer);
 
 		// 作成
-		bool Create(D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,size_t a_elementNum);
-		bool CreateAndUpload(D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,size_t a_elementNum, const void* a_pInitData);
+		bool Create(Graphics::D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,size_t a_elementNum);
+		bool CreateAndUpload(Graphics::D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,size_t a_elementNum, const void* a_pInitData);
 
 		// アクセサ
 		const D3D12_VERTEX_BUFFER_VIEW& GetView() const;
@@ -27,7 +27,7 @@ namespace Engine::D3D12
 
 	};
 	template<typename T>
-	inline bool DynamicVertexBuffer<T>::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_elementNum)
+	inline bool DynamicVertexBuffer<T>::Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_elementNum)
 	{
 		// リソース作成
 		DynamicBufferDesc _desc = {};
@@ -50,7 +50,7 @@ namespace Engine::D3D12
 		return true;
 	}
 	template<typename T>
-	inline bool DynamicVertexBuffer<T>::CreateAndUpload(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_elementNum, const void* a_pInitData)
+	inline bool DynamicVertexBuffer<T>::CreateAndUpload(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_elementNum, const void* a_pInitData)
 	{		
 		// リソース作成
 		DynamicBufferDesc _desc = {};

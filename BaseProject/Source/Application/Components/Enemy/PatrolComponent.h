@@ -86,7 +86,7 @@ struct Engine::ECS::ComponentTraits<App::Component::PatrolComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::PatrolComponent& _comp = Engine::EditorField::GetValue<App::Component::PatrolComponent>(a_pData);
+		App::Component::PatrolComponent& _comp = Engine::EditorField::RefValue<App::Component::PatrolComponent>(a_pData);
 		a_ar.Field("patrolThrottle", _comp.patrolThrottle);
 		a_ar.Field("chaseThrottle", _comp.chaseThrottle);
 		a_ar.Field("retargetInterval", _comp.retargetInterval);
@@ -109,7 +109,7 @@ struct Engine::ECS::ComponentTraits<App::Component::PatrolComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::PatrolComponent& _comp = Engine::EditorField::GetValue<App::Component::PatrolComponent>(a_context.pData);
+		App::Component::PatrolComponent& _comp = Engine::EditorField::RefValue<App::Component::PatrolComponent>(a_context.pData);
 		Engine::EditorField::Field("PatrolThrottle", _comp.patrolThrottle, 0.01f, 0.0f, 1.0f);
 		Engine::EditorField::Field("ChaseThrottle", _comp.chaseThrottle, 0.01f, 0.0f, 1.0f);
 		Engine::EditorField::Field("RetargetInterval", _comp.retargetInterval, 0.1f, 0.0f);

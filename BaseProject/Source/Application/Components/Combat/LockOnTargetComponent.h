@@ -65,7 +65,7 @@ struct Engine::ECS::ComponentTraits<App::Component::LockOnTargetComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::LockOnTargetComponent& _comp = Engine::EditorField::GetValue<App::Component::LockOnTargetComponent>(a_pData);
+		App::Component::LockOnTargetComponent& _comp = Engine::EditorField::RefValue<App::Component::LockOnTargetComponent>(a_pData);
 		a_ar.Field("reticleRadius", _comp.reticleRadius);
 		a_ar.Field("maxDistance", _comp.maxDistance);
 		a_ar.Field("targetOffsetY", _comp.targetOffsetY);
@@ -73,7 +73,7 @@ struct Engine::ECS::ComponentTraits<App::Component::LockOnTargetComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::LockOnTargetComponent& _comp = Engine::EditorField::GetValue<App::Component::LockOnTargetComponent>(a_context.pData);
+		App::Component::LockOnTargetComponent& _comp = Engine::EditorField::RefValue<App::Component::LockOnTargetComponent>(a_context.pData);
 
 		Engine::EditorField::Field("ReticleRadius", _comp.reticleRadius, 1.0f, 0.0f, 4096.0f);
 		Engine::EditorField::Field("MaxDistance", _comp.maxDistance, 1.0f, 0.0f);

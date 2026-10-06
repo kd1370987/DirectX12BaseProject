@@ -40,7 +40,7 @@ namespace Editor::Inspector
 
 			if (_state.appliedLoadCount != a_animator.GetLoadCount())
 			{
-				_state.editor.RequestApplyLoadedPositions();
+				_state.editor.ReserveApplyLoadedPositions();
 				_state.appliedLoadCount = a_animator.GetLoadCount();
 			}
 			return _state;

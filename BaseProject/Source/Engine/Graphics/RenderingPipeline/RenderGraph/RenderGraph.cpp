@@ -957,7 +957,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		if (!a_pRenderContext) return;
 
-		D3D12::GraphicsCommandList* _pCmdList = a_pRenderContext->GetCurrentCmdList();
+		D3D12::GraphicsCommandList* _pCmdList = a_pRenderContext->RefCurrentCmdList();
 		if (!_pCmdList) return;
 
 		// 割り当て直後の Temporal は中身が未初期化なので、走らせる前に一度クリアする
@@ -1093,7 +1093,7 @@ namespace Engine::Graphics::Pipeline
 	{
 		if (!a_pRenderContext) return;
 
-		D3D12::GraphicsCommandList* _pCmdList = a_pRenderContext->GetCurrentCmdList();
+		D3D12::GraphicsCommandList* _pCmdList = a_pRenderContext->RefCurrentCmdList();
 		if (!_pCmdList) return;
 
 		if (!m_pHeapManager) return;

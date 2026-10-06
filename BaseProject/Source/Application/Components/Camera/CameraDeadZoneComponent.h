@@ -63,7 +63,7 @@ struct Engine::ECS::ComponentTraits<App::Component::CameraDeadZoneComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::CameraDeadZoneComponent& _comp = Engine::EditorField::GetValue<App::Component::CameraDeadZoneComponent>(a_pData);
+		App::Component::CameraDeadZoneComponent& _comp = Engine::EditorField::RefValue<App::Component::CameraDeadZoneComponent>(a_pData);
 		a_ar.Field("halfExtents",     _comp.halfExtents);
 		a_ar.Field("followRate",      _comp.followRate);
 		a_ar.Field("depthTolerance",  _comp.depthTolerance);
@@ -73,7 +73,7 @@ struct Engine::ECS::ComponentTraits<App::Component::CameraDeadZoneComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::CameraDeadZoneComponent& _comp = Engine::EditorField::GetValue<App::Component::CameraDeadZoneComponent>(a_context.pData);
+		App::Component::CameraDeadZoneComponent& _comp = Engine::EditorField::RefValue<App::Component::CameraDeadZoneComponent>(a_context.pData);
 
 		Engine::EditorField::Header("Dead Zone");
 		Engine::EditorField::Field("HalfExtents (NDC)", _comp.halfExtents, 0.01f, 0.0f, 1.0f);

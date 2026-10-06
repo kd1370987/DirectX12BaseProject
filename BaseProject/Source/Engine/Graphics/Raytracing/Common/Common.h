@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 	// レイトレワールドに載せられるインスタンス数の上限。
 	// TLAS・インスタンス/マテリアルのバッファ・シェーダーテーブルの大きさはすべてこれで決まる。

@@ -24,7 +24,7 @@ namespace Engine::Graphics
 	{
 		if (!a_pGE || !a_pCtx) return;
 		{
-				auto* _pCmdList = a_pCtx->GetCurrentCmdList();
+				auto* _pCmdList = a_pCtx->RefCurrentCmdList();
 
 				auto* _pMA = a_pGE->RefMeshBufferAllocator();
 				if (!_pMA) return;

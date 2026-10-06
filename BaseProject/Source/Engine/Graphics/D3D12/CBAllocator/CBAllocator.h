@@ -3,7 +3,7 @@
 #include "Core/Debug/DebugLog.h"
 
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class CBAllocator
 	{
@@ -12,7 +12,7 @@ namespace Engine::D3D12
 		// 解放
 		void Release();
 
-		void RootCBVCreate(Engine::D3D12::Device* a_device, size_t a_memSize);
+		void RootCBVCreate(Engine::Graphics::D3D12::Device* a_device, size_t a_memSize);
 	
 		// 使用リセット
 		void ResetUse()
@@ -22,13 +22,13 @@ namespace Engine::D3D12
 		}
 
 		// データをバインドして転送
-		void BindAndAttachDataRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const void* a_data, size_t a_size);
+		void BindAndAttachDataRootCBV(Engine::Graphics::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const void* a_data, size_t a_size);
 		template<typename T>
-		void BindAndAttachDataRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const T& a_data);
+		void BindAndAttachDataRootCBV(Engine::Graphics::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const T& a_data);
 
 		// データをバインドして転送
 		template<typename T>
-		void BindAndAttachDataComputeRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const T& a_data);
+		void BindAndAttachDataComputeRootCBV(Engine::Graphics::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const T& a_data);
 
 	private:
 
@@ -37,7 +37,7 @@ namespace Engine::D3D12
 
 	private:
 		// デバイス
-		Engine::D3D12::Device* m_pDevice = nullptr;
+		Engine::Graphics::D3D12::Device* m_pDevice = nullptr;
 
 		// グラフィック用
 		UINT m_usedCount = 0;
@@ -54,7 +54,7 @@ namespace Engine::D3D12
 
 	template<typename T>
 	inline void CBAllocator::BindAndAttachDataRootCBV(
-		Engine::D3D12::GraphicsCommandList* a_pCmdList,
+		Engine::Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 		int a_descIndex,
 		const T& a_data
 	)
@@ -85,7 +85,7 @@ namespace Engine::D3D12
 	}
 
 	template<typename T>
-	inline void CBAllocator::BindAndAttachDataComputeRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_regiIdx, const T& a_data)
+	inline void CBAllocator::BindAndAttachDataComputeRootCBV(Engine::Graphics::D3D12::GraphicsCommandList* a_pCmdList, int a_regiIdx, const T& a_data)
 	{
 		size_t _dataSize = (sizeof(T) + 0xff) & ~0xff; // 256バイトアライメント
 

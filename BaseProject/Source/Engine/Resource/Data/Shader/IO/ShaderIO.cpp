@@ -12,7 +12,7 @@ namespace Engine::Resource
 		return _shader;
 	}
 
-	Handle<Shader> Engine::Resource::ShaderIO::Request(ResourceManager& a_resourceManager, const std::string& a_path)
+	Handle<Shader> Engine::Resource::ShaderIO::Load(ResourceManager& a_resourceManager, const std::string& a_path)
 	{
 		// アセットデータベースに問い合わせ
 		auto _guid = a_resourceManager.RefAssetDatabase().GetGUIDFromFilePath(a_path);

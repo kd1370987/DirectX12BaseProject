@@ -14,7 +14,7 @@ namespace Engine::Graphics
 	class GraphicsEngine;
 }
 
-namespace Engine::Particle
+namespace Engine::Graphics::Particle
 {
 	class EmitterSlotPool;
 
@@ -44,8 +44,8 @@ namespace Engine::Particle
 		/// </param>
 		void Init(
 			Graphics::GraphicsEngine* a_pGraphicsEngine,
-			D3D12::DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList
+			Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList
 		);
 
 		/// <summary>
@@ -71,14 +71,14 @@ namespace Engine::Particle
 		/// 次のフレームの遷移で「遷移前の状態」が食い違う。
 		/// カメラごとに何度描いても引数は同じなので、戻すのはフレームに1回でよい
 		/// </remarks>
-		void FinishFrame(D3D12::GraphicsCommandList* a_pCmdList);
+		void FinishFrame(Graphics::D3D12::GraphicsCommandList* a_pCmdList);
 
 		/// <summary>
 		/// パーティクルを指定して、個数やデータを代入
 		/// </summary>
 		/// <param name="a_handle">パーティクルハンドル</param>
 		/// <param name="a_emitterData">個数やデータ</param>
-		void RequestEmit(const Handle<Resource::ParticlesAsset>& a_handle,const EmitterData& a_emitterData);
+		void ReserveEmit(const Handle<Resource::ParticlesAsset>& a_handle,const EmitterData& a_emitterData);
 
 		//----------------------------------------------------------------------------------
 		// 発生源の席(ローカル空間で回すパーティクル用)
@@ -103,7 +103,7 @@ namespace Engine::Particle
 		/// エミットデータ送信後、パス実行前の間に入れる必要あり
 		/// a_frameIndex : 今のCPUフレーム番号(アップロード区画の選択に使う)
 		/// </summary>
-		void UploadEmitData(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex);
+		void UploadEmitData(Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex);
 
 		/// <summary>
 		/// 現在たまっている生成命令をパーティクルを指定して取得
@@ -134,7 +134,7 @@ namespace Engine::Particle
 
 		// 伸ばす先の容量で作り直し、古い中身を写す(GPUParticlePool::BeginGrow)。
 		// 伸ばしたら true。そのあと呼ぶ側が増えた範囲を埋めて、GPUParticlePool::EndGrow を呼ぶ
-		bool BeginGrowPool(const Handle<Resource::ParticlesAsset>& a_handle, D3D12::GraphicsCommandList* a_pCmdList);
+		bool BeginGrowPool(const Handle<Resource::ParticlesAsset>& a_handle, Graphics::D3D12::GraphicsCommandList* a_pCmdList);
 
 		// デバッグ表示用
 		uint64_t GetEstimatedLive(const Handle<Resource::ParticlesAsset>& a_handle) const;		// 直近の最大寿命の間に出した数(生きている数の上限)
@@ -162,7 +162,7 @@ namespace Engine::Particle
 		// UploadEmitData が全プールの命令をつなげて送る。プールごとの範囲は GetEmitRange で引く。
 		// まだ一度も送っていなければ GetEmitterBuffer は nullptr
 		//----------------------------------------------------------------------------------
-		const D3D12::StaticStructuredBuffer<EmitterData>* GetEmitterBuffer() const;		// 共通の一本を返す
+		const Graphics::D3D12::StaticStructuredBuffer<EmitterData>* GetEmitterBuffer() const;		// 共通の一本を返す
 		EmitRange GetEmitRange(const Handle<Resource::ParticlesAsset>& a_handle) const;	// なければ count = 0
 
 		// デバッグ表示用 : 命令バッファの容量と、このフレームに送った命令の数
@@ -184,14 +184,14 @@ namespace Engine::Particle
 		uint64_t CountRecentEmits(const Handle<Resource::ParticlesAsset>& a_handle);
 
 		// プールを登録から外し、GPU が使い終わってからバッファを返す。
-		// 外した後は誰も参照しないので、次に必要になれば RequestEmit / Warmup が作り直す。
+		// 外した後は誰も参照しないので、次に必要になれば ReserveEmit / Warmup が作り直す。
 		// ロード中のプールには呼ばないこと(コピーキューがまだ書いているかもしれない)
 		void DestroyPool(const Handle<Resource::ParticlesAsset>& a_handle, const char* a_reason);
 
 	private:
 		// ビューの置き場(借り物)。実体は GraphicsEngine が持っている。
 		// プールは非同期に作られるので、Init で受け取ったものを持ち続ける
-		D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
+		Graphics::D3D12::DescriptorHeapManager* m_pHeapManager = nullptr;
 
 		// デバイスと非同期転送の依頼先(借り物)。持ち主は MainEngine
 		Graphics::GraphicsEngine* m_pGraphicsEngine = nullptr;
@@ -241,7 +241,7 @@ namespace Engine::Particle
 
 		// フレームで一本の発生命令バッファ。全プールの命令をつなげて送る
 		std::vector<EmitterData> m_frameEmitData;											//CPU側の写し : 毎フレーム作り直す
-		std::unique_ptr<D3D12::StaticStructuredBuffer<EmitterData>> m_upEmitterBuffer;		// GPU側 : 足りなければ作り直す
+		std::unique_ptr<Graphics::D3D12::StaticStructuredBuffer<EmitterData>> m_upEmitterBuffer;		// GPU側 : 足りなければ作り直す
 		uint32_t m_emitBufferCapacity = 0;
 
 		// プールごとの、このフレームの命令の範囲

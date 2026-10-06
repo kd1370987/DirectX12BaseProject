@@ -11,7 +11,7 @@ namespace Engine::Graphics
 	}
 }
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }
@@ -32,18 +32,18 @@ namespace Engine::Resource
 	struct ResourceBuildContext
 	{
 		// ---- デバイス ----
-		D3D12::Device* pDevice = nullptr;
+		Graphics::D3D12::Device* pDevice = nullptr;
 
 		// ---- ビューの置き場 ----
 		// 実体は GraphicsEngine が持っている。
 		// ビュー(SRV/RTV/DSV/UAV)を取るものは、シングルトンではなくここから借りること
-		D3D12::DescriptorHeapManager* pHeapManager = nullptr;
+		Graphics::D3D12::DescriptorHeapManager* pHeapManager = nullptr;
 
 		// ---- コマンドリスト ----
 		// モデル1体につき1本ずつ確保され、ビルドが終わったところで呼び出し側がsubmitする
-		D3D12::GraphicsCommandList* pDirectCmdList = nullptr;
-		D3D12::GraphicsCommandList* pCopyCmdList = nullptr;		// アップロード転送用
-		D3D12::GraphicsCommandList* pComputeCmdList = nullptr;	// BLAS構築用
+		Graphics::D3D12::GraphicsCommandList* pDirectCmdList = nullptr;
+		Graphics::D3D12::GraphicsCommandList* pCopyCmdList = nullptr;		// アップロード転送用
+		Graphics::D3D12::GraphicsCommandList* pComputeCmdList = nullptr;	// BLAS構築用
 
 		// ---- 作成時に使うマネージャー ----
 		// バッチの外で単発の転送を流すもの(テクスチャの読み込みなど)は、ここへ依頼する

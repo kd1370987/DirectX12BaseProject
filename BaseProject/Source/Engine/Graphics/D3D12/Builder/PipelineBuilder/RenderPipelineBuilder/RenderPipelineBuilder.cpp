@@ -1,6 +1,6 @@
 ﻿#include "RenderPipelineBuilder.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	RenderPipelineBuilder::RenderPipelineBuilder()
 	{

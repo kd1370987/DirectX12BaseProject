@@ -1,6 +1,6 @@
 ﻿#include "SamplerAllocator.h"
 
-bool Engine::D3D12::SamplerAllocator::Create(Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>* a_pHeap)
+bool Engine::Graphics::D3D12::SamplerAllocator::Create(Engine::Graphics::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>* a_pHeap)
 {
 	// ヒープ参照
 	m_pHeap = a_pHeap;
@@ -16,12 +16,12 @@ bool Engine::D3D12::SamplerAllocator::Create(Engine::D3D12::DescriptorHeap<D3D12
 	return true;
 }
 
-void Engine::D3D12::SamplerAllocator::Release()
+void Engine::Graphics::D3D12::SamplerAllocator::Release()
 {
 	m_pHeap = nullptr;
 }
 
-Engine::Handle<Engine::D3D12::SamplerTag> Engine::D3D12::SamplerAllocator::Allocate(D3D12::Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
+Engine::Handle<Engine::Graphics::D3D12::SamplerTag> Engine::Graphics::D3D12::SamplerAllocator::Allocate(D3D12::Device* a_pDevice, const D3D12_SAMPLER_DESC& a_desc)
 {
 	// RTVの位置を取得
 	if (m_indexQueue.empty())
@@ -30,7 +30,7 @@ Engine::Handle<Engine::D3D12::SamplerTag> Engine::D3D12::SamplerAllocator::Alloc
 	}
 	uint16_t _idx = m_indexQueue.front(); m_indexQueue.pop();
 	uint16_t _gen = m_genVec[_idx];
-	Engine::Handle<Engine::D3D12::SamplerTag> _handle(_idx,_gen);
+	Engine::Handle<Engine::Graphics::D3D12::SamplerTag> _handle(_idx,_gen);
 
 	// ハンドル作成
 	auto _handleCPU = m_pHeap->GetCPU(static_cast<UINT>(_handle.GetIndex()));
@@ -45,14 +45,14 @@ Engine::Handle<Engine::D3D12::SamplerTag> Engine::D3D12::SamplerAllocator::Alloc
 }
 
 
-void Engine::D3D12::SamplerAllocator::Remove(Engine::Handle<Engine::D3D12::SamplerTag> a_handle)
+void Engine::Graphics::D3D12::SamplerAllocator::Remove(Engine::Handle<Engine::Graphics::D3D12::SamplerTag> a_handle)
 {
 	// 世代を上げてキューに格納
 	m_genVec[a_handle.GetIndex()]++;
 	m_indexQueue.push(a_handle.GetIndex());
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE Engine::D3D12::SamplerAllocator::GetCPU(const Engine::Handle<Engine::D3D12::SamplerTag>&a_handle) const
+D3D12_CPU_DESCRIPTOR_HANDLE Engine::Graphics::D3D12::SamplerAllocator::GetCPU(const Engine::Handle<Engine::Graphics::D3D12::SamplerTag>&a_handle) const
 {
 	if (m_genVec[a_handle.GetIndex()] == a_handle.GetGeneration())
 	{
@@ -62,7 +62,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE Engine::D3D12::SamplerAllocator::GetCPU(const Engine
 	return D3D12_CPU_DESCRIPTOR_HANDLE();
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE Engine::D3D12::SamplerAllocator::GetGPU(const Engine::Handle<Engine::D3D12::SamplerTag>& a_handle) const
+D3D12_GPU_DESCRIPTOR_HANDLE Engine::Graphics::D3D12::SamplerAllocator::GetGPU(const Engine::Handle<Engine::Graphics::D3D12::SamplerTag>& a_handle) const
 {
 	if (m_genVec[a_handle.GetIndex()] == a_handle.GetGeneration())
 	{

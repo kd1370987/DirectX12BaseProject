@@ -128,7 +128,7 @@ namespace Editor
 		void EnsureWorld();
 
 		// 編集中のエフェクトの実体を出す / 片付ける
-		void RequestSpawn();
+		void ReserveSpawn();
 		void DestroyEffectEntity();
 
 		// ワールドの中からプレビュー中のエフェクトを引く。まだ実体化していなければ nullptr

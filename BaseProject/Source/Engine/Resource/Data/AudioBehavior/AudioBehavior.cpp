@@ -111,7 +111,7 @@ namespace Engine::Resource
 			// 鳴らす側はハンドルが引けないので自然に飛ばされる
 			if (!_part.IsValid()) continue;
 
-			a_inst.handles[_i] = a_audioManager.RequestSoundInstance(_part.soundGUID, _part.is3DSound);
+			a_inst.handles[_i] = a_audioManager.CreateSoundInstance(_part.soundGUID, _part.is3DSound);
 
 			// 設定した音量を反映しておく
 			if (auto* _pInstance = a_audioManager.RefInstance(a_inst.handles[_i]))

@@ -15,14 +15,14 @@ struct Engine::ECS::ComponentTraits<App::Component::SphereColliderComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::SphereColliderComponent& _comp = Engine::EditorField::GetValue<App::Component::SphereColliderComponent>(a_pData);
+		App::Component::SphereColliderComponent& _comp = Engine::EditorField::RefValue<App::Component::SphereColliderComponent>(a_pData);
 		a_ar.Field("radius", _comp.radius);
 		a_ar.Field("offset", _comp.offset);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::SphereColliderComponent& _comp = Engine::EditorField::GetValue<App::Component::SphereColliderComponent>(a_context.pData);
+		App::Component::SphereColliderComponent& _comp = Engine::EditorField::RefValue<App::Component::SphereColliderComponent>(a_context.pData);
 		Engine::EditorField::Field("Radius", _comp.radius, 0.05f, 0.0f, 100.0f);
 		Engine::EditorField::Field("Offset", _comp.offset, 0.05f);
 	}

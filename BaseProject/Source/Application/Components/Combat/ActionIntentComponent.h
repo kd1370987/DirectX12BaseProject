@@ -35,7 +35,7 @@ struct Engine::ECS::ComponentTraits<App::Component::ActionIntentComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::ActionIntentComponent& _comp = Engine::EditorField::GetValue<App::Component::ActionIntentComponent>(a_context.pData);
+		App::Component::ActionIntentComponent& _comp = Engine::EditorField::RefValue<App::Component::ActionIntentComponent>(a_context.pData);
 		auto _left = _comp.isLeftWeaponShoot;
 		auto _right = _comp.isRightWeaponShoot;
 		auto _missile = _comp.isMissileHold;

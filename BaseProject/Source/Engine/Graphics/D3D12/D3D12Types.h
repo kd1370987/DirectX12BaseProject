@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	// 優先度順デバイスメーカー
 	enum class EGPUTier

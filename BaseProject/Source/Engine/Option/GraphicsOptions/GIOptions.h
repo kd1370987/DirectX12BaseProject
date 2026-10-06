@@ -19,7 +19,7 @@ namespace Engine::Option::GraphicsOptions
 		float	phiNormal = 32.0f;	// 法線の感度（pow()の指数。大きいほど法線のずれに敏感）
 		float	phiColor = 4.0f;	// 輝度の感度（ノイズとディティールの境界制御）
 
-		const std::string& GetName() override
+		const std::string& GetName() const override
 		{
 			static const std::string NAME = "GIOption";
 			return NAME;

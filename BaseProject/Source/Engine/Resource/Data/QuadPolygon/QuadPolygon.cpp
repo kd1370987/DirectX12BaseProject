@@ -4,7 +4,7 @@
 
 namespace Engine::Resource
 {
-	void QuadPolygon::Init(D3D12::DescriptorHeapManager* a_pHeapManager)
+	void QuadPolygon::Init(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager)
 	{
 		Engine::Resource::SimpleVertex _vertices[] = {
 			{
@@ -38,7 +38,7 @@ namespace Engine::Resource
 
 		// インデックスバッファ作成
 		std::vector<UINT> _indices = { 0,1,2,3,1,0 };
-		D3D12::IndexBufferDesc _desc = {};
+		Graphics::D3D12::IndexBufferDesc _desc = {};
 		_desc.count = _indices.size();
 		_desc.pData = _indices.data();
 		_desc.format = DXGI_FORMAT_R32_UINT;
@@ -47,7 +47,7 @@ namespace Engine::Resource
 			ENGINE_ERRLOG(false, "いたポリのインデックスバッファ作成失敗");
 		}
 	}
-	void QuadPolygon::Init(D3D12::DescriptorHeapManager* a_pHeapManager, uint32_t a_widthVertNum, uint32_t a_heightVertNum)
+	void QuadPolygon::Init(Graphics::D3D12::DescriptorHeapManager* a_pHeapManager, uint32_t a_widthVertNum, uint32_t a_heightVertNum)
 	{
 		ENGINE_ERRLOG((a_widthVertNum >= 2),"ポリゴンを生成するのに、横の頂点数が足りません");
 		ENGINE_ERRLOG((a_heightVertNum >= 2),"ポリゴンを生成するのに、縦の頂点数が足りません");
@@ -124,7 +124,7 @@ namespace Engine::Resource
 			}
 		}
 
-		D3D12::IndexBufferDesc _desc = {};
+		Graphics::D3D12::IndexBufferDesc _desc = {};
 		_desc.count = _indices.size();
 		_desc.pData = _indices.data();
 		_desc.format = DXGI_FORMAT_R32_UINT;

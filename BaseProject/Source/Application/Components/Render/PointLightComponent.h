@@ -58,7 +58,7 @@ struct Engine::ECS::ComponentTraits<App::Component::PointLightComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		App::Component::PointLightComponent& _comp = Engine::EditorField::GetValue<App::Component::PointLightComponent>(a_pData);
+		App::Component::PointLightComponent& _comp = Engine::EditorField::RefValue<App::Component::PointLightComponent>(a_pData);
 		if (!_comp.handle.IsValid()) return;
 
 		// 終了処理の順によっては、こちらが先に消えていることがある
@@ -71,7 +71,7 @@ struct Engine::ECS::ComponentTraits<App::Component::PointLightComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::PointLightComponent& _comp = Engine::EditorField::GetValue<App::Component::PointLightComponent>(a_pData);
+		App::Component::PointLightComponent& _comp = Engine::EditorField::RefValue<App::Component::PointLightComponent>(a_pData);
 
 		a_ar.Field("posOffset", _comp.posOffset);
 		a_ar.Field("color", _comp.color);
@@ -81,7 +81,7 @@ struct Engine::ECS::ComponentTraits<App::Component::PointLightComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::PointLightComponent& _comp = Engine::EditorField::GetValue<App::Component::PointLightComponent>(a_context.pData);
+		App::Component::PointLightComponent& _comp = Engine::EditorField::RefValue<App::Component::PointLightComponent>(a_context.pData);
 
 		Engine::EditorField::Header("Mount");
 		Engine::EditorField::HelpText("このエンティティの行列基準。原点以外を光らせたいときに使う");

@@ -46,6 +46,7 @@
 | Medium | static メンバの `s_` 無し | 2 | **0** |
 | Medium | 独自略語(NG 例と同種 : `_rg` `_rt` `_resMgr` `m_useFlg` `_cpDebDev`) | 60 | **0** |
 | Medium | const でない `Get` メンバ関数 | 70 | 13 |
+| Medium | const でも値コピーでもない `Get`(第5回の定義) | 34 | **0** |
 | Low | クラス/構造体の役割コメント無し | 307 | 307 |
 | Low | ヘッダ公開関数のコメントが `///` でない | 91 | **0** |
 | Low | global namespace の型エイリアス(Pch.h の `ComPtr` / `DXSM`) | 2 | 2 |
@@ -56,14 +57,14 @@ Engine → App の 7 → 3 は、App を読んでいたエディターのファ�
 
 | 優先度 | 項目 | 修正前 | 修正後 |
 | --- | --- | ---: | ---: |
-| High | namespace とディレクトリの不一致 | 8 | 6(D3D12 / Raytracing / Particle / Animation / JobSystem / StateGraph) |
+| High | namespace とディレクトリの不一致 | 8 | 2(JobSystem / StateGraph。Graphics 配下 4 件は第5回で解消) |
 | High | トップレベルが規定外(`Math`) | 1 | **0**(`Core::Math`) |
 | High | App のディレクトリで `Engine::ECS` に型を定義(PhaseTag) | 1 | **0**(型は `App::Component`。Engine::ECS 側は特殊化だけ) |
 | High | Build 構成(GPU Validation 無効 / VS 構成が Debug・Release のみ) | 2 | 2 |
 | High | 残すと決めていないシングルトン | 5 | 5 |
 | Medium | クラスレイアウト | 9 | **0** |
 | Medium | Component がメソッドを持つ | 8 | 8 |
-| Medium | 遅延実行の命名が `Reserve` でない(`Request*` 等) | 10 | 10 |
+| Medium | 遅延実行の命名が `Reserve` でない(`Request*` 等) | 10 | **0**(第5回。Request / Reserve の定義もルールへ) |
 | Medium | 責務が大きい System(BossCombatIntentSystem 622 行) | 1 | 1 |
 | Low | ヘッダ公開関数にコメントが無い | 77 | 77 |
 | Low | 関数内 static の可変状態 | 26 | 20 |
@@ -356,10 +357,9 @@ ECS の良い点(適合を確認したもの) :
 | --- | --- | --- | --- |
 | Editor/Helper/EditorField.cpp ほか | エディターの即時モード状態を global に持つ(10 件) | 置き場所(EditorContext 等)を決める必要がある | EditorContext に持たせる。ImGui の C コールバック用 `g_pImGuiHeapManager` は外部ライブラリ都合の例外 |
 | Application/Object/SequenceBgm.cpp | `g_globalDuck` / `g_livingBgmVec` | BGM の管理者を決める設計変更 | AudioManager か Sequence 側の管理者へ |
-| ResourceManager.h / DescriptorHeapManager.h ほか | const にできない `Get` 13 件 | 内部で非 const 関数を呼ぶ・可変ポインタを返す | const 版の内部取得関数を足す / 書き込み用途は `Ref*` に改名 |
-| Engine/Graphics/D3D12 ほか 6 | ディレクトリと namespace の不一致 | Graphics 全体の修飾が変わる | 方針(namespace かディレクトリのどちらを動かすか)を決める |
+| Engine/JobSystem・Engine/Resource/StateGraph | ディレクトリと namespace の不一致(`Engine::Thread` / `Engine::StateGraph`) | 第5回は Graphics 配下だけの指示 | `Engine::JobSystem` / `Engine::Resource::StateGraph` |
 | MainEngine.cpp / vcxproj | GPU Validation 無効・VS 構成が 2 つ | 実行速度・Shipping 未着手 | DebugOptions のフラグで切り替え / Shipping 着手時に構成追加 |
-| Component 8 件・`Request*` 10 件・BossCombatIntentSystem | 設計判断 | 前回報告のとおり | 前回報告のとおり |
+| Component 8 件・BossCombatIntentSystem | 設計判断 | 前回報告のとおり | 前回報告のとおり |
 | クラス 307 件 / ヘッダ公開関数 77 件 | 役割コメント無し | 大量追加はしない | 触るたびに足す |
 
 ### 6.4 第3回の変更(PCH の分割)
@@ -387,7 +387,36 @@ ECS の良い点(適合を確認したもの) :
 * 以前 Editor.h 経由で間接的に読めていた `MainEngine.h` を InputActionManager.cpp で明示的に include。
 * ルール文書 4.1 に「上の層を呼びたいときは下に窓口、実装は上、つなぐのは main.cpp」を追記。
 
-### 6.6 Build Result
+### 6.6 第5回の変更(Graphics の namespace・Request / Reserve / Get の語彙)
+
+**Graphics 配下の namespace**
+
+* `Engine::D3D12` / `Engine::Raytracing` / `Engine::Particle` / `Engine::Animation` を
+  `Engine::Graphics::D3D12` / `::Raytracing` / `::Particle` / `::Animation` にした(109 ファイル)。
+* `Engine::Graphics` の中からは今までどおり `D3D12::X` と書ける。外(`Engine::ECS`・`Engine::Resource`・Editor)からは `Graphics::D3D12::X`、App からは `Engine::Graphics::D3D12::X`。
+* 型名は保存データに使っていない(`TypeInfo::GetTypeName` はログ用。保存は登録名のハッシュ)ので、アセットへの影響は無い。
+* `Engine/Graphics/RenderingPipeline` は `Engine::Graphics::Pipeline` のまま(ルール 1.4 の表に明記)。
+
+**語彙(ルール 1.5 / 1.6 に定義を明記)**
+
+* Request = 取得、無ければ作成して取得 / Reserve = 溜めて後で処理(結果は返さない。処理する側は `ApplyReserved*`)/
+  Get = const メンバ関数か値のコピー、どちらでもなければ Ref。
+
+| 区分 | 変更 |
+| --- | --- |
+| 後で処理 → Reserve | `BaseObject::RequestDestroy` → `ReserveDestroy`、`ParticleBufferManager::RequestEmit` → `ReserveEmit`、`JobWorker::RequestStop` → `ReserveStop`、`MainEngine::RegisterDeferredResource` → `ReserveRelease`、`SceneManager::SetNextScene` → `ReserveChangeScene`(処理側 `ChangeScenen` → `ApplyReservedSceneChanges`)、`EffectSpawnHelper::SpawnEffectAt` → `ReserveSpawnEffectAt`(即時版 `SpawnEffectAtNow` はそのまま) |
+| 〃(App / Editor) | `SwarmBossStateMachine::RequestChangeState` → `ReserveChangeState`、`CoilAttack::RequestLaunch` → `ReserveLaunch`、シーケンスの `RequestSortie` / `RequestResume` / `RequestExitScene` / `RequestBackToTitle` / `RequestResultScene` / `RequestChangeScene` → `Reserve*`、`EffectEditor::RequestSpawn` → `ReserveSpawn`、ノードエディターの `RequestApply*Positions` → `ReserveApply*Positions` |
+| GPU 完了待ちの解放 → Reserve | `DescriptorHeapManager::Free` → `ReserveFree`(`ProcessDeferredFrees` → `ApplyReservedFrees`)、`Mega*StructuredBuffer::Free` → `ReserveFree`、`RangeAllocator::FreeRange` / `UpdateFrees` → `ReserveFreeRange` / `ApplyReservedFrees`、`MeshBufferAllocator::XxxFree` 7 件 → `ReserveFreeXxx` |
+| 取得 or 作成 → Request | `ArchetypeManager::GetOrCreateArchetype` → `RequestArchetype`、`RayEngine::RefOrCreateWorld` → `RequestWorld`、`ResourceManager::ReserveSlot` → `RequestSlot` |
+| 毎回作る → Create / Load | `AudioManager::RequestSoundInstance` → `CreateSoundInstance`、HUD の `RequestSound` → `CreateSound`、`ShaderIO::Request` → `Load`(キャッシュを見ずに毎回読み込んでいるため) |
+| 可変を返す Get → Ref | `World::GetComponentArray`、`CommandPool::GetCommandQueue` / `GetFence`、`RenderContext::GetCurrentCmdList`、`SceneManager::GetCurrentTopScene` / `GetAmbientSourceScene`、`StateGraph::GetStateNode`(非 const 版)、`ModelConverter::GetTexture`、`EditorField::GetValue`(156 箇所) → `Ref*` |
+| const を付けた | `IOption::GetName` と派生 11 件、`QuadPolygon::GetVBView` / `GetIBView`、`RayPSO::Get`、glTF パーサの `Get` |
+
+* 据え置き : `Request` のまま正しいもの(`PipelineStateManager::Request` / `RequestHandle`、`ShadingPipelineBuilder::Request`、
+  `ResourceRegistry::Request`、`ResourceManager::RequestLoad` とそれを呼ぶ `RequestLoadAssets` / `RequestResources` など、`Font::RequestGlyph`、`RequestShader`)。
+  容量確保の `Reserve(n)` は対象外。値を返す非 const の `Get`(`ResourceManager::GetState` など)はルール上そのままでよい。
+
+### 6.7 Build Result
 
 ```text
 Debug|x64 フルリビルド
@@ -405,6 +434,10 @@ PCH 分割後(第3回)
 層の逆流の解消後(第4回)
   Debug|x64   フルリビルド : Success / Warning: 2164(種類は修正前と同じ) / Error: 0
   Release|x64 フルリビルド : Success / Warning: 2136 / Error: 0
+
+Graphics の namespace・語彙の整理後(第5回)
+  Debug|x64   フルリビルド : Success / Warning: 2164(種類は第4回と同じ) / Error: 0
+  Release|x64 フルリビルド : Success / Warning: 2136(種類は第4回と同じ) / Error: 0
 ```
 
 実行(起動・シーン読み込み・ゲームモード往復・エディター操作)は確認していない。

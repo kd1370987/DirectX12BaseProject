@@ -40,7 +40,7 @@ namespace App::Component
 		// ※ プレハブから実体化すると値がそのまま写ってくるので、EffectFixupSystem で必ず空にする
 		//    (空にしないと、他人の席の行列を書き換えてしまう)
 		//------------------------------------------------------------------
-		Engine::Handle<Engine::Particle::EmitterTransform> emitterSlot = {};
+		Engine::Handle<Engine::Graphics::Particle::EmitterTransform> emitterSlot = {};
 	};
 }
 
@@ -56,7 +56,7 @@ struct Engine::ECS::ComponentTraits<App::Component::EffectRuntimeComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		App::Component::EffectRuntimeComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectRuntimeComponent>(a_pData);
+		App::Component::EffectRuntimeComponent& _comp = Engine::EditorField::RefValue<App::Component::EffectRuntimeComponent>(a_pData);
 
 		// 席の返却予約が先。猶予(粒の最大寿命)をエフェクトアセットから引くので、
 		// アセットのハンドルを返した後では間に合わない
@@ -70,7 +70,7 @@ struct Engine::ECS::ComponentTraits<App::Component::EffectRuntimeComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::EffectRuntimeComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectRuntimeComponent>(a_context.pData);
+		App::Component::EffectRuntimeComponent& _comp = Engine::EditorField::RefValue<App::Component::EffectRuntimeComponent>(a_context.pData);
 
 		// 中身の確認用。細かい編集はアセット側のインスペクターで行う
 		auto* _pEffect = a_context.pWorld->RefEngineServices()->pResourceManager->Ref(_comp.effectHandle);

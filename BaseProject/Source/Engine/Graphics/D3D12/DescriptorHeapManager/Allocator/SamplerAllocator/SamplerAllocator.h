@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class SamplerAllocator
 	{
@@ -8,7 +8,7 @@ namespace Engine::D3D12
 
 		// 生成
 		bool Create(
-			Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>* a_pHeap
+			Engine::Graphics::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>* a_pHeap
 		);
 
 		// 解放
@@ -16,7 +16,7 @@ namespace Engine::D3D12
 
 		// ビュー作成割り当て
 		Engine::Handle<SamplerTag> Allocate(
-			D3D12::Device* a_pDevice,
+			Graphics::D3D12::Device* a_pDevice,
 			const D3D12_SAMPLER_DESC& a_desc
 		);
 
@@ -30,7 +30,7 @@ namespace Engine::D3D12
 	private:
 
 		// 参照元ヒープ
-		Engine::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>* m_pHeap = nullptr;
+		Engine::Graphics::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>* m_pHeap = nullptr;
 
 		// 使用ハンドル行列
 		std::vector<Engine::Resource::Generation> m_genVec = {};

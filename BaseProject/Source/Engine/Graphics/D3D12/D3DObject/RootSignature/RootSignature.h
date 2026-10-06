@@ -7,7 +7,7 @@
 */
 #pragma once
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class RootSignature
 	{
@@ -18,13 +18,13 @@ namespace Engine::D3D12
 
 		// 作成 : 作る先のデバイスは呼び出し側が渡す
 		bool Create(
-			D3D12::Device* a_pDevice,
+			Graphics::D3D12::Device* a_pDevice,
 			const std::vector<std::pair<ERootParameterType, std::vector<ERangeType>>>& a_rootParamsVec,
 			bool a_isUseStaticSampler = true,
 			const D3D12_ROOT_SIGNATURE_FLAGS* a_pFlags = nullptr
 		);
 		bool Create(
-			D3D12::Device* a_pDevice,
+			Graphics::D3D12::Device* a_pDevice,
 			const std::vector<std::pair<ERootParameterType, std::vector<ERangeType>>>& a_rootParamsVec,
 			D3D12_ROOT_SIGNATURE_FLAGS a_flags,
 			bool a_isUseStaticSampler = true

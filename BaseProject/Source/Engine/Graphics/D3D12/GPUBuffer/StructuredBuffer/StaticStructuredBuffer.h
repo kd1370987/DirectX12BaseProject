@@ -3,7 +3,7 @@
 #include "../StaticBuffer/StaticBuffer.h"
 #include "Core/Debug/DebugLog.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	template<typename T>
 	class StaticStructuredBuffer : public StaticBuffer
@@ -14,18 +14,18 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(StaticStructuredBuffer);
 
 		// 作成
-		void Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, D3D12::GraphicsCommandList* a_pCmdList,UINT a_elementNum,const T* a_pInitData);
+		void Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, Graphics::D3D12::GraphicsCommandList* a_pCmdList,UINT a_elementNum,const T* a_pInitData);
 
 		// アクセサ
 		const D3D12_SHADER_RESOURCE_VIEW_DESC& GetView() const;
-		const Handle<D3D12::SRV>& GetSRVHandle() const;
+		const Handle<Graphics::D3D12::SRV>& GetSRVHandle() const;
 
 	private:
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC m_view = {};
 	};
 	template<typename T>
-	inline void StaticStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, D3D12::GraphicsCommandList* a_pCmdList, UINT a_elementNum, const T* a_pInitData)
+	inline void StaticStructuredBuffer<T>::Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_elementNum, const T* a_pInitData)
 	{
 		StaticBufferDesc _desc = {};
 		_desc.elementNum = a_elementNum;
@@ -57,7 +57,7 @@ namespace Engine::D3D12
 		return m_view;
 	}
 	template<typename T>
-	inline const Handle<D3D12::SRV>& StaticStructuredBuffer<T>::GetSRVHandle() const
+	inline const Handle<Graphics::D3D12::SRV>& StaticStructuredBuffer<T>::GetSRVHandle() const
 	{
 		return m_srvHandle;
 	}

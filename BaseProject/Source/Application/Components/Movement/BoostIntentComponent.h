@@ -24,7 +24,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoostIntentComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BoostIntentComponent& _comp = Engine::EditorField::GetValue<App::Component::BoostIntentComponent>(a_context.pData);
+		App::Component::BoostIntentComponent& _comp = Engine::EditorField::RefValue<App::Component::BoostIntentComponent>(a_context.pData);
 		Engine::EditorField::Field("Boost Triger (Input)", _comp.isBoostTriger);
 		Engine::EditorField::Field("Boost Intent (Input)", _comp.isBoostIntent);
 	}

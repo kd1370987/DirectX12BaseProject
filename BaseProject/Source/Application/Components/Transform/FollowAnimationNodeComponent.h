@@ -35,7 +35,7 @@ struct Engine::ECS::ComponentTraits<App::Component::FollowAnimationNodeComponent
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::FollowAnimationNodeComponent& _comp = Engine::EditorField::GetValue<App::Component::FollowAnimationNodeComponent>(a_pData);
+		App::Component::FollowAnimationNodeComponent& _comp = Engine::EditorField::RefValue<App::Component::FollowAnimationNodeComponent>(a_pData);
 		a_ar.Field("targetNodeHash", _comp.targetNodeHash);
 		a_ar.Field("offsetPosition", _comp.offsetPosition);
 		a_ar.Field("offsetRotation", _comp.offsetRotation);
@@ -44,7 +44,7 @@ struct Engine::ECS::ComponentTraits<App::Component::FollowAnimationNodeComponent
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::FollowAnimationNodeComponent& _comp = Engine::EditorField::GetValue<App::Component::FollowAnimationNodeComponent>(a_context.pData);
+		App::Component::FollowAnimationNodeComponent& _comp = Engine::EditorField::RefValue<App::Component::FollowAnimationNodeComponent>(a_context.pData);
 
 		Engine::EditorField::Value("TargetNodeIdx", "%d", _comp.targetNodeIdx);
 		Engine::EditorField::Value("TargetNodeHash", "%d", _comp.targetNodeHash);

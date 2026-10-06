@@ -82,7 +82,7 @@ struct Engine::ECS::ComponentTraits<App::Component::MissileLockComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::MissileLockComponent& _comp = Engine::EditorField::GetValue<App::Component::MissileLockComponent>(a_pData);
+		App::Component::MissileLockComponent& _comp = Engine::EditorField::RefValue<App::Component::MissileLockComponent>(a_pData);
 		a_ar.Field("missileCount",   _comp.missileCount);
 		a_ar.Field("cooldown",       _comp.cooldown);
 		a_ar.Field("launchInterval", _comp.launchInterval);
@@ -96,7 +96,7 @@ struct Engine::ECS::ComponentTraits<App::Component::MissileLockComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::MissileLockComponent& _comp = Engine::EditorField::GetValue<App::Component::MissileLockComponent>(a_context.pData);
+		App::Component::MissileLockComponent& _comp = Engine::EditorField::RefValue<App::Component::MissileLockComponent>(a_context.pData);
 
 		Engine::EditorField::Header("Salvo");
 		if (Engine::EditorField::Field("MissileCount", _comp.missileCount, 1, 0, App::Component::MissileLockComponent::MISSILE_MAX))

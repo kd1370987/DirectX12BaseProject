@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 	// ===================================================================================
 	// GPU(HLSL) 転送用データ構造
@@ -97,7 +97,7 @@ namespace Engine::Raytracing
 		RangeHandle<Resource::MeshVertexFloat> animatedVertexHandle = {};
 
 		// インスタンス専用のBLAS
-		Raytracing::BLAS instanceBLAS;
+		Graphics::Raytracing::BLAS instanceBLAS;
 
 		// どのメッシュの参照先か
 		Handle<Resource::Mesh> meshHandle;
@@ -114,7 +114,7 @@ namespace Engine::Raytracing
 
 	struct DynamicRaytracingInitRequest
 	{
-		Handle<Animation::SkinningMeshData> skiningInstanceHandle = {};
+		Handle<Graphics::Animation::SkinningMeshData> skiningInstanceHandle = {};
 
 		// 初期化先のハンドル
 		Handle<DynamicRaytracingData> dynamicInstanceHandle;

@@ -7,7 +7,7 @@
 #pragma warning(pop)
 
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	void CBAllocator::Release()
 	{
@@ -31,7 +31,7 @@ namespace Engine::D3D12
 		m_spComputeResource.Reset();
 	}
 
-	void CBAllocator::RootCBVCreate(Engine::D3D12::Device* a_device, size_t a_memSize)
+	void CBAllocator::RootCBVCreate(Engine::Graphics::D3D12::Device* a_device, size_t a_memSize)
 	{
 		m_pDevice = a_device;
 	
@@ -65,7 +65,7 @@ namespace Engine::D3D12
 		CreateCompute(a_memSize);
 	}
 
-	void CBAllocator::BindAndAttachDataRootCBV(Engine::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const void* a_data, size_t a_size)
+	void CBAllocator::BindAndAttachDataRootCBV(Engine::Graphics::D3D12::GraphicsCommandList* a_pCmdList, int a_descIndex, const void* a_data, size_t a_size)
 	{
 		size_t _dataSize = (a_size + 0xff) & ~0xff; // 256バイトアライメント
 

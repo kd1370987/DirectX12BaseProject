@@ -6,12 +6,12 @@
 
 #include "../../../../Resource/Manager/ResourceManager/ResourceManager.h"
 
-namespace Engine::Particle
+namespace Engine::Graphics::Particle
 {
-	bool Engine::Particle::GPUParticlePool::Init(
-		D3D12::Device* a_pDevice,
-		D3D12::DescriptorHeapManager* a_pHeapManager,
-		D3D12::GraphicsCommandList* a_pCmdList,
+	bool Engine::Graphics::Particle::GPUParticlePool::Init(
+		Graphics::D3D12::Device* a_pDevice,
+		Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+		Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 		Engine::Handle<Resource::ParticlesAsset> a_particleHandle,
 		UINT a_capacity
 	)
@@ -56,13 +56,13 @@ namespace Engine::Particle
 		std::vector<ParticleData> _initParticles(m_maxCapacity);
 
 		// アップロードバッファを作成してコピーする
-		std::shared_ptr<D3D12::DynamicBuffer> _spDeadListUpload = std::make_shared<D3D12::DynamicBuffer>();
-		std::shared_ptr<D3D12::DynamicBuffer> _spCounterUpload = std::make_shared<D3D12::DynamicBuffer>();
-		std::shared_ptr<D3D12::DynamicBuffer> _spParticleUpload = std::make_shared<D3D12::DynamicBuffer>();
+		std::shared_ptr<Graphics::D3D12::DynamicBuffer> _spDeadListUpload = std::make_shared<Graphics::D3D12::DynamicBuffer>();
+		std::shared_ptr<Graphics::D3D12::DynamicBuffer> _spCounterUpload = std::make_shared<Graphics::D3D12::DynamicBuffer>();
+		std::shared_ptr<Graphics::D3D12::DynamicBuffer> _spParticleUpload = std::make_shared<Graphics::D3D12::DynamicBuffer>();
 
-		D3D12::DynamicBufferDesc _deadDesc = { m_maxCapacity, sizeof(uint32_t), D3D12_RESOURCE_FLAG_NONE };
-		D3D12::DynamicBufferDesc _countDesc = { 1, sizeof(uint32_t), D3D12_RESOURCE_FLAG_NONE };
-		D3D12::DynamicBufferDesc _particleDesc = { m_maxCapacity, sizeof(ParticleData), D3D12_RESOURCE_FLAG_NONE };
+		Graphics::D3D12::DynamicBufferDesc _deadDesc = { m_maxCapacity, sizeof(uint32_t), D3D12_RESOURCE_FLAG_NONE };
+		Graphics::D3D12::DynamicBufferDesc _countDesc = { 1, sizeof(uint32_t), D3D12_RESOURCE_FLAG_NONE };
+		Graphics::D3D12::DynamicBufferDesc _particleDesc = { m_maxCapacity, sizeof(ParticleData), D3D12_RESOURCE_FLAG_NONE };
 
 		_spDeadListUpload->Create(a_pDevice, a_pHeapManager, _deadDesc);
 		_spCounterUpload->Create(a_pDevice, a_pHeapManager, _countDesc);
@@ -94,7 +94,7 @@ namespace Engine::Particle
 		// 解放処理を登録。
 		// 壊すだけではディスクリプタが返らない(DynamicBuffer::Create はアップロードバッファにも SRV を取る)。
 		// Release() を呼ばないと、プールを1つ作るたびにヒープの席が3つ漏れる
-		MainEngine::Instance().RegisterDeferredResource([_spDeadListUpload,_spCounterUpload,_spParticleUpload]()
+		MainEngine::Instance().ReserveRelease([_spDeadListUpload,_spCounterUpload,_spParticleUpload]()
 			{
 				_spDeadListUpload->Release();
 				_spCounterUpload->Release();
@@ -111,9 +111,9 @@ namespace Engine::Particle
 	// 暗黙の昇格で使っている)。ここでは写す・埋めるのに明示して遷移させ、EndGrow で COMMON へ戻す
 	//======================================================================================
 	bool GPUParticlePool::BeginGrow(
-		D3D12::Device* a_pDevice,
-		D3D12::DescriptorHeapManager* a_pHeapManager,
-		D3D12::GraphicsCommandList* a_pCmdList,
+		Graphics::D3D12::Device* a_pDevice,
+		Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+		Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 		UINT a_newCapacity)
 	{
 		if (!a_pDevice || !a_pHeapManager || !a_pCmdList) return false;
@@ -123,9 +123,9 @@ namespace Engine::Particle
 		//------------------------------------------------------------------
 		// 新しい3本を作る
 		//------------------------------------------------------------------
-		D3D12::RWStructuredBuffer<ParticleData> _newPool;
-		D3D12::RWStructuredBuffer<uint32_t> _newDeadList;
-		D3D12::RWStructuredBuffer<uint32_t> _newAliveList;
+		Graphics::D3D12::RWStructuredBuffer<ParticleData> _newPool;
+		Graphics::D3D12::RWStructuredBuffer<uint32_t> _newDeadList;
+		Graphics::D3D12::RWStructuredBuffer<uint32_t> _newAliveList;
 		_newPool.Create(a_pDevice, a_pHeapManager, a_newCapacity);
 		_newDeadList.Create(a_pDevice, a_pHeapManager, a_newCapacity);
 		_newAliveList.Create(a_pDevice, a_pHeapManager, a_newCapacity);
@@ -170,15 +170,15 @@ namespace Engine::Particle
 		//------------------------------------------------------------------
 		struct OldBuffers
 		{
-			D3D12::RWStructuredBuffer<ParticleData> pool;
-			D3D12::RWStructuredBuffer<uint32_t> deadList;
-			D3D12::RWStructuredBuffer<uint32_t> aliveList;
+			Graphics::D3D12::RWStructuredBuffer<ParticleData> pool;
+			Graphics::D3D12::RWStructuredBuffer<uint32_t> deadList;
+			Graphics::D3D12::RWStructuredBuffer<uint32_t> aliveList;
 		};
 		auto _spOld = std::make_shared<OldBuffers>();
 		_spOld->pool = std::move(m_particlePool);
 		_spOld->deadList = std::move(m_deadList);
 		_spOld->aliveList = std::move(m_aliveList);
-		MainEngine::Instance().RegisterDeferredResource([_spOld]()
+		MainEngine::Instance().ReserveRelease([_spOld]()
 			{
 				_spOld->pool.Release();
 				_spOld->deadList.Release();
@@ -194,7 +194,7 @@ namespace Engine::Particle
 		return true;
 	}
 
-	void GPUParticlePool::EndGrow(D3D12::GraphicsCommandList* a_pCmdList)
+	void GPUParticlePool::EndGrow(Graphics::D3D12::GraphicsCommandList* a_pCmdList)
 	{
 		if (!a_pCmdList) return;
 

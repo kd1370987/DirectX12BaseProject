@@ -13,7 +13,7 @@
 
 #include "../RayPSO/RayPSO.h"
 #include "../ShaderTable/ShaderTable.h"
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 
 
@@ -28,7 +28,7 @@ namespace Engine::Raytracing
 		}
 	}
 
-	void Engine::Raytracing::RayEngine::Commit(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex)
+	void Engine::Graphics::Raytracing::RayEngine::Commit(Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex)
 	{
 		if (m_isCommit)  return;
 		m_upRayWorld->Commit(a_pCmdList, a_frameIndex);
@@ -37,7 +37,7 @@ namespace Engine::Raytracing
 
 	void RayEngine::BindTLAS(Graphics::RenderContext* a_pRCT)
 	{
-		auto* _pCmdList = a_pRCT->GetCurrentCmdList();
+		auto* _pCmdList = a_pRCT->RefCurrentCmdList();
 
 		// TLASをバインド
 		_pCmdList->SetComputeRootShaderResourceView(1, m_upRayWorld->GetTLAS());
@@ -45,7 +45,7 @@ namespace Engine::Raytracing
 
 	void RayEngine::Dispatch(Graphics::RenderContext* a_pRCT,ShaderTable& a_shadertable)
 	{
-		auto* _pCmdList = a_pRCT->GetCurrentCmdList();
+		auto* _pCmdList = a_pRCT->RefCurrentCmdList();
 
 		// 構造体バッファセット
 		auto _gpuI = a_pRCT->GetGPUHandleBindLess(m_upRayWorld->GetInstanceBufferSRV());
@@ -60,7 +60,7 @@ namespace Engine::Raytracing
 		_pCmdList->DispatchRays(&_desc);
 	}
 
-	void Engine::Raytracing::RayEngine::RegisterModel(
+	void Engine::Graphics::Raytracing::RayEngine::RegisterModel(
 		const Math::Matrix& a_worldMat,
 		const Engine::Handle<Resource::Model>& a_modelHandle,
 		const Math::Color& a_colorScale,
@@ -68,7 +68,7 @@ namespace Engine::Raytracing
 		const Math::Vector3& a_emissiveAdd
 	)
 	{
-		RefOrCreateWorld();
+		RequestWorld();
 
 		// モデル登録
 		m_upRayWorld->Register(a_worldMat, a_modelHandle,a_colorScale,a_emissiveScale,a_emissiveAdd);
@@ -78,7 +78,7 @@ namespace Engine::Raytracing
 
 	void RayEngine::RegisterSkinningModel(ECS::World& a_world, const Math::Matrix& a_worldMat, const Engine::Handle<Engine::Resource::Model>& a_modelHandle, const Handle<DynamicRaytracingData>& a_dynamicData, const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatVec, const Math::Color& a_colorScale, const Math::Vector3& a_emissiveScale, const Math::Vector3& a_emissiveAdd)
 	{
-		RefOrCreateWorld();
+		RequestWorld();
 
 		// モデル登録
 		m_upRayWorld->Register(a_world,a_worldMat,a_modelHandle,a_dynamicData,a_nodeposeMatVec,a_colorScale,a_emissiveScale,a_emissiveAdd);
@@ -88,21 +88,21 @@ namespace Engine::Raytracing
 	}
 
 
-	void Engine::Raytracing::RayEngine::CommitWorld(
-		D3D12::Device* a_pDevice,
-		D3D12::DescriptorHeapManager* a_pHeapManager,
-		D3D12::GraphicsCommandList* a_pCmdList,
+	void Engine::Graphics::Raytracing::RayEngine::CommitWorld(
+		Graphics::D3D12::Device* a_pDevice,
+		Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+		Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 		Resource::ResourceManager* a_pResourceManager
 	)
 	{
 		m_pResourceManager = a_pResourceManager;
 
 		// レイワールドの作成
-		RefOrCreateWorld();
+		RequestWorld();
 		m_upRayWorld->Init(a_pDevice, a_pHeapManager, a_pCmdList, a_pResourceManager);
 	}
 
-	Engine::Raytracing::RayWorld& Engine::Raytracing::RayEngine::RefOrCreateWorld()
+	Engine::Graphics::Raytracing::RayWorld& Engine::Graphics::Raytracing::RayEngine::RequestWorld()
 	{
 		if (!m_upRayWorld)
 		{
@@ -114,23 +114,23 @@ namespace Engine::Raytracing
 		return *m_upRayWorld;
 	}
 
-	void Engine::Raytracing::RayEngine::BeginFrame()
+	void Engine::Graphics::Raytracing::RayEngine::BeginFrame()
 	{}
 
-	void Engine::Raytracing::RayEngine::EndFrame()
+	void Engine::Graphics::Raytracing::RayEngine::EndFrame()
 	{
 		m_upRayWorld->Clear();
 		m_isCommit = false;
 	}
 
-	const std::vector<Instance>& Engine::Raytracing::RayEngine::GetInstanceVec() const
+	const std::vector<Instance>& Engine::Graphics::Raytracing::RayEngine::GetInstanceVec() const
 	{
 		return m_upRayWorld->GetInstanceVec();
 	}
 
-	Engine::Raytracing::RayEngine::RayEngine()
+	Engine::Graphics::Raytracing::RayEngine::RayEngine()
 	{}
 
-	Engine::Raytracing::RayEngine::~RayEngine()
+	Engine::Graphics::Raytracing::RayEngine::~RayEngine()
 	{}
 }

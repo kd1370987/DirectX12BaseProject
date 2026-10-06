@@ -304,7 +304,7 @@ namespace Engine::Graphics::Pipeline
 		_desc.SetInputLayout(a_inputLayout);
 
 		// 頂点シェーダー : ルートシグネチャもこのブロブから起こす
-		auto _vsHandle = Resource::ShaderIO::Request(*a_context.pResourceManager, a_vsPath);
+		auto _vsHandle = Resource::ShaderIO::Load(*a_context.pResourceManager, a_vsPath);
 		auto* _pVS = _resManager.Ref(_vsHandle);
 		if (!_pVS || !_pVS->Get())
 		{
@@ -316,7 +316,7 @@ namespace Engine::Graphics::Pipeline
 		// ピクセルシェーダー : 深度だけ書くパスでは空でよい
 		if (!a_psPath.empty())
 		{
-			auto _psHandle = Resource::ShaderIO::Request(*a_context.pResourceManager, a_psPath);
+			auto _psHandle = Resource::ShaderIO::Load(*a_context.pResourceManager, a_psPath);
 			if (auto* _pPS = _resManager.Ref(_psHandle))
 			{
 				_desc.SetPS(_pPS->GetByteCode());
@@ -385,7 +385,7 @@ namespace Engine::Graphics::Pipeline
 		if (!_pPSOManager) return false;
 
 		// シェーダー
-		auto _csHandle = Resource::ShaderIO::Request(*a_context.pResourceManager, a_csPath);
+		auto _csHandle = Resource::ShaderIO::Load(*a_context.pResourceManager, a_csPath);
 		auto* _pShader = a_context.pResourceManager->Ref(_csHandle);
 		if (!_pShader || !_pShader->Get())
 		{

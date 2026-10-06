@@ -180,7 +180,7 @@ namespace App::Object
 
 		if (a_context.pMachine)
 		{
-			a_context.pMachine->RequestChangeState(ESwarmBossState::RandomWalk);
+			a_context.pMachine->ReserveChangeState(ESwarmBossState::RandomWalk);
 		}
 	}
 

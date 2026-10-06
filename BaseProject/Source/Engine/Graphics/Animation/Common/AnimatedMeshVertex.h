@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::Animation
+namespace Engine::Graphics::Animation
 {
 	struct SkinningMeshData
 	{
@@ -12,6 +12,6 @@ namespace Engine::Animation
 
 	struct AnimatedMeshVertex
 	{
-		std::vector<Animation::SkinningMeshData> meshDataVec = {};
+		std::vector<Graphics::Animation::SkinningMeshData> meshDataVec = {};
 	};
 }

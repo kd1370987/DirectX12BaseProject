@@ -34,14 +34,14 @@ struct Engine::ECS::ComponentTraits<App::Component::AudioListenerComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::AudioListenerComponent& _comp = Engine::EditorField::GetValue<App::Component::AudioListenerComponent>(a_pData);
+		App::Component::AudioListenerComponent& _comp = Engine::EditorField::RefValue<App::Component::AudioListenerComponent>(a_pData);
 		a_ar.Field("posOffset", _comp.posOffset);
 		a_ar.Field("useVelocity", _comp.useVelocity);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::AudioListenerComponent& _comp = Engine::EditorField::GetValue<App::Component::AudioListenerComponent>(a_context.pData);
+		App::Component::AudioListenerComponent& _comp = Engine::EditorField::RefValue<App::Component::AudioListenerComponent>(a_context.pData);
 
 		Engine::EditorField::Field("PosOffset", _comp.posOffset, 0.05f);
 		Engine::EditorField::Field("UseVelocity (Doppler)", _comp.useVelocity);

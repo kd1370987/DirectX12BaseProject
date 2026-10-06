@@ -45,7 +45,7 @@ namespace Engine::Option::GraphicsOptions
 		// ReinhardExtended と Uncharted2 だけが使う
 		float whitePoint = 4.0f;
 
-		const std::string& GetName() override
+		const std::string& GetName() const override
 		{
 			static const std::string NAME = "ToneMapOption";
 			return NAME;

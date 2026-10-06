@@ -33,14 +33,14 @@ struct Engine::ECS::ComponentTraits<App::Component::ProjectileComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::ProjectileComponent& _comp = Engine::EditorField::GetValue<App::Component::ProjectileComponent>(a_pData);
+		App::Component::ProjectileComponent& _comp = Engine::EditorField::RefValue<App::Component::ProjectileComponent>(a_pData);
 		a_ar.Field("speed", _comp.speed);
 		a_ar.Field("damage", _comp.damage);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::ProjectileComponent& _comp = Engine::EditorField::GetValue<App::Component::ProjectileComponent>(a_context.pData);
+		App::Component::ProjectileComponent& _comp = Engine::EditorField::RefValue<App::Component::ProjectileComponent>(a_context.pData);
 		Engine::EditorField::Field("speed", _comp.speed, 0.1f);
 		Engine::EditorField::Field("damage", _comp.damage, 0.1f);
 

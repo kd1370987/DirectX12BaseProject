@@ -2,7 +2,7 @@
 
 #include "../DynamicBuffer/DynamicBuffer.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	template<typename T>
 	class DynamicStructuredBuffer : public DynamicBuffer
@@ -17,7 +17,7 @@ namespace Engine::D3D12
 		/// </summary>
 		/// <param name="a_pDevice">デバイス</param>
 		/// <param name="a_maxElementCount">最大要素数</param>
-		bool Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_maxElementCount);
+		bool Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_maxElementCount);
 
 		/// <summary>
 		/// オフセットのリセット毎フレーム開始時に呼ぶ
@@ -43,7 +43,7 @@ namespace Engine::D3D12
 		uint32_t m_currentOffset = 0;
 	};
 	template<typename T>
-	inline bool DynamicStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_maxElementCount)
+	inline bool DynamicStructuredBuffer<T>::Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, size_t a_maxElementCount)
 	{
 		// 親クラスの Create に渡す設定を構築
 		DynamicBufferDesc _desc = {};

@@ -6,7 +6,7 @@
 
 #include "GPU/EmitterSlotPool/EmitterSlotPool.h"
 
-#include "Engine/MainEngine.h"	// GPU が使い終わってからの解放(RegisterDeferredResource)
+#include "Engine/MainEngine.h"	// GPU が使い終わってからの解放(ReserveRelease)
 
 namespace
 {
@@ -25,21 +25,21 @@ namespace
 		if (!a_upTarget) return;
 
 		std::shared_ptr<T> _spTarget(std::move(a_upTarget));
-		Engine::MainEngine::Instance().RegisterDeferredResource([_spTarget]() { _spTarget->Release(); });
+		Engine::MainEngine::Instance().ReserveRelease([_spTarget]() { _spTarget->Release(); });
 	}
 }
 
-namespace Engine::Particle
+namespace Engine::Graphics::Particle
 {
 	ParticleBufferManager::ParticleBufferManager()
 	{}
 	ParticleBufferManager::~ParticleBufferManager()
 	{}
 
-	void Engine::Particle::ParticleBufferManager::Init(
+	void Engine::Graphics::Particle::ParticleBufferManager::Init(
 		Graphics::GraphicsEngine* a_pGraphicsEngine,
-		D3D12::DescriptorHeapManager* a_pHeapManager,
-		D3D12::GraphicsCommandList* a_pCmdList
+		Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+		Graphics::D3D12::GraphicsCommandList* a_pCmdList
 	)
 	{
 		// ビューの置き場と転送の依頼先を控える : プールは非同期に作られるので、そこまで持ち回る
@@ -195,7 +195,7 @@ namespace Engine::Particle
 		}
 
 		// 作り直しはすぐ依頼しておく。
-		// 出しっぱなしのもの(ブースター等)は次の RequestEmit でも作られるが、
+		// 出しっぱなしのもの(ブースター等)は次の ReserveEmit でも作られるが、
 		// Warmup で先に作っておいたプールは、次に出すまで無いままになってしまうため
 		for (const auto& _handle : _shrinks)
 		{
@@ -218,7 +218,7 @@ namespace Engine::Particle
 		}
 
 		// このプールに紐づく CPU 側の記録も消す。
-		// 次に必要になれば RequestEmit / Warmup が作り直す(命令は作り直しのあいだ持ち越される)
+		// 次に必要になれば ReserveEmit / Warmup が作り直す(命令は作り直しのあいだ持ち越される)
 		m_emitRequests.erase(a_handle);
 		m_emitRanges.erase(a_handle);
 		m_readyHandles.erase(a_handle);
@@ -237,7 +237,7 @@ namespace Engine::Particle
 		ENGINE_LOG("[Particle] プールを解放しました : id=%u (%s)", a_handle.id, a_reason ? a_reason : "");
 	}
 
-	void ParticleBufferManager::FinishFrame(D3D12::GraphicsCommandList* a_pCmdList)
+	void ParticleBufferManager::FinishFrame(Graphics::D3D12::GraphicsCommandList* a_pCmdList)
 	{
 		if (!a_pCmdList) return;
 
@@ -252,7 +252,7 @@ namespace Engine::Particle
 			_upPool->SetArgsReady(false);
 		}
 	}
-	void ParticleBufferManager::RequestEmit(const Handle<Resource::ParticlesAsset>&a_handle, const EmitterData & a_emitterData)
+	void ParticleBufferManager::ReserveEmit(const Handle<Resource::ParticlesAsset>&a_handle, const EmitterData & a_emitterData)
 	{
 		if (!a_handle.IsValid()) return;
 
@@ -276,7 +276,7 @@ namespace Engine::Particle
 	{
 		return m_pools;
 	}
-	void ParticleBufferManager::UploadEmitData(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex)
+	void ParticleBufferManager::UploadEmitData(Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex)
 	{
 		// 発生源の席の行列を送る。
 		// 描画とシミュレーションはこのフレームの行列を読むので、命令より先に済ませておく
@@ -431,7 +431,7 @@ namespace Engine::Particle
 			// 壊すだけではディスクリプタ(SRV)が返らないので、Release() を呼んでから手放す
 			ReleaseAfterGPU(m_upEmitterBuffer);
 
-			m_upEmitterBuffer = std::make_unique<D3D12::StaticStructuredBuffer<EmitterData>>();
+			m_upEmitterBuffer = std::make_unique<Graphics::D3D12::StaticStructuredBuffer<EmitterData>>();
 			m_upEmitterBuffer->Create(
 				m_pGraphicsEngine->RefRenderDevice()->RefDevice(),
 				m_pHeapManager,
@@ -507,7 +507,7 @@ namespace Engine::Particle
 		return (_it != m_growCounts.end()) ? _it->second : 0u;
 	}
 
-	bool ParticleBufferManager::BeginGrowPool(const Handle<Resource::ParticlesAsset>& a_handle, D3D12::GraphicsCommandList* a_pCmdList)
+	bool ParticleBufferManager::BeginGrowPool(const Handle<Resource::ParticlesAsset>& a_handle, Graphics::D3D12::GraphicsCommandList* a_pCmdList)
 	{
 		if (!a_pCmdList || !m_pGraphicsEngine) return false;
 
@@ -576,7 +576,7 @@ namespace Engine::Particle
 		}
 		return {};
 	}
-	const D3D12::StaticStructuredBuffer<EmitterData>* ParticleBufferManager::GetEmitterBuffer() const
+	const Graphics::D3D12::StaticStructuredBuffer<EmitterData>* ParticleBufferManager::GetEmitterBuffer() const
 	{
 		return m_upEmitterBuffer.get();
 	}
@@ -602,7 +602,7 @@ namespace Engine::Particle
 		// ここで弾かずに進めると「中身の無いプール」が m_pools に残り、
 		// BeginFrame がそれを準備完了にして、更新の Dispatch が
 		// 作られていないバッファの番号で走ってしまう。
-		// 弾いておけば、次の RequestEmit(または Warmup)で作り直しに来る
+		// 弾いておけば、次の ReserveEmit(または Warmup)で作り直しに来る
 		//----------------------------------------------------------------------
 		if (!a_handle.IsValid()) return;
 		const auto* _pResourceManager = m_pGraphicsEngine->RefResourceManager();
@@ -629,7 +629,7 @@ namespace Engine::Particle
 		bool _isCreated = false;
 		m_pGraphicsEngine->RefRenderDevice()->ExecuteAsyncCopy(
 			// ロード処理
-			[this,_pDevice,a_handle,&_isCreated](D3D12::GraphicsCommandList* a_pCmdList)
+			[this,_pDevice,a_handle,&_isCreated](Graphics::D3D12::GraphicsCommandList* a_pCmdList)
 			{
 				// 発生命令のバッファは全プール共通の1本(UploadEmitData が持つ)なので、ここではプール本体だけ作る。
 				// アセットの Capacity は「最初に用意しておく数」。足りなくなったら伸ばす

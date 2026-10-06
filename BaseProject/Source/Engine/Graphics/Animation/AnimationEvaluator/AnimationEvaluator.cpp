@@ -1,6 +1,6 @@
 ﻿#include "AnimationEvaluator.h"
 
-namespace Engine::Animation
+namespace Engine::Graphics::Animation
 {
 	namespace
 	{
@@ -34,7 +34,7 @@ namespace Engine::Animation
 	}
 }
 
-namespace Engine::Animation
+namespace Engine::Graphics::Animation
 {
 	void Interpolate(const Engine::Resource::AnimationNode& a_node, float a_currentTime, Math::Matrix& a_rDst)
 	{

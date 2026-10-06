@@ -2,7 +2,7 @@
 
 #include "../DynamicBuffer/DynamicBuffer.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	// クラス作成用データ
 	struct StaticBufferDesc
@@ -39,7 +39,7 @@ namespace Engine::D3D12
 
 		// 作成
 		bool Create(
-			D3D12::Device* a_pDevice, 
+			Graphics::D3D12::Device* a_pDevice, 
 			DescriptorHeapManager* a_pHeapManager,
 			GraphicsCommandList* a_pCmdList,
 			const StaticBufferDesc& a_desc,
@@ -78,7 +78,7 @@ namespace Engine::D3D12
 		/// <param name="a_pData">書き込むデータのポインタ</param>
 		/// <param name="a_sizeBytes">書き込むデータのバイトサイズ</param>
 		void UploadDataRange(
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			size_t a_destOffsetBytes,
 			const void* a_pData,
 			size_t a_sizeBytes
@@ -92,7 +92,7 @@ namespace Engine::D3D12
 		/// <param name="a_count">総数 : バイトサイズではなく、純粋な要素数</param>
 		/// <param name="a_pData">データ</param>
 		void UploadDataRange(
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			UINT a_startIndex,
 			UINT a_count,
 			const void* a_pData
@@ -100,7 +100,7 @@ namespace Engine::D3D12
 
 		// 派生関数
 		// ステート遷移
-		void Barrier(D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState) override;
+		void Barrier(Graphics::D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState) override;
 
 		// アクセサ
 		ID3D12Resource* GetResource() const override;
@@ -109,7 +109,7 @@ namespace Engine::D3D12
 	protected:
 
 		// SRVの作成
-		void CreateSRVInternal(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager);
+		void CreateSRVInternal(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager);
 
 		// GPUバッファへデータをコピー
 		void CopyToGPU(GraphicsCommandList* a_pCmdList);

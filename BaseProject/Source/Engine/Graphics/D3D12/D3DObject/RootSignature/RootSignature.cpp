@@ -6,14 +6,14 @@
 #include "d3dx12.h"
 #pragma warning(pop)
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	RootSignature::RootSignature()
 	{
 
 	}
 	bool RootSignature::Create(
-		D3D12::Device* a_pDevice,
+		Graphics::D3D12::Device* a_pDevice,
 		const std::vector<std::pair<ERootParameterType, std::vector<ERangeType>>>& a_rootParamsVec,
 		bool a_isUseStaticSampler,
 		const D3D12_ROOT_SIGNATURE_FLAGS* a_pFlags
@@ -182,7 +182,7 @@ namespace Engine::D3D12
 		return true;
 	}
 
-	bool RootSignature::Create(D3D12::Device* a_pDevice, const std::vector<std::pair<ERootParameterType, std::vector<ERangeType>>>& a_rootParamsVec, D3D12_ROOT_SIGNATURE_FLAGS a_flags, bool a_isUseStaticSampler)
+	bool RootSignature::Create(Graphics::D3D12::Device* a_pDevice, const std::vector<std::pair<ERootParameterType, std::vector<ERangeType>>>& a_rootParamsVec, D3D12_ROOT_SIGNATURE_FLAGS a_flags, bool a_isUseStaticSampler)
 	{
 		D3D12_ROOT_SIGNATURE_FLAGS _flags;
 		_flags = a_flags;

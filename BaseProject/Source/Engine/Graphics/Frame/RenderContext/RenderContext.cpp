@@ -120,7 +120,7 @@ namespace Engine::Graphics
 		m_upCBAllocator->ResetUse();
 	}
 
-	D3D12::GraphicsCommandList* RenderContext::GetCurrentCmdList()
+	D3D12::GraphicsCommandList* RenderContext::RefCurrentCmdList()
 	{
 		return m_pCmdList;
 	}

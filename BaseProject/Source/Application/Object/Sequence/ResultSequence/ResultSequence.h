@@ -49,7 +49,7 @@ namespace App::Object
 		void TryBindButton(Engine::GameObject::ObjectContext& a_context);
 
 		// タイトルへ戻る
-		void RequestBackToTitle();
+		void ReserveBackToTitle();
 
 	private:
 

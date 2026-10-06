@@ -193,7 +193,7 @@ namespace Engine::Audio
 	{
 		return m_soundInstancePool.Ref(a_handle);
 	}
-	Handle<Resource::SoundInstance> AudioManager::RequestSoundInstance(
+	Handle<Resource::SoundInstance> AudioManager::CreateSoundInstance(
 		const Core::GUID& a_guid, bool a_is3D, ESoundGroup a_group)
 	{
 		// サウンドエンジンがなければ発行しない

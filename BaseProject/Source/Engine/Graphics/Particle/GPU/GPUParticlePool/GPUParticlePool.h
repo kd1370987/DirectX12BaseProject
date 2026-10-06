@@ -4,7 +4,7 @@
 #include "../../Core/EmitterData.h"
 #include "../../Core/ParticleData.h"
 
-namespace Engine::Particle
+namespace Engine::Graphics::Particle
 {
 	/// <summary>
 	/// １種類のアセットに対するGPU上のバッファ群を束ねるクラス
@@ -21,9 +21,9 @@ namespace Engine::Particle
 		/// <param name="a_particleHandle">パーティクルアセットのハンドル</param>
 		/// <param name="a_capacity">最初の容量(ToInitialCapacity で決めたもの)。足りなくなったら BeginGrow で伸ばす</param>
 		bool Init(
-			D3D12::Device* a_pDevice,
-			D3D12::DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::Device* a_pDevice,
+			Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			Engine::Handle<Resource::ParticlesAsset> a_particleHandle,
 			UINT a_capacity
 		);
@@ -41,12 +41,12 @@ namespace Engine::Particle
 		// 粒の番号は変わらない(先頭へそのまま写す)ので、生きている粒はそのまま動き続ける
 		//------------------------------------------------------------------
 		bool BeginGrow(
-			D3D12::Device* a_pDevice,
-			D3D12::DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::Device* a_pDevice,
+			Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			UINT a_newCapacity
 		);
-		void EndGrow(D3D12::GraphicsCommandList* a_pCmdList);
+		void EndGrow(Graphics::D3D12::GraphicsCommandList* a_pCmdList);
 		UINT GetGrowFromCapacity() const { return m_growFromCapacity; }		// 直近の BeginGrow の前の容量
 
 		/// <summary>
@@ -55,15 +55,15 @@ namespace Engine::Particle
 		/// <remarks>
 		/// バッファは壊すだけではディスクリプタを返さないので、捨てる前に必ず呼ぶこと。
 		/// GPU がまだ読んでいるかもしれないときは、呼ぶ側が遅延させる
-		/// (ParticleBufferManager::DestroyPool が RegisterDeferredResource で呼ぶ)
+		/// (ParticleBufferManager::DestroyPool が ReserveRelease で呼ぶ)
 		/// </remarks>
 		void Release();
 
 		// ---- アクセサ ----
-		const Handle<D3D12::UAV>& GetParticlePoolUAV() const { return m_particlePool.GetUAV(); }
-		const Handle<D3D12::SRV>& GetParticlePoolSRV() const { return m_particlePool.GetSRV(); }
-		const Handle<D3D12::UAV>& GetDeadListUAV() const { return m_deadList.GetUAV(); }
-		const Handle<D3D12::UAV>& GetCounterUAV() const { return m_counterBuffer.GetUAV(); }
+		const Handle<Graphics::D3D12::UAV>& GetParticlePoolUAV() const { return m_particlePool.GetUAV(); }
+		const Handle<Graphics::D3D12::SRV>& GetParticlePoolSRV() const { return m_particlePool.GetSRV(); }
+		const Handle<Graphics::D3D12::UAV>& GetDeadListUAV() const { return m_deadList.GetUAV(); }
+		const Handle<Graphics::D3D12::UAV>& GetCounterUAV() const { return m_counterBuffer.GetUAV(); }
 		UINT GetMaxCapacity() const { return m_maxCapacity; }			// いまの容量(伸びる)
 		UINT GetInitialCapacity() const { return m_initialCapacity; }	// 作ったときの容量(縮めるときの戻り先)
 
@@ -82,7 +82,7 @@ namespace Engine::Particle
 		// フレームの終わり(ParticleBufferManager::FinishFrame)で COMMON へ戻す。
 		// IsArgsReady はこのフレームの引数を用意したか。描画はこれが立っているプールだけ
 		//------------------------------------------------------------------
-		D3D12::RWStructuredBuffer<uint32_t>& RefDrawArgs() { return m_drawArgs; }
+		Graphics::D3D12::RWStructuredBuffer<uint32_t>& RefDrawArgs() { return m_drawArgs; }
 		ID3D12Resource* GetDrawArgsResource() const { return m_drawArgs.GetResource(); }
 		bool IsArgsReady() const { return m_isArgsReady; }
 		void SetArgsReady(bool a_isReady) { m_isArgsReady = a_isReady; }
@@ -95,9 +95,9 @@ namespace Engine::Particle
 		// 状態の約束は引数と同じ : フレームの頭は COMMON。Update の前に UAV、後に NON_PIXEL_SHADER_RESOURCE、
 		// フレームの終わり(FinishFrame)で COMMON へ戻す
 		//------------------------------------------------------------------
-		D3D12::RWStructuredBuffer<uint32_t>& RefAliveList() { return m_aliveList; }
-		const Handle<D3D12::UAV>& GetAliveListUAV() const { return m_aliveList.GetUAV(); }
-		const Handle<D3D12::SRV>& GetAliveListSRV() const { return m_aliveList.GetSRV(); }
+		Graphics::D3D12::RWStructuredBuffer<uint32_t>& RefAliveList() { return m_aliveList; }
+		const Handle<Graphics::D3D12::UAV>& GetAliveListUAV() const { return m_aliveList.GetUAV(); }
+		const Handle<Graphics::D3D12::SRV>& GetAliveListSRV() const { return m_aliveList.GetSRV(); }
 
 		// UAVバリア用の生リソース。
 		// Emit(取り出し)と Update(返却)は同じデッドリスト/カウンターを触るため、
@@ -112,17 +112,17 @@ namespace Engine::Particle
 		Handle<Resource::ParticlesAsset> m_assetHandle;
 
 		// GPU側データ
-		D3D12::RWStructuredBuffer<ParticleData> m_particlePool;		// メインのパーティクルデータプール
-		D3D12::RWStructuredBuffer<uint32_t> m_deadList;				// 空き番号管理用 DeadList
-		D3D12::RWStructuredBuffer<uint32_t> m_counterBuffer;		// カウンター : デッドリストに残っている空き番号の数
+		Graphics::D3D12::RWStructuredBuffer<ParticleData> m_particlePool;		// メインのパーティクルデータプール
+		Graphics::D3D12::RWStructuredBuffer<uint32_t> m_deadList;				// 空き番号管理用 DeadList
+		Graphics::D3D12::RWStructuredBuffer<uint32_t> m_counterBuffer;		// カウンター : デッドリストに残っている空き番号の数
 
 		// 間接描画の引数 : D3D12_DRAW_INDEXED_ARGUMENTS(uint ×5)
 		static constexpr UINT DRAW_ARGS_ELEMENT_NUM = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS) / sizeof(uint32_t);
-		D3D12::RWStructuredBuffer<uint32_t> m_drawArgs;
+		Graphics::D3D12::RWStructuredBuffer<uint32_t> m_drawArgs;
 		bool m_isArgsReady = false;									// このフレームの引数を用意したか
 
 		// 生存リスト : 容量ぶん(生きている粒は容量を超えない)
-		D3D12::RWStructuredBuffer<uint32_t> m_aliveList;
+		Graphics::D3D12::RWStructuredBuffer<uint32_t> m_aliveList;
 
 		// いまの容量。足りなくなったら BeginGrow でブロック単位に伸びる
 		UINT m_maxCapacity = 0;

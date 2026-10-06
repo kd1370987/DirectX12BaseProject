@@ -19,7 +19,7 @@
 namespace Engine
 {
 	namespace ECS { class APPWorld; }
-	namespace Particle { struct EmitterTransform; }
+	namespace Graphics::Particle { struct EmitterTransform; }
 	namespace Effect { struct EffectInstance; }
 }
 
@@ -45,7 +45,7 @@ namespace App::Utility
 	/// 同じ絵を大小で使い分けたいときはアセットを増やさずここで付ける
 	/// </param>
 	/// <returns>生成コマンドを積めたら true</returns>
-	bool SpawnEffectAt(
+	bool ReserveSpawnEffectAt(
 		Engine::ECS::World& a_world,
 		const Core::GUID& a_effectGUID,
 		const Math::Vector3& a_pos,
@@ -57,14 +57,14 @@ namespace App::Utility
 	/// エフェクトアセットを指定座標で再生し、作ったエンティティを返す(即時生成)
 	/// </summary>
 	/// <remarks>
-	/// SpawnEffectAt との違いは「その場で作って ID を返す」ところだけ。
+	/// ReserveSpawnEffectAt との違いは「その場で作って ID を返す」ところだけ。
 	/// 出したあとも位置を動かし続けたい・こちらの都合で消したい、という
 	/// 相手を握っておきたい場面(環境のチリなど)向け。
 	///
 	/// ただし即時生成はチャンクの並びを変えるので、
 	/// **ECS の反復中に呼んではいけない**。
 	/// 呼んでよいのはシステムの外 : GameObject の Update / Draw など。
-	/// システムの中から出すときは今までどおり SpawnEffectAt(遅延)を使うこと。
+	/// システムの中から出すときは今までどおり ReserveSpawnEffectAt(遅延)を使うこと。
 	///
 	/// 返ったエンティティは PostDeserialize から始まるので、
 	/// アセットの解決(EffectFixupSystem)が済むのは次の BeginFrame。
@@ -102,7 +102,7 @@ namespace App::Utility
 	void ReserveReturnEffectEmitterSlot(
 		const Engine::ECS::EngineServices& a_services,
 		Engine::Handle<Engine::Resource::EffectAsset> a_effectHandle,
-		Engine::Handle<Engine::Particle::EmitterTransform>& a_emitterSlot
+		Engine::Handle<Engine::Graphics::Particle::EmitterTransform>& a_emitterSlot
 	);
 
 	/// <summary>

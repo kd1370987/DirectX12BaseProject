@@ -13,7 +13,7 @@ struct Engine::ECS::ComponentTraits<App::Component::PreviousWorldMatrixComponent
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::PreviousWorldMatrixComponent& _comp = Engine::EditorField::GetValue<App::Component::PreviousWorldMatrixComponent>(a_context.pData);
+		App::Component::PreviousWorldMatrixComponent& _comp = Engine::EditorField::RefValue<App::Component::PreviousWorldMatrixComponent>(a_context.pData);
 		Engine::EditorField::Field("prevWorldMat", _comp.worldMat);
 	}
 };

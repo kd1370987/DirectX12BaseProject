@@ -130,7 +130,7 @@ namespace Editor
 		// 前回どこかへ飛ばしたまま開くと、出したものが画面の外から始まってしまう
 		if (m_upCamera) m_upCamera->SetPose(CAMERA_HOME_POS, CAMERA_HOME_YAW, CAMERA_HOME_PITCH);
 
-		RequestSpawn();
+		ReserveSpawn();
 	}
 
 	void EffectEditor::Close()
@@ -180,7 +180,7 @@ namespace Editor
 		m_upWorld = Scene::CreateSceneWorld(true);
 	}
 
-	void EffectEditor::RequestSpawn()
+	void EffectEditor::ReserveSpawn()
 	{
 		if (!m_upWorld) return;
 		if (m_effectGUID == Core::DEFAULT_GUID) return;
@@ -200,7 +200,7 @@ namespace Editor
 		// 実体化は次の BeginFrame。
 		// 出し切っても消えないようにしておく(何度も再生し直したいので寿命はこちらが握る)。
 		// 発生位置は常に原点。カメラは自由に動かせるので、見る位置と出す位置は分けておく
-		App::Utility::SpawnEffectAt(*m_upWorld, m_effectGUID, EFFECT_ORIGIN, false);
+		App::Utility::ReserveSpawnEffectAt(*m_upWorld, m_effectGUID, EFFECT_ORIGIN, false);
 	}
 
 	void EffectEditor::DestroyEffectEntity()
@@ -328,11 +328,11 @@ namespace Editor
 			{
 				m_isRestartRequest = false;
 				DestroyEffectEntity();
-				RequestSpawn();
+				ReserveSpawn();
 			}
 			else if (m_isLoop && m_prefabElapsed > 0.2f && CountPrefabEntities() == 0)
 			{
-				RequestSpawn();
+				ReserveSpawn();
 			}
 
 			m_prefabElapsed += _dt;

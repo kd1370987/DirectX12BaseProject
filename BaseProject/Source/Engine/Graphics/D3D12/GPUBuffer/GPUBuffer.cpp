@@ -8,9 +8,9 @@
 #include "d3dx12.h"
 #pragma warning(pop)
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
-	bool GPUBuffer::Create(D3D12::Device* a_pDevice, const GPUBufferDesc& a_desc)
+	bool GPUBuffer::Create(Graphics::D3D12::Device* a_pDevice, const GPUBufferDesc& a_desc)
 	{
 		// GPUリソースDesc作成
 		GPUResourceDesc _desc = {};
@@ -66,7 +66,7 @@ namespace Engine::D3D12
 		std::memcpy(_pMappedData,a_pData,a_size);
 		Unmap();
 	}
-	Handle<SRV> GPUBuffer::AllocateSRV(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, ID3D12Resource* a_pRes, const D3D12_SHADER_RESOURCE_VIEW_DESC& a_desc)
+	Handle<SRV> GPUBuffer::AllocateSRV(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, ID3D12Resource* a_pRes, const D3D12_SHADER_RESOURCE_VIEW_DESC& a_desc)
 	{
 		if (!a_pHeapManager)
 		{
@@ -79,7 +79,7 @@ namespace Engine::D3D12
 
 		return a_pHeapManager->Allocate<SRV>(a_pDevice, GetResource(), &a_desc);
 	}
-	Handle<UAV> GPUBuffer::AllocateUAV(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, ID3D12Resource* a_pRes, const D3D12_UNORDERED_ACCESS_VIEW_DESC& a_desc)
+	Handle<UAV> GPUBuffer::AllocateUAV(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, ID3D12Resource* a_pRes, const D3D12_UNORDERED_ACCESS_VIEW_DESC& a_desc)
 	{
 		if (!a_pHeapManager)
 		{

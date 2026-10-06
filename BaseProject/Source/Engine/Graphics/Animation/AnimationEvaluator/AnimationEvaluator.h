@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::Animation
+namespace Engine::Graphics::Animation
 {
 	/// アニメーションノード1つぶんのキーを補間して、ローカル行列へ書く。
 	/// チャンネルが1つも無ければ a_rDst は触らない

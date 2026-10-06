@@ -8,9 +8,9 @@
 #include "d3dx12.h"
 #pragma warning(pop)
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
-	bool GPUResource::Create(D3D12::Device* a_pDevice, const GPUResourceDesc& a_desc)
+	bool GPUResource::Create(Graphics::D3D12::Device* a_pDevice, const GPUResourceDesc& a_desc)
 	{
 		// リソースサイズ計算
 		m_strideSize = a_desc.strideSize;
@@ -54,7 +54,7 @@ namespace Engine::D3D12
 		// 成功
 		return true;
 	}
-	bool GPUResource::Create(D3D12::Device* a_pDevice, ID3D12Heap* a_pHeap, uint64_t a_heapOffset, const D3D12_RESOURCE_DESC& a_resDesc, D3D12_RESOURCE_STATES a_initialState, size_t a_strideSize, size_t a_elementNum, const D3D12_CLEAR_VALUE* a_pClearValue)
+	bool GPUResource::Create(Graphics::D3D12::Device* a_pDevice, ID3D12Heap* a_pHeap, uint64_t a_heapOffset, const D3D12_RESOURCE_DESC& a_resDesc, D3D12_RESOURCE_STATES a_initialState, size_t a_strideSize, size_t a_elementNum, const D3D12_CLEAR_VALUE* a_pClearValue)
 	{
 		if (!a_pHeap)
 		{
@@ -101,11 +101,11 @@ namespace Engine::D3D12
 		// 一度も取っていない(= nullptr)なら返すものが無い
 		if (m_pHeapManager)
 		{
-			m_pHeapManager->Free(m_srvHandle);
-			m_pHeapManager->Free(m_uavHandle);
-			m_pHeapManager->Free(m_rtvHandle);
-			m_pHeapManager->Free(m_dsvHandle);
-			m_pHeapManager->Free(m_readOnlyDsvHandle);
+			m_pHeapManager->ReserveFree(m_srvHandle);
+			m_pHeapManager->ReserveFree(m_uavHandle);
+			m_pHeapManager->ReserveFree(m_rtvHandle);
+			m_pHeapManager->ReserveFree(m_dsvHandle);
+			m_pHeapManager->ReserveFree(m_readOnlyDsvHandle);
 			m_pHeapManager->FreeImGuiSRV(m_imguiSRVHandle);
 		}
 
@@ -120,7 +120,7 @@ namespace Engine::D3D12
 
 		m_pHeapManager = nullptr;
 	}
-	void GPUResource::Barrier(D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
+	void GPUResource::Barrier(Graphics::D3D12::GraphicsCommandList* a_pCmdList, D3D12_RESOURCE_STATES a_nextState)
 	{
 		if (m_currentState == a_nextState) return;
 
@@ -137,7 +137,7 @@ namespace Engine::D3D12
 		// ステートの更新
 		m_currentState = a_nextState;
 	}
-	void GPUResource::AliasingBarrier(D3D12::GraphicsCommandList* a_pCmdList, GPUResource* a_pBeforeResource)
+	void GPUResource::AliasingBarrier(Graphics::D3D12::GraphicsCommandList* a_pCmdList, GPUResource* a_pBeforeResource)
 	{
 		D3D12_RESOURCE_BARRIER _barrier = {};
 		_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_ALIASING;

@@ -60,7 +60,7 @@ struct Engine::ECS::ComponentTraits<App::Component::AdditivePoseComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::AdditivePoseComponent& _comp = Engine::EditorField::GetValue<App::Component::AdditivePoseComponent>(a_pData);
+		App::Component::AdditivePoseComponent& _comp = Engine::EditorField::RefValue<App::Component::AdditivePoseComponent>(a_pData);
 
 		// 調整値のみ保存する。
 		// ボーン構成は AnimatorAsset 側が持ち、handle は実行時に確保されるため保存しない。
@@ -87,7 +87,7 @@ struct Engine::ECS::ComponentTraits<App::Component::AdditivePoseComponent>
 	static void Edit(CompEditContext& a_context)
 	{
 		using namespace Engine;
-		App::Component::AdditivePoseComponent& _comp = Engine::EditorField::GetValue<App::Component::AdditivePoseComponent>(a_context.pData);
+		App::Component::AdditivePoseComponent& _comp = Engine::EditorField::RefValue<App::Component::AdditivePoseComponent>(a_context.pData);
 
 		Engine::EditorField::Field("MasterWeight", _comp.masterWeight, 0.01f, 0.0f, 1.0f);
 

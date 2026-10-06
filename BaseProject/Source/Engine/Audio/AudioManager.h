@@ -82,7 +82,7 @@ namespace Engine::Audio
 		/// </param>
 		// GUIDから発行する。
 		// (ファイルパス版はどこからも呼ばれておらず、アセットデータベースを直に引いていたので消した)
-		Handle<Resource::SoundInstance> RequestSoundInstance(
+		Handle<Resource::SoundInstance> CreateSoundInstance(
 			const Core::GUID& a_guid, bool a_is3D = false,
 			ESoundGroup a_group = ESoundGroup::Se);
 
@@ -114,7 +114,7 @@ namespace Engine::Audio
 		/// 発行したサウンドインスタンスを停止して破棄する
 		/// プールはアプリ寿命なので、発行した側(コンポーネント等)が必ず返却すること
 		/// </summary>
-		/// <param name="a_handle">RequestSoundInstance が返したハンドル : 無効なら何もしない</param>
+		/// <param name="a_handle">CreateSoundInstance が返したハンドル : 無効なら何もしない</param>
 		void ReleaseSoundInstance(const Handle<Resource::SoundInstance>& a_handle);
 
 		//----------------------------------------------------------------------------------

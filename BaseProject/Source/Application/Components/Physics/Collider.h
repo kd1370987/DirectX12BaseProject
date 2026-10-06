@@ -101,7 +101,7 @@ struct Engine::ECS::ComponentTraits<App::Component::ColliderComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::ColliderComponent& _comp = Engine::EditorField::GetValue<App::Component::ColliderComponent>(a_pData);
+		App::Component::ColliderComponent& _comp = Engine::EditorField::RefValue<App::Component::ColliderComponent>(a_pData);
 		a_ar.Field("layer", _comp.layer);
 		a_ar.Field("collideLayer", _comp.collideLayer);
 		a_ar.Field("isPhysical", _comp.isPhysical);
@@ -113,7 +113,7 @@ struct Engine::ECS::ComponentTraits<App::Component::ColliderComponent>
 	{
 		// コンポーネント取得
 		using namespace Engine;
-		App::Component::ColliderComponent& _comp = Engine::EditorField::GetValue<App::Component::ColliderComponent>(a_context.pData);
+		App::Component::ColliderComponent& _comp = Engine::EditorField::RefValue<App::Component::ColliderComponent>(a_context.pData);
 
 		// レイヤー選択
 		Engine::EditorField::Field("MyLayer", _comp.layer);

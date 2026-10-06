@@ -14,7 +14,7 @@
 //   OnDeath : 死んだとき(DeathEventResource)に、死んだ位置へ
 //   OnHit   : 攻撃を受けたとき(HitEventResource の victim)に、当たった位置へ
 //
-// ・出すのは EffectAsset だけ。出したエンティティは destroyOnFinish で自分から消える(SpawnEffectAt)。
+// ・出すのは EffectAsset だけ。出したエンティティは destroyOnFinish で自分から消える(ReserveSpawnEffectAt)。
 //   音もエフェクトのサウンドパーツで鳴らすので、ここで音を別に持たない。
 // ・1エンティティに同じ型のコンポーネントは1つしか付けられないので、表にして複数持たせる。
 //   (以前、被弾音を SoundComponent と別の HitSoundComponent にしていたのは、この制約のため)
@@ -71,7 +71,7 @@ struct Engine::ECS::ComponentTraits<App::Component::EffectEventsComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		App::Component::EffectEventsComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectEventsComponent>(a_pData);
+		App::Component::EffectEventsComponent& _comp = Engine::EditorField::RefValue<App::Component::EffectEventsComponent>(a_pData);
 		auto& _resourceManager = *a_services.pResourceManager;
 
 		for (App::Component::EffectEventEntry& _entry : _comp.entries)
@@ -82,7 +82,7 @@ struct Engine::ECS::ComponentTraits<App::Component::EffectEventsComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::EffectEventsComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectEventsComponent>(a_pData);
+		App::Component::EffectEventsComponent& _comp = Engine::EditorField::RefValue<App::Component::EffectEventsComponent>(a_pData);
 
 		// ハンドルと出したかの印はランタイム状態なので保存しない
 		for (size_t _i = 0; _i < App::Component::EFFECT_EVENT_MAX; ++_i)
@@ -96,7 +96,7 @@ struct Engine::ECS::ComponentTraits<App::Component::EffectEventsComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::EffectEventsComponent& _comp = Engine::EditorField::GetValue<App::Component::EffectEventsComponent>(a_context.pData);
+		App::Component::EffectEventsComponent& _comp = Engine::EditorField::RefValue<App::Component::EffectEventsComponent>(a_context.pData);
 
 		Engine::EditorField::HelpText("出来事が起きたら、その場にエフェクトを出す(一発もの)");
 

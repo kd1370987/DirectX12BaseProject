@@ -70,7 +70,7 @@ namespace App::Object
 		{
 			if (a_context.pServices->pInputManager->IsPress(m_pauseAction))
 			{
-				RequestResume();
+				ReserveResume();
 			}
 		}
 	}
@@ -93,8 +93,8 @@ namespace App::Object
 		if (m_exitButtonGUID.IsValid() && !_pExit) return;
 
 		// ボタンは同じシーンに居るので、this を掴んでも寿命は一緒に尽きる
-		if (_pResume) _pResume->SetOnClick([this]() { RequestResume(); });
-		if (_pExit)   _pExit->SetOnClick([this]() { RequestExitScene(); });
+		if (_pResume) _pResume->SetOnClick([this]() { ReserveResume(); });
+		if (_pExit)   _pExit->SetOnClick([this]() { ReserveExitScene(); });
 
 		m_isBound = true;
 	}
@@ -102,21 +102,21 @@ namespace App::Object
 	//======================================================================================
 	// ポーズを閉じてゲームへ戻る
 	//======================================================================================
-	void PauseSequence::RequestResume()
+	void PauseSequence::ReserveResume()
 	{
 		// 連打で何度も積まないようにする
 		if (m_isClosing) return;
 		m_isClosing = true;
 
 		// 自分を外すだけ。後ろのゲームは残っているので続きから動き出す
-		Engine::Scene::SceneManager::Instance().SetNextScene(
+		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
 			Core::DEFAULT_GUID, Engine::Scene::ESceneChangeType::Pop);
 	}
 
 	//======================================================================================
 	// ポーズを閉じてから、ゲームのシーンを行き先へ差し替える
 	//======================================================================================
-	void PauseSequence::RequestExitScene()
+	void PauseSequence::ReserveExitScene()
 	{
 		if (m_isClosing) return;
 
@@ -132,10 +132,10 @@ namespace App::Object
 
 		// 先に自分を外す。重ねたまま差し替えると、入れ替わるのは後ろのゲームの方で
 		// ポーズ画面が乗りっぱなしになる
-		_sceneManager.SetNextScene(Core::DEFAULT_GUID, Engine::Scene::ESceneChangeType::Pop);
+		_sceneManager.ReserveChangeScene(Core::DEFAULT_GUID, Engine::Scene::ESceneChangeType::Pop);
 
 		// 続けて後ろのゲームを行き先へ差し替える(命令は積んだ順に処理される)
-		_sceneManager.SetNextScene(m_exitSceneGUID, Engine::Scene::ESceneChangeType::Replace);
+		_sceneManager.ReserveChangeScene(m_exitSceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 
 	//======================================================================================

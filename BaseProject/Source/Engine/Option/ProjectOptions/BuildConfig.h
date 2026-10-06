@@ -19,7 +19,7 @@ namespace Engine::Option::ProjectOptions
 		// システムリソース
 		UINT maxThreadCount = 4;			// 使用できるスレッド最大数
 
-		const std::string& GetName() override
+		const std::string& GetName() const override
 		{
 			static const std::string NAME = "BuildConfig";
 			return NAME;

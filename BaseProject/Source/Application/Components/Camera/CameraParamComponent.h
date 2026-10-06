@@ -76,7 +76,7 @@ struct Engine::ECS::ComponentTraits<App::Component::CameraParamComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::CameraParamComponent& _comp = Engine::EditorField::GetValue<App::Component::CameraParamComponent>(a_pData);
+		App::Component::CameraParamComponent& _comp = Engine::EditorField::RefValue<App::Component::CameraParamComponent>(a_pData);
 		a_ar.Field("fovY",_comp.fovY);
 		a_ar.Field("aspectRatio",_comp.aspectRatio);
 		a_ar.Field("nearZ",_comp.nearZ);
@@ -101,13 +101,13 @@ struct Engine::ECS::ComponentTraits<App::Component::CameraParamComponent>
 	//----------------------------------------------------------------------------------
 	static void Release(void* a_pData, const Engine::ECS::EngineServices& a_services)
 	{
-		App::Component::CameraParamComponent& _comp = Engine::EditorField::GetValue<App::Component::CameraParamComponent>(a_pData);
+		App::Component::CameraParamComponent& _comp = Engine::EditorField::RefValue<App::Component::CameraParamComponent>(a_pData);
 		a_services.pResourceManager->ReleaseHandle(_comp.pipelineHandle);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::CameraParamComponent& _comp = Engine::EditorField::GetValue<App::Component::CameraParamComponent>(a_context.pData);
+		App::Component::CameraParamComponent& _comp = Engine::EditorField::RefValue<App::Component::CameraParamComponent>(a_context.pData);
 
 		bool _isEdit = false;
 

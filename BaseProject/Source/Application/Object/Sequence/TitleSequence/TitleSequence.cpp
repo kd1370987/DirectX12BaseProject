@@ -75,7 +75,7 @@ namespace App::Object
 
 		// 押されたらシーンを切り替える。
 		// this を掴むが、ボタンは同じシーンに居るので寿命は一緒に尽きる
-		_pButton->SetOnClick([this]() { RequestChangeScene(); });
+		_pButton->SetOnClick([this]() { ReserveChangeScene(); });
 
 		m_isBound = true;
 	}
@@ -83,7 +83,7 @@ namespace App::Object
 	//======================================================================================
 	// 遷移先のシーンを読み込む
 	//======================================================================================
-	void TitleSequence::RequestChangeScene()
+	void TitleSequence::ReserveChangeScene()
 	{
 		// 連打で何度も積まないようにする
 		if (m_isSceneRequested) return;
@@ -97,7 +97,7 @@ namespace App::Object
 
 		// シーンの切り替えは SceneManager が持っている。
 		// (ObjectContext のサービス群には載っていないので、ここだけ直接触る)
-		Engine::Scene::SceneManager::Instance().SetNextScene(
+		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
 			m_nextSceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 

@@ -3,7 +3,7 @@
 #include "../GPUBuffer.h"
 #include "Core/Debug/DebugLog.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 
 	/// <summary>
@@ -24,11 +24,11 @@ namespace Engine::D3D12
 		/// <param name="a_pDevice">デバイスポインタ</param>
 		/// <param name="a_elementNum">要素数</param>
 		/// <param name="a_strideSize">要素サイズ</param>
-		void Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, UINT a_elementNum);
+		void Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, UINT a_elementNum);
 	};
 
 	template<typename T>
-	inline void RWStructuredBuffer<T>::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, UINT a_elementNum)
+	inline void RWStructuredBuffer<T>::Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, UINT a_elementNum)
 	{
 		// バッファ作成
 		GPUBufferDesc _desc = {};

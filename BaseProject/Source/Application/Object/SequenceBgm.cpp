@@ -80,7 +80,7 @@ namespace App::Object
 
 			// 画面に流す音なので 2D で発行する(定位を付けない)。
 			// BGM の札を付けておくと、設定画面の BGM 音量がそのまま効く
-			m_handle = m_pAudioManager->RequestSoundInstance(
+			m_handle = m_pAudioManager->CreateSoundInstance(
 				m_guid, false, Engine::Audio::ESoundGroup::Bgm);
 
 			auto* _pInstance = m_pAudioManager->RefInstance(m_handle);

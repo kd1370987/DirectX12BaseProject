@@ -180,7 +180,7 @@ namespace Engine::ECS
 
 		// チャンク内の配列の先頭 : 持っていなければ nullptr
 		template<typename Comp>
-		Comp* GetComponentArray(Chunk* a_chunk);
+		Comp* RefComponentArray(Chunk* a_chunk);
 
 		//==========================================================================================
 		// クエリ
@@ -440,7 +440,7 @@ namespace Engine::ECS
 	}
 
 	template<typename Comp>
-	inline Comp* World::GetComponentArray(Chunk* a_chunk)
+	inline Comp* World::RefComponentArray(Chunk* a_chunk)
 	{
 		// const 付きの型でも同じ置き場所を読む
 		const ComponentTypeID _typeID = ComponentMetaRegistry::GetTypeID<Comp>();
@@ -478,7 +478,7 @@ namespace Engine::ECS
 			for (Chunk* _pChunk : _upArchetype->chunks)
 			{
 				if (!_pChunk || _pChunk->count == 0) continue;
-				a_func(_pChunk, _pChunk->count, GetComponentArray<Components>(_pChunk)...);
+				a_func(_pChunk, _pChunk->count, RefComponentArray<Components>(_pChunk)...);
 			}
 		}
 	}
@@ -548,7 +548,7 @@ namespace Engine::ECS
 		for (Chunk* _chunk : a_chunkVec)
 		{
 			if (!_chunk || _chunk->count == 0) continue;
-			a_invoke(_chunk, _chunk->count, GetComponentArray<Components>(_chunk)...);
+			a_invoke(_chunk, _chunk->count, RefComponentArray<Components>(_chunk)...);
 		}
 	}
 
@@ -639,7 +639,7 @@ namespace Engine::ECS
 				{
 					Chunk* _pChunk = a_task.query.chunkVec[_i];
 					if (!_pChunk || _pChunk->count == 0) continue;
-					a_func(_pChunk, _pChunk->count, a_context, _world.GetComponentArray<Components>(_pChunk)...);
+					a_func(_pChunk, _pChunk->count, a_context, _world.RefComponentArray<Components>(_pChunk)...);
 				}
 			};
 

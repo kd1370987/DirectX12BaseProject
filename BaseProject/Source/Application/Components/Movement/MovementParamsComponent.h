@@ -40,7 +40,7 @@ struct Engine::ECS::ComponentTraits<App::Component::MovementParamsComponent>
 
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::MovementParamsComponent& _comp = Engine::EditorField::GetValue<App::Component::MovementParamsComponent>(a_pData);
+		App::Component::MovementParamsComponent& _comp = Engine::EditorField::RefValue<App::Component::MovementParamsComponent>(a_pData);
 		a_ar.Field("moveSpeed", _comp.moveSpeed);
 		a_ar.Field("acceleration", _comp.acceleration);
 		a_ar.Field("deceleration", _comp.deceleration);
@@ -48,7 +48,7 @@ struct Engine::ECS::ComponentTraits<App::Component::MovementParamsComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::MovementParamsComponent& _comp = Engine::EditorField::GetValue<App::Component::MovementParamsComponent>(a_context.pData);
+		App::Component::MovementParamsComponent& _comp = Engine::EditorField::RefValue<App::Component::MovementParamsComponent>(a_context.pData);
 		Engine::EditorField::Field("MoveSpeed", _comp.moveSpeed, 0.1f, 0.0f, FLT_MAX);
 		Engine::EditorField::Field("Acceleration", _comp.acceleration, 0.1f, 0.0f, FLT_MAX);
 		Engine::EditorField::Field("Deceleration", _comp.deceleration, 0.1f, 0.0f, FLT_MAX);

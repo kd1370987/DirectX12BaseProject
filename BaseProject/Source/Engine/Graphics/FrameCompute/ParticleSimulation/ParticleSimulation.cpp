@@ -26,14 +26,14 @@ namespace
 	{
 		using namespace Engine;
 
-		auto _csHandle = Resource::ShaderIO::Request(a_resourceManager, a_csPath);
+		auto _csHandle = Resource::ShaderIO::Load(a_resourceManager, a_csPath);
 		auto* _pShader = a_resourceManager.Ref(_csHandle);
 		if (!_pShader || !_pShader->Get()) return false;
 
 		a_outRootSig = a_pPSOManager->Request(_pShader->Get());
 		if (!a_outRootSig.IsValid()) return false;
 
-		D3D12::ComputePipelineDesc _desc = {};
+		Graphics::D3D12::ComputePipelineDesc _desc = {};
 		_desc.SetName(a_psoName);
 		_desc.desc.CS.pShaderBytecode = _pShader->Get()->GetBufferPointer();
 		_desc.desc.CS.BytecodeLength = _pShader->Get()->GetBufferSize();
@@ -86,7 +86,7 @@ namespace Engine::Graphics
 		if (!a_pGE || !a_pCtx) return;
 		if (!m_pPSOManager) return;
 
-		auto* _pCmd = a_pCtx->GetCurrentCmdList();
+		auto* _pCmd = a_pCtx->RefCurrentCmdList();
 		if (!_pCmd) return;
 
 		auto* _pParticleManager = a_pGE->RefParticleManager();

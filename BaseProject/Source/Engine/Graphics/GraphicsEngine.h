@@ -12,17 +12,17 @@
 
 namespace Engine
 {
-	namespace D3D12
+	namespace Graphics::D3D12
 	{
 		class DescriptorHeapManager;
 	}
 
-	namespace Raytracing
+	namespace Graphics::Raytracing
 	{
 		class RayEngine;
 	}
 
-	namespace Particle
+	namespace Graphics::Particle
 	{
 		class ParticleBufferManager;
 	}

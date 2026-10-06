@@ -2,7 +2,7 @@
 
 #include "MeshAllocationHandle.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }
@@ -73,14 +73,14 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// ハンドルの返却
 		//--------------------------------------------------------------------------------------------
-		void StaticVertexFree(const RangeHandle<Resource::MeshVertexFloat>& a_handle);
-		void IndexFree(const RangeHandle<uint32_t>& a_handle);
-		void AnimatedVertexFree(const RangeHandle<Resource::MeshVertexFloat>& a_handle);
+		void ReserveFreeStaticVertex(const RangeHandle<Resource::MeshVertexFloat>& a_handle);
+		void ReserveFreeIndex(const RangeHandle<uint32_t>& a_handle);
+		void ReserveFreeAnimatedVertex(const RangeHandle<Resource::MeshVertexFloat>& a_handle);
 
-		void MeshletFree(const RangeHandle<Resource::Meshlet>& a_handle);					// メッシュレット
-		void UniqueVertIndicesFree(const RangeHandle<uint32_t>& a_handle);					// 頂点インデックス
-		void TrianglesFree(const RangeHandle<DirectX::MeshletTriangle>& a_handle);			// 三角形インデックス
-		void MeshletCullDataFree(const RangeHandle<DirectX::CullData>& a_handle);			// カリングデータ
+		void ReserveFreeMeshlet(const RangeHandle<Resource::Meshlet>& a_handle);					// メッシュレット
+		void ReserveFreeUniqueVertIndices(const RangeHandle<uint32_t>& a_handle);					// 頂点インデックス
+		void ReserveFreeTriangles(const RangeHandle<DirectX::MeshletTriangle>& a_handle);			// 三角形インデックス
+		void ReserveFreeMeshletCullData(const RangeHandle<DirectX::CullData>& a_handle);			// カリングデータ
 		//--------------------------------------------------------------------------------------------
 		// バッファアクセス
 		//--------------------------------------------------------------------------------------------

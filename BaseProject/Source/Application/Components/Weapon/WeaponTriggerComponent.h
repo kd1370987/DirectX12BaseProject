@@ -30,7 +30,7 @@ struct Engine::ECS::ComponentTraits<App::Component::WeaponTriggerComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::WeaponTriggerComponent& _comp = Engine::EditorField::GetValue<App::Component::WeaponTriggerComponent>(a_context.pData);
+		App::Component::WeaponTriggerComponent& _comp = Engine::EditorField::RefValue<App::Component::WeaponTriggerComponent>(a_context.pData);
 
 		// 配信された結果を見るだけ。ここから触っても次のフレームで上書きされる
 		bool _pulled = _comp.isPulled;

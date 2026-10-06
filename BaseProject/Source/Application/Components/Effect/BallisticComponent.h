@@ -45,7 +45,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BallisticComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::BallisticComponent& _comp = Engine::EditorField::GetValue<App::Component::BallisticComponent>(a_pData);
+		App::Component::BallisticComponent& _comp = Engine::EditorField::RefValue<App::Component::BallisticComponent>(a_pData);
 		a_ar.Field("gravityScale", _comp.gravityScale);
 		a_ar.Field("restitution", _comp.restitution);
 		a_ar.Field("friction", _comp.friction);
@@ -57,7 +57,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BallisticComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BallisticComponent& _comp = Engine::EditorField::GetValue<App::Component::BallisticComponent>(a_context.pData);
+		App::Component::BallisticComponent& _comp = Engine::EditorField::RefValue<App::Component::BallisticComponent>(a_context.pData);
 		Engine::EditorField::Field("Gravity Scale", _comp.gravityScale, 0.01f);
 		Engine::EditorField::Field("Restitution", _comp.restitution, 0.01f, 0.0f, 1.0f);
 		Engine::EditorField::Field("Friction", _comp.friction, 0.01f, 0.0f, 1.0f);

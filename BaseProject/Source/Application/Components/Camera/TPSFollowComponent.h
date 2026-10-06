@@ -77,7 +77,7 @@ struct Engine::ECS::ComponentTraits<App::Component::TPSFollowComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::TPSFollowComponent& _comp = Engine::EditorField::GetValue<App::Component::TPSFollowComponent>(a_pData);
+		App::Component::TPSFollowComponent& _comp = Engine::EditorField::RefValue<App::Component::TPSFollowComponent>(a_pData);
 		a_ar.Field("posRateHorizontal", _comp.posRateHorizontal);
 		a_ar.Field("posRateVertical", _comp.posRateVertical);
 		a_ar.Field("lookAtRate", _comp.lookAtRate);
@@ -103,7 +103,7 @@ struct Engine::ECS::ComponentTraits<App::Component::TPSFollowComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::TPSFollowComponent& _comp = Engine::EditorField::GetValue<App::Component::TPSFollowComponent>(a_context.pData);
+		App::Component::TPSFollowComponent& _comp = Engine::EditorField::RefValue<App::Component::TPSFollowComponent>(a_context.pData);
 
 		Engine::EditorField::HelpText("Offset");
 		Engine::EditorField::Field("Offset", _comp.offset);

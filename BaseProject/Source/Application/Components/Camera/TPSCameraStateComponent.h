@@ -35,14 +35,14 @@ struct Engine::ECS::ComponentTraits<App::Component::TPSCameraStateComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::TPSCameraStateComponent& _comp = Engine::EditorField::GetValue<App::Component::TPSCameraStateComponent>(a_pData);
+		App::Component::TPSCameraStateComponent& _comp = Engine::EditorField::RefValue<App::Component::TPSCameraStateComponent>(a_pData);
 		a_ar.Field("currentLookAt", _comp.currentLookAt);
 		a_ar.Field("currentOrbit", _comp.currentOrbit);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::TPSCameraStateComponent& _comp = Engine::EditorField::GetValue<App::Component::TPSCameraStateComponent>(a_context.pData);
+		App::Component::TPSCameraStateComponent& _comp = Engine::EditorField::RefValue<App::Component::TPSCameraStateComponent>(a_context.pData);
 
 		// システムが毎フレーム上書きするので表示のみ
 		Engine::EditorField::Value("LookAtCamera", "%.2f, %.2f, %.2f", _comp.currentLookAt.x, _comp.currentLookAt.y, _comp.currentLookAt.z);

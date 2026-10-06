@@ -2,7 +2,7 @@
 
 #include "../DynamicBuffer/DynamicBuffer.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	struct ByteAddressBufferDesc
 	{
@@ -22,7 +22,7 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(ByteAddressBuffer);
 
 		// 作成
-		bool Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, const ByteAddressBufferDesc& a_desc);
+		bool Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, const ByteAddressBufferDesc& a_desc);
 	};
 }
 

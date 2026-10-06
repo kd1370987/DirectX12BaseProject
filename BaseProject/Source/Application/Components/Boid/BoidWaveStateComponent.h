@@ -30,7 +30,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoidWaveStateComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BoidWaveStateComponent& _comp = Engine::EditorField::GetValue<App::Component::BoidWaveStateComponent>(a_context.pData);
+		App::Component::BoidWaveStateComponent& _comp = Engine::EditorField::RefValue<App::Component::BoidWaveStateComponent>(a_context.pData);
 
 		// 毎フレーム計算される値なので表示のみ
 		Engine::EditorField::Value("FromPlatoonLeader", "%.1f m", _comp.distanceFromPlatoonLeader);

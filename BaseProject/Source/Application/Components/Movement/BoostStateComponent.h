@@ -28,7 +28,7 @@ struct Engine::ECS::ComponentTraits<App::Component::BoostStateComponent>
 {
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::BoostStateComponent& _comp = Engine::EditorField::GetValue<App::Component::BoostStateComponent>(a_context.pData);
+		App::Component::BoostStateComponent& _comp = Engine::EditorField::RefValue<App::Component::BoostStateComponent>(a_context.pData);
 		Engine::EditorField::Field("Is Boosting (Active)", _comp.isBoosting);
 		Engine::EditorField::Value("Fuel", "%.1f", _comp.currentFuel);
 		Engine::EditorField::Value("TapBoostTimer", "%.2f", _comp.tapBoostTimer);

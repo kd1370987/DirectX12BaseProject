@@ -15,12 +15,12 @@ namespace Engine
 	}
 }
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }
 
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 	class RayWorld;
 	class RayPSO;
@@ -39,7 +39,7 @@ namespace Engine::Raytracing
 		void Release();
 
 		// コミット : a_frameIndex は今のCPUフレーム番号(RenderDevice::GetCurrentFrameIndex)
-		void Commit(D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex);
+		void Commit(Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex);
 		void BindCamera(Graphics::RenderContext* a_pRCT,const Graphics::CameraData& a_cbCam);
 		void BindTLAS(Graphics::RenderContext* a_pRCT);
 		void Dispatch(Graphics::RenderContext* a_pRCT, ShaderTable& a_shadertable);
@@ -64,9 +64,9 @@ namespace Engine::Raytracing
 		);
 		// レイトレワールドの構築
 		// a_pResourceManager : 登録されたモデルのメッシュ・マテリアルを引く先(借り物)
-		void CommitWorld(D3D12::Device* a_pDevice,
-			D3D12::DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList,
+		void CommitWorld(Graphics::D3D12::Device* a_pDevice,
+			Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			Resource::ResourceManager* a_pResourceManager);
 
 		// フレーム開始処理
@@ -87,6 +87,6 @@ namespace Engine::Raytracing
 		Resource::ResourceManager* m_pResourceManager = nullptr;
 
 		// レイトレワールドが無ければ作る : 作ったらリソースの持ち主を渡しておく
-		RayWorld& RefOrCreateWorld();
+		RayWorld& RequestWorld();
 	};
 }

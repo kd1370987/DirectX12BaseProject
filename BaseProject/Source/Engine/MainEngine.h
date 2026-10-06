@@ -118,7 +118,7 @@ namespace Engine
 		// 遅延開放処理
 		// ============================================================================
 		// 遅延開放したい処理を登録
-		void RegisterDeferredResource(std::function<void()> a_releaseFunc);
+		void ReserveRelease(std::function<void()> a_releaseFunc);
 
 	private:
 

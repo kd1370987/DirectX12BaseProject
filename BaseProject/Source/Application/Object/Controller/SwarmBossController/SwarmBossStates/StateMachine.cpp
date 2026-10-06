@@ -50,7 +50,7 @@ namespace App::Object
 		m_upStates.emplace(ESwarmBossState::Death, std::make_unique<SwarmBossDeathState>());
 
 		// 最初の行動。1フレーム目の PreUpdate で入る
-		RequestChangeState(ESwarmBossState::RandomWalk);
+		ReserveChangeState(ESwarmBossState::RandomWalk);
 	}
 
 	void SwarmBossStateMachine::PreUpdate(SwarmBossStateContext& a_context)
@@ -72,7 +72,7 @@ namespace App::Object
 	void SwarmBossStateMachine::PostUpdate(SwarmBossStateContext& a_context)
 	{}
 
-	void SwarmBossStateMachine::RequestChangeState(ESwarmBossState a_state)
+	void SwarmBossStateMachine::ReserveChangeState(ESwarmBossState a_state)
 	{
 		m_changeState = a_state;
 		m_isChangeRequested = true;
@@ -123,7 +123,7 @@ namespace App::Object
 		if (Engine::EditorField::Button("今すぐ切り替える"))
 		{
 			// 切り替わるのは次のフレーム(普段の切り替えと同じ)
-			RequestChangeState(m_debugState);
+			ReserveChangeState(m_debugState);
 		}
 		Engine::EditorField::Tooltip("選んだステートへ次のフレームで切り替える");
 		Engine::EditorField::Field("次の攻撃を固定", m_isDebugNextAttack);

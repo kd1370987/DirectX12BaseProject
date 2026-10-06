@@ -558,7 +558,7 @@ namespace Engine
 		_services.pDebugDraw		= m_upGraphicsEngine ? m_upGraphicsEngine->RefDebugDraw() : nullptr;
 	}
 
-	void MainEngine::RegisterDeferredResource(std::function<void()> a_releaseFunc)
+	void MainEngine::ReserveRelease(std::function<void()> a_releaseFunc)
 	{
 		// グラフィックスエンジンが無い(起動前・終了後)ときは、どの枠でもよいので先頭へ積む
 		const UINT _frameIdx = m_upGraphicsEngine ? m_upGraphicsEngine->RefRenderDevice()->GetCurrentFrameIndex() : 0;

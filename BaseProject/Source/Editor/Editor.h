@@ -3,7 +3,7 @@
 #include "Editor/EditorCommon.h"
 #include "Engine/DevTool/IDevTool.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }
@@ -36,7 +36,7 @@ namespace Editor
 
 		// 初期化
 		// a_pServices : アプリ寿命のサービス一式(借り物)。パネルへはここから配る
-		bool Init(HWND a_hwnd, D3D12::DescriptorHeapManager* a_pHeapManager, ECS::EngineServices* a_pServices) override;
+		bool Init(HWND a_hwnd, Graphics::D3D12::DescriptorHeapManager* a_pHeapManager, ECS::EngineServices* a_pServices) override;
 
 		// 解放
 		void Release() override;
@@ -45,7 +45,7 @@ namespace Editor
 		void Update(float a_dt) override;
 
 		// 描画
-		void Draw(D3D12::GraphicsCommandList* a_pCmdList) override;
+		void Draw(Graphics::D3D12::GraphicsCommandList* a_pCmdList) override;
 
 		/// <summary>
 		/// エディター側に残っている入力を捨てる

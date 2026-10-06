@@ -50,7 +50,7 @@ namespace App::Object
 		// 飾り(文字・枠)は差し替え前提なので既定の絵は持たない
 		RequestDecorationResources(a_context);
 
-		RequestSound(a_context);
+		CreateSound(a_context);
 	}
 
 	void WaveAnnounceHUD::Release(Engine::GameObject::ObjectContext& a_context)
@@ -65,7 +65,7 @@ namespace App::Object
 		m_soundHandle = {};
 	}
 
-	void WaveAnnounceHUD::RequestSound(Engine::GameObject::ObjectContext& a_context)
+	void WaveAnnounceHUD::CreateSound(Engine::GameObject::ObjectContext& a_context)
 	{
 		if (!a_context.pServices || !a_context.pServices->pAudioManager) return;
 
@@ -78,7 +78,7 @@ namespace App::Object
 		if (m_soundGUID == Core::DEFAULT_GUID) return;
 
 		// 画面に出す音なので 2D で発行する(定位を付けない)
-		m_soundHandle = _pAudioManager->RequestSoundInstance(m_soundGUID, false);
+		m_soundHandle = _pAudioManager->CreateSoundInstance(m_soundGUID, false);
 
 		if (auto* _pInstance = _pAudioManager->RefInstance(m_soundHandle))
 		{
@@ -204,7 +204,7 @@ namespace App::Object
 		// 読み込み時は復元したGUIDでサウンドを取り直す
 		if (a_ar.IsLoading())
 		{
-			RequestSound(a_context);
+			CreateSound(a_context);
 		}
 	}
 
@@ -221,7 +221,7 @@ namespace App::Object
 			"Sound",
 			m_soundGUID))
 		{
-			RequestSound(a_context);
+			CreateSound(a_context);
 		}
 
 		if (Engine::EditorField::Field("Volume", m_volume, 0.01f, 0.0f, 1.0f))

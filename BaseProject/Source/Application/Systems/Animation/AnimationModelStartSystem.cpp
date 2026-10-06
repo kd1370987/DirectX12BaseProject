@@ -77,15 +77,15 @@ namespace App::System
 
 					// BLASインスタンス確保
 					auto& _dynamicInstancePool = 
-						a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Raytracing::DynamicRaytracingData>>();
+						a_ctx.pWorld->RefResource<Engine::Pool::ItemPool<Engine::Graphics::Raytracing::DynamicRaytracingData>>();
 
 					// 空で生成
-					Engine::Raytracing::DynamicRaytracingData _resource = {};
+					Engine::Graphics::Raytracing::DynamicRaytracingData _resource = {};
 					_rayComp.dynamicInstanceHandle = _dynamicInstancePool.Add(std::move(_resource));
 
 					// GPU処理のため遅延生成用命令
-					auto& _initRequestVec = a_ctx.pWorld->RefResource<std::vector<Engine::Raytracing::DynamicRaytracingInitRequest>>();
-					Engine::Raytracing::DynamicRaytracingInitRequest _req = {};
+					auto& _initRequestVec = a_ctx.pWorld->RefResource<std::vector<Engine::Graphics::Raytracing::DynamicRaytracingInitRequest>>();
+					Engine::Graphics::Raytracing::DynamicRaytracingInitRequest _req = {};
 					_req.dynamicInstanceHandle = _rayComp.dynamicInstanceHandle;
 					_req.modelHandle = _modelComp.handle;
 					_initRequestVec.push_back(_req);

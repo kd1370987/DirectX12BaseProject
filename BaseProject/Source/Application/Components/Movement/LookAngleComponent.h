@@ -76,7 +76,7 @@ struct Engine::ECS::ComponentTraits<App::Component::LookAngleComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::LookAngleComponent& _comp = Engine::EditorField::GetValue<App::Component::LookAngleComponent>(a_pData);
+		App::Component::LookAngleComponent& _comp = Engine::EditorField::RefValue<App::Component::LookAngleComponent>(a_pData);
 		a_ar.Field("Yaw", _comp.Yaw);
 		a_ar.Field("Pith", _comp.Pitch);		// 既存データとの互換のためキー名はそのまま
 		a_ar.Field("maxPitch", _comp.maxPitch);
@@ -85,7 +85,7 @@ struct Engine::ECS::ComponentTraits<App::Component::LookAngleComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::LookAngleComponent& _comp = Engine::EditorField::GetValue<App::Component::LookAngleComponent>(a_context.pData);
+		App::Component::LookAngleComponent& _comp = Engine::EditorField::RefValue<App::Component::LookAngleComponent>(a_context.pData);
 		Engine::EditorField::Field("Yaw", _comp.Yaw, 0.1f);
 		Engine::EditorField::Field("Pith", _comp.Pitch, 0.1f);
 		Engine::EditorField::Line();

@@ -24,7 +24,7 @@ struct Engine::ECS::ComponentTraits<App::Component::UIComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::UIComponent& _comp = Engine::EditorField::GetValue<App::Component::UIComponent>(a_pData);
+		App::Component::UIComponent& _comp = Engine::EditorField::RefValue<App::Component::UIComponent>(a_pData);
 		a_ar.Field("uvOffsetTiling", _comp.uvOffsetTiling);
 		a_ar.Field("color", _comp.color);
 		a_ar.Field("texGUID", _comp.texGUID);
@@ -34,7 +34,7 @@ struct Engine::ECS::ComponentTraits<App::Component::UIComponent>
 	{
 		// 参照
 		using namespace Engine;
-		App::Component::UIComponent& _comp = Engine::EditorField::GetValue<App::Component::UIComponent>(a_context.pData);
+		App::Component::UIComponent& _comp = Engine::EditorField::RefValue<App::Component::UIComponent>(a_context.pData);
 
 		// UV関連の設定 : uvOffsetTiling は xy がオフセット、zw がタイリング
 		Math::Vector2 _uvOffset(_comp.uvOffsetTiling.x, _comp.uvOffsetTiling.y);

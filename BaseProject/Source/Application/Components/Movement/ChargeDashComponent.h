@@ -107,7 +107,7 @@ struct Engine::ECS::ComponentTraits<App::Component::ChargeDashComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::ChargeDashComponent& _comp = Engine::EditorField::GetValue<App::Component::ChargeDashComponent>(a_pData);
+		App::Component::ChargeDashComponent& _comp = Engine::EditorField::RefValue<App::Component::ChargeDashComponent>(a_pData);
 
 		a_ar.Field("chargeTime", _comp.chargeTime);
 		a_ar.Field("isAutoRelease", _comp.isAutoRelease);
@@ -129,7 +129,7 @@ struct Engine::ECS::ComponentTraits<App::Component::ChargeDashComponent>
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::ChargeDashComponent& _comp = Engine::EditorField::GetValue<App::Component::ChargeDashComponent>(a_context.pData);
+		App::Component::ChargeDashComponent& _comp = Engine::EditorField::RefValue<App::Component::ChargeDashComponent>(a_context.pData);
 
 		Engine::EditorField::Header("Charge");
 		Engine::EditorField::HelpText("Space を押しっぱなしで溜める。溜まりきる前に離したら発動しない");

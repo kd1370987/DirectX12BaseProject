@@ -4,7 +4,7 @@
 
 #include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
 
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 	void RayPSO::Release()
 	{
@@ -12,7 +12,7 @@ namespace Engine::Raytracing
 		m_shader.Release();
 		m_cpPSO.Reset();
 	}
-	bool RayPSO::Init(D3D12::Device* a_pDevice, Graphics::PipelineStateManager* a_pPSOManager, RayPSODesc& a_desc)
+	bool RayPSO::Init(Graphics::D3D12::Device* a_pDevice, Graphics::PipelineStateManager* a_pPSOManager, RayPSODesc& a_desc)
 	{
 		if (!a_pPSOManager) return false;
 
@@ -162,7 +162,7 @@ namespace Engine::Raytracing
 		return true;
 	}
 
-	const void* Engine::Raytracing::RayPSO::GetShaderID(const std::string& a_shaderEntry) const
+	const void* Engine::Graphics::Raytracing::RayPSO::GetShaderID(const std::string& a_shaderEntry) const
 	{
 		ComPtr<ID3D12StateObjectProperties> _props;
 		m_cpPSO.As(&_props);

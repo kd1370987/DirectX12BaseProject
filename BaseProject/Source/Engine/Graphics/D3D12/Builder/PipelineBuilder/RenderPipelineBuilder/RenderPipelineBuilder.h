@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	/// <summary>
 	/// グラフィックス(VS/PS)とメッシュ(MS/AS/PS)の両方に対応する統合パイプラインビルダー

@@ -1,8 +1,8 @@
 ﻿#include "DynamicIndexBuffer.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
-	bool DynamicIndexBuffer::Create(D3D12::Device* a_pDebice, DescriptorHeapManager* a_pHeapManager, const IndexBufferDesc& a_desc)
+	bool DynamicIndexBuffer::Create(Graphics::D3D12::Device* a_pDebice, DescriptorHeapManager* a_pHeapManager, const IndexBufferDesc& a_desc)
 	{
 		// リソース作成
 		DynamicBufferDesc _desc = {};

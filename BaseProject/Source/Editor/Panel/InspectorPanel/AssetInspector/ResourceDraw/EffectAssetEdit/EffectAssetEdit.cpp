@@ -135,13 +135,13 @@ namespace Editor::Inspector
 			EditorField::Field("Shape", a_part.emitShape);
 			switch (a_part.emitShape)
 			{
-			case Particle::EParticleEmitShape::Sphere:
+			case Graphics::Particle::EParticleEmitShape::Sphere:
 				Engine::EditorField::HelpText("中心から全方向へ均等に飛び散る(爆発向き)");
 				break;
-			case Particle::EParticleEmitShape::Hemisphere:
+			case Graphics::Particle::EParticleEmitShape::Hemisphere:
 				Engine::EditorField::HelpText("EmitDir 側の半球だけへ飛び散る(地面での爆発向き)");
 				break;
-			case Particle::EParticleEmitShape::Cone:
+			case Graphics::Particle::EParticleEmitShape::Cone:
 			default:
 				Engine::EditorField::HelpText("EmitDir を軸にした円錐。広がりは DirectionAngle");
 				break;
@@ -170,10 +170,10 @@ namespace Editor::Inspector
 			Engine::EditorField::Field("PositionRadius", a_part.positionRadius, 0.05f, 0.0f);
 
 			// 円錐のときしか効かない値なので、それ以外では触らせない
-			ImGui::BeginDisabled(a_part.emitShape != Particle::EParticleEmitShape::Cone);
+			ImGui::BeginDisabled(a_part.emitShape != Graphics::Particle::EParticleEmitShape::Cone);
 			Engine::EditorField::Field("DirectionAngle (deg)", a_part.directionAngle, 0.5f, 0.0f, 180.0f);
 			ImGui::EndDisabled();
-			if (a_part.emitShape != Particle::EParticleEmitShape::Cone)
+			if (a_part.emitShape != Graphics::Particle::EParticleEmitShape::Cone)
 			{
 				Engine::EditorField::HelpText("(DirectionAngle は Cone のときだけ効きます)");
 			}

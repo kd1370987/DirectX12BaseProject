@@ -43,7 +43,7 @@ namespace App::Object
 		{
 			ESwarmBossState _next = m_nextAttack;
 			a_context.pMachine->GetDebugNextAttack(_next);
-			a_context.pMachine->RequestChangeState(_next);
+			a_context.pMachine->ReserveChangeState(_next);
 		}
 
 		const auto _leader = a_context.leaderEntity;

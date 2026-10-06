@@ -15,7 +15,7 @@ void Editor::SceneAmbientPanel::OnDrawImGui(EditorContext& a_editContext)
 {
 	auto& _sceneManager = Engine::Scene::SceneManager::Instance();
 
-	Engine::Scene::BaseScene* _pScene = _sceneManager.GetCurrentTopScene();
+	Engine::Scene::BaseScene* _pScene = _sceneManager.RefCurrentTopScene();
 	if (!_pScene || !a_editContext.pServices)
 	{
 		Engine::EditorField::HelpText("No scene");
@@ -34,7 +34,7 @@ void Editor::SceneAmbientPanel::OnDrawImGui(EditorContext& a_editContext)
 	Engine::EditorField::Value("Scene", "%s", _getSceneName(_pScene).c_str());
 
 	// 実際に使われているシーン
-	const Engine::Scene::BaseScene* _pSource = _sceneManager.GetAmbientSourceScene();
+	const Engine::Scene::BaseScene* _pSource = _sceneManager.RefAmbientSourceScene();
 	if (_pSource != _pScene)
 	{
 		if (_pSource)

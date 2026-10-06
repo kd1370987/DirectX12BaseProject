@@ -16,14 +16,14 @@ struct Engine::ECS::ComponentTraits<App::Component::RayColliderComponent>
 {
 	static void Archive(Engine::Persistence::Archive& a_ar, void* a_pData)
 	{
-		App::Component::RayColliderComponent& _comp = Engine::EditorField::GetValue<App::Component::RayColliderComponent>(a_pData);
+		App::Component::RayColliderComponent& _comp = Engine::EditorField::RefValue<App::Component::RayColliderComponent>(a_pData);
 		a_ar.Field("stepUp", _comp.stepUp);
 		a_ar.Field("snapDown", _comp.snapDown);
 	}
 
 	static void Edit(CompEditContext& a_context)
 	{
-		App::Component::RayColliderComponent& _comp = Engine::EditorField::GetValue<App::Component::RayColliderComponent>(a_context.pData);
+		App::Component::RayColliderComponent& _comp = Engine::EditorField::RefValue<App::Component::RayColliderComponent>(a_context.pData);
 		Engine::EditorField::Field("StepUp (登れる段差)", _comp.stepUp, 0.01f, 0.0f, 10.0f);
 		Engine::EditorField::Field("SnapDown (吸着距離)", _comp.snapDown, 0.01f, 0.0f, 10.0f);
 	}

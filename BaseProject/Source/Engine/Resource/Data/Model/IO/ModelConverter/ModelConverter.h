@@ -54,7 +54,7 @@ namespace Engine::Resource::Converter
 
 
 		static void ConvertTexture(ResourceManager& a_resourceManager, const ResourceRef<Texture>& a_ref);
-		static Texture* GetTexture(ResourceManager& a_resourceManager, const ResourceRef<Texture>& a_ref);
+		static Texture* RefTexture(ResourceManager& a_resourceManager, const ResourceRef<Texture>& a_ref);
 
 	};
 }

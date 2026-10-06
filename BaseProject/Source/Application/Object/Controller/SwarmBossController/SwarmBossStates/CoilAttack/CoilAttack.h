@@ -55,7 +55,7 @@ namespace App::Object
 		float CalcHeightSpeed(float a_time) const;
 
 		// 次の小隊長から1体切り離す要求を積む(頭から尾へ。居なくなった小隊長は飛ばす)
-		void RequestLaunch(SwarmBossStateContext& a_context);
+		void ReserveLaunch(SwarmBossStateContext& a_context);
 
 		// ミサイルの調整値と輪の中心を SwarmMissileResource へ書き写す
 		void WriteMissileResource(SwarmBossStateContext& a_context);

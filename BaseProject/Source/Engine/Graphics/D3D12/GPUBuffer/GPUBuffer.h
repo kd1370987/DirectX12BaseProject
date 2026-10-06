@@ -2,7 +2,7 @@
 
 #include "../D3DObject/GPUResource/GPUResource.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	// 前方宣言
 	class DescriptorHeapManager;
@@ -24,7 +24,7 @@ namespace Engine::D3D12
 		NON_COPYABLE_MOVABLE(GPUBuffer);
 
 		// バッファ専用の作成
-		bool Create(D3D12::Device* a_pDevice,const GPUBufferDesc& a_desc);
+		bool Create(Graphics::D3D12::Device* a_pDevice,const GPUBufferDesc& a_desc);
 
 		// データの書き込み(アップロードヒープ用)
 		void Map(void** a_ppData);
@@ -36,7 +36,7 @@ namespace Engine::D3D12
 	protected:
 		// ビューの確保。
 		// 渡されたヒープは m_pHeapManager に控えて、Release() で同じところへ返す
-		Handle<SRV> AllocateSRV(D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,ID3D12Resource* a_pRes,const D3D12_SHADER_RESOURCE_VIEW_DESC& a_desc);
-		Handle<UAV> AllocateUAV(D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,ID3D12Resource* a_pRes,const D3D12_UNORDERED_ACCESS_VIEW_DESC& a_desc);
+		Handle<SRV> AllocateSRV(Graphics::D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,ID3D12Resource* a_pRes,const D3D12_SHADER_RESOURCE_VIEW_DESC& a_desc);
+		Handle<UAV> AllocateUAV(Graphics::D3D12::Device* a_pDevice,DescriptorHeapManager* a_pHeapManager,ID3D12Resource* a_pRes,const D3D12_UNORDERED_ACCESS_VIEW_DESC& a_desc);
 	};
 }

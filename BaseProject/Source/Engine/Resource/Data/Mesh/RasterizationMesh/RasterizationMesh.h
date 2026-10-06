@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	class DescriptorHeapManager;
 }
@@ -14,8 +14,8 @@ namespace Engine::Resource
 	{
 		// 作成
 		void Create(
-			D3D12::Device* a_pDevice,
-			D3D12::DescriptorHeapManager* a_pHeapManager,
+			Graphics::D3D12::Device* a_pDevice,
+			Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
 			const std::vector<MeshVertexFloat>& a_vertices,
 			const std::vector<MeshFace>& a_face,
 			DXGI_FORMAT a_indexFormat
@@ -23,7 +23,7 @@ namespace Engine::Resource
 		// 解放
 		void Release();
 
-		D3D12::DynamicVertexBuffer<MeshVertexFloat> vertexBuffer;		// 頂点バッファ
-		D3D12::DynamicIndexBuffer					indexBuffer;		// インデックスバッファ
+		Graphics::D3D12::DynamicVertexBuffer<MeshVertexFloat> vertexBuffer;		// 頂点バッファ
+		Graphics::D3D12::DynamicIndexBuffer					indexBuffer;		// インデックスバッファ
 	};
 }

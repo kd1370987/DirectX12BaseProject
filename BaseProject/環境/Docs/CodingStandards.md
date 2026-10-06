@@ -147,6 +147,19 @@ namespace Editor::Inspector
 
 Utility 系の Namespace は、所属する機能・役割を示す Namespace を使用する(`Core::String`・`Core::File` など。`Utility` という名前の Namespace は作らない)。
 
+### Engine/Graphics
+
+| ディレクトリ | Namespace |
+| --- | --- |
+| `Engine/Graphics` 直下・`Device`・`Frame`・`FrameCompute`・`LightManager`・`PipelineState`・`DebugDraw`・`Effect` | `Engine::Graphics` |
+| `Engine/Graphics/D3D12` | `Engine::Graphics::D3D12` |
+| `Engine/Graphics/Raytracing` | `Engine::Graphics::Raytracing` |
+| `Engine/Graphics/Particle` | `Engine::Graphics::Particle` |
+| `Engine/Graphics/Animation` | `Engine::Graphics::Animation` |
+| `Engine/Graphics/RenderingPipeline` | `Engine::Graphics::Pipeline` |
+
+`Engine::Graphics` の外(`Engine::ECS`・`Engine::Resource`・Editor など)からは `Graphics::D3D12::Device` のように `Graphics` から書く。
+
 ### App の ECS
 
 | ディレクトリ | Namespace |
@@ -205,9 +218,12 @@ Editor の中で GUID を書くときは `Core::GUID` と書く。
 | ----- | --------------- | ----------------------- |
 | 追加    | `Add`           | `AddEntity()`           |
 | 削除    | `Remove`        | `RemoveEntity()`        |
+| 作成    | `Create`        | `CreateSoundInstance()` |
+| 取得(無ければ作成) | `Request` | `RequestArchetype()`    |
 | 提出・登録 | `Submit`        | `SubmitCommand()`       |
 | 予約追加  | `ReserveAdd`    | `ReserveAddEntity()`    |
 | 予約削除  | `ReserveRemove` | `ReserveRemoveEntity()` |
+| 予約の処理 | `ApplyReserved` | `ApplyReservedFrees()`  |
 
 即時に実行される操作と、後で実行される操作は名前から区別できるようにする。
 
@@ -220,6 +236,45 @@ ReserveRemoveEntity();
 
 SubmitCommand();
 ```
+
+### Request(取得、無ければ作成して取得)
+
+`Request` は、求めるものがあればそれを返し、無ければ作ってから返す操作に使う。
+呼んだ時点で結果(実体・参照・ハンドル)が返る。
+
+```cpp
+// キャッシュに無ければ PSO を作る
+Handle<ID3D12PipelineState> RequestHandle(const GraphicsPipelineDesc& a_desc);
+
+// 登録が無ければ読み込みを始め、どちらでも参照を返す
+ResourceRef<T> RequestLoad(const Core::GUID& a_guid);
+
+// シグネチャに合うアーキタイプが無ければ作る
+Archetype* RequestArchetype(const Signature& a_sig);
+```
+
+呼ぶたびに新しく作るものは `Create` にする(`Request` にしない)。
+
+### Reserve(予約)
+
+`Reserve` は、頼まれたことをどこかに溜めておき、決まったタイミングでまとめて処理する操作に使う。
+呼んだ時点ではまだ処理していないので、結果は返さない。後から追えるようにハンドルや ID をその場で返すのはよい。
+
+溜めたものを処理する関数は `ApplyReserved` で始める。
+
+```cpp
+// フレームの区切りで World が消す
+void ReserveRemoveEntity(const Entity& a_entity);
+
+// 次のフレームの頭でシーンが切り替わる
+void ReserveChangeScene(const Core::GUID& a_guid, const ESceneChangeType& a_changeType);
+
+// GPU が使い終わってから空きへ戻す
+void ReserveFree(const Handle<T>& a_handle);
+void ApplyReservedFrees(UINT64 a_completedFenceValue);
+```
+
+容量の確保 `Reserve(n)`(`std::vector::reserve` と同じ意味)はこの規則の対象外。
 
 ---
 
@@ -237,17 +292,27 @@ TextureDesc& RefTextureDesc();
 
 ### Get
 
-`Get` は読み取り専用のアクセスを提供する。
+`Get` は読み取り専用のアクセスを提供する。次のどちらかに当てはまるものだけを `Get` にする。
+
+* `const` メンバ関数である
+* 値のコピーを返す(受け取った側が書き換えても、内部は変わらない)
+
+どちらでもないもの、つまり const でない関数が内部を書き換えられる参照やポインタを返すものは `Ref` にする。
 
 戻り値は、データサイズや用途に応じて `const` Reference または Value を使用する。
 
 ```cpp
-const TextureDesc& GetTextureDesc() const;
+const TextureDesc& GetTextureDesc() const;      // const
 
-UINT GetWidth() const;
+UINT GetWidth() const;                          // const・値
+
+EResourceState GetState(const Handle<T>& a_handle);  // 値のコピー(const でなくてもよい)
+
+GraphicsCommandList* RefCurrentCmdList();       // 書き換えられるポインタを返す → Ref
 ```
 
 `Get` から返したデータを通じて内部状態を変更できるようにしてはいけない。
+ただし `const` メンバ関数が、持っているポインタの値(`ID3D12Resource*` など)をそのまま返すのはよい。
 
 ---
 

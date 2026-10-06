@@ -55,7 +55,7 @@ namespace App::Object
 		void OnHit(Engine::GameObject::ObjectContext& a_context);
 
 		// サウンドインスタンスを取り直す
-		void RequestSound(Engine::GameObject::ObjectContext& a_context);
+		void CreateSound(Engine::GameObject::ObjectContext& a_context);
 
 	private:
 

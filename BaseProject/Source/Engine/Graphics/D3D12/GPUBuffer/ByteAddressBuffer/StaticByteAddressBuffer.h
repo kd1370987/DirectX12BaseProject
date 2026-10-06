@@ -2,7 +2,7 @@
 
 #include "../StaticBuffer/StaticBuffer.h"
 
-namespace Engine::D3D12
+namespace Engine::Graphics::D3D12
 {
 	/// <summary>
 	/// シェーダーからバイトでアクセスされるシェーダー
@@ -24,9 +24,9 @@ namespace Engine::D3D12
 		/// <param name="a_pData">初期化データ</param>
 		/// <returns>作成に成功すればtrue</returns>
 		bool Create(
-			D3D12::Device* a_pDevice, 
+			Graphics::D3D12::Device* a_pDevice, 
 			DescriptorHeapManager* a_pHeapManager,
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			UINT a_elementNum,
 			size_t a_strideSize,
 			const void* a_pData = nullptr
@@ -41,7 +41,7 @@ namespace Engine::D3D12
 		/// <param name="a_count">総数 : バイトサイズではなく、純粋な要素数</param>
 		/// <param name="a_pData">データ</param>
 		void UploadDataRange(
-			D3D12::GraphicsCommandList* a_pCmdList,
+			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			UINT a_startIndex,
 			UINT a_count,
 			const void* a_pData

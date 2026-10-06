@@ -272,16 +272,16 @@ void Engine::Resource::Mesh::Release()
 	// 各ドメインデータは必要なもののみ実体化されるため、持っているものだけ解放する
 	if (m_opRtData.has_value())
 	{
-		_pMeshBufferAllocator->StaticVertexFree(m_opRtData->vertexHandle);
-		_pMeshBufferAllocator->IndexFree(m_opRtData->indexHandle);
+		_pMeshBufferAllocator->ReserveFreeStaticVertex(m_opRtData->vertexHandle);
+		_pMeshBufferAllocator->ReserveFreeIndex(m_opRtData->indexHandle);
 	}
 
 	if (m_opMeshShaderData.has_value())
 	{
-		_pMeshBufferAllocator->MeshletFree(m_opMeshShaderData->meshletHandle);
-		_pMeshBufferAllocator->UniqueVertIndicesFree(m_opMeshShaderData->uniqueVertexIndicesHandle);
-		_pMeshBufferAllocator->TrianglesFree(m_opMeshShaderData->primitiveIndicesHandle);
-		_pMeshBufferAllocator->MeshletCullDataFree(m_opMeshShaderData->cullDataHandle);
+		_pMeshBufferAllocator->ReserveFreeMeshlet(m_opMeshShaderData->meshletHandle);
+		_pMeshBufferAllocator->ReserveFreeUniqueVertIndices(m_opMeshShaderData->uniqueVertexIndicesHandle);
+		_pMeshBufferAllocator->ReserveFreeTriangles(m_opMeshShaderData->primitiveIndicesHandle);
+		_pMeshBufferAllocator->ReserveFreeMeshletCullData(m_opMeshShaderData->cullDataHandle);
 	}
 
 	// 各meshデータ解放

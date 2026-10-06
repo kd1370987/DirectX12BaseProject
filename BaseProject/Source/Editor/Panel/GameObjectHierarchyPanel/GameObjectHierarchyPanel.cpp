@@ -310,7 +310,7 @@ namespace Editor
 
 		if (ImGui::MenuItem("Destroy"))
 		{
-			a_pObject->RequestDestroy();
+			a_pObject->ReserveDestroy();
 			if (a_editContext.pGameObject == a_pObject)
 			{
 				a_editContext.pGameObject = nullptr;

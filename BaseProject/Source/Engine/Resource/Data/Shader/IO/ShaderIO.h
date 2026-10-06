@@ -20,6 +20,6 @@ namespace Engine::Resource
 		/// <param name="a_resourceManager">登録先 : パスからGUIDを引くのもこの中のアセットデータベース</param>
 		/// <param name="a_path">パス</param>
 		/// <returns>リソースマネージャーに登録されたハンドル</returns>
-		static Handle<Shader> Request(ResourceManager& a_resourceManager, const std::string& a_path);
+		static Handle<Shader> Load(ResourceManager& a_resourceManager, const std::string& a_path);
 	};
 }

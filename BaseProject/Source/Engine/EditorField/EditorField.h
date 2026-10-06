@@ -48,7 +48,7 @@ namespace Engine::EditorField
 	/// 型安全に値を参照する
 	/// コンポーネントのArchive / Editが受け取るvoid*を実体に戻すためのもの
 	template<typename T>
-	T& GetValue(void* a_data)
+	T& RefValue(void* a_data)
 	{
 		return *reinterpret_cast<T*>(a_data);
 	}

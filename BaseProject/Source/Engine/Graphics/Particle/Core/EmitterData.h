@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::Particle
+namespace Engine::Graphics::Particle
 {
 	/// <summary>
 	/// CPUが毎フレーム計算して Uploadヒープ経由で

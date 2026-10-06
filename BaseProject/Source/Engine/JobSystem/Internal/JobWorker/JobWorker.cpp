@@ -14,7 +14,7 @@ namespace Engine::Thread
 		// 新規にOSスレッドを立ち上げて、Run()を実行
 		m_thread = std::thread([this] {this->Run(); });
 	}
-	void JobWorker::RequestStop()
+	void JobWorker::ReserveStop()
 	{
 		if (!m_pContext) return;
 

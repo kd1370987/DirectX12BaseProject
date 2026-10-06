@@ -21,7 +21,7 @@ namespace Engine::Graphics
 {
 	class DebugDraw;
 }
-namespace Engine::Raytracing
+namespace Engine::Graphics::Raytracing
 {
 	class RayEngine;
 }
@@ -54,7 +54,7 @@ namespace Engine::ECS
 		Resource::ResourceManager*	pResourceManager	= nullptr;
 		Resource::AssetDatabase*	pAssetDatabase		= nullptr;
 		Input::InputManager*		pInputManager		= nullptr;
-		Raytracing::RayEngine*		pRayEngine			= nullptr;
+		Graphics::Raytracing::RayEngine*		pRayEngine			= nullptr;
 		Audio::AudioManager*		pAudioManager		= nullptr;
 		Thread::JobSystem*			pJobSystem			= nullptr;
 

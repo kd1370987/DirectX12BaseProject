@@ -19,7 +19,7 @@ namespace Engine::Resource
 		// 解放
 		void Release();
 
-		Engine::Raytracing::BLAS blas;
+		Engine::Graphics::Raytracing::BLAS blas;
 		RangeHandle<MeshVertexFloat> vertexHandle = {};
 		RangeHandle<uint32_t> indexHandle = {};
 	};

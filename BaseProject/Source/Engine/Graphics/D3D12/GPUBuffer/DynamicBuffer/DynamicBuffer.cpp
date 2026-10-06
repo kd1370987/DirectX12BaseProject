@@ -1,7 +1,7 @@
 ﻿#include "DynamicBuffer.h"
 #include "../../DescriptorHeapManager/DescriptorHeapManager.h"
 
-bool Engine::D3D12::DynamicBuffer::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, const DynamicBufferDesc& a_desc)
+bool Engine::Graphics::D3D12::DynamicBuffer::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, const DynamicBufferDesc& a_desc)
 {
 	// リソース作成
 	GPUBufferDesc _desc = {};
@@ -32,13 +32,13 @@ bool Engine::D3D12::DynamicBuffer::Create(D3D12::Device* a_pDevice, DescriptorHe
 	return true;
 }
 
-void Engine::D3D12::DynamicBuffer::Release()
+void Engine::Graphics::D3D12::DynamicBuffer::Release()
 {
 	m_cpResource->Unmap(0, nullptr);
 	GPUResource::Release();
 }
 
-void Engine::D3D12::DynamicBuffer::UpdateData(const void* a_data, size_t a_size)
+void Engine::Graphics::D3D12::DynamicBuffer::UpdateData(const void* a_data, size_t a_size)
 {
 	// 確保した要素数を超えて書くとアップロードヒープの外を踏み、
 	// 原因とまったく関係ない場所でヒープ破壊として表面化する。
@@ -52,7 +52,7 @@ void Engine::D3D12::DynamicBuffer::UpdateData(const void* a_data, size_t a_size)
 	std::memcpy(m_pMapData,a_data,a_size);
 }
 
-void Engine::D3D12::DynamicBuffer::UpdateDataOffset(const void* a_pData, size_t a_sizeBytes, size_t a_offsetBytes)
+void Engine::Graphics::D3D12::DynamicBuffer::UpdateDataOffset(const void* a_pData, size_t a_sizeBytes, size_t a_offsetBytes)
 {
 	if (a_offsetBytes + a_sizeBytes > GetBufferSize())
 	{

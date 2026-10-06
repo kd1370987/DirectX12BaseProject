@@ -31,7 +31,7 @@ namespace Engine
 		/// <param name="a_releaseFenceValue">この値をGPUが完了させたら再利用可能になる。
 		/// 今フレームがこの領域を参照している可能性があるため、最後にシグナル済みの値ではなく
 		/// 今フレーム完了時にシグナルされる値を渡すこと</param>
-		void FreeRange(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue);
+		void ReserveFreeRange(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue);
 
 		// 毎フレームの頭で呼ぶ：GPUが使い終わった領域をフリーリストに戻す
 		
@@ -40,7 +40,7 @@ namespace Engine
 		/// メッシュバッファアロケータ側のバッファと同期する必要あり
 		/// </summary>
 		/// <param name="a_completedFenceValue">GPUが実際に完了させたフェンス値</param>
-		void UpdateFrees(uint64_t a_completedFenceValue);
+		void ApplyReservedFrees(uint64_t a_completedFenceValue);
 
 
 		uint32_t GetMaxCount() const { return m_maxCount; }
@@ -116,7 +116,7 @@ namespace Engine
 		return { std::numeric_limits<uint32_t>::max(), 0, 0 }; // 無効なハンドル
 	}
 	template<typename T>
-	inline void RangeAllocator<T>::FreeRange(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue)
+	inline void RangeAllocator<T>::ReserveFreeRange(const RangeHandle<T>& a_handle, uint64_t a_releaseFenceValue)
 	{
 		if (!a_handle.IsValid()) return;
 
@@ -126,7 +126,7 @@ namespace Engine
 			});
 	}
 	template<typename T>
-	inline void RangeAllocator<T>::UpdateFrees(uint64_t a_completedFenceValue)
+	inline void RangeAllocator<T>::ApplyReservedFrees(uint64_t a_completedFenceValue)
 	{
 		bool _needsMerge = false;
 

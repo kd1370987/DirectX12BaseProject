@@ -1,5 +1,5 @@
 ﻿#pragma once
-namespace Engine::Particle
+namespace Engine::Graphics::Particle
 {
 	//======================================================================================
 	// 発生源の席(EmitterSlotPool)を伸ばす単位
