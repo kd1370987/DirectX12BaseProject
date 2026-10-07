@@ -494,6 +494,21 @@ namespace Engine::EditorField
 	bool ScreenHandle(const char* a_id, const Math::Vector2& a_screenPos, float a_radius, Math::Vector2& a_outDragPos);
 
 	/// <summary>
+	/// 画面上に折れ線を描く(表示のみ。入力は受け取らない)
+	/// </summary>
+	/// <param name="a_pPoints">点の並び(スクリーン絶対座標, px)</param>
+	/// <param name="a_count">点の数</param>
+	/// <param name="a_color">線の色</param>
+	/// <param name="a_thickness">線の太さ(px)</param>
+	/// <param name="a_isClosed">最後の点から最初の点へ閉じるか</param>
+	void ScreenPolyline(
+		const Math::Vector2* a_pPoints,
+		size_t a_count,
+		const Math::Color& a_color,
+		float a_thickness = 1.5f,
+		bool a_isClosed = true);
+
+	/// <summary>
 	/// 行列の位置をワールド軸の移動ギズモで動かす
 	/// </summary>
 	/// <param name="a_snap">スナップの刻み。0 ならスナップしない</param>

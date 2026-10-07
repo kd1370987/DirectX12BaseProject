@@ -8,8 +8,15 @@
 //   ・グラウンドダスト : 地面から一定の高さまで漂うチリ(GroundDustData)
 // 出力 : rgb = フォグの色(2つの媒質の色を濃さで混ぜたもの) / a = フォグの濃さ(0..1)
 //
-// シーンのフォグは一様なので、ダストの層の外は式で一度に求める。
-// レイマーチするのはダストの層の中だけ(歩数を層の中へ集めるため)。
+// 媒質は環境光と平行光(主光源)で照らす。
+//   届く光 = 環境光 + 平行光 × 位相関数 × 影
+//   媒質の色 = 媒質の色(fogColor / dustColor) × 届く光
+// 平行光の影は ShadowMapPass のシャドウマップ(CSM)をレイに沿って引く。窓などから光の筋が差す。
+// 影が届く範囲(最後のカスケードの奥)より先は遮るものが無いので、光は一定になる。
+//
+// シーンのフォグは一様なので、光が一定の区間は式で一度に求める。
+// レイマーチするのは、影の届く範囲とダストの層の中だけ(歩数をそこへ集めるため)。
+// 1歩目の位置は画素ごと・フレームごとにずらし、残る縞は TAA に均させる。
 //
 // ・ダストは見えている地面の画素にだけ置く
 //     シーンの深度と地面だけの深度を比べ、見えている面が地面そのものの画素だけにダストを積分する。
@@ -26,6 +33,9 @@
 #include "../../../Common/RootParameters/GroundFieldData.hlsli"
 #include "../../../Common/RootParameters/SceneFogData.hlsli"
 #include "../../../Common/RootParameters/GroundDustData.hlsli"
+#include "../../../Common/RootParameters/AmbientData.hlsli"
+#include "../../../Common/RootParameters/ShadowMapData.hlsli"
+#include "../../../Common/RootParameters/LightData.hlsli"
 
 //==========================================================================================
 // ルートパラメーター
@@ -33,10 +43,17 @@
 //   0 : CBV(b0)            カメラ
 //   1 : CBV(b1)            シーンのフォグの調整値
 //   2 : CBV(b2)            グラウンドダストの調整値
-//   3 : SRVの番号(t0-t2) シーンの深度 + 地面だけの深度(任意) + グラウンドフィールド(任意)
-//                          (レンダーグラフが張る)
+//   3 : SRVの番号(t0-t3) シーンの深度 + 地面だけの深度(任意) + グラウンドフィールド(任意)
+//                          + シャドウマップ(任意)(レンダーグラフが張る)
 //   4 : UAVの番号(u0)    フォグ(レンダーグラフが張る)
-//   5 : SRVの番号(t3)    ノイズテクスチャ(パスが張る)
+//   5 : SRVの番号(t4)    ノイズテクスチャ(パスが張る)
+//   6 : CBV(b3)            環境光(AmbientData)
+//   7 : CBV(b4)            主光源のシャドウマップ(カスケードの行列・区切り・バイアス)
+//   8 : CBV(b5)            主光源(平行光の向き・色・強さ)
+//
+// サンプラー
+//   s0 : ノイズ・グラウンドフィールド用(WRAP)
+//   s1 : シャドウマップ用の比較サンプラー
 //
 // 追加は必ず末尾へ足すこと。間に挟むと既存の番号が全部ずれる
 //==========================================================================================
@@ -45,10 +62,19 @@
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b1, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b2, visibility = SHADER_VISIBILITY_ALL)," \
-"RootConstants(num32BitConstants=3, b100), " \
+"RootConstants(num32BitConstants=4, b100), " \
 "RootConstants(num32BitConstants=1, b101), " \
 "RootConstants(num32BitConstants=1, b102), " \
-RS_STATIC_SAMPLER
+"CBV(b3, visibility = SHADER_VISIBILITY_ALL)," \
+"CBV(b4, visibility = SHADER_VISIBILITY_ALL)," \
+"CBV(b5, visibility = SHADER_VISIBILITY_ALL)," \
+RS_STATIC_SAMPLER "," \
+"StaticSampler(s1, " \
+"    filter = FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, " \
+"    addressU = TEXTURE_ADDRESS_CLAMP, " \
+"    addressV = TEXTURE_ADDRESS_CLAMP, " \
+"    addressW = TEXTURE_ADDRESS_CLAMP, " \
+"    comparisonFunc = COMPARISON_LESS_EQUAL)"
 
 // 張られていないときの番号(未接続の入力・未設定のノイズ。パス側と合わせる)
 #define DESCRIPTOR_INDEX_NONE 0xFFFFFFFF
@@ -56,6 +82,10 @@ RS_STATIC_SAMPLER
 // ダストの層の中をレイマーチする歩数の上限。
 // 層の中が長いほど歩数が増えるので、ここで頭打ちにして1歩を伸ばす
 #define GROUND_DUST_MAX_STEPS 64
+
+// 影の届く範囲を歩く歩数(区間1つあたり)。
+// 区間の長さによらず同じ歩数なので、レイが短い(屋内など)ほど1歩が細かくなる
+#define SUN_SHADOW_STEPS 32
 
 // 波頭でチリが巻き上がる高さの上限(height の何倍まで)。
 // レイはこの高さで切るので、上げすぎると歩数が層の外で無駄になる
@@ -66,6 +96,9 @@ RS_STATIC_SAMPLER
 // 地面までの距離に対する割合と、近いところ用の下限(m)のうち大きいほうを使う
 #define GROUND_PIXEL_TOLERANCE_RATE 0.002f
 #define GROUND_PIXEL_TOLERANCE_MIN  0.05f
+
+// シャドウマップのアトラスの1辺あたりのタイル数(ShadowMapMaskCS と合わせる)
+static const uint kShadowAtlasTiles = 2;
 
 cbuffer CBCamera : register(b0)
 {
@@ -82,6 +115,21 @@ cbuffer CBGroundDust : register(b2)
 	GroundDustData g_groundDust;
 }
 
+cbuffer CBAmbient : register(b3)
+{
+	AmbientData g_ambient;
+}
+
+cbuffer CBShadowMap : register(b4)
+{
+	ShadowMapData g_shadow;
+}
+
+cbuffer CBSunLight : register(b5)
+{
+	SunLightData g_sun;
+}
+
 // 入力
 // SRVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
 cbuffer PassDescriptorIndex0 : register(b100)
@@ -89,6 +137,7 @@ cbuffer PassDescriptorIndex0 : register(b100)
 	uint g_sceneDepthTexIndex;
 	uint g_groundDepthTexIndex;		// 任意 : 未接続なら DESCRIPTOR_INDEX_NONE(ダストは出ない)
 	uint g_groundFieldTexIndex;		// 任意 : 未接続なら DESCRIPTOR_INDEX_NONE(衝撃でチリが動かない)
+	uint g_shadowMapIndex;			// 任意 : 未接続なら DESCRIPTOR_INDEX_NONE(平行光は遮られない)
 }
 
 Texture2D<float> Get_sceneDepthTex() { Texture2D<float> _r = ResourceDescriptorHeap[g_sceneDepthTexIndex]; return _r; }		// シーン全体の深度(レイの終点)
@@ -97,6 +146,8 @@ Texture2D<float> Get_groundDepthTex() { Texture2D<float> _r = ResourceDescriptor
 #define g_groundDepthTex Get_groundDepthTex()
 Texture2D<float2> Get_groundFieldTex() { Texture2D<float2> _r = ResourceDescriptorHeap[g_groundFieldTexIndex]; return _r; }	// グラウンドフィールド(r = 残ったチリ / g = 寄せられたチリ)
 #define g_groundFieldTex Get_groundFieldTex()
+Texture2D<float> Get_shadowMap() { Texture2D<float> _r = ResourceDescriptorHeap[g_shadowMapIndex]; return _r; }			// 主光源のシャドウマップ(カスケードを 2x2 に並べたアトラス)
+#define g_shadowMap Get_shadowMap()
 
 // 出力
 // UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
@@ -120,13 +171,45 @@ Texture2D<float4> Get_noiseTex() { Texture2D<float4> _r = ResourceDescriptorHeap
 
 // サンプラー
 SamplerState g_samp : register(s0);
+SamplerComparisonState g_shadowSamp : register(s1);
 
-// 画素のUVと深度からワールド座標を戻す
+//------------------------------------------------------------------------------------------
+// レイ1本ぶんの光の条件。画素ごとに一度だけ求めて、各区間の積分へ渡す
+//------------------------------------------------------------------------------------------
+struct FogLighting
+{
+	float3 ambient;		// 環境光
+	float3 sun;			// 平行光 × 位相関数(平行光なので、レイの向きが決まれば一定)
+	bool isUseShadow;	// 影を引くか(シャドウマップが繋がっていて、カスケードが組まれている)
+	float shadowEnd;	// 影の届く範囲の終わり(カメラからの距離)
+	float viewZPerDistance;	// レイを 1m 進んだときのビュー空間の奥行きの増え方
+	float shadowTileSize;	// カスケード1枚ぶんのタイルの解像度
+	float jitter;		// 歩く位置のずらし(0..1)
+};
+
+// 画素の UV と深度からワールド座標を戻す
 float3 ReconstructWorldPos(float2 a_uv, float a_depth)
 {
 	float4 _ndc = float4(a_uv.x * 2.0f - 1.0f, 1.0f - a_uv.y * 2.0f, a_depth, 1.0f);
 	float4 _worldPos = mul(_ndc, g_camera.invViewProj);
 	return _worldPos.xyz / _worldPos.w;
+}
+
+// 画素とフレームで変わる 0..1 のずらし(Interleaved Gradient Noise)
+float InterleavedGradientNoise(float2 a_pixel, float a_frame)
+{
+	a_pixel += 5.588238f * a_frame;
+	return frac(52.9829189f * frac(dot(a_pixel, float2(0.06711056f, 0.00583715f))));
+}
+
+// 位相関数(Henyey-Greenstein)。
+// 全方向に同じ(g = 0)とき 1 になるよう 4π を掛けてある。
+// こうしておくと、環境光と平行光を同じ物差しで足せる(光源の方を向いた面と同じくらい明るい)
+//   a_cos : 光の進む向きと、カメラへ向かう向きのなす角の cos(1 = 光源の方を見ている)
+float PhaseHenyeyGreenstein(float a_cos, float a_g)
+{
+	const float _g2 = a_g * a_g;
+	return (1.0f - _g2) / pow(max(1.0f + _g2 - 2.0f * a_g * a_cos, 1e-4f), 1.5f);
 }
 
 // 水平位置(xz)のグラウンドフィールドを引く。
@@ -144,14 +227,85 @@ float2 SampleGroundField(float2 a_posXZ, float2 a_center, float a_halfTexel)
 	return g_groundFieldTex.SampleLevel(g_samp, _uv, 0);
 }
 
-// シーンのフォグだけが漂う区間を、式で一度に積分する(一様なので歩かなくてよい)
-void IntegrateSceneFog(float a_length, inout float3 a_inoutColor, inout float a_inoutTransmittance)
+// 主光源の影 : 1 = ひなた / 0 = 影。
+// 媒質は面ではないので、法線方向へのずらしはせず、比較サンプラー1回(2x2 のバイリニア)だけで引く。
+// どのカスケードを引くかは ShadowMapMaskCS と同じく、ビュー空間の奥行きで決める
+float SampleSunShadow(float3 a_worldPos, float a_viewZ, float a_tileSize)
 {
-	if (a_length <= 0.0f) return;
+	uint _cascade = g_shadow.cascadeCount;
+	for (uint _i = 0; _i < g_shadow.cascadeCount; ++_i)
+	{
+		if (a_viewZ <= g_shadow.cascadeFar[_i])
+		{
+			_cascade = _i;
+			break;
+		}
+	}
+	if (_cascade >= g_shadow.cascadeCount) return 1.0f;
 
-	const float _transmittance = exp(-g_sceneFog.density * a_length);
-	a_inoutColor += a_inoutTransmittance * g_sceneFog.fogColor * (1.0f - _transmittance);
-	a_inoutTransmittance *= _transmittance;
+	float4 _lightClip = mul(float4(a_worldPos, 1.0f), g_shadow.lightViewProj[_cascade]);
+	float3 _ndc = _lightClip.xyz / _lightClip.w;
+
+	// 箱の外は描かれていない
+	if (_ndc.z >= 1.0f) return 1.0f;
+	float2 _uv = float2(_ndc.x * 0.5f + 0.5f, 0.5f - _ndc.y * 0.5f);
+	if (any(_uv < 0.0f) || any(_uv > 1.0f)) return 1.0f;
+
+	// バイアスはワールドの長さで持っているので、箱の奥行きで割って射影後の値にする
+	float _compareDepth = _ndc.z - g_shadow.depthBias / g_shadow.cascadeDepthRange[_cascade];
+
+	// タイルの中だけを引く(端まで行くとバイリニアが隣のカスケードを拾う)
+	float _texel = 1.0f / a_tileSize;
+	float2 _tileUV = clamp(_uv, _texel, 1.0f - _texel);
+	float2 _atlasUV = (float2(_cascade % kShadowAtlasTiles, _cascade / kShadowAtlasTiles) + _tileUV) / kShadowAtlasTiles;
+
+	return g_shadowMap.SampleCmpLevelZero(g_shadowSamp, _atlasUV, _compareDepth);
+}
+
+// レイの上の距離 a_t の点に届く光
+float3 CalcLightAt(FogLighting a_light, float3 a_rayStart, float3 a_rayDir, float a_t)
+{
+	float _visibility = 1.0f;
+	if (a_light.isUseShadow && a_t < a_light.shadowEnd)
+	{
+		_visibility = SampleSunShadow(a_rayStart + a_rayDir * a_t, a_t * a_light.viewZPerDistance, a_light.shadowTileSize);
+	}
+	return a_light.ambient + a_light.sun * _visibility;
+}
+
+// シーンのフォグだけが漂う区間 [a_start, a_end] を積分する。
+// 濃さは一様なので、光が一定のところ(影の届く範囲の外)は式で一度に求める。
+// 影の届く範囲の中だけ、影を引きながら歩く
+void IntegrateSceneFog(FogLighting a_light, float3 a_rayStart, float3 a_rayDir, float a_start, float a_end,
+	inout float3 a_inoutColor, inout float a_inoutTransmittance)
+{
+	if (a_end <= a_start || g_sceneFog.density <= 0.0f) return;
+
+	// 影の届く範囲の中 : 歩く
+	const float _marchEnd = a_light.isUseShadow ? min(a_end, a_light.shadowEnd) : a_start;
+	if (_marchEnd > a_start)
+	{
+		const float _stepLength = (_marchEnd - a_start) / (float) SUN_SHADOW_STEPS;
+		const float _stepTransmittance = exp(-g_sceneFog.density * _stepLength);
+
+		for (uint _i = 0; _i < SUN_SHADOW_STEPS; ++_i)
+		{
+			const float _t = a_start + (_i + a_light.jitter) * _stepLength;
+			const float3 _light = CalcLightAt(a_light, a_rayStart, a_rayDir, _t);
+
+			a_inoutColor += a_inoutTransmittance * g_sceneFog.fogColor * _light * (1.0f - _stepTransmittance);
+			a_inoutTransmittance *= _stepTransmittance;
+		}
+	}
+
+	// 残り : 遮るものが無いので光は一定。式で一度に求める
+	const float _restLength = a_end - max(a_start, _marchEnd);
+	if (_restLength > 0.0f)
+	{
+		const float _transmittance = exp(-g_sceneFog.density * _restLength);
+		a_inoutColor += a_inoutTransmittance * g_sceneFog.fogColor * (a_light.ambient + a_light.sun) * (1.0f - _transmittance);
+		a_inoutTransmittance *= _transmittance;
+	}
 }
 
 [RootSignature(SCENE_VOLUMETRIC_FOG_RS)]
@@ -196,6 +350,37 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 		return;
 	}
 	const float3 _rayDir = _rayVector / _rayLength;
+
+	//------------------------------------------------------------------------------
+	// 光 : 環境光と、平行光 × 位相関数(レイの向きで決まる)
+	//------------------------------------------------------------------------------
+	FogLighting _light;
+	_light.ambient = g_ambient.ambientColor;
+	_light.sun = 0.0f;
+	_light.isUseShadow = false;
+	_light.shadowEnd = 0.0f;
+	_light.viewZPerDistance = mul(float4(_rayDir, 0.0f), g_camera.view).z;
+	_light.shadowTileSize = 1.0f;
+	// 1歩目のずらし : フレームごとに変えて TAA に均させる
+	_light.jitter = InterleavedGradientNoise(float2(_coord), fmod(floor(g_groundDust.time * 60.0f), 64.0f));
+
+	if (g_sun.enable != 0)
+	{
+		const float3 _sunDir = normalize(g_sun.dir);
+		const float _cos = dot(_sunDir, -_rayDir);
+		_light.sun = g_sun.color.rgb * g_sun.brightness * PhaseHenyeyGreenstein(_cos, g_sceneFog.anisotropy);
+
+		// 影 : 最後のカスケードの奥までがシャドウマップの届く範囲
+		if (g_shadowMapIndex != DESCRIPTOR_INDEX_NONE && g_shadow.cascadeCount > 0 && _light.viewZPerDistance > 0.0001f)
+		{
+			uint _mapWidth, _mapHeight;
+			g_shadowMap.GetDimensions(_mapWidth, _mapHeight);
+
+			_light.isUseShadow = true;
+			_light.shadowEnd = g_shadow.cascadeFar[g_shadow.cascadeCount - 1] / _light.viewZPerDistance;
+			_light.shadowTileSize = (float) _mapWidth / kShadowAtlasTiles;
+		}
+	}
 
 	//------------------------------------------------------------------------------
 	// ダストを置くのは、見えている面が地面そのものの画素だけ
@@ -251,7 +436,7 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	float _transmittance = 1.0f;
 
 	// 層の手前 : シーンのフォグだけ
-	IntegrateSceneFog(_dustStart, _color, _transmittance);
+	IntegrateSceneFog(_light, _rayStart, _rayDir, 0.0f, _dustStart, _color, _transmittance);
 
 	// 層の中 : シーンのフォグ + ダストを歩いて積分する
 	const float _dustLength = _dustEnd - _dustStart;
@@ -274,7 +459,8 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 
 		for (uint _i = 0; _i < _steps; ++_i)
 		{
-			const float3 _samplePos = _rayStart + _rayDir * (_dustStart + (_i + 0.5f) * _stepLength);
+			const float _t = _dustStart + (_i + _light.jitter) * _stepLength;
+			const float3 _samplePos = _rayStart + _rayDir * _t;
 
 			// 衝撃で払われた量と、波頭に寄せられた量
 			const float2 _field = SampleGroundField(_samplePos.xz, _fieldCenter, _fieldHalfTexel);
@@ -306,13 +492,16 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 			const float3 _mediaColor =
 				(g_sceneFog.density * g_sceneFog.fogColor + _dustDensity * g_groundDust.dustColor) / _density;
 
-			_color += _transmittance * _mediaColor * (1.0f - _stepTransmittance);
+			// この点に届く光で照らす
+			const float3 _lightAt = CalcLightAt(_light, _rayStart, _rayDir, _t);
+
+			_color += _transmittance * _mediaColor * _lightAt * (1.0f - _stepTransmittance);
 			_transmittance *= _stepTransmittance;
 		}
 	}
 
 	// 層の奥 : シーンのフォグだけ
-	IntegrateSceneFog(_rayLength - _dustEnd, _color, _transmittance);
+	IntegrateSceneFog(_light, _rayStart, _rayDir, _dustEnd, _rayLength, _color, _transmittance);
 
 	//------------------------------------------------------------------------------
 	// 出力 : 合成側は lerp(元の色, rgb, a) で重ねるので、色は濃さで割り戻しておく

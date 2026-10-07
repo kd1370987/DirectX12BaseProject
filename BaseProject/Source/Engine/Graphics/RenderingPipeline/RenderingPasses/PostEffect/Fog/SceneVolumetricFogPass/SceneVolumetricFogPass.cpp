@@ -18,6 +18,9 @@ namespace Engine::Graphics::Pipeline
 		// グラウンドフィールド(GroundFieldPass の出力。任意) : 衝撃で払われた・寄せられたチリ。
 		// 繋がないとチリは衝撃で動かない
 		DeclareInput("GroundField", EAccessType::SRV, EPassSlotType::Texture, false, ROOT_INPUT_SRV);
+		// 主光源のシャドウマップ(ShadowMapPass の出力。任意) : レイに沿って平行光の影を引く。
+		// 繋がないと平行光は遮られずにフォグを照らす
+		DeclareInput("ShadowMap", EAccessType::SRV, EPassSlotType::Texture, false, ROOT_INPUT_SRV);
 
 		// フォグ。rgb = 色 / a = 濃さ。
 		// 全画素を書き潰すのでクリアは不要
@@ -66,6 +69,20 @@ namespace Engine::Graphics::Pipeline
 			}
 		}
 		_pCtx->ComputeBindDescriptorIndices(ROOT_NOISE_SRV, std::span<const UINT>(&_noiseIndex, 1));
+
+		// 媒質を照らす光
+		const LightManager* _pLightManager = _pGE->RefLightManager();
+
+		// 環境光
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV<AmbientData>(_pCmd, ROOT_AMBIENT_CB, _pSceneView->GetAmbientData());
+
+		// 平行光の影 : カスケードの行列・区切り・バイアス。
+		// ShadowMapPass が描いたときと同じもの(影の求め方がシャドウマップでなければカスケード数 0 で届く)
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, ROOT_SHADOW_CB, _pLightManager->GetSunShadowCB());
+
+		// 平行光の色と強さ : 影の CB には向きしか無いので、主光源を別に送る
+		const auto _sunCB = _pLightManager->GetSunLightCB();
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmd, ROOT_SUN_LIGHT_CB, _sunCB);
 
 		DispatchFullScreen(a_context);
 	}

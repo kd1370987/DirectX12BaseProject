@@ -244,27 +244,41 @@ namespace App::Object
 	// 確認ボックスへミッション名を流し込む
 	//--------------------------------------------------------------------------------------
 	// 名前のためだけに画像を1枚ずつ用意しなくて済むよう、Text の飾りへ直接書き込む。
-	// 飾りは名前で引くので、ボックスの作りを変えても指し直さずに済む。
+	// 飾りは番号で引くので、飾りの名前を変えたり並べ替えたりしても指し直さずに済む。
 	//======================================================================================
 	void MissionSelect::ApplyMissionName(const MissionEntry& a_mission)
 	{
 		auto* _pUI = Picker::Find<UIBase>(m_pObjectManager, m_nameUIGUID);
 		if (!_pUI) return;
 
-		auto* _pDecoration = _pUI->FindDecoration(m_nameDecorationName);
+		auto* _pDecoration = ResolveNameDecoration(*_pUI);
 		if (_pDecoration == nullptr)
 		{
-			ENGINE_WARNING("[MissionSelect] 名前を出す飾りが見つかりません : %s", m_nameDecorationName.c_str());
+			ENGINE_WARNING("[MissionSelect] 名前を出す飾りが見つかりません : %u", m_nameDecorationId);
 			return;
 		}
 
-		if (_pDecoration->type != Decoration::EDecorationType::Text)
+		Decoration::TextData* _pText = _pDecoration->RefText();
+		if (_pText == nullptr)
 		{
-			ENGINE_WARNING("[MissionSelect] 名前を出す飾りが Text ではありません : %s", m_nameDecorationName.c_str());
+			ENGINE_WARNING("[MissionSelect] 名前を出す飾りが Text ではありません : %s", _pDecoration->name.c_str());
 			return;
 		}
 
-		_pDecoration->text = a_mission.name;
+		_pText->text = a_mission.name;
+	}
+
+	Decoration::Decoration* MissionSelect::ResolveNameDecoration(UIBase& a_nameUI)
+	{
+		if (m_nameDecorationId == 0)
+		{
+			// 古いデータ : 名前から引いて番号を覚える(次からは番号で引く)
+			Decoration::Decoration* _pByName = a_nameUI.FindDecoration(m_legacyNameDecorationName);
+			if (_pByName) m_nameDecorationId = _pByName->id;
+			return _pByName;
+		}
+
+		return a_nameUI.FindDecorationById(m_nameDecorationId);
 	}
 
 	//======================================================================================
@@ -331,13 +345,32 @@ namespace App::Object
 		a_ar.GUIDField("YesButtonGUID", m_yesButtonGUID);
 		a_ar.GUIDField("NoButtonGUID", m_noButtonGUID);
 		a_ar.GUIDField("NameUIGUID", m_nameUIGUID);
-		a_ar.StringField("NameDecorationName", m_nameDecorationName);
+
+		// 名前は旧形式の名残。保存するときは今指している飾りの名前を書いておく
+		if (a_ar.IsSaving() && a_context.pObjectManager)
+		{
+			if (auto* _pNameUI = Picker::Find<UIBase>(a_context.pObjectManager, m_nameUIGUID))
+			{
+				if (const auto* _pDecoration = _pNameUI->FindDecorationById(m_nameDecorationId))
+				{
+					m_legacyNameDecorationName = _pDecoration->name;
+				}
+			}
+		}
+		a_ar.StringField("NameDecorationName", m_legacyNameDecorationName);
 
 		//----------------------------------------------------------------------
 		// 初期状態
 		//----------------------------------------------------------------------
 		// 出ているかどうかも保存する。ホームから開く作りなら既定は隠しておく
 		a_ar.Field("IsVisible", m_isVisible);
+
+		// ---- ここから下は区切りを入れた後に足したもの : 追加は必ず末尾へ ----
+		// 区切りを持たない古い .ob* には無いので読まない
+		if (!a_ar.IsLegacyLayout())
+		{
+			a_ar.Field("NameDecorationId", m_nameDecorationId);
+		}
 
 		if (a_ar.IsLoading())
 		{
@@ -444,20 +477,28 @@ namespace App::Object
 		if (Picker::DrawCombo<UIButton>("Yes", _pObjectManager, m_yesButtonGUID)) m_isBound = false;
 		if (Picker::DrawCombo<UIButton>("No", _pObjectManager, m_noButtonGUID))   m_isBound = false;
 
-		if (Picker::DrawCombo<UIBase>("Name UI", _pObjectManager, m_nameUIGUID)) ApplyVisible();
-		Engine::EditorField::Field("Name Decoration", m_nameDecorationName);
-		Engine::EditorField::Tooltip("上のUIが持つ Text 飾りの名前。ここへミッション名を書き込む");
+		if (Picker::DrawCombo<UIBase>("Name UI", _pObjectManager, m_nameUIGUID))
+		{
+			// UI を選び直したら、前の UI の飾りの番号は意味を持たない
+			m_nameDecorationId = 0;
+			m_legacyNameDecorationName.clear();
+			ApplyVisible();
+		}
 
 		// 指定した飾りが本当にあるか、その場で分かるようにしておく
 		if (auto* _pNameUI = Picker::Find<UIBase>(_pObjectManager, m_nameUIGUID))
 		{
-			const auto* _pDecoration = _pNameUI->FindDecoration(m_nameDecorationName);
+			ResolveNameDecoration(*_pNameUI);
 
+			_pNameUI->DrawDecorationPicker("Name Decoration", m_nameDecorationId, Decoration::EDecorationType::Text);
+			Engine::EditorField::Tooltip("上のUIが持つ Text 飾り。ここへミッション名を書き込む(番号で指すので、名前を変えても外れない)");
+
+			const auto* _pDecoration = _pNameUI->FindDecorationById(m_nameDecorationId);
 			if (_pDecoration == nullptr)
 			{
-				Engine::EditorField::ErrorText("飾りが見つかりません");
+				Engine::EditorField::ErrorText("飾りが選ばれていません");
 			}
-			else if (_pDecoration->type != Decoration::EDecorationType::Text)
+			else if (_pDecoration->GetType() != Decoration::EDecorationType::Text)
 			{
 				Engine::EditorField::WarningText("飾りが Text ではありません");
 			}

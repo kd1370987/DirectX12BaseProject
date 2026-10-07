@@ -72,7 +72,7 @@ namespace App::Object
 	{
 		// 桁の送りは「元の大きさ」で決める。
 		// 弾んでいる間の大きさで送ると、拡大するたびに桁が横へ広がってしまう
-		const float _step = m_pixelSize.x + m_digitSpacing;
+		const float _step = m_anchor.pixelSize.x + m_digitSpacing;
 
 		//--------------------------------------------------------------
 		// 1枚に並んだ数字から1コマだけ切り出す
@@ -85,7 +85,7 @@ namespace App::Object
 
 		Decoration::DrawOverride _override = {};
 		_override.isUsePos = true;
-		_override.pixelPos = m_pixelPos;
+		_override.pixelPos = m_anchor.pixelPos;
 		_override.pixelPos.x += _step * static_cast<float>(a_index);
 		_override.scale = a_scale;
 

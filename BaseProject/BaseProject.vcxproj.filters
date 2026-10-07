@@ -634,6 +634,9 @@
     <Filter Include="Source\Application\Object\UI\UIImage">
       <UniqueIdentifier>{c8d2e3f4-9a51-4b62-8d73-1e84f5a6b703}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\UI\UIPanel">
+      <UniqueIdentifier>{dbe1007a-6323-4f3f-ba6a-73afc788c512}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Object\UI\WaveAnnounceHUD">
       <UniqueIdentifier>{c59d7e01-7d42-41b4-ac87-a11018f0899d}</UniqueIdentifier>
     </Filter>
@@ -1479,8 +1482,29 @@
     <ClCompile Include="Source\Application\Object\UI\Decoration.cpp">
       <Filter>Source\Application\Object\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\DecorationDraw.cpp">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\DecorationArchive.cpp">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\DecorationInspector.cpp">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\UIBase.cpp">
       <Filter>Source\Application\Object\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIBaseInspector.cpp">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIAnchor.cpp">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIInteraction.cpp">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIPanel\UIPanel.cpp">
+      <Filter>Source\Application\Object\UI\UIPanel</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.cpp">
       <Filter>Source\Application\Object\UI\AimReticleHUD</Filter>
@@ -2292,9 +2316,6 @@
     <ClCompile Include="Source\Engine\Window\NativeWindow.cpp">
       <Filter>Source\Engine\Window</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Application\Object\UI\UIManager.cpp">
-      <Filter>Source\Application\Object\UI</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\Core\Pass\Pass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\Core\Pass</Filter>
     </ClCompile>
@@ -2942,6 +2963,9 @@
     <ClInclude Include="Source\Application\InstanceResource\PlayerHUDResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\UICursorResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\WaveAnnounceResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
@@ -2975,8 +2999,20 @@
     <ClInclude Include="Source\Application\Object\UI\Decoration.h">
       <Filter>Source\Application\Object\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\DecorationInternal.h">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\UIBase.h">
       <Filter>Source\Application\Object\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\UIAnchor.h">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\UIInteraction.h">
+      <Filter>Source\Application\Object\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\UI\UIPanel\UIPanel.h">
+      <Filter>Source\Application\Object\UI\UIPanel</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\AimReticleHUD\AimReticleHUD.h">
       <Filter>Source\Application\Object\UI\AimReticleHUD</Filter>
@@ -4057,9 +4093,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Window\NativeWindow.h">
       <Filter>Source\Engine\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Application\Object\UI\UIManager.h">
-      <Filter>Source\Application\Object\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>

@@ -12,7 +12,7 @@
 // 現在値と最大値だけを受け取り、残量で横幅と色を変える。
 //
 // ・中身は飾り1つ
-//     名前で指す。飾りなので、絵でも板ポリでも、枠付きでも同じように縮む。
+//     番号(Decoration::id)で指す。飾りなので、絵でも板ポリでも、枠付きでも同じように縮む。
 //     縮めるのは DrawOverride の sizeScale(大きさだけに掛かる倍率)なので、
 //     飾り側の値は書き換えない = 次のフレームへ汚れが残らない。
 //
@@ -144,14 +144,14 @@ namespace App::Object
 	//======================================================================================
 	void UIGauge::ApplyFillPivot()
 	{
-		const int _fillIndex = FindDecorationIndex(m_fillDecorationName);
+		const int _fillIndex = FindDecorationIndexById(m_fillDecorationId);
 		if (_fillIndex < 0) return;
 
 		// 動かさない場所を固定する。
 		// 横幅に残量を掛けるだけなので、ピボットを置いた場所がそのまま
 		// 「減っても動かない点」になる
 		float _pivotX = 0.0f;
-		switch (m_anchor)
+		switch (m_fillAnchor)
 		{
 		case EGaugeAnchor::Right:  _pivotX = 1.0f; break;	// 右端を固定 : 左から減る
 		case EGaugeAnchor::Center: _pivotX = 0.5f; break;	// 中央を固定 : 両側から減る
@@ -173,16 +173,16 @@ namespace App::Object
 	{
 		if (m_textFormat == EGaugeTextFormat::None) return;
 
-		const int _textIndex = FindDecorationIndex(m_textDecorationName);
-		if (_textIndex < 0) return;
+		Decoration::Decoration* _pDecoration = FindDecorationById(m_textDecorationId);
+		if (_pDecoration == nullptr) return;
 
-		Decoration::Decoration& _decoration = m_decorationVec[_textIndex];
-		if (_decoration.type != Decoration::EDecorationType::Text) return;
+		Decoration::TextData* _pText = _pDecoration->RefText();
+		if (_pText == nullptr) return;
 
 		const std::string _text = MakeValueText();
-		if (_text == m_appliedText && _decoration.text == _text) return;
+		if (_text == m_appliedText && _pText->text == _text) return;
 
-		_decoration.text = _text;
+		_pText->text = _text;
 		m_appliedText = _text;
 	}
 
@@ -264,14 +264,14 @@ namespace App::Object
 	//======================================================================================
 	void UIGauge::Draw(Engine::GameObject::ObjectContext& a_context)
 	{
-		if (!m_isVisible) return;
+		if (!IsVisibleInHierarchy(a_context)) return;
 
 		// 値が取れていないフレームは何も出さない。
 		// Visible を落とさないのは、進行役が握っている出し入れと取り合わないため
 		if (m_isHideWhenNoValue && !m_hasValue) return;
 
 		const float _ratio = GetRatio();
-		const int _fillIndex = FindDecorationIndex(m_fillDecorationName);
+		const int _fillIndex = FindDecorationIndexById(m_fillDecorationId);
 
 		// 中身へ掛ける差し替え : 横だけ縮めて、残量の色を乗せる
 		Decoration::DrawOverride _fillOverride = {};
@@ -303,8 +303,16 @@ namespace App::Object
 		// どちらに足しても互いの読み出しはずれない。足すときはこの区切りの末尾へ
 		Engine::Persistence::ArchiveSection _section(a_ar, "UIGauge");
 
-		a_ar.StringField("FillDecorationName", m_fillDecorationName);
-		a_ar.Field("Anchor", m_anchor);
+		// 名前は旧形式の名残。保存するときは今指している飾りの名前を書いておく
+		// (番号を読めない古いコードや、JSON を目で見たときに分かるように)
+		if (a_ar.IsSaving())
+		{
+			if (const auto* _pFill = FindDecorationById(m_fillDecorationId)) m_legacyFillDecorationName = _pFill->name;
+			if (const auto* _pText = FindDecorationById(m_textDecorationId)) m_legacyTextDecorationName = _pText->name;
+		}
+
+		a_ar.StringField("FillDecorationName", m_legacyFillDecorationName);
+		a_ar.Field("Anchor", m_fillAnchor);
 
 		//----------------------------------------------------------------------
 		// 残量ごとの色
@@ -331,7 +339,7 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// 数値
 		//----------------------------------------------------------------------
-		a_ar.StringField("TextDecorationName", m_textDecorationName);
+		a_ar.StringField("TextDecorationName", m_legacyTextDecorationName);
 		a_ar.Field("TextFormat", m_textFormat);
 		a_ar.Field("Decimals", m_decimals);
 
@@ -342,8 +350,27 @@ namespace App::Object
 		a_ar.Field("Source", m_source);
 		a_ar.Field("IsHideWhenNoValue", m_isHideWhenNoValue);
 
+		// ---- ここから下は区切りを入れた後に足したもの : 追加は必ず末尾へ ----
+		// 区切りを持たない古い .ob* には無いので読まない
+		if (!a_ar.IsLegacyLayout())
+		{
+			a_ar.Field("FillDecorationId", m_fillDecorationId);
+			a_ar.Field("TextDecorationId", m_textDecorationId);
+		}
+
 		if (a_ar.IsLoading())
 		{
+			// 番号を持たない古いデータは、名前から引き直す
+			// (飾りの番号は UIBase::Archive の中で振り終えている)
+			if (m_fillDecorationId == 0)
+			{
+				if (const auto* _pFill = FindDecoration(m_legacyFillDecorationName)) m_fillDecorationId = _pFill->id;
+			}
+			if (m_textDecorationId == 0)
+			{
+				if (const auto* _pText = FindDecoration(m_legacyTextDecorationName)) m_textDecorationId = _pText->id;
+			}
+
 			// 流し込み直させる
 			m_appliedText.clear();
 		}
@@ -388,16 +415,16 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		// 中身
 		//----------------------------------------------------------------------
-		Engine::EditorField::Field("FillDecoration", m_fillDecorationName);
-		Engine::EditorField::Tooltip("横幅を縮める飾りの名前");
+		DrawDecorationPicker("FillDecoration", m_fillDecorationId);
+		Engine::EditorField::Tooltip("横幅を縮める飾り。番号で指すので、名前を変えても外れない");
 
 		// 指している飾りが本当にあるか、その場で分かるようにしておく
-		if (FindDecorationIndex(m_fillDecorationName) < 0)
+		if (FindDecorationIndexById(m_fillDecorationId) < 0)
 		{
-			Engine::EditorField::ErrorText("その名前の飾りがありません");
+			Engine::EditorField::ErrorText("中身の飾りが選ばれていません");
 		}
 
-		Engine::EditorField::Field("Anchor", m_anchor);
+		Engine::EditorField::Field("Anchor", m_fillAnchor);
 		Engine::EditorField::Tooltip("減っても動かない場所。Center は両側から均等に減る");
 
 		//----------------------------------------------------------------------
@@ -453,15 +480,18 @@ namespace App::Object
 
 		if (m_textFormat != EGaugeTextFormat::None)
 		{
-			Engine::EditorField::Field("TextDecoration", m_textDecorationName);
-			Engine::EditorField::Tooltip("数値を流し込む Text 飾りの名前。置き場所はその飾りの OffsetPos");
-
-			const int _textIndex = FindDecorationIndex(m_textDecorationName);
-			if (_textIndex < 0)
+			if (DrawDecorationPicker("TextDecoration", m_textDecorationId, Decoration::EDecorationType::Text))
 			{
-				Engine::EditorField::ErrorText("その名前の飾りがありません");
+				m_appliedText.clear();	// 選び直したらすぐ流し込む
 			}
-			else if (m_decorationVec[_textIndex].type != Decoration::EDecorationType::Text)
+			Engine::EditorField::Tooltip("数値を流し込む Text 飾り。置き場所はその飾りの OffsetPos");
+
+			const Decoration::Decoration* _pText = FindDecorationById(m_textDecorationId);
+			if (_pText == nullptr)
+			{
+				Engine::EditorField::ErrorText("数値の飾りが選ばれていません");
+			}
+			else if (_pText->GetType() != Decoration::EDecorationType::Text)
 			{
 				Engine::EditorField::WarningText("その飾りが Text ではありません");
 			}

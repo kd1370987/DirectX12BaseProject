@@ -1409,6 +1409,31 @@ namespace Engine::EditorField
 		return true;
 	}
 
+	void ScreenPolyline(
+		const Math::Vector2* a_pPoints,
+		size_t a_count,
+		const Math::Color& a_color,
+		float a_thickness,
+		bool a_isClosed)
+	{
+		if (a_pPoints == nullptr || a_count < 2) return;
+
+		std::vector<ImVec2> _pointVec;
+		_pointVec.reserve(a_count);
+		for (size_t _i = 0; _i < a_count; ++_i)
+		{
+			_pointVec.push_back(ToImVec2(a_pPoints[_i]));
+		}
+
+		const ImU32 _color = ImGui::ColorConvertFloat4ToU32(ImVec4(a_color.r, a_color.g, a_color.b, a_color.a));
+		ImGui::GetWindowDrawList()->AddPolyline(
+			_pointVec.data(),
+			static_cast<int>(_pointVec.size()),
+			_color,
+			a_isClosed ? ImDrawFlags_Closed : ImDrawFlags_None,
+			a_thickness);
+	}
+
 	bool TranslateGizmo(const Math::Matrix& a_viewMat, const Math::Matrix& a_projMat, Math::Matrix& a_inoutMat, float a_snap)
 	{
 		const float _snapValues[3] = { a_snap, a_snap, a_snap };

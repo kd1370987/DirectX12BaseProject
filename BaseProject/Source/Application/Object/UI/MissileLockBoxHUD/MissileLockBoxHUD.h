@@ -23,6 +23,9 @@ namespace App::Object
 	{
 	public:
 
+		// 押されることのない HUD なので、カーソルへの反応を持たない
+		MissileLockBoxHUD() : UIBase(false) {}
+
 		// 初期化処理 : 枠テクスチャの読み込み
 		void PostDeserialize(Engine::GameObject::ObjectContext& a_context) override;
 		void Awake(Engine::GameObject::ObjectContext& a_context) override;

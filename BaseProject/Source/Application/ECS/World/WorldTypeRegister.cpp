@@ -227,6 +227,7 @@
 #include "Application/InstanceResource/SwarmContactDamageResource.h"
 #include "Application/InstanceResource/SwarmMissileResource.h"
 #include "Application/InstanceResource/PlayerHUDResource.h"
+#include "Application/InstanceResource/UICursorResource.h"
 
 namespace App::ECS
 {
@@ -595,6 +596,8 @@ namespace App::ECS
 		a_world.AddResource<InstanceResource::SwarmMissileResource>();
 		// HUD が読む値(HUDGatherSystem が書き、HUD が読む)
 		a_world.AddResource<InstanceResource::PlayerHUDResource>();
+		// UI のカーソルの取り合い(書くのも読むのも UI。システムは触らない)
+		a_world.AddResource<InstanceResource::UICursorResource>();
 
 		// 初期化
 		a_world.RefResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);

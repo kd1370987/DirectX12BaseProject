@@ -47,11 +47,11 @@ namespace Engine::GameObject
 		// 消えるものを外した後に呼ぶので、追加してすぐ消されたものへは手を出さない
 		RunInitPhases();
 
-		// カーソルの取り合いは毎フレーム作り直す。
-		// 消えたオブジェクトのアドレスを持ち越さないよう、名乗りを集める前に空にする
-		m_objContext.cursorClaim = {};
+		// フレームの番号を進める。
+		// 「このフレームのぶんか」を見分けたい側(UI のカーソルの取り合いなど)は、
+		// これが変わったのを見て自分の集計を作り直す
+		++m_objContext.frameIndex;
 
-		// 名乗りを集める : 全員ぶん揃ってから、Update 側で誰が取ったかを見る
 		for (auto& _upObject : m_upObjectVec)
 		{
 			_upObject->PreUpdate(m_objContext);

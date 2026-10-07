@@ -29,13 +29,13 @@ namespace App::Object
 
 		// サイズが0のままだと何も見えないので、既定サイズと表示位置を入れておく。
 		// 保存値を読み終えた後に見るので、シーンに入っている値は潰さない
-		if (m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f)
+		if (m_anchor.pixelSize.x <= 0.0f || m_anchor.pixelSize.y <= 0.0f)
 		{
-			m_pixelSize = { DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT };
-			m_editSize  = m_pixelSize;
+			m_anchor.pixelSize = { DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT };
+			m_anchor.editSize  = m_anchor.pixelSize;
 
 			const auto& _winOp = a_context.pServices->pOptionManager->GetWindowOption();
-			m_pixelPos = {
+			m_anchor.pixelPos = {
 				static_cast<float>(_winOp.windowWidth) * 0.5f,
 				static_cast<float>(_winOp.windowHeight) * DEFAULT_SCREEN_Y_RATE
 			};
@@ -115,8 +115,7 @@ namespace App::Object
 	{
 		for (Decoration::Decoration& _decoration : RefDecorations())
 		{
-			if (_decoration.type != Decoration::EDecorationType::Text) continue;
-			_decoration.text = a_label;
+			if (Decoration::TextData* _pText = _decoration.RefText()) _pText->text = a_label;
 		}
 	}
 

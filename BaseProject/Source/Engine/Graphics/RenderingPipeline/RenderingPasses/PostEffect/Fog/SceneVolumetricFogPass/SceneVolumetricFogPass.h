@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
 
 namespace Engine::Graphics::Pipeline
@@ -15,6 +15,10 @@ namespace Engine::Graphics::Pipeline
 	// 手前に物体がある画素・空の画素はシーンのフォグだけ。
 	// 衝撃でチリが払われる・波頭へ寄せられる量は GroundFieldPass が書いたテクスチャを引く。
 	// 地面の深度を繋がなければダストは出ず、フィールドを繋がなければチリは衝撃で動かない。
+	//
+	// 媒質は環境光と平行光(主光源)で照らす。平行光の影は ShadowMapPass のシャドウマップ(CSM)を
+	// レイに沿って引くので、窓や木漏れ日から光の筋が差す。
+	// シャドウマップを繋がない・影の求め方がシャドウマップでないフレームは、平行光を遮らずに照らす。
 	//
 	// 値(フォグ・ダストの調整値とノイズテクスチャ)はシーン(Engine::Scene::SceneAmbient)の
 	// 持ち物で、パスは SceneView から受け取って送るだけ。パス自身は設定を持たない。
@@ -43,6 +47,9 @@ namespace Engine::Graphics::Pipeline
 		static constexpr int ROOT_INPUT_SRV = 3;
 		static constexpr int ROOT_OUTPUT_UAV = 4;
 		static constexpr int ROOT_NOISE_SRV = 5;
+		static constexpr int ROOT_AMBIENT_CB = 6;
+		static constexpr int ROOT_SHADOW_CB = 7;
+		static constexpr int ROOT_SUN_LIGHT_CB = 8;
 
 		// ノイズが張られていないときに渡す番号(シェーダーの DESCRIPTOR_INDEX_NONE と合わせる)
 		static constexpr UINT NOISE_INDEX_NONE = 0xFFFFFFFF;

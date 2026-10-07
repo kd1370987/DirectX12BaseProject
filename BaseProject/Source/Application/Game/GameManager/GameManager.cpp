@@ -24,6 +24,7 @@
 #include "Application/Object/UI/MissileLockBoxHUD/MissileLockBoxHUD.h"
 #include "Application/Object/UI/UIButton/UIButton.h"
 #include "Application/Object/UI/UIImage/UIImage.h"
+#include "Application/Object/UI/UIPanel/UIPanel.h"
 #include "Application/Object/UI/UIGauge/UIGauge.h"
 #include "Application/Object/Sequence/TitleSequence/TitleSequence.h"
 #include "Application/Object/Sequence/HomeSequence/HomeSequence.h"
@@ -99,6 +100,7 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::HitEffectHUD>("HitEffectHUD");
 			_objRegistry.RegisterType<App::Object::MissileLockBoxHUD>("MissileLockBoxHUD");
 			_objRegistry.RegisterType<App::Object::UIButton>("UIButton");						// 押せるUI。押されて何をするかは SetOnClick で外から差し込む
+			_objRegistry.RegisterType<App::Object::UIPanel>("UIPanel");							// UIをまとめて出し入れする入れ物。下に置いたUIはパネルの表示に従う
 			_objRegistry.RegisterType<App::Object::UIImage>("UIImage");							// 置くだけの画像(タイトルの背景など)
 			_objRegistry.RegisterType<App::Object::TitleSequence>("TitleSequence");				// タイトル画面の進行役。ボタンへ「押されたらシーンを切り替える」を差し込む
 			_objRegistry.RegisterType<App::Object::AmbientDustObject>("AmbientDustObject");		// カメラに追従する空間のチリ。環境光・フォグ・空はシーン(SceneAmbient)の持ち物

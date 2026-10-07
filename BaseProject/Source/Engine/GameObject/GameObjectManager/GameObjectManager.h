@@ -69,8 +69,8 @@ namespace Engine::GameObject
 		/// <remarks>
 		/// 消える指示が出ているものを配列から外し、まだ初期化を通していないものを
 		/// 通しきってから、全員の PreUpdate を回す。
-		/// カーソルの取り合い(ObjectContext::cursorClaim)はここで作り直すので、
-		/// 名乗りは必ず Update より前に揃う
+		/// フレームの番号(ObjectContext::frameIndex)はここで進む。
+		/// PreUpdate で集めたものは、必ず Update より前に揃う
 		/// </remarks>
 		void PreUpdate();
 

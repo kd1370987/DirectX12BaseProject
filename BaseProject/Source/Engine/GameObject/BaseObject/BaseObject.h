@@ -33,63 +33,16 @@ namespace Engine::GameObject
 		// シングルトンを名指ししないための経路なので、必ずここから引くこと
 		GameObjectManager* pObjectManager = nullptr;
 
-		//===================================================================
-		// カーソルの取り合い
-		//
-		// 画面に重ねて置いたもののうち、いちばん手前の1つだけが
-		// カーソルを受け取れるようにするための場所。
-		//
-		// 各オブジェクトは PreUpdate で「カーソルの上に居る」と名乗り、
-		// Update で自分が取れたかを見る。名乗りが全員ぶん揃ってから決まるので、
-		// 更新の順番に関係なく手前のものが勝つ。
-		//
-		// 順番の決め方は描画と同じ : layer が大きいほど手前。
-		// 同じ値なら後から名乗ったほう(＝後に描かれて上に乗るほう)が勝つ
-		//===================================================================
-		struct CursorClaim
-		{
-			// 受け取り手。アドレスの比較にしか使わない(実体は触らないので、
-			// 名乗った相手がこの後に消えても安全)
-			const BaseObject* pOwner = nullptr;
-
-			float layer = 0.0f;			// 名乗った時点の重なり順
-			bool isCapture = false;		// 押している最中の占有
-		};
-		CursorClaim cursorClaim = {};
-
 		/// <summary>
-		/// カーソルの上に自分が居ると名乗る(PreUpdate から)
+		/// フレームの番号(GameObjectManager::PreUpdate を通るたびに1つ進む)
 		/// </summary>
-		/// <param name="a_pObject">名乗る本人</param>
-		/// <param name="a_layer">重なり順(大きいほど手前)</param>
-		/// <param name="a_isCapture">
-		/// 押している最中の占有。押し始めたものは、カーソルが外れても
-		/// 重なり順に関係なく持ち続ける
-		/// (押したまま手を滑らせただけで、下のものが光り始めるのを止めるため)
-		/// </param>
-		void ClaimCursor(const BaseObject* a_pObject, float a_layer, bool a_isCapture = false)
-		{
-			if (a_pObject == nullptr) return;
-
-			if (cursorClaim.pOwner != nullptr)
-			{
-				// 占有している相手が居るなら、同じ占有にしか譲らない
-				if (cursorClaim.isCapture && !a_isCapture) return;
-
-				// 強さが同じなら手前が勝つ。同値のときは後から名乗ったほう
-				if (cursorClaim.isCapture == a_isCapture && a_layer < cursorClaim.layer) return;
-			}
-
-			cursorClaim.pOwner = a_pObject;
-			cursorClaim.layer = a_layer;
-			cursorClaim.isCapture = a_isCapture;
-		}
-
-		/// <summary>自分がカーソルを受け取れるか(Update から)</summary>
-		bool IsCursorOwner(const BaseObject* a_pObject) const
-		{
-			return a_pObject != nullptr && cursorClaim.pOwner == a_pObject;
-		}
+		/// <remarks>
+		/// PreUpdate で全員から集めて Update で答えを見る、といった
+		/// 「1フレームだけ有効な集計」を持つ側が、作り直すきっかけに使う。
+		/// (UI のカーソルの取り合いは App 側の UICursorResource がこれを見ている。
+		///  以前はその集計そのものをここに持っていたが、UI の都合なのでエンジンから外した)
+		/// </remarks>
+		uint64_t frameIndex = 0;
 	};
 
 	/// <summary>
@@ -180,7 +133,7 @@ namespace Engine::GameObject
 		/// </summary>
 		/// <remarks>
 		/// 「全員の申告が揃ってからでないと決められないもの」を置く場所。
-		/// カーソルの取り合い(ObjectContext::ClaimCursor)がこれを使っている。
+		/// UI のカーソルの取り合い(App 側の UICursorResource)がこれを使っている。
 		/// 名乗りと勝ち負けの判断を別の回に分けてあるので、
 		/// 配列に置いた順番で結果が変わらない。
 		///
@@ -285,6 +238,7 @@ namespace Engine::GameObject
 		/// 参照が切れても一覧から消えることはない。
 		///
 		/// 実際の親子(座標が伝わるもの)が要るなら ECS の HierarchyComponent を使うこと。
+		/// (例外 : UIPanel の下に置いた UI は、パネルの表示状態に従う。App 側の UIBase を参照)
 		/// </remarks>
 		const Core::GUID& GetParentGUID() const { return m_parentGUID; }
 		void SetParentGUID(const Core::GUID& a_guid) { m_parentGUID = a_guid; }

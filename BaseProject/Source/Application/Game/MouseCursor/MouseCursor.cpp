@@ -148,7 +148,7 @@ namespace App::Game
 		// クライアント領域(実際のウィンドウの大きさ) → 描画解像度(UIの座標系)。
 		// バックバッファは描画解像度で作られ、クライアント領域へ引き伸ばして
 		// 表示されるので、比率を掛ければよい
-		// (UIの当たり判定でも同じ変換をしている : UIBase::CalcCursorUIPos)
+		// (UIの当たり判定でも同じ変換をしている : UIInteraction::CalcCursorUIPos)
 		const auto& _winOp = m_pServices->pOptionManager->GetWindowOption();
 		const float _renderW = static_cast<float>(_winOp.windowWidth);
 		const float _renderH = static_cast<float>(_winOp.windowHeight);

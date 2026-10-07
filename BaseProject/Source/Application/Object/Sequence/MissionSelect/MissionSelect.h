@@ -4,6 +4,9 @@
 
 namespace App::Object
 {
+	class UIBase;
+	namespace Decoration { struct Decoration; }
+
 	/// <summary>
 	/// ミッションセレクト : ホーム画面から呼び出される、出撃先を選ぶ画面
 	/// </summary>
@@ -112,6 +115,15 @@ namespace App::Object
 		// 確認ボックスへミッション名を流し込む
 		void ApplyMissionName(const MissionEntry& a_mission);
 
+		/// <summary>
+		/// ミッション名を流し込む飾りを引く(見つからなければ nullptr)
+		/// </summary>
+		/// <remarks>
+		/// 番号を持たない古いデータは、ここで名前から番号を引き直して覚える。
+		/// 相手は別のオブジェクトなので、読み込みの時点(Archive)ではまだ引けない
+		/// </remarks>
+		Decoration::Decoration* ResolveNameDecoration(UIBase& a_nameUI);
+
 		// 指しているものがそろっているか
 		bool IsAllReady() const;
 
@@ -137,9 +149,13 @@ namespace App::Object
 		Core::GUID m_yesButtonGUID = {};	// 出撃する
 		Core::GUID m_noButtonGUID = {};	// やめる
 
-		// ミッション名を流し込む先のUIと、その中の Text 飾りの名前
+		// ミッション名を流し込む先のUIと、その中の Text 飾りの番号(Decoration::id)
 		Core::GUID m_nameUIGUID = {};
-		std::string m_nameDecorationName = "MissionName";
+		uint32_t m_nameDecorationId = 0;
+
+		// 名前で飾りを指していた頃の名残。保存の並びを保つために読み書きだけ続け、
+		// 番号を持たない古いデータでは ResolveNameDecoration がこの名前から番号を引き直す
+		std::string m_legacyNameDecorationName = "MissionName";
 
 		//-------------------------------------------------------------------
 		// 状態(保存しない)

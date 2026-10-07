@@ -111,6 +111,23 @@ namespace Engine::Persistence
 		void BeginSection(std::string_view a_name);
 		void EndSection();
 
+		/// <summary>
+		/// 区切りを持たない古いバイナリを読んでいる最中か
+		/// </summary>
+		/// <remarks>
+		/// 古いデータには区切りの長さが無いので、終わりがどこか分からない。
+		/// 区切りを入れた後に足したフィールドをそこで読むと、後ろのデータを食ってずれる。
+		/// 後から足したフィールドは、これが true の間は読まないこと
+		///
+		///     if (!a_ar.IsLegacyLayout()) a_ar.Field("NewValue", m_newValue);
+		///
+		/// 保存中・JSON・長さを持つ区切りの中では false
+		/// </remarks>
+		bool IsLegacyLayout() const
+		{
+			return IsLoading() && m_ifs.is_open() && !m_sectionVec.empty() && !m_sectionVec.back().hasOwnLength;
+		}
+
 		// GUID用
 		void GUIDField(const std::string& a_name,Core::GUID& a_guid);
 		void GUIDVectorField(const std::string& a_name, std::vector<Core::GUID>& a_guid);

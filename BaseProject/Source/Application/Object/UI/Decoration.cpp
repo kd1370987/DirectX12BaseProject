@@ -1,80 +1,119 @@
-﻿#include "Decoration.h"
-
-#include "Engine/Graphics/GraphicsEngine.h"
-#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Resource/Data/Texture/IO/TextureIO.h"
-#include "Engine/EditorField/EditorField.h"
+#include "DecorationInternal.h"
 
 //==========================================================================================
-// デコレーションの評価と描画
+// デコレーション : 種類の切り替えと、アニメーション・反応の進行
 //
-// 描画はすべて「ローカル矩形を親の回転で回してから積む」1つの経路に寄せてある
-// (SubmitLocalRect)。塗り・枠・文字のどれも、アンカーからのずれを持った矩形の集まりなので、
-// ここを共通にしておかないと回転を掛けたときにバラバラにずれる。
+// 描画は DecorationDraw.cpp、保存は DecorationArchive.cpp、
+// インスペクターは DecorationInspector.cpp
 //==========================================================================================
 namespace App::Object::Decoration
 {
+	using Internal::Lerp;
+
+	//======================================================================================
+	// 種類
+	//======================================================================================
+	void Decoration::SetType(EDecorationType a_type)
+	{
+		if (GetType() == a_type) return;
+
+		// 板ポリ⇔画像は UV と枠をそのまま使えるので引き継ぐ
+		// (板ポリで枠を作ってから画像へ変える、といった作り方で値が消えないように)
+		const QuadStyle _quad = GetQuad() ? *GetQuad() : QuadStyle{};
+
+		switch (a_type)
+		{
+		case EDecorationType::Image:
+		{
+			ImageData _image = {};
+			_image.quad = _quad;
+			body = std::move(_image);
+			break;
+		}
+		case EDecorationType::Text:
+			body = TextData{};
+			break;
+
+		case EDecorationType::Polygon:
+		default:
+		{
+			PolygonData _polygon = {};
+			_polygon.quad = _quad;
+			body = std::move(_polygon);
+			break;
+		}
+		}
+	}
+
+	const QuadStyle* Decoration::GetQuad() const
+	{
+		if (const PolygonData* _pPolygon = std::get_if<PolygonData>(&body)) return &_pPolygon->quad;
+		if (const ImageData* _pImage = std::get_if<ImageData>(&body)) return &_pImage->quad;
+		return nullptr;
+	}
+
+	QuadStyle* Decoration::RefQuad()
+	{
+		return const_cast<QuadStyle*>(static_cast<const Decoration*>(this)->GetQuad());
+	}
+
+	//======================================================================================
+	// イージング
+	//======================================================================================
+	float Ease(EEase a_ease, float a_rate)
+	{
+		const float _t = std::clamp(a_rate, 0.0f, 1.0f);
+
+		switch (a_ease)
+		{
+		case EEase::InQuad:		return _t * _t;
+		case EEase::OutQuad:	return 1.0f - (1.0f - _t) * (1.0f - _t);
+		case EEase::InOutQuad:
+			return (_t < 0.5f)
+				? (2.0f * _t * _t)
+				: (1.0f - 2.0f * (1.0f - _t) * (1.0f - _t));
+
+		case EEase::InCubic:	return _t * _t * _t;
+		case EEase::OutCubic:
+		{
+			const float _inv = 1.0f - _t;
+			return 1.0f - _inv * _inv * _inv;
+		}
+		case EEase::InOutCubic:
+		{
+			if (_t < 0.5f) return 4.0f * _t * _t * _t;
+			const float _inv = -2.0f * _t + 2.0f;
+			return 1.0f - (_inv * _inv * _inv) * 0.5f;
+		}
+
+		case EEase::OutBack:
+		{
+			// 行き過ぎてから戻る。定数は一般的なイージング表の値
+			constexpr float C1 = 1.70158f;
+			constexpr float C3 = C1 + 1.0f;
+			const float _inv = _t - 1.0f;
+			return 1.0f + C3 * _inv * _inv * _inv + C1 * _inv * _inv;
+		}
+		case EEase::OutElastic:
+		{
+			if (_t <= 0.0f) return 0.0f;
+			if (_t >= 1.0f) return 1.0f;
+
+			constexpr float C4 = 6.283185307f / 3.0f;
+			return std::pow(2.0f, -10.0f * _t) * std::sin((_t * 10.0f - 0.75f) * C4) + 1.0f;
+		}
+
+		case EEase::Linear:
+		default:
+			return _t;
+		}
+	}
+
+	//======================================================================================
+	// アニメーションの合成
+	//======================================================================================
 	namespace
 	{
-		//----------------------------------------------------------------------------------
-		// 小物
-		//----------------------------------------------------------------------------------
-
-		// 度で回す : UIBase::IsPointInside と同じ向き(時計回り)
-		Math::Vector2 RotateDeg(const Math::Vector2& a_value, float a_degree)
-		{
-			if (a_degree == 0.0f) return a_value;
-
-			const float _rad = DirectX::XMConvertToRadians(a_degree);
-			const float _cos = std::cos(_rad);
-			const float _sin = std::sin(_rad);
-
-			return {
-				a_value.x * _cos - a_value.y * _sin,
-				a_value.x * _sin + a_value.y * _cos
-			};
-		}
-
-		float Lerp(float a_start, float a_end, float a_rate)
-		{
-			return a_start + (a_end - a_start) * a_rate;
-		}
-		Math::Vector2 Lerp(const Math::Vector2& a_start, const Math::Vector2& a_end, float a_rate)
-		{
-			return { Lerp(a_start.x, a_end.x, a_rate), Lerp(a_start.y, a_end.y, a_rate) };
-		}
-		Math::Color Lerp(const Math::Color& a_start, const Math::Color& a_end, float a_rate)
-		{
-			return {
-				Lerp(a_start.r, a_end.r, a_rate),
-				Lerp(a_start.g, a_end.g, a_rate),
-				Lerp(a_start.b, a_end.b, a_rate),
-				Lerp(a_start.a, a_end.a, a_rate)
-			};
-		}
-
-		// 板ポリ用の白テクスチャ
-		//
-		// 中身は 4x4 の白1色。ResourceManager 側がGUIDでキャッシュしているので、
-		// 毎フレーム呼んでも作り直しにはならない
-		Engine::Handle<Engine::Resource::Texture> GetWhiteTexture(Engine::Resource::ResourceManager& a_resourceManager)
-		{
-			const auto _context = Engine::Resource::MakeManagerOnlyContext(&a_resourceManager, &a_resourceManager.RefAssetDatabase());
-			return Engine::Resource::TextureIO::LoadTexture(Core::GUID(), Engine::TexColor::WHITE, &_context);
-		}
-
-		//----------------------------------------------------------------------------------
-		// アニメーションを合成した結果
-		//----------------------------------------------------------------------------------
-		struct AnimResult
-		{
-			Math::Vector2 positionAdd = {};				// 位置へ足す(px, 親の倍率が掛かる前)
-			Math::Vector2 scaleMul = { 1.0f, 1.0f };	// 大きさへ掛ける
-			float rotationAdd = 0.0f;					// 回転へ足す(度)
-			Math::Color colorMul = Engine::Color::WHITE;// 色へ掛ける
-			Math::Vector2 uvAdd = {};					// UVオフセットへ足す
-		};
-
 		// トゥイーンの進み具合(0〜1)を出す
 		float CalcTweenRate(const UIAnimation& a_anim)
 		{
@@ -91,7 +130,7 @@ namespace App::Object::Decoration
 			return Ease(a_anim.ease, _rate);
 		}
 
-		void ApplyTween(const UIAnimation& a_anim, AnimResult& a_inoutResult)
+		void ApplyTween(const UIAnimation& a_anim, Internal::AnimResult& a_inoutResult)
 		{
 			using Core::HasFlag;
 
@@ -183,7 +222,7 @@ namespace App::Object::Decoration
 			};
 		}
 
-		void ApplyOscillation(const UIProceduralAnimation& a_anim, AnimResult& a_inoutResult)
+		void ApplyOscillation(const UIProceduralAnimation& a_anim, Internal::AnimResult& a_inoutResult)
 		{
 			using Core::HasFlag;
 
@@ -206,425 +245,30 @@ namespace App::Object::Decoration
 				a_inoutResult.colorMul *= OscillationMul(a_anim.color, _time);
 			}
 		}
-
-		//----------------------------------------------------------------------------------
-		// 親と合成したあとの状態
-		//----------------------------------------------------------------------------------
-		struct Resolved
-		{
-			Math::Vector2 anchorPos = {};	// ピボットが乗るスクリーン座標(px)
-			Math::Vector2 size = {};		// 大きさ(px)
-			float rotation = 0.0f;			// 回転(度)
-			float layer = 0.0f;				// Z順
-			Math::Color color = {};			// 最終色(飾り自身の色まで掛けたもの)
-
-			/// <summary>飾り自身の色を除いた掛かり具合(親の色 × その場の色 × アニメ)</summary>
-			/// <remarks>
-			/// 枠は飾り本体とは別の色を持つので、最終色から逆算せずにこれを掛ける。
-			/// ここを通さないと、反応で消したはずの枠だけ residual に残る
-			/// </remarks>
-			Math::Color modulate = {};
-
-			Math::Vector2 uvOffset = {};	// UVオフセット
-			Math::Vector2 uvScale = { 1.0f, 1.0f };	// UV倍率
-			float uniformScale = 1.0f;		// 枠の太さ・字間など、1軸で効かせたいもの用
-
-			// 湾曲(親の設定を、そのまま渡せる形へ畳んだもの)
-			float curveK = 0.0f;			// 反りの強さ(1/px)。0で曲げない
-			float curveOriginX = 0.0f;		// 弧の頂点の横位置(親のアンカーからのpx)
-			float curveShiftY = 0.0f;		// 曲げたときに全体を上下へずらす量(px)
-
-			// 親の回転を掛ける前の、この飾りのずれ(px)。
-			// 弧の中心からの横ずれを測るのに使う(回した後の座標では測れない)
-			Math::Vector2 localOffset = {};
-		};
-
-		//----------------------------------------------------------------------------------
-		// アニメーションと反応を1つにまとめる
-		//
-		// 描画(Resolve)と当たり判定(CalcCurrentTransform)の両方がここを通る。
-		// 別々に組み立てると、絵は大きくなっているのに判定は素のまま、というずれが起きる
-		//----------------------------------------------------------------------------------
-		AnimResult MakeAnimResult(const Decoration& a_decoration)
-		{
-			AnimResult _anim = {};
-			if (a_decoration.opTweenAnim.has_value())      ApplyTween(*a_decoration.opTweenAnim, _anim);
-			if (a_decoration.opOscillationAnim.has_value()) ApplyOscillation(*a_decoration.opOscillationAnim, _anim);
-
-			// カーソルへの反応 : 目標へ寄せた結果(current)を掛ける。
-			// 寄せる処理そのものは AdvanceAnimation が行う
-			if (a_decoration.opReaction.has_value())
-			{
-				const UIReaction& _reaction = *a_decoration.opReaction;
-
-				_anim.colorMul *= _reaction.current.color;
-				_anim.scaleMul *= _reaction.current.scale;
-				_anim.positionAdd += _reaction.current.offsetAdd;
-
-				// 出さない状態は透明にして消す。
-				// 描画側で弾かずアルファで消しているのは、途中の割合で薄く出せるようにするため
-				_anim.colorMul.a *= _reaction.visibleRate;
-			}
-
-			return _anim;
-		}
-
-		Resolved Resolve(
-			const Decoration& a_decoration,
-			const ParentTransform& a_parentTr,
-			const ParentOption& a_parentOp,
-			const DrawOverride& a_override)
-		{
-			const AnimResult _anim = MakeAnimResult(a_decoration);
-
-			Resolved _out = {};
-
-			// 親の倍率 × 自分の倍率 × その場の倍率
-			_out.uniformScale = a_parentTr.scale * a_decoration.scale * a_override.scale;
-
-			// ずれは親の回転で回してから足す : 親を回すと飾りが親の周りを回る
-			const Math::Vector2 _basePos = a_override.isUsePos ? a_override.pixelPos : a_parentTr.pixelPos;
-			const Math::Vector2 _offset = (a_decoration.offsetPos + _anim.positionAdd) * _out.uniformScale;
-			_out.anchorPos = _basePos + RotateDeg(_offset, a_parentTr.rotation);
-
-			_out.size = a_decoration.pixelSize * _out.uniformScale * _anim.scaleMul * a_override.sizeScale;
-			_out.rotation = a_parentTr.rotation + a_decoration.rotation + _anim.rotationAdd;
-			_out.layer = a_parentTr.layer + a_decoration.layerOffset;
-
-			_out.modulate = a_parentTr.color * a_override.tint * _anim.colorMul;
-			_out.color = _out.modulate * a_decoration.color;
-			_out.uvOffset = a_decoration.uvOffset + a_override.uvOffsetAdd + _anim.uvAdd;
-			_out.uvScale = a_override.isUseUvScale ? a_override.uvScale : a_decoration.uvScale;
-
-			//--------------------------------------------------------------
-			// 湾曲
-			//
-			// 「開き角・深さ・弧の中心」を、シェーダーがそのまま使える
-			//   反りの強さ k(1/px) と 弧の頂点の位置(px)
-			// へここで畳む。畳んでおけば、枠・中身・文字がどんな大きさでも
-			// 同じ k と同じ頂点を見るので、全部が1本の弧に乗る。
-			//
-			// k は「親の矩形の端で、円弧と同じだけ反る」ように決める。
-			//   半幅 W を開き角 A で曲げたときの反り = W * tan(A/4)
-			//   反りを k*W^2 で作るので k = tan(A/4) / W
-			//
-			// 幅ではなく高さを基準にすると、ゲージのような横長で背の低いUIが
-			// ほとんど反らない(見た目上まったく曲がらない)ので必ず幅で測る
-			//--------------------------------------------------------------
-			const float _halfSpanX = a_parentOp.parentSize.x * 0.5f * a_parentTr.scale;
-			const float _halfSpanY = a_parentOp.parentSize.y * 0.5f * a_parentTr.scale;
-
-			// 深さの倍率。0(既定値)のままでも曲がるように1として扱う
-			const float _curveDepth = (a_parentOp.curveRadius > 0.0f) ? a_parentOp.curveRadius : 1.0f;
-
-			if (a_parentOp.curveAngle != 0.0f && _halfSpanX > 0.0f)
-			{
-				_out.curveK = std::tan(a_parentOp.curveAngle * 0.25f) * _curveDepth / _halfSpanX;
-			}
-			_out.curveOriginX = a_parentOp.curveCenter.x * _halfSpanX;
-			_out.curveShiftY = a_parentOp.curveCenter.y * _halfSpanY;
-			_out.localOffset = _offset;
-
-			return _out;
-		}
-
-		//----------------------------------------------------------------------------------
-		// 描画の最小単位
-		//
-		// アンカーからのずれ(回転前)で矩形を指定する。
-		// ずれを回してから積み、クアッド自体も同じ角度で回すので、
-		// 塗り・枠・文字がバラけずに1枚として回る
-		//----------------------------------------------------------------------------------
-		void SubmitLocalRect(
-			Engine::Graphics::GraphicsEngine* a_pGE,
-			const Engine::Handle<Engine::Resource::Texture>& a_texHandle,
-			const Resolved& a_resolved,
-			const Math::Vector2& a_localTopLeft,
-			const Math::Vector2& a_size,
-			const Math::Color& a_color,
-			const Math::Vector2& a_uvOffset,
-			const Math::Vector2& a_uvScale
-		)
-		{
-			if (a_size.x <= 0.0f || a_size.y <= 0.0f) return;
-			if (a_color.a <= 0.0f) return;
-
-			// 曲げたときの上下のずらしはローカルで足してから回す
-			const Math::Vector2 _localTopLeft = {
-				a_localTopLeft.x,
-				a_localTopLeft.y + a_resolved.curveShiftY
-			};
-			const Math::Vector2 _pos = a_resolved.anchorPos + RotateDeg(_localTopLeft, a_resolved.rotation);
-
-			// この矩形の中心が、弧の頂点からどれだけ横にずれているか(px)。
-			//
-			// 飾りのずれ(回転前) + 矩形のずれ + 矩形の半幅 で、親のローカルでの中心が出る。
-			// ここを矩形ごとに正しく渡すから、幅の違う枠と中身(ゲージの残量)が
-			// 同じ1本の弧に乗る。矩形の中で閉じて曲げると別々の曲がり方になってしまう
-			const float _curveOffsetX =
-				a_resolved.localOffset.x + a_localTopLeft.x + a_size.x * 0.5f - a_resolved.curveOriginX;
-
-			a_pGE->RefDrawSubmitter()->SubmitUI(
-				a_texHandle,
-				_pos,
-				a_size,
-				a_color,
-				a_resolved.rotation,
-				a_resolved.layer,
-				a_uvOffset,
-				{ 0.0f, 0.0f },		// ずれで位置を決めているのでピボットは左上固定
-				a_uvScale,
-				a_resolved.curveK,
-				_curveOffsetX
-			);
-		}
-
-		//----------------------------------------------------------------------------------
-		// 枠を描く : 矩形の内側に貼り付ける
-		//----------------------------------------------------------------------------------
-		void DrawEdge(
-			Engine::Graphics::GraphicsEngine* a_pGE,
-			const Decoration& a_decoration,
-			const Resolved& a_resolved,
-			const Math::Vector2& a_localTopLeft,
-			const Math::Color& a_edgeColor)
-		{
-			using Core::HasFlag;
-
-			const float _thickness = a_decoration.edgePixel * a_resolved.uniformScale;
-			if (_thickness <= 0.0f) return;
-			if (a_decoration.edgeSide == EDirection::NONE) return;
-
-			const Engine::Handle<Engine::Resource::Texture> _white = GetWhiteTexture(*a_pGE->RefResourceManager());
-			const Math::Vector2& _size = a_resolved.size;
-
-			// 太さが矩形を超えたら塗りつぶしと同じになるので詰める
-			const float _thickX = std::min(_thickness, _size.x);
-			const float _thickY = std::min(_thickness, _size.y);
-
-			auto _submit = [&](const Math::Vector2& a_offset, const Math::Vector2& a_edgeSize)
-				{
-					SubmitLocalRect(
-						a_pGE, _white, a_resolved,
-						a_localTopLeft + a_offset, a_edgeSize,
-						a_edgeColor, {}, { 1.0f, 1.0f });
-				};
-
-			if (HasFlag(a_decoration.edgeSide, EDirection::UP))    _submit({ 0.0f, 0.0f }, { _size.x, _thickY });
-			if (HasFlag(a_decoration.edgeSide, EDirection::DOWN))  _submit({ 0.0f, _size.y - _thickY }, { _size.x, _thickY });
-			if (HasFlag(a_decoration.edgeSide, EDirection::LEFT))  _submit({ 0.0f, 0.0f }, { _thickX, _size.y });
-			if (HasFlag(a_decoration.edgeSide, EDirection::RIGHT)) _submit({ _size.x - _thickX, 0.0f }, { _thickX, _size.y });
-		}
-
-		//----------------------------------------------------------------------------------
-		// 文字列を行へ切る
-		//----------------------------------------------------------------------------------
-		std::vector<std::vector<uint32_t>> SplitLines(const std::string& a_utf8Text)
-		{
-			std::vector<std::vector<uint32_t>> _lines = { {} };
-
-			for (const uint32_t _codePoint : Core::String::ToCodePoints(a_utf8Text))
-			{
-				if (_codePoint == '\r') continue;		// 復帰は送りを持たない
-				if (_codePoint == '\n')
-				{
-					_lines.emplace_back();
-					continue;
-				}
-				_lines.back().push_back(_codePoint);
-			}
-
-			return _lines;
-		}
-
-		// 1行ぶんの幅(px, フォント基準サイズ)を測る
-		float MeasureLine(
-			Engine::Resource::Font* a_pFont,
-			const std::vector<uint32_t>& a_line,
-			float a_charSpacingInFontUnit)
-		{
-			float _width = 0.0f;
-			uint32_t _prev = 0;
-
-			for (const uint32_t _codePoint : a_line)
-			{
-				const Engine::Resource::Glyph* _pGlyph = a_pFont->RequestGlyph(_codePoint);
-				if (_pGlyph == nullptr) continue;
-
-				if (_prev != 0) _width += a_pFont->GetKerning(_prev, _codePoint);
-				_width += _pGlyph->xAdvance + a_charSpacingInFontUnit;
-
-				_prev = _codePoint;
-			}
-
-			return _width;
-		}
-
-		//----------------------------------------------------------------------------------
-		// 文字を描く
-		//----------------------------------------------------------------------------------
-		void DrawText(
-			Engine::Graphics::GraphicsEngine* a_pGE,
-			Engine::Resource::ResourceManager* a_pResourceManager,
-			const Decoration& a_decoration,
-			const Resolved& a_resolved)
-		{
-			if (a_decoration.text.empty()) return;
-			if (!a_decoration.fontRef.IsValid()) return;
-			if (!a_pResourceManager->IsReady(a_decoration.fontRef)) return;
-
-			// グリフは要求された時点で焼くので、参照は書き込み可能で引く
-			Engine::Resource::Font* _pFont = a_pResourceManager->Ref(a_decoration.fontRef.GetRaw());
-			if (_pFont == nullptr || !_pFont->IsValid()) return;
-
-			const float _atlasSize = static_cast<float>(_pFont->GetAtlasSize());
-			if (_atlasSize <= 0.0f) return;
-
-			// 基準サイズ(64px)で焼いたものを、出したい大きさへ縮小する
-			const float _fontScale =
-				_pFont->GetScaleForSize(a_decoration.fontPixelSize) * a_resolved.uniformScale;
-			if (_fontScale <= 0.0f) return;
-
-			// 字間はピクセル指定なので、測るときはフォント基準サイズへ戻して足す
-			const float _charSpacingInFontUnit =
-				(_fontScale > 1e-6f) ? (a_decoration.charSpacing * a_resolved.uniformScale / _fontScale) : 0.0f;
-
-			const auto _lines = SplitLines(a_decoration.text);
-
-			const float _lineHeight = _pFont->GetLineHeight() * a_decoration.lineSpacing;
-			const float _ascent = _pFont->GetAscent();
-
-			// ブロック全体の大きさ : ピボットを当てる基準になる
-			float _blockWidth = 0.0f;
-			std::vector<float> _lineWidthVec;
-			_lineWidthVec.reserve(_lines.size());
-			for (const auto& _line : _lines)
-			{
-				const float _lineWidth = MeasureLine(_pFont, _line, _charSpacingInFontUnit);
-				_lineWidthVec.push_back(_lineWidth);
-				_blockWidth = std::max(_blockWidth, _lineWidth);
-			}
-			const float _blockHeight = _lineHeight * static_cast<float>(_lines.size());
-
-			// ピボットはブロック全体に対して効かせる
-			const Math::Vector2 _blockTopLeft = {
-				-a_decoration.pivot.x * _blockWidth * _fontScale,
-				-a_decoration.pivot.y * _blockHeight * _fontScale
-			};
-
-			const Engine::Handle<Engine::Resource::Texture> _atlasHandle = _pFont->GetAtlasTextureHandle();
-
-			for (size_t _lineIndex = 0; _lineIndex < _lines.size(); ++_lineIndex)
-			{
-				const auto& _line = _lines[_lineIndex];
-
-				// 行揃え : ブロック幅に対して行を寄せる
-				float _lineStart = 0.0f;
-				switch (a_decoration.textAlign)
-				{
-				case ETextAlign::Center: _lineStart = (_blockWidth - _lineWidthVec[_lineIndex]) * 0.5f; break;
-				case ETextAlign::Right:  _lineStart = (_blockWidth - _lineWidthVec[_lineIndex]);        break;
-				case ETextAlign::Left:
-				default: break;
-				}
-
-				// ベースラインは行の上端から ascent ぶん下
-				const float _baselineY = _lineHeight * static_cast<float>(_lineIndex) + _ascent;
-
-				float _penX = _lineStart;
-				uint32_t _prev = 0;
-
-				for (const uint32_t _codePoint : _line)
-				{
-					const Engine::Resource::Glyph* _pGlyph = _pFont->RequestGlyph(_codePoint);
-					if (_pGlyph == nullptr) continue;
-
-					if (_prev != 0) _penX += _pFont->GetKerning(_prev, _codePoint);
-
-					if (!_pGlyph->IsEmpty())
-					{
-						// フォント基準サイズでの位置を出してから、まとめて縮小する
-						const Math::Vector2 _localTopLeft = {
-							_blockTopLeft.x + (_penX + _pGlyph->xOffset) * _fontScale,
-							_blockTopLeft.y + (_baselineY + _pGlyph->yOffset) * _fontScale
-						};
-						const Math::Vector2 _glyphSize = {
-							static_cast<float>(_pGlyph->width) * _fontScale,
-							static_cast<float>(_pGlyph->height) * _fontScale
-						};
-
-						const Math::Vector2 _uvOffset = {
-							static_cast<float>(_pGlyph->x) / _atlasSize,
-							static_cast<float>(_pGlyph->y) / _atlasSize
-						};
-						const Math::Vector2 _uvScale = {
-							static_cast<float>(_pGlyph->width) / _atlasSize,
-							static_cast<float>(_pGlyph->height) / _atlasSize
-						};
-
-						SubmitLocalRect(
-							a_pGE, _atlasHandle, a_resolved,
-							_localTopLeft, _glyphSize,
-							a_resolved.color, _uvOffset, _uvScale);
-					}
-
-					_penX += _pGlyph->xAdvance + _charSpacingInFontUnit;
-					_prev = _codePoint;
-				}
-			}
-		}
 	}
 
-	//======================================================================================
-	// イージング
-	//======================================================================================
-	float Ease(EEase a_ease, float a_rate)
+	Internal::AnimResult Internal::MakeAnimResult(const Decoration& a_decoration)
 	{
-		const float _t = std::clamp(a_rate, 0.0f, 1.0f);
+		AnimResult _anim = {};
+		if (a_decoration.opTweenAnim.has_value())      ApplyTween(*a_decoration.opTweenAnim, _anim);
+		if (a_decoration.opOscillationAnim.has_value()) ApplyOscillation(*a_decoration.opOscillationAnim, _anim);
 
-		switch (a_ease)
+		// カーソルへの反応 : 目標へ寄せた結果(current)を掛ける。
+		// 寄せる処理そのものは AdvanceAnimation が行う
+		if (a_decoration.opReaction.has_value())
 		{
-		case EEase::InQuad:		return _t * _t;
-		case EEase::OutQuad:	return 1.0f - (1.0f - _t) * (1.0f - _t);
-		case EEase::InOutQuad:
-			return (_t < 0.5f)
-				? (2.0f * _t * _t)
-				: (1.0f - 2.0f * (1.0f - _t) * (1.0f - _t));
+			const UIReaction& _reaction = *a_decoration.opReaction;
 
-		case EEase::InCubic:	return _t * _t * _t;
-		case EEase::OutCubic:
-		{
-			const float _inv = 1.0f - _t;
-			return 1.0f - _inv * _inv * _inv;
-		}
-		case EEase::InOutCubic:
-		{
-			if (_t < 0.5f) return 4.0f * _t * _t * _t;
-			const float _inv = -2.0f * _t + 2.0f;
-			return 1.0f - (_inv * _inv * _inv) * 0.5f;
+			_anim.colorMul *= _reaction.current.color;
+			_anim.scaleMul *= _reaction.current.scale;
+			_anim.positionAdd += _reaction.current.offsetAdd;
+
+			// 出さない状態は透明にして消す。
+			// 描画側で弾かずアルファで消しているのは、途中の割合で薄く出せるようにするため
+			_anim.colorMul.a *= _reaction.visibleRate;
 		}
 
-		case EEase::OutBack:
-		{
-			// 行き過ぎてから戻る。定数は一般的なイージング表の値
-			constexpr float C1 = 1.70158f;
-			constexpr float C3 = C1 + 1.0f;
-			const float _inv = _t - 1.0f;
-			return 1.0f + C3 * _inv * _inv * _inv + C1 * _inv * _inv;
-		}
-		case EEase::OutElastic:
-		{
-			if (_t <= 0.0f) return 0.0f;
-			if (_t >= 1.0f) return 1.0f;
-
-			constexpr float C4 = 6.283185307f / 3.0f;
-			return std::pow(2.0f, -10.0f * _t) * std::sin((_t * 10.0f - 0.75f) * C4) + 1.0f;
-		}
-
-		case EEase::Linear:
-		default:
-			return _t;
-		}
+		return _anim;
 	}
 
 	//======================================================================================
@@ -684,7 +328,7 @@ namespace App::Object::Decoration
 	//======================================================================================
 	DecorationTransform CalcCurrentTransform(const Decoration& a_decoration)
 	{
-		const AnimResult _anim = MakeAnimResult(a_decoration);
+		const Internal::AnimResult _anim = Internal::MakeAnimResult(a_decoration);
 
 		DecorationTransform _out = {};
 		_out.offsetAdd   = _anim.positionAdd;
@@ -724,570 +368,5 @@ namespace App::Object::Decoration
 			// 揺れは終わらないので、精度が落ちないところで巻き戻す
 			if (_anim.currentTime > 3600.0f) _anim.currentTime -= 3600.0f;
 		}
-	}
-
-	//======================================================================================
-	// 描画
-	//======================================================================================
-	void DrawDecoration(
-		Engine::Graphics::GraphicsEngine* a_pGraphicsEngine,
-		Engine::Resource::ResourceManager* a_pResourceManager,
-		const Decoration& a_decoration,
-		const ParentTransform& a_parentTr,
-		const ParentOption& a_parentOp,
-		const DrawOverride& a_override)
-	{
-		if (a_pGraphicsEngine == nullptr || a_pResourceManager == nullptr) return;
-		if (!a_decoration.isVisible) return;
-
-		// 群で絞られているなら、対象外は描かない
-		if (a_override.isUseGroup && a_decoration.group != a_override.group) return;
-
-		const Resolved _resolved = Resolve(a_decoration, a_parentTr, a_parentOp, a_override);
-
-		// 文字はグリフごとに矩形を組むので別経路
-		if (a_decoration.type == EDecorationType::Text)
-		{
-			DrawText(a_pGraphicsEngine, a_pResourceManager, a_decoration, _resolved);
-			return;
-		}
-
-		// 矩形の左上(アンカーからのずれ)
-		const Math::Vector2 _localTopLeft = {
-			-a_decoration.pivot.x * _resolved.size.x,
-			-a_decoration.pivot.y * _resolved.size.y
-		};
-
-		// ---- 塗り ----
-		if (a_decoration.isFill)
-		{
-			// 板ポリは組み込みの白テクスチャを色で染める。
-			// 画像は届くまで描かない(空ハンドルで積むとテクスチャ取得で落ちる)
-			Engine::Handle<Engine::Resource::Texture> _texHandle = {};
-
-			if (a_decoration.type == EDecorationType::Image)
-			{
-				if (a_pResourceManager->IsReady(a_decoration.texRef))
-				{
-					_texHandle = a_decoration.texRef.GetRaw();
-				}
-			}
-			else
-			{
-				_texHandle = GetWhiteTexture(*a_pResourceManager);
-			}
-
-			if (_texHandle.IsValid())
-			{
-				SubmitLocalRect(
-					a_pGraphicsEngine, _texHandle, _resolved,
-					_localTopLeft, _resolved.size,
-					_resolved.color, _resolved.uvOffset, _resolved.uvScale
-				);
-			}
-		}
-
-		// ---- 枠 ----
-		// 塗りと同じ掛かり具合(親の色・その場の色・アニメ・反応)を通す。
-		// ここを飛ばすと、反応で消したはずの枠だけ残ってしまう
-		const Math::Color _edgeColor = _resolved.modulate * a_decoration.edgeColor;
-		DrawEdge(a_pGraphicsEngine, a_decoration, _resolved, _localTopLeft, _edgeColor);
-	}
-
-	//======================================================================================
-	// GUIDから参照を引き直す
-	//======================================================================================
-	void RequestResources(Decoration& a_decoration, Engine::Resource::ResourceManager* a_pResourceManager)
-	{
-		if (a_pResourceManager == nullptr) return;
-
-		// 実体の到着は待たない。描画側が IsReady を見てスキップする
-		a_decoration.texRef = a_decoration.texGUID.IsValid()
-			? a_pResourceManager->RequestLoad<Engine::Resource::Texture>(a_decoration.texGUID)
-			: Engine::ResourceRef<Engine::Resource::Texture>();
-
-		a_decoration.fontRef = a_decoration.fontGUID.IsValid()
-			? a_pResourceManager->RequestLoad<Engine::Resource::Font>(a_decoration.fontGUID)
-			: Engine::ResourceRef<Engine::Resource::Font>();
-	}
-
-	//======================================================================================
-	// アーカイブ
-	//======================================================================================
-	namespace
-	{
-		template<typename T>
-		void ArchiveAnimElement(Engine::Persistence::Archive& a_ar, const std::string& a_name, AnimElement<T>& a_element)
-		{
-			a_ar.Field(a_name + "Start", a_element.start);
-			a_ar.Field(a_name + "End", a_element.end);
-		}
-
-		void ArchiveStateStyle(Engine::Persistence::Archive& a_ar, const std::string& a_name, UIStateStyle& a_style)
-		{
-			a_ar.Field(a_name + "Color", a_style.color);
-			a_ar.Field(a_name + "Scale", a_style.scale);
-			a_ar.Field(a_name + "Offset", a_style.offsetAdd);
-		}
-
-		template<typename T>
-		void ArchiveOscillation(Engine::Persistence::Archive& a_ar, const std::string& a_name, Oscillation<T>& a_oscillation)
-		{
-			a_ar.Field(a_name + "Amplitude", a_oscillation.amplitude);
-			a_ar.Field(a_name + "Frequency", a_oscillation.frequency);
-			a_ar.Field(a_name + "Phase", a_oscillation.phase);
-
-			a_ar.Field(a_name + "UseLimit", a_oscillation.isUseLimit);
-			a_ar.Field(a_name + "Min", a_oscillation.minValue);
-			a_ar.Field(a_name + "Max", a_oscillation.maxValue);
-		}
-	}
-
-	void ArchiveDecoration(Engine::Persistence::Archive& a_ar, Decoration& a_decoration)
-	{
-		a_ar.Field("Type", a_decoration.type);
-		a_ar.StringField("Name", a_decoration.name);
-		a_ar.Field("IsVisible", a_decoration.isVisible);
-		a_ar.Field("Group", a_decoration.group);
-
-		a_ar.Field("OffsetPos", a_decoration.offsetPos);
-		a_ar.Field("PixelSize", a_decoration.pixelSize);
-		a_ar.Field("Rotation", a_decoration.rotation);
-		a_ar.Field("Scale", a_decoration.scale);
-		a_ar.Field("Pivot", a_decoration.pivot);
-		a_ar.Field("LayerOffset", a_decoration.layerOffset);
-		a_ar.Field("Color", a_decoration.color);
-
-		a_ar.Field("UVOffset", a_decoration.uvOffset);
-		a_ar.Field("UVScale", a_decoration.uvScale);
-
-		a_ar.GUIDField("TexGUID", a_decoration.texGUID);
-
-		a_ar.Field("IsFill", a_decoration.isFill);
-		a_ar.Field("EdgeColor", a_decoration.edgeColor);
-		a_ar.Field("EdgePixel", a_decoration.edgePixel);
-		a_ar.Field("EdgeSide", a_decoration.edgeSide);
-
-		a_ar.StringField("Text", a_decoration.text);
-		a_ar.GUIDField("FontGUID", a_decoration.fontGUID);
-		a_ar.Field("FontPixelSize", a_decoration.fontPixelSize);
-		a_ar.Field("LineSpacing", a_decoration.lineSpacing);
-		a_ar.Field("CharSpacing", a_decoration.charSpacing);
-		a_ar.Field("TextAlign", a_decoration.textAlign);
-
-		//----------------------------------------------------------------------------------
-		// アニメーション
-		//
-		// optional は「持っているか」を先に書いてから中身を書く。
-		// 持っていない場合は中身を一切読み書きしないので、保存側と読込側で必ず対になる
-		//----------------------------------------------------------------------------------
-		bool _hasTween = a_decoration.opTweenAnim.has_value();
-		a_ar.Field("HasTween", _hasTween);
-		if (_hasTween)
-		{
-			if (!a_decoration.opTweenAnim.has_value()) a_decoration.opTweenAnim = UIAnimation();
-
-			UIAnimation& _anim = *a_decoration.opTweenAnim;
-			a_ar.Field("TweenDuration", _anim.durationTime);
-			a_ar.Field("TweenIsLoop", _anim.isLoop);
-			a_ar.Field("TweenIsPingPong", _anim.isPingPong);
-			a_ar.Field("TweenEase", _anim.ease);
-			a_ar.Field("TweenChannels", _anim.channels);
-
-			ArchiveAnimElement(a_ar, "TweenColor", _anim.color);
-			ArchiveAnimElement(a_ar, "TweenPosition", _anim.position);
-			ArchiveAnimElement(a_ar, "TweenScale", _anim.scale);
-			ArchiveAnimElement(a_ar, "TweenRotation", _anim.rotation);
-			ArchiveAnimElement(a_ar, "TweenUV", _anim.uv);
-		}
-		else
-		{
-			a_decoration.opTweenAnim.reset();
-		}
-
-		//----------------------------------------------------------------------------------
-		// カーソルへの反応
-		//----------------------------------------------------------------------------------
-		bool _hasReaction = a_decoration.opReaction.has_value();
-		a_ar.Field("HasReaction", _hasReaction);
-		if (_hasReaction)
-		{
-			if (!a_decoration.opReaction.has_value()) a_decoration.opReaction = UIReaction();
-
-			UIReaction& _reaction = *a_decoration.opReaction;
-			a_ar.Field("ReactionVisibleState", _reaction.visibleState);
-			a_ar.Field("ReactionBlendSpeed", _reaction.blendSpeed);
-
-			ArchiveStateStyle(a_ar, "ReactionHovered", _reaction.hovered);
-			ArchiveStateStyle(a_ar, "ReactionPressed", _reaction.pressed);
-			ArchiveStateStyle(a_ar, "ReactionDisabled", _reaction.disabled);
-		}
-		else
-		{
-			a_decoration.opReaction.reset();
-		}
-
-		bool _hasOscillation = a_decoration.opOscillationAnim.has_value();
-		a_ar.Field("HasOscillation", _hasOscillation);
-		if (_hasOscillation)
-		{
-			if (!a_decoration.opOscillationAnim.has_value()) a_decoration.opOscillationAnim = UIProceduralAnimation();
-
-			UIProceduralAnimation& _anim = *a_decoration.opOscillationAnim;
-			a_ar.Field("OscChannels", _anim.channels);
-
-			ArchiveOscillation(a_ar, "OscPosition", _anim.position);
-			ArchiveOscillation(a_ar, "OscScale", _anim.scale);
-			ArchiveOscillation(a_ar, "OscRotation", _anim.rotation);
-			ArchiveOscillation(a_ar, "OscColor", _anim.color);
-		}
-		else
-		{
-			a_decoration.opOscillationAnim.reset();
-		}
-	}
-
-	//======================================================================================
-	// インスペクター
-	//======================================================================================
-	namespace
-	{
-		// 値の種類ごとの編集
-		bool DrawFloatValue(const char* a_label, float& a_value)
-		{
-			return Engine::EditorField::Field(a_label, a_value, 0.1f);
-		}
-		bool DrawVectorValue(const char* a_label, Math::Vector2& a_value)
-		{
-			return Engine::EditorField::Field(a_label, a_value, 0.1f);
-		}
-		bool DrawColorValue(const char* a_label, Math::Color& a_value)
-		{
-			return Engine::EditorField::Field(a_label, a_value);
-		}
-
-		// 状態1つぶんの見た目
-		bool DrawStateStyleUI(const char* a_label, UIStateStyle& a_style)
-		{
-			Engine::EditorField::TreeScope _tree(a_label);
-			if (!_tree) return false;
-
-			bool _isChanged = false;
-
-			if (Engine::EditorField::Field("Color", a_style.color)) _isChanged = true;
-			Engine::EditorField::Tooltip("元の色へ乗算(白で変化なし)");
-
-			if (Engine::EditorField::Field("Scale", a_style.scale, 0.01f, 0.0f, 16.0f)) _isChanged = true;
-			Engine::EditorField::Tooltip("大きさへ乗算(1で等倍)");
-
-			if (Engine::EditorField::Field("Offset", a_style.offsetAdd, 0.5f)) _isChanged = true;
-			Engine::EditorField::Tooltip("位置へ加算(px)");
-
-			return _isChanged;
-		}
-
-		// トゥイーンの1チャンネルぶん
-		template<typename T, typename DrawFunc>
-		bool DrawAnimElementUI(
-			const char* a_label,
-			EAnimChannel a_channel,
-			EAnimChannel& a_inoutChannels,
-			AnimElement<T>& a_element,
-			DrawFunc a_drawFunc)
-		{
-			bool _isChanged = false;
-
-			// 立てたチャンネルだけ中身を出す。
-			// 動かないものの値を触らせても混乱するだけなので畳んでおく
-			bool _isOn = Core::HasFlag(a_inoutChannels, a_channel);
-			if (Engine::EditorField::Field(a_label, _isOn))
-			{
-				a_inoutChannels = _isOn
-					? (a_inoutChannels | a_channel)
-					: (a_inoutChannels & ~a_channel);
-				_isChanged = true;
-			}
-			if (!_isOn) return _isChanged;
-
-			Engine::EditorField::IndentScope _indent;
-			Engine::EditorField::IDScope _id(a_label);
-			if (a_drawFunc("Start", a_element.start)) _isChanged = true;
-			if (a_drawFunc("End", a_element.end))     _isChanged = true;
-
-			return _isChanged;
-		}
-
-		// 揺れの1チャンネルぶん
-		//
-		// a_defaultMin / a_defaultMax は、上下限を初めて立てたときに入れておく値。
-		// 既定の 0 のままだと、掛けるチャンネル(大きさ・色)が真っ黒に潰れて
-		// 「立てた瞬間に消えた」ように見えるため
-		template<typename T, typename DrawFunc>
-		bool DrawOscillationUI(
-			const char* a_label,
-			EAnimChannel a_channel,
-			EAnimChannel& a_inoutChannels,
-			Oscillation<T>& a_oscillation,
-			DrawFunc a_drawFunc,
-			const T& a_defaultMin,
-			const T& a_defaultMax)
-		{
-			bool _isChanged = false;
-
-			bool _isOn = Core::HasFlag(a_inoutChannels, a_channel);
-			if (Engine::EditorField::Field(a_label, _isOn))
-			{
-				a_inoutChannels = _isOn
-					? (a_inoutChannels | a_channel)
-					: (a_inoutChannels & ~a_channel);
-				_isChanged = true;
-			}
-			if (!_isOn) return _isChanged;
-
-			Engine::EditorField::IndentScope _indent;
-			Engine::EditorField::IDScope _id(a_label);
-
-			if (Engine::EditorField::Field("UseLimit", a_oscillation.isUseLimit))
-			{
-				// まだ一度も触っていないときだけ入れる。
-				// 切って入れ直すたびに上書きすると、調整した値が消えてしまう
-				if (a_oscillation.isUseLimit &&
-					a_oscillation.minValue == T{} && a_oscillation.maxValue == T{})
-				{
-					a_oscillation.minValue = a_defaultMin;
-					a_oscillation.maxValue = a_defaultMax;
-				}
-				_isChanged = true;
-			}
-			Engine::EditorField::Tooltip("振れ幅ではなく、届く範囲(下限〜上限)で指定する");
-
-			if (a_oscillation.isUseLimit)
-			{
-				if (a_drawFunc("Min", a_oscillation.minValue)) _isChanged = true;
-				if (a_drawFunc("Max", a_oscillation.maxValue)) _isChanged = true;
-			}
-			else
-			{
-				if (a_drawFunc("Amplitude", a_oscillation.amplitude)) _isChanged = true;
-			}
-
-			if (Engine::EditorField::Field("Frequency", a_oscillation.frequency, 0.01f, 0.0f, 60.0f)) _isChanged = true;
-			if (Engine::EditorField::Field("Phase", a_oscillation.phase, 0.01f, 0.0f, 1.0f))          _isChanged = true;
-
-			return _isChanged;
-		}
-	}
-
-	bool DrawDecorationInspector(Decoration& a_decoration, const Engine::ECS::EngineServices& a_services)
-	{
-		bool _isChanged = false;
-
-		//----------------------------------------------------------------------------------
-		// 共通
-		//----------------------------------------------------------------------------------
-		if (Engine::EditorField::Field("Visible", a_decoration.isVisible)) _isChanged = true;
-		if (Engine::EditorField::Field("Name", a_decoration.name)) _isChanged = true;
-
-		if (Engine::EditorField::Field("Type", a_decoration.type)) _isChanged = true;
-
-		int _group = static_cast<int>(a_decoration.group);
-		if (Engine::EditorField::Field("Group", _group, 1, 0, 15))
-		{
-			a_decoration.group = static_cast<uint32_t>(std::max(_group, 0));
-			_isChanged = true;
-		}
-		Engine::EditorField::Tooltip("HUDが飾りを出し分けるための札 (TargetBoxHUD : 0=通常枠 / 1=ロック枠)");
-
-		Engine::EditorField::Header("Transform (親からの相対)");
-
-		if (Engine::EditorField::Field("OffsetPos", a_decoration.offsetPos, 1.0f)) _isChanged = true;
-		Engine::EditorField::Tooltip("親のピボット位置からのずれ(px)");
-
-		// 文字の大きさは FontPixelSize が決めるので、矩形の大きさは出さない
-		if (a_decoration.type != EDecorationType::Text)
-		{
-			if (Engine::EditorField::Field("PixelSize", a_decoration.pixelSize, 1.0f, 0.0f, 8192.0f)) _isChanged = true;
-		}
-
-		if (Engine::EditorField::Field("Rotation", a_decoration.rotation, 0.1f, -360.0f, 360.0f)) _isChanged = true;
-		if (Engine::EditorField::Field("Scale", a_decoration.scale, 0.01f, 0.0f, 64.0f)) _isChanged = true;
-		if (Engine::EditorField::Field("Pivot (0-1)", a_decoration.pivot, 0.01f, 0.0f, 1.0f)) _isChanged = true;
-		if (Engine::EditorField::Field("LayerOffset", a_decoration.layerOffset, 0.1f)) _isChanged = true;
-		Engine::EditorField::Tooltip("親のレイヤーへ足す。大きいほど手前");
-		if (Engine::EditorField::Field("Color", a_decoration.color)) _isChanged = true;
-
-		//----------------------------------------------------------------------------------
-		// 種類ごと
-		//----------------------------------------------------------------------------------
-		switch (a_decoration.type)
-		{
-		case EDecorationType::Image:
-		{
-			Engine::EditorField::Header("Image");
-
-			if (Engine::EditorField::AssetField(a_services, "Texture", "Texture", a_decoration.texGUID))
-			{
-				RequestResources(a_decoration, a_services.pResourceManager);
-				_isChanged = true;
-			}
-			Engine::EditorField::Image(a_services, a_decoration.texRef, 128, 128);
-
-			if (Engine::EditorField::Field("UVOffset", a_decoration.uvOffset, 0.01f)) _isChanged = true;
-			if (Engine::EditorField::Field("UVScale", a_decoration.uvScale, 0.01f)) _isChanged = true;
-			Engine::EditorField::Tooltip("1枚に並べた絵から1コマ切り出すときの倍率 (uv * UVScale + UVOffset)");
-			break;
-		}
-
-		case EDecorationType::Text:
-		{
-			Engine::EditorField::Header("Text");
-
-			if (Engine::EditorField::MultilineField("Text", a_decoration.text)) _isChanged = true;
-
-			if (Engine::EditorField::AssetField(a_services, "Font", "Font", a_decoration.fontGUID))
-			{
-				RequestResources(a_decoration, a_services.pResourceManager);
-				_isChanged = true;
-			}
-
-			if (Engine::EditorField::Field("FontPixelSize", a_decoration.fontPixelSize, 0.5f, 1.0f, 512.0f)) _isChanged = true;
-			Engine::EditorField::Tooltip("フォントは64pxで焼いてあるので、それより大きくするとぼやける");
-
-			if (Engine::EditorField::Field("LineSpacing", a_decoration.lineSpacing, 0.01f, 0.1f, 4.0f)) _isChanged = true;
-			if (Engine::EditorField::Field("CharSpacing", a_decoration.charSpacing, 0.1f)) _isChanged = true;
-			if (Engine::EditorField::Field("TextAlign", a_decoration.textAlign)) _isChanged = true;
-			Engine::EditorField::Tooltip("ブロック全体の位置は Pivot、行同士の揃えが TextAlign");
-			break;
-		}
-
-		case EDecorationType::Polygon:
-		default:
-			Engine::EditorField::Header("Polygon");
-			Engine::EditorField::HelpText("組み込みの白テクスチャを Color で染めて出します");
-			break;
-		}
-
-		//----------------------------------------------------------------------------------
-		// 枠(文字以外)
-		//----------------------------------------------------------------------------------
-		if (a_decoration.type != EDecorationType::Text)
-		{
-			Engine::EditorField::Header("Edge");
-
-			if (Engine::EditorField::Field("Fill", a_decoration.isFill)) _isChanged = true;
-			Engine::EditorField::Tooltip("切ると枠だけになる");
-
-			if (Engine::EditorField::Field("EdgePixel", a_decoration.edgePixel, 0.5f, 0.0f, 256.0f)) _isChanged = true;
-			if (a_decoration.edgePixel > 0.0f)
-			{
-				if (Engine::EditorField::Field("EdgeColor", a_decoration.edgeColor)) _isChanged = true;
-				Engine::EditorField::FlagsField("EdgeSide", a_decoration.edgeSide);
-			}
-		}
-
-		//----------------------------------------------------------------------------------
-		// カーソルへの反応
-		//----------------------------------------------------------------------------------
-		Engine::EditorField::Header("Reaction");
-
-		bool _hasReaction = a_decoration.opReaction.has_value();
-		if (Engine::EditorField::Field("Reaction", _hasReaction))
-		{
-			if (_hasReaction) a_decoration.opReaction = UIReaction();
-			else              a_decoration.opReaction.reset();
-			_isChanged = true;
-		}
-		Engine::EditorField::Tooltip("親のUIにカーソルが乗った / 押されたときに反応する");
-
-		if (a_decoration.opReaction.has_value())
-		{
-			UIReaction& _reaction = *a_decoration.opReaction;
-
-			Engine::EditorField::IndentScope _indent;
-			Engine::EditorField::IDScope _id("Reaction");
-
-			Engine::EditorField::FlagsField("VisibleState", _reaction.visibleState);
-			Engine::EditorField::Tooltip("この状態のときだけ出す(カーソル時だけ枠を出す等)");
-
-			if (Engine::EditorField::Field("BlendSpeed", _reaction.blendSpeed, 0.5f, 0.0f, 120.0f)) _isChanged = true;
-			Engine::EditorField::Tooltip("切り替わりの速さ。0 で即時");
-
-			if (DrawStateStyleUI("Hovered", _reaction.hovered))  _isChanged = true;
-			if (DrawStateStyleUI("Pressed", _reaction.pressed))  _isChanged = true;
-			if (DrawStateStyleUI("Disabled", _reaction.disabled)) _isChanged = true;
-		}
-
-		//----------------------------------------------------------------------------------
-		// アニメーション
-		//----------------------------------------------------------------------------------
-		Engine::EditorField::Header("Animation");
-
-		// ---- トゥイーン ----
-		bool _hasTween = a_decoration.opTweenAnim.has_value();
-		if (Engine::EditorField::Field("Tween", _hasTween))
-		{
-			if (_hasTween) a_decoration.opTweenAnim = UIAnimation();
-			else           a_decoration.opTweenAnim.reset();
-			_isChanged = true;
-		}
-
-		if (a_decoration.opTweenAnim.has_value())
-		{
-			UIAnimation& _anim = *a_decoration.opTweenAnim;
-
-			Engine::EditorField::IndentScope _indent;
-			Engine::EditorField::IDScope _id("Tween");
-
-			if (Engine::EditorField::Field("Duration", _anim.durationTime, 0.01f, 0.0f, 60.0f)) _isChanged = true;
-			if (Engine::EditorField::Field("Loop", _anim.isLoop)) _isChanged = true;
-			if (Engine::EditorField::Field("PingPong", _anim.isPingPong)) _isChanged = true;
-			if (Engine::EditorField::Field("Ease", _anim.ease)) _isChanged = true;
-
-			Engine::EditorField::HelpText("チェックを入れたチャンネルだけが動きます");
-
-			if (DrawAnimElementUI("Color##ch", EAnimChannel::COLOR, _anim.channels, _anim.color, DrawColorValue)) _isChanged = true;
-			if (DrawAnimElementUI("Position##ch", EAnimChannel::POSITION, _anim.channels, _anim.position, DrawVectorValue)) _isChanged = true;
-			if (DrawAnimElementUI("Scale##ch", EAnimChannel::SCALE, _anim.channels, _anim.scale, DrawVectorValue)) _isChanged = true;
-			if (DrawAnimElementUI("Rotation##ch", EAnimChannel::ROTATION, _anim.channels, _anim.rotation, DrawFloatValue)) _isChanged = true;
-			if (DrawAnimElementUI("UV##ch", EAnimChannel::UV, _anim.channels, _anim.uv, DrawVectorValue)) _isChanged = true;
-
-			if (Engine::EditorField::Button("Replay")) _anim.currentTime = 0.0f;
-			Engine::EditorField::SameLine();
-			Engine::EditorField::Text("%.2f / %.2f", _anim.currentTime, _anim.durationTime);
-		}
-
-		// ---- 揺れ ----
-		bool _hasOscillation = a_decoration.opOscillationAnim.has_value();
-		if (Engine::EditorField::Field("Oscillation", _hasOscillation))
-		{
-			if (_hasOscillation) a_decoration.opOscillationAnim = UIProceduralAnimation();
-			else                 a_decoration.opOscillationAnim.reset();
-			_isChanged = true;
-		}
-
-		if (a_decoration.opOscillationAnim.has_value())
-		{
-			UIProceduralAnimation& _anim = *a_decoration.opOscillationAnim;
-
-			Engine::EditorField::IndentScope _indent;
-			Engine::EditorField::IDScope _id("Oscillation");
-
-			Engine::EditorField::HelpText("位置と回転は足す量、大きさと色は掛ける量(1が元のまま)");
-
-			// 上下限を立てたときの初期値 : そのチャンネルらしい範囲を入れておく
-			if (DrawOscillationUI("Position##osc", EAnimChannel::POSITION, _anim.channels, _anim.position, DrawVectorValue,
-				Math::Vector2(-10.0f, -10.0f), Math::Vector2(10.0f, 10.0f))) _isChanged = true;
-
-			if (DrawOscillationUI("Scale##osc", EAnimChannel::SCALE, _anim.channels, _anim.scale, DrawVectorValue,
-				Math::Vector2(0.9f, 0.9f), Math::Vector2(1.1f, 1.1f))) _isChanged = true;
-
-			if (DrawOscillationUI("Rotation##osc", EAnimChannel::ROTATION, _anim.channels, _anim.rotation, DrawFloatValue,
-				-10.0f, 10.0f)) _isChanged = true;
-
-			if (DrawOscillationUI("Color##osc", EAnimChannel::COLOR, _anim.channels, _anim.color, DrawColorValue,
-				Math::Color(1.0f, 1.0f, 1.0f, 0.3f), Math::Color(1.0f, 1.0f, 1.0f, 1.0f))) _isChanged = true;
-		}
-
-		return _isChanged;
 	}
 }

@@ -19,6 +19,9 @@ namespace App::Object
 	{
 	public:
 
+		// 押されることのない HUD なので、カーソルへの反応を持たない
+		HitEffectHUD() : UIBase(false) {}
+
 		// 初期化処理 : テクスチャとサウンドインスタンスの用意
 		void PostDeserialize(Engine::GameObject::ObjectContext& a_context) override;
 		void Awake(Engine::GameObject::ObjectContext& a_context) override;

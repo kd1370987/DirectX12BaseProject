@@ -6,11 +6,12 @@
 
 struct SceneFogData
 {
-	float3 fogColor;	// フォグの色
+	float3 fogColor;	// フォグの色(届いた光に掛ける)
 	float density;		// 濃さ(1m あたり)。0 ならシーンのフォグは掛からない
 
 	float maxDistance;	// 空(何も描かれていない画素)へ向けて積分する距離(m)
-	float3 pad0;
+	float anisotropy;	// 平行光を散らす向きの偏り(-1..1)。正で光源の方向を見たときに明るい
+	float2 pad0;
 };
 
 #endif

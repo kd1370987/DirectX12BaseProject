@@ -1,89 +1,68 @@
-﻿#include "UIBase.h"
+#include "UIBase.h"
+
+#include "UIPanel/UIPanel.h"
 
 #include "Engine/ECS/System/SystemContext.h"	// ObjectContext が運ぶサービス群
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
-#include "Engine/Common/Color.h"
-#include "Engine/Option/OptionManager.h"	// ウィンドウ解像度(px)取得用
-#include "Engine/Input/InputManager/InputManager.h"	// カーソル位置の取得用
-#include "Engine/Window/NativeWindow.h"				// クライアント領域の実サイズ取得用
-#include "Engine/Audio/AudioManager.h"				// 乗った音・押した音
-
-#include "Engine/EditorField/EditorField.h"
+#include "Engine/GameObject/GameObjectManager/GameObjectManager.h"	// 親(パネル)を GUID で引く
 
 namespace App::Object
 {
-	namespace
+	UIBase::UIBase() : UIBase(true)
 	{
-		// 度で回す : IsPointInside と同じ向き(時計回り)
-		Math::Vector2 RotateDeg(const Math::Vector2& a_value, float a_degree)
-		{
-			if (a_degree == 0.0f) return a_value;
+	}
 
-			const float _rad = DirectX::XMConvertToRadians(a_degree);
-			const float _cos = std::cos(_rad);
-			const float _sin = std::sin(_rad);
-
-			return {
-				a_value.x * _cos - a_value.y * _sin,
-				a_value.x * _sin + a_value.y * _cos
-			};
-		}
+	UIBase::UIBase(bool a_isInteractive)
+	{
+		if (a_isInteractive) m_opInteraction.emplace();
 	}
 
 	void UIBase::Release(Engine::GameObject::ObjectContext& a_context)
 	{
-		ReleaseUISounds(a_context);
+		if (m_opInteraction) m_opInteraction->ReleaseSounds(a_context);
 	}
 
 	//======================================================================================
 	// 更新前 : カーソルの上に居ると名乗る
 	//--------------------------------------------------------------------------------------
-	// 重なっているUIのうち手前の1つだけを反応させるための前半分。
-	//
-	// 「自分の矩形にカーソルが居るか」までをここで出し、受け取り手を決めるのは
-	// マネージャーが集めた名乗りが揃ってから(UpdateInteraction)。
-	// 各UIがその場で hover を決めてしまうと、重なりを知らないまま全員が光る。
-	//
-	// ※位置を Update で動かすUIは、名乗りが1フレーム前の位置になる
+	// 判定の矩形はここで組み立てる(飾りの範囲を使うことがあるため)。
+	// 名乗りそのものと、受け取り手の決め方は UIInteraction / UICursorResource
 	//======================================================================================
 	void UIBase::PreUpdate(Engine::GameObject::ObjectContext& a_context)
 	{
-		m_isCursorInside = false;
+		if (!m_opInteraction) return;
 
-		// 反応しないUIは名乗らない。名乗ると、自分は光らないのに
-		// 下のUIだけを塞ぐ「見えない蓋」になってしまう
-		if (!IsCursorReceivable(a_context)) return;
+		bool _isReceivable = m_opInteraction->IsReceivable(a_context, IsVisibleInHierarchy(a_context));
 
 		Math::Vector2 _cursorPos = {};
-		if (!CalcCursorUIPos(a_context, _cursorPos)) return;
+		bool _isInside = false;
+		if (_isReceivable)
+		{
+			// カーソルの位置が取れない(最小化中など)フレームは名乗らない
+			_isReceivable = UIInteraction::CalcCursorUIPos(a_context, _cursorPos);
+			if (_isReceivable) _isInside = IsPointInsideSelf(_cursorPos);
+		}
 
-		m_isCursorInside = IsPointInsideSelf(_cursorPos);
-
-		// 押している最中は、カーソルが矩形から外れても持ち続ける。
-		// 押したまま手を滑らせただけで下のUIが光り始めるのを止めるため
-		// (押し切りが成立するかどうかは UpdateInteraction が矩形で見ている)
-		const bool _isCapture = m_isPressStartedInside;
-
-		if (!m_isCursorInside && !_isCapture) return;
-
-		a_context.ClaimCursor(this, m_layer, _isCapture);
+		m_opInteraction->ClaimCursor(a_context, this, m_anchor.layer, _isReceivable, _isInside);
 	}
 
 	//======================================================================================
-	// 更新 : 飾りのアニメーションを進める
+	// 更新 : 押下の進行と、飾りのアニメーション
 	//--------------------------------------------------------------------------------------
-	// 出していないフレームも進める。止めてしまうと、
+	// 飾りは出していないフレームも進める。止めてしまうと、
 	// 出した瞬間に前回止まったところから続いてしまう。
 	//
 	// 継承先で Update を持つ場合は、先頭で UIBase::Update を呼ぶこと
 	//======================================================================================
 	void UIBase::Update(Engine::GameObject::ObjectContext& a_context)
 	{
-		// カーソルの当たり判定と押下の進行
-		UpdateInteraction(a_context);
+		if (m_opInteraction)
+		{
+			const bool _isReceivable = m_opInteraction->IsReceivable(a_context, IsVisibleInHierarchy(a_context));
+			m_opInteraction->Advance(a_context, this, _isReceivable);
+		}
 
 		// 飾りは今の状態を受け取って、そこへ寄っていく
 		const Decoration::EUIState _state = GetUIState();
@@ -94,139 +73,55 @@ namespace App::Object
 		}
 	}
 
-	//======================================================================================
-	// 今の状態
-	//======================================================================================
 	Decoration::EUIState UIBase::GetUIState() const
 	{
-		if (!m_isInteractable) return Decoration::EUIState::Disabled;
-		if (m_isPressed)       return Decoration::EUIState::Pressed;
-		if (m_isHovered)       return Decoration::EUIState::Hovered;
+		// 押せない UI は何もされることがない
+		if (!m_opInteraction) return Decoration::EUIState::Normal;
 
-		return Decoration::EUIState::Normal;
+		return m_opInteraction->GetState();
+	}
+
+	void UIBase::SetInteractable(bool a_isInteractable)
+	{
+		if (m_opInteraction) m_opInteraction->isInteractable = a_isInteractable;
 	}
 
 	//======================================================================================
-	// カーソルの当たり判定と押下の進行
+	// 実際に出ているか
 	//--------------------------------------------------------------------------------------
-	// ・当たり判定はアンカーの矩形(PixelPos / PixelSize / Pivot / Rotation)を使う。
-	//   飾りは何枚でも生やせるので、そのどれかではなくアンカーを唯一の基準にしてある。
+	// 上へ辿って、途中にある UIPanel が1つでも隠れていれば出ていない。
+	// 親がパネルでないところ(ボタンの下にまとめただけの画像など)は何も伝えないので、
+	// エディターの並びのために付けた既存の親子で表示が変わることはない。
 	//
-	// ・押下は「押し始めも離しも矩形の内側」で成立させる。押したまま外へ逃がせば
-	//   取り消せる、よくあるボタンの作法に合わせてある。
-	//
-	// ・乗っているかは PreUpdate の名乗りの結果を使う。重なっているときは
-	//   手前の1つだけが受け取り手になるので、下になったUIは矩形の中に
-	//   カーソルが居ても乗っていない扱いになる。
-	//
-	// ・入力はプレイモード中しか受け取らない(InputManager 側で止まる)。
-	//   エディター操作でUIが光ったり押されたりしない。
+	// 親子が輪になっていても止まるよう、辿る深さに上限を設けてある
 	//======================================================================================
-	void UIBase::UpdateInteraction(Engine::GameObject::ObjectContext& a_context)
+	bool UIBase::IsVisibleInHierarchy(const Engine::GameObject::ObjectContext& a_context) const
 	{
-		// 鳴らし直しの間引きを進める。
-		// 反応しない状態でも進めておかないと、無効にしている間に止まってしまう
-		if (m_hoverSoundCoolTime > 0.0f) m_hoverSoundCoolTime = std::max(m_hoverSoundCoolTime - a_context.dt, 0.0f);
-		if (m_pressSoundCoolTime > 0.0f) m_pressSoundCoolTime = std::max(m_pressSoundCoolTime - a_context.dt, 0.0f);
+		if (!m_isVisible) return false;
+		if (!a_context.pObjectManager) return true;
 
-		// 「このフレームに押し切られたか」は毎フレーム作り直す
-		m_isClicked = false;
+		constexpr int DEPTH_MAX = 32;
 
-		// 乗った瞬間を見るために、前のフレームの状態を控えておく
-		const bool _wasHovered = m_isHovered;
-
-		//==================================================================
-		// 反応しない状態
-		//------------------------------------------------------------------
-		// ・出していない(見えていないものは触れない)
-		// ・無効にされている
-		// ・プレイモードでない / エディターで文字を打っている
-		// このときは状態を全部落とす。押しっぱなしのまま無効にされて、
-		// 有効へ戻した瞬間に押し切られたことにならないようにする。
-		//==================================================================
-		if (!IsCursorReceivable(a_context))
+		Core::GUID _parentGUID = GetParentGUID();
+		for (int _depth = 0; _depth < DEPTH_MAX && _parentGUID.IsValid(); ++_depth)
 		{
-			m_isHovered = false;
-			m_isPressed = false;
-			m_isPressStartedInside = false;
-			m_isCursorInside = false;
-			return;
+			const Engine::GameObject::BaseObject* _pParent = a_context.pObjectManager->FindByGUID(_parentGUID);
+			if (!_pParent) break;
+
+			if (const UIPanel* _pPanel = Core::TypeInfo::Cast<const UIPanel>(_pParent))
+			{
+				if (!_pPanel->IsVisible()) return false;
+			}
+
+			_parentGUID = _pParent->GetParentGUID();
 		}
-
-		auto& _input = *a_context.pServices->pInputManager;
-
-		//==================================================================
-		// カーソルが乗っているか
-		//
-		// 矩形の中に居るか(PreUpdate)と、重なりの取り合いに勝ったかの両方。
-		// 手前に別のUIが重なっているフレームは、下のUIはここで落ちる
-		//==================================================================
-		m_isHovered = m_isCursorInside && a_context.IsCursorOwner(this);
-
-		// 乗った瞬間だけ鳴らす。乗っている間ずっとだと鳴り続けてしまう
-		if (m_isHovered && !_wasHovered)
-		{
-			PlayUISound(a_context, m_hoverSoundGUID, m_hoverSoundHandle, m_hoverSoundCoolTime);
-		}
-
-		//==================================================================
-		// 押下の進行
-		//==================================================================
-		const bool _isPressMoment   = _input.IsPress(m_clickAction);	// 押した瞬間
-		const bool _isHoldMoment    = _input.IsHold(m_clickAction);		// 押している間
-		const bool _isReleaseMoment = _input.IsRelease(m_clickAction);	// 離した瞬間
-
-		// 内側で押し始めたときだけ受け付ける
-		if (_isPressMoment && m_isHovered)
-		{
-			m_isPressStartedInside = true;
-
-			// 押し切るまで待つと手応えが遅れるので、押した瞬間に鳴らす
-			PlayUISound(a_context, m_pressSoundGUID, m_pressSoundHandle, m_pressSoundCoolTime);
-		}
-
-		m_isPressed = m_isPressStartedInside && _isHoldMoment;
-
-		if (_isReleaseMoment)
-		{
-			// 押し始めと離しの両方が内側なら成立
-			m_isClicked = (m_isPressStartedInside && m_isHovered);
-
-			m_isPressStartedInside = false;
-			m_isPressed = false;
-		}
-
-		// 押していないのに押し始めの記録が残っていたら落とす
-		// (ボタンを離した瞬間を取りこぼした場合の保険)
-		if (!_isHoldMoment && !_isReleaseMoment)
-		{
-			m_isPressStartedInside = false;
-			m_isPressed = false;
-		}
-	}
-
-	//======================================================================================
-	// カーソルを受け取れる状態か
-	//--------------------------------------------------------------------------------------
-	// ・出していない(見えていないものは触れない)
-	// ・無効にされている
-	// ・プレイモードでない / エディターで文字を打っている
-	//
-	// 名乗り(PreUpdate)と進行(UpdateInteraction)で同じ条件を見ること。
-	// ここがずれると、反応しないUIが名乗って下のUIを塞ぐ
-	//======================================================================================
-	bool UIBase::IsCursorReceivable(Engine::GameObject::ObjectContext& a_context) const
-	{
-		if (!a_context.pServices || !a_context.pServices->pInputManager) return false;
-		if (!m_isVisible || !m_isInteractable) return false;
-
-		return a_context.pServices->pInputManager->IsGameInputEnable();
+		return true;
 	}
 
 	//======================================================================================
 	// 自分の判定矩形の内側か
 	//--------------------------------------------------------------------------------------
-	// 判定そのものは静的な共通実装。ここは矩形を組み立てて渡すだけ。
+	// 判定そのものは UIAnchor::IsPointInside。ここは矩形を組み立てて渡すだけ。
 	//
 	// 使う矩形は3通り :
 	//   HitFollowAnim が立っている … 飾りの今の範囲(アニメーション・反応込み)から作る
@@ -241,42 +136,53 @@ namespace App::Object
 	// HitFollowAnim は絵の大きさが動くもの用。アンカーの矩形は動かないので、
 	// 切ったままだと大きくなった絵のふちがどこにも当たらない
 	//======================================================================================
-	bool UIBase::IsPointInsideSelf(const Math::Vector2& a_uiPos) const
+	bool UIBase::CalcHitRect(HitRect& a_outRect) const
 	{
+		if (!m_opInteraction) return false;
+
+		const bool _isHitFollowAnim = m_opInteraction->isHitFollowAnim;
+
+		a_outRect.rotation = m_anchor.rotation;
+		a_outRect.padding = m_opInteraction->hitPadding;
+
 		// アンカーに大きさが入っていても、今の絵へ追従させる指示があれば飾りを優先する
-		const bool _isUseDecorationBounds =
-			m_isHitFollowAnim || m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f;
+		const bool _isUseDecorationBounds = _isHitFollowAnim || !m_anchor.HasSize();
 
 		if (_isUseDecorationBounds)
 		{
 			Math::Vector2 _center = {};
 			Math::Vector2 _size = {};
-			if (CalcDecorationBounds(_center, _size, m_isHitFollowAnim))
+			if (CalcDecorationBounds(_center, _size, _isHitFollowAnim))
 			{
-				// 範囲の中心を指す点。回転と倍率はアンカーのものが乗る
-				const Math::Vector2 _pos = m_pixelPos + RotateDeg(_center * m_scale, m_rotation);
-
-				return UIBase::IsPointInside(
-					a_uiPos,
-					_pos,
-					_size * m_scale,
-					{ 0.5f, 0.5f },		// 中心を出しているのでピボットは中央
-					m_rotation,
-					m_hitPadding);
+				a_outRect.pixelPos = m_anchor.ToScreenPos(_center);	// 範囲の中心を指す点。回転と倍率はアンカーのものが乗る
+				a_outRect.pixelSize = _size * m_anchor.scale;
+				a_outRect.pivot = { 0.5f, 0.5f };						// 中心を出しているのでピボットは中央
+				return true;
 			}
 
 			// 測れる飾りが1つも無ければアンカーの矩形へ戻る(文字だけのUIなど)
 		}
 
-		if (m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f) return false;
+		if (!m_anchor.HasSize()) return false;
 
-		return UIBase::IsPointInside(
+		a_outRect.pixelPos = m_anchor.pixelPos;
+		a_outRect.pixelSize = m_anchor.pixelSize;
+		a_outRect.pivot = m_anchor.pivot;
+		return true;
+	}
+
+	bool UIBase::IsPointInsideSelf(const Math::Vector2& a_uiPos) const
+	{
+		HitRect _rect = {};
+		if (!CalcHitRect(_rect)) return false;
+
+		return UIAnchor::IsPointInside(
 			a_uiPos,
-			m_pixelPos,
-			m_pixelSize,
-			m_pivot,
-			m_rotation,
-			m_hitPadding);
+			_rect.pixelPos,
+			_rect.pixelSize,
+			_rect.pivot,
+			_rect.rotation,
+			_rect.padding);
 	}
 
 	//======================================================================================
@@ -319,7 +225,7 @@ namespace App::Object
 
 			for (const Math::Vector2& _corner : _cornerArray)
 			{
-				const Math::Vector2 _point = a_offset + RotateDeg(_corner, a_rotation);
+				const Math::Vector2 _point = a_offset + UIAnchor::RotateDeg(_corner, a_rotation);
 
 				if (!_hasAny)
 				{
@@ -342,7 +248,7 @@ namespace App::Object
 
 			// 文字は大きさをフォントから組み立てるので、ここでは測れない。
 			// 文字だけのUIに判定を持たせたいときは PixelSize を入れること
-			if (_decoration.type == Decoration::EDecorationType::Text) continue;
+			if (_decoration.GetType() == Decoration::EDecorationType::Text) continue;
 
 			const Math::Vector2 _size = _decoration.pixelSize * _decoration.scale;
 			if (_size.x <= 0.0f || _size.y <= 0.0f) continue;
@@ -377,64 +283,9 @@ namespace App::Object
 		return true;
 	}
 
-	//======================================================================================
-	// 音
-	//======================================================================================
-	void UIBase::PlayUISound(
-		Engine::GameObject::ObjectContext& a_context,
-		const Core::GUID& a_guid,
-		Engine::Handle<Engine::Resource::SoundInstance>& a_inoutHandle,
-		float& a_inoutCoolTime)
-	{
-		if (!a_guid.IsValid()) return;
-		if (!a_context.pServices || !a_context.pServices->pAudioManager) return;
-
-		//--------------------------------------------------------------
-		// 間引き
-		//
-		// 判定の縁でカーソルが揺れると、乗った/離れたが毎フレーム入れ替わる。
-		// インスタンスは1つなので音自体は重ならないが、頭出しの鳴らし直しが
-		// 連続すると残響が積み上がって、だんだん大きくなったように聞こえる
-		//--------------------------------------------------------------
-		if (a_inoutCoolTime > 0.0f) return;
-		a_inoutCoolTime = m_soundMinInterval;
-
-		auto* _pAudioManager = a_context.pServices->pAudioManager;
-
-		// 初めて鳴らすときに借りる。画面に並ぶUI全部が先に確保すると席が尽きる
-		if (!a_inoutHandle.IsValid())
-		{
-			// 画面に出す音なので 2D で発行する(定位を付けない)。
-			// UI の札を付けておくと、設定画面の UI 音量がそのまま効く
-			a_inoutHandle = _pAudioManager->CreateSoundInstance(
-				a_guid, false, Engine::Audio::ESoundGroup::Ui);
-		}
-
-		if (auto* _pInstance = _pAudioManager->RefInstance(a_inoutHandle))
-		{
-			_pInstance->SetVolume(m_soundVolume);
-			_pInstance->Play(false);
-		}
-	}
-
-	void UIBase::ReleaseUISounds(Engine::GameObject::ObjectContext& a_context)
-	{
-		// サウンドインスタンスのプールはアプリ寿命なので、借りた側が必ず返す
-		if (!a_context.pServices || !a_context.pServices->pAudioManager) return;
-
-		auto* _pAudioManager = a_context.pServices->pAudioManager;
-		_pAudioManager->ReleaseSoundInstance(m_hoverSoundHandle);
-		_pAudioManager->ReleaseSoundInstance(m_pressSoundHandle);
-
-		m_hoverSoundHandle = {};
-		m_pressSoundHandle = {};
-	}
-
 	void UIBase::Draw(Engine::GameObject::ObjectContext& a_context)
 	{
-		// 出さない指示が出ているものは描かない
-		if (!m_isVisible) return;
-
+		// 出していないもの(パネルごと隠れているものも)は DrawDecorations が弾く
 		DrawDecorations(a_context);
 	}
 
@@ -443,8 +294,12 @@ namespace App::Object
 	//======================================================================================
 	Decoration::Decoration& UIBase::AddDecoration(Decoration::EDecorationType a_type)
 	{
+		// 番号は配列が伸びる前に決める(伸びた後だと、作りかけの 0 番を数えてしまう)
+		const uint32_t _id = MakeNewDecorationId();
+
 		Decoration::Decoration& _decoration = m_decorationVec.emplace_back();
-		_decoration.type = a_type;
+		_decoration.id = _id;
+		_decoration.SetType(a_type);
 
 		// 名前が全部同じだと一覧で見分けられないので、種類と番号を入れておく
 		const char* _typeName = "Decoration";
@@ -469,52 +324,80 @@ namespace App::Object
 		return nullptr;
 	}
 
+	Decoration::Decoration* UIBase::FindDecorationById(uint32_t a_id)
+	{
+		const int _index = FindDecorationIndexById(a_id);
+		return (_index >= 0) ? &m_decorationVec[_index] : nullptr;
+	}
+
+	const Decoration::Decoration* UIBase::FindDecorationById(uint32_t a_id) const
+	{
+		const int _index = FindDecorationIndexById(a_id);
+		return (_index >= 0) ? &m_decorationVec[_index] : nullptr;
+	}
+
+	int UIBase::FindDecorationIndexById(uint32_t a_id) const
+	{
+		if (a_id == 0) return -1;
+
+		for (size_t _i = 0; _i < m_decorationVec.size(); ++_i)
+		{
+			if (m_decorationVec[_i].id == a_id) return static_cast<int>(_i);
+		}
+		return -1;
+	}
+
+	uint32_t UIBase::MakeNewDecorationId() const
+	{
+		// 今ある番号の最大の次。消した飾りの番号は使い回さない
+		// (消したことに気付かず指したままの側が、別の飾りを掴んでしまわないように)
+		uint32_t _maxId = 0;
+		for (const Decoration::Decoration& _decoration : m_decorationVec)
+		{
+			_maxId = std::max(_maxId, _decoration.id);
+		}
+		return _maxId + 1;
+	}
+
+	void UIBase::AssignDecorationIds()
+	{
+		for (size_t _i = 0; _i < m_decorationVec.size(); ++_i)
+		{
+			Decoration::Decoration& _decoration = m_decorationVec[_i];
+
+			// 前にある飾りと同じ番号なら、後ろのほうを振り直す
+			bool _isDuplicated = false;
+			for (size_t _j = 0; _j < _i; ++_j)
+			{
+				if (m_decorationVec[_j].id == _decoration.id) { _isDuplicated = true; break; }
+			}
+
+			if (_decoration.id == 0 || _isDuplicated)
+			{
+				_decoration.id = MakeNewDecorationId();
+			}
+		}
+	}
+
 	//======================================================================================
 	// 飾りの描画
 	//======================================================================================
-	Decoration::ParentTransform UIBase::MakeParentTransform() const
-	{
-		Decoration::ParentTransform _parent = {};
-		_parent.pixelPos = m_pixelPos;
-		_parent.rotation = m_rotation;
-		_parent.scale = m_scale;
-		_parent.layer = m_layer;
-		_parent.color = m_color;
-
-		return _parent;
-	}
-
-	Decoration::ParentOption UIBase::MakeParentOption() const
-	{
-		Decoration::ParentOption _parent = {};
-
-		// 弧はUIにつき1本。飾りごとの大きさではなくアンカーの矩形を基準に張るので、
-		// 幅の違う枠と中身(ゲージの残量など)が同じ弧に乗る
-		_parent.parentSize = m_pixelSize;
-
-		_parent.curveCenter = m_curveCenter;
-		_parent.curveRadius = m_curveRadius;
-		_parent.curveAngle = m_curveAngle;
-
-		return _parent;
-	}
-
 	void UIBase::DrawDecorations(
 		Engine::GameObject::ObjectContext& a_context,
 		const Decoration::DrawOverride& a_override)
 	{
 		// 出さない指示はここでまとめて弾く。
-		// 継承先が Draw を自前で持っていても、切れば必ず消えるようにするため
-		if (!m_isVisible) return;
+		// 継承先が Draw を自前で持っていても、切れば(パネルごと隠せば)必ず消えるようにするため
 		if (m_decorationVec.empty()) return;
+		if (!IsVisibleInHierarchy(a_context)) return;
 		if (!a_context.pServices || !a_context.pServices->pMainEngine) return;
 		if (!a_context.pServices->pResourceManager) return;
 
 		auto* _pGE = a_context.pServices->pMainEngine->RefGraphicsEngine();
 		if (!_pGE) return;
 
-		const Decoration::ParentTransform _parentTr = MakeParentTransform();
-		const Decoration::ParentOption _parentOp = MakeParentOption();
+		const Decoration::ParentTransform _parentTr = m_anchor.MakeParentTransform();
+		const Decoration::ParentOption _parentOp = m_anchor.MakeParentOption();
 
 		// 配列の順に積む : 後ろにあるものほど手前に出る
 		for (const Decoration::Decoration& _decoration : m_decorationVec)
@@ -534,8 +417,8 @@ namespace App::Object
 		size_t a_index,
 		const Decoration::DrawOverride& a_override)
 	{
-		if (!m_isVisible) return;
 		if (a_index >= m_decorationVec.size()) return;
+		if (!IsVisibleInHierarchy(a_context)) return;
 		if (!a_context.pServices || !a_context.pServices->pMainEngine) return;
 		if (!a_context.pServices->pResourceManager) return;
 
@@ -546,8 +429,8 @@ namespace App::Object
 			_pGE,
 			a_context.pServices->pResourceManager,
 			m_decorationVec[a_index],
-			MakeParentTransform(),
-			MakeParentOption(),
+			m_anchor.MakeParentTransform(),
+			m_anchor.MakeParentOption(),
 			a_override);
 	}
 
@@ -574,7 +457,7 @@ namespace App::Object
 	// シリアライズ
 	//--------------------------------------------------------------------------------------
 	// 前半はテクスチャを1枚だけ持っていた頃の並びをそのまま残してある。
-	// 順番を崩すと、既に保存されているシーンが読めなくなるため。
+	// 順番を崩すと、区切りを持たない古い .ob* が読めなくなるため。
 	// 飾りの配列は末尾へ足し、配列を持たない古いシーンだけ TexGUID から作り直す
 	//======================================================================================
 	void UIBase::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
@@ -586,35 +469,31 @@ namespace App::Object
 		// ---- 旧形式の名残(読み書きは続けるが、使うのは引き継ぎのときだけ) ----
 		a_ar.GUIDField("TexGUID", m_legacyTexGUID);
 
-		a_ar.Field("Color", m_color);
+		// ---- アンカー ----
+		a_ar.Field("Color", m_anchor.color);
 
-		a_ar.Field("PosPixel", m_pixelPos);
-		a_ar.Field("SizePixel", m_pixelSize);
-		a_ar.Field("m_rotation", m_rotation);
-		a_ar.Field("m_pivot", m_pivot);
+		a_ar.Field("PosPixel", m_anchor.pixelPos);
+		a_ar.Field("SizePixel", m_anchor.pixelSize);
+		a_ar.Field("m_rotation", m_anchor.rotation);
+		a_ar.Field("m_pivot", m_anchor.pivot);
 		a_ar.Field("m_uvOffset", m_legacyUvOffset);
-		a_ar.Field("m_layer", m_layer);
-		a_ar.Field("m_scale", m_scale);
+		a_ar.Field("m_layer", m_anchor.layer);
+		a_ar.Field("m_scale", m_anchor.scale);
 
 		// 湾曲(UI全体に1本の弧として掛かる)
-		a_ar.Field("CurveCenter", m_curveCenter);
-		a_ar.Field("CurveRadius", m_curveRadius);
-		a_ar.Field("CurveAngle", m_curveAngle);
+		a_ar.Field("CurveCenter", m_anchor.curveCenter);
+		a_ar.Field("CurveRadius", m_anchor.curveRadius);
+		a_ar.Field("CurveAngle", m_anchor.curveAngle);
 
 		// 出し分けの状態。※ 追加は必ずここより上でなく区切りの末尾へ
 		//    (区切りの中は並び順で読むので、間に挟むと既存のデータがずれる)
 		a_ar.Field("IsVisible", m_isVisible);
 
 		// ---- カーソルへの反応 ----
-		// 名前で書き出す。アクション名で持っていた頃の古いシーンは
-		// 読めない名前になるので、そのときは既定(Select)のまま残る
-		Game::ActionField(a_ar, "ClickActionName", m_clickAction);
-		a_ar.Field("HitPadding", m_hitPadding);
-		a_ar.Field("IsInteractable", m_isInteractable);
-		a_ar.GUIDField("HoverSoundGUID", m_hoverSoundGUID);
-		a_ar.GUIDField("PressSoundGUID", m_pressSoundGUID);
-		a_ar.Field("SoundVolume", m_soundVolume);
-		a_ar.Field("SoundMinInterval", m_soundMinInterval);
+		// 押せない UI(HUD など)も、並びを保つために既定値を書き、読んだ値は捨てる
+		UIInteraction _unusedInteraction = {};
+		UIInteraction& _interaction = m_opInteraction ? *m_opInteraction : _unusedInteraction;
+		_interaction.ArchiveSettings(a_ar);
 
 		// ---- 飾り ----
 		size_t _decorationCount = m_decorationVec.size();
@@ -640,41 +519,14 @@ namespace App::Object
 		}
 
 		// ---- ここから下は後から足したもの : 追加は必ず末尾へ ----
-		a_ar.Field("HitFollowAnim", m_isHitFollowAnim);
+		a_ar.Field("HitFollowAnim", _interaction.isHitFollowAnim);
 
-		m_editSize = m_pixelSize;
+		m_anchor.editSize = m_anchor.pixelSize;
 
 		if (!a_ar.IsLoading()) return;
 
-		//----------------------------------------------------------------------------------
-		// 旧形式からの引き継ぎ
-		//
-		// 飾りの配列を持たないシーンだけが対象。
-		// 既に画像の飾りを持っていれば、その画像へ保存されていたGUIDを移す
-		// (作り直すと、入れてあった大きさや色まで消えてしまうため)。
-		// 無ければここで1つ作る。継承先の PostDeserialize は
-		// この後に走るので、飾りが埋まっているのを見て何もしない
-		//----------------------------------------------------------------------------------
-		if (!_hasDecorationArray && m_legacyTexGUID.IsValid())
-		{
-			Decoration::Decoration* _pImage = nullptr;
-			for (Decoration::Decoration& _decoration : m_decorationVec)
-			{
-				if (_decoration.type != Decoration::EDecorationType::Image) continue;
-				_pImage = &_decoration;
-				break;
-			}
-
-			if (_pImage == nullptr)
-			{
-				_pImage = &AddDecoration(Decoration::EDecorationType::Image);
-				_pImage->pixelSize = m_pixelSize;
-				_pImage->pivot = m_pivot;
-			}
-
-			_pImage->texGUID = m_legacyTexGUID;
-			_pImage->uvOffset = m_legacyUvOffset;
-		}
+		MigrateLegacyTexture(_hasDecorationArray);
+		AssignDecorationIds();
 
 		// 読み込み時は復元したGUIDでテクスチャ・フォントを引き直す。
 		// 実体が届くのを待つ必要はないので、要求だけ出して先へ進む
@@ -683,401 +535,34 @@ namespace App::Object
 	}
 
 	//======================================================================================
-	// カーソル位置をUIのピクセル座標へ直す
+	// 旧形式からの引き継ぎ
 	//--------------------------------------------------------------------------------------
-	// クライアント領域(実際のウィンドウの大きさ) → 描画解像度(UIの座標系)。
-	// バックバッファは描画解像度で作られ、クライアント領域へ引き伸ばして表示されるので、
-	// 単純に比率を掛ければよい。
-	// (ウィンドウサイズを変えても判定がずれないよう、毎フレーム実測する)
+	// 飾りの配列を持たないシーンだけが対象。
+	// 既に画像の飾りを持っていれば、その画像へ保存されていたGUIDを移す
+	// (作り直すと、入れてあった大きさや色まで消えてしまうため)。
+	// 無ければここで1つ作る。継承先の PostDeserialize は
+	// この後に走るので、飾りが埋まっているのを見て何もしない
 	//======================================================================================
-	bool UIBase::CalcCursorUIPos(Engine::GameObject::ObjectContext& a_context, Math::Vector2& a_outPos)
+	void UIBase::MigrateLegacyTexture(bool a_hasDecorationArray)
 	{
-		if (!a_context.pServices) return false;
-		if (!a_context.pServices->pInputManager || !a_context.pServices->pOptionManager) return false;
-		if (!a_context.pServices->pMainEngine) return false;
+		if (a_hasDecorationArray || !m_legacyTexGUID.IsValid()) return;
 
-		// カーソル(クライアント座標)
-		Math::Vector2 _clientPos = {};
-		if (!a_context.pServices->pInputManager->GetCursorClientPos(_clientPos)) return false;
-
-		// 描画解像度
-		const auto& _winOp = a_context.pServices->pOptionManager->GetWindowOption();
-		const float _renderW = static_cast<float>(_winOp.windowWidth);
-		const float _renderH = static_cast<float>(_winOp.windowHeight);
-		if (_renderW <= 0.0f || _renderH <= 0.0f) return false;
-
-		// クライアント領域の実サイズ
-		const auto* _pWind = a_context.pServices->pMainEngine->GetNativeWindow();
-		if (!_pWind) return false;
-
-		const float _clientW = static_cast<float>(_pWind->GetClientWidth());
-		const float _clientH = static_cast<float>(_pWind->GetClientHeight());
-
-		// 最小化中は0になる
-		if (_clientW <= 0.0f || _clientH <= 0.0f) return false;
-
-		a_outPos.x = _clientPos.x * (_renderW / _clientW);
-		a_outPos.y = _clientPos.y * (_renderH / _clientH);
-
-		return true;
-	}
-
-	//======================================================================================
-	// 矩形の内側か
-	//--------------------------------------------------------------------------------------
-	// GraphicsEngine::PushUIData がクアッドを組み立てるのと同じ式で軸を作り、
-	// その軸へ射影した長さで判定する。回転もピボットもそのまま効く。
-	// (判定用に別の値を持たせると「絵はここなのに押せない」ズレが必ず出るため、
-	//  描画に渡すものと同じ値をそのまま受け取る形にしてある)
-	//
-	//   ローカル+X(画面右) を回したもの : ( cos,  sin)
-	//   ローカル+Y(画面上) を回したもの : ( sin, -cos)
-	//   クアッド中心 : ピボット位置 + R * ピボットからのずれ
-	//======================================================================================
-	bool UIBase::IsPointInside(
-		const Math::Vector2& a_uiPos,
-		const Math::Vector2& a_pixelPos,
-		const Math::Vector2& a_pixelSize,
-		const Math::Vector2& a_pivot,
-		float a_rotationDeg,
-		const Math::Vector2& a_hitPadding)
-	{
-		// 判定の半サイズ(余白ぶんを足す)
-		const Math::Vector2 _half = {
-			a_pixelSize.x * 0.5f + a_hitPadding.x,
-			a_pixelSize.y * 0.5f + a_hitPadding.y
-		};
-
-		// 大きさが無ければ触りようがない
-		if (_half.x <= 0.0f || _half.y <= 0.0f) return false;
-
-		const float _rad = DirectX::XMConvertToRadians(a_rotationDeg);
-		const float _cos = std::cos(_rad);
-		const float _sin = std::sin(_rad);
-
-		// ピボットからクアッド中心までのずれ(回転前)
-		const Math::Vector2 _pivotOff = {
-			(0.5f - a_pivot.x) * a_pixelSize.x,
-			(0.5f - a_pivot.y) * a_pixelSize.y
-		};
-
-		// 回転はピボットを中心に行われる
-		const Math::Vector2 _center = {
-			a_pixelPos.x + (_pivotOff.x * _cos - _pivotOff.y * _sin),
-			a_pixelPos.y + (_pivotOff.x * _sin + _pivotOff.y * _cos)
-		};
-
-		const Math::Vector2 _diff = { a_uiPos.x - _center.x, a_uiPos.y - _center.y };
-
-		// 各軸へ射影した長さ(軸はどちらも単位ベクトル)
-		const float _u = _diff.x * _cos + _diff.y * _sin;
-		const float _v = _diff.x * _sin - _diff.y * _cos;
-
-		return (std::fabs(_u) <= _half.x) && (std::fabs(_v) <= _half.y);
-	}
-
-	//======================================================================================
-	// インスペクター
-	//======================================================================================
-	void UIBase::DrawInspector(Engine::GameObject::ObjectContext& a_context)
-	{
-		if (!a_context.pServices) return;
-		if (!a_context.pServices->pOptionManager || !a_context.pServices->pResourceManager) return;
-
-		// ウィンドウサイズの取得
-		const auto& _winOp = a_context.pServices->pOptionManager->GetWindowOption();
-		const float _w = static_cast<float>(_winOp.windowWidth);
-		const float _h = static_cast<float>(_winOp.windowHeight);
-
-		// 表示するか : 出し分けを持つ画面(ホームなど)は進行役がここを切り替える
-		Engine::EditorField::Field("Visible", m_isVisible);
-		Engine::EditorField::Tooltip("切ると描画も入力も止まる");
-
-		// 色 : 全ての飾りへ乗算で掛かる。畳まずに常に出しておく
-		// (白い板ポリを1つ置いて、色だけで作り分けられるようにするため)
-		Engine::EditorField::Field("Color", m_color);
-
-		Engine::EditorField::Line();
-
-		// 座標系
-		Engine::EditorField::Field("PixelPos", m_pixelPos, 1.0f);						// スクリーン座標
-
-		Engine::EditorField::Field("Rotation", m_rotation, 0.1f, -360.0f, 360.0f);
-		if (m_rotation >= 360) m_rotation -= 360;
-		if (m_rotation <= -360) m_rotation += 360;
-
-		if (Engine::EditorField::Field("Scale", m_scale, 0.01f, 0.0f))						// 等倍拡縮
+		Decoration::ImageData* _pImage = nullptr;
+		for (Decoration::Decoration& _decoration : m_decorationVec)
 		{
-			m_pixelSize = m_editSize * m_scale;
-		}
-		if (Engine::EditorField::Field("PixelSize", m_pixelSize, 1.0f, 0.0f, 8192.0f))	// ピクセルサイズ
-		{
-			m_editSize = m_pixelSize / m_scale;
-		}
-		Engine::EditorField::Tooltip("アンカー自身の矩形(当たり判定・判定円の基準)。見た目は飾り側のサイズ");
-
-		// 湾曲オプション
-		// 曲げても幅は変わらない。反りだけが増えていく。
-		// 弧は上の PixelSize を -1..1 として張るので、幅0だと曲がらない
-		Engine::EditorField::Field("CurveAngle", m_curveAngle, 0.01f, -3.0f, 3.0f);
-		Engine::EditorField::Tooltip("開き角(ラジアン)。0で曲げない / 正で山なり・負で谷");
-		Engine::EditorField::Field("CurveRadius", m_curveRadius, 0.01f, 0.0f, 4.0f);
-		Engine::EditorField::Tooltip("反りの深さの倍率。1で素直な円弧(0も1として扱う)");
-		Engine::EditorField::Field("CurveCenter", m_curveCenter, 0.01f);
-		Engine::EditorField::Tooltip("弧の頂点。PixelSizeを-1..1とした座標(x=横位置 / y=上下のずらし)");
-
-		// 端がどれだけ下がるかを出しておく : 数字だけだと効き具合が読めない
-		if (m_curveAngle != 0.0f)
-		{
-			const float _depth = (m_curveRadius > 0.0f) ? m_curveRadius : 1.0f;
-			const float _sag = m_pixelSize.x * 0.5f * std::tan(m_curveAngle * 0.25f) * _depth;
-			Engine::EditorField::Value("端の反り", "%.1f px", _sag);
+			_pImage = _decoration.RefImage();
+			if (_pImage) break;
 		}
 
-		// 初期化用ボタン
-		if (Engine::EditorField::Button("RefreshTransform"))
+		if (_pImage == nullptr)
 		{
-			m_pixelPos = { _w / 2.0f,_h / 2.0f };
-			m_pixelSize = { _w / 4 ,_h / 4 };
-			m_rotation = 0.0f;
+			Decoration::Decoration& _decoration = AddDecoration(Decoration::EDecorationType::Image);
+			_decoration.pixelSize = m_anchor.pixelSize;
+			_decoration.pivot = m_anchor.pivot;
+			_pImage = _decoration.RefImage();
 		}
 
-		Engine::EditorField::Line();
-
-		// ピボット : 正規化[0,1]。(0.5,0.5)=中心, (0,0)=左上, (1,1)=右下。
-		// この点が PixelPos に配置され、回転の中心にもなる。
-		Engine::EditorField::Field("Pivot (0-1)", m_pivot, 0.01f, 0.0f, 1.0f);
-		Engine::EditorField::Field("Layer", m_layer, 0.1f);
-		Engine::EditorField::Tooltip("重なり順。大きいほど手前(同じ値なら置いた順)");
-
-		//----------------------------------------------------------------------
-		// カーソルへの反応
-		//
-		// 見た目の変化は飾り側(Decoration の Reaction)。ここは判定と音だけ
-		//----------------------------------------------------------------------
-		Engine::EditorField::Header("Interaction");
-
-		Engine::EditorField::Field("Interactable", m_isInteractable);
-		Engine::EditorField::Tooltip("切ると Disabled 扱いになる");
-
-		Engine::EditorField::Field("ClickAction", m_clickAction);
-		Engine::EditorField::Tooltip("InputManager へ登録したアクション名");
-
-		Engine::EditorField::Field("HitPadding", m_hitPadding, 1.0f);
-		Engine::EditorField::Tooltip("判定の矩形へ足す余白(px)");
-
-		Engine::EditorField::Field("HitFollowAnim", m_isHitFollowAnim);
-		Engine::EditorField::Tooltip("飾りのアニメ・反応で大きくなったぶんも判定に入れる(PixelSize より優先)");
-
-		//----------------------------------------------------------------------
-		// いま効いている判定を出す
-		//
-		// 幅0の矩形はどこにも当たらないので、乗らない原因がここだと分かるようにする
-		//----------------------------------------------------------------------
-		Math::Vector2 _hitCenter = {};
-		Math::Vector2 _hitSize = {};
-		const bool _hasHitBounds = CalcDecorationBounds(_hitCenter, _hitSize, m_isHitFollowAnim);
-
-		if (m_isHitFollowAnim && _hasHitBounds)
-		{
-			// 実行中は毎フレーム変わる。止まっているときは素の大きさと同じ
-			Engine::EditorField::Value("Hit", "%.0f x %.0f (飾りの範囲/アニメ込み)", _hitSize.x * m_scale, _hitSize.y * m_scale);
-		}
-		else if (m_pixelSize.x > 0.0f && m_pixelSize.y > 0.0f)
-		{
-			Engine::EditorField::Value("Hit", "%.0f x %.0f (PixelSize)", m_pixelSize.x, m_pixelSize.y);
-
-			if (m_isHitFollowAnim)
-			{
-				Engine::EditorField::HelpText("HitFollowAnim は立っていますが、測れる飾りが無いので PixelSize です");
-			}
-		}
-		else if (_hasHitBounds)
-		{
-			Engine::EditorField::Value("Hit", "%.0f x %.0f (飾りの範囲)", _hitSize.x * m_scale, _hitSize.y * m_scale);
-			Engine::EditorField::Tooltip("PixelSize が 0 なので飾りの範囲を使っています");
-		}
-		else
-		{
-			Engine::EditorField::ErrorText("Hit : なし");
-			Engine::EditorField::HelpText("PixelSize も飾りの大きさも 0 です。カーソルに反応しません");
-		}
-
-		// 音を差し替えたら、借りているインスタンスを返して取り直させる
-		if (Engine::EditorField::AssetField(*a_context.pServices, "HoverSound", "Sound", m_hoverSoundGUID))
-		{
-			ReleaseUISounds(a_context);
-		}
-		if (Engine::EditorField::AssetField(*a_context.pServices, "PressSound", "Sound", m_pressSoundGUID))
-		{
-			ReleaseUISounds(a_context);
-		}
-		Engine::EditorField::Field("SoundVolume", m_soundVolume, 0.01f, 0.0f, 1.0f);
-		Engine::EditorField::Field("SoundMinInterval", m_soundMinInterval, 0.01f, 0.0f, 1.0f);
-		Engine::EditorField::Tooltip("鳴らし直す最短間隔(秒)。縁で揺れて鳴り続けるのを止める");
-
-		// 実行中の状態は表示のみ
-		static const char* STATE_NAME[] = { "Normal", "Hovered", "Pressed", "Disabled" };
-		Engine::EditorField::Value("State", "%s", STATE_NAME[static_cast<int>(GetUIState())]);
-
-		// 重なりの取り合いの結果。
-		// 「矩形には入っているのに反応しない」の原因がここだと分かるようにする
-		if (m_isCursorInside && !a_context.IsCursorOwner(this))
-		{
-			Engine::EditorField::WarningText("Cursor : 手前の別UIに取られています(Layer %.1f)", m_layer);
-		}
-
-		Engine::EditorField::Line();
-
-		// 飾り
-		DrawDecorationListInspector(a_context);
-	}
-
-	//======================================================================================
-	// 飾りの一覧
-	//--------------------------------------------------------------------------------------
-	// 描く順は配列順なので、並べ替えがそのまま重なり順になる。
-	// 開いている1つだけ中身を出す形にしてあるのは、飾りが増えると
-	// 全部展開したときにインスペクターが縦に流れて使えなくなるため
-	//======================================================================================
-	void UIBase::DrawDecorationListInspector(Engine::GameObject::ObjectContext& a_context)
-	{
-		Engine::EditorField::Header("Decorations");
-		Engine::EditorField::HelpText("配列の順に描きます(下にあるものほど手前)");
-
-		// ---- 追加 ----
-		if (Engine::EditorField::CreateButton("Add Polygon"))
-		{
-			AddDecoration(Decoration::EDecorationType::Polygon);
-			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
-		}
-		Engine::EditorField::SameLine();
-		if (Engine::EditorField::CreateButton("Add Image"))
-		{
-			AddDecoration(Decoration::EDecorationType::Image);
-			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
-		}
-		Engine::EditorField::SameLine();
-		if (Engine::EditorField::CreateButton("Add Text"))
-		{
-			AddDecoration(Decoration::EDecorationType::Text);
-			m_editDecorationIndex = static_cast<int>(m_decorationVec.size()) - 1;
-		}
-
-		// ---- 全削除 ----
-		// 戻せないので Ctrl を押している間だけ効かせる
-		if (!m_decorationVec.empty())
-		{
-			Engine::EditorField::SameLine();
-			if (Engine::EditorField::DeleteButton("Clear All") && Engine::EditorField::IsCtrlDown())
-			{
-				m_decorationVec.clear();
-				m_editDecorationIndex = -1;
-			}
-			Engine::EditorField::Tooltip("Ctrl+クリックで全部消す");
-		}
-
-		// 一覧を回している間に配列を触ると足元が崩れるので、操作は覚えておいて後でまとめて行う
-		int _removeIndex = -1;
-		int _swapIndex = -1;		// この番号と次の番号を入れ替える
-
-		for (int _i = 0; _i < static_cast<int>(m_decorationVec.size()); ++_i)
-		{
-			Decoration::Decoration& _decoration = m_decorationVec[_i];
-
-			Engine::EditorField::IDScope _id(_i);
-
-			//----------------------------------------------------------------------
-			// 1行ぶん : [X][↑][↓] 名前
-			//
-			// ボタンを先に置くこと。
-			// Selectable は残りの幅を全部使うので、後ろへ並べると
-			// ボタンが行の外まで押し出されて押せなくなる
-			//----------------------------------------------------------------------
-			if (Engine::EditorField::DeleteSmallButton("X")) _removeIndex = _i;
-			Engine::EditorField::Tooltip("この飾りを消す");
-
-			Engine::EditorField::SameLine();
-			if (Engine::EditorField::ArrowButton("##Up", Engine::EditorField::EArrowDir::Up) && _i > 0) _swapIndex = _i - 1;
-
-			Engine::EditorField::SameLine();
-			if (Engine::EditorField::ArrowButton("##Down", Engine::EditorField::EArrowDir::Down) &&
-				_i + 1 < static_cast<int>(m_decorationVec.size()))
-			{
-				_swapIndex = _i;
-			}
-
-			// 開閉 : 開いているものだけ中身を出す
-			Engine::EditorField::SameLine();
-			const bool _isOpen = (m_editDecorationIndex == _i);
-			const std::string _label =
-				std::to_string(_i) + " : " + (_decoration.name.empty() ? "(no name)" : _decoration.name);
-
-			if (Engine::EditorField::Selectable(_label.c_str(), _isOpen))
-			{
-				m_editDecorationIndex = _isOpen ? -1 : _i;
-			}
-
-			if (_isOpen)
-			{
-				{
-					Engine::EditorField::IndentScope _indent;
-					if (a_context.pServices) Decoration::DrawDecorationInspector(_decoration, *a_context.pServices);
-				}
-				Engine::EditorField::Line();
-			}
-		}
-
-		if (_swapIndex >= 0)
-		{
-			std::swap(m_decorationVec[_swapIndex], m_decorationVec[_swapIndex + 1]);
-
-			// 開いていたものを追いかける
-			if (m_editDecorationIndex == _swapIndex)          m_editDecorationIndex = _swapIndex + 1;
-			else if (m_editDecorationIndex == _swapIndex + 1) m_editDecorationIndex = _swapIndex;
-		}
-
-		if (_removeIndex >= 0)
-		{
-			m_decorationVec.erase(m_decorationVec.begin() + _removeIndex);
-
-			// 消したぶん番号がずれる
-			if (m_editDecorationIndex == _removeIndex)     m_editDecorationIndex = -1;
-			else if (m_editDecorationIndex > _removeIndex) --m_editDecorationIndex;
-		}
-	}
-
-	bool UIBase::DrawGizmo(const Engine::GameObject::ObjectGizmoContext& a_ctx, Engine::GameObject::ObjectContext& a_context)
-	{
-		// シーンビュー上にドラッグ可能なハンドルを出してピクセル座標を編集する
-		if (a_ctx.viewportSize.x <= 0.0f || a_ctx.viewportSize.y <= 0.0f) return false;
-		if (!a_context.pServices || !a_context.pServices->pOptionManager) return false;
-
-		// ウィンドウサイズの取得
-		const auto& _winOp = a_context.pServices->pOptionManager->GetWindowOption();
-		const float _w = static_cast<float>(_winOp.windowWidth);
-		const float _h = static_cast<float>(_winOp.windowHeight);
-		if (_w <= 0.0f || _h <= 0.0f) return false;
-
-		// ゲーム内ピクセル(左上原点) から シーンビュー上ピクセルへ。
-		// m_pixelPos はピボットのスクリーン座標なので、ハンドルはそのままピボット位置を指す。
-		Math::Vector2 _handle = {};
-		_handle.x = a_ctx.viewportPos.x + (m_pixelPos.x / _w) * a_ctx.viewportSize.x;
-		_handle.y = a_ctx.viewportPos.y + (m_pixelPos.y / _h) * a_ctx.viewportSize.y;
-
-		// ギズモハンドルの半径 : ピクセル
-		static const float HANDLE_RADIUS = 9.0f;
-
-		// ドラッグ中はマウス位置からピクセル座標を逆算して更新
-		Math::Vector2 _mouse = {};
-		if (Engine::EditorField::ScreenHandle("##UIGizmo", _handle, HANDLE_RADIUS, _mouse))
-		{
-			const float _u = (_mouse.x - a_ctx.viewportPos.x) / a_ctx.viewportSize.x;	// 0..1
-			const float _v = (_mouse.y - a_ctx.viewportPos.y) / a_ctx.viewportSize.y;	// 0..1
-			m_pixelPos.x = std::clamp(_u * _w, 0.0f, _w);
-			m_pixelPos.y = std::clamp(_v * _h, 0.0f, _h);
-		}
-
-		return true;
+		_pImage->texGUID = m_legacyTexGUID;
+		_pImage->quad.uvOffset = m_legacyUvOffset;
 	}
 }

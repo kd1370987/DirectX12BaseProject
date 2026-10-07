@@ -494,11 +494,6 @@
       <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="Source\Application\Object\UI\UIManager.cpp">
-      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
-      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
-    </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\WaveAnnounceHUD\WaveAnnounceHUD.cpp">
       <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
@@ -519,7 +514,42 @@
       <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
     </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIBaseInspector.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIAnchor.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIInteraction.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\UIPanel\UIPanel.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\Decoration.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\DecorationDraw.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\DecorationArchive.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\UI\DecorationInspector.cpp">
       <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
@@ -1672,7 +1702,7 @@
     <ClInclude Include="Source\Application\Object\Scene\InputBinding\InputBinding.h" />
     <ClInclude Include="Source\Application\Object\Scene\SceneInitializer\SceneInitializer.h" />
     <ClInclude Include="Source\Application\Object\UI\Decoration.h" />
-    <ClInclude Include="Source\Application\Object\UI\UIManager.h" />
+    <ClInclude Include="Source\Application\Object\UI\DecorationInternal.h" />
     <ClInclude Include="Source\Application\Systems\Combat\ScoreSystem.h" />
     <ClInclude Include="Source\Application\Systems\Combat\DeathEventClearSystem.h" />
     <ClInclude Include="Source\Application\Object\UI\ScoreHUD\ScoreHUD.h" />
@@ -1729,6 +1759,7 @@
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h" />
     <ClInclude Include="Source\Application\InstanceResource\SingletonEntityResource.h" />
     <ClInclude Include="Source\Application\InstanceResource\PlayerHUDResource.h" />
+    <ClInclude Include="Source\Application\InstanceResource\UICursorResource.h" />
     <ClInclude Include="Source\Application\InstanceResource\HitEventResource.h" />
     <ClInclude Include="Source\Application\InstanceResource\WormWaveResource.h" />
     <ClInclude Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.h" />
@@ -1739,6 +1770,9 @@
     <ClInclude Include="Source\Application\Object\UI\HitEffectHUD\HitEffectHUD.h" />
     <ClInclude Include="Source\Application\Object\Sequence\SceneSequence\SceneSequence.h" />
     <ClInclude Include="Source\Application\Object\UI\UIBase.h" />
+    <ClInclude Include="Source\Application\Object\UI\UIAnchor.h" />
+    <ClInclude Include="Source\Application\Object\UI\UIInteraction.h" />
+    <ClInclude Include="Source\Application\Object\UI\UIPanel\UIPanel.h" />
     <ClInclude Include="Source\Application\Object\UI\UIButton\UIButton.h" />
     <ClInclude Include="Source\Application\Object\UI\UIGauge\UIGauge.h" />
     <ClInclude Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.h" />

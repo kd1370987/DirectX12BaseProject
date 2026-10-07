@@ -24,6 +24,9 @@ namespace App::Object
 	{
 	public:
 
+		// 押されることのない HUD なので、カーソルへの反応を持たない
+		WaveAnnounceHUD() : UIBase(false) {}
+
 		// 初期化処理 : 飾りの絵と音を用意する
 		void PostDeserialize(Engine::GameObject::ObjectContext& a_context) override;
 		void Awake(Engine::GameObject::ObjectContext& a_context) override;

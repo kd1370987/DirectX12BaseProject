@@ -28,13 +28,13 @@ namespace App::Object
 
 		// サイズが0のままだと何も見えないので、既定サイズと色を入れておく。
 		// 保存値を読み終えた後に見るので、シーンに入っている値は潰さない
-		if (m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f)
+		if (m_anchor.pixelSize.x <= 0.0f || m_anchor.pixelSize.y <= 0.0f)
 		{
-			m_pixelSize = { DEFAULT_BOX_SIZE, DEFAULT_BOX_SIZE };
-			m_editSize  = m_pixelSize;
+			m_anchor.pixelSize = { DEFAULT_BOX_SIZE, DEFAULT_BOX_SIZE };
+			m_anchor.editSize  = m_anchor.pixelSize;
 
 			// ミサイルの溜めは黄色の枠
-			m_color = Math::Color(1.0f, 1.0f, 0.0f, 1.0f);
+			m_anchor.color = Math::Color(1.0f, 1.0f, 0.0f, 1.0f);
 		}
 
 		// 既定の枠を1つ用意する。作るのは飾りを1つも持っていないときだけなので、
@@ -43,8 +43,8 @@ namespace App::Object
 		{
 			Decoration::Decoration& _box = AddDecoration(Decoration::EDecorationType::Image);
 			_box.name = "LockBox";
-			_box.pixelSize = m_pixelSize;
-			_box.texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(LOCK_BOX_TEXTURE_PATH);
+			_box.pixelSize = m_anchor.pixelSize;
+			_box.RefImage()->texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(LOCK_BOX_TEXTURE_PATH);
 		}
 	}
 

@@ -25,6 +25,9 @@ namespace App::Object
 	{
 	public:
 
+		// 押されることのない HUD なので、カーソルへの反応を持たない
+		TargetBoxHUD() : UIBase(false) {}
+
 		// 飾りの群 : 0 = 画面内の敵に出す枠 / 1 = ロック中の相手に出す枠
 		static constexpr uint32_t GROUP_NORMAL = 0;
 		static constexpr uint32_t GROUP_LOCK = 1;

@@ -31,8 +31,8 @@ namespace App::Object
 		{
 			Decoration::Decoration& _reticle = AddDecoration(Decoration::EDecorationType::Image);
 			_reticle.name = "Reticle";
-			_reticle.pixelSize = m_pixelSize;
-			_reticle.texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(RETICLE_TEXTURE_PATH);
+			_reticle.pixelSize = m_anchor.pixelSize;
+			_reticle.RefImage()->texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(RETICLE_TEXTURE_PATH);
 		}
 	}
 
@@ -48,7 +48,7 @@ namespace App::Object
 	float CombatReticleHUD::CalcArtRadius() const
 	{
 		// 縦横で違う場合は小さい方。円としてはみ出さない側に合わせる
-		const float _half = std::min(m_pixelSize.x, m_pixelSize.y) * 0.5f;
+		const float _half = std::min(m_anchor.pixelSize.x, m_anchor.pixelSize.y) * 0.5f;
 		return std::max(_half, 0.0f);
 	}
 

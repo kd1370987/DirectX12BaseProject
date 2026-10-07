@@ -35,6 +35,9 @@ namespace App::Object
 	{
 	public:
 
+		// 押されることのない HUD なので、カーソルへの反応を持たない
+		ScoreHUD() : UIBase(false) {}
+
 		// 更新処理 : 合計を読み、増えたフレームは弾ませる
 		void Update(Engine::GameObject::ObjectContext& a_context) override;
 

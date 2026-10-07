@@ -28,10 +28,10 @@ namespace App::Object
 
 		// サイズが0のままだと何も見えないので、既定サイズを入れておく。
 		// 保存値を読み終えた後に見るので、シーンに入っている値は潰さない
-		if (m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f)
+		if (m_anchor.pixelSize.x <= 0.0f || m_anchor.pixelSize.y <= 0.0f)
 		{
-			m_pixelSize = { DEFAULT_BOX_SIZE, DEFAULT_BOX_SIZE };
-			m_editSize = m_pixelSize;
+			m_anchor.pixelSize = { DEFAULT_BOX_SIZE, DEFAULT_BOX_SIZE };
+			m_anchor.editSize = m_anchor.pixelSize;
 		}
 
 		//--------------------------------------------------------------
@@ -45,8 +45,8 @@ namespace App::Object
 			Decoration::Decoration& _box = AddDecoration(Decoration::EDecorationType::Image);
 			_box.name = "TargetBox";
 			_box.group = GROUP_NORMAL;
-			_box.pixelSize = m_pixelSize;
-			_box.texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(TARGET_BOX_TEXTURE_PATH);
+			_box.pixelSize = m_anchor.pixelSize;
+			_box.RefImage()->texGUID = a_context.pServices->pAssetDatabase->GetGUIDFromFilePath(TARGET_BOX_TEXTURE_PATH);
 		}
 	}
 
@@ -171,8 +171,8 @@ namespace App::Object
 			Decoration::Decoration& _lockBox = AddDecoration(Decoration::EDecorationType::Image);
 			_lockBox.name = "LockBox";
 			_lockBox.group = GROUP_LOCK;
-			_lockBox.pixelSize = m_pixelSize;
-			_lockBox.texGUID = m_legacyLockTexGUID;
+			_lockBox.pixelSize = m_anchor.pixelSize;
+			_lockBox.RefImage()->texGUID = m_legacyLockTexGUID;
 
 			RequestDecorationResources(a_context);
 		}

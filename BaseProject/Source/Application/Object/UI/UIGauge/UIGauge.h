@@ -87,7 +87,7 @@ namespace App::Object
 	//     見る値を増やすときは EHUDGaugeKind と HUDGatherSystem へ足してから、ここの対応を足す。
 	//
 	// ・伸び縮みは飾り1つの横幅で表す
-	//     指定した名前の飾り(既定 "Fill")の横幅へ残量を掛けて描く。
+	//     選んだ飾り(番号で指す)の横幅へ残量を掛けて描く。
 	//     残す側の端をピボットにするので、そこを固定したまま反対側から削れていく。
 	//     縮めるのは大きさだけで、枠の太さや位置のずれには掛からない。
 	//
@@ -105,6 +105,9 @@ namespace App::Object
 	class UIGauge : public UIBase
 	{
 	public:
+
+		// 押されることのない HUD なので、カーソルへの反応を持たない
+		UIGauge() : UIBase(false) {}
 
 		//=======================================================================
 		// 値
@@ -176,11 +179,12 @@ namespace App::Object
 		//-------------------------------------------------------------------
 		// 設定(保存される) : ゲージ
 		//-------------------------------------------------------------------
-		// 横幅を縮める飾りの名前。ここに入れた名前の飾りが「中身」になる
-		std::string m_fillDecorationName = "Fill";
+		// 横幅を縮める飾りの番号(Decoration::id)。この飾りが「中身」になる。0 で無し
+		uint32_t m_fillDecorationId = 0;
 
 		// どちら側を固定して縮めるか
-		EGaugeAnchor m_anchor = EGaugeAnchor::Left;
+		// (UIBase のアンカー(置き場所)とは別物。名前を分けてあるのはそのため)
+		EGaugeAnchor m_fillAnchor = EGaugeAnchor::Left;
 
 		//-------------------------------------------------------------------
 		// 設定(保存される) : 色
@@ -198,8 +202,8 @@ namespace App::Object
 		//-------------------------------------------------------------------
 		// 設定(保存される) : 数値
 		//-------------------------------------------------------------------
-		// 数値を流し込む Text 飾りの名前
-		std::string m_textDecorationName = "Value";
+		// 数値を流し込む Text 飾りの番号(Decoration::id)。0 で無し
+		uint32_t m_textDecorationId = 0;
 
 		EGaugeTextFormat m_textFormat = EGaugeTextFormat::Value;
 
@@ -235,5 +239,13 @@ namespace App::Object
 
 		// 最後に流し込んだ文字列。変わったときだけ書き換える
 		std::string m_appliedText = {};
+
+		//-------------------------------------------------------------------
+		// 名前で飾りを指していた頃の名残(保存の並びを保つために読み書きだけ続ける)
+		//
+		// 番号を持たない古いデータは、読み込みの後にこの名前から番号を引き直す
+		//-------------------------------------------------------------------
+		std::string m_legacyFillDecorationName = "Fill";
+		std::string m_legacyTextDecorationName = "Value";
 	};
 }

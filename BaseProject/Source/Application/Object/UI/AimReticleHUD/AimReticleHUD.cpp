@@ -22,13 +22,13 @@ namespace App::Object
 
 		// サイズが0のままだと何も見えないので、既定サイズと画面中央を入れておく。
 		// 保存値を読み終えた後に見るので、シーンに入っている値は潰さない
-		if (m_pixelSize.x <= 0.0f || m_pixelSize.y <= 0.0f)
+		if (m_anchor.pixelSize.x <= 0.0f || m_anchor.pixelSize.y <= 0.0f)
 		{
-			m_pixelSize = { DEFAULT_RETICLE_SIZE, DEFAULT_RETICLE_SIZE };
-			m_editSize  = m_pixelSize;
+			m_anchor.pixelSize = { DEFAULT_RETICLE_SIZE, DEFAULT_RETICLE_SIZE };
+			m_anchor.editSize  = m_anchor.pixelSize;
 
 			const auto& _winOp = a_context.pServices->pOptionManager->GetWindowOption();
-			m_pixelPos = {
+			m_anchor.pixelPos = {
 				static_cast<float>(_winOp.windowWidth) * 0.5f,
 				static_cast<float>(_winOp.windowHeight) * 0.5f
 			};
@@ -50,7 +50,7 @@ namespace App::Object
 		if (!m_isUseTextureSize) return std::max(m_lockRadius, 0.0f);
 
 		// 縦横で違う場合は小さい方。円としてはみ出さない側に合わせる
-		const float _half = std::min(m_pixelSize.x, m_pixelSize.y) * 0.5f;
+		const float _half = std::min(m_anchor.pixelSize.x, m_anchor.pixelSize.y) * 0.5f;
 		return std::max(_half * m_radiusScale, 0.0f);
 	}
 

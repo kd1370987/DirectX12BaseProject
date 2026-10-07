@@ -2,21 +2,30 @@
 
 #include "Application/AppCommon.h"
 
+#include <variant>
+
 //==========================================================================================
 // UIのデコレーション
 //
 // UI 1つは「アンカー(位置・回転・倍率・色)」だけを持ち、実際に見えるものは
 // このデコレーションを配列で生やして作る。
 //
-//   UIBase  … 画面のどこに、どの向き・どの大きさで置くか
+//   UIAnchor   … 画面のどこに、どの向き・どの大きさで置くか
 //   Decoration … そこから相対でどんな絵を出すか(枠・画像・文字)
 //
 // 値はすべて親からの相対。親を動かせば飾りも一緒に動き、回せば一緒に回り、
 // 倍率を掛ければオフセットごと伸びる。1枚のUIを小さい絵の重ね合わせで作れるようにするため。
 //
-// 種類は enum で分けた1つの struct にまとめてある(タグ付き)。
+// 共通部分(位置・大きさ・色・アニメ・反応)は1つの struct に持ち、
+// 種類ごとの中身(板ポリ / 画像 / 文字)だけを variant で分けてある。
 // 配列1本で持てるので、描画順が配列順そのままになり、
 // インスペクターの追加・削除・並べ替えも Archive も1つのリストで済む。
+//
+// 実装は役割ごとにファイルを分けてある :
+//   Decoration.cpp          … 種類の切り替え・アニメーションと反応の進行
+//   DecorationDraw.cpp      … 描画・リソースの引き直し
+//   DecorationArchive.cpp   … 保存
+//   DecorationInspector.cpp … インスペクター(エディター用)
 //==========================================================================================
 // 描画命令の積み先。ヘッダーでは前方宣言だけにして、実装側で GraphicsEngine.h を読む
 namespace Engine::Graphics { class GraphicsEngine; }
@@ -216,6 +225,8 @@ namespace App::Object::Decoration
 
 	//======================================================================================
 	// デコレーションの種類
+	//
+	// ※ 値は保存されるうえ、DecorationBody(下)の並びと一致させてある。増やすときは両方の末尾へ
 	//======================================================================================
 	enum class EDecorationType : uint32_t
 	{
@@ -225,11 +236,68 @@ namespace App::Object::Decoration
 	};
 
 	//======================================================================================
+	// 種類ごとの中身
+	//
+	// 以前は全種類のフィールドを1つの struct に並べていたので、
+	// 文字の飾りもテクスチャを、画像の飾りもフォントを持っていた。
+	// どの値が効くのかが型から読めないので、種類ごとに分けて variant で持つ
+	//======================================================================================
+
+	//--------------------------------------------------------------------------------------
+	// 矩形の見た目 : 板ポリと画像で共通(UV と枠)
+	//--------------------------------------------------------------------------------------
+	struct QuadStyle
+	{
+		Math::Vector2	uvOffset	= {};						// UVスクロール・コマ送り
+		Math::Vector2	uvScale		= { 1.0f, 1.0f };			// 1枚に並べた絵から1コマ切り出すときの倍率
+
+		// 枠
+		bool		isFill		= true;					// 中を塗るか(false で枠だけ)
+		Math::Color edgeColor	= Engine::Color::WHITE;	// 枠の色(親の色へ乗算)
+		float		edgePixel	= 0.0f;					// 枠の太さ(px)。0 で枠なし
+		EDirection	edgeSide	= EDirection::ALL;		// どの辺に出すか
+	};
+
+	// 板ポリ
+	struct PolygonData
+	{
+		QuadStyle quad = {};
+	};
+
+	// 画像
+	struct ImageData
+	{
+		QuadStyle quad = {};
+
+		Core::GUID texGUID = {};										// 保存用
+		Engine::ResourceRef<Engine::Resource::Texture> texRef = {};		// ランタイム用
+	};
+
+	// 文字
+	struct TextData
+	{
+		std::string	text = "Text";
+		Core::GUID fontGUID = {};
+		Engine::ResourceRef<Engine::Resource::Font> fontRef = {};
+
+		float		fontPixelSize	= 32.0f;				// 出したい文字の高さ(px)
+		float		lineSpacing		= 1.0f;					// 行送りの倍率(1.0 でフォントの既定)
+		float		charSpacing		= 0.0f;					// 字間へ足す量(px)
+		ETextAlign	textAlign		= ETextAlign::Center;	// 出現位置
+	};
+
+	// 並びは EDecorationType と同じ(index がそのまま種類になる)
+	using DecorationBody = std::variant<PolygonData, ImageData, TextData>;
+
+	//======================================================================================
 	// デコレーション : UIに付属する飾り
 	//======================================================================================
 	struct Decoration
 	{
-		EDecorationType type = EDecorationType::Polygon;
+		// 持ち主の UI の中で一意な番号(0 は未採番)。
+		// 名前は書き換えられるので、他から飾りを指すときはこちらを使う(UIGauge の中身など)。
+		// 振るのは UIBase(AddDecoration と読み込みの後)
+		uint32_t id = 0;
 
 		std::string name		= "Decoration";	// エディターの見出し用
 		bool		isVisible	= true;			// 出すか
@@ -247,36 +315,9 @@ namespace App::Object::Decoration
 		Math::Color		color		= Engine::Color::WHITE;		// 親の色へ乗算
 
 		//----------------------------------------------------------------------------------
-		// Polygon / Image 共通
+		// 種類ごとの中身
 		//----------------------------------------------------------------------------------
-		Math::Vector2	uvOffset	= {};						// UVスクロール・コマ送り
-		Math::Vector2	uvScale		= { 1.0f, 1.0f };			// 1枚に並べた絵から1コマ切り出すときの倍率
-
-		//----------------------------------------------------------------------------------
-		// Image
-		//----------------------------------------------------------------------------------
-		Core::GUID texGUID = {};										// 保存用
-		Engine::ResourceRef<Engine::Resource::Texture> texRef = {};		// ランタイム用
-
-		//----------------------------------------------------------------------------------
-		// 枠(Polygon / Image どちらでも出せる)
-		//----------------------------------------------------------------------------------
-		bool		isFill		= true;					// 中を塗るか(false で枠だけ)
-		Math::Color edgeColor	= Engine::Color::WHITE;	// 枠の色(親の色へ乗算)
-		float		edgePixel	= 0.0f;					// 枠の太さ(px)。0 で枠なし
-		EDirection	edgeSide	= EDirection::ALL;		// どの辺に出すか
-
-		//----------------------------------------------------------------------------------
-		// Text
-		//----------------------------------------------------------------------------------
-		std::string	text = "Text";
-		Core::GUID fontGUID = {};
-		Engine::ResourceRef<Engine::Resource::Font> fontRef = {};
-
-		float		fontPixelSize	= 32.0f;				// 出したい文字の高さ(px)
-		float		lineSpacing		= 1.0f;					// 行送りの倍率(1.0 でフォントの既定)
-		float		charSpacing		= 0.0f;					// 字間へ足す量(px)
-		ETextAlign	textAlign		= ETextAlign::Center;	// 出現位置
+		DecorationBody body = PolygonData{};
 
 		//----------------------------------------------------------------------------------
 		// アニメーション
@@ -288,6 +329,31 @@ namespace App::Object::Decoration
 		// カーソルへの反応
 		//----------------------------------------------------------------------------------
 		std::optional<UIReaction>				opReaction;			// カーソルに反応させるなら付与
+
+		//==================================================================================
+
+		// 種類
+		EDecorationType GetType() const { return static_cast<EDecorationType>(body.index()); }
+
+		/// <summary>
+		/// 種類を変える
+		/// </summary>
+		/// <remarks>
+		/// 中身は作り直す。板ポリと画像の間では UV と枠(QuadStyle)を引き継ぐ。
+		/// 同じ種類を渡したときは何もしない
+		/// </remarks>
+		void SetType(EDecorationType a_type);
+
+		// 種類ごとの中身 : その種類でなければ nullptr
+		const ImageData* GetImage() const { return std::get_if<ImageData>(&body); }
+		ImageData* RefImage() { return std::get_if<ImageData>(&body); }
+
+		const TextData* GetText() const { return std::get_if<TextData>(&body); }
+		TextData* RefText() { return std::get_if<TextData>(&body); }
+
+		// 矩形の見た目 : 板ポリと画像なら持っている(文字は nullptr)
+		const QuadStyle* GetQuad() const;
+		QuadStyle* RefQuad();
 	};
 
 	//======================================================================================
@@ -309,7 +375,7 @@ namespace App::Object::Decoration
 	struct ParentOption
 	{
 		// 弧が張る幅の基準になる、親自身の矩形(px)。
-		// これが弧の -1..1 になる。UIBase::m_pixelSize がそのまま入る
+		// これが弧の -1..1 になる。UIAnchor::pixelSize がそのまま入る
 		Math::Vector2 parentSize = {};
 
 		// 弧の頂点(反りの中心)。親の矩形を -1..1 とした座標。

@@ -224,11 +224,12 @@ namespace Engine::Graphics
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/SceneFogData.hlsli)と並びを合わせること
 	struct SceneFogCB
 	{
-		Math::Vector3 fogColor = { 0.6f, 0.7f, 0.8f };	// フォグの色
+		Math::Vector3 fogColor = { 0.6f, 0.7f, 0.8f };	// フォグの色(届いた光に掛ける)
 		float density = 0.002f;		// 濃さ(1m あたり)。0 ならシーンのフォグは掛からない
 
 		float maxDistance = 1000.0f;	// 空(何も描かれていない画素)へ向けて積分する距離(m)
-		float pad0[3] = {};
+		float anisotropy = 0.3f;		// 平行光を散らす向きの偏り(-1..1)。正で光源の方向を見たときに明るい
+		float pad0[2] = {};
 	};
 
 	// 地面から一定の高さまで漂うチリ(グラウンドダスト)の調整値

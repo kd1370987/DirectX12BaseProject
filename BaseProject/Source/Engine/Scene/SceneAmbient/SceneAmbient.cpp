@@ -97,6 +97,9 @@ namespace Engine::Scene
 		a_ar.Field("SkyRotationDeg", m_sky.rotationDeg);
 		a_ar.Field("IsSkyDof", m_sky.isSkyDof);
 		a_ar.Field("SkyDofScale", m_sky.dofScale);
+
+		// ---- 後から足したもの(バイナリは順番に読むので、ここより上へ移さないこと) ----
+		a_ar.Field("SceneFogAnisotropy", m_sceneFog.anisotropy);
 	}
 
 	void SceneAmbient::RequestLoadAssets(Resource::ResourceManager& a_resourceManager)
@@ -287,6 +290,9 @@ namespace Engine::Scene
 		Engine::EditorField::Tooltip("濃さ(1m あたり)。0 ならシーンのフォグは掛からない");
 		Engine::EditorField::Field("SceneFogMaxDistance", m_sceneFog.maxDistance, 1.0f, 0.0f);
 		Engine::EditorField::Tooltip("空(何も描かれていない画素)へ向けて積分する距離(m)");
+		Engine::EditorField::Slider("SceneFogAnisotropy", m_sceneFog.anisotropy, -0.9f, 0.9f);
+		Engine::EditorField::Tooltip("平行光を散らす向きの偏り。正で光源の方向を見たときに明るく、0 で全方向に同じ");
+		Engine::EditorField::HelpText("フォグは環境光と平行光で照らされます。平行光の影はシャドウマップ(ShadowMode = ShadowMap)のときだけ落ちます");
 
 		// グラウンドダスト
 		Engine::EditorField::Header("GroundDust");
