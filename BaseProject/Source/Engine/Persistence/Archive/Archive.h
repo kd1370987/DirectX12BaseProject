@@ -92,6 +92,25 @@ namespace Engine::Persistence
 		bool BeginObject(size_t a_index = 0);
 		void EndObject();
 
+		//----------------------------------------------------------------------------------
+		// 区切り(セクション)
+		//
+		// バイナリは「書いた順に並べるだけ」なので、継承したクラスの基底へフィールドを
+		// 1つ足すと、後ろに続く派生のぶんが全部ずれる。
+		// 区切りの頭に中身の長さを書いておき、
+		//   ・読み手の知らない後ろのフィールドは読み飛ばす(古いコードで新しいデータ)
+		//   ・区切りの終わりまで読んだら、それ以上は読まず既定値のまま残す(新しいコードで古いデータ)
+		// ようにしてある。区切りの中で末尾へ足していく限り、他の区切りの読み出しは崩れない。
+		//
+		// ・JSON はキーで引くので何もしない(.oj* の中身は変わらない)
+		// ・区切りを持たない古い .ob* は頭の目印で見分け、従来どおり並び順で読む
+		// ・入れ子にしてよい。内側の区切りは外側の終わりを越えて読まない
+		//
+		// 使うときは ArchiveSection(下)で囲む。Begin/End を自分で対にしなくて済む
+		//----------------------------------------------------------------------------------
+		void BeginSection(std::string_view a_name);
+		void EndSection();
+
 		// GUID用
 		void GUIDField(const std::string& a_name,Core::GUID& a_guid);
 		void GUIDVectorField(const std::string& a_name, std::vector<Core::GUID>& a_guid);
@@ -142,7 +161,30 @@ namespace Engine::Persistence
 		bool JsonReadString(const std::string& a_name, std::string& a_outValue);
 		bool JsonReadFloats(const std::string& a_name, float* a_pOutValues, size_t a_count);
 
+		/// <summary>バイナリをまだ読んでよいか</summary>
+		/// <remarks>
+		/// 開いていて、かつ今の区切りの終わりに達していないときだけ true。
+		/// 読み込み側の各フィールドはストリームを直接見ずにここを通すこと
+		/// (でないと区切りの終わりを越えて、次の区切りの中身を読んでしまう)
+		/// </remarks>
+		bool CanReadBinary();
+
 	private:
+
+		//----------------------------------------------------------------------------------
+		// 開いている区切り1つぶん
+		//----------------------------------------------------------------------------------
+		struct SectionState
+		{
+			std::string name = {};			// ログ用
+
+			std::streamoff lengthPos = 0;	// 保存 : 長さを後から書き戻す位置
+
+			std::streamoff end = 0;			// 読み込み : ここより先は読まない
+			bool hasEnd = false;			// end が効いているか(区切りの無い古いデータで、親も無ければ false)
+			bool hasOwnLength = false;		// 自分の長さを読めたか(閉じるときに end まで飛ばすのはこのときだけ)
+		};
+
 		// 実行モード
 		EMode m_mode;
 
@@ -168,6 +210,35 @@ namespace Engine::Persistence
 		// 現在注目しているJSONノードのポインタ（参照）をスタックで管理する
 		std::stack<nlohmann::json*> m_jsonNodeStack;
 
+		// 開いている区切り(内側ほど後ろ)
+		std::vector<SectionState> m_sectionVec;
+
+	};
+
+	//======================================================================================
+	// 区切りを開いて、スコープを抜けるときに閉じる
+	//
+	//     void Foo::Archive(Archive& a_ar, ...)
+	//     {
+	//         Base::Archive(a_ar, ...);
+	//
+	//         Engine::Persistence::ArchiveSection _section(a_ar, "Foo");
+	//         a_ar.Field("Value", m_value);	// Foo のぶんは必ずこの区切りの末尾へ足す
+	//     }
+	//======================================================================================
+	class ArchiveSection
+	{
+	public:
+
+		ArchiveSection(Archive& a_ar, std::string_view a_name) : m_ar(a_ar) { m_ar.BeginSection(a_name); }
+		~ArchiveSection() { m_ar.EndSection(); }
+
+		ArchiveSection(const ArchiveSection&) = delete;
+		ArchiveSection& operator=(const ArchiveSection&) = delete;
+
+	private:
+
+		Archive& m_ar;
 	};
 
 	// =========================================================================
@@ -217,7 +288,7 @@ namespace Engine::Persistence
 				if (JsonReadUInt(a_name, _value)) a_data = static_cast<T>(_value);
 			}
 
-			if (m_ifs.is_open())
+			if (CanReadBinary())
 			{
 				BinaryHelper::Read(m_ifs, a_data);
 			}
@@ -268,7 +339,7 @@ namespace Engine::Persistence
 			{
 				a_data = { _values[0], _values[1] };
 			}
-			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+			if (CanReadBinary()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
 	template<>
@@ -287,7 +358,7 @@ namespace Engine::Persistence
 			{
 				a_data = { _values[0], _values[1], _values[2] };
 			}
-			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+			if (CanReadBinary()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
 	//--------------------------------------------------------------------------------------
@@ -323,7 +394,7 @@ namespace Engine::Persistence
 			{
 				a_data = { _values[0], _values[1], _values[2], _values[3] };
 			}
-			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+			if (CanReadBinary()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
 	template<>
@@ -342,7 +413,7 @@ namespace Engine::Persistence
 			{
 				a_data = { _values[0], _values[1], _values[2], _values[3] };
 			}
-			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+			if (CanReadBinary()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
 	template<>
@@ -361,7 +432,7 @@ namespace Engine::Persistence
 			{
 				a_data = { _values[0], _values[1], _values[2], _values[3] };
 			}
-			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+			if (CanReadBinary()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
 	template<>
@@ -380,7 +451,7 @@ namespace Engine::Persistence
 			{
 				a_data = { _values[0], _values[1], _values[2], _values[3], _values[4], _values[5], _values[6], _values[7], _values[8], _values[9], _values[10], _values[11], _values[12], _values[13], _values[14], _values[15] };
 			}
-			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data);
+			if (CanReadBinary()) BinaryHelper::Read(m_ifs, a_data);
 		}
 	}
 
@@ -402,7 +473,7 @@ namespace Engine::Persistence
 			// Json処理
 			JsonReadString(a_name, a_data);
 			// binary処理
-			if (m_ifs.is_open()) a_data = BinaryHelper::ReadString(m_ifs);
+			if (CanReadBinary()) a_data = BinaryHelper::ReadString(m_ifs);
 		}
 	}
 	// GUID
@@ -424,7 +495,7 @@ namespace Engine::Persistence
 			std::string _guidStr;
 			if (JsonReadString(a_name, _guidStr)) a_data.FromString(_guidStr);
 			// binary処理
-			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_data.value);
+			if (CanReadBinary()) BinaryHelper::Read(m_ifs, a_data.value);
 		}
 	}
 

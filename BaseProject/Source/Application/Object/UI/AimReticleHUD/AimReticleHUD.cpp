@@ -6,8 +6,7 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Input/PlayerControllTag.h"
-#include "Application/Components/Combat/LockOnTargetComponent.h"
+#include "Application/InstanceResource/PlayerHUDResource.h"
 
 namespace App::Object
 {
@@ -46,7 +45,7 @@ namespace App::Object
 		RequestDecorationResources(a_context);
 	}
 
-	float AimReticleHUD::CalcLockRadius() const
+	float AimReticleHUD::CalcArtRadius() const
 	{
 		if (!m_isUseTextureSize) return std::max(m_lockRadius, 0.0f);
 
@@ -60,47 +59,50 @@ namespace App::Object
 		// 飾りのアニメーションを進める
 		UIBase::Update(a_context);
 
+		m_hasReticle = false;
+
 		auto* _pWorld = a_context.pWorld;
 		if (!_pWorld) return;
+		if (!_pWorld->HasResource<InstanceResource::PlayerHUDResource>()) return;
 
-		const Math::Vector2 _center = m_pixelPos;
-		const float         _radius = CalcLockRadius();
+		// 判定の円は LockOnTargetComponent のもの(HUDGatherSystem が集めてある)。
+		// ここからは書き込まない : 判定はゲーム側が持ち、UI は見た目を合わせるだけ
+		const auto& _hud = _pWorld->GetResource<InstanceResource::PlayerHUDResource>();
+		if (!_hud.aimReticle.isValid) return;
 
-		//==================================================================
-		// 判定の円をプレイヤーへ渡す
-		//------------------------------------------------------------------
-		// 読むのは LockOnTargetSystem(PostUpdate)。GameObjectManager::Update は
-		// その後なので、実際に使われるのは次のフレーム。動かない値なので差は出ない。
-		//==================================================================
-		bool _isWritten = false;
+		m_reticleCenter = _hud.aimReticle.center;
+		m_reticleRadius = _hud.aimReticle.radius;
+		m_hasReticle = true;
+	}
 
-		_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag, Component::LockOnTargetComponent>(
-			[&](
-				Engine::ECS::Chunk* a_pChunk,
-				uint32_t a_count,
-				const Component::ActiveTag* a_activeTagArray,
-				const Component::PlayerControllTag* a_playerTagArray,
-				Component::LockOnTargetComponent* a_lockOnArray
-			)
-			{
-				// 操作しているプレイヤーは1体の想定。先に見つかったものへ渡す
-				if (_isWritten || a_count == 0) return;
-				_isWritten = true;
+	void AimReticleHUD::Draw(Engine::GameObject::ObjectContext& a_context)
+	{
+		// 判定の円が届いていない(プレイ中でない・プレイヤーが居ない)ときは置いたとおりに出す
+		if (!m_hasReticle)
+		{
+			UIBase::Draw(a_context);
+			return;
+		}
 
-				// 保存値(reticleRadius)は触らない。実行中に書き換えると
-				// エディターで見ている設定値が UI の値に置き換わってしまう
-				Component::LockOnTargetComponent& _lockOn = a_lockOnArray[0];
-				_lockOn.reticleCenter    = _center;
-				_lockOn.hudReticleRadius = _radius;
-				_lockOn.isReticleFromHUD = true;
-			}
-		);
+		// アンカーの上の「判定の円に当たる半径」が、判定の半径と同じ大きさになるよう拡大して描く
+		Decoration::DrawOverride _override = {};
+		_override.isUsePos = true;
+		_override.pixelPos = m_reticleCenter;
+
+		const float _artRadius = CalcArtRadius();
+		if (_artRadius > 0.0f) _override.scale = m_reticleRadius / _artRadius;
+
+		DrawDecorations(a_context, _override);
 	}
 
 	void AimReticleHUD::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
 	{
 		// テクスチャ・色・サイズなどの共通ぶん
 		UIBase::Archive(a_ar, a_context);
+
+		// ここから下は AimReticleHUD のぶん。基底(UIBase)とは区切りを分けてあるので、
+		// どちらに足しても互いの読み出しはずれない。足すときはこの区切りの末尾へ
+		Engine::Persistence::ArchiveSection _section(a_ar, "AimReticleHUD");
 
 		a_ar.Field("IsUseTextureSize", m_isUseTextureSize);
 		a_ar.Field("RadiusScale", m_radiusScale);
@@ -113,7 +115,9 @@ namespace App::Object
 
 		Engine::EditorField::Header("AutoAim");
 
-		// 判定半径の作り方
+		Engine::EditorField::HelpText("判定の円はプレイヤーの LockOnTargetComponent(ReticleRadius)。ここは絵を合わせるだけ");
+
+		// 絵の上で、判定の円に当たる半径の作り方
 		Engine::EditorField::Field("UseTextureSize", m_isUseTextureSize);
 		Engine::EditorField::Tooltip("アンカーの PixelSize から作る(飾りの大きさではない)");
 		if (m_isUseTextureSize)
@@ -125,7 +129,12 @@ namespace App::Object
 			Engine::EditorField::Field("LockRadius", m_lockRadius, 1.0f, 0.0f, 4096.0f);
 		}
 
-		Engine::EditorField::Value("Radius", "%.0f px", CalcLockRadius());
-		Engine::EditorField::Tooltip("この円の内側に入った敵だけがロック対象になります\n(中心は PixelPos。プレイヤーの LockOnTargetComponent へ毎フレーム渡します)");
+		Engine::EditorField::Value("ArtRadius", "%.1f px", CalcArtRadius());
+		Engine::EditorField::Tooltip("置いたままの絵で、判定の円に当たる半径。\nプレイ中はこれが判定の半径と同じ大きさになるよう拡大して、画面中央へ出す");
+
+		if (m_hasReticle)
+		{
+			Engine::EditorField::Value("JudgeRadius", "%.1f px", m_reticleRadius);
+		}
 	}
 }

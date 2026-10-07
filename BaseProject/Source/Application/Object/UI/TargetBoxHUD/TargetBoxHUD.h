@@ -8,6 +8,7 @@ namespace App::Object
 	/// 敵へ重ねて表示するターゲットボックスHUD。
 	///
 	/// 出す相手は LockOnTargetSystem がプレイヤーの LockOnTargetComponent へ書いた結果。
+	/// (HUDGatherSystem が PlayerHUDResource へまとめたものを読む。ワールドは直接見ない)
 	///   レティクル内の敵           … 群 0 の飾り(黄色の枠)
 	///   そのうち画面中央に最も近い … 群 1 の飾り(赤い枠)
 	///

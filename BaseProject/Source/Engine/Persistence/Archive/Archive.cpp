@@ -312,7 +312,7 @@ namespace Engine::Persistence
 				a_data = CurrentNode()[a_name].get<std::string>();
 			}
 			// binary処理
-			if (m_ifs.is_open()) a_data = BinaryHelper::ReadString(m_ifs);
+			if (CanReadBinary()) a_data = BinaryHelper::ReadString(m_ifs);
 		}
 	}
 	// =========================================================================
@@ -395,7 +395,7 @@ namespace Engine::Persistence
 				}
 			}
 			// binary処理
-			else if (m_ifs.is_open())
+			else if (CanReadBinary())
 			{
 				BinaryHelper::Read(m_ifs, a_size); // バイナリから要素数を読み込む
 				_success = true;
@@ -440,6 +440,135 @@ namespace Engine::Persistence
 	{
 		if (!m_jsonNodeStack.empty()) m_jsonNodeStack.pop();
 	}
+
+	// =========================================================================
+	// 区切り(セクション)
+	//
+	// バイナリでの並び : [目印 uint32][中身の長さ uint64][中身 ...]
+	// 長さは中身を書き終えてから戻って書き込む(書く前には分からないため)。
+	// JSON 側は何もしない
+	// =========================================================================
+	namespace
+	{
+		// 区切りの頭に置く目印("SECT")。区切りを持たない古い .ob* と見分けるのに使う。
+		// 古いデータの先頭がたまたまこの4バイトと一致すると取り違えるが、
+		// 32bit の一致なので起きないものとして扱う
+		constexpr uint32_t SECTION_MAGIC = 0x54434553u;
+	}
+
+	void Archive::BeginSection(std::string_view a_name)
+	{
+		SectionState _section = {};
+		_section.name = std::string(a_name);
+
+		if (IsSaving())
+		{
+			if (m_ofs.is_open())
+			{
+				BinaryHelper::Write(m_ofs, SECTION_MAGIC);
+
+				// 長さは EndSection で書き戻すので、ここは場所だけ取っておく
+				_section.lengthPos = static_cast<std::streamoff>(m_ofs.tellp());
+				const uint64_t _placeholder = 0;
+				BinaryHelper::Write(m_ofs, _placeholder);
+			}
+		}
+		else if (m_ifs.is_open())
+		{
+			if (!CanReadBinary())
+			{
+				// 外側の区切りを読み切っている : この区切りごと無いものとして扱う
+				// (中のフィールドは何も読まず、既定値のまま残る)
+				_section.hasEnd = true;
+				_section.end = static_cast<std::streamoff>(m_ifs.tellg());
+			}
+			else
+			{
+				const std::streampos _start = m_ifs.tellg();
+
+				uint32_t _magic = 0;
+				BinaryHelper::Read(m_ifs, _magic);
+
+				if (m_ifs && _magic == SECTION_MAGIC)
+				{
+					uint64_t _length = 0;
+					BinaryHelper::Read(m_ifs, _length);
+
+					_section.hasEnd = true;
+					_section.hasOwnLength = true;
+					_section.end = static_cast<std::streamoff>(m_ifs.tellg()) + static_cast<std::streamoff>(_length);
+				}
+				else
+				{
+					// 区切りを持たない古いデータ : 読んだ目印のぶんを戻して並び順で読む。
+					// 終わりは外側の区切りのものを引き継ぐ(外側を越えて読まないように)
+					m_ifs.clear();
+					m_ifs.seekg(_start);
+
+					if (!m_sectionVec.empty())
+					{
+						_section.hasEnd = m_sectionVec.back().hasEnd;
+						_section.end = m_sectionVec.back().end;
+					}
+				}
+			}
+		}
+
+		m_sectionVec.push_back(std::move(_section));
+	}
+
+	void Archive::EndSection()
+	{
+		if (m_sectionVec.empty())
+		{
+			ENGINE_ERROR("[Archive] 開いていない区切りを閉じようとしました");
+			return;
+		}
+
+		const SectionState _section = std::move(m_sectionVec.back());
+		m_sectionVec.pop_back();
+
+		if (IsSaving())
+		{
+			if (!m_ofs.is_open()) return;
+
+			// 中身の長さを、取っておいた場所へ書き戻す
+			const std::streamoff _end = static_cast<std::streamoff>(m_ofs.tellp());
+			const std::streamoff _bodyStart = _section.lengthPos + static_cast<std::streamoff>(sizeof(uint64_t));
+			const uint64_t _length = static_cast<uint64_t>(_end - _bodyStart);
+
+			m_ofs.seekp(_section.lengthPos);
+			BinaryHelper::Write(m_ofs, _length);
+			m_ofs.seekp(_end);
+			return;
+		}
+
+		// 長さを読めた区切りだけ、終わりまで飛ばす(読み手の知らない後ろのフィールドを捨てる)
+		if (!m_ifs.is_open() || !_section.hasOwnLength) return;
+
+		const std::streamoff _pos = static_cast<std::streamoff>(m_ifs.tellg());
+		if (_pos < 0 || _pos > _section.end)
+		{
+			// 区切りの外まで読んでいる : 書いた側と読む側で並びが食い違っている。
+			// 終わりへ戻すので、後ろの区切りは正しく読める
+			ENGINE_ERROR("[Archive] 区切り「%s」の終わりを越えて読みました。並びが保存時と食い違っています", _section.name.c_str());
+		}
+
+		m_ifs.clear();
+		m_ifs.seekg(_section.end);
+	}
+
+	bool Archive::CanReadBinary()
+	{
+		if (!m_ifs.is_open()) return false;
+		if (m_sectionVec.empty()) return true;
+
+		const SectionState& _section = m_sectionVec.back();
+		if (!_section.hasEnd) return true;
+
+		const std::streamoff _pos = static_cast<std::streamoff>(m_ifs.tellg());
+		return _pos >= 0 && _pos < _section.end;
+	}
 	void Archive::GUIDField(const std::string & a_name, Core::GUID & a_guid)
 	{
 		// セーブ時
@@ -459,7 +588,7 @@ namespace Engine::Persistence
 				a_guid.FromString(CurrentNode()[a_name].get<std::string>());
 			}
 			// binary処理
-			if (m_ifs.is_open()) BinaryHelper::Read(m_ifs, a_guid.value);
+			if (CanReadBinary()) BinaryHelper::Read(m_ifs, a_guid.value);
 		}
 	}
 	void Archive::GUIDVectorField(const std::string & a_name, std::vector<Core::GUID>&a_guids)

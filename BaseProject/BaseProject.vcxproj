@@ -714,6 +714,11 @@
       <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\UI\HUDGatherSystem.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Input\InputActionSystem.cpp">
       <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
@@ -1723,6 +1728,7 @@
     <ClInclude Include="Source\Application\InstanceResource\AdditiveBoneEntry.h" />
     <ClInclude Include="Source\Application\InstanceResource\HierarchyResource.h" />
     <ClInclude Include="Source\Application\InstanceResource\SingletonEntityResource.h" />
+    <ClInclude Include="Source\Application\InstanceResource\PlayerHUDResource.h" />
     <ClInclude Include="Source\Application\InstanceResource\HitEventResource.h" />
     <ClInclude Include="Source\Application\InstanceResource\WormWaveResource.h" />
     <ClInclude Include="Source\Application\Object\UI\CombatReticleHUD\CombatReticleHUD.h" />
@@ -1772,6 +1778,7 @@
     <ClInclude Include="Source\Application\Systems\Camera\CameraProjUpdateSystem.h" />
     <ClInclude Include="Source\Application\Systems\Camera\RadialBlurSpeedSystem.h" />
     <ClInclude Include="Source\Application\Systems\Camera\MainCameraSystem.h" />
+    <ClInclude Include="Source\Application\Systems\UI\HUDGatherSystem.h" />
     <ClInclude Include="Source\Application\Systems\Input\InputActionSystem.h" />
     <ClInclude Include="Source\Application\Systems\Input\InputMoveSystem.h" />
     <ClInclude Include="Source\Application\Systems\Physics\CapsuleCollisionSystem.h" />

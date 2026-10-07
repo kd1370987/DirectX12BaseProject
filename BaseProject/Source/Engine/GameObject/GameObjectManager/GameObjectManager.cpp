@@ -237,10 +237,13 @@ namespace Engine::GameObject
 					Core::GUID _parentGUID = _pObject->GetParentGUID();
 					a_ar.GUIDField("ParentGUID", _parentGUID);
 
-					// 個別データ
+					// 個別データ。1体ぶんを区切りで囲む(読み込み側を参照)
 					if (a_ar.BeginGroup("Data"))
 					{
-						_pObject->Archive(a_ar, m_objContext);
+						{
+							Persistence::ArchiveSection _section(a_ar, "ObjectData");
+							_pObject->Archive(a_ar, m_objContext);
+						}
 						a_ar.EndGroup();
 					}
 				}
@@ -262,11 +265,12 @@ namespace Engine::GameObject
 
 					// ファクトリで実体を生成
 					auto _upObject = _registry.Create(_typeID);
+					BaseObject* _pObject = nullptr;
 					if (!_upObject)
 					{
 						ENGINE_WARNING("[GameObjectManager] タイプIDからクラスを復元できませんでした : %u", _savedTypeID);
 					}
-					if (_upObject)
+					else
 					{
 						// GUIDを復元して登録
 						_upObject->SetGUID(_guid);
@@ -274,17 +278,25 @@ namespace Engine::GameObject
 						// 親はまだ読み込まれていないことがあるが、
 						// 実体ではなくGUIDで持つので順番を気にしなくてよい
 						_upObject->SetParentGUID(_parentGUID);
-						BaseObject* _pObject = Register(std::move(_upObject));
+						_pObject = Register(std::move(_upObject));
+					}
 
-						// 保存データの復元。
-						// 初期化フェーズは全員を読み終えてから下でまとめて回す
-						// (PostDeserialize が既定値で保存値を潰さず、
-						//  Start では他のオブジェクトが出揃っているようにするため)
-						if (a_ar.BeginGroup("Data"))
+					// 保存データの復元。
+					// 初期化フェーズは全員を読み終えてから下でまとめて回す
+					// (PostDeserialize が既定値で保存値を潰さず、
+					//  Start では他のオブジェクトが出揃っているようにするため)
+					//
+					// 1体ぶんを区切りで囲んであるので(バイナリ)、
+					//   ・復元できなかったクラスのぶんは読み飛ばせる
+					//   ・1体の読み出しが保存時とずれても、次のオブジェクトへは響かない
+					// 区切りを持たない古い .ob* では従来どおり並び順で読む
+					if (a_ar.BeginGroup("Data"))
+					{
 						{
-							_pObject->Archive(a_ar, m_objContext);
-							a_ar.EndGroup();
+							Persistence::ArchiveSection _section(a_ar, "ObjectData");
+							if (_pObject) _pObject->Archive(a_ar, m_objContext);
 						}
+						a_ar.EndGroup();
 					}
 				}
 

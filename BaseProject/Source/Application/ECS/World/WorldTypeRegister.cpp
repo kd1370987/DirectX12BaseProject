@@ -212,6 +212,7 @@
 #include "Application/Systems/Boid/SwarmBurstSystem.h"
 #include "../../Systems/Render/GroundEffectSetSystem.h"
 #include "Application/Systems/Effect/GroundImpulseEmitSystem.h"
+#include "Application/Systems/UI/HUDGatherSystem.h"
 
 // リソース関係
 #include "Application/InstanceResource/HierarchyResource.h"
@@ -225,6 +226,7 @@
 #include "Application/InstanceResource/WormGroundEffectResource.h"
 #include "Application/InstanceResource/SwarmContactDamageResource.h"
 #include "Application/InstanceResource/SwarmMissileResource.h"
+#include "Application/InstanceResource/PlayerHUDResource.h"
 
 namespace App::ECS
 {
@@ -558,6 +560,9 @@ namespace App::ECS
 		a_world.RegisterSystem<System::GroundEffectSetSystem>();
 		// グラウンドフィールドへ衝撃を積む(テスト用)
 		a_world.RegisterSystem<System::GroundImpulseEmitSystem>();
+		// HUD が読む値を集めて PlayerHUDResource へ置く(HUD はワールドを直接見ない)。
+		// 読むだけで、書くのは自分のリソースだけなので、書く側の後ろへ自動で回る
+		a_world.RegisterSystem<System::HUDGatherSystem>();
 
 		// インスタンスデータの登録
 		a_world.AddResource<Engine::Pool::ItemPool<Engine::Resource::StateMachineInstance>>();
@@ -588,6 +593,8 @@ namespace App::ECS
 		a_world.AddResource<InstanceResource::SwarmContactDamageResource>();
 		// 自爆ミサイルの切り離しの要求と飛び方(巻き付き攻撃が書き、SwarmMissileSystem が読む)
 		a_world.AddResource<InstanceResource::SwarmMissileResource>();
+		// HUD が読む値(HUDGatherSystem が書き、HUD が読む)
+		a_world.AddResource<InstanceResource::PlayerHUDResource>();
 
 		// 初期化
 		a_world.RefResource<Engine::Pool::RangePool<Engine::Resource::BoneMatrix>>().Init(10000);

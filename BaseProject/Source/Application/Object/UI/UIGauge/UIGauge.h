@@ -35,12 +35,14 @@ namespace App::Object
 	/// 誰の値を出すか
 	/// </summary>
 	/// <remarks>
-	/// 見るエンティティの決め方。持ち主を毎フレーム引き直すので、
-	/// ロックが外れた・敵が消えた といった入れ替わりにそのまま追従する
+	/// 見るエンティティの決め方。実際に探すのは HUDGatherSystem で、
+	/// 毎フレーム引き直すので、ロックが外れた・敵が消えた といった入れ替わりにそのまま追従する
+	///
+	/// ※ 値は保存されるので、増やすときは末尾へ足すこと
 	/// </remarks>
 	enum class EGaugeTarget : uint32_t
 	{
-		Manual,				// 外から SetTargetEntity で入れる
+		Manual,				// 相手を持たない(値は SetValue で入れる。Source も Manual にすること)
 		Player,				// 操作しているプレイヤー
 		LockedEnemy,		// プレイヤーがロックしている敵
 		PlayerRightWeapon,	// プレイヤーの右手武器(オーバーヒート用)
@@ -80,6 +82,10 @@ namespace App::Object
 	// 入れるのは持っている側(SetValue)で、UIButton が SetOnClick で外から
 	// ふるまいを差し込むのと同じ作り。
 	//
+	// ・Target / Source を選ぶと PlayerHUDResource から毎フレーム取る
+	//     ワールドを直接は見ない。集めるのは HUDGatherSystem で、
+	//     見る値を増やすときは EHUDGaugeKind と HUDGatherSystem へ足してから、ここの対応を足す。
+	//
 	// ・伸び縮みは飾り1つの横幅で表す
 	//     指定した名前の飾り(既定 "Fill")の横幅へ残量を掛けて描く。
 	//     残す側の端をピボットにするので、そこを固定したまま反対側から削れていく。
@@ -111,13 +117,6 @@ namespace App::Object
 		/// <param name="a_max">最大値。0以下だと空として扱う</param>
 		/// <remarks>Source が Manual のときだけ効く。それ以外は毎フレーム上書きされる</remarks>
 		void SetValue(float a_current, float a_max);
-
-		/// <summary>
-		/// 見るエンティティを入れる
-		/// </summary>
-		/// <remarks>Target が Manual のときだけ効く</remarks>
-		void SetTargetEntity(Engine::ECS::Entity a_entity) { m_targetEntity = a_entity; }
-		Engine::ECS::Entity GetTargetEntity() const { return m_targetEntity; }
 
 		// 現在値だけ差し替える(最大値は据え置き)
 		void SetCurrent(float a_current);
@@ -157,17 +156,8 @@ namespace App::Object
 		// 値の取り込み
 		//-------------------------------------------------------------------
 
-		// 設定に沿って見るエンティティを決める
-		void UpdateTargetEntity(Engine::ECS::World* a_pWorld);
-
-		// 見ているエンティティから値を取る。取れたら true
-		bool FetchValue(Engine::ECS::World* a_pWorld);
-
-		// 操作しているプレイヤーを探す(見つからなければ無効なエンティティ)
-		static Engine::ECS::Entity FindPlayer(Engine::ECS::World* a_pWorld);
-
-		// プレイヤーの武器スロットから武器のエンティティを引く
-		static Engine::ECS::Entity FindPlayerWeapon(Engine::ECS::World* a_pWorld, bool a_isRight);
+		// 設定に沿って PlayerHUDResource から値を取る。取れたら true
+		bool PickValue(Engine::GameObject::ObjectContext& a_context);
 
 		// 残量に対応する色を出す
 		Math::Color CalcGaugeColor(float a_ratio) const;
@@ -239,9 +229,6 @@ namespace App::Object
 		//-------------------------------------------------------------------
 		float m_current = 100.0f;
 		float m_max = 100.0f;
-
-		// 見ているエンティティ
-		Engine::ECS::Entity m_targetEntity = Engine::ECS::Limits::INVALID_ENTITY;
 
 		// このフレームに値を取れたか
 		bool m_hasValue = true;

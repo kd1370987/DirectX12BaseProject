@@ -579,6 +579,10 @@ namespace App::Object
 	//======================================================================================
 	void UIBase::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
 	{
+		// UIBase のぶんを1つの区切りにまとめる。
+		// 派生のぶんは派生側で別の区切りに入れるので、ここへ足しても派生の読み出しはずれない
+		Engine::Persistence::ArchiveSection _section(a_ar, "UIBase");
+
 		// ---- 旧形式の名残(読み書きは続けるが、使うのは引き継ぎのときだけ) ----
 		a_ar.GUIDField("TexGUID", m_legacyTexGUID);
 
@@ -597,8 +601,8 @@ namespace App::Object
 		a_ar.Field("CurveRadius", m_curveRadius);
 		a_ar.Field("CurveAngle", m_curveAngle);
 
-		// 出し分けの状態。※ 追加は必ずここより上でなく末尾へ
-		//    (バイナリは並び順で読むので、間に挟むと既存のデータがずれる)
+		// 出し分けの状態。※ 追加は必ずここより上でなく区切りの末尾へ
+		//    (区切りの中は並び順で読むので、間に挟むと既存のデータがずれる)
 		a_ar.Field("IsVisible", m_isVisible);
 
 		// ---- カーソルへの反応 ----
@@ -623,7 +627,12 @@ namespace App::Object
 			{
 				if (!a_ar.BeginObject(_i)) continue;
 
-				Decoration::ArchiveDecoration(a_ar, m_decorationVec[_i]);
+				// 飾り1つごとに区切る。飾りへフィールドを足しても、
+				// 後ろの飾りと UIBase の残り(HitFollowAnim など)の読み出しがずれない
+				{
+					Engine::Persistence::ArchiveSection _decorationSection(a_ar, "Decoration");
+					Decoration::ArchiveDecoration(a_ar, m_decorationVec[_i]);
+				}
 
 				a_ar.EndObject();
 			}

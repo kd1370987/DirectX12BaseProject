@@ -145,6 +145,10 @@ namespace App::Object
 		// テクスチャ・色・サイズなどの共通ぶん
 		UIBase::Archive(a_ar, a_context);
 
+		// ここから下は ScoreHUD のぶん。基底(UIBase)とは区切りを分けてあるので、
+		// どちらに足しても互いの読み出しはずれない。足すときはこの区切りの末尾へ
+		Engine::Persistence::ArchiveSection _section(a_ar, "ScoreHUD");
+
 		a_ar.Field("ValueKind", m_valueKind);
 		a_ar.Field("DigitCount", m_digitCount);
 		a_ar.Field("AtlasCount", m_atlasCount);

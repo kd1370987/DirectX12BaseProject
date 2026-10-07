@@ -8,8 +8,7 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Input/PlayerControllTag.h"
-#include "Application/Components/Combat/LockOnTargetComponent.h"
+#include "Application/InstanceResource/PlayerHUDResource.h"
 
 namespace App::Object
 {
@@ -83,49 +82,29 @@ namespace App::Object
 
 		auto* _pWorld = a_context.pWorld;
 		if (!_pWorld) return;
+		if (!_pWorld->HasResource<InstanceResource::PlayerHUDResource>()) return;
 
 		//==================================================================
 		// プレイヤーのロック結果を読む
 		//------------------------------------------------------------------
-		// 射影(ワールド→スクリーン)もレティクル内の判定も LockOnTargetSystem が
-		// PostUpdate で済ませている。GameObjectManager::Update はその後なので、
-		// ここでは同じフレームの確定済みの結果をそのまま使える。
+		// 射影(ワールド→スクリーン)もレティクル内の判定も LockOnTargetSystem が済ませ、
+		// HUDGatherSystem が PlayerHUDResource へまとめてある。ここは読むだけ
 		//==================================================================
-		bool _hasPlayer = false;
+		const auto& _hud = _pWorld->GetResource<InstanceResource::PlayerHUDResource>();
 
-		_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag, const Component::LockOnTargetComponent>(
-			[&](
-				Engine::ECS::Chunk* a_pChunk,
-				uint32_t a_count,
-				const Component::ActiveTag* a_activeTagArray,
-				const Component::PlayerControllTag* a_playerTagArray,
-				const Component::LockOnTargetComponent* a_lockOnArray
-			)
-			{
-				// 操作しているプレイヤーは1体の想定。先に見つかったものを使う
-				if (_hasPlayer || a_count == 0) return;
-				_hasPlayer = true;
+		for (int _i = 0; _i < _hud.targetCount; ++_i)
+		{
+			// ロック中の相手は赤い枠で別に描くので、黄色の枠からは外す
+			if (_hud.targets[_i].isLocked) continue;
 
-				const Component::LockOnTargetComponent& _lockOn = a_lockOnArray[0];
+			m_targetScreenPosVec.push_back(_hud.targets[_i].screenPos);
+		}
 
-				const int _count = std::clamp(
-					_lockOn.targetCount, 0, Component::LockOnTargetComponent::TARGET_MAX);
-
-				for (int _i = 0; _i < _count; ++_i)
-				{
-					// ロック中の相手は赤い枠で別に描くので、黄色の枠からは外す
-					if (_lockOn.IsLocked() && _lockOn.targets[_i] == _lockOn.lockedEntity) continue;
-
-					m_targetScreenPosVec.push_back(Math::Vector2(_lockOn.screenPos[_i]));
-				}
-
-				if (_lockOn.IsLocked())
-				{
-					m_lockedScreenPos = Math::Vector2(_lockOn.lockedScreenPos);
-					m_isLocked = true;
-				}
-			}
-		);
+		if (_hud.isLocked)
+		{
+			m_lockedScreenPos = _hud.lockedScreenPos;
+			m_isLocked = true;
+		}
 	}
 
 	void TargetBoxHUD::Draw(Engine::GameObject::ObjectContext& a_context)
@@ -171,6 +150,10 @@ namespace App::Object
 	{
 		// テクスチャ・色・サイズなどの共通ぶん
 		UIBase::Archive(a_ar, a_context);
+
+		// ここから下は TargetBoxHUD のぶん。基底(UIBase)とは区切りを分けてあるので、
+		// どちらに足しても互いの読み出しはずれない。足すときはこの区切りの末尾へ
+		Engine::Persistence::ArchiveSection _section(a_ar, "TargetBoxHUD");
 
 		// 旧形式(ロック枠テクスチャ1枚)の名残。並びを変えないため読み書きは続ける
 		a_ar.GUIDField("LockTexGUID", m_legacyLockTexGUID);

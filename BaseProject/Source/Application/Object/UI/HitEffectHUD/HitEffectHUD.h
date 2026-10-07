@@ -9,14 +9,10 @@ namespace App::Object
 	///
 	/// クロスマークのUIを一定時間出しつつ、同時にヒット音を鳴らす。
 	///
-	/// ・ヒットは HitEventResource(そのフレームのヒット全部)を見る。弾は当たった直後に
-	///   消えるので弾側のコンポーネントでは間に合わない。「誰が撃った弾か」は
-	///   HitEvent.shooter に入っているので、プレイヤーが撃ったものだけを拾う。
-	/// ・当てた相手が HealthComponent を持っている(＝ダメージが通る)ときだけ反応する。
+	/// ・どのヒットで反応するかは HUDGatherSystem が決める。
+	///   プレイヤーの弾(HitEvent.shooter)が、ダメージの通る相手(HealthComponent を持つもの)に
+	///   当たったフレームに PlayerHUDResource::hitSerial が1つ進むので、ここは番号の変化を見るだけ。
 	///   壁や地面に当てても手応えが出ると、当たった合図として意味を成さないため。
-	/// ・GameObjectManager::Update は Physics(ヒットを積む)より後、
-	///   HitEventClearSystem(次フレーム PreUpdate で消す)より前なので、
-	///   このタイミングなら同じフレームのヒットがそのまま読める。
 	/// ・テクスチャと音はインスペクターから選ぶ。
 	/// </summary>
 	class HitEffectHUD : public UIBase
@@ -76,5 +72,9 @@ namespace App::Object
 		float m_remainTime = 0.0f;		// 残り表示時間(秒)
 		float m_coolTime   = 0.0f;		// 次に鳴らせるまでの残り時間(秒)
 		int   m_hitCount   = 0;			// 出した回数(確認用)
+
+		// 最後に見たヒットの通し番号(PlayerHUDResource::hitSerial)。変わったフレームに反応する
+		uint32_t m_lastHitSerial = 0;
+		bool     m_isHitSerialSynced = false;	// 一度でも番号を見たか
 	};
 }

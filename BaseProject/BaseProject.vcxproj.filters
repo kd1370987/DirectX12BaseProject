@@ -238,6 +238,9 @@
     <Filter Include="Source\Application\Systems\Camera">
       <UniqueIdentifier>{06dc85fe-398d-4093-aa1f-4aedbd4a4f7d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Systems\UI">
+      <UniqueIdentifier>{f251864c-0bf2-499f-8c6f-a0410eef5222}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Systems\Combat">
       <UniqueIdentifier>{00f85c57-eda5-49f7-8979-39f1bd9f624c}</UniqueIdentifier>
     </Filter>
@@ -1737,6 +1740,9 @@
     <ClCompile Include="Source\Application\Systems\Camera\MainCameraSystem.cpp">
       <Filter>Source\Application\Systems\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\Systems\UI\HUDGatherSystem.cpp">
+      <Filter>Source\Application\Systems\UI</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Application\Systems\Animation\PlayerIntentSystem.cpp">
       <Filter>Source\Application\Systems\Animation</Filter>
     </ClCompile>
@@ -2933,6 +2939,9 @@
     <ClInclude Include="Source\Application\InstanceResource\SingletonEntityResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\InstanceResource\PlayerHUDResource.h">
+      <Filter>Source\Application\InstanceResource</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Application\InstanceResource\WaveAnnounceResource.h">
       <Filter>Source\Application\InstanceResource</Filter>
     </ClInclude>
@@ -3232,6 +3241,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Camera\MainCameraSystem.h">
       <Filter>Source\Application\Systems\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Systems\UI\HUDGatherSystem.h">
+      <Filter>Source\Application\Systems\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Systems\Animation\PlayerIntentSystem.h">
       <Filter>Source\Application\Systems\Animation</Filter>

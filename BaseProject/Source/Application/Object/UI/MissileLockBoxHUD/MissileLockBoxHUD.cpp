@@ -8,8 +8,7 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Input/PlayerControllTag.h"
-#include "Application/Components/Weapon/MissileLockComponent.h"
+#include "Application/InstanceResource/PlayerHUDResource.h"
 
 namespace App::Object
 {
@@ -68,43 +67,23 @@ namespace App::Object
 
 		auto* _pWorld = a_context.pWorld;
 		if (!_pWorld) return;
+		if (!_pWorld->HasResource<InstanceResource::PlayerHUDResource>()) return;
 
 		//==================================================================
 		// プレイヤーの溜め結果を読む
 		//------------------------------------------------------------------
-		// 射影も円の内外判定も MissileSalvoSystem が PostUpdate で済ませている。
-		// GameObjectManager::Update はその後なので、ここでは同じフレームの
-		// 確定済みの結果をそのまま使える。
+		// 射影も円の内外判定も MissileSalvoSystem が済ませ、
+		// HUDGatherSystem が PlayerHUDResource へまとめてある。ここは読むだけ
 		//==================================================================
-		bool _hasPlayer = false;
+		const auto& _hud = _pWorld->GetResource<InstanceResource::PlayerHUDResource>();
 
-		_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag, const Component::MissileLockComponent>(
-			[&](
-				Engine::ECS::Chunk* a_pChunk,
-				uint32_t a_count,
-				const Component::ActiveTag* a_activeTagArray,
-				const Component::PlayerControllTag* a_playerTagArray,
-				const Component::MissileLockComponent* a_missileArray
-			)
-			{
-				// 操作しているプレイヤーは1体の想定。先に見つかったものを使う
-				if (_hasPlayer || a_count == 0) return;
-				_hasPlayer = true;
+		// 押している間だけ出す。撃った瞬間に溜めは捨てられるので枠も消える
+		if (!_hud.isMissileCharging) return;
 
-				const Component::MissileLockComponent& _missile = a_missileArray[0];
-
-				// 押している間だけ出す。撃った瞬間に溜めは捨てられるので枠も消える
-				if (!_missile.isCharging) return;
-
-				const int _count = std::clamp(
-					_missile.lockCount, 0, Component::MissileLockComponent::MISSILE_MAX);
-
-				for (int _i = 0; _i < _count; ++_i)
-				{
-					m_lockScreenPosVec.push_back(Math::Vector2(_missile.lockScreenPos[_i]));
-				}
-			}
-		);
+		for (int _i = 0; _i < _hud.missileLockCount; ++_i)
+		{
+			m_lockScreenPosVec.push_back(_hud.missileLockScreenPos[_i]);
+		}
 	}
 
 	void MissileLockBoxHUD::Draw(Engine::GameObject::ObjectContext& a_context)
@@ -128,7 +107,7 @@ namespace App::Object
 
 		Engine::EditorField::Header("MissileLockBox");
 		Engine::EditorField::HelpText("ミサイルキーを押している間、溜めた敵を囲みます");
-		Engine::EditorField::HelpText("収集範囲は CombatReticleHUD / 弾数はプレイヤーの MissileLockComponent");
+		Engine::EditorField::HelpText("収集範囲・弾数はプレイヤーの MissileLockComponent");
 		Engine::EditorField::HelpText("PixelPos is unused (follows enemies)");
 		Engine::EditorField::Value("Boxes", "%d", static_cast<int>(m_lockScreenPosVec.size()));
 	}

@@ -7,10 +7,14 @@ namespace App::Object
 	/// <summary>
 	/// 戦闘時に画面中央へ表示する照準(レティクル)HUD。外枠のほう。
 	///
-	/// 見た目だけでなく、ミサイルのターゲット収集範囲も兼ねる。
-	/// 描いている画像に内接する円を判定円として、毎フレーム プレイヤーの
-	/// MissileLockComponent へ書き込む。判定を別に持つと
-	/// 「枠の内側なのに溜まらない」ズレが起きるので、描いている見た目を基準にする。
+	/// ミサイルのターゲット収集範囲を表す。収集の円はプレイヤーの MissileLockComponent が持つ
+	/// 唯一の正解(見た目の半径 reticleRadius × 判定の倍率 reticleScale)で、
+	/// この UI は PlayerHUDResource 経由で見た目の円を受け取り、絵を合わせて出すだけ。
+	/// (以前は UI が円をプレイヤーへ書き込んでいたため、置き忘れると判定が変わっていた)
+	///
+	/// 絵の合わせ方 : アンカーの PixelSize に内接する円を「見た目の円」とみなし、
+	/// それが reticleRadius と同じ大きさになるよう倍率を掛けて描く。
+	/// 円が届いていないとき(プレイ中でない・プレイヤーが居ない)は置いたとおりに出す。
 	///
 	/// 内側の AimReticleHUD は銃のロックオン(LockOnTargetComponent)用で別枠。
 	/// </summary>
@@ -22,8 +26,11 @@ namespace App::Object
 		void PostDeserialize(Engine::GameObject::ObjectContext& a_context) override;
 		void Awake(Engine::GameObject::ObjectContext& a_context) override;
 
-		// 更新処理 : ミサイルの収集円をプレイヤーへ渡す
+		// 更新処理 : 見た目の円を受け取る
 		void Update(Engine::GameObject::ObjectContext& a_context) override;
+
+		// 描画処理 : 見た目の円に合わせて描く
+		void Draw(Engine::GameObject::ObjectContext& a_context) override;
 
 		//=======================================================================
 		// エディター用
@@ -37,10 +44,16 @@ namespace App::Object
 
 	private:
 
-		// 収集円の半径(px)を求める。
-		// アンカーの PixelSize に内接する円なので、アンカーを大きくすれば収集範囲も広がる。
-		// 倍率で詰めたい場合はプレイヤーの MissileLockComponent::reticleScale を使う
-		// (この HUD 側に設定を足すと、既存シーンのバイナリ配置が崩れるため)
-		float CalcCollectRadius() const;
+		// アンカーの上で、見た目の円に当たる半径(px)を求める。
+		// アンカーの PixelSize に内接する円
+		float CalcArtRadius() const;
+
+	private:
+
+		// ---- ランタイム ----
+		// このフレームの見た目の円(PlayerHUDResource から貰う)
+		Math::Vector2 m_reticleCenter = {};
+		float m_reticleRadius = 0.0f;
+		bool  m_hasReticle = false;
 	};
 }

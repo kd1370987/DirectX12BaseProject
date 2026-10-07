@@ -417,8 +417,8 @@ namespace App::Object::Decoration
 	/// アーカイブ(1つぶん)
 	/// </summary>
 	/// <remarks>
-	/// 配列の1要素として呼ばれる前提。BeginObject / EndObject は呼び出し側が行う。
-	/// フィールドを足すときは必ず末尾へ(バイナリは並び順で読むため)
+	/// 配列の1要素として呼ばれる前提。BeginObject / EndObject と区切り(ArchiveSection)は呼び出し側が行う。
+	/// フィールドを足すときは必ず末尾へ(区切りの中は並び順で読むため)
 	/// </remarks>
 	void ArchiveDecoration(Engine::Persistence::Archive& a_ar, Decoration& a_decoration);
 

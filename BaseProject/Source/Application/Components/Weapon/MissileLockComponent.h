@@ -14,9 +14,10 @@ namespace App::Component
 	//                                 弾はコーン状に散らしてから誘導で寄せる
 	//   撃ち終わり                  … cooldown 秒たつまで次の収集を始めない
 	//
-	// ・判定円の出どころは CombatReticleHUD。UI が毎フレーム reticleCenter / hudReticleRadius を
-	//   書き、システムはそれを使う。UI が無ければ画面中央 × 保存値 reticleRadius。
-	//   ロックオン(LockOnTargetComponent)は内側の AimReticleHUD が基準で、こちらとは別枠。
+	// ・収集の円はここが唯一の正解(画面中央 × reticleRadius × reticleScale)。
+	//   CombatReticleHUD は reticleRadius の円に絵を合わせて出す。
+	//   以前は UI が毎フレーム円をここへ書き込んでいたため、HUD を置き忘れると判定が変わっていた。
+	//   ロックオン(LockOnTargetComponent)の円は内側の AimReticleHUD が出すもので、こちらとは別枠。
 	// ・弾のプレハブ・弾速・銃口ノードは、ミサイルポッド側の GunStateComponent を使う
 	//   (アタッチメントスロットの missile が指すエンティティ)。ここには持たない。
 	// ・固定長配列なのは ECS コンポーネントに std::vector を持たせないため
@@ -34,21 +35,18 @@ namespace App::Component
 		float spreadAngle    = 25.0f;	// 射出時の散らし角(度)。狙う向きを軸にしたコーンの半頂角
 		float maxDistance    = 300.0f;	// ロックできる距離(m)。0 以下なら距離では切らない
 		float targetOffsetY  = 0.0f;	// 敵の原点から上へずらす量(m)。原点が足元のモデル用
-		float reticleRadius  = 200.0f;	// CombatReticleHUD が居ないときの判定半径(px)
-		float reticleScale   = 1.0f;	// UI から来た半径に掛ける倍率(見た目より狭く/広く取る用)
+		float reticleRadius  = 200.0f;	// レティクルの見た目の半径(px)。CombatReticleHUD はこの大きさに絵を合わせる
+		float reticleScale   = 1.0f;	// 見た目に対する判定の倍率(見た目より狭く/広く取る用)
 		bool  requireLock    = false;	// true : 1つもロックできていなければ撃たない
 
-		// ---- レティクル(ランタイム。CombatReticleHUD が書く) ----
-		// 保存値(reticleRadius)は上書きしない。実行中に書き換えると、
-		// エディターで見ている設定値が UI の値に置き換わってしまうため。
-		Math::Vector2 reticleCenter    = { 0.0f, 0.0f };	// 判定の中心(px, 左上原点)
-		float             hudReticleRadius = 0.0f;				// UI が出している半径(px)
-		bool              isReticleFromHUD = false;				// UI から届いているか
+		// ---- レティクル(ランタイム。MissileSalvoSystem が書く) ----
+		// 判定に使った中心(px, 左上原点)。今は画面中央。HUD はここへレティクルを出す
+		Math::Vector2 reticleCenter = { 0.0f, 0.0f };
 
 		// 実際に使う判定の半径
 		float GetActiveReticleRadius() const
 		{
-			return (isReticleFromHUD ? hudReticleRadius : reticleRadius) * reticleScale;
+			return reticleRadius * reticleScale;
 		}
 
 		// 実際に撃つ数(上限で丸めたもの)
@@ -111,16 +109,14 @@ struct Engine::ECS::ComponentTraits<App::Component::MissileLockComponent>
 		Engine::EditorField::Field("MaxDistance", _comp.maxDistance, 1.0f, 0.0f);
 		Engine::EditorField::Field("TargetOffsetY", _comp.targetOffsetY, 0.01f);
 		Engine::EditorField::Field("ReticleRadius", _comp.reticleRadius, 1.0f, 0.0f, 4096.0f);
+		Engine::EditorField::Tooltip("レティクルの見た目の半径(px)。CombatReticleHUD はこの大きさに絵を合わせる");
 		Engine::EditorField::Field("ReticleScale", _comp.reticleScale, 0.01f, 0.0f, 4.0f);
+		Engine::EditorField::Tooltip("見た目に対する判定の倍率。判定の半径 = ReticleRadius × ReticleScale");
 		Engine::EditorField::Field("RequireLock", _comp.requireLock);
 
 		// 結果は毎フレーム上書きされるので表示のみ
 		Engine::EditorField::Line();
-		Engine::EditorField::Value("ReticleFromHUD", "%s", _comp.isReticleFromHUD ? "yes" : "no");
-		if (_comp.isReticleFromHUD)
-		{
-			Engine::EditorField::Value("ReticleCenter", "%.0f, %.0f", _comp.reticleCenter.x, _comp.reticleCenter.y);
-		}
+		Engine::EditorField::Value("ReticleCenter", "%.0f, %.0f", _comp.reticleCenter.x, _comp.reticleCenter.y);
 		Engine::EditorField::Value("ActiveRadius", "%.0f px", _comp.GetActiveReticleRadius());
 		Engine::EditorField::Text("Charging : %s  Locks : %d", _comp.isCharging ? "yes" : "no", _comp.lockCount);
 		Engine::EditorField::Value("FireRemain", "%d / %d", _comp.fireRemain, _comp.fireTotal);

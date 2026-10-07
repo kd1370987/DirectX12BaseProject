@@ -4,14 +4,7 @@
 #include "Application/ECS/World/APPWorld.h"
 #include "Engine/EditorField/EditorField.h"
 
-#include "Application/Components/Input/PlayerControllTag.h"
-#include "Application/Components/Combat/HealthComponent.h"
-#include "Application/Components/Combat/LockOnTargetComponent.h"
-#include "Application/Components/Movement/BoostParamsComponent.h"
-#include "Application/Components/Movement/BoostStateComponent.h"
-#include "Application/Components/Movement/ChargeDashComponent.h"
-#include "Application/Components/Attachment/AttachmentSlotsComponent.h"
-#include "Application/Components/Weapon/GunStateComponent.h"
+#include "Application/InstanceResource/PlayerHUDResource.h"
 
 //==========================================================================================
 // UIGauge
@@ -76,8 +69,7 @@ namespace App::Object
 		}
 		else
 		{
-			UpdateTargetEntity(a_context.pWorld);
-			m_hasValue = FetchValue(a_context.pWorld);
+			m_hasValue = PickValue(a_context);
 		}
 
 		// 伸び縮みの向きへピボットを合わせる
@@ -88,176 +80,63 @@ namespace App::Object
 	}
 
 	//======================================================================================
-	// 見るエンティティを決める
-	//======================================================================================
-	void UIGauge::UpdateTargetEntity(Engine::ECS::World* a_pWorld)
-	{
-		if (a_pWorld == nullptr)
-		{
-			m_targetEntity = Engine::ECS::Limits::INVALID_ENTITY;
-			return;
-		}
-
-		switch (m_target)
-		{
-		case EGaugeTarget::Player:
-			m_targetEntity = FindPlayer(a_pWorld);
-			break;
-
-		case EGaugeTarget::LockedEnemy:
-		{
-			m_targetEntity = Engine::ECS::Limits::INVALID_ENTITY;
-
-			// ロック結果はプレイヤーが持っている。
-			// 射影も判定も LockOnTargetSystem が済ませてあるので、ここは読むだけ
-			const Engine::ECS::Entity _player = FindPlayer(a_pWorld);
-			if (_player == Engine::ECS::Limits::INVALID_ENTITY) break;
-			if (!a_pWorld->HasComponent<Component::LockOnTargetComponent>(_player)) break;
-
-			const auto* _pLockOn = a_pWorld->RefData<Component::LockOnTargetComponent>(_player);
-			if (_pLockOn && _pLockOn->IsLocked()) m_targetEntity = _pLockOn->lockedEntity;
-			break;
-		}
-
-		case EGaugeTarget::PlayerRightWeapon:
-			m_targetEntity = FindPlayerWeapon(a_pWorld, true);
-			break;
-
-		case EGaugeTarget::PlayerLeftWeapon:
-			m_targetEntity = FindPlayerWeapon(a_pWorld, false);
-			break;
-
-		case EGaugeTarget::Manual:
-		default:
-			// 外から入れられたものをそのまま使う。
-			// 相手が消えていたら掴んだままにしない(別のものが同じIDで再利用される)
-			if (!a_pWorld->IsAliveEntity(m_targetEntity))
-			{
-				m_targetEntity = Engine::ECS::Limits::INVALID_ENTITY;
-			}
-			break;
-		}
-	}
-
-	//======================================================================================
-	// 見ているエンティティから値を取る
+	// 値を取る
 	//--------------------------------------------------------------------------------------
-	// 持っていないコンポーネントは読まない。
-	// (RefData は持っていなければ nullptr を返す)
+	// 見る相手も値も HUDGatherSystem が PlayerHUDResource へ集めてある。ここは引くだけ。
+	// 毎フレーム引き直すので、ロックが外れた・敵が消えた・武器を持ち替えた のいずれにも追従する
 	//======================================================================================
-	bool UIGauge::FetchValue(Engine::ECS::World* a_pWorld)
+	namespace
 	{
-		if (a_pWorld == nullptr) return false;
-		if (m_targetEntity == Engine::ECS::Limits::INVALID_ENTITY) return false;
-		if (!a_pWorld->IsAliveEntity(m_targetEntity)) return false;
-
-		switch (m_source)
+		// 見る相手 : Manual は相手を持たない(値は SetValue で入れる)
+		bool ToHUDSubject(EGaugeTarget a_target, InstanceResource::EHUDSubject& a_outSubject)
 		{
-		case EGaugeSource::Health:
-		{
-			if (!a_pWorld->HasComponent<Component::HealthComponent>(m_targetEntity)) return false;
-
-			const auto* _pHealth = a_pWorld->RefData<Component::HealthComponent>(m_targetEntity);
-			if (!_pHealth) return false;
-
-			m_current = _pHealth->currentHealth;
-			m_max = _pHealth->maxHealth;
-			return true;
-		}
-
-		case EGaugeSource::BoostFuel:
-		{
-			if (!a_pWorld->HasComponent<Component::BoostParamsComponent>(m_targetEntity)) return false;
-
-			const auto* _pBoost = a_pWorld->RefData<Component::BoostParamsComponent>(m_targetEntity);
-			const auto* _pBoostState = a_pWorld->RefData<Component::BoostStateComponent>(m_targetEntity);
-			if (!_pBoostState) return false;
-			if (!_pBoost) return false;
-
-			m_current = _pBoostState->currentFuel;
-			m_max = _pBoost->maxFuel;
-			return true;
-		}
-
-		case EGaugeSource::Overheat:
-		{
-			if (!a_pWorld->HasComponent<Component::GunStateComponent>(m_targetEntity)) return false;
-
-			const auto* _pGun = a_pWorld->RefData<Component::GunStateComponent>(m_targetEntity);
-			if (!_pGun) return false;
-
-			// 熱は「溜まるほど満タン」。色のしきい値も溜まった側で読むことになるので、
-			// 危険色は残量の大きい側へ置くこと
-			m_current = _pGun->heat;
-			m_max = _pGun->heatLimit;
-			return true;
-		}
-
-		case EGaugeSource::ChargeDash:
-		{
-			if (!a_pWorld->HasComponent<Component::ChargeDashComponent>(m_targetEntity)) return false;
-
-			const auto* _pDash = a_pWorld->RefData<Component::ChargeDashComponent>(m_targetEntity);
-			if (!_pDash) return false;
-
-			m_current = _pDash->chargeTimer;
-			m_max = _pDash->chargeTime;
-			return true;
-		}
-
-		case EGaugeSource::Manual:
-		default:
-			return true;
-		}
-	}
-
-	//======================================================================================
-	// 操作しているプレイヤーを探す
-	//======================================================================================
-	Engine::ECS::Entity UIGauge::FindPlayer(Engine::ECS::World* a_pWorld)
-	{
-		Engine::ECS::Entity _player = Engine::ECS::Limits::INVALID_ENTITY;
-		if (a_pWorld == nullptr) return _player;
-
-		a_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag>(
-			[&](
-				Engine::ECS::Chunk* a_pChunk,
-				uint32_t a_count,
-				const Component::ActiveTag* a_activeTagArray,
-				const Component::PlayerControllTag* a_playerTagArray
-			)
+			switch (a_target)
 			{
-				// 操作しているプレイヤーは1体の想定。先に見つかったものを使う
-				if (_player != Engine::ECS::Limits::INVALID_ENTITY || a_count == 0) return;
-				_player = a_pChunk->entityData[0];
+			case EGaugeTarget::Player:				a_outSubject = InstanceResource::EHUDSubject::Player;		return true;
+			case EGaugeTarget::LockedEnemy:			a_outSubject = InstanceResource::EHUDSubject::LockedEnemy;	return true;
+			case EGaugeTarget::PlayerRightWeapon:	a_outSubject = InstanceResource::EHUDSubject::RightWeapon;	return true;
+			case EGaugeTarget::PlayerLeftWeapon:	a_outSubject = InstanceResource::EHUDSubject::LeftWeapon;	return true;
+
+			case EGaugeTarget::Manual:
+			default:								return false;
 			}
-		);
-
-		return _player;
-	}
-
-	//======================================================================================
-	// プレイヤーの武器を引く
-	//--------------------------------------------------------------------------------------
-	// スロットが指すのは武器のエンティティ。撃てるかどうかや熱は武器側が持っているので、
-	// オーバーヒートを出したいときはここまで辿る必要がある
-	//======================================================================================
-	Engine::ECS::Entity UIGauge::FindPlayerWeapon(Engine::ECS::World* a_pWorld, bool a_isRight)
-	{
-		if (a_pWorld == nullptr) return Engine::ECS::Limits::INVALID_ENTITY;
-
-		const Engine::ECS::Entity _player = FindPlayer(a_pWorld);
-		if (_player == Engine::ECS::Limits::INVALID_ENTITY) return Engine::ECS::Limits::INVALID_ENTITY;
-
-		if (!a_pWorld->HasComponent<Component::AttachmentSlotsComponent>(_player))
-		{
-			return Engine::ECS::Limits::INVALID_ENTITY;
 		}
 
-		const auto* _pSlots = a_pWorld->RefData<Component::AttachmentSlotsComponent>(_player);
-		if (!_pSlots) return Engine::ECS::Limits::INVALID_ENTITY;
+		// 見る値 : Manual はコンポーネントを見ない
+		bool ToHUDGaugeKind(EGaugeSource a_source, InstanceResource::EHUDGaugeKind& a_outKind)
+		{
+			switch (a_source)
+			{
+			case EGaugeSource::Health:		a_outKind = InstanceResource::EHUDGaugeKind::Health;		return true;
+			case EGaugeSource::BoostFuel:	a_outKind = InstanceResource::EHUDGaugeKind::BoostFuel;		return true;
+			case EGaugeSource::Overheat:	a_outKind = InstanceResource::EHUDGaugeKind::Overheat;		return true;
+			case EGaugeSource::ChargeDash:	a_outKind = InstanceResource::EHUDGaugeKind::ChargeDash;	return true;
 
-		return a_isRight ? _pSlots->rightWeapon.id : _pSlots->leftWeapon.id;
+			case EGaugeSource::Manual:
+			default:						return false;
+			}
+		}
+	}
+
+	bool UIGauge::PickValue(Engine::GameObject::ObjectContext& a_context)
+	{
+		InstanceResource::EHUDSubject _subject = {};
+		InstanceResource::EHUDGaugeKind _kind = {};
+		if (!ToHUDSubject(m_target, _subject)) return false;
+		if (!ToHUDGaugeKind(m_source, _kind)) return false;
+
+		auto* _pWorld = a_context.pWorld;
+		if (!_pWorld) return false;
+		if (!_pWorld->HasResource<InstanceResource::PlayerHUDResource>()) return false;
+
+		// 相手が居ない・そのコンポーネントを持っていないときは isValid が立っていない
+		const auto& _hud = _pWorld->GetResource<InstanceResource::PlayerHUDResource>();
+		const InstanceResource::HUDGaugeValue& _value = _hud.GetGauge(_subject, _kind);
+		if (!_value.isValid) return false;
+
+		m_current = _value.current;
+		m_max = _value.max;
+		return true;
 	}
 
 	//======================================================================================
@@ -420,6 +299,10 @@ namespace App::Object
 		// 位置・色・飾りなどの共通ぶん
 		UIBase::Archive(a_ar, a_context);
 
+		// ここから下は UIGauge のぶん。基底(UIBase)とは区切りを分けてあるので、
+		// どちらに足しても互いの読み出しはずれない。足すときはこの区切りの末尾へ
+		Engine::Persistence::ArchiveSection _section(a_ar, "UIGauge");
+
 		a_ar.StringField("FillDecorationName", m_fillDecorationName);
 		a_ar.Field("Anchor", m_anchor);
 
@@ -489,14 +372,14 @@ namespace App::Object
 			Engine::EditorField::Field("HideWhenNoValue", m_isHideWhenNoValue);
 			Engine::EditorField::Tooltip("値が取れないフレームは描かない(ロックしていない等)");
 
-			// 今どれを見ているかが分かるようにしておく
-			if (m_targetEntity == Engine::ECS::Limits::INVALID_ENTITY)
+			// 今取れているかが分かるようにしておく
+			if (m_target == EGaugeTarget::Manual)
 			{
-				Engine::EditorField::HelpText("Entity : none");
+				Engine::EditorField::HelpText("Target が Manual のときは値を取れない(Source も Manual にして SetValue で入れる)");
 			}
 			else
 			{
-				Engine::EditorField::Value("Entity", "%u  (%s)", static_cast<uint32_t>(m_targetEntity), m_hasValue ? "ok" : "コンポーネントなし");
+				Engine::EditorField::Value("Value", "%s", m_hasValue ? "ok" : "none (相手が居ない/コンポーネントなし)");
 			}
 		}
 

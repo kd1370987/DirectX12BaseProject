@@ -107,18 +107,19 @@ namespace App::System
 					_lockOn.targetCount  = 0;
 					_lockOn.lockedEntity = Engine::ECS::Limits::INVALID_ENTITY;
 
+					// 判定の円は画面中央 × 設定値。中心は HUD がレティクルを出す位置にもなるので書いておく
+					// (以前は内側のレティクル(AimReticleHUD)が円を書き込んでいたが、
+					//  それだと HUD を置き忘れたシーンで判定が変わるので、こちらを正解にした)
+					_lockOn.reticleCenter = _defaultCenter;
+
 					// カメラがいないフレームは誰も狙えない
 					if (!_hasCamera) continue;
 
 					const Math::Matrix& _pm = _playerWorld.worldMat;
 					const Math::Vector3 _playerPos = { _pm._41, _pm._42, _pm._43 };
 
-					// 判定の円。内側のレティクル(AimReticleHUD)が居ればそれに合わせる。
-					// UI が無い構成でも動くよう、届いていなければ画面中央 × 設定値で判定する
-					const Math::Vector2 _reticleCenter = _lockOn.isReticleFromHUD
-						? Math::Vector2(_lockOn.reticleCenter)
-						: _defaultCenter;
-					const float _reticleRadius = _lockOn.GetActiveReticleRadius();
+					const Math::Vector2 _reticleCenter = _lockOn.reticleCenter;
+					const float _reticleRadius = _lockOn.reticleRadius;
 
 					// 画面中央にいちばん近いものを選ぶための最小値
 					float _nearestDist = FLT_MAX;

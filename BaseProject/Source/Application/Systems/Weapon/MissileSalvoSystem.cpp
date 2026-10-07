@@ -121,6 +121,11 @@ namespace App::System
 
 					const Engine::ECS::Entity _self = a_pChunk->entityData[_i];
 
+					// 収集の円は画面中央。中心は HUD がレティクルを出す位置にもなるので書いておく
+					// (以前は CombatReticleHUD が円を書き込んでいたが、
+					//  それだと HUD を置き忘れたシーンで判定が変わるので、こちらを正解にした)
+					_missile.reticleCenter = _defaultCenter;
+
 					// クールダウンを進める
 					if (_missile.cooldownTimer > 0.0f)
 					{
@@ -148,10 +153,8 @@ namespace App::System
 					{
 						_missile.isCharging = true;
 
-						// 判定の円。CombatReticleHUD が居ればそれに合わせる
-						const Math::Vector2 _reticleCenter = _missile.isReticleFromHUD
-							? Math::Vector2(_missile.reticleCenter)
-							: _defaultCenter;
+						// 判定の円 : 見た目の半径(reticleRadius)× 判定の倍率(reticleScale)
+						const Math::Vector2 _reticleCenter = _missile.reticleCenter;
 						const float _reticleRadius = _missile.GetActiveReticleRadius();
 						const int   _lockMax       = _missile.GetActiveMissileCount();
 

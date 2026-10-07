@@ -8,6 +8,7 @@ namespace App::Object
 	/// ミサイルの溜め中に、ロックした敵を囲む枠(黄色)。
 	///
 	/// 出す相手は MissileSalvoSystem がプレイヤーの MissileLockComponent へ書いた結果。
+	/// (HUDGatherSystem が PlayerHUDResource へまとめたものを読む。ワールドは直接見ない)
 	/// ミサイルキーを押している間(isCharging)だけ、溜まっているぶんの枠を出す。
 	/// 離して撃った瞬間に溜めは捨てられるので、枠もそのフレームで消える。
 	///

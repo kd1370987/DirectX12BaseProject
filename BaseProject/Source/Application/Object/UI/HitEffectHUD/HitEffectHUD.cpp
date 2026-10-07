@@ -9,9 +9,7 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Input/PlayerControllTag.h"
-#include "Application/InstanceResource/HitEventResource.h"
-#include "Application/Components/Combat/HealthComponent.h"
+#include "Application/InstanceResource/PlayerHUDResource.h"
 
 namespace App::Object
 {
@@ -115,58 +113,29 @@ namespace App::Object
 
 		auto* _pWorld = a_context.pWorld;
 		if (!_pWorld) return;
-		if (!_pWorld->HasResource<InstanceResource::HitEventResource>()) return;
-
-		const InstanceResource::HitEventResource& _hitEvents = _pWorld->GetResource<InstanceResource::HitEventResource>();
-		if (_hitEvents.events.empty()) return;
+		if (!_pWorld->HasResource<InstanceResource::PlayerHUDResource>()) return;
 
 		//==================================================================
-		// 操作しているプレイヤーを引く
+		// プレイヤーの弾が当たったか
 		//------------------------------------------------------------------
-		// 「自分が発した弾か」は HitEvent.shooter(弾を撃った本体)で見る。
-		// attacker は弾そのものなので、そちらでは判定できない。
+		// どのヒットを手応えとして数えるか(自分の弾か・ダメージの通る相手か)は
+		// HUDGatherSystem が決めて、当たったフレームに hitSerial を1つ進める。
+		// ここは前に見た番号と比べるだけ。同じフレームに何発当たっても出し直しは1回
 		//==================================================================
-		Engine::ECS::Entity _player = Engine::ECS::Limits::INVALID_ENTITY;
+		const auto& _hud = _pWorld->GetResource<InstanceResource::PlayerHUDResource>();
 
-		_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag>(
-			[&](
-				Engine::ECS::Chunk* a_pChunk,
-				uint32_t a_count,
-				const Component::ActiveTag* a_activeTagArray,
-				const Component::PlayerControllTag* a_playerTagArray
-			)
-			{
-				if (_player != Engine::ECS::Limits::INVALID_ENTITY || a_count == 0) return;
-				_player = a_pChunk->entityData[0];
-			}
-		);
-
-		if (_player == Engine::ECS::Limits::INVALID_ENTITY) return;
-
-		// 同じフレームに複数当たっても、出し直しは1回でよい
-		for (const InstanceResource::HitEvent& _event : _hitEvents.events)
+		// 初めて見るフレームは合わせるだけ(途中から置かれたときに、出た瞬間に光らないように)
+		if (!m_isHitSerialSynced)
 		{
-			if (_event.shooter != _player) continue;
-
-			//--------------------------------------------------------------
-			// 手応えを出すのは「ダメージが通る相手」に当てたときだけ
-			//
-			// 弾は壁でも地面でも味方の部品でも同じように当たる。
-			// そこまで音とマークが出ると、何に当てても当たった気になってしまい、
-			// 狙う価値のある相手に当てた合図として働かなくなる。
-			//
-			// 見るのは HealthComponent の有無。
-			// 以前は ScoreTargetComponent(点数を持っている印)で見ていたが、
-			// あれは「倒したら何点入るか」を表す得点側の都合で、
-			// 手応えを出すかどうかとは別の話。実際どのプレハブにも付いておらず、
-			// 条件が一度も成立しないためマーカーが出ていなかった。
-			//--------------------------------------------------------------
-			if (_event.victim == Engine::ECS::Limits::INVALID_ENTITY) continue;
-			if (!_pWorld->HasComponent<Component::HealthComponent>(_event.victim)) continue;
-
-			OnHit(a_context);
-			break;
+			m_lastHitSerial = _hud.hitSerial;
+			m_isHitSerialSynced = true;
+			return;
 		}
+
+		if (_hud.hitSerial == m_lastHitSerial) return;
+		m_lastHitSerial = _hud.hitSerial;
+
+		OnHit(a_context);
 	}
 
 	void HitEffectHUD::Draw(Engine::GameObject::ObjectContext& a_context)
@@ -193,6 +162,10 @@ namespace App::Object
 	{
 		// テクスチャ・色・サイズなどの共通ぶん
 		UIBase::Archive(a_ar, a_context);
+
+		// ここから下は HitEffectHUD のぶん。基底(UIBase)とは区切りを分けてあるので、
+		// どちらに足しても互いの読み出しはずれない。足すときはこの区切りの末尾へ
+		Engine::Persistence::ArchiveSection _section(a_ar, "HitEffectHUD");
 
 		a_ar.GUIDField("SoundGUID", m_soundGUID);
 		a_ar.Field("Volume", m_volume);

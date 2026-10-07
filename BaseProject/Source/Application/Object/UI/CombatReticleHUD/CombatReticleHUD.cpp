@@ -10,8 +10,7 @@
 
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Application/Components/Input/PlayerControllTag.h"
-#include "Application/Components/Weapon/MissileLockComponent.h"
+#include "Application/InstanceResource/PlayerHUDResource.h"
 
 namespace App::Object
 {
@@ -46,7 +45,7 @@ namespace App::Object
 		RequestDecorationResources(a_context);
 	}
 
-	float CombatReticleHUD::CalcCollectRadius() const
+	float CombatReticleHUD::CalcArtRadius() const
 	{
 		// 縦横で違う場合は小さい方。円としてはみ出さない側に合わせる
 		const float _half = std::min(m_pixelSize.x, m_pixelSize.y) * 0.5f;
@@ -58,41 +57,40 @@ namespace App::Object
 		// 飾りのアニメーションを進める
 		UIBase::Update(a_context);
 
+		m_hasReticle = false;
+
 		auto* _pWorld = a_context.pWorld;
 		if (!_pWorld) return;
+		if (!_pWorld->HasResource<InstanceResource::PlayerHUDResource>()) return;
 
-		const Math::Vector2 _center = m_pixelPos;
-		const float         _radius = CalcCollectRadius();
+		// 見た目の円は MissileLockComponent のもの(HUDGatherSystem が集めてある)。
+		// ここからは書き込まない : 判定はゲーム側が持ち、UI は見た目を合わせるだけ
+		const auto& _hud = _pWorld->GetResource<InstanceResource::PlayerHUDResource>();
+		if (!_hud.missileReticle.isValid) return;
 
-		//==================================================================
-		// ミサイルの収集円をプレイヤーへ渡す
-		//------------------------------------------------------------------
-		// 読むのは MissileSalvoSystem(PostUpdate)。GameObjectManager::Update は
-		// その後なので、実際に使われるのは次のフレーム。動かない値なので差は出ない。
-		//==================================================================
-		bool _isWritten = false;
+		m_reticleCenter = _hud.missileReticle.center;
+		m_reticleRadius = _hud.missileReticle.radius;
+		m_hasReticle = true;
+	}
 
-		_pWorld->ForEach<const Component::ActiveTag, const Component::PlayerControllTag, Component::MissileLockComponent>(
-			[&](
-				Engine::ECS::Chunk* a_pChunk,
-				uint32_t a_count,
-				const Component::ActiveTag* a_activeTagArray,
-				const Component::PlayerControllTag* a_playerTagArray,
-				Component::MissileLockComponent* a_missileArray
-			)
-			{
-				// 操作しているプレイヤーは1体の想定。先に見つかったものへ渡す
-				if (_isWritten || a_count == 0) return;
-				_isWritten = true;
+	void CombatReticleHUD::Draw(Engine::GameObject::ObjectContext& a_context)
+	{
+		// 円が届いていない(プレイ中でない・プレイヤーが居ない)ときは置いたとおりに出す
+		if (!m_hasReticle)
+		{
+			UIBase::Draw(a_context);
+			return;
+		}
 
-				// 保存値(reticleRadius)は触らない。実行中に書き換えると
-				// エディターで見ている設定値が UI の値に置き換わってしまう
-				Component::MissileLockComponent& _missile = a_missileArray[0];
-				_missile.reticleCenter    = _center;
-				_missile.hudReticleRadius = _radius;
-				_missile.isReticleFromHUD = true;
-			}
-		);
+		// アンカーに内接する円が、見た目の半径と同じ大きさになるよう拡大して描く
+		Decoration::DrawOverride _override = {};
+		_override.isUsePos = true;
+		_override.pixelPos = m_reticleCenter;
+
+		const float _artRadius = CalcArtRadius();
+		if (_artRadius > 0.0f) _override.scale = m_reticleRadius / _artRadius;
+
+		DrawDecorations(a_context, _override);
 	}
 
 	void CombatReticleHUD::DrawInspector(Engine::GameObject::ObjectContext& a_context)
@@ -100,7 +98,14 @@ namespace App::Object
 		UIBase::DrawInspector(a_context);
 
 		Engine::EditorField::Header("Missile Lock");
-		Engine::EditorField::Value("Collect radius", "%.0f px", CalcCollectRadius());
-		Engine::EditorField::Tooltip("この円の内側に入った敵をミサイルが溜めます(アンカーの PixelSize に内接)\n中心は PixelPos。倍率や弾数はプレイヤーの MissileLockComponent");
+		Engine::EditorField::HelpText("収集の円はプレイヤーの MissileLockComponent(ReticleRadius × ReticleScale)。ここは絵を合わせるだけ");
+
+		Engine::EditorField::Value("ArtRadius", "%.1f px", CalcArtRadius());
+		Engine::EditorField::Tooltip("置いたままの絵で、見た目の円に当たる半径(アンカーの PixelSize に内接)。\nプレイ中はこれが ReticleRadius と同じ大きさになるよう拡大して、画面中央へ出す");
+
+		if (m_hasReticle)
+		{
+			Engine::EditorField::Value("ReticleRadius", "%.1f px", m_reticleRadius);
+		}
 	}
 }
