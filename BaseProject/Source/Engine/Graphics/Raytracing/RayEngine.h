@@ -1,5 +1,7 @@
 ﻿#pragma once
-#include "../../CBData.h"
+#include "Engine/Graphics/Frame/SceneView/CameraData.h"
+#include "Engine/Graphics/Raytracing/DynamicRaytracingData.h"
+#include "Engine/Graphics/Raytracing/RayWorld/RayInstance.h"
 
 namespace Engine
 {

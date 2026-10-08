@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../GPUBuffer.h"
+#include "Engine/Graphics/D3D12/GPUBuffer/GPUBuffer.h"
 #include "Core/Debug/DebugLog.h"
 
 namespace Engine::Graphics::D3D12

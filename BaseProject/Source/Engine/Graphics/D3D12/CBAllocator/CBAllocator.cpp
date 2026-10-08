@@ -1,4 +1,4 @@
-﻿#include "CBAllocator.h"
+﻿#include "Engine/Graphics/D3D12/CBAllocator/CBAllocator.h"
 
 // CD3DX12_* のヘルパーはここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため

@@ -2,12 +2,12 @@
 
 #include <deque>
 
-#include "Core/EmitterData.h"
-#include "Core/ParticleData.h"
+#include "Engine/Graphics/Particle/Core/EmitterData.h"
+#include "Engine/Graphics/Particle/Core/ParticleData.h"
 
-#include "GPU/GPUParticlePool/GPUParticlePool.h"
+#include "Engine/Graphics/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
 
-#include "../../Resource/Data/Particles/ParticlesAsset.h"
+#include "Engine/Resource/Data/Particles/ParticlesAsset.h"
 
 namespace Engine::Graphics
 {

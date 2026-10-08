@@ -1,6 +1,7 @@
 ﻿#pragma once
 
-#include "../../D3D12/D3DObject/RootSignature/RootSignature.h"
+#include "Engine/Graphics/D3D12/D3DObject/RootSignature/RootSignature.h"
+#include "Engine/Graphics/Raytracing/RayPSO/RayShaderData.h"
 
 // このヘッダーは EngineCommon の早い段階で読まれるので、実体は持ち込まず前方宣言で済ませる
 namespace Engine::Graphics

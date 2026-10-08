@@ -38,6 +38,15 @@ namespace Engine::Graphics
 
 	private:
 
+		// シェーダーからルートシグネチャとコンピュートPSOを起こす(Setup の中で、PSOの組ごとに呼ぶ)
+		bool SetupComputeShader(
+			const std::string& a_csPath,
+			const std::string& a_psoName,
+			Handle<ID3D12RootSignature>& a_outRootSig,
+			Handle<ID3D12PipelineState>& a_outPSO);
+
+	private:
+
 		PipelineStateManager* m_pPSOManager = nullptr;
 		Resource::ResourceManager* m_pResourceManager = nullptr;	// アセットの値を引く(借り物)
 

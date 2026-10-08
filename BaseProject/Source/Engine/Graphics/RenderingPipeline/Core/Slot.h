@@ -7,8 +7,8 @@
 // 「何を食って何を吐くか」の宣言そのもので、配線もコンパイル結果もここへ書き戻る
 //
 //==========================================================================================
-#include "PipelineEnums.h"
-#include "ResourceID.h"
+#include "Engine/Graphics/RenderingPipeline/Core/PipelineEnums.h"
+#include "Engine/Graphics/RenderingPipeline/Core/ResourceID.h"
 
 namespace Engine::Graphics::Pipeline
 {

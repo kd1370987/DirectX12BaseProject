@@ -1,5 +1,8 @@
 ﻿#pragma once
-#include "DrawCommand.h"
+#include "Engine/Graphics/Frame/DrawList/DrawCommand.h"
+#include "Engine/Graphics/Frame/DrawList/MeshDrawData.h"
+#include "Engine/Graphics/Frame/DrawList/UIData.h"
+#include "Engine/Graphics/Raytracing/DynamicRaytracingData.h"
 
 namespace Engine::Graphics
 {

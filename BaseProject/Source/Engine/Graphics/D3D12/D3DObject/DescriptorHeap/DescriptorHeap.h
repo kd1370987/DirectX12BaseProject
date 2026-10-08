@@ -38,6 +38,9 @@ namespace Engine::Graphics::D3D12
 		using DescType = D3D12_SHADER_RESOURCE_VIEW_DESC;
 	};
 
+	// サンプラーのハンドル(Handle<SamplerTag>)を区別するための型
+	struct SamplerTag {};
+
 	// T が Heapを継承しているか判定する Concept を定義する
 	template<typename T>
 	concept IsHeapType = std::derived_from<T, Heap>;

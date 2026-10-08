@@ -1,13 +1,13 @@
-﻿#include "Pass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
-#include "../../RenderGraph/RenderGraph.h"
-#include "../../RenderGraph/Resource/VirtualResource/VirtualResource.h"
-#include "../../../Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 
 #include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
-#include "../../../../Resource/Data/Shader/IO/ShaderIO.h"
-#include "../../../GraphicsEngine.h"
+#include "Engine/Resource/Data/Shader/IO/ShaderIO.h"
+#include "Engine/Graphics/GraphicsEngine.h"
 
 namespace Engine::Graphics::Pipeline
 {

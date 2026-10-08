@@ -15,7 +15,7 @@
 //   → デバッグ線 → UI → トーンマップ → 出口
 //
 //==========================================================================================
-#include "../RenderingPipelineAsset/RenderingPipelineAsset.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPipelineAsset/RenderingPipelineAsset.h"
 
 namespace Engine::Graphics::Pipeline
 {

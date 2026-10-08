@@ -19,8 +19,8 @@
 //
 //==========================================================================================
 // グラフは unique_ptr で抱えるだけなので、実体はここでは要らない
-#include "../Core/PipelineEnums.h"
-#include "../Core/PassContext.h"	// GraphicsEngine / RenderContext の前方宣言もここ
+#include "Engine/Graphics/RenderingPipeline/Core/PipelineEnums.h"
+#include "Engine/Graphics/RenderingPipeline/Core/PassContext.h"	// GraphicsEngine / RenderContext の前方宣言もここ
 
 namespace Engine::Graphics::Pipeline
 {

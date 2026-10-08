@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "Engine/Graphics/D3D12/GPUBuffer/RWStructuredBuffer/RWStructuredBuffer.h"		// GPU用UAV構造体バッファ
-#include "../../../../Resource/Data/Particles/ParticlesAsset.h"
-#include "../../Core/EmitterData.h"
-#include "../../Core/ParticleData.h"
+#include "Engine/Resource/Data/Particles/ParticlesAsset.h"
+#include "Engine/Graphics/Particle/Core/EmitterData.h"
+#include "Engine/Graphics/Particle/Core/ParticleData.h"
 
 namespace Engine::Graphics::Particle
 {

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "MeshAllocationHandle.h"
+#include "Engine/Graphics/Frame/MeshBufferAllocator/MeshAllocationHandle.h"
 
 namespace Engine::Graphics::D3D12
 {

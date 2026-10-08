@@ -11,14 +11,14 @@
 //
 //==========================================================================================
 // このヘッダーは ResourceManager 経由で EngineCommon の途中から取り込まれるため、
-// GraphicCommon より先に読まれることがある。必要なものは明示的に含める
-#include "../../../GraphicCommon.h"
-#include "../../../PipelineState/ShadingPipelineBuilder/ShadingPipelineBuilder.h"
+// GraphicsCommon より先に読まれることがある。必要なものは明示的に含める
+#include "Engine/Graphics/GraphicsCommon.h"
+#include "Engine/Graphics/PipelineState/ShadingPipelineBuilder/ShadingPipelineBuilder.h"
 
-#include "../PipelineEnums.h"
-#include "../ResourceID.h"
-#include "../Slot.h"
-#include "../PassContext.h"
+#include "Engine/Graphics/RenderingPipeline/Core/PipelineEnums.h"
+#include "Engine/Graphics/RenderingPipeline/Core/ResourceID.h"
+#include "Engine/Graphics/RenderingPipeline/Core/Slot.h"
+#include "Engine/Graphics/RenderingPipeline/Core/PassContext.h"
 
 namespace Engine::Graphics::Pipeline
 {

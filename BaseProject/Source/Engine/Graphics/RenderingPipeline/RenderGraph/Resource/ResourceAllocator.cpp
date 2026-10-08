@@ -1,6 +1,6 @@
-﻿#include "ResourceAllocator.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/ResourceAllocator.h"
 
-#include "VirtualResource/VirtualResource.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
 
 namespace Engine::Graphics::Pipeline
 {

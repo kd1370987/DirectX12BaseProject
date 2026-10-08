@@ -1,4 +1,4 @@
-﻿#include "UpScalePass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/UpScale/UpScalePass/UpScalePass.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicsEngine.h"

@@ -228,6 +228,7 @@
 #include "Application/InstanceResource/SwarmMissileResource.h"
 #include "Application/InstanceResource/PlayerHUDResource.h"
 #include "Application/InstanceResource/UICursorResource.h"
+#include "Engine/Graphics/Raytracing/DynamicRaytracingData.h"
 
 namespace App::ECS
 {

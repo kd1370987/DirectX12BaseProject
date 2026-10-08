@@ -16,7 +16,7 @@
 #include "../Data/Font/IO/FontIO.h"
 
 // レンダリングパイプライン : Engine::Resource ではなく Engine::Graphics::Pipeline に居る
-#include "../../Graphics/RenderingPipeline/IO/RenderingPipelineAssetIO.h"
+#include "Engine/Graphics/RenderingPipeline/IO/RenderingPipelineAssetIO.h"
 
 #include "../Common/ScopedResourceBuild.h"
 namespace Engine::Resource

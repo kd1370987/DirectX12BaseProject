@@ -1,6 +1,6 @@
-﻿#include "RayPSO.h"
+﻿#include "Engine/Graphics/Raytracing/RayPSO/RayPSO.h"
 
-#include "BuildSubObjectHelper.h"
+#include "Engine/Graphics/Raytracing/RayPSO/BuildSubObjectHelper.h"
 
 #include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
 

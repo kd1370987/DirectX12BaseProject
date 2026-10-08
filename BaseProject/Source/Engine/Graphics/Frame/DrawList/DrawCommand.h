@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Engine/Graphics/Raytracing/DynamicRaytracingData.h"
 
 namespace Engine::ECS
 {

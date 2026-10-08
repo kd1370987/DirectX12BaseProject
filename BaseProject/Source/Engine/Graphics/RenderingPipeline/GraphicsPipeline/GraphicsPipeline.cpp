@@ -1,9 +1,9 @@
-﻿#include "GraphicsPipeline.h"
+﻿#include "Engine/Graphics/RenderingPipeline/GraphicsPipeline/GraphicsPipeline.h"
 
 // ヘッダーでは前方宣言にしてあるので、実体はここで揃える
-#include "../RenderGraph/RenderGraph.h"
-#include "../RenderingPipelineAsset/RenderingPipelineAsset.h"
-#include "../RenderingPipelineMetaRegistry.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPipelineAsset/RenderingPipelineAsset.h"
+#include "Engine/Graphics/RenderingPipeline/PassMetaRegistry/PassMetaRegistry.h"
 
 namespace Engine::Graphics::Pipeline
 {

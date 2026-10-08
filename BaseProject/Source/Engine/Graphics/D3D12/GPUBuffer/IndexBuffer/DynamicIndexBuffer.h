@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../DynamicBuffer/DynamicBuffer.h"
+#include "Engine/Graphics/D3D12/GPUBuffer/DynamicBuffer/DynamicBuffer.h"
 
 namespace Engine::Graphics::D3D12
 {

@@ -1,4 +1,4 @@
-﻿#include "BloomExtractPass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Bloom/BloomExtractPass/BloomExtractPass.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 

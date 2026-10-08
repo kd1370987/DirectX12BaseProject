@@ -1,6 +1,23 @@
 ﻿#pragma once
+#include "Engine/Graphics/D3D12/D3DObject/RootSignature/RootSignature.h"
+
 namespace Engine::Graphics::D3D12
 {
+	// ルートレンジ用中間構造体
+	struct RootRangeInit
+	{
+		ERangeType type;				// レンジタイプ
+		UINT shaderRegisterIndex;	// ルート定数などを使用する際のシェーダーインデックス
+	};
+
+	// ルートパラメター用中間構造体
+	struct RootParamInit
+	{
+		ERootParameterType paramType;				// パラメーター
+		std::vector<RootRangeInit> rangeVec = {};	// レンジタイプ・インデックス
+		UINT shaderRegisterIndex;					// ルート定数などを使用する際のシェーダーインデックス
+	};
+
 	// ルートシグネチャ作成構造体
 	struct RootSignatureDesc
 	{

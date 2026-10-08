@@ -2,12 +2,6 @@
 
 namespace Engine::Graphics::Raytracing
 {
-	// レイトレワールドに載せられるインスタンス数の上限。
-	// TLAS・インスタンス/マテリアルのバッファ・シェーダーテーブルの大きさはすべてこれで決まる。
-	// どれか1つだけ違う数にすると、多いほうのデータが少ないほうのバッファをはみ出すので、
-	// 数を直接書かず必ずこれを使うこと
-	inline constexpr UINT MAX_INSTANCE_NUM = 1000;
-
 	// レイ用シェーダーのカテゴリ
 	enum class EShaderCategory
 	{

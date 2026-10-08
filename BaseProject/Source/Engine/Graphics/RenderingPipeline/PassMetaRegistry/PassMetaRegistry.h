@@ -4,7 +4,7 @@
 
 // テンプレートの登録関数がパスの実体を1つ作って中身を読むので、
 // 前方宣言では足りない
-#include "Core/Pass/Pass.h"
+#include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
 
 namespace Engine::Graphics::Pipeline
 {

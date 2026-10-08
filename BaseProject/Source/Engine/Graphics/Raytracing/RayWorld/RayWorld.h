@@ -1,6 +1,7 @@
 ﻿#pragma once
+#include "Engine/Graphics/Raytracing/DynamicRaytracingData.h"
+#include "Engine/Graphics/Raytracing/RayWorld/RayInstance.h"
 
-#include "../Common/RaytracingInstance.h"
 
 namespace Engine
 {

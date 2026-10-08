@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../StaticBuffer/StaticBuffer.h"
+#include "Engine/Graphics/D3D12/GPUBuffer/StaticBuffer/StaticBuffer.h"
 
 namespace Engine::Graphics::D3D12
 {

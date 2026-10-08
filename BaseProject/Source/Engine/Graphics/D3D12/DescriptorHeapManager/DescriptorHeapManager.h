@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Allocator/HeapAllocator.h"
+#include "Engine/Graphics/D3D12/DescriptorHeapManager/Allocator/HeapAllocator.h"
 
 namespace Engine::Graphics::D3D12
 {

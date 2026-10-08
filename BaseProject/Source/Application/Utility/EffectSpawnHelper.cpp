@@ -5,10 +5,10 @@
 #include "Engine/ECS/World/World.h"
 
 #include "../../Engine/MainEngine.h"
-#include "../../Engine/Graphics/GraphicsEngine.h"
-#include "../../Engine/Graphics/Particle/ParticleBufferManager.h"
-#include "../../Engine/Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
-#include "../../Engine/Graphics/LightManager/LightManager.h"
+#include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Graphics/Particle/ParticleBufferManager.h"
+#include "Engine/Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
+#include "Engine/Graphics/LightManager/LightManager.h"
 #include "../../Engine/Effect/EffectInstance.h"
 
 

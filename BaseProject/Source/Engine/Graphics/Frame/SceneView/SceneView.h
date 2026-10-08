@@ -1,5 +1,10 @@
 ﻿#pragma once
-#include "../../CBData.h"
+#include "Engine/Graphics/Frame/SceneView/AmbientData.h"
+#include "Engine/Graphics/Frame/SceneView/CameraData.h"
+#include "Engine/Graphics/Frame/SceneView/CameraEffectData.h"
+#include "Engine/Graphics/Frame/SceneView/GroundImpulse.h"
+#include "Engine/Graphics/Frame/SceneView/SceneFogData.h"
+#include "Engine/Graphics/Frame/SceneView/SkyData.h"
 
 namespace Engine::Resource
 {

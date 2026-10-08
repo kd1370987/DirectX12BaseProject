@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../MegaBuffer.h"
+#include "Engine/Graphics/D3D12/GPUBuffer/MegaBuffer/MegaBuffer.h"
 
 namespace Engine::Graphics::D3D12
 {

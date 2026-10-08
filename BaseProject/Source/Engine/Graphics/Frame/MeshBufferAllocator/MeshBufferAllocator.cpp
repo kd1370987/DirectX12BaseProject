@@ -1,6 +1,7 @@
-﻿#include "MeshBufferAllocator.h"
+﻿#include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 
-#include "../../Device/FrameManager/FrameManager.h"
+#include "Engine/Graphics/Device/FrameManager/FrameManager.h"
+#include "Engine/Graphics/Frame/DrawList/MeshDrawData.h"
 
 namespace Engine::Graphics
 {

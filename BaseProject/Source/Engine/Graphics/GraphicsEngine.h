@@ -1,14 +1,14 @@
 ﻿#pragma once
-#include "CBData.h"
-#include "LightManager/LightManager.h"
-#include "Frame/DrawList/DrawList.h"
+#include "Engine/Graphics/LightManager/LightManager.h"
+#include "Engine/Graphics/Frame/DrawList/DrawList.h"
 
 // 仕事ごとに分けた持ち物。呼び出し側は GraphicsEngine の Ref～() から引いて使うので、
 // このヘッダー1つで引いた先まで使えるようにしておく
-#include "Device/RenderDevice/RenderDevice.h"
-#include "Frame/SceneView/SceneView.h"
-#include "Frame/DrawSubmitter/DrawSubmitter.h"
-#include "RenderingPipeline/CameraPipelineManager/CameraPipelineManager.h"
+#include "Engine/Graphics/Device/RenderDevice.h"
+#include "Engine/Graphics/Frame/SceneView/SceneView.h"
+#include "Engine/Graphics/Frame/DrawSubmitter/DrawSubmitter.h"
+#include "Engine/Graphics/RenderingPipeline/CameraPipelineManager/CameraPipelineManager.h"
+#include "Engine/Graphics/Frame/SceneView/GroundImpulse.h"
 
 namespace Engine
 {

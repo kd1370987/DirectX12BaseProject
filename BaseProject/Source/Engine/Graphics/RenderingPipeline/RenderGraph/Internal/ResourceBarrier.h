@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../../Core/ResourceID.h"
+#include "Engine/Graphics/RenderingPipeline/Core/ResourceID.h"
 
 namespace Engine::Graphics::D3D12
 {

@@ -1,4 +1,4 @@
-﻿#include "DynamicIndexBuffer.h"
+﻿#include "Engine/Graphics/D3D12/GPUBuffer/IndexBuffer/DynamicIndexBuffer.h"
 
 namespace Engine::Graphics::D3D12
 {

@@ -1,4 +1,4 @@
-#include "ShadowMapPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/ShadowMapPass/ShadowMapPass.h"
 
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"

@@ -1,6 +1,6 @@
-#include "DebugDraw.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 
-#include "../../Option/OptionManager.h"
+#include "Engine/Option/OptionManager.h"
 
 namespace Engine::Graphics
 {

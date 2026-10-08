@@ -11,6 +11,7 @@
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
+#include "Engine/Graphics/Raytracing/DynamicRaytracingData.h"
 
 namespace App::System
 {

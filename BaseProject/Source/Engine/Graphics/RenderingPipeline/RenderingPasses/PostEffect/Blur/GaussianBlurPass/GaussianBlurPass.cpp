@@ -1,4 +1,4 @@
-﻿#include "GaussianBlurPass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Blur/GaussianBlurPass/GaussianBlurPass.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
@@ -6,6 +6,19 @@
 
 namespace Engine::Graphics::Pipeline
 {
+	namespace
+	{
+		// ガウシアンブラーパスの設定値
+		// 入力の解像度とボケ幅はパスごとに違うので、登録時に決めた値を毎フレーム送る。
+		// ※ HLSL 側(Asset/Shader/Common/RootParameters/GaussianBlurSetting.hlsli)と並びを合わせること
+		struct GaussianBlurCB
+		{
+			Math::Vector2 srcTexelSize;	// 入力テクスチャの1テクセルぶんのUV(= 1 / 入力解像度)
+			float sigma;					// ガウス分布の標準偏差(入力テクセル単位)
+			int   tapRadius;				// 片側のタップ数(0でブラーなし)
+		};
+	}
+
 	void GaussianBlurPass::SetupSlots()
 	{
 		// ルートパラメータ : 0=ブラー設定CB / 1=SRVテーブル / 2=UAV

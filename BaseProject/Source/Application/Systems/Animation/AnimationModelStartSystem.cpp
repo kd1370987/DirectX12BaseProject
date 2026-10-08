@@ -9,6 +9,7 @@
 #include "Application/Components/Render/DynamicRaytracingComponent.h"
 #include "Application/Components/Animation/NodePoseComponent.h"
 #include "Application/Components/Animation/SkeletonPoseComponent.h"
+#include "Engine/Graphics/Raytracing/DynamicRaytracingData.h"
 
 namespace App::System
 {

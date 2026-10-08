@@ -9,7 +9,7 @@
 #include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
 #include "Engine/Graphics/RenderingPipeline/Internal/Connection.h"
 #include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
-#include "Engine/Graphics/RenderingPipeline/RenderingPipelineMetaRegistry.h"
+#include "Engine/Graphics/RenderingPipeline/PassMetaRegistry/PassMetaRegistry.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPipelineAsset/RenderingPipelineAsset.h"
 #include "Engine/Graphics/RenderingPipeline/StandardPipeline/StandardPipeline.h"
 

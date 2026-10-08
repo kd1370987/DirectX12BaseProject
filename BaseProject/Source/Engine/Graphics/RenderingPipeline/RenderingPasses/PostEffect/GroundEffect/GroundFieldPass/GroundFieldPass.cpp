@@ -1,11 +1,26 @@
-﻿#include "GroundFieldPass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/GroundEffect/GroundFieldPass/GroundFieldPass.h"
 
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/Frame/SceneView/CameraData.h"
 
 namespace Engine::Graphics::Pipeline
 {
+	namespace
+	{
+		// グラウンドフィールドの定数
+		// StructuredBuffer は要素数を持たないので、衝撃の数もここで渡す
+		// ※ HLSL 側(Asset/Shader/Common/RootParameters/GroundFieldData.hlsli)と並びを合わせること
+		struct GroundFieldCB
+		{
+			float time;				// パスが回り始めてからの経過時間(秒)
+			float deltaTime;		// 前フレームからの経過時間(秒)
+			uint32_t impulseCount;	// 今フレームの衝撃の数
+			float pad0;
+		};
+	}
+
 	void GroundFieldPass::SetupSlots()
 	{
 		// グラウンドフィールド。カメラを中心にした GROUND_FIELD_WORLD_SIZE (m) 四方を真上から並べたもの。

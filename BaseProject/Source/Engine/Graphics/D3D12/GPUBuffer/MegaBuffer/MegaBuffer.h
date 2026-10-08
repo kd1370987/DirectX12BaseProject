@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../GPUBuffer.h"
+#include "Engine/Graphics/D3D12/GPUBuffer/GPUBuffer.h"
 
 namespace Engine::Graphics::D3D12
 {

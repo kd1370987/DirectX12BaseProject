@@ -1,9 +1,12 @@
-﻿#include "SceneVolumetricFogPass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Fog/SceneVolumetricFogPass/SceneVolumetricFogPass.h"
 
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Graphics/Frame/SceneView/AmbientData.h"
+#include "Engine/Graphics/Frame/SceneView/CameraData.h"
+#include "Engine/Graphics/Frame/SceneView/SceneFogData.h"
 
 namespace Engine::Graphics::Pipeline
 {

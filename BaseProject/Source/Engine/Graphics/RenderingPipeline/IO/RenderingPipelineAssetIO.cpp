@@ -1,9 +1,9 @@
-﻿#include "RenderingPipelineAssetIO.h"
+﻿#include "Engine/Graphics/RenderingPipeline/IO/RenderingPipelineAssetIO.h"
 
-#include "../RenderingPipelineMetaRegistry.h"
-#include "../StandardPipeline/StandardPipeline.h"
-#include "../../../Resource/Manager/AssetDatabase/AssetDatabase.h"
-#include "../../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Graphics/RenderingPipeline/PassMetaRegistry/PassMetaRegistry.h"
+#include "Engine/Graphics/RenderingPipeline/StandardPipeline/StandardPipeline.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Graphics::Pipeline
 {

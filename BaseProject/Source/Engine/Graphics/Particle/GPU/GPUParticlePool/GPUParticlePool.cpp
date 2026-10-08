@@ -1,10 +1,10 @@
-﻿#include "GPUParticlePool.h"
+﻿#include "Engine/Graphics/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
 
 #include <numeric>	// std::iota
 
-#include "../../../../MainEngine.h"
+#include "Engine/MainEngine.h"
 
-#include "../../../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 namespace Engine::Graphics::Particle
 {

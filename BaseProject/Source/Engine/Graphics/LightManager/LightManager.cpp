@@ -1,4 +1,4 @@
-﻿#include "LightManager.h"
+﻿#include "Engine/Graphics/LightManager/LightManager.h"
 
 namespace Engine::Graphics
 {

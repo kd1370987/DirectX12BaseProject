@@ -305,7 +305,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Frame\DrawSubmitter\DrawSubmitter.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Frame\SceneView\SceneView.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\Device\RenderDevice\RenderDevice.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Device\RenderDevice.cpp" />
     <ClCompile Include="..\Library\Include\imgui-docking\imgui.cpp">
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
@@ -371,7 +371,6 @@
       <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Effect\BeamRenderer\BeamRenderer.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ZPrePass\GroundDepth.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.cpp" />
     <ClCompile Include="Source\Application\Utility\EffectPrefabSpawnHelper.cpp">
@@ -1079,10 +1078,10 @@
     <ClCompile Include="Source\Engine\Graphics\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Device\CommandContext\CommandContext.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\Device\CommandPool\CommandPool.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Device\CommandContext\CommandPool\CommandPool.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\GPUResource\GPUResource.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\PipeLineState\PipelineState.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\PipelineState\PipelineState.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\RootSignature\RootSignature.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\SamplerAllocator\SamplerAllocator.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\DescriptorHeapManager.cpp" />
@@ -1357,7 +1356,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\PassMetaRegistry\PassMetaRegistry.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass\TestGBufferPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\PipelineState\ShadingPipelineBuilder\ShadingPipelineBuilder.cpp" />
     <ClCompile Include="Source\Engine\Input\InputCollector\InputCollector.cpp" />
@@ -1377,7 +1376,7 @@
     <ClCompile Include="Source\Engine\JobSystem\Profile\ThreadProfiler.cpp" />
     <ClCompile Include="Source\Engine\MainEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Frame\RenderContext\RenderContext.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\Device\BackBuffer\BackBuffer.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\BackBuffer\BackBuffer.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Frame\DrawList\DrawList.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Device\GraphicsDevice\GraphicsDevice.cpp" />
     <ClCompile Include="Source\Engine\Option\GraphicsOptions\RenderingOption.cpp" />
@@ -1403,10 +1402,10 @@
     <ClCompile Include="Source\Engine\Physics\PhysicsWorld.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Raytracing\BLAS\BLAS.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Raytracing\RayPSO\RayPSO.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\Raytracing\RaytracingEngine\RaytracingEngine.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\Raytracing\RaytracingWorld\RaytracingWorld.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\RayEngine.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\RayWorld\RayWorld.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Raytracing\ShaderTable\ShaderTable.cpp" />
-    <ClCompile Include="Source\Engine\Graphics\Raytracing\TLAS\TLAS.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\RayWorld\TLAS\TLAS.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Animation\Animation.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Animation\IO\AnimationIO.cpp" />
     <ClCompile Include="Source\Engine\Resource\Data\Material\IO\MaterialIO.cpp" />
@@ -1637,9 +1636,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\CameraPipelineManager\CameraPipelineManager.h" />
     <ClInclude Include="Source\Engine\Graphics\Frame\DrawSubmitter\DrawSubmitter.h" />
     <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\SceneView.h" />
-    <ClInclude Include="Source\Engine\Graphics\Device\RenderDevice\RenderDevice.h" />
+    <ClInclude Include="Source\Engine\Graphics\Device\RenderDevice.h" />
     <ClInclude Include="..\Library\Include\imgui-docking\imconfig.h" />
-    <ClInclude Include="Source\Engine\Graphics\Effect\BeamRenderer\BeamRenderer.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ZPrePass\GroundDepth.h" />
     <ClInclude Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.h" />
     <ClInclude Include="Source\Application\Components\Effect\DebrisEmitterComponent.h" />
@@ -1897,7 +1895,6 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Diagnostics\AliasingReport.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\BlendPass\BlendPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Utility\MonitorPass\MonitorPass.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\PipelineEnums.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\ResourceID.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\Slot.h" />
@@ -1948,7 +1945,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\ResourceRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.h" />
-    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\PassMetaRegistry\PassMetaRegistry.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass\TestGBufferPass.h" />
     <ClInclude Include="Source\Engine\Physics\Core\BodyID.h" />
     <ClInclude Include="Source\Engine\Physics\Core\ColliderShapeType.h" />
@@ -1977,12 +1974,11 @@
     <ClInclude Include="Source\Engine\Graphics\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.h" />
     <ClInclude Include="Source\Engine\Graphics\Device\CommandContext\CommandContext.h" />
-    <ClInclude Include="Source\Engine\Graphics\Device\CommandPool\CommandPool.h" />
-    <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Common.h" />
+    <ClInclude Include="Source\Engine\Graphics\Device\CommandContext\CommandPool\CommandPool.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Helper.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\GPUResource\GPUResource.h" />
-    <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\PipeLineState\PipelineState.h" />
+    <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\PipelineState\PipelineState.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\RootSignature\RootSignature.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Types.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\DescriptorHeapManager\Allocator\HeapAllocator.h" />
@@ -2074,7 +2070,6 @@
     <ClInclude Include="Source\Application\ECS\World\APPWorld.h" />
     <ClInclude Include="Source\Application\ECS\World\WorldTypeRegister.h" />
     <ClInclude Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.h" />
-    <ClInclude Include="Source\Engine\Graphics\CBData.h" />
     <ClInclude Include="Source\Engine\Graphics\GraphicsEngine.h" />
     <ClInclude Include="Source\Engine\Graphics\LightManager\Core\Light.h" />
     <ClInclude Include="Source\Engine\Graphics\LightManager\Core\Shadow.h" />
@@ -2104,9 +2099,9 @@
     <ClInclude Include="Source\Engine\JobSystem\Profile\ThreadProfiler.h" />
     <ClInclude Include="Source\Engine\MainEngine.h" />
     <ClInclude Include="Source\Engine\EngineCommon.h" />
-    <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h" />
+    <ClInclude Include="Source\Engine\Graphics\GraphicsCommon.h" />
     <ClInclude Include="Source\Engine\Graphics\Frame\RenderContext\RenderContext.h" />
-    <ClInclude Include="Source\Engine\Graphics\Device\BackBuffer\BackBuffer.h" />
+    <ClInclude Include="Source\Engine\Graphics\BackBuffer\BackBuffer.h" />
     <ClInclude Include="Source\Engine\Graphics\Frame\DrawList\DrawCommand.h" />
     <ClInclude Include="Source\Engine\Graphics\Frame\DrawList\DrawList.h" />
     <ClInclude Include="Source\Engine\Graphics\Device\GraphicsDevice\GraphicsDevice.h" />
@@ -2132,14 +2127,25 @@
     <ClInclude Include="Source\Engine\Graphics\Particle\ParticleBufferManager.h" />
     <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h" />
     <ClInclude Include="Source\Engine\Graphics\Raytracing\BLAS\BLAS.h" />
-    <ClInclude Include="Source\Engine\Graphics\Raytracing\Common\Common.h" />
-    <ClInclude Include="Source\Engine\Graphics\Raytracing\Common\RaytracingInstance.h" />
     <ClInclude Include="Source\Engine\Graphics\Raytracing\RayPSO\BuildSubObjectHelper.h" />
     <ClInclude Include="Source\Engine\Graphics\Raytracing\RayPSO\RayPSO.h" />
-    <ClInclude Include="Source\Engine\Graphics\Raytracing\RaytracingEngine\RaytracingEngine.h" />
-    <ClInclude Include="Source\Engine\Graphics\Raytracing\RaytracingWorld\RaytracingWorld.h" />
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayEngine.h" />
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayWorld\RayWorld.h" />
     <ClInclude Include="Source\Engine\Graphics\Raytracing\ShaderTable\ShaderTable.h" />
-    <ClInclude Include="Source\Engine\Graphics\Raytracing\TLAS\TLAS.h" />
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayWorld\TLAS\TLAS.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\CameraData.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\AmbientData.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\SkyData.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\CameraEffectData.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\GroundImpulse.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\SceneFogData.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\DrawList\UIData.h" />
+    <ClInclude Include="Source\Engine\Graphics\Frame\DrawList\MeshDrawData.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Bloom\BloomOptionData.h" />
+    <ClInclude Include="Source\Engine\Graphics\D3D12\InputLayout.h" />
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayPSO\RayShaderData.h" />
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayWorld\RayInstance.h" />
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\DynamicRaytracingData.h" />
     <ClInclude Include="Source\Engine\Resource\Common\Common.h" />
     <ClInclude Include="Source\Engine\Resource\Common\ResourceRef.h" />
     <ClInclude Include="Source\Engine\Resource\Common\ResourceBuildContext.h" />

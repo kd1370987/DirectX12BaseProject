@@ -1,9 +1,9 @@
-﻿#include "RenderingPipelineAsset.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPipelineAsset/RenderingPipelineAsset.h"
 
-#include "../Core/Pass/Pass.h"
-#include "../Internal/Connection.h"
-#include "../RenderGraph/RenderGraph.h"
-#include "../RenderingPipelineMetaRegistry.h"
+#include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
+#include "Engine/Graphics/RenderingPipeline/Internal/Connection.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
+#include "Engine/Graphics/RenderingPipeline/PassMetaRegistry/PassMetaRegistry.h"
 
 namespace Engine::Graphics::Pipeline
 {

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
+#include "Engine/Graphics/Frame/SceneView/CameraEffectData.h"
 
 namespace Engine::Graphics::Pipeline
 {

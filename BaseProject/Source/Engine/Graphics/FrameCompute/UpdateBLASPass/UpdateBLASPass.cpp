@@ -1,4 +1,4 @@
-﻿#include "UpdateBLASPass.h"
+﻿#include "Engine/Graphics/FrameCompute/UpdateBLASPass/UpdateBLASPass.h"
 
 #include "Engine/Graphics/GraphicsEngine.h"
 
@@ -10,6 +10,7 @@
 
 #include "Engine/ECS/World/World.h"
 #include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
+#include "Engine/Graphics/Raytracing/DynamicRaytracingData.h"
 
 namespace Engine::Graphics
 {

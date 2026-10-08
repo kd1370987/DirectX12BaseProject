@@ -1,13 +1,13 @@
-﻿#include "RaytracingWorld.h"
+﻿#include "Engine/Graphics/Raytracing/RayWorld/RayWorld.h"
 
-#include "../TLAS/TLAS.h"
+#include "Engine/Graphics/Raytracing/RayWorld/TLAS/TLAS.h"
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 
-#include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "../../../ECS/World/World.h"
+#include "Engine/ECS/World/World.h"
 
 namespace Engine::Graphics::Raytracing
 {

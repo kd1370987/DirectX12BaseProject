@@ -1,6 +1,8 @@
 ﻿#pragma once
-#include "../../CBData.h"
 #include "Engine/Graphics/D3D12/CBAllocator/CBAllocator.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
+#include "Engine/Graphics/Frame/DrawList/MeshDrawData.h"
+#include "Engine/Graphics/Frame/DrawList/UIData.h"
 
 namespace Engine::Resource
 {

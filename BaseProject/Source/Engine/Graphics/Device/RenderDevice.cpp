@@ -1,10 +1,10 @@
-﻿#include "RenderDevice.h"
+﻿#include "Engine/Graphics/Device/RenderDevice.h"
 
-#include "../GraphicsDevice/GraphicsDevice.h"
-#include "../CommandContext/CommandContext.h"
-#include "../CommandPool/CommandPool.h"
-#include "../FrameManager/FrameManager.h"
-#include "../AsyncGPUManager/AsyncGPUManager.h"
+#include "Engine/Graphics/Device/GraphicsDevice/GraphicsDevice.h"
+#include "Engine/Graphics/Device/CommandContext/CommandContext.h"
+#include "Engine/Graphics/Device/CommandContext/CommandPool/CommandPool.h"
+#include "Engine/Graphics/Device/FrameManager/FrameManager.h"
+#include "Engine/Graphics/Device/AsyncGPUManager/AsyncGPUManager.h"
 
 namespace Engine::Graphics
 {

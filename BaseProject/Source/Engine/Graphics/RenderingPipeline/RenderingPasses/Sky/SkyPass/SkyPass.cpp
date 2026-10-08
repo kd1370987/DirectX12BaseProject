@@ -1,8 +1,10 @@
-﻿#include "SkyPass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Sky/SkyPass/SkyPass.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Graphics/Frame/SceneView/CameraData.h"
+#include "Engine/Graphics/Frame/SceneView/SkyData.h"
 
 namespace Engine::Graphics::Pipeline
 {

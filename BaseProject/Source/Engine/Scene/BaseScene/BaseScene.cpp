@@ -13,9 +13,9 @@
 #include "../../Option/OptionManager.h"
 #include "../../Physics/PhysicsWorld.h"
 #include "../../Input/InputManager/InputManager.h"
-#include "../../Graphics/GraphicsEngine.h"
-#include "../../Graphics/DebugDraw/DebugDraw.h"
-#include "../../Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
+#include "Engine/Graphics/Raytracing/RayEngine.h"
 #include "../../Audio/AudioManager.h"
 #include "../../GameObject/GameObjectManager/GameObjectManager.h"
 

@@ -1,8 +1,10 @@
 ﻿#pragma once
 
-#include "Engine/Graphics/CBData.h"
 #include "Engine/Graphics/LightManager/Core/Light.h"	// 平行光の実体はここの型
 #include "Engine/Graphics/LightManager/Core/Shadow.h"	// 平行光の影の設定
+#include "Engine/Graphics/Frame/SceneView/AmbientData.h"
+#include "Engine/Graphics/Frame/SceneView/SceneFogData.h"
+#include "Engine/Graphics/Frame/SceneView/SkyData.h"
 
 namespace Engine
 {

@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "Engine/Graphics/Raytracing/RayPSO/RayShaderData.h"
+#include "Engine/Graphics/Raytracing/RayWorld/RayInstance.h"
 
 namespace Engine::Graphics
 {

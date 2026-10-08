@@ -1,8 +1,10 @@
-﻿#include "DeferredLightingPass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/DeferredLightingPass/DeferredLightingPass.h"
 
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/Graphics/Frame/SceneView/AmbientData.h"
+#include "Engine/Graphics/Frame/SceneView/CameraData.h"
 
 namespace Engine::Graphics::Pipeline
 {

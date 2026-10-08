@@ -151,7 +151,7 @@ Utility 系の Namespace は、所属する機能・役割を示す Namespace �
 
 | ディレクトリ | Namespace |
 | --- | --- |
-| `Engine/Graphics` 直下・`Device`・`Frame`・`FrameCompute`・`LightManager`・`PipelineState`・`DebugDraw`・`Effect` | `Engine::Graphics` |
+| `Engine/Graphics` 直下・`Device`・`Frame`・`FrameCompute`・`LightManager`・`PipelineState`・`DebugDraw`・`BackBuffer` | `Engine::Graphics` |
 | `Engine/Graphics/D3D12` | `Engine::Graphics::D3D12` |
 | `Engine/Graphics/Raytracing` | `Engine::Graphics::Raytracing` |
 | `Engine/Graphics/Particle` | `Engine::Graphics::Particle` |

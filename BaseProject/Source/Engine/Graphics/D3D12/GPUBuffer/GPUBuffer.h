@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../D3DObject/GPUResource/GPUResource.h"
+#include "Engine/Graphics/D3D12/D3DObject/GPUResource/GPUResource.h"
 
 namespace Engine::Graphics::D3D12
 {

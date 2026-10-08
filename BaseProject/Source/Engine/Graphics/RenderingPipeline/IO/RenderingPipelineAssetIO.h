@@ -12,7 +12,7 @@
 // レジストリは ResourceBuildContext 経由で渡ってくる(GraphicsEngine が持ち主)。
 //
 //==========================================================================================
-#include "../RenderingPipelineAsset/RenderingPipelineAsset.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPipelineAsset/RenderingPipelineAsset.h"
 
 namespace Engine::Resource
 {

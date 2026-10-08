@@ -1,4 +1,4 @@
-﻿#include "StaticByteAddressBuffer.h"
+﻿#include "Engine/Graphics/D3D12/GPUBuffer/ByteAddressBuffer/StaticByteAddressBuffer.h"
 namespace Engine::Graphics::D3D12
 {
 	bool StaticByteAddressBuffer::Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_elementNum, size_t a_strideSize, const void* a_pData)

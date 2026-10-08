@@ -1,4 +1,4 @@
-﻿#include "GISpatialDenoisePass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Denoise/GI/GISpatialDenoisePass/GISpatialDenoisePass.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicsEngine.h"

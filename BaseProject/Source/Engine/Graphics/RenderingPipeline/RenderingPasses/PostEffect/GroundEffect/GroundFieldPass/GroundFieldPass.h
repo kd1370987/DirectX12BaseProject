@@ -3,6 +3,12 @@
 
 namespace Engine::Graphics::Pipeline
 {
+	// グラウンドフィールドのテクスチャ
+	// カメラを中心にした GROUND_FIELD_WORLD_SIZE (m) 四方を、真上から GROUND_FIELD_RESOLUTION 四方のテクセルで並べる。
+	// ※ HLSL 側(GroundFieldData.hlsli の GROUND_FIELD_WORLD_SIZE)と合わせること
+	inline constexpr float GROUND_FIELD_WORLD_SIZE = 256.0f;
+	inline constexpr uint32_t GROUND_FIELD_RESOLUTION = 512;
+
 	//======================================================================================
 	// GroundFieldPass
 	//

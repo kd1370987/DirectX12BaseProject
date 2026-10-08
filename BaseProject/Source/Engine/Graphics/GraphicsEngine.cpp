@@ -1,35 +1,35 @@
-﻿#include "GraphicsEngine.h"
+﻿#include "Engine/Graphics/GraphicsEngine.h"
 
-#include "../MainEngine.h"
+#include "Engine/MainEngine.h"
 
 // D3D関係
 #include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 // グラフィックスエンジンの持ち物(土台)
-#include "Device/RenderDevice/RenderDevice.h"
-#include "Device/GraphicsDevice/GraphicsDevice.h"
-#include "Device/BackBuffer/BackBuffer.h"
-#include "PipelineState/PipelineStateManager/PipelineStateManager.h"
+#include "Engine/Graphics/Device/RenderDevice.h"
+#include "Engine/Graphics/Device/GraphicsDevice/GraphicsDevice.h"
+#include "Engine/Graphics/BackBuffer/BackBuffer.h"
+#include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
 
 // グラフィックス関係
-#include "Frame/RenderContext/RenderContext.h"
-#include "../Resource/Manager/ResourceManager/ResourceManager.h"
-#include "Particle/ParticleBufferManager.h"
-#include "Raytracing/RaytracingEngine/RaytracingEngine.h"
-#include "Frame/MeshBufferAllocator/MeshBufferAllocator.h"
-#include "../Resource/Data/QuadPolygon/QuadPolygon.h"
-#include "DebugDraw/DebugDraw.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Graphics/Particle/ParticleBufferManager.h"
+#include "Engine/Graphics/Raytracing/RayEngine.h"
+#include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
+#include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"
+#include "Engine/Graphics/DebugDraw/DebugDraw.h"
 
 // スレッドの稼働時間の計測(Present の待ちを外す)
 #include "Engine/JobSystem/Profile/ThreadProfiler.h"
 
 // レンダリングパイプライン(パスの型情報)
-#include "RenderingPipeline/RenderingPipelineMetaRegistry.h"
+#include "Engine/Graphics/RenderingPipeline/PassMetaRegistry/PassMetaRegistry.h"
 
 // カメラに依存しない、フレームに1回のGPU処理
 #include "Engine/Graphics/FrameCompute/SkinningCompute/SkinningCompute.h"
-#include "FrameCompute/UpdateBLASPass/UpdateBLASPass.h"
-#include "FrameCompute/ParticleSimulation/ParticleSimulation.h"
+#include "Engine/Graphics/FrameCompute/UpdateBLASPass/UpdateBLASPass.h"
+#include "Engine/Graphics/FrameCompute/ParticleSimulation/ParticleSimulation.h"
 
 
 namespace Engine::Graphics

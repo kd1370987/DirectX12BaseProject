@@ -1,8 +1,8 @@
-﻿#include "RenderGraphCompiler.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraphCompiler/RenderGraphCompiler.h"
 
-#include "../RenderGraph.h"
-#include "../../Core/Pass/Pass.h"
-#include "../Resource/ResourceRegistry.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
+#include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/ResourceRegistry.h"
 
 namespace Engine::Graphics::Pipeline
 {

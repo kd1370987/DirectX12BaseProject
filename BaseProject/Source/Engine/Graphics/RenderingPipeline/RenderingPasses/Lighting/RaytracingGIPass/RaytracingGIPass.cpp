@@ -1,4 +1,4 @@
-﻿#include "RaytracingGIPass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/RaytracingGIPass/RaytracingGIPass.h"
 
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
@@ -7,7 +7,10 @@
 #include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
 
 #include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
-#include "Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "Engine/Graphics/Raytracing/RayEngine.h"
+#include "Engine/Graphics/D3D12/D3DObject/RootSignature/RootSignature.h"
+#include "Engine/Graphics/Raytracing/RayPSO/RayShaderData.h"
+#include "Engine/Graphics/Raytracing/RayWorld/RayInstance.h"
 
 namespace Engine::Graphics::Pipeline
 {

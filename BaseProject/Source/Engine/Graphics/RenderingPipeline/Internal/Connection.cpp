@@ -1,6 +1,6 @@
-﻿#include "Connection.h"
+﻿#include "Engine/Graphics/RenderingPipeline/Internal/Connection.h"
 
-#include "../../../Persistence/Archive/Archive.h"
+#include "Engine/Persistence/Archive/Archive.h"
 
 namespace Engine::Graphics::Pipeline
 {

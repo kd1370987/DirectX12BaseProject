@@ -1,4 +1,4 @@
-﻿#include "BloomCompositePass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Bloom/BloomCompositePass/BloomCompositePass.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 

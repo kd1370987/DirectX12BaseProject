@@ -1,7 +1,9 @@
-﻿#include "CoCPass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/DoF/CoCPass/CoCPass.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Graphics/Frame/SceneView/CameraData.h"
+#include "Engine/Graphics/Frame/SceneView/SkyData.h"
 
 namespace Engine::Graphics::Pipeline
 {

@@ -1,6 +1,6 @@
-﻿#include "TLAS.h"
+﻿#include "Engine/Graphics/Raytracing/RayWorld/TLAS/TLAS.h"
 
-#include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 // CD3DX12_* のヘルパーはここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため

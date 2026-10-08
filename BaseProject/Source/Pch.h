@@ -69,7 +69,7 @@ template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 // CD3DX12_* のヘルパー(d3dx12.h)は使う側で読む。
 // ヘッダーで必要なのはパイプラインステートストリームだけなので、
-// D3D12Common.h / PipelineStateManager.h は d3dx12_pipeline_state_stream.h を読む。
+// PipelineStateManager.h は d3dx12_pipeline_state_stream.h を読む。
 // DXGIのデバッグ機能(dxgidebug.h)は MainEngine.cpp だけ
 
 //---------------------------------------------------------

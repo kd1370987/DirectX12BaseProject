@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../PSOKey.h"
+#include "Engine/Graphics/PipelineState/PSOKey.h"
 
 namespace Engine::Graphics
 {

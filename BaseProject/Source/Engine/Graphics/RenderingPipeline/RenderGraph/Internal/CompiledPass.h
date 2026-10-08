@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "ResourceBarrier.h"
-#include "AliasingBarrier.h"
-#include "../../Internal/PassBind.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Internal/ResourceBarrier.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Internal/AliasingBarrier.h"
+#include "Engine/Graphics/RenderingPipeline/Internal/PassBind.h"
 
 namespace Engine::Graphics::Pipeline
 {

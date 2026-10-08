@@ -2,6 +2,14 @@
 
 namespace Engine::Graphics::Raytracing
 {
+	class BLAS;
+
+	// レイトレワールドに載せられるインスタンス数の上限。
+	// TLAS・インスタンス/マテリアルのバッファ・シェーダーテーブルの大きさはすべてこれで決まる。
+	// どれか1つだけ違う数にすると、多いほうのデータが少ないほうのバッファをはみ出すので、
+	// 数を直接書かず必ずこれを使うこと
+	inline constexpr UINT MAX_INSTANCE_NUM = 1000;
+
 	// ===================================================================================
 	// GPU(HLSL) 転送用データ構造
 	// ※ StructuredBuffer として HLSL に送るため、16バイト(float4)アライメントを厳密に管理
@@ -88,48 +96,5 @@ namespace Engine::Graphics::Raytracing
 
 		// --- 描画メタデータ ---
 		std::vector<Material> submeshMaterials;         // サブメッシュごとのマテリアル情報
-	};
-
-	// １メッシュにつき一つ
-	struct SkinningMeshData
-	{
-		// コンピュートシェーダーで書き込む変形後のバッファ
-		RangeHandle<Resource::MeshVertexFloat> animatedVertexHandle = {};
-
-		// インスタンス専用のBLAS
-		Graphics::Raytracing::BLAS instanceBLAS;
-
-		// どのメッシュの参照先か
-		Handle<Resource::Mesh> meshHandle;
-	};
-
-	/// <summary>
-	/// レイアニメーション用構造体
-	/// </summary>
-	struct DynamicRaytracingData
-	{
-		// モデルのスキニングするメッシュすべて
-		std::vector<SkinningMeshData> meshDataVec;
-	};
-
-	struct DynamicRaytracingInitRequest
-	{
-		Handle<Graphics::Animation::SkinningMeshData> skiningInstanceHandle = {};
-
-		// 初期化先のハンドル
-		Handle<DynamicRaytracingData> dynamicInstanceHandle;
-		// 初期化に必要な元モデルのハンドル
-		Engine::Handle<Engine::Resource::Model> modelHandle;
-	};
-
-	struct DynamicRaytracingRequest
-	{
-		Math::Matrix worldMat;				// ワールド行列
-		Math::Color colorScale;			// 色スケール
-		Math::Vector3 emissiveScale;		// エミッシブスケール
-		Math::Vector3 emissiveAdd;			// 自己発光(加算・1.0超え可)
-
-		Engine::Handle<DynamicRaytracingData> dynamicHandle = {};
-		Engine::Handle<Resource::NodePoseMatrix> nodePoseHandle = {};
 	};
 }

@@ -17,6 +17,7 @@
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Graphics/Frame/SceneView/CameraEffectData.h"
 
 namespace App::System
 {

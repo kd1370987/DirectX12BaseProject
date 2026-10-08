@@ -1,4 +1,4 @@
-﻿#include "KawaseBlurPass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/PostEffect/Bloom/KawaseBlurPass/KawaseBlurPass.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 

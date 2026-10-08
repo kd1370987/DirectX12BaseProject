@@ -1,10 +1,10 @@
-﻿#include "ParticleBufferManager.h"
+﻿#include "Engine/Graphics/Particle/ParticleBufferManager.h"
 
-#include "../../Resource/Manager/AssetDatabase/AssetDatabase.h"
-#include "../GraphicsEngine.h"
-#include "../../Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
+#include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
-#include "GPU/EmitterSlotPool/EmitterSlotPool.h"
+#include "Engine/Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
 
 #include "Engine/MainEngine.h"	// GPU が使い終わってからの解放(ReserveRelease)
 

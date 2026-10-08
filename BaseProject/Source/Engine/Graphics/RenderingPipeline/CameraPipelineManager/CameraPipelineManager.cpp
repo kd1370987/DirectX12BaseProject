@@ -1,16 +1,16 @@
-﻿#include "CameraPipelineManager.h"
+﻿#include "Engine/Graphics/RenderingPipeline/CameraPipelineManager/CameraPipelineManager.h"
 
-#include "../../GraphicsEngine.h"
-#include "../../Device/RenderDevice/RenderDevice.h"
-#include "../../Device/BackBuffer/BackBuffer.h"
-#include "../../Frame/RenderContext/RenderContext.h"
-#include "../../D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Graphics/Device/RenderDevice.h"
+#include "Engine/Graphics/BackBuffer/BackBuffer.h"
+#include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "../Core/Pass/Pass.h"
-#include "../RenderingPipelineAsset/RenderingPipelineAsset.h"
-#include "../RenderGraph/RenderGraph.h"
-#include "../RenderingPipelineMetaRegistry.h"
-#include "../GraphicsPipeline/GraphicsPipeline.h"
+#include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPipelineAsset/RenderingPipelineAsset.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
+#include "Engine/Graphics/RenderingPipeline/PassMetaRegistry/PassMetaRegistry.h"
+#include "Engine/Graphics/RenderingPipeline/GraphicsPipeline/GraphicsPipeline.h"
 
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 

@@ -1,6 +1,6 @@
-﻿#include "CommandContext.h"
+﻿#include "Engine/Graphics/Device/CommandContext/CommandContext.h"
 
-#include "../CommandPool/CommandPool.h"
+#include "Engine/Graphics/Device/CommandContext/CommandPool/CommandPool.h"
 
 namespace Engine::Graphics
 {

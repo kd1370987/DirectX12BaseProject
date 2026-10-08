@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "../../CBData.h"
-#include "../../GraphicCommon.h"
+#include "Engine/Graphics/GraphicsCommon.h"
+#include "Engine/Graphics/Frame/SceneView/CameraData.h"
 
 namespace Engine::ECS
 {

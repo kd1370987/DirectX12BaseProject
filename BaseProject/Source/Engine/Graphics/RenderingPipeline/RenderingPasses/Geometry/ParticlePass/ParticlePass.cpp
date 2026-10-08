@@ -1,4 +1,4 @@
-﻿#include "ParticlePass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Geometry/ParticlePass/ParticlePass.h"
 
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
@@ -7,6 +7,8 @@
 #include "Engine/Graphics/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
 #include "Engine/Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
+#include "Engine/Graphics/Frame/SceneView/CameraData.h"
+#include "Engine/Graphics/D3D12/InputLayout.h"
 
 namespace Engine::Graphics::Pipeline
 {

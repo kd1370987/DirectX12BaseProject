@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "../../CBData.h"
-#include "../../PipelineState/PSOKey.h"
+#include "Engine/Graphics/PipelineState/PSOKey.h"
+#include "Engine/Graphics/Frame/DrawList/MeshDrawData.h"
+#include "Engine/Graphics/Raytracing/DynamicRaytracingData.h"
 
 namespace Engine::ECS
 {

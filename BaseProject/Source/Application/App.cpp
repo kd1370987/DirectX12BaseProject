@@ -6,7 +6,7 @@
 #include "Engine/Input/InputManager/InputManager.h"
 #include "Game/GameManager/GameManager.h"
 
-#include "../Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "Engine/Graphics/Raytracing/RayEngine.h"
 
 #include "Engine/DevTool/IDevTool.h"
 namespace App

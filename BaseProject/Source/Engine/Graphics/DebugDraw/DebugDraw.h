@@ -2,6 +2,23 @@
 
 namespace Engine::Graphics
 {
+	// デバッグラインの形状
+	enum class EShapeType : UINT
+	{
+		Line,
+		Box,
+		Capsule,
+		Sphere
+	};
+
+	// デバッグライン用データ : 形状1つぶん。DebugLinePass がまとめて描く
+	struct DebugLineData
+	{
+		Math::Color		color;
+		Math::Matrix worldMat;
+		UINT shapeType;
+	};
+
 	/// <summary>
 	/// デバッグ用のワイヤー表示を積む場所
 	/// </summary>

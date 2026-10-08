@@ -1,19 +1,5 @@
 ﻿#pragma once
 
-namespace Engine::Graphics::D3D12
-{
-	// サンプラーのハンドル(Handle<SamplerTag>)を区別するための型
-	struct SamplerTag {};
-}
-
-// d3dx12.h のうち、ここで使うのはパイプラインステートストリームだけ。
-// 一式を読むとプリコンパイル済みヘッダー経由で全翻訳単位に広がるため分割ヘッダーで読む
-#pragma warning(push, 0)
-#include "d3dx12_pipeline_state_stream.h"
-#pragma warning(pop)
-
-#include "Engine/Graphics/D3D12/D3DObject/DescriptorHeap/DescriptorHeap.h"
-
 // インプットレイアウト
 namespace Engine::Graphics::D3D12::Input
 {
@@ -90,56 +76,5 @@ namespace Engine::Graphics::D3D12::Input
 	constexpr D3D12_INPUT_LAYOUT_DESC EMPTY_LAYOUT = {
 		.pInputElementDescs = nullptr,
 		.NumElements = 0
-	};
-}
-
-// ルートシグネチャ
-namespace Engine::Graphics::D3D12
-{
-	// ルートレンジ指定
-	enum class ERangeType
-	{
-		CBV,
-		SRV,
-		UAV,
-		Sampler,
-	};
-
-	// ルートパラメーター指定
-	enum class ERootParameterType
-	{
-		DescriptorTable,
-		RootCBV,
-		RootSRV,
-		Bindless
-	};
-
-	// ルートレンジ用中間構造体
-	struct RootRangeInit
-	{
-		ERangeType type;				// レンジタイプ
-		UINT shaderRegisterIndex;	// ルート定数などを使用する際のシェーダーインデックス
-	};
-
-	// ルートパラメター用中間構造体
-	struct RootParamInit
-	{
-		ERootParameterType paramType;				// パラメーター
-		std::vector<RootRangeInit> rangeVec = {};	// レンジタイプ・インデックス
-		UINT shaderRegisterIndex;					// ルート定数などを使用する際のシェーダーインデックス
-	};
-
-	// メッシュシェーダー用パイプラインステート作成用構造体
-	struct MeshShaderPipelineStateStream
-	{
-		CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE RootSignature;
-		CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY PrimitiveTopologyType;
-		CD3DX12_PIPELINE_STATE_STREAM_MS MS;
-		CD3DX12_PIPELINE_STATE_STREAM_PS PS;
-		CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC Blend;
-		CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER Rasterizer;
-		CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL DepthStencil;
-		CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS RTVFormats;
-		CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT DSVFormat;
 	};
 }

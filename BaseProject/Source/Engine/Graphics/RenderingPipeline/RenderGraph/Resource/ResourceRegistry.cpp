@@ -1,4 +1,4 @@
-﻿#include "ResourceRegistry.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/ResourceRegistry.h"
 namespace Engine::Graphics::Pipeline
 {
 	void ResourceRegistry::ImportResource(

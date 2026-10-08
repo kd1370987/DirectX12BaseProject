@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../../Graphics/Particle/Core/ParticleData.h"
+#include "Engine/Graphics/Particle/Core/ParticleData.h"
 
 namespace Engine::Resource
 {

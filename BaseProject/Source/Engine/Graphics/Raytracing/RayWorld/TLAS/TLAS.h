@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Engine/Graphics/Raytracing/RayWorld/RayInstance.h"
 
 namespace Engine::Graphics::D3D12
 {

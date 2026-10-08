@@ -1,6 +1,7 @@
-﻿#include "DebugLinePass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Geometry/DebugLinePass/DebugLinePass.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/D3D12/InputLayout.h"
 
 namespace Engine::Graphics::Pipeline
 {

@@ -1,9 +1,9 @@
-﻿#include "AliasingReport.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderGraph/Diagnostics/AliasingReport.h"
 
-#include "../RenderGraph.h"
-#include "../Resource/ResourceAllocator.h"
-#include "../Resource/VirtualResource/VirtualResource.h"
-#include "../../Core/Pass/Pass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/ResourceAllocator.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
+#include "Engine/Graphics/RenderingPipeline/Core/Pass/Pass.h"
 
 namespace Engine::Graphics::Pipeline
 {

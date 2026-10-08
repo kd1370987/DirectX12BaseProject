@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-#include "Frame/MeshBufferAllocator/MeshAllocationHandle.h"
+#include "Engine/Graphics/Frame/MeshBufferAllocator/MeshAllocationHandle.h"
 
 namespace Engine::Graphics
 {

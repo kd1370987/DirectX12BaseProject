@@ -1,6 +1,6 @@
-﻿#include "DescriptorHeapManager.h"
+﻿#include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
-#include "Allocator/SamplerAllocator/SamplerAllocator.h"
+#include "Engine/Graphics/D3D12/DescriptorHeapManager/Allocator/SamplerAllocator/SamplerAllocator.h"
 
 namespace Engine::Graphics::D3D12
 {

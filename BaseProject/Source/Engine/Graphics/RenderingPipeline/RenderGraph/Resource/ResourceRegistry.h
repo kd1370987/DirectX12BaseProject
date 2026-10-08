@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "VirtualResource/VirtualResource.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
 
 namespace Engine::Graphics::Pipeline
 {

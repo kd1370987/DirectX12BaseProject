@@ -1,7 +1,8 @@
-#include "ShadowMapMaskPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/ShadowMapMaskPass/ShadowMapMaskPass.h"
 
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
+#include "Engine/Graphics/Frame/SceneView/CameraData.h"
 
 namespace Engine::Graphics::Pipeline
 {

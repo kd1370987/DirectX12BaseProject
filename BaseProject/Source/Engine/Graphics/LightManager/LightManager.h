@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "Core/Light.h"
-#include "Core/Shadow.h"
-#include "../CBData.h"		// シャドウマップを描くカメラ(CameraData)
+#include "Engine/Graphics/LightManager/Core/Light.h"
+#include "Engine/Graphics/LightManager/Core/Shadow.h"
+#include "Engine/Graphics/Frame/SceneView/CameraData.h"
 
 namespace Engine::Graphics::D3D12
 {

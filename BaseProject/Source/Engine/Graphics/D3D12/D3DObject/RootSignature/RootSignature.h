@@ -9,6 +9,24 @@
 
 namespace Engine::Graphics::D3D12
 {
+	// ルートレンジ指定
+	enum class ERangeType
+	{
+		CBV,
+		SRV,
+		UAV,
+		Sampler,
+	};
+
+	// ルートパラメーター指定
+	enum class ERootParameterType
+	{
+		DescriptorTable,
+		RootCBV,
+		RootSRV,
+		Bindless
+	};
+
 	class RootSignature
 	{
 	public:

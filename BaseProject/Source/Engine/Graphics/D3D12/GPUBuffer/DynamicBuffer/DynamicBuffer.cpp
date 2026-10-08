@@ -1,5 +1,5 @@
-﻿#include "DynamicBuffer.h"
-#include "../../DescriptorHeapManager/DescriptorHeapManager.h"
+﻿#include "Engine/Graphics/D3D12/GPUBuffer/DynamicBuffer/DynamicBuffer.h"
+#include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 bool Engine::Graphics::D3D12::DynamicBuffer::Create(D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, const DynamicBufferDesc& a_desc)
 {

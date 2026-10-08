@@ -14,7 +14,7 @@
 // 配列の持ち主は ResourceRegistry。
 //
 //==========================================================================================
-#include "../../../Core/Slot.h"
+#include "Engine/Graphics/RenderingPipeline/Core/Slot.h"
 
 namespace Engine::Graphics::D3D12
 {

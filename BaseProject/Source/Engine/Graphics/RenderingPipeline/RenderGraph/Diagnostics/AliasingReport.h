@@ -13,7 +13,7 @@
 // 抱え込まず、必要になったところで組み直すこと
 //
 //==========================================================================================
-#include "../../Core/ResourceID.h"
+#include "Engine/Graphics/RenderingPipeline/Core/ResourceID.h"
 
 namespace Engine::Graphics::Pipeline
 {

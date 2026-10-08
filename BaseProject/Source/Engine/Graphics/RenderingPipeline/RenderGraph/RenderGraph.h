@@ -14,12 +14,12 @@
 //==========================================================================================
 // 実行順とバリアは値で持つので実体が要る。
 // パス・リソース・レジストリは持ち方(unique_ptr / 参照)が決まっているので前方宣言で足りる
-#include "../Core/ResourceID.h"
-#include "../Core/PipelineEnums.h"
-#include "../Core/PassContext.h"	// GraphicsEngine / RenderContext の前方宣言もここ
-#include "../Internal/Connection.h"
-#include "Internal/ResourceBarrier.h"
-#include "Internal/CompiledPass.h"
+#include "Engine/Graphics/RenderingPipeline/Core/ResourceID.h"
+#include "Engine/Graphics/RenderingPipeline/Core/PipelineEnums.h"
+#include "Engine/Graphics/RenderingPipeline/Core/PassContext.h"	// GraphicsEngine / RenderContext の前方宣言もここ
+#include "Engine/Graphics/RenderingPipeline/Internal/Connection.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Internal/ResourceBarrier.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Internal/CompiledPass.h"
 
 namespace Engine::Graphics::Pipeline
 {

@@ -1,7 +1,7 @@
 ﻿#include "RegisterAnimatedRayWorldSystem.h"
 #include "Application/ECS/World/APPWorld.h"
 
-#include "Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "Engine/Graphics/Raytracing/RayEngine.h"
 
 #include "Application/Components/Render/RayTag.h"
 #include "Application/Components/Render/ModelComponent.h"

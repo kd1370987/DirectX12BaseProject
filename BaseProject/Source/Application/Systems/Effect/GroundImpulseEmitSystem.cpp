@@ -7,6 +7,7 @@
 
 #include "Application/Components/Effect/GroundImpulseEmitterComponent.h"
 #include "Application/Components/Transform/WorldMatrixComponent.h"
+#include "Engine/Graphics/Frame/SceneView/GroundImpulse.h"
 
 namespace App::System
 {

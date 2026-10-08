@@ -1,10 +1,10 @@
-﻿#include "RaytracingVolumeShadowPass.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/RaytracingVolumeShadowPass/RaytracingVolumeShadowPass.h"
 
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/RenderingPipeline/RenderGraph/RenderGraph.h"
 
-#include "Engine/Graphics/Raytracing/RaytracingEngine/RaytracingEngine.h"
+#include "Engine/Graphics/Raytracing/RayEngine.h"
 
 namespace Engine::Graphics::Pipeline
 {

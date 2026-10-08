@@ -12,7 +12,7 @@
 // (どこへ書くかは呼んだ側の都合なので、こちらは知らなくてよい)
 //
 //==========================================================================================
-#include "../Internal/CompiledPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderGraph/Internal/CompiledPass.h"
 
 namespace Engine::Graphics::Pipeline
 {

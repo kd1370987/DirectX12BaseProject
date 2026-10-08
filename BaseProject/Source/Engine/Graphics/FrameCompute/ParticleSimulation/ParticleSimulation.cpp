@@ -1,10 +1,10 @@
-﻿#include "ParticleSimulation.h"
+﻿#include "Engine/Graphics/FrameCompute/ParticleSimulation/ParticleSimulation.h"
 
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/Particle/ParticleBufferManager.h"
 #include "Engine/Graphics/Particle/GPU/GPUParticlePool/GPUParticlePool.h"
-#include "../../../Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
+#include "Engine/Graphics/Particle/GPU/EmitterSlotPool/EmitterSlotPool.h"
 
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
@@ -12,37 +12,6 @@
 #include "Engine/Resource/Data/Shader/IO/ShaderIO.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"
-
-namespace
-{
-	// シェーダーからルートシグネチャとコンピュートPSOを起こす
-	bool SetupComputeShader(
-		Engine::Graphics::PipelineStateManager* a_pPSOManager,
-		Engine::Resource::ResourceManager& a_resourceManager,
-		const std::string& a_csPath,
-		const std::string& a_psoName,
-		Engine::Handle<ID3D12RootSignature>& a_outRootSig,
-		Engine::Handle<ID3D12PipelineState>& a_outPSO)
-	{
-		using namespace Engine;
-
-		auto _csHandle = Resource::ShaderIO::Load(a_resourceManager, a_csPath);
-		auto* _pShader = a_resourceManager.Ref(_csHandle);
-		if (!_pShader || !_pShader->Get()) return false;
-
-		a_outRootSig = a_pPSOManager->Request(_pShader->Get());
-		if (!a_outRootSig.IsValid()) return false;
-
-		Graphics::D3D12::ComputePipelineDesc _desc = {};
-		_desc.SetName(a_psoName);
-		_desc.desc.CS.pShaderBytecode = _pShader->Get()->GetBufferPointer();
-		_desc.desc.CS.BytecodeLength = _pShader->Get()->GetBufferSize();
-		_desc.SetRootSignature(a_pPSOManager->GetRootSignature(a_outRootSig));
-
-		a_outPSO = a_pPSOManager->RequestHandle(_desc);
-		return a_outPSO.IsValid();
-	}
-}
 
 namespace Engine::Graphics
 {
@@ -53,32 +22,47 @@ namespace Engine::Graphics
 		m_pResourceManager = &a_resourceManager;
 
 		SetupComputeShader(
-			a_pPSOManager,
-			a_resourceManager,
 			"Asset/Shader/Source/Particle/Emit/EmitParticleShaeder.cso",
 			"EmitParticleShader",
 			m_emitRootSig, m_emitPSO);
 
 		SetupComputeShader(
-			a_pPSOManager,
-			a_resourceManager,
 			"Asset/Shader/Source/Particle/Update/UpdateParticleShader.cso",
 			"UpdateParticleShader",
 			m_updateRootSig, m_updatePSO);
 
 		SetupComputeShader(
-			a_pPSOManager,
-			a_resourceManager,
 			"Asset/Shader/Source/Particle/Update/ResetDrawArgs.cso",
 			"ResetDrawArgsShader",
 			m_resetRootSig, m_resetPSO);
 
 		SetupComputeShader(
-			a_pPSOManager,
-			a_resourceManager,
 			"Asset/Shader/Source/Particle/Update/GrowParticlePool.cso",
 			"GrowParticlePoolShader",
 			m_growRootSig, m_growPSO);
+	}
+
+	bool ParticleSimulation::SetupComputeShader(
+		const std::string& a_csPath,
+		const std::string& a_psoName,
+		Handle<ID3D12RootSignature>& a_outRootSig,
+		Handle<ID3D12PipelineState>& a_outPSO)
+	{
+		auto _csHandle = Resource::ShaderIO::Load(*m_pResourceManager, a_csPath);
+		auto* _pShader = m_pResourceManager->Ref(_csHandle);
+		if (!_pShader || !_pShader->Get()) return false;
+
+		a_outRootSig = m_pPSOManager->Request(_pShader->Get());
+		if (!a_outRootSig.IsValid()) return false;
+
+		D3D12::ComputePipelineDesc _desc = {};
+		_desc.SetName(a_psoName);
+		_desc.desc.CS.pShaderBytecode = _pShader->Get()->GetBufferPointer();
+		_desc.desc.CS.BytecodeLength = _pShader->Get()->GetBufferSize();
+		_desc.SetRootSignature(m_pPSOManager->GetRootSignature(a_outRootSig));
+
+		a_outPSO = m_pPSOManager->RequestHandle(_desc);
+		return a_outPSO.IsValid();
 	}
 
 	void ParticleSimulation::Execute(GraphicsEngine* a_pGE, RenderContext* a_pCtx)

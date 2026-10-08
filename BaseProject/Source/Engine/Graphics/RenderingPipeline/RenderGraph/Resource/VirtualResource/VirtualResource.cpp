@@ -1,4 +1,4 @@
-﻿#include "VirtualResource.h"
+﻿#include "Engine/Graphics/RenderingPipeline/RenderGraph/Resource/VirtualResource/VirtualResource.h"
 
 // CD3DX12_* のヘルパーはここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
@@ -8,7 +8,7 @@
 
 
 // 占有サイズの見積もりと実体の生成で、同じ仕様書を通すために要る
-#include "../../../../../Resource/Data/Texture/IO/Creater/TextureCreater.h"
+#include "Engine/Resource/Data/Texture/IO/Creater/TextureCreater.h"
 
 namespace Engine::Graphics::Pipeline
 {

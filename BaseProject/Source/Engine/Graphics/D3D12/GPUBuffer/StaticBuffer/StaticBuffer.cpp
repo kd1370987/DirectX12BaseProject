@@ -1,6 +1,6 @@
-﻿#include "StaticBuffer.h"
+﻿#include "Engine/Graphics/D3D12/GPUBuffer/StaticBuffer/StaticBuffer.h"
 
-#include "../../DescriptorHeapManager/DescriptorHeapManager.h"
+#include "Engine/Graphics/D3D12/DescriptorHeapManager/DescriptorHeapManager.h"
 
 namespace Engine::Graphics::D3D12
 {

@@ -1,4 +1,4 @@
-﻿#include "SamplerAllocator.h"
+﻿#include "Engine/Graphics/D3D12/DescriptorHeapManager/Allocator/SamplerAllocator/SamplerAllocator.h"
 
 bool Engine::Graphics::D3D12::SamplerAllocator::Create(Engine::Graphics::D3D12::DescriptorHeap<D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER>* a_pHeap)
 {

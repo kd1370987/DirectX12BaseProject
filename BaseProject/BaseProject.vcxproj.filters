@@ -271,9 +271,6 @@
     <Filter Include="Source\Application\Systems\Weapon">
       <UniqueIdentifier>{e386e070-d7ea-4f8b-bb64-609fc192059c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\Device\RenderDevice">
-      <UniqueIdentifier>{8681bae2-f567-41a5-b5b9-c8e7e124fdd6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\Frame\SceneView">
       <UniqueIdentifier>{e2c1a272-fa57-40f8-9e03-b12933dcb36a}</UniqueIdentifier>
     </Filter>
@@ -289,26 +286,14 @@
     <Filter Include="Source\Engine\Graphics\Device\AsyncGPUManager">
       <UniqueIdentifier>{56fbfab3-9f40-41f3-a2c2-601f48504b43}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\Device\BackBuffer">
-      <UniqueIdentifier>{e21c09a2-f474-4451-bb03-c57c49508019}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\Device\CommandContext">
       <UniqueIdentifier>{e0fb70dc-fc6e-4549-93c9-2f1846e21d58}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\Device\CommandPool">
-      <UniqueIdentifier>{ae15f14f-aab6-4755-9c1d-25b250b8b05c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\Device\FrameManager">
       <UniqueIdentifier>{fd6d9401-3b4f-4600-9828-e9b42b29ba41}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\Device\GraphicsDevice">
       <UniqueIdentifier>{9a137b7a-e9f5-483b-9f4b-854c384d4b73}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\Effect">
-      <UniqueIdentifier>{dc313d10-810e-43c2-8c02-9a9ca8c8950a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\Effect\BeamRenderer">
-      <UniqueIdentifier>{11f9da1a-ce8e-4846-9c20-74b30a563748}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\Frame">
       <UniqueIdentifier>{4567c128-72ce-4282-90db-3cab5a74e329}</UniqueIdentifier>
@@ -694,9 +679,6 @@
     <Filter Include="Source\Engine\Graphics\D3D12\D3DObject\GPUResource">
       <UniqueIdentifier>{909d26b9-85a5-42c2-8264-b90c9be162a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\D3D12\D3DObject\PipeLineState">
-      <UniqueIdentifier>{c0de0006-1111-4222-8333-0000c0de0006}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\D3D12\D3DObject\RootSignature">
       <UniqueIdentifier>{9a56534d-2180-4194-9056-0be0ac6d694b}</UniqueIdentifier>
     </Filter>
@@ -786,6 +768,24 @@
     </Filter>
     <Filter Include="Source\Engine\Graphics">
       <UniqueIdentifier>{6ff526d7-ee38-4be8-8fd8-0b85917fddf9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Raytracing\RayWorld\TLAS">
+      <UniqueIdentifier>{eac814b9-2060-4453-8f9b-1b207b12b628}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Raytracing\RayWorld">
+      <UniqueIdentifier>{0a023b52-1062-43fb-8b5a-59feadabad0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\BackBuffer">
+      <UniqueIdentifier>{4edf67fb-70d1-4908-a946-75bb531135e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\Device\CommandContext\CommandPool">
+      <UniqueIdentifier>{dc18c891-78c7-41de-be3b-472c08785ee0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\PassMetaRegistry">
+      <UniqueIdentifier>{21bd856b-bb7c-4865-b79f-4916af486971}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\D3D12\D3DObject\PipelineState">
+      <UniqueIdentifier>{b786f283-a9b2-4e3b-80de-44e042c4cae4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Graphics\LightManager">
       <UniqueIdentifier>{175f6740-bef4-4d67-8fb6-0c9d05fb78d3}</UniqueIdentifier>
@@ -904,23 +904,11 @@
     <Filter Include="Source\Engine\Graphics\Raytracing\BLAS">
       <UniqueIdentifier>{0037a7c8-2860-4c64-bec1-637b239cf301}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\Raytracing\Common">
-      <UniqueIdentifier>{dfec8c58-9d0f-420a-9923-ef53b2e1ca43}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\Raytracing\RayPSO">
       <UniqueIdentifier>{c2db2572-03c4-4c82-9685-5281acec1199}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Engine\Graphics\Raytracing\RaytracingEngine">
-      <UniqueIdentifier>{4ddfeefd-4d45-4b6b-a8d1-cf676b0dc4ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\Raytracing\RaytracingWorld">
-      <UniqueIdentifier>{301f758a-5748-4a63-ba4b-7c2c54492dce}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Engine\Graphics\Raytracing\ShaderTable">
       <UniqueIdentifier>{0b927251-41ee-42ac-94d4-17d54c8d88cc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Engine\Graphics\Raytracing\TLAS">
-      <UniqueIdentifier>{14257255-6ffb-4ff3-bb90-d7a95fe078d0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Engine\Resource">
       <UniqueIdentifier>{c00699f5-a297-41d3-ac51-8f2d9ace2428}</UniqueIdentifier>
@@ -1374,11 +1362,8 @@
     <ClCompile Include="Source\Engine\Graphics\Frame\SceneView\SceneView.cpp">
       <Filter>Source\Engine\Graphics\Frame\SceneView</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Device\RenderDevice\RenderDevice.cpp">
-      <Filter>Source\Engine\Graphics\Device\RenderDevice</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Effect\BeamRenderer\BeamRenderer.cpp">
-      <Filter>Source\Engine\Graphics\Effect\BeamRenderer</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Device\RenderDevice.cpp">
+      <Filter>Source\Engine\Graphics\Device</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.cpp">
       <Filter>Source\Engine\Resource\Data\EffectPrefab</Filter>
@@ -1854,8 +1839,8 @@
     <ClCompile Include="Source\Engine\Graphics\Device\CommandContext\CommandContext.cpp">
       <Filter>Source\Engine\Graphics\Device\CommandContext</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Device\CommandPool\CommandPool.cpp">
-      <Filter>Source\Engine\Graphics\Device\CommandPool</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Device\CommandContext\CommandPool\CommandPool.cpp">
+      <Filter>Source\Engine\Graphics\Device\CommandContext\CommandPool</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp">
       <Filter>Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap</Filter>
@@ -1863,8 +1848,8 @@
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\GPUResource\GPUResource.cpp">
       <Filter>Source\Engine\Graphics\D3D12\D3DObject\GPUResource</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\PipeLineState\PipelineState.cpp">
-      <Filter>Source\Engine\Graphics\D3D12\D3DObject\PipeLineState</Filter>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\PipelineState\PipelineState.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\D3DObject\PipelineState</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\RootSignature\RootSignature.cpp">
       <Filter>Source\Engine\Graphics\D3D12\D3DObject\RootSignature</Filter>
@@ -2049,8 +2034,8 @@
     <ClCompile Include="Source\Engine\Graphics\Frame\RenderContext\RenderContext.cpp">
       <Filter>Source\Engine\Graphics\Frame\RenderContext</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Device\BackBuffer\BackBuffer.cpp">
-      <Filter>Source\Engine\Graphics\Device\BackBuffer</Filter>
+    <ClCompile Include="Source\Engine\Graphics\BackBuffer\BackBuffer.cpp">
+      <Filter>Source\Engine\Graphics\BackBuffer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Frame\DrawList\DrawList.cpp">
       <Filter>Source\Engine\Graphics\Frame\DrawList</Filter>
@@ -2142,17 +2127,17 @@
     <ClCompile Include="Source\Engine\Graphics\Raytracing\RayPSO\RayPSO.cpp">
       <Filter>Source\Engine\Graphics\Raytracing\RayPSO</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Raytracing\RaytracingEngine\RaytracingEngine.cpp">
-      <Filter>Source\Engine\Graphics\Raytracing\RaytracingEngine</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\RayEngine.cpp">
+      <Filter>Source\Engine\Graphics\Raytracing</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Raytracing\RaytracingWorld\RaytracingWorld.cpp">
-      <Filter>Source\Engine\Graphics\Raytracing\RaytracingWorld</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\RayWorld\RayWorld.cpp">
+      <Filter>Source\Engine\Graphics\Raytracing\RayWorld</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Raytracing\ShaderTable\ShaderTable.cpp">
       <Filter>Source\Engine\Graphics\Raytracing\ShaderTable</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\Raytracing\TLAS\TLAS.cpp">
-      <Filter>Source\Engine\Graphics\Raytracing\TLAS</Filter>
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\RayWorld\TLAS\TLAS.cpp">
+      <Filter>Source\Engine\Graphics\Raytracing\RayWorld\TLAS</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Resource\Common\ScopedResourceBuild.cpp">
       <Filter>Source\Engine\Resource\Common</Filter>
@@ -2454,8 +2439,8 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.cpp">
-      <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\PassMetaRegistry\PassMetaRegistry.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\PassMetaRegistry</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass\TestGBufferPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass</Filter>
@@ -2648,11 +2633,8 @@
     <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\SceneView.h">
       <Filter>Source\Engine\Graphics\Frame\SceneView</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Device\RenderDevice\RenderDevice.h">
-      <Filter>Source\Engine\Graphics\Device\RenderDevice</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Effect\BeamRenderer\BeamRenderer.h">
-      <Filter>Source\Engine\Graphics\Effect\BeamRenderer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Device\RenderDevice.h">
+      <Filter>Source\Engine\Graphics\Device</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Data\EffectPrefab\EffectPrefab.h">
       <Filter>Source\Engine\Resource\Data\EffectPrefab</Filter>
@@ -3377,9 +3359,6 @@
     <ClInclude Include="Source\Engine\Common\Macros\ClassMacros.h">
       <Filter>Source\Engine\Common\Macros</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Common.h">
-      <Filter>Source\Engine\Graphics\D3D12</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Helper.h">
       <Filter>Source\Engine\Graphics\D3D12</Filter>
     </ClInclude>
@@ -3401,8 +3380,8 @@
     <ClInclude Include="Source\Engine\Graphics\Device\CommandContext\CommandContext.h">
       <Filter>Source\Engine\Graphics\Device\CommandContext</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Device\CommandPool\CommandPool.h">
-      <Filter>Source\Engine\Graphics\Device\CommandPool</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Device\CommandContext\CommandPool\CommandPool.h">
+      <Filter>Source\Engine\Graphics\Device\CommandContext\CommandPool</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.h">
       <Filter>Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap</Filter>
@@ -3410,8 +3389,8 @@
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\GPUResource\GPUResource.h">
       <Filter>Source\Engine\Graphics\D3D12\D3DObject\GPUResource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\PipeLineState\PipelineState.h">
-      <Filter>Source\Engine\Graphics\D3D12\D3DObject\PipeLineState</Filter>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\PipelineState\PipelineState.h">
+      <Filter>Source\Engine\Graphics\D3D12\D3DObject\PipelineState</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3DObject\RootSignature\RootSignature.h">
       <Filter>Source\Engine\Graphics\D3D12\D3DObject\RootSignature</Filter>
@@ -3641,10 +3620,7 @@
     <ClInclude Include="Source\Engine\GameObject\ObjectMetaRegistry\ObjectMetaRegistry.h">
       <Filter>Source\Engine\GameObject\ObjectMetaRegistry</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\CBData.h">
-      <Filter>Source\Engine\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\GraphicCommon.h">
+    <ClInclude Include="Source\Engine\Graphics\GraphicsCommon.h">
       <Filter>Source\Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\GraphicsEngine.h">
@@ -3677,8 +3653,8 @@
     <ClInclude Include="Source\Engine\Graphics\Frame\RenderContext\RenderContext.h">
       <Filter>Source\Engine\Graphics\Frame\RenderContext</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Device\BackBuffer\BackBuffer.h">
-      <Filter>Source\Engine\Graphics\Device\BackBuffer</Filter>
+    <ClInclude Include="Source\Engine\Graphics\BackBuffer\BackBuffer.h">
+      <Filter>Source\Engine\Graphics\BackBuffer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Frame\DrawList\DrawCommand.h">
       <Filter>Source\Engine\Graphics\Frame\DrawList</Filter>
@@ -3809,29 +3785,23 @@
     <ClInclude Include="Source\Engine\Graphics\Raytracing\BLAS\BLAS.h">
       <Filter>Source\Engine\Graphics\Raytracing\BLAS</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Raytracing\Common\Common.h">
-      <Filter>Source\Engine\Graphics\Raytracing\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Raytracing\Common\RaytracingInstance.h">
-      <Filter>Source\Engine\Graphics\Raytracing\Common</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Raytracing\RayPSO\BuildSubObjectHelper.h">
       <Filter>Source\Engine\Graphics\Raytracing\RayPSO</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Raytracing\RayPSO\RayPSO.h">
       <Filter>Source\Engine\Graphics\Raytracing\RayPSO</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Raytracing\RaytracingEngine\RaytracingEngine.h">
-      <Filter>Source\Engine\Graphics\Raytracing\RaytracingEngine</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayEngine.h">
+      <Filter>Source\Engine\Graphics\Raytracing</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Raytracing\RaytracingWorld\RaytracingWorld.h">
-      <Filter>Source\Engine\Graphics\Raytracing\RaytracingWorld</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayWorld\RayWorld.h">
+      <Filter>Source\Engine\Graphics\Raytracing\RayWorld</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Raytracing\ShaderTable\ShaderTable.h">
       <Filter>Source\Engine\Graphics\Raytracing\ShaderTable</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\Raytracing\TLAS\TLAS.h">
-      <Filter>Source\Engine\Graphics\Raytracing\TLAS</Filter>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayWorld\TLAS\TLAS.h">
+      <Filter>Source\Engine\Graphics\Raytracing\RayWorld\TLAS</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Resource\Common\Common.h">
       <Filter>Source\Engine\Resource\Common</Filter>
@@ -4100,9 +4070,6 @@
     <ClInclude Include="Source\Engine\Window\NativeWindow.h">
       <Filter>Source\Engine\Window</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipeline.h">
-      <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\Core\PipelineEnums.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\Core</Filter>
     </ClInclude>
@@ -4253,8 +4220,8 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource\VirtualResource.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderGraph\Resource\VirtualResource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPipelineMetaRegistry.h">
-      <Filter>Source\Engine\Graphics\RenderingPipeline</Filter>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\PassMetaRegistry\PassMetaRegistry.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\PassMetaRegistry</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass\TestGBufferPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Test\TestGBufferPass</Filter>
@@ -4549,6 +4516,45 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ZPrePass\GroundDepth.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ZPrePass</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\CameraData.h">
+      <Filter>Source\Engine\Graphics\Frame\SceneView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\AmbientData.h">
+      <Filter>Source\Engine\Graphics\Frame\SceneView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\SkyData.h">
+      <Filter>Source\Engine\Graphics\Frame\SceneView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\CameraEffectData.h">
+      <Filter>Source\Engine\Graphics\Frame\SceneView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\GroundImpulse.h">
+      <Filter>Source\Engine\Graphics\Frame\SceneView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Frame\SceneView\SceneFogData.h">
+      <Filter>Source\Engine\Graphics\Frame\SceneView</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Frame\DrawList\UIData.h">
+      <Filter>Source\Engine\Graphics\Frame\DrawList</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Frame\DrawList\MeshDrawData.h">
+      <Filter>Source\Engine\Graphics\Frame\DrawList</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Bloom\BloomOptionData.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\PostEffect\Bloom</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\InputLayout.h">
+      <Filter>Source\Engine\Graphics\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayPSO\RayShaderData.h">
+      <Filter>Source\Engine\Graphics\Raytracing\RayPSO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\RayWorld\RayInstance.h">
+      <Filter>Source\Engine\Graphics\Raytracing\RayWorld</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\DynamicRaytracingData.h">
+      <Filter>Source\Engine\Graphics\Raytracing</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Components\Effect\GroundEffectTag.h">
       <Filter>Source\Application\Components\Effect</Filter>
