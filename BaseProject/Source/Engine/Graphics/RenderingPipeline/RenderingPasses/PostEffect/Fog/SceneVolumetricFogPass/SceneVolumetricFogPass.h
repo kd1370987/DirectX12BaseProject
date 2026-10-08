@@ -19,7 +19,7 @@ namespace Engine::Graphics::Pipeline
 	// 媒質は環境光と平行光(主光源)で照らす。平行光の影はレイに沿って引くので、窓や木漏れ日から光の筋が差す。
 	// 影の求め方はシーンの設定(LightManager::GetShadowMode)に合わせる。
 	//   ShadowMap  : ShadowMapPass のシャドウマップ(CSM)を引く(ShadowMap 入力を繋いだときだけ)
-	//   Raytracing : RaytracingShadowPass が作った、視線に沿った日なたの割合(VolumeShadow 入力)を使う。
+	//   Raytracing : RaytracingVolumeShadowPass が作った、視線に沿った日なたの割合(VolumeShadow 入力)を使う。
 	//                フォグの中ではレイを飛ばさない(レイトレはレイトレのパスが受け持つ)
 	// どちらも引けないフレーム(どちらの入力も繋がっていない)は、平行光を遮らずに照らす。
 	// 影を引くのはシーンの影の距離(ShadowDistance)まで。その先は遮らない。

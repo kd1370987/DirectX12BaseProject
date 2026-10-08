@@ -29,6 +29,7 @@
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/DeferredLightingPass/DeferredLightingPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/RaytracingGIPass/RaytracingGIPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/RaytracingVolumeShadowPass/RaytracingVolumeShadowPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/ShadowMapPass/ShadowMapPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/ShadowMapMaskPass/ShadowMapMaskPass.h"
 
@@ -195,23 +196,41 @@ namespace Editor::Inspector
 			const char* m_pNote = "";
 		};
 
-		// レイトレの影 : フォグ用の影(VolumeShadow)の歩数だけ触れる。
+		// フォグ用の影 : 歩数と解像度だけ触れる。
 		// 範囲はシーンの影の距離(SceneAmbient の Shadow / Distance)
-		class RaytracingShadowEditor : public PassEditor<RaytracingShadowPass>
+		class RaytracingVolumeShadowEditor : public PassEditor<RaytracingVolumeShadowPass>
 		{
 		protected:
-			EPassEditResult OnDrawDetail(RaytracingShadowPass& a_pass) override
+			EPassEditResult OnDrawDetail(RaytracingVolumeShadowPass& a_pass) override
 			{
-				Engine::EditorField::HelpText("主光源へレイを1本飛ばして遮蔽を求めます");
-				if (!a_pass.IsReady()) Engine::EditorField::ErrorText("PSO not ready");
+				Engine::EditorField::HelpText("フォグ用に、視線に沿った日なたの割合を作ります(SceneVolumetricFogPass の VolumeShadow へ繋ぐ)");
 
-				Engine::EditorField::HelpText("VolumeShadow : フォグ用に、視線に沿った日なたの割合を作ります(SceneVolumetricFogPass へ繋ぐ)");
-				int _steps = static_cast<int>(a_pass.RefVolumeShadowSteps());
-				if (!Engine::EditorField::Field("VolumeShadowSteps", _steps, 0.2f, 0, 128)) return EPassEditResult::None;
-				Engine::EditorField::Tooltip("視線を歩く歩数(1歩ごとにレイを1本)。0 で作らない(フォグを置かないとき)");
+				auto& _params = a_pass.RefParams();
 
-				a_pass.RefVolumeShadowSteps() = static_cast<uint32_t>(_steps);
-				return EPassEditResult::Param;
+				int _steps = static_cast<int>(_params.stepCount);
+				const bool _isParam = Engine::EditorField::Field("Steps", _steps, 0.2f, 0, 64);
+				Engine::EditorField::Tooltip("視線を歩く歩数(1歩ごとにレイを1本)。0 で作らない");
+				if (_isParam) _params.stepCount = static_cast<uint32_t>(_steps);
+
+				static constexpr const char* ITEMS[] = { "1/1", "1/2", "1/4", "1/8" };
+				static constexpr uint32_t VALUES[] = { 1, 2, 4, 8 };
+
+				int _index = -1;
+				for (int _i = 0; _i < static_cast<int>(std::size(VALUES)); ++_i)
+				{
+					if (VALUES[_i] == _params.resolutionDivisor) _index = _i;
+				}
+
+				if (Engine::EditorField::Combo("Resolution", _index, ITEMS) && _index >= 0)
+				{
+					// テクスチャを作り直すので組み直しが要る
+					_params.resolutionDivisor = VALUES[_index];
+					a_pass.ApplyResolution();
+					return EPassEditResult::Structure;
+				}
+				Engine::EditorField::Tooltip("描画解像度の何分の1で回すか。フォグの影は低周波なので 1/4 で足ります");
+
+				return _isParam ? EPassEditResult::Param : EPassEditResult::None;
 			}
 		};
 
@@ -682,7 +701,8 @@ namespace Editor::Inspector
 		// ---- Lighting ----
 		a_registry.Register<DeferredLightingPass, DeferredLightingEditor>();
 		a_registry.Register<RaytracingGIPass, RaytracingEditor<RaytracingGIPass>>("レイを飛ばして間接光を求めます(ハーフ解像度)");
-		a_registry.Register<RaytracingShadowPass, RaytracingShadowEditor>();
+		a_registry.Register<RaytracingShadowPass, RaytracingEditor<RaytracingShadowPass>>("主光源へレイを1本飛ばして遮蔽を求めます");
+		a_registry.Register<RaytracingVolumeShadowPass, RaytracingVolumeShadowEditor>();
 		a_registry.Register<ShadowMapPass, ShadowMapEditor>();
 		a_registry.Register<ShadowMapMaskPass, NoteOnlyEditor<ShadowMapMaskPass>>(std::initializer_list<const char*>{ "Shadow 入力にレイトレの影(デノイズ後)を繋いでください", "影の求め方が ShadowMap のときだけ上書きします" });
 

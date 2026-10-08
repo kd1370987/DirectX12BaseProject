@@ -92,6 +92,9 @@ namespace Engine::Graphics
 		float depthBias = 0.0f;
 		float normalBias = 0.0f;
 		float softness = 0.0f;
-		float pad = 0.0f;
+
+		// 影の届く範囲(ビュー空間の奥行き)。シーンの影の距離。
+		// 影の求め方によらず入る(レイトレのフォグ用の影も同じ範囲で歩くため)
+		float distance = 0.0f;
 	};
 }

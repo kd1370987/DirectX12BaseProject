@@ -21,7 +21,8 @@ namespace Engine::Graphics::Pipeline
 		// 主光源のシャドウマップ(ShadowMapPass の出力。任意) : レイに沿って平行光の影を引く。
 		// 繋がないと平行光は遮られずにフォグを照らす
 		DeclareInput("ShadowMap", EAccessType::SRV, EPassSlotType::Texture, false, ROOT_INPUT_SRV);
-		// レイトレの影(RaytracingShadowPass の VolumeShadow 出力。任意) : 視線に沿った日なたの割合。
+		// レイトレの影(RaytracingVolumeShadowPass の VolumeShadow 出力。任意) : 視線に沿った日なたの割合。
+		// 低解像度で届くので、シェーダーが範囲の終わりを見ながら引き伸ばす。
 		// 影の求め方がレイトレのフレームはこれを使う。繋がないとレイトレのフレームは平行光が遮られない
 		DeclareInput("VolumeShadow", EAccessType::SRV, EPassSlotType::Texture, false, ROOT_INPUT_SRV);
 

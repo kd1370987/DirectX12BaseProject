@@ -35,12 +35,12 @@ namespace Engine::Graphics::Raytracing
 		m_isCommit = true;
 	}
 
-	void RayEngine::BindTLAS(Graphics::RenderContext* a_pRCT)
+	void RayEngine::BindTLAS(Graphics::RenderContext* a_pRCT, UINT a_rootIndex)
 	{
 		auto* _pCmdList = a_pRCT->RefCurrentCmdList();
 
 		// TLASをバインド
-		_pCmdList->SetComputeRootShaderResourceView(1, m_upRayWorld->GetTLAS());
+		_pCmdList->SetComputeRootShaderResourceView(a_rootIndex, m_upRayWorld->GetTLAS());
 	}
 
 	void RayEngine::Dispatch(Graphics::RenderContext* a_pRCT,ShaderTable& a_shadertable)

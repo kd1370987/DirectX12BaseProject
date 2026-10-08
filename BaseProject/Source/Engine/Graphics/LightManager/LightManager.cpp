@@ -129,6 +129,11 @@ namespace Engine::Graphics
 		m_sunShadowCB = {};
 
 		const DirectionalShadowSettings& _settings = m_shadowSettings;
+
+		// 影の届く範囲はカスケードを組まないフレームでも入れておく。
+		// レイトレのフォグ用の影は低解像度で作るので、フォグが自分の画素の範囲を求めるのに使う
+		m_sunShadowCB.distance = _settings.distance;
+
 		if (_settings.mode != EDirectionalShadowMode::ShadowMap) return;
 
 		// 平行光が無ければ影の落としようがない

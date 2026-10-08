@@ -41,7 +41,9 @@ namespace Engine::Graphics::Raytracing
 		// コミット : a_frameIndex は今のCPUフレーム番号(RenderDevice::GetCurrentFrameIndex)
 		void Commit(Graphics::D3D12::GraphicsCommandList* a_pCmdList, UINT a_frameIndex);
 		void BindCamera(Graphics::RenderContext* a_pRCT,const Graphics::CameraData& a_cbCam);
-		void BindTLAS(Graphics::RenderContext* a_pRCT);
+		// TLAS をルートSRVへ張る。a_rootIndex はルートシグネチャ上の番号
+		// (DispatchRays のパスは 1、RayQuery を使うコンピュートパスは自分の並びで渡す)
+		void BindTLAS(Graphics::RenderContext* a_pRCT, UINT a_rootIndex = 1);
 		void Dispatch(Graphics::RenderContext* a_pRCT, ShaderTable& a_shadertable);
 
 		// レイトレワールドに登録

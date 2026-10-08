@@ -1126,6 +1126,9 @@
     <Filter Include="Asset\Shader\Source\Lighting\Shadow">
       <UniqueIdentifier>{990c4f4a-da8e-4a4e-900d-8e939f16ce9c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingVolumeShadowPass">
+      <UniqueIdentifier>{b9965363-6fc7-4d1e-9868-fbb3e800a58b}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingShadowPass">
       <UniqueIdentifier>{0ece27d4-0909-4402-b4e8-9da1907e8b5d}</UniqueIdentifier>
     </Filter>
@@ -2342,6 +2345,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingShadowPass\RaytracingShadowPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingShadowPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingVolumeShadowPass\RaytracingVolumeShadowPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingVolumeShadowPass</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingGIPass\RaytracingGIPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingGIPass</Filter>
@@ -4139,6 +4145,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingShadowPass\RaytracingShadowPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingShadowPass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingVolumeShadowPass\RaytracingVolumeShadowPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\RaytracingVolumeShadowPass</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingGIPass\RaytracingGIPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingGIPass</Filter>
     </ClInclude>
@@ -4634,6 +4643,9 @@
       <Filter>Asset\Shader\Source\Raytracing\GI</Filter>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\Raytracing\Shadow\RayShadowShader.hlsl">
+      <Filter>Asset\Shader\Source\Raytracing\Shadow</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Raytracing\Shadow\RayVolumeShadowCS.hlsl">
       <Filter>Asset\Shader\Source\Raytracing\Shadow</Filter>
     </FxCompile>
   </ItemGroup>

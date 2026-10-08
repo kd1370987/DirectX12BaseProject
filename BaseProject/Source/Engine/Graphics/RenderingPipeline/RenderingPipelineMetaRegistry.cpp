@@ -46,6 +46,7 @@
 
 // ---- レイトレ ----
 #include "RenderingPasses/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
+#include "RenderingPasses/Lighting/Shadow/RaytracingVolumeShadowPass/RaytracingVolumeShadowPass.h"
 #include "RenderingPasses/Lighting/RaytracingGIPass/RaytracingGIPass.h"
 
 // ---- シャドウマップ ----
@@ -155,6 +156,7 @@ namespace Engine::Graphics::Pipeline
 
 		// ---- レイトレ ----
 		a_registry.RegisterType<RaytracingShadowPass>("RaytracingShadowPass");
+		a_registry.RegisterType<RaytracingVolumeShadowPass>("RaytracingVolumeShadowPass");
 		a_registry.RegisterType<RaytracingGIPass>("RaytracingGIPass");
 
 		// ---- シャドウマップ(主光源の影をレイトレの代わりに求める) ----

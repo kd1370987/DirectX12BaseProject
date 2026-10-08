@@ -24,7 +24,7 @@ struct ShadowMapData
 	float depthBias;			// 深度の比較にかける余裕(ワールドの長さ)
 	float normalBias;			// 法線方向へずらす量(テクセル数)
 	float softness;				// 縁のぼかし幅(テクセル数)
-	float pad;
+	float distance;				// 影の届く範囲(ビュー空間の奥行き)。影の求め方によらず入る
 };
 
 #endif

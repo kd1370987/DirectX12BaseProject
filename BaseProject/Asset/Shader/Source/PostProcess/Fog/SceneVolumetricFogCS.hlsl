@@ -13,8 +13,10 @@
 //   媒質の色 = 媒質の色(fogColor / dustColor) × 届く光
 // 平行光の影はレイに沿って引く。窓などから光の筋が差す。求め方はシーンの設定に合わせる。
 //   シャドウマップ : ShadowMapPass のシャドウマップ(CSM)を引く
-//   レイトレ       : RaytracingShadowPass が作った、視線に沿った日なたの割合(VolumeShadow)を使う
-//                    (フォグの中ではレイを飛ばさない。割合は範囲の中で一様として扱う)
+//   レイトレ       : RaytracingVolumeShadowPass が作った、視線に沿った日なたの割合(VolumeShadow)を使う
+//                    (フォグの中ではレイを飛ばさない。割合は範囲の中で一様として扱う)。
+//                    VolumeShadow は低解像度なので、近くの4画素を「歩いた範囲の終わり」が
+//                    自分の範囲に近いものほど重く混ぜて引き伸ばす(手前の物体の縁で背景の割合がにじまない)
 // 影が届く範囲(シャドウマップは最後のカスケードの奥、レイトレは VolumeShadow の g)より先は
 // 遮るものが無いので、光は一定になる。
 //
@@ -95,7 +97,7 @@ RS_STATIC_SAMPLER "," \
 // 影の求め方
 #define SUN_SHADOW_NONE       0	// 影を引かない(平行光は遮られない)
 #define SUN_SHADOW_SHADOW_MAP 1	// シャドウマップ(CSM)
-#define SUN_SHADOW_RAYTRACING 2	// レイトレ(RaytracingShadowPass の VolumeShadow)
+#define SUN_SHADOW_RAYTRACING 2	// レイトレ(RaytracingVolumeShadowPass の VolumeShadow)
 
 // 波頭でチリが巻き上がる高さの上限(height の何倍まで)。
 // レイはこの高さで切るので、上げすぎると歩数が層の外で無駄になる
@@ -106,6 +108,11 @@ RS_STATIC_SAMPLER "," \
 // 地面までの距離に対する割合と、近いところ用の下限(m)のうち大きいほうを使う
 #define GROUND_PIXEL_TOLERANCE_RATE 0.002f
 #define GROUND_PIXEL_TOLERANCE_MIN  0.05f
+
+// レイトレの影(低解像度)を引き伸ばすときの、範囲の終わりの許容差。
+// 自分の範囲に対する割合と、近いところ用の下限(m)のうち大きいほうを使う
+#define VOLUME_SHADOW_RANGE_TOLERANCE_RATE 0.1f
+#define VOLUME_SHADOW_RANGE_TOLERANCE_MIN  0.1f
 
 // シャドウマップのアトラスの1辺あたりのタイル数(ShadowMapMaskCS と合わせる)
 static const uint kShadowAtlasTiles = 2;
@@ -159,7 +166,7 @@ Texture2D<float2> Get_groundFieldTex() { Texture2D<float2> _r = ResourceDescript
 #define g_groundFieldTex Get_groundFieldTex()
 Texture2D<float> Get_shadowMap() { Texture2D<float> _r = ResourceDescriptorHeap[g_shadowMapIndex]; return _r; }			// 主光源のシャドウマップ(カスケードを 2x2 に並べたアトラス)
 #define g_shadowMap Get_shadowMap()
-Texture2D<float2> Get_volumeShadowTex() { Texture2D<float2> _r = ResourceDescriptorHeap[g_volumeShadowIndex]; return _r; }	// レイトレの影(r = 日なたの割合 / g = 範囲の終わり)
+Texture2D<float2> Get_volumeShadowTex() { Texture2D<float2> _r = ResourceDescriptorHeap[g_volumeShadowIndex]; return _r; }	// レイトレの影(r = 日なたの割合 / g = 範囲の終わり)。低解像度
 #define g_volumeShadowTex Get_volumeShadowTex()
 
 // 出力
@@ -274,6 +281,62 @@ float SampleSunShadow(float3 a_worldPos, float a_viewZ, float a_tileSize)
 	float2 _atlasUV = (float2(_cascade % kShadowAtlasTiles, _cascade / kShadowAtlasTiles) + _tileUV) / kShadowAtlasTiles;
 
 	return g_shadowMap.SampleCmpLevelZero(g_shadowSamp, _atlasUV, _compareDepth);
+}
+
+// レイトレの影(低解像度)を、この画素の位置へ引き伸ばす。
+//   a_rangeEnd : この画素の影の届く範囲の終わり(カメラからの距離)
+// 近くの4画素をバイリニアの重みで混ぜるが、歩いた範囲の終わり(g)が自分の範囲と違う画素は軽くする。
+// 範囲の終わりは見えている面までの距離なので、手前の物体と背景の割合が縁で混ざらない。
+// 4画素とも範囲 0(レイを飛ばしていない)なら false
+bool SampleRayVisibility(float2 a_uv, float a_rangeEnd, out float a_outVisibility)
+{
+	a_outVisibility = 1.0f;
+
+	uint _width, _height;
+	g_volumeShadowTex.GetDimensions(_width, _height);
+
+	const float2 _pos = a_uv * float2(_width, _height) - 0.5f;
+	const int2 _base = int2(floor(_pos));
+	const float2 _frac = _pos - float2(_base);
+	const int2 _maxId = int2(_width, _height) - 1;
+
+	const float _tolerance = max(a_rangeEnd * VOLUME_SHADOW_RANGE_TOLERANCE_RATE, VOLUME_SHADOW_RANGE_TOLERANCE_MIN);
+
+	float _sum = 0.0f;
+	float _sumWeight = 0.0f;
+	float _fallback = 1.0f;			// どれも重みが付かないとき用 : 範囲が一番近い画素の割合
+	float _fallbackDiff = 1e30f;
+	bool _isValid = false;
+
+	[unroll]
+	for (int _y = 0; _y < 2; ++_y)
+	{
+		[unroll]
+		for (int _x = 0; _x < 2; ++_x)
+		{
+			const int2 _id = clamp(_base + int2(_x, _y), int2(0, 0), _maxId);
+			const float2 _sample = g_volumeShadowTex.Load(int3(_id, 0));
+			if (_sample.y <= 0.0f) continue;	// レイを飛ばしていない画素
+			_isValid = true;
+
+			const float _diff = abs(_sample.y - a_rangeEnd);
+			if (_diff < _fallbackDiff)
+			{
+				_fallbackDiff = _diff;
+				_fallback = _sample.x;
+			}
+
+			const float _bilinear = (_x == 0 ? 1.0f - _frac.x : _frac.x) * (_y == 0 ? 1.0f - _frac.y : _frac.y);
+			const float _weight = _bilinear * exp(-_diff / _tolerance);
+			_sum += _sample.x * _weight;
+			_sumWeight += _weight;
+		}
+	}
+
+	if (!_isValid) return false;
+
+	a_outVisibility = (_sumWeight > 1e-4f) ? (_sum / _sumWeight) : _fallback;
+	return true;
 }
 
 // レイの上の距離 a_t の点に届く光
@@ -411,8 +474,9 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 		// 影 : 届く範囲はどちらもビュー空間の奥行きで決まっているので、レイの上の距離へ直す。
 		// どちらを引くかはパスがシーンの設定に合わせて渡してくる
 		//   シャドウマップ : カスケードが組まれている(影の求め方がシャドウマップのフレーム)
-		//   レイトレ       : RaytracingShadowPass が視線に沿った日なたの割合を書いている(範囲 g > 0)。
-		//                    影の求め方がシャドウマップのフレームは、範囲 0(影なし)で埋められて届く
+		//   レイトレ       : RaytracingVolumeShadowPass が視線に沿った日なたの割合を書いている(範囲 g > 0)。
+		//                    影の求め方がシャドウマップのフレーム・フォグを使わないフレームは、
+		//                    範囲 0(影なし)で埋められて届く
 		if (_light.viewZPerDistance > 0.0001f)
 		{
 			if (g_shadowMapIndex != DESCRIPTOR_INDEX_NONE && g_shadow.cascadeCount > 0)
@@ -427,12 +491,17 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 			}
 			else if (g_volumeShadowIndex != DESCRIPTOR_INDEX_NONE)
 			{
-				const float2 _volumeShadow = g_volumeShadowTex.Load(int3(_coord, 0));
-				if (_volumeShadow.y > 0.0f)
+				// 範囲の終わりは RaytracingVolumeShadowPass と同じ決め方で、この画素ぶんを自分で求める
+				// (VolumeShadow は低解像度なので、隣の画素の g をそのまま使うと縁で範囲がずれる)
+				const float _rangeEnd = min((_sceneDepth < 1.0f) ? _rayLength : 1e30f,
+					g_shadow.distance / _light.viewZPerDistance);
+
+				float _visibility;
+				if (SampleRayVisibility(_uv, _rangeEnd, _visibility))
 				{
 					_light.shadowMethod = SUN_SHADOW_RAYTRACING;
-					_light.rayVisibility = saturate(_volumeShadow.x);
-					_light.shadowEnd = _volumeShadow.y;
+					_light.rayVisibility = saturate(_visibility);
+					_light.shadowEnd = _rangeEnd;
 				}
 			}
 		}
