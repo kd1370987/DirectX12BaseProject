@@ -229,7 +229,8 @@ namespace Engine::Graphics
 
 		float maxDistance = 1000.0f;	// 空(何も描かれていない画素)へ向けて積分する距離(m)
 		float anisotropy = 0.3f;		// 平行光を散らす向きの偏り(-1..1)。正で光源の方向を見たときに明るい
-		float pad0[2] = {};
+		float lightScale = 1.0f;		// 媒質に届く光(環境光 + 平行光)に掛ける倍率
+		float pad0 = 0.0f;
 	};
 
 	// 地面から一定の高さまで漂うチリ(グラウンドダスト)の調整値

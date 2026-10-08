@@ -16,9 +16,13 @@ namespace Engine::Graphics::Pipeline
 	// 衝撃でチリが払われる・波頭へ寄せられる量は GroundFieldPass が書いたテクスチャを引く。
 	// 地面の深度を繋がなければダストは出ず、フィールドを繋がなければチリは衝撃で動かない。
 	//
-	// 媒質は環境光と平行光(主光源)で照らす。平行光の影は ShadowMapPass のシャドウマップ(CSM)を
-	// レイに沿って引くので、窓や木漏れ日から光の筋が差す。
-	// シャドウマップを繋がない・影の求め方がシャドウマップでないフレームは、平行光を遮らずに照らす。
+	// 媒質は環境光と平行光(主光源)で照らす。平行光の影はレイに沿って引くので、窓や木漏れ日から光の筋が差す。
+	// 影の求め方はシーンの設定(LightManager::GetShadowMode)に合わせる。
+	//   ShadowMap  : ShadowMapPass のシャドウマップ(CSM)を引く(ShadowMap 入力を繋いだときだけ)
+	//   Raytracing : RaytracingShadowPass が作った、視線に沿った日なたの割合(VolumeShadow 入力)を使う。
+	//                フォグの中ではレイを飛ばさない(レイトレはレイトレのパスが受け持つ)
+	// どちらも引けないフレーム(どちらの入力も繋がっていない)は、平行光を遮らずに照らす。
+	// 影を引くのはシーンの影の距離(ShadowDistance)まで。その先は遮らない。
 	//
 	// 値(フォグ・ダストの調整値とノイズテクスチャ)はシーン(Engine::Scene::SceneAmbient)の
 	// 持ち物で、パスは SceneView から受け取って送るだけ。パス自身は設定を持たない。
@@ -52,7 +56,7 @@ namespace Engine::Graphics::Pipeline
 		static constexpr int ROOT_SUN_LIGHT_CB = 8;
 
 		// ノイズが張られていないときに渡す番号(シェーダーの DESCRIPTOR_INDEX_NONE と合わせる)
-		static constexpr UINT NOISE_INDEX_NONE = 0xFFFFFFFF;
+		static constexpr UINT DESCRIPTOR_INDEX_NONE = 0xFFFFFFFF;
 
 		// パスが回り始めてからの経過時間(秒)。
 		// 実行インスタンスごとに持つので、パイプラインを組み直すと 0 から数え直す

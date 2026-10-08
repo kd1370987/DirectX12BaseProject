@@ -100,6 +100,7 @@ namespace Engine::Scene
 
 		// ---- 後から足したもの(バイナリは順番に読むので、ここより上へ移さないこと) ----
 		a_ar.Field("SceneFogAnisotropy", m_sceneFog.anisotropy);
+		a_ar.Field("SceneFogLightScale", m_sceneFog.lightScale);
 	}
 
 	void SceneAmbient::RequestLoadAssets(Resource::ResourceManager& a_resourceManager)
@@ -207,11 +208,13 @@ namespace Engine::Scene
 		// Raytracing : 主光源へレイを飛ばす / ShadowMap : 光源から見た深度と比べる
 		Engine::EditorField::Field("ShadowMode", m_shadow.mode);
 
+		// 影を落とす奥行き。シャドウマップは広げるほど1テクセルが粗くなる。
+		// ボリュメトリックフォグはどちらの求め方でもここまで影を引く
+		Engine::EditorField::Field("Distance", m_shadow.distance, 0.5f, 1.0f, 10000.0f);
+		Engine::EditorField::Tooltip("影を落とす奥行き。ボリュメトリックフォグの影もここまで(Raytracing でも効く)");
+
 		// ここから下はシャドウマップのときだけ効く
 		if (m_shadow.mode != Graphics::EDirectionalShadowMode::ShadowMap) return;
-
-		// 影を落とす奥行き。広げるほど1テクセルが粗くなる
-		Engine::EditorField::Field("Distance", m_shadow.distance, 0.5f, 1.0f, 10000.0f);
 
 		int _cascadeCount = static_cast<int>(m_shadow.cascadeCount);
 		if (Engine::EditorField::Field("CascadeCount", _cascadeCount, 0.05f, 1,
@@ -292,7 +295,9 @@ namespace Engine::Scene
 		Engine::EditorField::Tooltip("空(何も描かれていない画素)へ向けて積分する距離(m)");
 		Engine::EditorField::Slider("SceneFogAnisotropy", m_sceneFog.anisotropy, -0.9f, 0.9f);
 		Engine::EditorField::Tooltip("平行光を散らす向きの偏り。正で光源の方向を見たときに明るく、0 で全方向に同じ");
-		Engine::EditorField::HelpText("フォグは環境光と平行光で照らされます。平行光の影はシャドウマップ(ShadowMode = ShadowMap)のときだけ落ちます");
+		Engine::EditorField::Field("SceneFogLightScale", m_sceneFog.lightScale, 0.01f, 0.0f);
+		Engine::EditorField::Tooltip("フォグ・チリに届く光(環境光 + 平行光)に掛ける倍率。まぶしいときは下げる");
+		Engine::EditorField::HelpText("フォグは環境光と平行光で照らされます。平行光の影は ShadowMode に合わせてシャドウマップ(CSM)かレイトレで落ち、Shadow の Distance まで届きます");
 
 		// グラウンドダスト
 		Engine::EditorField::Header("GroundDust");

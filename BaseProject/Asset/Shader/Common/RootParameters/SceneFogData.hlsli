@@ -11,7 +11,8 @@ struct SceneFogData
 
 	float maxDistance;	// 空(何も描かれていない画素)へ向けて積分する距離(m)
 	float anisotropy;	// 平行光を散らす向きの偏り(-1..1)。正で光源の方向を見たときに明るい
-	float2 pad0;
+	float lightScale;	// 媒質に届く光(環境光 + 平行光)に掛ける倍率
+	float pad0;
 };
 
 #endif

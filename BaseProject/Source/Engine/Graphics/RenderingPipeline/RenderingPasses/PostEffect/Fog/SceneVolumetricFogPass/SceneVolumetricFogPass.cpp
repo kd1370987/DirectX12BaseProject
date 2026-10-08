@@ -21,6 +21,9 @@ namespace Engine::Graphics::Pipeline
 		// 主光源のシャドウマップ(ShadowMapPass の出力。任意) : レイに沿って平行光の影を引く。
 		// 繋がないと平行光は遮られずにフォグを照らす
 		DeclareInput("ShadowMap", EAccessType::SRV, EPassSlotType::Texture, false, ROOT_INPUT_SRV);
+		// レイトレの影(RaytracingShadowPass の VolumeShadow 出力。任意) : 視線に沿った日なたの割合。
+		// 影の求め方がレイトレのフレームはこれを使う。繋がないとレイトレのフレームは平行光が遮られない
+		DeclareInput("VolumeShadow", EAccessType::SRV, EPassSlotType::Texture, false, ROOT_INPUT_SRV);
 
 		// フォグ。rgb = 色 / a = 濃さ。
 		// 全画素を書き潰すのでクリアは不要
@@ -59,7 +62,7 @@ namespace Engine::Graphics::Pipeline
 
 		// ノイズテクスチャ : 読み込みはシーンが始めている。
 		// 届くまでのフレーム(と未設定のとき)はノイズなしで描く
-		UINT _noiseIndex = NOISE_INDEX_NONE;
+		UINT _noiseIndex = DESCRIPTOR_INDEX_NONE;
 		const auto& _noiseHandle = _pSceneView->GetFogNoiseTexture();
 		if (_resManager.IsReady(_noiseHandle))
 		{

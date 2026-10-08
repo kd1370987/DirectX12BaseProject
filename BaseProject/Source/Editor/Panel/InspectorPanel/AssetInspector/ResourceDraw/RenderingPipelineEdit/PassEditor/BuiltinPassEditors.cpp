@@ -195,6 +195,26 @@ namespace Editor::Inspector
 			const char* m_pNote = "";
 		};
 
+		// レイトレの影 : フォグ用の影(VolumeShadow)の歩数だけ触れる。
+		// 範囲はシーンの影の距離(SceneAmbient の Shadow / Distance)
+		class RaytracingShadowEditor : public PassEditor<RaytracingShadowPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(RaytracingShadowPass& a_pass) override
+			{
+				Engine::EditorField::HelpText("主光源へレイを1本飛ばして遮蔽を求めます");
+				if (!a_pass.IsReady()) Engine::EditorField::ErrorText("PSO not ready");
+
+				Engine::EditorField::HelpText("VolumeShadow : フォグ用に、視線に沿った日なたの割合を作ります(SceneVolumetricFogPass へ繋ぐ)");
+				int _steps = static_cast<int>(a_pass.RefVolumeShadowSteps());
+				if (!Engine::EditorField::Field("VolumeShadowSteps", _steps, 0.2f, 0, 128)) return EPassEditResult::None;
+				Engine::EditorField::Tooltip("視線を歩く歩数(1歩ごとにレイを1本)。0 で作らない(フォグを置かないとき)");
+
+				a_pass.RefVolumeShadowSteps() = static_cast<uint32_t>(_steps);
+				return EPassEditResult::Param;
+			}
+		};
+
 		// シャドウマップ : 触れるのはアトラスの解像度だけ。
 		// 影の求め方・範囲・バイアスはシーンの環境設定(Engine::Scene::SceneAmbient)の持ち物
 		class ShadowMapEditor : public PassEditor<ShadowMapPass>
@@ -662,7 +682,7 @@ namespace Editor::Inspector
 		// ---- Lighting ----
 		a_registry.Register<DeferredLightingPass, DeferredLightingEditor>();
 		a_registry.Register<RaytracingGIPass, RaytracingEditor<RaytracingGIPass>>("レイを飛ばして間接光を求めます(ハーフ解像度)");
-		a_registry.Register<RaytracingShadowPass, RaytracingEditor<RaytracingShadowPass>>("主光源へレイを1本飛ばして遮蔽を求めます");
+		a_registry.Register<RaytracingShadowPass, RaytracingShadowEditor>();
 		a_registry.Register<ShadowMapPass, ShadowMapEditor>();
 		a_registry.Register<ShadowMapMaskPass, NoteOnlyEditor<ShadowMapMaskPass>>(std::initializer_list<const char*>{ "Shadow 入力にレイトレの影(デノイズ後)を繋いでください", "影の求め方が ShadowMap のときだけ上書きします" });
 

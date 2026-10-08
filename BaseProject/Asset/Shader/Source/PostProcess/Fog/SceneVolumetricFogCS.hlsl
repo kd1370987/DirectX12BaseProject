@@ -9,10 +9,14 @@
 // 出力 : rgb = フォグの色(2つの媒質の色を濃さで混ぜたもの) / a = フォグの濃さ(0..1)
 //
 // 媒質は環境光と平行光(主光源)で照らす。
-//   届く光 = 環境光 + 平行光 × 位相関数 × 影
+//   届く光 = (環境光 + 平行光 × 位相関数 × 影) × lightScale
 //   媒質の色 = 媒質の色(fogColor / dustColor) × 届く光
-// 平行光の影は ShadowMapPass のシャドウマップ(CSM)をレイに沿って引く。窓などから光の筋が差す。
-// 影が届く範囲(最後のカスケードの奥)より先は遮るものが無いので、光は一定になる。
+// 平行光の影はレイに沿って引く。窓などから光の筋が差す。求め方はシーンの設定に合わせる。
+//   シャドウマップ : ShadowMapPass のシャドウマップ(CSM)を引く
+//   レイトレ       : RaytracingShadowPass が作った、視線に沿った日なたの割合(VolumeShadow)を使う
+//                    (フォグの中ではレイを飛ばさない。割合は範囲の中で一様として扱う)
+// 影が届く範囲(シャドウマップは最後のカスケードの奥、レイトレは VolumeShadow の g)より先は
+// 遮るものが無いので、光は一定になる。
 //
 // シーンのフォグは一様なので、光が一定の区間は式で一度に求める。
 // レイマーチするのは、影の届く範囲とダストの層の中だけ(歩数をそこへ集めるため)。
@@ -43,8 +47,8 @@
 //   0 : CBV(b0)            カメラ
 //   1 : CBV(b1)            シーンのフォグの調整値
 //   2 : CBV(b2)            グラウンドダストの調整値
-//   3 : SRVの番号(t0-t3) シーンの深度 + 地面だけの深度(任意) + グラウンドフィールド(任意)
-//                          + シャドウマップ(任意)(レンダーグラフが張る)
+//   3 : SRVの番号(t0-t4) シーンの深度 + 地面だけの深度(任意) + グラウンドフィールド(任意)
+//                          + シャドウマップ(任意) + レイトレの影(任意)(レンダーグラフが張る)
 //   4 : UAVの番号(u0)    フォグ(レンダーグラフが張る)
 //   5 : SRVの番号(t4)    ノイズテクスチャ(パスが張る)
 //   6 : CBV(b3)            環境光(AmbientData)
@@ -62,7 +66,7 @@
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b1, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b2, visibility = SHADER_VISIBILITY_ALL)," \
-"RootConstants(num32BitConstants=4, b100), " \
+"RootConstants(num32BitConstants=5, b100), " \
 "RootConstants(num32BitConstants=1, b101), " \
 "RootConstants(num32BitConstants=1, b102), " \
 "CBV(b3, visibility = SHADER_VISIBILITY_ALL)," \
@@ -84,8 +88,14 @@ RS_STATIC_SAMPLER "," \
 #define GROUND_DUST_MAX_STEPS 64
 
 // 影の届く範囲を歩く歩数(区間1つあたり)。
-// 区間の長さによらず同じ歩数なので、レイが短い(屋内など)ほど1歩が細かくなる
+// 区間の長さによらず同じ歩数なので、レイが短い(屋内など)ほど1歩が細かくなる。
+// 歩くのはシャドウマップの影だけ(レイトレの影は割合が届くので歩かない)
 #define SUN_SHADOW_STEPS 32
+
+// 影の求め方
+#define SUN_SHADOW_NONE       0	// 影を引かない(平行光は遮られない)
+#define SUN_SHADOW_SHADOW_MAP 1	// シャドウマップ(CSM)
+#define SUN_SHADOW_RAYTRACING 2	// レイトレ(RaytracingShadowPass の VolumeShadow)
 
 // 波頭でチリが巻き上がる高さの上限(height の何倍まで)。
 // レイはこの高さで切るので、上げすぎると歩数が層の外で無駄になる
@@ -137,7 +147,8 @@ cbuffer PassDescriptorIndex0 : register(b100)
 	uint g_sceneDepthTexIndex;
 	uint g_groundDepthTexIndex;		// 任意 : 未接続なら DESCRIPTOR_INDEX_NONE(ダストは出ない)
 	uint g_groundFieldTexIndex;		// 任意 : 未接続なら DESCRIPTOR_INDEX_NONE(衝撃でチリが動かない)
-	uint g_shadowMapIndex;			// 任意 : 未接続なら DESCRIPTOR_INDEX_NONE(平行光は遮られない)
+	uint g_shadowMapIndex;			// 任意 : 未接続なら DESCRIPTOR_INDEX_NONE(シャドウマップの影は引かない)
+	uint g_volumeShadowIndex;		// 任意 : 未接続なら DESCRIPTOR_INDEX_NONE(レイトレの影は引かない)
 }
 
 Texture2D<float> Get_sceneDepthTex() { Texture2D<float> _r = ResourceDescriptorHeap[g_sceneDepthTexIndex]; return _r; }		// シーン全体の深度(レイの終点)
@@ -148,6 +159,8 @@ Texture2D<float2> Get_groundFieldTex() { Texture2D<float2> _r = ResourceDescript
 #define g_groundFieldTex Get_groundFieldTex()
 Texture2D<float> Get_shadowMap() { Texture2D<float> _r = ResourceDescriptorHeap[g_shadowMapIndex]; return _r; }			// 主光源のシャドウマップ(カスケードを 2x2 に並べたアトラス)
 #define g_shadowMap Get_shadowMap()
+Texture2D<float2> Get_volumeShadowTex() { Texture2D<float2> _r = ResourceDescriptorHeap[g_volumeShadowIndex]; return _r; }	// レイトレの影(r = 日なたの割合 / g = 範囲の終わり)
+#define g_volumeShadowTex Get_volumeShadowTex()
 
 // 出力
 // UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
@@ -180,8 +193,9 @@ struct FogLighting
 {
 	float3 ambient;		// 環境光
 	float3 sun;			// 平行光 × 位相関数(平行光なので、レイの向きが決まれば一定)
-	bool isUseShadow;	// 影を引くか(シャドウマップが繋がっていて、カスケードが組まれている)
+	uint shadowMethod;	// 影の求め方(SUN_SHADOW_*)
 	float shadowEnd;	// 影の届く範囲の終わり(カメラからの距離)
+	float rayVisibility;	// レイトレの影 : 範囲の中の日なたの割合
 	float viewZPerDistance;	// レイを 1m 進んだときのビュー空間の奥行きの増え方
 	float shadowTileSize;	// カスケード1枚ぶんのタイルの解像度
 	float jitter;		// 歩く位置のずらし(0..1)
@@ -266,23 +280,41 @@ float SampleSunShadow(float3 a_worldPos, float a_viewZ, float a_tileSize)
 float3 CalcLightAt(FogLighting a_light, float3 a_rayStart, float3 a_rayDir, float a_t)
 {
 	float _visibility = 1.0f;
-	if (a_light.isUseShadow && a_t < a_light.shadowEnd)
+	if (a_light.shadowMethod != SUN_SHADOW_NONE && a_t < a_light.shadowEnd)
 	{
-		_visibility = SampleSunShadow(a_rayStart + a_rayDir * a_t, a_t * a_light.viewZPerDistance, a_light.shadowTileSize);
+		if (a_light.shadowMethod == SUN_SHADOW_SHADOW_MAP)
+		{
+			_visibility = SampleSunShadow(a_rayStart + a_rayDir * a_t, a_t * a_light.viewZPerDistance, a_light.shadowTileSize);
+		}
+		else
+		{
+			_visibility = a_light.rayVisibility;
+		}
 	}
 	return a_light.ambient + a_light.sun * _visibility;
 }
 
+// 光が一定の区間(長さ a_length)を、シーンのフォグだけで式で一度に積分する
+void IntegrateSceneFogConstant(float a_length, float3 a_light, inout float3 a_inoutColor, inout float a_inoutTransmittance)
+{
+	if (a_length <= 0.0f) return;
+
+	const float _transmittance = exp(-g_sceneFog.density * a_length);
+	a_inoutColor += a_inoutTransmittance * g_sceneFog.fogColor * a_light * (1.0f - _transmittance);
+	a_inoutTransmittance *= _transmittance;
+}
+
 // シーンのフォグだけが漂う区間 [a_start, a_end] を積分する。
-// 濃さは一様なので、光が一定のところ(影の届く範囲の外)は式で一度に求める。
-// 影の届く範囲の中だけ、影を引きながら歩く
+// 濃さは一様なので、光が一定のところは式で一度に求める。
+//   シャドウマップ : 影の届く範囲の中だけ、影を引きながら歩く
+//   レイトレ       : 範囲の中は日なたの割合で一定なので、範囲の中と外の2回の式で済む
 void IntegrateSceneFog(FogLighting a_light, float3 a_rayStart, float3 a_rayDir, float a_start, float a_end,
 	inout float3 a_inoutColor, inout float a_inoutTransmittance)
 {
 	if (a_end <= a_start || g_sceneFog.density <= 0.0f) return;
 
-	// 影の届く範囲の中 : 歩く
-	const float _marchEnd = a_light.isUseShadow ? min(a_end, a_light.shadowEnd) : a_start;
+	// 影の届く範囲の中 : シャドウマップは歩く
+	const float _marchEnd = (a_light.shadowMethod == SUN_SHADOW_SHADOW_MAP) ? min(a_end, a_light.shadowEnd) : a_start;
 	if (_marchEnd > a_start)
 	{
 		const float _stepLength = (_marchEnd - a_start) / (float) SUN_SHADOW_STEPS;
@@ -298,14 +330,19 @@ void IntegrateSceneFog(FogLighting a_light, float3 a_rayStart, float3 a_rayDir, 
 		}
 	}
 
-	// 残り : 遮るものが無いので光は一定。式で一度に求める
-	const float _restLength = a_end - max(a_start, _marchEnd);
-	if (_restLength > 0.0f)
+	float _restStart = max(a_start, _marchEnd);
+
+	// 影の届く範囲の中 : レイトレは日なたの割合で一定
+	if (a_light.shadowMethod == SUN_SHADOW_RAYTRACING)
 	{
-		const float _transmittance = exp(-g_sceneFog.density * _restLength);
-		a_inoutColor += a_inoutTransmittance * g_sceneFog.fogColor * (a_light.ambient + a_light.sun) * (1.0f - _transmittance);
-		a_inoutTransmittance *= _transmittance;
+		const float _rangeEnd = min(a_end, a_light.shadowEnd);
+		IntegrateSceneFogConstant(_rangeEnd - _restStart,
+			a_light.ambient + a_light.sun * a_light.rayVisibility, a_inoutColor, a_inoutTransmittance);
+		_restStart = max(_restStart, _rangeEnd);
 	}
+
+	// 残り : 遮るものが無いので光は一定
+	IntegrateSceneFogConstant(a_end - _restStart, a_light.ambient + a_light.sun, a_inoutColor, a_inoutTransmittance);
 }
 
 [RootSignature(SCENE_VOLUMETRIC_FOG_RS)]
@@ -355,10 +392,11 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	// 光 : 環境光と、平行光 × 位相関数(レイの向きで決まる)
 	//------------------------------------------------------------------------------
 	FogLighting _light;
-	_light.ambient = g_ambient.ambientColor;
+	_light.ambient = g_ambient.ambientColor * g_sceneFog.lightScale;
 	_light.sun = 0.0f;
-	_light.isUseShadow = false;
+	_light.shadowMethod = SUN_SHADOW_NONE;
 	_light.shadowEnd = 0.0f;
+	_light.rayVisibility = 1.0f;
 	_light.viewZPerDistance = mul(float4(_rayDir, 0.0f), g_camera.view).z;
 	_light.shadowTileSize = 1.0f;
 	// 1歩目のずらし : フレームごとに変えて TAA に均させる
@@ -368,17 +406,35 @@ void CSMain(uint3 DTid : SV_DispatchThreadID)
 	{
 		const float3 _sunDir = normalize(g_sun.dir);
 		const float _cos = dot(_sunDir, -_rayDir);
-		_light.sun = g_sun.color.rgb * g_sun.brightness * PhaseHenyeyGreenstein(_cos, g_sceneFog.anisotropy);
+		_light.sun = g_sun.color.rgb * g_sun.brightness * PhaseHenyeyGreenstein(_cos, g_sceneFog.anisotropy) * g_sceneFog.lightScale;
 
-		// 影 : 最後のカスケードの奥までがシャドウマップの届く範囲
-		if (g_shadowMapIndex != DESCRIPTOR_INDEX_NONE && g_shadow.cascadeCount > 0 && _light.viewZPerDistance > 0.0001f)
+		// 影 : 届く範囲はどちらもビュー空間の奥行きで決まっているので、レイの上の距離へ直す。
+		// どちらを引くかはパスがシーンの設定に合わせて渡してくる
+		//   シャドウマップ : カスケードが組まれている(影の求め方がシャドウマップのフレーム)
+		//   レイトレ       : RaytracingShadowPass が視線に沿った日なたの割合を書いている(範囲 g > 0)。
+		//                    影の求め方がシャドウマップのフレームは、範囲 0(影なし)で埋められて届く
+		if (_light.viewZPerDistance > 0.0001f)
 		{
-			uint _mapWidth, _mapHeight;
-			g_shadowMap.GetDimensions(_mapWidth, _mapHeight);
+			if (g_shadowMapIndex != DESCRIPTOR_INDEX_NONE && g_shadow.cascadeCount > 0)
+			{
+				// 最後のカスケードの奥までがシャドウマップの届く範囲
+				uint _mapWidth, _mapHeight;
+				g_shadowMap.GetDimensions(_mapWidth, _mapHeight);
 
-			_light.isUseShadow = true;
-			_light.shadowEnd = g_shadow.cascadeFar[g_shadow.cascadeCount - 1] / _light.viewZPerDistance;
-			_light.shadowTileSize = (float) _mapWidth / kShadowAtlasTiles;
+				_light.shadowMethod = SUN_SHADOW_SHADOW_MAP;
+				_light.shadowEnd = g_shadow.cascadeFar[g_shadow.cascadeCount - 1] / _light.viewZPerDistance;
+				_light.shadowTileSize = (float) _mapWidth / kShadowAtlasTiles;
+			}
+			else if (g_volumeShadowIndex != DESCRIPTOR_INDEX_NONE)
+			{
+				const float2 _volumeShadow = g_volumeShadowTex.Load(int3(_coord, 0));
+				if (_volumeShadow.y > 0.0f)
+				{
+					_light.shadowMethod = SUN_SHADOW_RAYTRACING;
+					_light.rayVisibility = saturate(_volumeShadow.x);
+					_light.shadowEnd = _volumeShadow.y;
+				}
+			}
 		}
 	}
 

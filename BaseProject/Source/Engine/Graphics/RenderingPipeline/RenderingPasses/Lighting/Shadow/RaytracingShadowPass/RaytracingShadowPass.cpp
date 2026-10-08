@@ -19,6 +19,11 @@ namespace Engine::Graphics::Pipeline
 		Slot& _out = DeclareOutput("Shadow", "RayShadow", DXGI_FORMAT_R8G8B8A8_UNORM,
 			EAccessType::UAV);
 		_out.loadOp = ELoadOp::Clear;
+
+		// フォグ用の影(任意) : r = 視線に沿った日なたの割合 / g = 歩いた範囲の終わり(m)。
+		// バインドは自前(番号を定数バッファで渡す)
+		DeclareOutput("VolumeShadow", "RayVolumeShadow", DXGI_FORMAT_R16G16_FLOAT,
+			EAccessType::UAV);
 	}
 
 	void RaytracingShadowPass::Compile(const PassContext& a_context)
@@ -40,6 +45,7 @@ namespace Engine::Graphics::Pipeline
 		_rayGlobal.AddDescriptorHeap({ {D3D12::ERangeType::UAV,0} });	// 出力
 		_rayGlobal.AddRoot(D3D12::ERootParameterType::RootCBV, 1);		// GBufferIndex
 		_rayGlobal.AddRoot(D3D12::ERootParameterType::RootCBV, 10);		// 主光源
+		_rayGlobal.AddRoot(D3D12::ERootParameterType::RootCBV, 2);		// フォグ用の影の設定
 		_rayGlobal.flags = D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		_rayGlobal.name = "global";
 
@@ -114,6 +120,9 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		if (_pGE->RefLightManager()->GetShadowMode() == EDirectionalShadowMode::ShadowMap)
 		{
+			// フォグ用の影も影なしで埋める(フォグはシャドウマップの影を引く)
+			ClearVolumeShadow(a_context);
+
 			const Slot* _pOut = FindOutputSlot(MakeSlotID("Shadow"));
 			D3D12::GPUResource* _pOutRes = _pOut ? a_context.GetResource(*_pOut) : nullptr;
 			if (!_pOutRes) return;
@@ -123,7 +132,11 @@ namespace Engine::Graphics::Pipeline
 			return;
 		}
 
-		if (!a_context.pRayEngine) return;
+		if (!a_context.pRayEngine)
+		{
+			ClearVolumeShadow(a_context);
+			return;
+		}
 
 		auto* _pCmdList = a_context.pCmdList;
 		auto& _rayEngine = *a_context.pRayEngine;
@@ -131,7 +144,11 @@ namespace Engine::Graphics::Pipeline
 		// レイワールド更新・シェーダーテーブル更新
 		_rayEngine.Commit(_pCmdList, _pGE->RefRenderDevice()->GetCurrentFrameIndex());
 		const auto& _instanceVec = _rayEngine.GetInstanceVec();
-		if (_instanceVec.empty()) return;
+		if (_instanceVec.empty())
+		{
+			ClearVolumeShadow(a_context);
+			return;
+		}
 
 		// 解像度はこのパイプラインのもの(カメラごとに違うことがある)
 		const UINT _width = a_context.pGraph->GetViewportWidth();
@@ -181,6 +198,23 @@ namespace Engine::Graphics::Pipeline
 		const auto _sunCB = _pGE->RefLightManager()->GetSunLightCB();
 		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmdList, 4, _sunCB);
 
+		// フォグ用の影 : 出力の番号と、視線を歩く範囲・歩数。
+		// 歩数 0 のときは歩かず、影なしで埋めておく(繋がっていてもフォグは平行光を遮らない)
+		VolumeShadowParam _volumeParam = {};
+		_volumeParam.outIndex = VOLUME_SHADOW_NONE;
+		_volumeParam.distance = _pGE->RefLightManager()->GetShadowSettings().distance;
+		_volumeParam.frame = m_frameCount++;
+		_volumeParam.stepCount = m_volumeShadowSteps;
+
+		const Slot* _pVolume = FindOutputSlot(MakeSlotID("VolumeShadow"));
+		D3D12::GPUResource* _pVolumeRes = _pVolume ? a_context.GetResource(*_pVolume) : nullptr;
+		if (_pVolumeRes)
+		{
+			if (m_volumeShadowSteps > 0) _volumeParam.outIndex = static_cast<uint32_t>(_pVolumeRes->GetUAV().GetIndex());
+			else ClearVolumeShadow(a_context);
+		}
+		_pCtx->BindCB()->BindAndAttachDataComputeRootCBV(_pCmdList, 5, _volumeParam);
+
 		// ディスパッチ
 		const auto& _desc = m_shaderTable.GetDispatchDesc();
 		_pCmdList->DispatchRays(&_desc);
@@ -188,8 +222,21 @@ namespace Engine::Graphics::Pipeline
 
 
 
+	void RaytracingShadowPass::ClearVolumeShadow(const PassContext& a_context)
+	{
+		if (!a_context.pRenderContext) return;
+
+		const Slot* _pOut = FindOutputSlot(MakeSlotID("VolumeShadow"));
+		D3D12::GPUResource* _pOutRes = _pOut ? a_context.GetResource(*_pOut) : nullptr;
+		if (!_pOutRes) return;
+
+		// r = 日なたの割合 1 / g = 範囲 0(フォグは平行光を遮らずに照らす)
+		const float _lit[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
+		a_context.pRenderContext->ClearUAV(_pOutRes->GetUAV(), _pOutRes->GetResource(), _lit);
+	}
+
 	void RaytracingShadowPass::Archive(Engine::Persistence::Archive& a_arch)
 	{
-		(void)a_arch;
+		a_arch.Field("volumeShadowSteps", m_volumeShadowSteps);
 	}
 }
