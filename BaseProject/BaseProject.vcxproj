@@ -110,6 +110,8 @@
     <FxCompile>
       <ObjectFileOutput>$(ProjectDir)%(RelativeDir)%(Filename).cso</ObjectFileOutput>
       <ShaderModel>6.0</ShaderModel>
+      <!-- デバッグ情報はシェーダーに埋め込む(既定の挙動)。明示しないと FXC が毎回警告を出す -->
+      <AdditionalOptions>-Qembed_debug %(AdditionalOptions)</AdditionalOptions>
       <EntryPointName />
       <AllResourcesBound>
       </AllResourcesBound>
@@ -207,6 +209,8 @@
     <FxCompile>
       <ObjectFileOutput>$(ProjectDir)%(RelativeDir)%(Filename).cso</ObjectFileOutput>
       <ShaderModel>6.0</ShaderModel>
+      <!-- デバッグ情報はシェーダーに埋め込む(既定の挙動)。明示しないと FXC が毎回警告を出す -->
+      <AdditionalOptions>-Qembed_debug %(AdditionalOptions)</AdditionalOptions>
       <EntryPointName />
       <AllResourcesBound>
       </AllResourcesBound>
@@ -2855,5 +2859,13 @@
       <_PchMismatch Include="@(ClCompile)" Condition="$([System.String]::Copy('%(ClCompile.Identity)').StartsWith('Source\Editor\')) And '%(ClCompile.PrecompiledHeaderFile)' != 'Editor/EditorPCH.h'" />
     </ItemGroup>
     <Error Condition="'@(_PchMismatch)' != ''" Text="分類の PCH を使っていない .cpp があります(vcxproj で PrecompiledHeaderFile / PrecompiledHeaderOutputFile / ForcedIncludeFiles を分類の PCH にすること): @(_PchMismatch)" />
+  </Target>
+  <!-- ライブラリ(Jolt / DirectXTK12 / DirectXTex / DirectXMesh)の PDB は Library/Lib/<構成> に置いてある。
+       リンカーは .lib に記録された元のパスと出力先しか探さないので、リンクの前に出力先へ写す(LNK4099 を出さないため) -->
+  <Target Name="CopyLibraryPdb" BeforeTargets="Link">
+    <ItemGroup>
+      <_LibraryPdb Include="$(ProjectDir)..\Library\Lib\$(Configuration)\*.pdb" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_LibraryPdb)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
 </Project>

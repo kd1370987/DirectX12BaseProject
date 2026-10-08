@@ -1,0 +1,24 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "allowUnsandboxedCommands": false,
+    "network": {
+      "allowedDomains": ["github.com"]
+    }
+  },
+  "permissions": {
+    "deny": [
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
+      "Bash(rm -rf *)",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(git push *)",
+      "Read(**/.env)",
+      "Edit(**/.env)"
+    ],
+    "ask": [
+      "Edit(/Library/**)",
+      "Edit(/BaseProject/Asset/Scenes/**)"
+    ]
+  }
+}
