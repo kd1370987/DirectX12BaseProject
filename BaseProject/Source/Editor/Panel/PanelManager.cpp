@@ -9,6 +9,7 @@
 #include "../Panel/SceneViewPanel/SceneViewPanel.h"
 #include "../Panel/OptionPanel/OptionPanel.h"
 #include "../Panel/SceneAmbientPanel/SceneAmbientPanel.h"
+#include "../Panel/SceneConfigPanel/SceneConfigPanel.h"
 #include "../Panel/ProfilerPanel/ProfilerPanel.h"
 #include "../Panel/LogPanel/LogPanel.h"
 
@@ -28,6 +29,7 @@ namespace Editor
 		RegisterPanel<SceneViewPanel>();
 		RegisterPanel<OptionPanel>();
 		RegisterPanel<SceneAmbientPanel>();
+		RegisterPanel<SceneConfigPanel>();
 		RegisterPanel<ProfilerPanel>();
 		RegisterPanel<LogPanel>();
 

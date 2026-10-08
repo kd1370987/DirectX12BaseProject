@@ -73,6 +73,93 @@ namespace Engine::Resource
 		// (パスの構築時に引くだけで、持ち主が居ない時間帯がある)
 	}
 
+	//======================================================================================
+	// 型を知らないままの読み込み要求
+	//--------------------------------------------------------------------------------------
+	// 種別の文字列は MainEngine がアセットデータベースへ登録しているもの。
+	// 種別を足したらここにも足すこと(足さないと先読み一覧に載っても読まれない)。
+	//
+	// ジョブへ流すのは、ほかの場所でも非同期に読まれている種別だけにしてある。
+	// それ以外は今まで呼び出しスレッドでしか読まれてこなかったので、
+	// ワーカーから読んで大丈夫かを確かめていない
+	//======================================================================================
+	bool ResourceManager::RequestLoadByGUID(const Core::GUID& a_guid)
+	{
+		// 実体はデータベースの持ち物で、監視スレッドに消されうるので種別は写しておく
+		std::string _type = {};
+		if (const AssetProperty* _pProp = m_upAssetDatabase->FindAssetProperty(a_guid))
+		{
+			_type = _pProp->type;
+		}
+		if (_type.empty()) return false;
+
+		// ---- ジョブへ流す : 待たない ----
+		if (_type == "Model")			{ RequestLoad<Model>(a_guid);			return true; }
+		if (_type == "Texture")			{ RequestLoad<Texture>(a_guid);			return true; }
+		if (_type == "EffectAsset")		{ RequestLoad<EffectAsset>(a_guid);		return true; }
+		if (_type == "Font")			{ RequestLoad<Font>(a_guid);			return true; }
+
+		// ---- その場で読み切る ----
+		if (_type == "Mesh")			{ LoadImmediate<Mesh>(a_guid);				return true; }
+		if (_type == "Material")		{ LoadImmediate<Material>(a_guid);			return true; }
+		if (_type == "Animation")		{ LoadImmediate<AnimationData>(a_guid);		return true; }
+		if (_type == "AnimatorAsset")	{ LoadImmediate<AnimatorAsset>(a_guid);		return true; }
+		if (_type == "ParticlesAsset")	{ LoadImmediate<ParticlesAsset>(a_guid);	return true; }
+		if (_type == "Shader")			{ LoadImmediate<Shader>(a_guid);			return true; }
+		if (_type == "Sound")			{ LoadImmediate<Sound>(a_guid);				return true; }
+		if (_type == "AudioBehavior")	{ LoadImmediate<AudioBehavior>(a_guid);		return true; }
+		if (_type == "RenderingPipelineAsset") { LoadImmediate<Graphics::Pipeline::RenderingPipelineAsset>(a_guid); return true; }
+
+		// プレハブはワールドを引きながら読む : 呼び出し元のシーンのワールドを掴ませる
+		if (_type == "Prefab")			{ LoadImmediate<Prefab>(a_guid);			return true; }
+		if (_type == "EffectPrefab")	{ LoadImmediate<EffectPrefab>(a_guid);		return true; }
+
+		// シーンなど、このマネージャーが持たない種別
+		return false;
+	}
+
+	//======================================================================================
+	// 読み込み要求の記録
+	//======================================================================================
+	void ResourceManager::BeginRecordRequests()
+	{
+		std::lock_guard _lock(m_recordMutex);
+
+		if (m_isRecordingRequests.load(std::memory_order_acquire))
+		{
+			ENGINE_WARNING("[Resource] 読み込み要求の記録が二重に始められました。前の記録は捨てます");
+		}
+
+		m_recordedGUIDVec.clear();
+		m_recordedGUIDSet.clear();
+		m_isRecordingRequests.store(true, std::memory_order_release);
+	}
+
+	std::vector<Core::GUID> ResourceManager::EndRecordRequests()
+	{
+		std::lock_guard _lock(m_recordMutex);
+
+		m_isRecordingRequests.store(false, std::memory_order_release);
+
+		std::vector<Core::GUID> _result = std::move(m_recordedGUIDVec);
+		m_recordedGUIDVec.clear();
+		m_recordedGUIDSet.clear();
+		return _result;
+	}
+
+	void ResourceManager::RecordRequest(const Core::GUID& a_guid)
+	{
+		std::lock_guard _lock(m_recordMutex);
+
+		// 記録中かを見てからロックを取るまでの間に止められていたら数えない
+		if (!m_isRecordingRequests.load(std::memory_order_acquire)) return;
+
+		if (m_recordedGUIDSet.insert(a_guid).second)
+		{
+			m_recordedGUIDVec.push_back(a_guid);
+		}
+	}
+
 	ResourceManager::ResourceManager()
 		: m_upAssetDatabase(std::make_unique<AssetDatabase>())
 	{

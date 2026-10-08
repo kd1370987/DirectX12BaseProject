@@ -145,6 +145,15 @@ namespace Engine::Scene
 		/// </remarks>
 		BaseScene* RefAmbientSourceScene();
 
+		/// <summary>
+		/// 先読み一覧を計測しているシーン
+		/// </summary>
+		/// <remarks>
+		/// 計測フラグ(SceneConfig)を立てて開いたシーン。閉じるまで計測が続く。
+		/// 計測は同時に1つだけなので、計測していなければ nullptr
+		/// </remarks>
+		const BaseScene* GetPreLoadRecordingScene() const { return m_pPreLoadRecordingScene; }
+
 	private:
 
 		//------------------------------------------------------------------------------------------
@@ -161,6 +170,16 @@ namespace Engine::Scene
 		// 環境設定を使う一番上のシーンのものを GraphicsEngine へ流し込む(無ければ「無し」を流す)
 		void ApplySceneAmbient();
 
+		//------------------------------------------------------------------------------------------
+		// 先読み一覧の計測
+		//
+		// 計測フラグを立てたシーンを開いてから閉じるまでの間、ResourceManager に
+		// 読み込み要求を記録させ、閉じるときにそのシーンの先読み一覧を置き換える。
+		// 上に重ねたシーン(ポーズ画面など)が読んだものも、その間に読まれたものとして数える
+		//------------------------------------------------------------------------------------------
+		void BeginRecordPreLoadAssets(Resource::ResourceManager& a_resourceManager, BaseScene& a_scene);	// 開くときに始める
+		void EndRecordPreLoadAssets(Resource::ResourceManager& a_resourceManager);						// 閉じるときに止めて設定ファイルへ書く
+
 	private:
 
 		struct SceneChangeCmd
@@ -174,6 +193,9 @@ namespace Engine::Scene
 
 		// 今読み込んでいるシーン。スタックへ積むまでの間だけ入る(RefWorld がこれを優先する)
 		BaseScene* m_pLoadingScene = nullptr;
+
+		// 先読み一覧を計測しているシーン(閉じるまで)。計測していなければ nullptr
+		BaseScene* m_pPreLoadRecordingScene = nullptr;
 
 		// 更新するのは一番上のシーンだけか(重ねたシーンの後ろを止めるための既定)
 		bool m_isUpdateTopSceneOnly = true;

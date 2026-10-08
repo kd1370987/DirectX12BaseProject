@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "../SceneAmbient/SceneAmbient.h"
+#include "../SceneConfig/SceneConfig.h"
 
 namespace Engine
 {
@@ -12,6 +13,11 @@ namespace Engine
 	namespace GameObject
 	{
 		class GameObjectManager;
+	}
+
+	namespace Resource
+	{
+		class ResourceManager;
 	}
 }
 namespace Engine::Scene
@@ -72,10 +78,15 @@ namespace Engine::Scene
 		void  Archive(Persistence::Archive& a_ar);
 
 		/// <summary>
-		/// シーンがロードされたのちにシーン構築前に呼び出される想定
-		/// ロードシーンの裏などで、シーンが必要とする重いデータや常に使用されるようなアセットを読み込む
+		/// 先読み一覧(SceneConfig)のアセットの読み込みを要求する
 		/// </summary>
-		void PreLoadAsset(Persistence::Archive& a_ar);
+		/// <remarks>
+		/// 設定ファイルを読んだ後、シーンの中身を組み立てる(Archive)前に呼ぶ想定。
+		/// 中身の組み立てが同じアセットを引きに来たときには、読み終わっているか読込中になっている。
+		/// 重いもの(モデル・テクスチャ)はジョブへ流すので、組み立てと並んで読まれる。
+		/// 消えたアセット・読めない種別は読み飛ばす。
+		/// </remarks>
+		void PreLoadAsset(Resource::ResourceManager& a_resourceManager);
 
 		/// <summary>
 		/// 現在のワールドを取得
@@ -97,6 +108,15 @@ namespace Engine::Scene
 		SceneAmbient& RefAmbient() { return m_ambient; }
 		const SceneAmbient& GetAmbient() const { return m_ambient; }
 
+		/// <summary>
+		/// シーンの設定(先読み一覧・計測フラグ)
+		/// </summary>
+		/// <remarks>
+		/// シーンファイルとは別のファイルに保存される(理由は SceneConfig を参照)。
+		/// </remarks>
+		SceneConfig& RefConfig() { return m_config; }
+		const SceneConfig& GetConfig() const { return m_config; }
+
 		void SetGUID(const Core::GUID& a_guid) { m_guid = a_guid; }
 		const Core::GUID& GetGUID() const { return m_guid; }
 
@@ -114,7 +134,7 @@ namespace Engine::Scene
 		// 自身のデータの所在
 		Core::GUID m_guid;
 
-		// シーンが開始時に読み込んでおきたいアセットデータ
-		std::vector<Core::GUID> m_prevLoadAssetGUIDs = {};
+		// シーンの設定 : 開始時に読み込んでおきたいアセット(先読み一覧)と、その計測フラグ
+		SceneConfig m_config = {};
 	};
 }

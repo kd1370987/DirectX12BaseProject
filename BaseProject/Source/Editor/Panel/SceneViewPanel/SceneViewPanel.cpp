@@ -1139,8 +1139,13 @@ namespace Editor
 		// どのシーンを保存するかをログ出力する
 		ENGINE_LOG("[Scene] セーブ : %s", _path.c_str());
 
-		Persistence::Archive _ar(Persistence::Archive::EMode::Save, _fileDir, _fileName, "scene");
-		_pScene->Archive(_ar);
+		{
+			Persistence::Archive _ar(Persistence::Archive::EMode::Save, _fileDir, _fileName, "scene");
+			_pScene->Archive(_ar);
+		}
+
+		// シーンの設定(先読み一覧・計測フラグ)は別のファイル。一緒に書いておく
+		_pScene->RefConfig().SaveFile(_fileDir, _fileName);
 	}
 	void SceneViewPanel::CopyEntities(EditorContext& a_editContext, Engine::ECS::World* a_pWorld)
 	{

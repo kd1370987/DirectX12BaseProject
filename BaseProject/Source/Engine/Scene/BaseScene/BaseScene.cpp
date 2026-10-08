@@ -286,11 +286,25 @@ namespace Engine::Scene
 			}
 		}
 	}
-	void BaseScene::PreLoadAsset(Persistence::Archive& a_ar)
+	//======================================================================================
+	// 先読み
+	//--------------------------------------------------------------------------------------
+	// 参照は持たない。読んだものはキャッシュに残り、中身の組み立てやシステムが
+	// 同じGUIDを引いたときにそれを受け取る。
+	// キャッシュを片付けるのはシーンが1つも残らなくなったときだけなので、
+	// このシーンを開いている間に誰も持っていなくても捨てられない。
+	//======================================================================================
+	void BaseScene::PreLoadAsset(Resource::ResourceManager& a_resourceManager)
 	{
-		// 配列の復元
-		a_ar.VectorField("GUIDs",m_prevLoadAssetGUIDs);
+		const auto& _guidVec = m_config.GetPreLoadAssetGUIDs();
+		if (_guidVec.empty()) return;
 
-		// TODO: m_prevLoadAssetGUIDs のアセットをここで先読みする(未実装)
+		size_t _skipCount = 0;
+		for (const Core::GUID& _guid : _guidVec)
+		{
+			if (!a_resourceManager.RequestLoadByGUID(_guid)) ++_skipCount;
+		}
+
+		ENGINE_LOG("[Scene] 先読み : %zu 件(読み飛ばし %zu 件)", _guidVec.size() - _skipCount, _skipCount);
 	}
 }

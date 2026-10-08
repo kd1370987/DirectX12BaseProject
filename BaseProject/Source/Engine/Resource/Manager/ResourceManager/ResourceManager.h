@@ -147,6 +147,38 @@ namespace Engine::Resource
 		template<typename T>
 		inline ResourceRef<T> LoadImmediate(const Core::GUID& a_guid, const ResourceBuildContext* a_pBuildContext = nullptr);
 
+		/// <summary>
+		/// 型を知らないまま読み込みを要求する : 型はアセットデータベースの種別から引く
+		/// </summary>
+		/// <remarks>
+		/// シーンの先読みのように、GUIDの並びだけを持っている側のための入口。
+		/// 返る参照は持たないので、読んだものはキャッシュに残るだけ(次のスイープまで)。
+		///
+		/// 待つかどうかは種別で決まる。ほかの場所で非同期に読まれている種別
+		/// (Model / Texture / EffectAsset / Font)だけジョブへ流し、残りはその場で読み切る。
+		/// プレハブはワールドを引きながら読むので、ワーカーへ流すと
+		/// 呼び出し元とは別のシーンのワールドを掴みかねない。
+		/// </remarks>
+		/// <returns>読み込める種別だったら true(読み込みの成否ではない)</returns>
+		bool RequestLoadByGUID(const Core::GUID& a_guid);
+
+		//------------------------------------------------------------------------------------------
+		// 読み込み要求の記録
+		//
+		// 記録している間に要求されたGUIDを、初めて要求された順に重複なく溜める。
+		// シーンの先読み一覧を作るためのもの(SceneManager が開いてから閉じるまで回す)。
+		//
+		// ・読込済みのものを要求し直した場合も数える
+		//     前のシーンから持ち越したものも「このシーンが使った」ものなので
+		// ・ローダーの中から読まれたもの(モデルの中のメッシュなど)は数えない
+		//     持ち主を先読みすれば一緒に読まれるため。一覧には持ち主だけが並ぶ
+		//
+		// 記録は同時に1つだけ。ワーカースレッドからの要求も拾う
+		//------------------------------------------------------------------------------------------
+		void BeginRecordRequests();							// 記録を始める(前回の残りは捨てる)
+		std::vector<Core::GUID> EndRecordRequests();		// 記録を止めて、溜まったGUIDを受け取る
+		bool IsRecordingRequests() const { return m_isRecordingRequests.load(std::memory_order_acquire); }
+
 		// リソースの追加
 		template<typename T>
 		ResourceRef<T> Add(T&& a_resource);
@@ -335,6 +367,22 @@ namespace Engine::Resource
 		}
 
 		/// <summary>
+		/// このスレッドでいま入っているビルド(BuildIntoSlot)の深さ
+		/// </summary>
+		/// <remarks>
+		/// 0 でなければローダーの中からの要求。読み込み要求の記録で、
+		/// 持ち主に付いて読まれるもの(モデルの中のメッシュなど)を外すのに使う
+		/// </remarks>
+		static int& BuildDepth() noexcept
+		{
+			thread_local int _depth = 0;
+			return _depth;
+		}
+
+		// 読み込み要求を1件記録する(記録中のときだけ呼ばれる)
+		void RecordRequest(const Core::GUID& a_guid);
+
+		/// <summary>
 		/// スロットを、指定の添え字まで伸ばす
 		///
 		/// 伸ばす必要がないときは共有ロックだけで抜ける。
@@ -422,6 +470,12 @@ namespace Engine::Resource
 
 		// 非同期ロードの実行先 : 未登録なら同期で読む
 		std::atomic<Thread::JobSystem*> m_pJobSystem = nullptr;
+
+		// 読み込み要求の記録 : 記録中かどうかだけはロック無しで見る(記録していない間の要求を遅くしない)
+		std::atomic<bool>				m_isRecordingRequests = false;
+		std::mutex						m_recordMutex;							// 下の2つを守る
+		std::vector<Core::GUID>			m_recordedGUIDVec = {};					// 初めて要求された順
+		std::unordered_set<Core::GUID>	m_recordedGUIDSet = {};					// 重複を弾く
 
 		// GUIDとファイルパスの対応表。
 		// ロードはGUIDから実ファイルを引くので、引く側(このクラス)が持ち主になる
@@ -517,6 +571,12 @@ namespace Engine::Resource
 
 		a_outIsOwner = false;
 
+		// 読み込み要求の記録 : 読込済みでも数えるので、キャッシュを見る前に通す
+		if (m_isRecordingRequests.load(std::memory_order_acquire) && BuildDepth() == 0)
+		{
+			RecordRequest(a_guid);
+		}
+
 		std::lock_guard _lock(_data.cacheMutex);
 
 		auto _it = _data.cache.find(a_guid);
@@ -552,6 +612,10 @@ namespace Engine::Resource
 	inline void ResourceManager::BuildIntoSlot(const Core::GUID& a_guid, const Handle<T>& a_handle, const ResourceBuildContext* a_pBuildContext)
 	{
 		auto& _data = RefData<T>();
+
+		// ここから先の要求はローダーの中からのもの(読み込み要求の記録で外す)。
+		// 例外は下で受け止めるので、抜けるところで必ず戻る
+		++BuildDepth();
 
 		// 途中で何が起きても Loading のまま放置しない。
 		// 放置すると、このリソースを待っているスレッドが永久に起きてこない
@@ -609,6 +673,8 @@ namespace Engine::Resource
 			ENGINE_WARNING("[Resource] ビルド中に不明な例外が発生しました");
 			SetState(a_handle, EResourceState::Failed);
 		}
+
+		--BuildDepth();
 
 		// 完了を待っているスレッドを起こす。
 		// 待機側と同じロックを一度通してから通知しないと、起こし損ねる

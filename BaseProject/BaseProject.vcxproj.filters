@@ -106,6 +106,9 @@
     <Filter Include="Source\Editor\Panel\SceneAmbientPanel">
       <UniqueIdentifier>{8d45b7a4-1e64-41cc-a26f-e3c92afc04fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Editor\Panel\SceneConfigPanel">
+      <UniqueIdentifier>{77daebf7-dec3-4396-893b-60f5e045eb16}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Editor\Panel\SceneViewPanel">
       <UniqueIdentifier>{6c6a374a-ecea-4f89-8590-89ffa76bc7f7}</UniqueIdentifier>
     </Filter>
@@ -1066,6 +1069,9 @@
     <Filter Include="Source\Engine\Scene\SceneAmbient">
       <UniqueIdentifier>{72309446-869f-4ec8-9cfe-8920cb66af8d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Scene\SceneConfig">
+      <UniqueIdentifier>{5b79a51f-d67a-4fe0-963d-d3d5d7774fe3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Scene\SceneManager">
       <UniqueIdentifier>{0ecbb309-4990-4945-a4dc-ad988a186a3e}</UniqueIdentifier>
     </Filter>
@@ -1986,6 +1992,9 @@
     <ClCompile Include="Source\Editor\Panel\SceneAmbientPanel\SceneAmbientPanel.cpp">
       <Filter>Source\Editor\Panel\SceneAmbientPanel</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Editor\Panel\SceneConfigPanel\SceneConfigPanel.cpp">
+      <Filter>Source\Editor\Panel\SceneConfigPanel</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Editor\Panel\OptionPanel\OptionPanel.cpp">
       <Filter>Source\Editor\Panel\OptionPanel</Filter>
     </ClCompile>
@@ -2267,6 +2276,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Scene\SceneAmbient\SceneAmbient.cpp">
       <Filter>Source\Engine\Scene\SceneAmbient</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Scene\SceneConfig\SceneConfig.cpp">
+      <Filter>Source\Engine\Scene\SceneConfig</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp">
       <Filter>Source\Engine\Scene\SceneManager</Filter>
@@ -3587,6 +3599,9 @@
     <ClInclude Include="Source\Editor\Panel\SceneAmbientPanel\SceneAmbientPanel.h">
       <Filter>Source\Editor\Panel\SceneAmbientPanel</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\Panel\SceneConfigPanel\SceneConfigPanel.h">
+      <Filter>Source\Editor\Panel\SceneConfigPanel</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Editor\Panel\OptionPanel\OptionPanel.h">
       <Filter>Source\Editor\Panel\OptionPanel</Filter>
     </ClInclude>
@@ -3961,6 +3976,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Scene\SceneAmbient\SceneAmbient.h">
       <Filter>Source\Engine\Scene\SceneAmbient</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Scene\SceneConfig\SceneConfig.h">
+      <Filter>Source\Engine\Scene\SceneConfig</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h">
       <Filter>Source\Engine\Scene\SceneManager</Filter>

@@ -39,9 +39,19 @@ namespace Engine::Scene
 		}
 		while (!m_upBaseSceneVec.empty())
 		{
+			// 計測中のシーンを開いたまま終了した : ここまでに読んだもので一覧を置き換える
+			if (m_upBaseSceneVec.back().get() == m_pPreLoadRecordingScene)
+			{
+				if (auto* _pResourceManager = MainEngine::Instance().RefResourceManager())
+				{
+					EndRecordPreLoadAssets(*_pResourceManager);
+				}
+			}
+
 			m_upBaseSceneVec.back()->Exit();
 			m_upBaseSceneVec.pop_back();
 		}
+		m_pPreLoadRecordingScene = nullptr;
 
 		// 消えたシーンのテクスチャを指したままにせず、平行光の席も返す
 		ApplySceneAmbient();
@@ -236,9 +246,35 @@ namespace Engine::Scene
 		//------------------------------------------------------------------
 		m_pLoadingScene = _upScene.get();
 
-		// シーンの再構築
 		auto _fileDir = Core::File::GetDirFromPath(_sceneFilePath);
 		auto _fileName = Core::File::GetFileNameWithoutExtension(_sceneFilePath);
+
+		//------------------------------------------------------------------
+		// シーンの設定(先読み一覧・計測フラグ)を読み、中身より先に先読みを始める
+		//
+		// 中身の組み立てが同じアセットを引きに来たときには、読み終わっているか読込中になっている。
+		// プレハブはワールドを引きながら読むので、読み込み中のシーンを覚えた後に置くこと。
+		//
+		// 計測するときは先読みしない : 先読みしたものまで「使った」と数えてしまうため。
+		// 計測は中身の組み立てから数え始める
+		//------------------------------------------------------------------
+		_upScene->RefConfig().LoadFile(_fileDir, _fileName);
+
+		if (_upScene->GetConfig().IsRecordPreLoadAssets() && m_pPreLoadRecordingScene == nullptr)
+		{
+			BeginRecordPreLoadAssets(a_resourceManager, *_upScene);
+		}
+		else
+		{
+			if (_upScene->GetConfig().IsRecordPreLoadAssets())
+			{
+				ENGINE_WARNING("[Scene] 別のシーンの先読み一覧を計測中のため、このシーンは計測しません : %s",
+					_sceneFilePath.c_str());
+			}
+			_upScene->PreLoadAsset(a_resourceManager);
+		}
+
+		// シーンの再構築
 		// 形式はビルドモード任せ(Auto)。Development までは .ojscene 優先、Shipping は .obscene のみ
 		{
 			Persistence::Archive _ar(Persistence::Archive::EMode::Load, _fileDir, _fileName, "scene");
@@ -294,6 +330,12 @@ namespace Engine::Scene
 
 		// これを外すと1つも残らないか
 		const bool _isLastScene = (m_upBaseSceneVec.size() == 1);
+
+		// 計測中のシーンを閉じる : ここまでに読んだもので先読み一覧を置き換える
+		if (m_upBaseSceneVec.back().get() == m_pPreLoadRecordingScene)
+		{
+			EndRecordPreLoadAssets(a_resourceManager);
+		}
 
 		m_upBaseSceneVec.back()->Exit();
 		m_upBaseSceneVec.pop_back();
@@ -418,6 +460,53 @@ namespace Engine::Scene
 		{
 			SceneAmbient::ApplyNone(*_pGE, m_ambientDLHandle);
 		}
+	}
+
+	//======================================================================================
+	// 先読み一覧の計測
+	//======================================================================================
+	void SceneManager::BeginRecordPreLoadAssets(Resource::ResourceManager& a_resourceManager, BaseScene& a_scene)
+	{
+		m_pPreLoadRecordingScene = &a_scene;
+		a_resourceManager.BeginRecordRequests();
+
+		ENGINE_LOG("[Scene] 先読み一覧の計測を始めます(シーンを閉じるまで)");
+	}
+
+	void SceneManager::EndRecordPreLoadAssets(Resource::ResourceManager& a_resourceManager)
+	{
+		BaseScene* _pScene = m_pPreLoadRecordingScene;
+		m_pPreLoadRecordingScene = nullptr;
+		if (!_pScene) return;
+
+		std::vector<Core::GUID> _guidVec = a_resourceManager.EndRecordRequests();
+
+		// データベースに無いもの(消えたファイルなど)は先読みしても読めないので外す
+		auto& _assetDB = a_resourceManager.RefAssetDatabase();
+		std::erase_if(_guidVec, [&_assetDB](const Core::GUID& a_guid) { return !_assetDB.IsValid(a_guid); });
+
+		//------------------------------------------------------------------
+		// 一覧を置き換えて、フラグを下ろす
+		//
+		// 書くのは設定ファイルだけ。シーンファイルには触らない
+		// (閉じるときのシーンの中身はプレイで動いた後のものなので)
+		//------------------------------------------------------------------
+		auto& _config = _pScene->RefConfig();
+		_config.SetPreLoadAssetGUIDs(std::move(_guidVec));
+		_config.SetRecordPreLoadAssets(false);
+
+		const std::string _path = _assetDB.GetFilePathFromGUID(_pScene->GetGUID());
+		if (_path.empty())
+		{
+			ENGINE_WARNING("[Scene] シーンファイルが見つからないため、計測した先読み一覧を保存できません : %s",
+				_pScene->GetGUID().String().c_str());
+			return;
+		}
+
+		_config.SaveFile(Core::File::GetDirFromPath(_path), Core::File::GetFileNameWithoutExtension(_path));
+
+		ENGINE_LOG("[Scene] 先読み一覧を計測しました : %s (%zu 件)",
+			_path.c_str(), _config.GetPreLoadAssetGUIDs().size());
 	}
 
 	void SceneManager::ReserveChangeScene(const Core::GUID& a_guid, const ESceneChangeType& a_changeType)

@@ -1268,6 +1268,11 @@
       <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>Editor/EditorPCH.h</ForcedIncludeFiles>
     </ClCompile>
+    <ClCompile Include="Source\Editor\Panel\SceneConfigPanel\SceneConfigPanel.cpp">
+      <PrecompiledHeaderFile>Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.cpp">
       <PrecompiledHeaderFile>Editor/EditorPCH.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
@@ -1518,6 +1523,7 @@
     <ClCompile Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Source\Engine\Scene\BaseScene\BaseScene.cpp" />
     <ClCompile Include="Source\Engine\Scene\SceneAmbient\SceneAmbient.cpp" />
+    <ClCompile Include="Source\Engine\Scene\SceneConfig\SceneConfig.cpp" />
     <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp" />
     <ClCompile Include="Source\Engine\Time\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Source\Engine\Time\FPSController\FPSController.cpp" />
@@ -2057,6 +2063,7 @@
     <ClInclude Include="Source\Editor\Panel\IPanel.h" />
     <ClInclude Include="Source\Editor\Panel\OptionPanel\OptionPanel.h" />
     <ClInclude Include="Source\Editor\Panel\SceneAmbientPanel\SceneAmbientPanel.h" />
+    <ClInclude Include="Source\Editor\Panel\SceneConfigPanel\SceneConfigPanel.h" />
     <ClInclude Include="Source\Editor\Panel\RenderGraphResourceViewPanel\RenderGraphResourceViewPanel.h" />
     <ClInclude Include="Source\Editor\Panel\SceneViewPanel\SceneViewPanel.h" />
     <ClInclude Include="Source\Editor\Panel\ProfilerPanel\ProfilerPanel.h" />
@@ -2219,6 +2226,7 @@
     <ClInclude Include="Source\Engine\Resource\Manager\ResourceManager\ResourceManager.h" />
     <ClInclude Include="Source\Engine\Scene\BaseScene\BaseScene.h" />
     <ClInclude Include="Source\Engine\Scene\SceneAmbient\SceneAmbient.h" />
+    <ClInclude Include="Source\Engine\Scene\SceneConfig\SceneConfig.h" />
     <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h" />
     <ClInclude Include="Source\Engine\Time\DeltaTime\DeltaTime.h" />
     <ClInclude Include="Source\Engine\Time\FPSController\FPSController.h" />
