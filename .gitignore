@@ -7,6 +7,9 @@ packages/
 Library/
 .vs/
 
+# ビルド出力(x64/Debug・x64/Release のほか、構成を足したときの x64/<構成名> もまとめて)
+[Xx]64/
+
 # 上の Debug/ Release/ はビルド出力のためのもの。
 # ソースに同じ名前のフォルダ(Utility/Debug, Systems/Release など)があるので、
 # Source 以下は管理対象へ戻す(戻さないとクローンしただけではビルドできない)
@@ -44,6 +47,9 @@ BaseProject/Imported/*
 #Shader（コード扱い）
 !BaseProject/Asset/Shader/
 !BaseProject/Asset/Shader/**
+#コンパイル済みシェーダー(.cso)はビルドで作り直すので除外
+#(Debug / Release で中身が変わり、ビルドのたびに差分が出るため)
+BaseProject/Asset/Shader/**/*.cso
 #セーブデータ（あまりにも大きすぎたら消すかも）
 !BaseProject/Asset/Data/
 !BaseProject/Asset/Data/**
