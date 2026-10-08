@@ -13,7 +13,7 @@ namespace Engine::Resource
 
 		// ---- 参照しているデータもセーブ ----
 		// マテリアルの保存
-		UINT _mtrlHandleSize = m_runtimeData.materials.size();
+		UINT _mtrlHandleSize = static_cast<UINT>(m_runtimeData.materials.size());
 		m_AssetData.materialGUIDs.resize(_mtrlHandleSize);
 		for(UINT _i = 0; _i < _mtrlHandleSize; ++_i)
 		{
@@ -34,7 +34,7 @@ namespace Engine::Resource
 
 		}
 		// メッシュの保存
-		UINT _meshHandleSize = m_runtimeData.meshes.size();
+		UINT _meshHandleSize = static_cast<UINT>(m_runtimeData.meshes.size());
 		m_AssetData.meshGUIDs.resize(_meshHandleSize);
 		for (UINT _i = 0; _i < _meshHandleSize; ++_i)
 		{
@@ -53,7 +53,7 @@ namespace Engine::Resource
 
 		}
 		// アニメーションの保存
-		UINT _animHandleSize = m_runtimeData.animations.size();
+		UINT _animHandleSize = static_cast<UINT>(m_runtimeData.animations.size());
 		m_AssetData.animationGUIDs.resize(_animHandleSize);
 		for (UINT _i = 0; _i < _animHandleSize; ++_i)
 		{
@@ -81,7 +81,7 @@ namespace Engine::Resource
 		_ar.GUIDVectorField("MeshGUID", m_AssetData.meshGUIDs);
 		_ar.GUIDVectorField("AnimationGUID", m_AssetData.animationGUIDs);
 
-		UINT _nodeCount = m_AssetData.originalNodes.size();
+		UINT _nodeCount = static_cast<UINT>(m_AssetData.originalNodes.size());
 		_ar.Field("NodeCount",_nodeCount);
 		for (UINT _i = 0; _i < _nodeCount; ++_i)
 		{

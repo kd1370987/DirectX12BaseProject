@@ -20,10 +20,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Start,
 			"CameraStartSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
-				const Engine::ECS::SystemContext& a_ctx,
-				Component::StartTag* a_startTag,
+				const Engine::ECS::SystemContext& /*a_ctx*/,
+				Component::StartTag* /*a_startTag*/,
 				Component::CameraParamComponent* a_camParamArray,
 				Component::ProjMatComponent* a_projMatArray
 			)
@@ -35,7 +35,7 @@ namespace App::System
 
 					// カメラパラメーターの初期化
 					const auto& _winOp = Engine::Option::OptionManager::Instance().GetWindowOption();
-					_camParamComp.aspectRatio = (float)_winOp.windowWidth / (float)_winOp.windowHeight;
+					_camParamComp.aspectRatio = static_cast<float>(_winOp.windowWidth) / static_cast<float>(_winOp.windowHeight);
 
 					// プロジェクション行列の作成
 					_projMatComp.projMat = Math::Matrix::CreatePerspectiveFieldOfView(

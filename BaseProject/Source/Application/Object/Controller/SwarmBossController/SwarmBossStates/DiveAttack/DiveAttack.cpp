@@ -35,8 +35,8 @@ namespace App::Object
 				[&](
 					Engine::ECS::Chunk* a_pChunk,
 					uint32_t a_count,
-					const Component::ActiveTag* a_activeTagArray,
-					const Component::PlayerControllTag* a_playerTagArray
+					const Component::ActiveTag* /*a_activeTagArray*/,
+					const Component::PlayerControllTag* /*a_playerTagArray*/
 				)
 				{
 					if (_player != Engine::ECS::Limits::INVALID_ENTITY || a_count == 0) return;
@@ -72,7 +72,7 @@ namespace App::Object
 		constexpr int CURVE_DRAW_SEGMENTS = 24;
 	}
 
-	void SwarmBossDiveAttackState::Enter(SwarmBossStateContext& a_context)
+	void SwarmBossDiveAttackState::Enter(SwarmBossStateContext& /*a_context*/)
 	{
 		ChangePhase(EPhase::Rise);
 		m_curveT  = 0.0f;

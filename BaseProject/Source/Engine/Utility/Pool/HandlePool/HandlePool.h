@@ -45,7 +45,7 @@ namespace Engine::Pool
 		m_indexQueue = {};
 		for (uint32_t _idx = 0; _idx < a_maxCount; ++_idx)
 		{
-			m_indexQueue.push(_idx);
+			m_indexQueue.push(static_cast<uint16_t>(_idx));
 		}
 		m_maxCount = a_maxCount;
 
@@ -61,7 +61,7 @@ namespace Engine::Pool
 			if (m_maxCount == 0)
 			{
 				// インデックス上限が設定されていなければ、インデックスを追加
-				m_indexQueue.push(m_currentCount);
+				m_indexQueue.push(static_cast<uint16_t>(m_currentCount));
 				m_currentCount++;
 				m_genVec.push_back(0);
 			}

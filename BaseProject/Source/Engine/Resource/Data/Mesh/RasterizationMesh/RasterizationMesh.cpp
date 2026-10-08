@@ -13,7 +13,7 @@ namespace Engine::Resource
 		if (!vertexBuffer.CreateAndUpload(
 			a_pDevice,
 			a_pHeapManager,
-			(UINT)a_vertices.size(),
+			static_cast<UINT>(a_vertices.size()),
 			a_vertices.data()
 		))
 		{
@@ -32,7 +32,7 @@ namespace Engine::Resource
 		}
 
 		Graphics::D3D12::IndexBufferDesc _desc = {};
-		_desc.count = _indices.size();
+		_desc.count = static_cast<uint32_t>(_indices.size());
 		_desc.pData = _indices.data();
 		_desc.format = a_indexFormat;
 		if (!indexBuffer.Create(a_pDevice, a_pHeapManager, _desc))

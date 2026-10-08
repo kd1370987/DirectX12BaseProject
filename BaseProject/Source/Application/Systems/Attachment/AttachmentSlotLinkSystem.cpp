@@ -13,10 +13,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Awake,
 			"AttachmentSlotLinkSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::AwakeTag* a_tag,
+				Component::AwakeTag* /*a_tag*/,
 				Component::AttachmentSlotsComponent* a_slotsArray
 				)
 			{

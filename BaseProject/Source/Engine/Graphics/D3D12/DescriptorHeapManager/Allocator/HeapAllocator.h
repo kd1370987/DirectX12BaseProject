@@ -100,7 +100,7 @@ namespace Engine::Graphics::D3D12
 		if (!_handle.IsValid()) return _handle;
 
 		auto _idx = _handle.GetIndex();
-		_handle.SetIndex(_idx + (uint16_t)m_startIndex);
+		_handle.SetIndex(static_cast<uint16_t>(_idx + m_startIndex));
 
 		// CPUハンドルを取得する処理
 		D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = m_pHeap->GetCPU(static_cast<UINT>(_handle.GetIndex()));
@@ -175,7 +175,7 @@ namespace Engine::Graphics::D3D12
 		// 戻してあげる
 		auto _handle = a_handle;
 		auto _idx = _handle.GetIndex();
-		_handle.SetIndex(_idx - m_startIndex);
+		_handle.SetIndex(static_cast<uint16_t>(_idx - m_startIndex));
 
 		std::lock_guard<std::mutex> _lock(m_mutex);
 		m_HandlePool.Remove(_handle);
@@ -185,11 +185,11 @@ namespace Engine::Graphics::D3D12
 	{
 		auto _stHandle = a_handle;
 		auto _idx = _stHandle.GetIndex();
-		_stHandle.SetIndex(_idx - m_startIndex);
+		_stHandle.SetIndex(static_cast<uint16_t>(_idx - m_startIndex));
 		if (m_HandlePool.IsValid(_stHandle))
 		{
-			UINT _idx = a_handle.GetIndex();
-			return m_pHeap->GetCPU(_idx);
+			UINT _heapIdx = a_handle.GetIndex();
+			return m_pHeap->GetCPU(_heapIdx);
 		}
 		return { 0 };
 	}
@@ -198,12 +198,12 @@ namespace Engine::Graphics::D3D12
 	{
 		auto _stHandle = a_handle;
 		auto _idx = _stHandle.GetIndex();
-		_stHandle.SetIndex(_idx - m_startIndex);
+		_stHandle.SetIndex(static_cast<uint16_t>(_idx - m_startIndex));
 		if (m_HandlePool.IsValid(_stHandle))
 		{
-			UINT _idx = a_handle.GetIndex();
+			UINT _heapIdx = a_handle.GetIndex();
 			// GPUハンドルはシェーダー可視の側にしか意味が無い
-			return m_pShaderVisibleHeap ? m_pShaderVisibleHeap->GetGPU(_idx) : m_pHeap->GetGPU(_idx);
+			return m_pShaderVisibleHeap ? m_pShaderVisibleHeap->GetGPU(_heapIdx) : m_pHeap->GetGPU(_heapIdx);
 		}
 		return { 0 };
 	}

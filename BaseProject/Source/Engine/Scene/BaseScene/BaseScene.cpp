@@ -183,7 +183,7 @@ namespace Engine::Scene
 		if (a_ar.GetMode() == Persistence::Archive::EMode::Save)
 		{
 			m_upWorld->ForEach<Engine::ECS::GUIDComponent>(
-				[&_entityVec](ECS::Chunk* a_pChunk, uint32_t a_count, Engine::ECS::GUIDComponent* a_guidArray)
+				[&_entityVec](ECS::Chunk* a_pChunk, uint32_t a_count, Engine::ECS::GUIDComponent* /*a_guidArray*/)
 				{
 					for (size_t _i = 0; _i < a_count; ++_i)
 					{
@@ -291,8 +291,6 @@ namespace Engine::Scene
 		// 配列の復元
 		a_ar.VectorField("GUIDs",m_prevLoadAssetGUIDs);
 
-		for (auto& _guid : m_prevLoadAssetGUIDs)
-		{
-		}
+		// TODO: m_prevLoadAssetGUIDs のアセットをここで先読みする(未実装)
 	}
 }

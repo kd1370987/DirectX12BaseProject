@@ -177,7 +177,7 @@ namespace Engine::Window
 		WNDCLASSEX _wc = {};
 		_wc.cbSize = sizeof(WNDCLASSEX);									// 構造体サイズ
 		_wc.style = CS_OWNDC;												// 描画スタイル
-		_wc.lpfnWndProc = (WNDPROC)WndProc;									// ウィンドウ関数
+		_wc.lpfnWndProc = WndProc;									// ウィンドウ関数
 		_wc.hIcon = LoadIcon(m_hInst, IDI_APPLICATION);						// ウィンドウのアイコン（Alt+Tabなど）
 		// 標準カーソルは hInstance に nullptr を渡すこと(自前のモジュールを指すと取得できない)。
 		// 自前カーソルを切ったときはこれが出る
@@ -243,8 +243,7 @@ namespace Engine::Window
 			this						// 作成パラメタ : ウィンドウプロシージャから自身を触るため
 		);
 		if (!m_hWnd) {
-			DWORD err = GetLastError();
-			ENGINE_ERRLOG(false, "CreateWindowEx failed");
+			ENGINE_ERRLOG(false, "CreateWindowEx failed (GetLastError = %lu)", GetLastError());
 			return false;
 		}
 
@@ -528,7 +527,7 @@ namespace Engine::Window
 	double NativeWindow::GetMemoryUsage() const
 	{
 		PROCESS_MEMORY_COUNTERS_EX _pmc;
-		if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&_pmc, sizeof(_pmc)))
+		if (GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&_pmc), sizeof(_pmc)))
 		{
 			// WorkingSetSizeがタスクマネージャーのメモリに一番近い数値
 			// 物理メモリ使用量
@@ -536,5 +535,8 @@ namespace Engine::Window
 
 			return static_cast<double>(_physMemUsed);
 		}
+
+		// 取れなかった
+		return 0.0;
 	}
 }

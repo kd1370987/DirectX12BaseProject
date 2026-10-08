@@ -127,8 +127,8 @@ namespace App::System
 					[&_hud](
 						Engine::ECS::Chunk* a_pChunk,
 						uint32_t a_count,
-						const Component::ActiveTag* a_activeTagArray,
-						const Component::PlayerControllTag* a_playerTagArray
+						const Component::ActiveTag* /*a_activeTagArray*/,
+						const Component::PlayerControllTag* /*a_playerTagArray*/
 					)
 					{
 						if (_hud.HasPlayer() || a_count == 0) return;

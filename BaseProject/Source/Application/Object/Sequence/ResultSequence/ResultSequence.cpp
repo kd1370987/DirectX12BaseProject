@@ -121,7 +121,7 @@ namespace App::Object
 	//======================================================================================
 	// シリアライズ
 	//======================================================================================
-	void ResultSequence::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
+	void ResultSequence::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& /*a_context*/)
 	{
 		a_ar.GUIDField("HomeButtonGUID", m_homeButtonGUID);
 		a_ar.GUIDField("TitleSceneGUID", m_titleSceneGUID);

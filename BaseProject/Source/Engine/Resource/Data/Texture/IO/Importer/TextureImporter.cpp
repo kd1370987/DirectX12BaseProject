@@ -50,7 +50,7 @@ namespace Engine::Resource
 		Engine::Resource::UploadBuffer _uploadBuffer = {};
 
 		// サブリソース総数
-		_uploadBuffer.subresourceCount = a_meta.mipLevels * a_meta.arraySize;
+		_uploadBuffer.subresourceCount = static_cast<UINT>(a_meta.mipLevels * a_meta.arraySize);
 
 		std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> _layoutVec(_uploadBuffer.subresourceCount);
 		std::vector<UINT> _numRowVec(_uploadBuffer.subresourceCount);

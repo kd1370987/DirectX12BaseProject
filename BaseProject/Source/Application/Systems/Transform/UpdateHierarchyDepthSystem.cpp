@@ -14,10 +14,10 @@ namespace App::System
 			"UpdateHierarchyDepthSystem",
 			[]
 			(
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				Component::ActiveTag* /*a_tags*/,
 				const Component::HierarchyComponent* a_hierarychyArray
 			)
 			{
@@ -33,7 +33,7 @@ namespace App::System
 					// 最大深度が更新されていたら変更
 					if (_hComp.depth > _hRes.maxDepth)
 					{
-						ENGINE_LOG("階層に変更がありました : %d -> %d", _hRes.maxDepth, _hComp.depth);
+						ENGINE_LOG("階層に変更がありました : %u -> %u", _hRes.maxDepth, _hComp.depth);
 						_hRes.maxDepth = _hComp.depth;
 					}
 				}

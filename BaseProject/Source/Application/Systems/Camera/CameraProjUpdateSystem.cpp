@@ -18,10 +18,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Camera,
 			"CameraProjUpdateSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
-				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				const Engine::ECS::SystemContext& /*a_ctx*/,
+				Component::ActiveTag* /*a_tags*/,
 				Component::CameraParamComponent* a_camParamArray,
 				Component::ProjMatComponent* a_projMatArray
 			)

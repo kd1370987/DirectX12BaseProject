@@ -20,8 +20,8 @@ namespace Engine::Graphics::D3D12
 		m_view.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 		m_view.Buffer.FirstElement = 0;
-		m_view.Buffer.NumElements = m_elementNum;
-		m_view.Buffer.StructureByteStride = a_strideSize;
+		m_view.Buffer.NumElements = static_cast<UINT>(m_elementNum);
+		m_view.Buffer.StructureByteStride = static_cast<UINT>(a_strideSize);
 		m_view.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 		// SRV作成

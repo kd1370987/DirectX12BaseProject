@@ -19,13 +19,13 @@ namespace Engine::Input
 
 		if(m_isLeft)
 		{
-			m_axis.x = (float)(m_conState.Gamepad.sThumbLX / 32767.f);
-			m_axis.y = (float)(m_conState.Gamepad.sThumbLY / 32767.f);
+			m_axis.x = m_conState.Gamepad.sThumbLX / 32767.f;
+			m_axis.y = m_conState.Gamepad.sThumbLY / 32767.f;
 		}
 		else
 		{
-			m_axis.x = (float)(m_conState.Gamepad.sThumbRX / 32767.f);
-			m_axis.y = (float)(m_conState.Gamepad.sThumbRY / 32767.f);
+			m_axis.x = m_conState.Gamepad.sThumbRX / 32767.f;
+			m_axis.y = m_conState.Gamepad.sThumbRY / 32767.f;
 		}
 	}
 }

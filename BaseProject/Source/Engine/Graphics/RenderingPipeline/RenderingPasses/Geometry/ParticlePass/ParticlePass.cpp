@@ -139,7 +139,7 @@ namespace Engine::Graphics::Pipeline
 		// 1アセット分を描く
 		//----------------------------------------------------------
 		auto _drawPool = [&](
-			const Handle<Resource::ParticlesAsset>& a_handle,
+			const Handle<Resource::ParticlesAsset>& /*a_handle*/,
 			const auto& a_upPool,
 			const Resource::ParticlesAsset& a_particle,
 			const Handle<ID3D12PipelineState>& a_psoHandle)

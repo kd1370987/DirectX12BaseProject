@@ -33,10 +33,10 @@ namespace App::System
 			"RotationSystem",
 			[]
 			(
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
-				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				const Engine::ECS::SystemContext& /*a_ctx*/,
+				Component::ActiveTag* /*a_tags*/,
 				const Component::LookAngleComponent* a_lookArray,
 				Component::LocalTransformComponent* a_trsArray
 			)

@@ -74,10 +74,10 @@ namespace Editor
 	ImVec2 EditorHelper::DrawSRVView(
 		D3D12_GPU_DESCRIPTOR_HANDLE a_gpuHandle,
 		float a_width, float a_height,
-		float a_minSize, float a_maxSize
+		float /*a_minSize*/, float /*a_maxSize*/
 	)
 	{
-		ImTextureID _imTex = (ImTextureID)(a_gpuHandle.ptr);
+		ImTextureID _imTex = static_cast<ImTextureID>(a_gpuHandle.ptr);
 
 		// 横幅だけを取得（縦の残り領域は無視する）
 		float drawWidth = ImGui::GetContentRegionAvail().x;

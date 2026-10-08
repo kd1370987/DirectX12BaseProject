@@ -20,7 +20,7 @@ namespace Core::BinaryHelper
 	// セーブ
 	inline void WriteString(std::ofstream& a_ofs, const std::string& a_str)
 	{
-		uint32_t _len = a_str.size();
+		uint32_t _len = static_cast<uint32_t>(a_str.size());
 		// 復元用にサイズを保存
 		Write(a_ofs, _len);
 		if (_len > 0)

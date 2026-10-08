@@ -104,11 +104,6 @@ namespace Engine::Graphics::D3D12
 		auto _handle = m_rangeAllocator.AllocateRange(a_count);
 		if (!_handle.IsValid()) return _handle;		// 容量不足
 
-		// バイトオフセットとサイズを計算
-		UINT _destOffsetBytes = _handle.startIndex * sizeof(T);
-		UINT _sizeBytes = a_count * sizeof(T);
-
-
 		// 中身のどこを使うかを割り当てて返す
 		return _handle;
 	}

@@ -154,7 +154,7 @@ namespace App::Game
 		InputArchive(a_ar);
 	}
 
-	void UserData::GameDataArchive(Engine::Persistence::Archive& a_ar)
+	void UserData::GameDataArchive(Engine::Persistence::Archive& /*a_ar*/)
 	{}
 
 	//==========================================================================================

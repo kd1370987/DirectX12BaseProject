@@ -31,7 +31,7 @@ namespace Engine::Graphics::D3D12
 		_desc.elementNum = a_elementNum;
 		_desc.strideSize = sizeof(T);
 		_desc.flags = D3D12_RESOURCE_FLAG_NONE;
-		if (!StaticBuffer::Create(a_pDevice, a_pHeapManager, a_pCmdList, _desc, (void*)a_pInitData))
+		if (!StaticBuffer::Create(a_pDevice, a_pHeapManager, a_pCmdList, _desc, a_pInitData))
 		{
 			ENGINE_ERRLOG(false, "ストラクチャバッファの生成に失敗");
 			return;
@@ -44,7 +44,7 @@ namespace Engine::Graphics::D3D12
 		m_view.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 		m_view.Buffer.FirstElement = 0;
-		m_view.Buffer.NumElements = m_elementNum;
+		m_view.Buffer.NumElements = static_cast<UINT>(m_elementNum);
 		m_view.Buffer.StructureByteStride = sizeof(T);
 		m_view.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 

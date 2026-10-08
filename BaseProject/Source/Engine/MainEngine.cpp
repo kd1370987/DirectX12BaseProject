@@ -111,7 +111,7 @@ namespace Engine
 
 		// タイムマネージャークラスの生成
 		m_upTimeManager = std::make_unique<Time::TimeManager>();
-		m_upTimeManager->Init(static_cast<int>(_winOp.targetFrameRate));
+		m_upTimeManager->Init(static_cast<float>(_winOp.targetFrameRate));
 
 		// 描画周りの器を先に作る。
 		// デバイス・コマンドキュー・ディスクリプタヒープ・バックバッファはどれもグラフィックスエンジンの持ち物で、

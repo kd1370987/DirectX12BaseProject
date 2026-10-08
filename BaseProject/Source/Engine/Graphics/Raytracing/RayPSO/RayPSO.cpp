@@ -70,7 +70,7 @@ namespace Engine::Graphics::Raytracing
 					a_rsSO.Init(_pMissRootSig);
 				}
 				_subObjects.push_back(a_rsSO.subObject);
-				uint32_t _rgSOIndex = _subObjects.size() - 1;
+				uint32_t _rgSOIndex = static_cast<uint32_t>(_subObjects.size() - 1);
 
 				int _useRootSig = 0;
 				for (auto& _shaderData : a_desc.shaderDataVec)
@@ -127,12 +127,12 @@ namespace Engine::Graphics::Raytracing
 		else
 		{
 			// 指定サイズを入れる
-			_shaderConfig.Init(8, a_desc.payloadSize);
+			_shaderConfig.Init(8, static_cast<uint32_t>(a_desc.payloadSize));
 		}
 		_subObjects.push_back(_shaderConfig.subObject);
 
 		// シェーダー設定とシェーダーの関連付け
-		uint32_t _shaderConfigIndex = _subObjects.size() - 1;
+		uint32_t _shaderConfigIndex = static_cast<uint32_t>(_subObjects.size() - 1);
 		BuildSubObjectHelper::ExportAssociationSubObject _configAssociationSO;
 		_configAssociationSO.Init(a_desc.shaderDataVec, &_subObjects[_shaderConfigIndex]);
 		_subObjects.push_back(_configAssociationSO.subObject);
@@ -171,7 +171,7 @@ namespace Engine::Graphics::Raytracing
 
 		return _props->GetShaderIdentifier(_entry.c_str());
 	}
-	const void* RayPSO::GetShaderID(const const wchar_t* a_shaderEntry) const
+	const void* RayPSO::GetShaderID(const wchar_t* a_shaderEntry) const
 	{
 		ComPtr<ID3D12StateObjectProperties> _props;
 		m_cpPSO.As(&_props);

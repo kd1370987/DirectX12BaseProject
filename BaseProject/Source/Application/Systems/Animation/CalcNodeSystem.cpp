@@ -16,19 +16,18 @@ namespace App::System
 			Engine::ECS::ESystemType::Animation,
 			"CalcNodeSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx, 
-				Component::ActiveTag* a_tags,
+				Component::ActiveTag* /*a_tags*/,
 				const Component::ModelComponent* a_modelArray,
-				const Component::AnimatorComponent* a_animatorArray,
+				const Component::AnimatorComponent* /*a_animatorArray*/,
 				Component::NodePoseComponent* a_nodePoseArray
 			)
 			{
 				for (size_t _i = 0; _i < a_count; ++_i)
 				{
 					const Component::ModelComponent& _modelComp = a_modelArray[_i];
-					const Component::AnimatorComponent& _aniComp = a_animatorArray[_i];
 					Component::NodePoseComponent& _nodeComp = a_nodePoseArray[_i];
 
 					// モデル取得

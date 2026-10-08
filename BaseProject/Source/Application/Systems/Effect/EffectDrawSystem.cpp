@@ -38,7 +38,7 @@ namespace App::System
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				Component::ActiveTag* /*a_tags*/,
 				Component::EffectRuntimeComponent* a_runtimeArray,
 				const Component::EffectOverrideComponent* a_overrideArray,
 				const Component::WorldMatrixComponent* a_worldMatArray

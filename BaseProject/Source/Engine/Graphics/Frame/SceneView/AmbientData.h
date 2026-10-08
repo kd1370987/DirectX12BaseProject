@@ -10,7 +10,8 @@ namespace Engine::Graphics
 	// ※ HLSL 側(Asset/Shader/Common/RootParameters/AmbientData.hlsli)と
 	//    1バイトもズレないよう、16バイト(float4)境界ごとに区切って並べること。
 	//    HLSL の定数バッファは float3 が16バイト境界をまたぐと次の境界へ押し出される。
-	struct alignas(256) AmbientData
+	//    定数バッファの256バイト境界は CBAllocator が置き場所を取るときにそろえるので、構造体には付けない
+	struct AmbientData
 	{
 		// 環境光
 		Math::Vector3 ambientColorScale = {0,0,0};

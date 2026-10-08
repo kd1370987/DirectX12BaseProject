@@ -98,7 +98,7 @@ namespace Editor
 	// 実行インスタンスはカメラごとにあるので、まずカメラを選んでから中身を見る。
 	// 設計図(アセット)側はリソースの実体を持たないので、ここには出てこない
 	//======================================================================================
-	void RenderGraphResourceViewPanel::OnDrawImGui(EditorContext& a_editContext)
+	void RenderGraphResourceViewPanel::OnDrawImGui(EditorContext& /*a_editContext*/)
 	{
 		auto* _pGraphicsEngine = MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGraphicsEngine)

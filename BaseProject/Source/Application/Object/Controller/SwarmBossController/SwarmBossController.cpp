@@ -200,14 +200,14 @@ namespace App::Object
 		}
 	}
 
-	void SwarmBossController::PostDeserialize(Engine::GameObject::ObjectContext& a_context)
+	void SwarmBossController::PostDeserialize(Engine::GameObject::ObjectContext& /*a_context*/)
 	{}
 	void SwarmBossController::Awake(Engine::GameObject::ObjectContext& a_context)
 	{
 		// リーダー → 小隊長 → ボイドの順に生成
 		Spawn(a_context);
 	}
-	void SwarmBossController::Start(Engine::GameObject::ObjectContext& a_context)
+	void SwarmBossController::Start(Engine::GameObject::ObjectContext& /*a_context*/)
 	{}
 	void SwarmBossController::Update(Engine::GameObject::ObjectContext& a_context)
 	{
@@ -1246,8 +1246,8 @@ namespace App::Object
 			[&_count, &_self, &a_context](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const Component::ActiveTag* a_activeTagArray,
-				const Component::SwarmBossBoidTag* a_boidTagArray,
+				const Component::ActiveTag* /*a_activeTagArray*/,
+				const Component::SwarmBossBoidTag* /*a_boidTagArray*/,
 				const Component::SpawnerComponent* a_spawnerArray)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)

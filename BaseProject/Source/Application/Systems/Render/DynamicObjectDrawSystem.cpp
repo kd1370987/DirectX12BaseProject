@@ -20,12 +20,12 @@ namespace App::System
 				"DynamicObjectDrawSystem",
 				[]
 				(
-					Engine::ECS::Chunk* a_pChunk,
+					Engine::ECS::Chunk* /*a_pChunk*/,
 					uint32_t a_count,
 					const Engine::ECS::SystemContext& a_ctx,
-					Component::ActiveTag* a_tags,
+					Component::ActiveTag* /*a_tags*/,
 					const Component::WorldMatrixComponent* a_worldMatArray,
-					const Component::PreviousWorldMatrixComponent* a_prevWorldMatArray,
+					const Component::PreviousWorldMatrixComponent* /*a_prevWorldMatArray*/,
 					const Component::ModelComponent* a_modelArray
 					)
 				{
@@ -36,8 +36,7 @@ namespace App::System
 					for (size_t _i = 0; _i < a_count; ++_i)
 					{
 						const Component::WorldMatrixComponent& _worldMatComp = a_worldMatArray[_i];
-						const Component::PreviousWorldMatrixComponent& _prevWorldMatComp = a_prevWorldMatArray[_i];
-						const Component::ModelComponent& _modelComp = a_modelArray[_i];
+							const Component::ModelComponent& _modelComp = a_modelArray[_i];
 
 						// モデル取得
 						auto* _model = a_ctx.pServices->pResourceManager->Get(_modelComp.handle);

@@ -188,7 +188,7 @@ namespace App::Game
 			m_upMouseCursor.reset();
 		}
 	}
-	void GameManager::FireGlobalEvent(const std::string & a_eventName)
+	void GameManager::FireGlobalEvent(const std::string & /*a_eventName*/)
 	{}
 	void GameManager::EditDraw()
 	{

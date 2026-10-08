@@ -39,7 +39,7 @@ namespace Engine::Graphics::Particle
 	void Engine::Graphics::Particle::ParticleBufferManager::Init(
 		Graphics::GraphicsEngine* a_pGraphicsEngine,
 		Graphics::D3D12::DescriptorHeapManager* a_pHeapManager,
-		Graphics::D3D12::GraphicsCommandList* a_pCmdList
+		Graphics::D3D12::GraphicsCommandList* /*a_pCmdList*/
 	)
 	{
 		// ビューの置き場と転送の依頼先を控える : プールは非同期に作られるので、そこまで持ち回る

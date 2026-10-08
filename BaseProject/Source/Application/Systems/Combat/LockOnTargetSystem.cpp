@@ -46,11 +46,11 @@ namespace App::System
 			Engine::ECS::ESystemType::PostUpdate,
 			"LockOnTargetSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
-				const Component::PlayerControllTag* a_playerTagArray,
+				Component::ActiveTag* /*a_tags*/,
+				const Component::PlayerControllTag* /*a_playerTagArray*/,
 				const Component::WorldMatrixComponent* a_worldMatArray,
 				Component::LockOnTargetComponent* a_lockOnArray
 			)
@@ -128,8 +128,8 @@ namespace App::System
 						[&](
 							Engine::ECS::Chunk* a_pEnemyChunk,
 							uint32_t a_enemyCount,
-							const Component::ActiveTag* a_activeTagArray,
-							const Component::EnemyTag* a_enemyTagArray,
+							const Component::ActiveTag* /*a_activeTagArray*/,
+							const Component::EnemyTag* /*a_enemyTagArray*/,
 							const Component::WorldMatrixComponent* a_enemyWorldMatArray
 						)
 						{

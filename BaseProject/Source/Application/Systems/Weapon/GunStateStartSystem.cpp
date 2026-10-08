@@ -17,7 +17,7 @@ namespace App::System
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::StartTag* a_tag,
+				Component::StartTag* /*a_tag*/,
 				const Component::ModelComponent* a_modelArray,
 				Component::GunStateComponent* a_gunStateArray
 				)

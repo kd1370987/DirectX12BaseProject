@@ -295,7 +295,7 @@ namespace Engine::Resource::Import
 			return EShaderStage::Unknown;
 		}
 
-		size_t _fileSize = (size_t)_file.tellg();
+		size_t _fileSize = static_cast<size_t>(_file.tellg());
 		_file.seekg(0, std::ios::beg);
 
 		std::vector<char> _fileData(_fileSize);

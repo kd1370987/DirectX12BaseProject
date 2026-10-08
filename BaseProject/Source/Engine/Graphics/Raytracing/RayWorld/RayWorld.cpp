@@ -90,16 +90,12 @@ namespace Engine::Graphics::Raytracing
 		const Math::Matrix& a_worldMat,
 		const Engine::Handle<Engine::Resource::Model>& a_modelHandle,
 		const Handle<DynamicRaytracingData>& a_dynamicDataHandle,
-		const RangeHandle<Resource::NodePoseMatrix>& a_nodeposeMatHandle,
+		const RangeHandle<Resource::NodePoseMatrix>& /*a_nodeposeMatHandle*/,
 		const Math::Color& a_colorScale, 
 		const Math::Vector3& a_emissiveScale,
 		const Math::Vector3& a_emissiveAdd
 	)
 	{
-		// ノード行列取得
-		auto& _nodePosePool = a_world.RefResource<Engine::Pool::RangePool<Engine::Resource::NodePoseMatrix>>();
-		const auto& _nodePoseMatVec = _nodePosePool.GetRange(a_nodeposeMatHandle);
-
 		// モデルのノードとメッシュを参照してインスタンスに変換
 		auto* _model = (*m_pResourceManager).Get(a_modelHandle);
 		if (!_model) return;

@@ -37,10 +37,10 @@ namespace App::System
 			"EffectFixupSystem",
 			[]
 			(
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::PostDeserializeTag* a_tag,
+				Component::PostDeserializeTag* /*a_tag*/,
 				const Component::EffectAssetComponent* a_effectArray,
 				Component::EffectRuntimeComponent* a_runtimeArray,
 				Component::EffectPlayRequestComponent* a_requestArray
@@ -108,10 +108,10 @@ namespace App::System
 			"BoosterSparkFixupSystem",
 			[]
 			(
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::PostDeserializeTag* a_tag,
+				Component::PostDeserializeTag* /*a_tag*/,
 				Component::BoosterEffectComponent* a_boosterArray
 				)
 			{
@@ -150,10 +150,10 @@ namespace App::System
 			"MuzzleEffectFixupSystem",
 			[]
 			(
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::PostDeserializeTag* a_tag,
+				Component::PostDeserializeTag* /*a_tag*/,
 				Component::GunStateComponent* a_gunArray
 				)
 			{

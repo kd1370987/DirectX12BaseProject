@@ -102,7 +102,6 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Library\Lib\Debug</AdditionalLibraryDirectories>
-      <DelayLoadDLLs>assimp-vc143-mtd.dll</DelayLoadDLLs>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -152,7 +151,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Library\Lib\Release</AdditionalLibraryDirectories>
-      <DelayLoadDLLs>assimp-vc143-mt.dll</DelayLoadDLLs>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -198,7 +196,6 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>assimp-vc143-mtd.dll</DelayLoadDLLs>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <AdditionalLibraryDirectories>..\Library\Lib\Debug</AdditionalLibraryDirectories>
@@ -251,7 +248,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>assimp-vc143-mt.dll</DelayLoadDLLs>
       <AdditionalLibraryDirectories>..\Library\Lib\Release</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
@@ -329,6 +325,8 @@
       <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\imgui_impl_dx12.obj</ObjectFileName>
+      <!-- PCH の警告レベル(/W4)が優先されるので、出ている警告だけ切る(ライブラリのコードは触らない) -->
+      <DisableSpecificWarnings>4189;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imgui-docking\imgui_impl_win32.cpp">
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
@@ -359,6 +357,8 @@
       <PrecompiledHeaderOutputFile>$(IntDir)Pch.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <ObjectFileName>$(IntDir)External\ImGuizmo.obj</ObjectFileName>
+      <!-- PCH の警告レベル(/W4)が優先されるので、出ている警告だけ切る(ライブラリのコードは触らない) -->
+      <DisableSpecificWarnings>4245;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ClCompile Include="..\Library\Include\imnodes-master\imnodes.cpp">
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>

@@ -18,11 +18,11 @@ namespace App::System
 			"RegisterRayWorldSystem",
 			[]
 			(
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_pTags,
-				const Component::RayTag* a_pRayTags,
+				Component::ActiveTag* /*a_pTags*/,
+				const Component::RayTag* /*a_pRayTags*/,
 				const Component::ModelComponent* a_pModelArray,
 				const Component::WorldMatrixComponent* a_pWorldMatArray
 			)

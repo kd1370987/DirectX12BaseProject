@@ -138,7 +138,7 @@ namespace Engine::Graphics
 
 		// シェーダーからルートシグネチャの抽出に成功
 		// ルートシグネチャの部分からハッシュ値を求める
-		uint64_t _hash = CalcHash((void*)_cpRootSigBlob->GetBufferPointer(), _cpRootSigBlob->GetBufferSize());
+		uint64_t _hash = CalcHash(_cpRootSigBlob->GetBufferPointer(), _cpRootSigBlob->GetBufferSize());
 
 		// すでに構築されているルートシグネチャならそのハンドルを返す
 		auto _it = m_rootSigHashMap.find(_hash);
@@ -183,7 +183,7 @@ namespace Engine::Graphics
 
 		// シェーダーからルートシグネチャの抽出に成功
 		// ルートシグネチャの部分からハッシュ値を求める
-		uint64_t _hash = CalcHash((void*)_cpRootSigBlob->GetBufferPointer(), _cpRootSigBlob->GetBufferSize());
+		uint64_t _hash = CalcHash(_cpRootSigBlob->GetBufferPointer(), _cpRootSigBlob->GetBufferSize());
 
 		// すでに構築されているルートシグネチャならそのハンドルを返す
 		auto _it = m_rootSigHashMap.find(_hash);

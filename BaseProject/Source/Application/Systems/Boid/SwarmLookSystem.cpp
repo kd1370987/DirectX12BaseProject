@@ -90,10 +90,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Update,
 			"SwarmLookSystem_Leader",
 			[](
-				Engine::ECS::Chunk*      a_pChunk,
+				Engine::ECS::Chunk*      /*a_pChunk*/,
 				uint32_t                          a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				Component::ActiveTag*                        /*a_tags*/,
 				const Component::BoidLeaderComponent*        a_leaderArray,
 				const Component::ActualVelocityComponent*    a_actualArray,
 				Component::LookAngleComponent*               a_lookArray
@@ -116,10 +116,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Update,
 			"SwarmLookSystem_Platoon",
 			[](
-				Engine::ECS::Chunk*      a_pChunk,
+				Engine::ECS::Chunk*      /*a_pChunk*/,
 				uint32_t                          a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				Component::ActiveTag*                        /*a_tags*/,
 				const Component::PlatoonLeaderComponent*     a_platoonArray,
 				const Component::ActualVelocityComponent*    a_actualArray,
 				Component::LookAngleComponent*               a_lookArray
@@ -143,10 +143,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Update,
 			"SwarmLookSystem_Boid",
 			[](
-				Engine::ECS::Chunk*      a_pChunk,
+				Engine::ECS::Chunk*      /*a_pChunk*/,
 				uint32_t                          a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				Component::ActiveTag*                        /*a_tags*/,
 				const Component::BoidMembershipComponent*    a_memberArray,
 				const Component::BoidSteeringParamsComponent* a_paramsArray,
 				Component::LookAngleComponent*               a_lookArray
@@ -189,10 +189,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Update,
 			"SwarmLookSystem_Missile",
 			[](
-				Engine::ECS::Chunk*               a_pChunk,
+				Engine::ECS::Chunk*               /*a_pChunk*/,
 				uint32_t                          a_count,
-				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				const Engine::ECS::SystemContext& /*a_ctx*/,
+				Component::ActiveTag*                        /*a_tags*/,
 				const Component::SwarmMissileComponent*      a_missileArray,
 				Component::LookAngleComponent*               a_lookArray
 			)
@@ -220,10 +220,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Update,
 			"SwarmLookSystem_Burst",
 			[](
-				Engine::ECS::Chunk*               a_pChunk,
+				Engine::ECS::Chunk*               /*a_pChunk*/,
 				uint32_t                          a_count,
-				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				const Engine::ECS::SystemContext& /*a_ctx*/,
+				Component::ActiveTag*                        /*a_tags*/,
 				const Component::SwarmBurstComponent*        a_burstArray,
 				Component::LookAngleComponent*               a_lookArray
 			)

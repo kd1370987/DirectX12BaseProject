@@ -18,10 +18,10 @@ namespace Engine::Resource::Converter
 				Engine::Resource::MeshVertexFloat _dstVertex = {};
 
 				unsigned int _srcColor = _srcVertex.color;
-				float r = ((float)((_srcColor >> 24) & 0xFF)) / 255.0f;
-				float g = ((float)((_srcColor >> 16) & 0xFF)) / 255.0f;
-				float b = ((float)((_srcColor >> 8) & 0xFF)) / 255.0f;
-				float a = ((float)((_srcColor >> 0) & 0xFF)) / 255.0f;
+				float r = static_cast<float>((_srcColor >> 24) & 0xFF) / 255.0f;
+				float g = static_cast<float>((_srcColor >> 16) & 0xFF) / 255.0f;
+				float b = static_cast<float>((_srcColor >> 8) & 0xFF) / 255.0f;
+				float a = static_cast<float>((_srcColor >> 0) & 0xFF) / 255.0f;
 				_dstVertex.color = Math::Color(r, g, b, a);
 
 				_dstVertex.normal = _srcVertex.normal;
@@ -124,7 +124,7 @@ namespace Engine::Resource::Converter
 				if (_boneIdx >= 0)
 				{
 					// ボーンノードリストのサイズ確保
-					if (_boneIdx >= (int)a_destModel.boneNodeIndices.size())
+					if (_boneIdx >= static_cast<int>(a_destModel.boneNodeIndices.size()))
 					{
 						a_destModel.boneNodeIndices.resize(_boneIdx + 1);
 					}
@@ -340,7 +340,7 @@ namespace Engine::Resource::Converter
 		_ar.GUIDVectorField("MeshGUID", a_asset.meshGUIDs);
 		_ar.GUIDVectorField("AnimationGUID", a_asset.animationGUIDs);
 
-		UINT _nodeCount = a_asset.originalNodes.size();
+		UINT _nodeCount = static_cast<UINT>(a_asset.originalNodes.size());
 		_ar.Field("NodeCount", _nodeCount);
 		for (UINT _i = 0; _i < _nodeCount; ++_i)
 		{
@@ -359,7 +359,7 @@ namespace Engine::Resource::Converter
 	void ModelConverter::ConvertMaterialToBinary(ResourceManager& a_resourceManager, const std::string& a_basePath, ModelAssetData& a_asset,const ModelRuntimeData& a_runtime)
 	{
 
-		UINT _mtrlHandleSize = a_runtime.materials.size();
+		UINT _mtrlHandleSize = static_cast<UINT>(a_runtime.materials.size());
 		a_asset.materialGUIDs.resize(_mtrlHandleSize);
 		for (UINT _i = 0; _i < _mtrlHandleSize; ++_i)
 		{

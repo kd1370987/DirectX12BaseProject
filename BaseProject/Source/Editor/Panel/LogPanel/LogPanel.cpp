@@ -69,7 +69,7 @@ namespace Editor
 		}
 	}
 
-	void LogPanel::OnDrawImGui(EditorContext& a_editContext)
+	void LogPanel::OnDrawImGui(EditorContext& /*a_editContext*/)
 	{
 		// ウィンドウの Begin/End は PanelManager 側が行うので、ここでは中身だけを描く
 

@@ -919,7 +919,7 @@ namespace Engine::EditorField
 		}
 		auto _gpuHandle = EditorHelper::GetImGuiTexHandle(_pTex->GetImGuiSRV());
 
-		ImTextureID _imTex = (ImTextureID)(_gpuHandle.ptr);
+		ImTextureID _imTex = static_cast<ImTextureID>(_gpuHandle.ptr);
 
 		// 横幅だけを取得（縦の残り領域は無視する）
 		const float _drawWidth = ImGui::GetContentRegionAvail().x;

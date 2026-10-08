@@ -225,7 +225,7 @@ namespace App::System
 				Engine::ECS::Chunk*      a_pChunk,
 				uint32_t                          a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				Component::ActiveTag*                        /*a_tags*/,
 				const Component::TargetEntityComponent*      a_targetArray,
 				const Component::LocalTransformComponent*    a_trsArray,
 				const Component::AttachmentSlotsComponent*   a_slotsArray,

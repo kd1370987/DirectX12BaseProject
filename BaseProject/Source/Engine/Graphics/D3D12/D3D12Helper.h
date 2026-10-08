@@ -91,7 +91,7 @@ namespace Engine::Graphics::D3D12
 	/// <param name="a_depthStencilView">指定対象のハンドル</param>
 	/// <param name="a_clearFlags">クリアフラグ</param>
 	/// <param name="a_depth">奥(1.0)</param>
-	/// <param name="a_stencil">手前(0.0)</param>
+	/// <param name="a_stencil">ステンシルのクリア値</param>
 	/// <param name="a_numRects">矩形数</param>
 	/// <param name="a_pRects">矩形ポインタ</param>
 	inline void ClearDepthStencilView(
@@ -99,7 +99,7 @@ namespace Engine::Graphics::D3D12
 		D3D12_CPU_DESCRIPTOR_HANDLE a_depthStencilView,
 		D3D12_CLEAR_FLAGS a_clearFlags = D3D12_CLEAR_FLAG_DEPTH,
 		float a_depth = 1.0f,
-		float a_stencil = 0.0f,
+		UINT8 a_stencil = 0,
 		UINT a_numRects = 0,
 		const D3D12_RECT* a_pRects = nullptr
 	)

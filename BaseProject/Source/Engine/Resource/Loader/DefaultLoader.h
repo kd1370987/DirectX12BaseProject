@@ -92,7 +92,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<Shader>
 	{
-		static Shader LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		static Shader LoadFromFile(const std::string& a_path, const ResourceBuildContext* /*a_pContext*/)
 		{
 			return ShaderIO::LoadShaderFromFile(a_path);
 		}
@@ -128,7 +128,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<AnimationData>
 	{
-		static AnimationData LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		static AnimationData LoadFromFile(const std::string& a_path, const ResourceBuildContext* /*a_pContext*/)
 		{
 			return AnimationIO::LoadFromFile(a_path);
 		}
@@ -137,7 +137,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<Prefab>
 	{
-		static Prefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		static Prefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* /*a_pContext*/)
 		{
 			return Prefab::LoadFromFile(a_path);
 		}
@@ -146,7 +146,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<EffectPrefab>
 	{
-		static EffectPrefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		static EffectPrefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* /*a_pContext*/)
 		{
 			return EffectPrefab::LoadFromFile(a_path);
 		}
@@ -155,7 +155,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<Sound>
 	{
-		static Sound LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		static Sound LoadFromFile(const std::string& a_path, const ResourceBuildContext* /*a_pContext*/)
 		{
 			return SoundIO::Load(a_path);
 		}
@@ -164,7 +164,7 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<AudioBehavior>
 	{
-		static AudioBehavior LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
+		static AudioBehavior LoadFromFile(const std::string& a_path, const ResourceBuildContext* /*a_pContext*/)
 		{
 			return AudioBehaviorIO::LoadFromFile(a_path);
 		}

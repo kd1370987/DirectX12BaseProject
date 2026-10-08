@@ -13,10 +13,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Physics,
 			"GravitySystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
-				const Engine::ECS::SystemContext& a_ctx, 
-				Component::ActiveTag* a_tags,
+				const Engine::ECS::SystemContext& /*a_ctx*/, 
+				Component::ActiveTag* /*a_tags*/,
 				const Component::GravityComponent* a_gravityArray,
 				Component::DesiredVelocityComponent* a_velocityArray
 			)

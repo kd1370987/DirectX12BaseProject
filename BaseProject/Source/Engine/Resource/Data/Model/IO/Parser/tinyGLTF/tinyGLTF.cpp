@@ -42,12 +42,12 @@ namespace Engine::Resource::GLTF
 			// float取得
 			float GetValue_Float(int a_idx)
 			{
-				if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_BYTE)                 return Get<char>(a_idx) / (float)(SCHAR_MAX);
-				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE)	return Get<BYTE>(a_idx) / (float)UCHAR_MAX;
-				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_SHORT)			return Get<short>(a_idx) / (float)SHRT_MAX;
-				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT)	return Get<unsigned short>(a_idx) / (float)USHRT_MAX;
-				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_INT)				return Get<int>(a_idx) / (float)INT_MAX;
-				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT)	return Get<unsigned int>(a_idx) / (float)UINT_MAX;
+				if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_BYTE)                 return Get<char>(a_idx) / static_cast<float>(SCHAR_MAX);
+				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE)	return Get<BYTE>(a_idx) / static_cast<float>(UCHAR_MAX);
+				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_SHORT)			return Get<short>(a_idx) / static_cast<float>(SHRT_MAX);
+				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT)	return Get<unsigned short>(a_idx) / static_cast<float>(USHRT_MAX);
+				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_INT)				return Get<int>(a_idx) / static_cast<float>(INT_MAX);
+				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT)	return Get<unsigned int>(a_idx) / static_cast<float>(UINT_MAX);
 				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_FLOAT)			return Get<float>(a_idx);
 
 				ENGINE_ERRLOG(false, "対応していない型");
@@ -57,12 +57,12 @@ namespace Engine::Resource::GLTF
 			// int取得
 			int GetValue_Int(int a_idx)
 			{
-				if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_BYTE)					return (int)Get<char>(a_idx);
-				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE)	return (int)Get<BYTE>(a_idx);
-				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_SHORT)			return (int)Get<short>(a_idx);
-				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT)	return (int)Get<unsigned short>(a_idx);
-				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_INT)				return (int)Get<int>(a_idx);
-				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT)		return (int)Get<unsigned int>(a_idx);
+				if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_BYTE)					return static_cast<int>(Get<char>(a_idx));
+				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE)	return static_cast<int>(Get<BYTE>(a_idx));
+				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_SHORT)			return static_cast<int>(Get<short>(a_idx));
+				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT)	return static_cast<int>(Get<unsigned short>(a_idx));
+				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_INT)				return Get<int>(a_idx);
+				else if (m_pAccessor->componentType == TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT)		return static_cast<int>(Get<unsigned int>(a_idx));
 
 				ENGINE_ERRLOG(false, "対応していない型");
 				return 0;
@@ -91,7 +91,7 @@ namespace Engine::Resource::GLTF
 			template<class Type>
 			const Type& Get(int a_index) const
 			{
-				return *(const Type*)&m_pAddress[a_index * sizeof(Type)];
+				return *reinterpret_cast<const Type*>(&m_pAddress[a_index * sizeof(Type)]);
 			}
 
 			const BYTE* m_pAddress = nullptr;        // データの先頭アドレス
@@ -174,7 +174,7 @@ namespace Engine::Resource::GLTF
 
 				// 透明モード設定
 				_destMaterial.alphaMode = _srcMaterial.alphaMode;			   // モード
-				_destMaterial.AlphaCutoff = (float)(_srcMaterial.alphaCutoff); // 閾値
+				_destMaterial.AlphaCutoff = static_cast<float>(_srcMaterial.alphaCutoff); // 閾値
 				_destMaterial.doubleSided = _srcMaterial.doubleSided;          // 設定面
 
 				// 基本色
@@ -289,7 +289,7 @@ namespace Engine::Resource::GLTF
 				{
 					for (int _n = 0; _n < 16; ++_n)
 					{
-						*(&_sMat._11 + _n) = (float)a_tinyModel.nodes[_nodeIdx].matrix[_n];
+						*(&_sMat._11 + _n) = static_cast<float>(a_tinyModel.nodes[_nodeIdx].matrix[_n]);
 					}
 				}
 

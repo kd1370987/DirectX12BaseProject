@@ -99,7 +99,7 @@ namespace Engine::Graphics
 	}
 
 	void DrawSubmitter::SubmitModel(
-		ECS::World& a_world,
+		ECS::World& /*a_world*/,
 		const Resource::Model* a_pModel,
 		const Math::Matrix& a_worldMatrix,
 		const Math::Matrix& a_prevMatrix,
@@ -134,11 +134,11 @@ namespace Engine::Graphics
 			// -----------------------------------------------------
 			// この経路は静的モデル専用(アニメーションするモデルはボーンを受け取る方の SubmitModel)
 			constexpr bool IS_ANIMATION = false;
-			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
-			_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::Static;
+			uint32_t _flags = static_cast<uint32_t>(Engine::Graphics::EShaderPermutationFlags::None);
+			_flags |= static_cast<uint32_t>(Engine::Graphics::EShaderPermutationFlags::Static);
 
 			if (_cmd.alphaMode == Engine::Resource::EAlpha::Mask) {
-				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::AlphaMasked;
+				_flags |= static_cast<uint32_t>(Engine::Graphics::EShaderPermutationFlags::AlphaMasked);
 			}
 
 			Engine::Graphics::PSOKey _psoKey = {};
@@ -220,17 +220,17 @@ namespace Engine::Graphics
 			// =========================================================
 			// PermutationFlags を構築
 			// =========================================================
-			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
+			uint32_t _flags = static_cast<uint32_t>(Engine::Graphics::EShaderPermutationFlags::None);
 
 			// アニメーション判定
 			bool _isAnimation = (a_boneHandle.count > 0);
-			_flags |= (uint32_t)(_isAnimation ?
+			_flags |= static_cast<uint32_t>(_isAnimation ?
 				Engine::Graphics::EShaderPermutationFlags::Skinned :
 				Engine::Graphics::EShaderPermutationFlags::Static);
 
 			// アルファモード判定
 			if (_cmd.alphaMode == Engine::Resource::EAlpha::Mask) {
-				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::AlphaMasked;
+				_flags |= static_cast<uint32_t>(Engine::Graphics::EShaderPermutationFlags::AlphaMasked);
 			}
 
 			// PSOKey作成
@@ -256,7 +256,7 @@ namespace Engine::Graphics
 		);
 	}
 
-	void DrawSubmitter::SubmitGroundModel(ECS::World& a_world, const Resource::Model* a_pModel, const Math::Matrix& a_worldMatrix)
+	void DrawSubmitter::SubmitGroundModel(ECS::World& /*a_world*/, const Resource::Model* a_pModel, const Math::Matrix& a_worldMatrix)
 	{
 		if (!a_pModel) return;
 
@@ -284,11 +284,11 @@ namespace Engine::Graphics
 			// -----------------------------------------------------
 			// この経路は静的モデル専用(アニメーションするモデルはボーンを受け取る方の SubmitModel)
 			constexpr bool IS_ANIMATION = false;
-			uint32_t _flags = (uint32_t)Engine::Graphics::EShaderPermutationFlags::None;
-			_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::Static;
+			uint32_t _flags = static_cast<uint32_t>(Engine::Graphics::EShaderPermutationFlags::None);
+			_flags |= static_cast<uint32_t>(Engine::Graphics::EShaderPermutationFlags::Static);
 
 			if (_cmd.alphaMode == Engine::Resource::EAlpha::Mask) {
-				_flags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::AlphaMasked;
+				_flags |= static_cast<uint32_t>(Engine::Graphics::EShaderPermutationFlags::AlphaMasked);
 			}
 
 			Engine::Graphics::PSOKey _psoKey = {};
@@ -563,7 +563,7 @@ namespace Engine::Graphics
 			if (!_pPipelinePass) continue;
 
 			PSOKey _pipelineKey = a_psoKey;
-			_pipelineKey.permutationFlags |= (uint32_t)Engine::Graphics::EShaderPermutationFlags::MeshShader;
+			_pipelineKey.permutationFlags |= static_cast<uint32_t>(Engine::Graphics::EShaderPermutationFlags::MeshShader);
 			_pipelineKey.psHandle = _pPipelinePass->GetDefaultPSHandle();
 
 			auto _psoHandle = _pPipelinePass->RefPipelineBuilder().Request(_pipelineKey, m_pPipelineStateManager, *m_pResourceManager);

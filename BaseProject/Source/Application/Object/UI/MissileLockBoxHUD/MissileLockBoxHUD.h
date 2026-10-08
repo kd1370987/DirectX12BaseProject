@@ -48,8 +48,8 @@ namespace App::Object
 
 		// 位置は敵から毎フレーム作るので、座標編集用のギズモは出さない
 		bool DrawGizmo(
-			const Engine::GameObject::ObjectGizmoContext& a_ctx,
-			Engine::GameObject::ObjectContext& a_context) override {
+			const Engine::GameObject::ObjectGizmoContext& /*a_ctx*/,
+			Engine::GameObject::ObjectContext& /*a_context*/) override {
 			return false;
 		}
 

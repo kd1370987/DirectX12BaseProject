@@ -20,8 +20,8 @@ namespace App::System
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::AwakeTag* a_awakeTag,
-				const Component::FollowAnimationNodeComponent* a_pFollowArray,
+				Component::AwakeTag* /*a_awakeTag*/,
+				const Component::FollowAnimationNodeComponent* /*a_pFollowArray*/,
 				const Component::HierarchyComponent* a_pHierarchyArray
 			)
 			{

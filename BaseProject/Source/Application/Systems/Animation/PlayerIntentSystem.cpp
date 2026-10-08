@@ -39,9 +39,9 @@ namespace App::System
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				Component::ActiveTag* /*a_tags*/,
 				const Component::MoveIntentComponent* a_moveIntentArray,
-				const Component::BoostParamsComponent* a_boostComp,
+				const Component::BoostParamsComponent* /*a_boostComp*/,
 				const Component::AnimatorComponent* a_animatorArray
 				)
 			{

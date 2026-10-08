@@ -164,7 +164,7 @@ namespace App::Object
 	//======================================================================================
 	// シリアライズ
 	//======================================================================================
-	void PauseSequence::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
+	void PauseSequence::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& /*a_context*/)
 	{
 		a_ar.GUIDField("ResumeButtonGUID", m_resumeButtonGUID);
 		a_ar.GUIDField("ExitButtonGUID", m_exitButtonGUID);

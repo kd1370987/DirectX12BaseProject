@@ -95,7 +95,7 @@ void Engine::Graphics::Raytracing::TLAS::Create(
 
 	// インスタンスバッファ構造体初期化・マップポイント取得
 	m_pInstanceDesc = nullptr;
-	m_cpInstanceBuffer->Map(0,nullptr,(void**)&m_pInstanceDesc);
+	m_cpInstanceBuffer->Map(0,nullptr,reinterpret_cast<void**>(&m_pInstanceDesc));
 	ZeroMemory(m_pInstanceDesc, _instanceBufferSize);
 
 	// TLASを作成
@@ -246,7 +246,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE Engine::Graphics::Raytracing::TLAS::GetGPUHandle() c
 
 void Engine::Graphics::Raytracing::TLAS::CreateBuffer(
 	D3D12::Device * a_pDevice, 
-	D3D12::GraphicsCommandList* a_pCmdList,
+	D3D12::GraphicsCommandList* /*a_pCmdList*/,
 	ComPtr<ID3D12Resource>& a_cpRes,
 	uint64_t a_size,
 	D3D12_RESOURCE_FLAGS a_flags,

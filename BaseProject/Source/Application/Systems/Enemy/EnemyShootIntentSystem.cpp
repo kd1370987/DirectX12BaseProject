@@ -42,11 +42,11 @@ namespace App::System
 			Engine::ECS::ESystemType::PreUpdate,
 			"EnemyShootIntentSystem",
 			[](
-				Engine::ECS::Chunk*      a_pChunk,
+				Engine::ECS::Chunk*      /*a_pChunk*/,
 				uint32_t                          a_count,
-				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_activeTags,
-				const Component::EnemyTag*                   a_enemyTags,
+				const Engine::ECS::SystemContext& /*a_ctx*/,
+				Component::ActiveTag*                        /*a_activeTags*/,
+				const Component::EnemyTag*                   /*a_enemyTags*/,
 				const Component::TargetEntityComponent*      a_targetArray,
 				Component::ActionIntentComponent*            a_intentArray
 			)

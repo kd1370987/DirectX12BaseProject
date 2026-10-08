@@ -124,7 +124,7 @@ namespace App::Object
 	//======================================================================================
 	// シリアライズ
 	//======================================================================================
-	void TitleSequence::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
+	void TitleSequence::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& /*a_context*/)
 	{
 		a_ar.GUIDField("PlayButtonGUID", m_playButtonGUID);
 		a_ar.GUIDField("NextSceneGUID", m_nextSceneGUID);

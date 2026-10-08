@@ -474,7 +474,6 @@ namespace Editor::Inspector
 		}
 
 		// エンティティが持っているコンポーネントを羅列する
-		const Engine::ECS::EntityLocation& _location = _pWorld->GetLocation(_entity);
 		Engine::ECS::Signature _sig = _pWorld->GetSignature(_entity);
 
 		ECS::CompEditContext _compEditContext = {};
@@ -486,21 +485,22 @@ namespace Editor::Inspector
 			if (_sig.test(_typeID))
 			{
 				// ツリーノード表示
-				auto& _metaData = _pWorld->GetComponentMetaData(static_cast<Engine::ECS::ComponentTypeID>(_typeID));
+				const auto _compTypeID = static_cast<Engine::ECS::ComponentTypeID>(_typeID);
+				auto& _metaData = _pWorld->GetComponentMetaData(_compTypeID);
 
 				if (ImGui::TreeNodeEx(_metaData.name.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Framed))
 				{
 					// コンポーネントごとの特殊エディター処理を入れる
-					auto _func = _pWorld->GetCompFunc(_typeID).edit;
+					auto _func = _pWorld->GetCompFunc(_compTypeID).edit;
 					_compEditContext.entity = _entity;
-					_compEditContext.pData = _pWorld->NRefData(_entity, _typeID);
+					_compEditContext.pData = _pWorld->NRefData(_entity, _compTypeID);
 					if (_func)
 					{
 						_func(_compEditContext);
 					}
 
 					// コンポーネントを削除するボタン
-					SubmitCommponent(a_editContext,_pWorld, _typeID);
+					SubmitCommponent(a_editContext,_pWorld, _compTypeID);
 
 					ImGui::TreePop();
 				}

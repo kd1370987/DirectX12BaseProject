@@ -86,7 +86,7 @@ namespace Engine::Graphics::D3D12
 		// コマンドリストにセット
 		a_pCmdList->SetGraphicsRootConstantBufferView(
 			a_descIndex,
-			m_spResource->GetGPUVirtualAddress() + ((UINT64)_top * 0x100)
+			m_spResource->GetGPUVirtualAddress() + (static_cast<UINT64>(_top) * 0x100)
 		);
 
 		m_usedCount += _useValue;

@@ -34,9 +34,9 @@ namespace Engine::Option::ProjectOptions
 		{
 			Engine::EditorField::Field("BuildMode",buildMode);
 			Engine::EditorField::Field("AssetRootPath", assetRootPath);
-			int _count = (int)maxThreadCount;
+			int _count = static_cast<int>(maxThreadCount);
 			Engine::EditorField::Field("maxThreadCount", _count);
-			maxThreadCount = (UINT)_count;
+			maxThreadCount = static_cast<UINT>(_count);
 		}
 
 		void Archive(Persistence::Archive& a_archive) override

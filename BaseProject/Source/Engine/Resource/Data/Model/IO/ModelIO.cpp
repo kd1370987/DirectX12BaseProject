@@ -221,7 +221,7 @@ namespace Engine::Resource
 					_cmd.nodeIndex = static_cast<uint16_t>(_meshNodeIdx);
 					_cmd.meshHandle = _meshHandle;
 					_cmd.materialHandle = _materialHandle;
-					_cmd.subIdx = _subIdx;
+					_cmd.subIdx = static_cast<uint8_t>(_subIdx);
 					_cmd.alphaMode = _pMate->alphaMode;
 					a_runtimeData.drawCommands.push_back(_cmd);
 				}

@@ -23,7 +23,7 @@ namespace App::System
 				a_ctx.pWorld->ForEach<Component::WorldMatrixComponent>(
 					[]
 					(
-						Engine::ECS::Chunk* a_pChunk,
+						Engine::ECS::Chunk* /*a_pChunk*/,
 						uint32_t a_count,
 						Component::WorldMatrixComponent* a_worldMatArray
 						)
@@ -38,12 +38,12 @@ namespace App::System
 
 				// 深度ごとに親子階層の更新をする
 				auto& _hRes = a_ctx.pWorld->RefResource<InstanceResource::HierarchyResource>();
-				for (int _depth = 0; _depth <= _hRes.maxDepth; ++_depth)
+				for (UINT _depth = 0; _depth <= _hRes.maxDepth; ++_depth)
 				{
 					a_ctx.pWorld->ForEach<Component::LocalTransformComponent, Component::WorldMatrixComponent, Component::HierarchyComponent>(
 						[_depth, &a_ctx]
 						(
-							Engine::ECS::Chunk* a_pChunk,
+							Engine::ECS::Chunk* /*a_pChunk*/,
 							uint32_t a_count,
 							Component::LocalTransformComponent* a_trsArray,
 							Component::WorldMatrixComponent* a_worldMatArray,

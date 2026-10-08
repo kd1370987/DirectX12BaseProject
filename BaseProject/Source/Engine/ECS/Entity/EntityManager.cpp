@@ -41,7 +41,7 @@ namespace Engine::ECS
 		ECS::Generation _gen = m_entityGeneVec[_idx];
 
 		// エンティティIDの生成
-		ECS::Entity _entity = (uint64_t(_gen) << 32) | uint64_t(_idx);
+		ECS::Entity _entity = (static_cast<uint64_t>(_gen) << 32) | static_cast<uint64_t>(_idx);
 
 		// シグネチャの記憶
 		m_signatureVec[_idx] = a_sig;
@@ -59,8 +59,8 @@ namespace Engine::ECS
 	void EntityManager::DestroyEntity(const ECS::Entity& a_entity)
 	{
 		// 添え字の抽出
-		uint32_t _idx = uint32_t(a_entity & 0xFFFFFFFF);
-		uint32_t _gen = uint32_t(a_entity >> 32);
+		uint32_t _idx = static_cast<uint32_t>(a_entity & 0xFFFFFFFF);
+		uint32_t _gen = static_cast<uint32_t>(a_entity >> 32);
 
 		// 無効なIDが混じっても落とさない。
 		// 世代を見る前に添え字で引くので、確かめるのはこちらが先
@@ -87,8 +87,7 @@ namespace Engine::ECS
 	void EntityManager::SetEntityLocation(const ECS::Entity& a_entity, const EntityLocation& a_loca)
 	{
 		// 添え字の抽出
-		uint32_t _idx = uint32_t(a_entity & 0xFFFFFFFF);
-		uint32_t _gen = uint32_t(a_entity >> 32);
+		uint32_t _idx = static_cast<uint32_t>(a_entity & 0xFFFFFFFF);
 
 		m_entityLocationVec[_idx] = a_loca;
 	}
@@ -195,12 +194,12 @@ namespace Engine::ECS
 
 	uint32_t EntityManager::GetGeneration(const ECS::Entity& a_entity) const
 	{
-		return uint32_t(a_entity >> 32);;
+		return static_cast<uint32_t>(a_entity >> 32);
 	}
 
 	uint32_t EntityManager::GetIndex(const ECS::Entity& a_entity) const
 	{
-		return uint32_t(a_entity & 0xFFFFFFFF);
+		return static_cast<uint32_t>(a_entity & 0xFFFFFFFF);
 	}
 
 }

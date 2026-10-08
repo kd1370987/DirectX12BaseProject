@@ -30,12 +30,12 @@ namespace App::System
 			"SkinningRegisterSystem",
 			[]
 			(
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_pTags,
+				Component::ActiveTag* /*a_pTags*/,
 				const Component::ModelComponent* a_pModelArray,
-				const Component::WorldMatrixComponent* a_pWorldMatArray,
+				const Component::WorldMatrixComponent* /*a_pWorldMatArray*/,
 				const Component::DynamicRaytracingComponent* a_pAnimationArray,
 				const Component::NodePoseComponent* a_nodePoseArray,
 				const Component::SkeletonPoseComponent* a_skeletonArray
@@ -43,7 +43,6 @@ namespace App::System
 			{
 				for (size_t _i = 0; _i < a_count; ++_i)
 				{
-					const Component::WorldMatrixComponent& _wMatComp = a_pWorldMatArray[_i];
 					const Component::ModelComponent& _modelComp = a_pModelArray[_i];
 					const Component::DynamicRaytracingComponent& _rayComp = a_pAnimationArray[_i];
 					const Component::NodePoseComponent& _nodePoseComp = a_nodePoseArray[_i];

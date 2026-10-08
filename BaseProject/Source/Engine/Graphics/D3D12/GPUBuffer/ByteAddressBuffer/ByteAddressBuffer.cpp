@@ -20,7 +20,7 @@ namespace Engine::Graphics::D3D12
 		D3D12_SHADER_RESOURCE_VIEW_DESC  _srv;
 		_srv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 		_srv.Buffer.FirstElement = 0;
-		_srv.Buffer.NumElements = m_bufferSize / 4;
+		_srv.Buffer.NumElements = static_cast<UINT>(m_bufferSize / 4);
 		_srv.Buffer.StructureByteStride = 0;
 		_srv.Format = DXGI_FORMAT_R32_TYPELESS;
 		_srv.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_RAW;

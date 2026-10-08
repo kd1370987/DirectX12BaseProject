@@ -68,6 +68,6 @@ namespace Editor::Inspector
 		// ---- 画像の描画 ----
 		auto _winOp = Option::OptionManager::Instance().GetWindowOption();
 		auto _gpuHandle = EditorHelper::GetImGuiTexHandle(a_pTexture->GetImGuiSRV());
-		EditorHelper::DrawSRVView(_gpuHandle, _winOp.windowWidth, _winOp.windowHeight);
+		EditorHelper::DrawSRVView(_gpuHandle, static_cast<float>(_winOp.windowWidth), static_cast<float>(_winOp.windowHeight));
 	}
 }

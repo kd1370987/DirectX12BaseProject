@@ -191,8 +191,8 @@ namespace App::Object
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const Component::ActiveTag* a_activeTagArray,
-				const Component::PlayerControllTag* a_playerTagArray
+				const Component::ActiveTag* /*a_activeTagArray*/,
+				const Component::PlayerControllTag* /*a_playerTagArray*/
 			)
 			{
 				for (uint32_t _i = 0; _i < a_count; ++_i)
@@ -338,7 +338,7 @@ namespace App::Object
 			[&](
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
-				const Component::ActiveTag* a_activeTagArray,
+				const Component::ActiveTag* /*a_activeTagArray*/,
 				const Component::SpawnerComponent* a_spawnerArray
 			)
 			{
@@ -539,7 +539,7 @@ namespace App::Object
 				[&](
 					Engine::ECS::Chunk* a_pChunk,
 					uint32_t a_count,
-					const Component::ActiveTag* a_activeTagArray,
+					const Component::ActiveTag* /*a_activeTagArray*/,
 					Component::BossCommandComponent* a_bossArray
 				)
 				{
@@ -691,7 +691,7 @@ namespace App::Object
 	//======================================================================================
 	bool SceneSequence::DrawGizmo(
 		const Engine::GameObject::ObjectGizmoContext& a_ctx,
-		Engine::GameObject::ObjectContext& a_context)
+		Engine::GameObject::ObjectContext& /*a_context*/)
 	{
 		if (m_gizmoWaveIndex < 0) return false;
 		if (static_cast<size_t>(m_gizmoWaveIndex) >= m_waves.size()) return false;
@@ -738,7 +738,7 @@ namespace App::Object
 		m_bgm.Release(a_context);
 	}
 
-	void SceneSequence::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& a_context)
+	void SceneSequence::Archive(Engine::Persistence::Archive& a_ar, Engine::GameObject::ObjectContext& /*a_context*/)
 	{
 		//----------------------------------------------------------------------
 		// ウェーブ

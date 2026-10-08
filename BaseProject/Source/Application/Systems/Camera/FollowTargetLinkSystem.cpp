@@ -14,11 +14,11 @@ namespace App::System
 			Engine::ECS::ESystemType::Awake,
 			"FollowTargetLinkSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::AwakeTag* a_tag,
-				const Engine::ECS::GUIDComponent* a_guidArray,
+				Component::AwakeTag* /*a_tag*/,
+				const Engine::ECS::GUIDComponent* /*a_guidArray*/,
 				Component::FollowTargetComponent* a_followArray
 				)
 			{

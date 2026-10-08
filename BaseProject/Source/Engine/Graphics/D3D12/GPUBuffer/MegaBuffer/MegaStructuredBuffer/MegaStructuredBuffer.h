@@ -66,7 +66,7 @@ namespace Engine::Graphics::D3D12
 	inline bool MegaStructuredBuffer<T>::Create(Graphics::D3D12::Device* a_pDevice, DescriptorHeapManager* a_pHeapManager, Graphics::D3D12::GraphicsCommandList* a_pCmdList, size_t a_elemetNum)
 	{
 		// アロケーターの作成
-		m_rangeAllocator.Init(a_elemetNum);
+		m_rangeAllocator.Init(static_cast<uint32_t>(a_elemetNum));
 
 		return MegaBuffer::Create(a_pDevice,a_pHeapManager,a_pCmdList,a_elemetNum,sizeof(T));
 	}

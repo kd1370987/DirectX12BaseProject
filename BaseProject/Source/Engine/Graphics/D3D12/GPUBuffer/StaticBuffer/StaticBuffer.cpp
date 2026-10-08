@@ -221,8 +221,8 @@ namespace Engine::Graphics::D3D12
 		_desc.Format = DXGI_FORMAT_UNKNOWN;
 		_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		_desc.Buffer.FirstElement = 0;
-		_desc.Buffer.NumElements = m_elementNum;
-		_desc.Buffer.StructureByteStride = m_strideSize;
+		_desc.Buffer.NumElements = static_cast<UINT>(m_elementNum);
+		_desc.Buffer.StructureByteStride = static_cast<UINT>(m_strideSize);
 		_desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 
 		// ハンドルをもらう

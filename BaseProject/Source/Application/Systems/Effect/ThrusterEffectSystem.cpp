@@ -56,7 +56,7 @@ namespace App::System
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				Component::ActiveTag* /*a_tags*/,
 				const Component::AttachmentSlotsComponent* a_slotsArray,
 				const Component::MoveIntentComponent* a_moveArray,
 				const Component::DesiredVelocityComponent* a_velocityArray,
@@ -142,14 +142,6 @@ namespace App::System
 							_chargeDashing = _pChargeDash->isDashing;
 						}
 					}
-
-					// ---- スラスター2系統の点火判定 ----
-
-					// 脚 : 通常移動・上昇のメイン推進
-					bool _legOn = _moving || _rising || _boosting;
-
-					// 肩 : ブースト時のアフターバーナー
-					bool _shoulderOn = _boosting;
 
 					// 溜めている間と撃ち出している間も点火しておく。
 					// 溜めは「少しずつ太っていく」ことで見せるので、

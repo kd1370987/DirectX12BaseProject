@@ -16,10 +16,10 @@ namespace App::System
 			"FollowAnimationNodeSystem",
 			[]
 			(
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				Component::ActiveTag* /*a_tags*/,
 				const Component::FollowAnimationNodeComponent* a_followArray,
 				const Component::HierarchyComponent* a_hierarchyArray,
 				Component::LocalTransformComponent* a_transArray

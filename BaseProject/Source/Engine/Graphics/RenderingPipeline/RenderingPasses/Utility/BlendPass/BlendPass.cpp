@@ -29,6 +29,6 @@ namespace Engine::Graphics::Pipeline
 
 
 
-	void BlendPass::Archive(Engine::Persistence::Archive& a_arch)
+	void BlendPass::Archive(Engine::Persistence::Archive& /*a_arch*/)
 	{}
 }

@@ -22,10 +22,10 @@ namespace App::System
 			"HealthFixupSystem",
 			[]
 			(
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
-				const Engine::ECS::SystemContext& a_ctx,
-				Component::PostDeserializeTag* a_tag,
+				const Engine::ECS::SystemContext& /*a_ctx*/,
+				Component::PostDeserializeTag* /*a_tag*/,
 				Component::HealthComponent* a_healthArray
 				)
 			{

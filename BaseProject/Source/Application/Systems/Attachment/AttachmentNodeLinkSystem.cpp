@@ -15,10 +15,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Start,
 			"AttachmentNodeLinkSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::StartTag* a_tag,
+				Component::StartTag* /*a_tag*/,
 				Component::FollowAnimationNodeComponent* a_followArray,
 				const Component::HierarchyComponent* a_hierarchyArray
 				)

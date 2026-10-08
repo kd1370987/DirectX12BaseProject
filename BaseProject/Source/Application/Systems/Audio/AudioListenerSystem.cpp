@@ -44,9 +44,9 @@ namespace App::System
 
 				a_ctx.pWorld->ForEach<Component::ActiveTag, Component::AudioListenerComponent, Component::WorldMatrixComponent>(
 					[_pAudioManager, _dt](
-						Engine::ECS::Chunk* a_pChunk,
+						Engine::ECS::Chunk* /*a_pChunk*/,
 						uint32_t                     a_count,
-						Component::ActiveTag*                   a_tags,
+						Component::ActiveTag*                   /*a_tags*/,
 						Component::AudioListenerComponent*      a_listenerArray,
 						Component::WorldMatrixComponent*        a_worldMatArray)
 					{

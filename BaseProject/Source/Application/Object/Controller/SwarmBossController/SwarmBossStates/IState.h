@@ -72,7 +72,7 @@ namespace App::Object
 		//------------------------------------------------------------------------------------------
 		// 調整値の保存 / 表示。持たないステートは何もしない
 		//------------------------------------------------------------------------------------------
-		virtual void Archive(Engine::Persistence::Archive& a_ar) {}
+		virtual void Archive(Engine::Persistence::Archive& /*a_ar*/) {}
 		virtual void DrawInspector() {}
 	};
 }

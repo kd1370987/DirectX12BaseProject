@@ -106,7 +106,7 @@ namespace Engine::GameObject
 		/// Archive の後に走るので、保存値を既定値で潰す心配がない。
 		/// 逆に、他のオブジェクトを引くのはまだ早い(相手はここを通っていない)。
 		/// </remarks>
-		virtual void PostDeserialize(ObjectContext& a_context) {}
+		virtual void PostDeserialize(ObjectContext& /*a_context*/) {}
 
 		/// <summary>
 		/// 全員の PostDeserialize が済んでから呼ばれる
@@ -115,7 +115,7 @@ namespace Engine::GameObject
 		/// リソースの要求(テクスチャ・音)や、コンテキストから受け取ったものを
 		/// 覚えておく処理を置く場所。データはもう最終形になっている。
 		/// </remarks>
-		virtual void Awake(ObjectContext& a_context) {}
+		virtual void Awake(ObjectContext& /*a_context*/) {}
 
 		/// <summary>
 		/// 全員の Awake が済んでから呼ばれる(最初の Update より前)
@@ -124,7 +124,7 @@ namespace Engine::GameObject
 		/// 他のオブジェクトを当てにしてよいのはここから。
 		/// GUIDで引いた相手へコールバックを差し込む、といった「つなぎ」を置く。
 		/// </remarks>
-		virtual void Start(ObjectContext& a_context) {}
+		virtual void Start(ObjectContext& /*a_context*/) {}
 
 		virtual void Release(ObjectContext& a_context);
 
@@ -139,7 +139,7 @@ namespace Engine::GameObject
 		///
 		/// ※ここでの dt は前フレームの値。時間を進める処理は Update で行うこと
 		/// </remarks>
-		virtual void PreUpdate(ObjectContext& a_context) {}
+		virtual void PreUpdate(ObjectContext& /*a_context*/) {}
 
 		virtual void Update(ObjectContext& a_context);
 		virtual void Draw(ObjectContext& a_context);
@@ -155,7 +155,7 @@ namespace Engine::GameObject
 		/// </summary>
 		/// <param name="a_ar">保存・読み込み両対応のアーカイブ</param>
 		/// <param name="a_context">リソース再要求などに使う実行コンテキスト</param>
-		virtual void Archive(Persistence::Archive& a_ar, ObjectContext& a_context) {}
+		virtual void Archive(Persistence::Archive& /*a_ar*/, ObjectContext& /*a_context*/) {}
 
 		//=======================================================================
 		// エディター用
@@ -170,7 +170,7 @@ namespace Engine::GameObject
 		/// インスペクターに描画する編集UI。ImGuiで自由に組む。
 		/// </summary>
 		/// <param name="a_context">リソース参照などに使う実行コンテキスト</param>
-		virtual void DrawInspector(ObjectContext& a_context) {}
+		virtual void DrawInspector(ObjectContext& /*a_context*/) {}
 
 		/// <summary>
 		/// シーンビュー上でギズモ編集する場合にオーバーライドする。
@@ -178,7 +178,7 @@ namespace Engine::GameObject
 		/// <param name="a_ctx">カメラ行列・ビューポート情報</param>
 		/// <param name="a_context">リソース参照などに使う実行コンテキスト</param>
 		/// <returns>ギズモを表示・操作したなら true</returns>
-		virtual bool DrawGizmo(const ObjectGizmoContext& a_ctx, ObjectContext& a_context) { return false; }
+		virtual bool DrawGizmo(const ObjectGizmoContext& /*a_ctx*/, ObjectContext& /*a_context*/) { return false; }
 
 		//=======================================================================
 
@@ -199,7 +199,7 @@ namespace Engine::GameObject
 		/// 束ねる側を直すことになる。
 		/// </remarks>
 		virtual bool IsVisible() const { return true; }
-		virtual void SetVisible(bool a_isVisible) {}
+		virtual void SetVisible(bool /*a_isVisible*/) {}
 
 		//=======================================================================
 

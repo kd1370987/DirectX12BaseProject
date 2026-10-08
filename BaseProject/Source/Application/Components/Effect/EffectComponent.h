@@ -18,7 +18,7 @@ namespace App::Component
 template<>
 struct Engine::ECS::ComponentTraits<App::Component::EffectComponent>
 {
-	static void Edit(CompEditContext& a_context)
+	static void Edit(CompEditContext& /*a_context*/)
 	{
 		Engine::EditorField::HelpText("Marker only. LifeTime is LifeTimeComponent.");
 	}

@@ -54,7 +54,7 @@ void Engine::Graphics::Raytracing::ShaderTable::Init(D3D12::Device* a_pDevice, c
 	}
 
 	// 更新
-	m_cpShaderTable->Map(0, nullptr, (void**)&m_pShaderTableData);
+	m_cpShaderTable->Map(0, nullptr, reinterpret_cast<void**>(&m_pShaderTableData));
 }
 
 void Engine::Graphics::Raytracing::ShaderTable::Release()
@@ -95,7 +95,7 @@ void Engine::Graphics::Raytracing::ShaderTable::Release()
 
 void Engine::Graphics::Raytracing::ShaderTable::CommitInstanceBindLess(
 	const std::vector<Instance>& a_instanceVec, 
-	Graphics::RenderContext* a_pRCT,
+	Graphics::RenderContext* /*a_pRCT*/,
 	UINT a_width,
 	UINT a_height
 )
@@ -121,7 +121,7 @@ void Engine::Graphics::Raytracing::ShaderTable::CommitInstanceBindLess(
 		memcpy(_hitPtr, m_hitIDVec[_h], D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES);
 	}
 
-	m_dispatchDesc = CreateDispatchDesc(a_instanceVec.size(),a_width,a_height);
+	m_dispatchDesc = CreateDispatchDesc(static_cast<UINT>(a_instanceVec.size()),a_width,a_height);
 }
 
 const D3D12_DISPATCH_RAYS_DESC& Engine::Graphics::Raytracing::ShaderTable::GetDispatchDesc() const
@@ -130,7 +130,7 @@ const D3D12_DISPATCH_RAYS_DESC& Engine::Graphics::Raytracing::ShaderTable::GetDi
 }
 
 D3D12_DISPATCH_RAYS_DESC Engine::Graphics::Raytracing::ShaderTable::CreateDispatchDesc(
-	UINT a_instanceNum,
+	UINT /*a_instanceNum*/,
 	UINT a_width,
 	UINT a_height
 )
@@ -143,11 +143,11 @@ D3D12_DISPATCH_RAYS_DESC Engine::Graphics::Raytracing::ShaderTable::CreateDispat
 	_dispatchDesc.RayGenerationShaderRecord.SizeInBytes = m_recordSize;
 
 	_dispatchDesc.MissShaderTable.StartAddress = _base + m_missOffset;
-	_dispatchDesc.MissShaderTable.SizeInBytes = m_recordSize * (UINT)m_missIDVec.size();
+	_dispatchDesc.MissShaderTable.SizeInBytes = m_recordSize * static_cast<UINT>(m_missIDVec.size());
 	_dispatchDesc.MissShaderTable.StrideInBytes = m_recordSize;
 
 	_dispatchDesc.HitGroupTable.StartAddress = _base + m_hitOffset;
-	_dispatchDesc.HitGroupTable.SizeInBytes = m_recordSize * (UINT)m_hitIDVec.size();
+	_dispatchDesc.HitGroupTable.SizeInBytes = m_recordSize * static_cast<UINT>(m_hitIDVec.size());
 	_dispatchDesc.HitGroupTable.StrideInBytes = m_recordSize;
 
 	// ディスプレイ設定
@@ -158,7 +158,7 @@ D3D12_DISPATCH_RAYS_DESC Engine::Graphics::Raytracing::ShaderTable::CreateDispat
 	return _dispatchDesc;
 }
 
-void Engine::Graphics::Raytracing::ShaderTable::CalucShaderTableSize(UINT a_instanceNum)
+void Engine::Graphics::Raytracing::ShaderTable::CalucShaderTableSize(UINT /*a_instanceNum*/)
 {
 	// シェーダーIDのサイズ
 	uint32_t _shaderIDSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
@@ -166,30 +166,30 @@ void Engine::Graphics::Raytracing::ShaderTable::CalucShaderTableSize(UINT a_inst
 	uint32_t _localRootSize = m_maxLocalRootSigSize;
 
 	// シェーダー一つ分のサイズ
-	m_recordSize = Math::Alignment::Up(
+	m_recordSize = static_cast<uint32_t>(Math::Alignment::Up(
 		_shaderIDSize + _localRootSize,
 		D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT
-	);
+	));
 
 	// 各シェーダーごとのオフセット値を求める
 	uint32_t _offset = 0;
 	m_rayGenOffset = _offset;
-	_offset = Math::Alignment::Up(
+	_offset = static_cast<uint32_t>(Math::Alignment::Up(
 		_offset + m_recordSize,
 		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
-	);
+	));
 	
 	m_missOffset = _offset;
-	_offset = Math::Alignment::Up(
+	_offset = static_cast<uint32_t>(Math::Alignment::Up(
 		_offset + m_recordSize * m_missIDVec.size(),
 		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
-	);
+	));
 	
 	m_hitOffset = _offset;
-	_offset = Math::Alignment::Up(
+	_offset = static_cast<uint32_t>(Math::Alignment::Up(
 		_offset + m_recordSize * m_hitIDVec.size(),
 		D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT
-	);
+	));
 
 	// テーブルサイズを求める（ヒットシェーダーはインスタンス数確保）
 	m_tableSize = _offset;

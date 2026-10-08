@@ -102,8 +102,8 @@ namespace App::System
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
-				const Component::PlayerControllTag* a_playerTagArray,
+				Component::ActiveTag* /*a_tags*/,
+				const Component::PlayerControllTag* /*a_playerTagArray*/,
 				const Component::ActionIntentComponent* a_actionIntentArray,
 				const Component::LookAngleComponent* a_lookArray,
 				const Component::DesiredVelocityComponent* a_velocityArray,
@@ -227,8 +227,8 @@ namespace App::System
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
-				const Component::PlayerControllTag* a_playerTagArray,
+				Component::ActiveTag* /*a_tags*/,
+				const Component::PlayerControllTag* /*a_playerTagArray*/,
 				const Component::DesiredVelocityComponent* a_velocityArray,
 				Component::LocalTransformComponent* a_trsArray
 			)

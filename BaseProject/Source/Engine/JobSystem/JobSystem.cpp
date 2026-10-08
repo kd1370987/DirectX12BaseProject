@@ -28,7 +28,7 @@ namespace Engine::Thread
 			return;
 		}
 
-		ENGINE_LOG("[Init] JobSystemがスレッド数 : %d で初期化されました",(int)a_threadCount);
+		ENGINE_LOG("[Init] JobSystemがスレッド数 : %d で初期化されました", static_cast<int>(a_threadCount));
 
 		m_workerCount = a_threadCount;
 		m_nextWorker.store(0, std::memory_order_relaxed);

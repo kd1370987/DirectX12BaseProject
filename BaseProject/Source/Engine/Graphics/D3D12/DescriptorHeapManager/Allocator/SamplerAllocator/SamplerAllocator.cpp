@@ -9,7 +9,7 @@ bool Engine::Graphics::D3D12::SamplerAllocator::Create(Engine::Graphics::D3D12::
 	m_genVec.resize(a_pHeap->GetMaxSize());
 	for (UINT _idx = 0; _idx < a_pHeap->GetMaxSize(); ++_idx)
 	{
-		m_indexQueue.push(_idx);
+		m_indexQueue.push(static_cast<Engine::Resource::Index>(_idx));
 		m_genVec[_idx] = 0;
 	}
 

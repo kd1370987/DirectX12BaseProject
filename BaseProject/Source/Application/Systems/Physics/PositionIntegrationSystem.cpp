@@ -17,10 +17,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Physics,
 			"PositionIntegrationSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				Component::ActiveTag* /*a_tags*/,
 				const Component::DesiredVelocityComponent* a_velocityArray,
 				Component::LocalTransformComponent* a_trsArray
 			) 
@@ -28,8 +28,6 @@ namespace App::System
 				for (size_t _i = 0; _i < a_count; ++_i)
 				{
 					const Component::DesiredVelocityComponent& _velComp = a_velocityArray[_i];
-					Component::LocalTransformComponent& _trsComp = a_trsArray[_i];
-
 					if (std::abs(_velComp.value.x) > 0.0001f ||
 						std::abs(_velComp.value.y) > 0.0001f ||
 						std::abs(_velComp.value.z) > 0.0001f)

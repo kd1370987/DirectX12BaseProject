@@ -267,7 +267,7 @@ namespace Editor
 		std::string _label = GetEntityLabel(a_pWorld, a_entity);
 
 		// ツリーノード表示
-		bool _isNodeOpen = ImGui::TreeNodeEx((void*)(intptr_t)a_entity, _flags, _label.c_str());
+		bool _isNodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(a_entity)), _flags, _label.c_str());
 
 		// clickで選択
 		// LCtrl押下中は追加選択(再クリックで解除)、押していなければ単体選択に切り替わる
@@ -324,7 +324,7 @@ namespace Editor
 			if (const ImGuiPayload* _payload = ImGui::AcceptDragDropPayload("Entity"))
 			{
 				// 子供のエンティティを取得
-				ECS::Entity _child = *(ECS::Entity*)_payload->Data;
+				ECS::Entity _child = *static_cast<const ECS::Entity*>(_payload->Data);
 				// 自分自身や不正なエンティティは親にできない
 				if (_child != a_entity && _child != ECS::Limits::INVALID_ENTITY)
 				{
@@ -342,7 +342,6 @@ namespace Editor
 		if (!a_pWorld->HasComponent<Engine::ECS::GUIDComponent>(a_parent) || !a_pWorld->HasComponent<Engine::ECS::GUIDComponent>(a_child)) return;
 
 		auto* _pParentGUID = a_pWorld->RefData<Engine::ECS::GUIDComponent>(a_parent);
-		auto* _pChildGUID = a_pWorld->RefData<Engine::ECS::GUIDComponent>(a_child);
 
 		// 新たな親子関係の構築
 		Core::GUID _parentGUID = _pParentGUID->guid;
@@ -365,7 +364,7 @@ namespace Editor
 			_initData.parentID = ECS::Limits::INVALID_ENTITY;
 			_initData.depth = 0;
 			// 内部でディープコピーしてるのでローカルでいい
-			a_pWorld->ReserveAddComponent(_compTypeID, a_parent, (uint8_t*)&_initData);
+			a_pWorld->ReserveAddComponent(_compTypeID, a_parent, reinterpret_cast<uint8_t*>(&_initData));
 		}
 		// ヒエラルキーコンポーネントを持っていなかった場合
 		// 付与してデータを入れる
@@ -381,7 +380,7 @@ namespace Editor
 		else
 		{
 			auto _compTypeID = a_pWorld->GetCompTypeID<App::Component::HierarchyComponent>();
-			a_pWorld->ReserveAddComponent(_compTypeID, a_child, (uint8_t*)&_newComp);
+			a_pWorld->ReserveAddComponent(_compTypeID, a_child, reinterpret_cast<uint8_t*>(&_newComp));
 		}
 	}
 

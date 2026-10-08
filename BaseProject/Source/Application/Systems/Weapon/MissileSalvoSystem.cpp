@@ -63,7 +63,7 @@ namespace App::System
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				Component::ActiveTag* /*a_tags*/,
 				Component::MissileLockComponent* a_missileArray,
 				const Component::AttachmentSlotsComponent* a_slotsArray,
 				const Component::ActionIntentComponent* a_intentArray,
@@ -184,8 +184,8 @@ namespace App::System
 							[&](
 								Engine::ECS::Chunk* a_pEnemyChunk,
 								uint32_t a_enemyCount,
-								const Component::ActiveTag* a_activeTagArray,
-								const Component::EnemyTag* a_enemyTagArray,
+								const Component::ActiveTag* /*a_activeTagArray*/,
+								const Component::EnemyTag* /*a_enemyTagArray*/,
 								const Component::WorldMatrixComponent* a_enemyWorldMatArray
 							)
 							{

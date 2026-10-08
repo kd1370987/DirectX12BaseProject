@@ -24,10 +24,10 @@ namespace App::System
 			Engine::ECS::ESystemType::PreUpdate,
 			"FollowLeaderSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_activeTags,
+				Component::ActiveTag* /*a_activeTags*/,
 				const Component::FollowTargetComponent* a_followTargetArray,
 				Component::BoidTargetComponent* a_targetArray
 			)

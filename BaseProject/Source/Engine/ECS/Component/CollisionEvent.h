@@ -26,7 +26,7 @@ struct Engine::ECS::ComponentTraits<Engine::ECS::CollisionEvent>
 		}
 		else
 		{
-			Engine::EditorField::Value("Hit Entity", "%d", (int)_comp.other);
+			Engine::EditorField::Value("Hit Entity", "%d", static_cast<int>(_comp.other));
 			Engine::EditorField::Value("Hit Pos", "%.2f, %.2f, %.2f", _comp.hitPos.x, _comp.hitPos.y, _comp.hitPos.z);
 		}
 	}

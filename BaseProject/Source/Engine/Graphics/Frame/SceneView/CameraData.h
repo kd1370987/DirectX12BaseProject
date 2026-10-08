@@ -2,7 +2,9 @@
 namespace Engine::Graphics
 {
 	// カメラ
-	struct alignas(256) CameraData
+	// ※ HLSL 側(Asset/Shader/Common/RootParameters/CameraData.hlsli)と並びを合わせること。
+	//    定数バッファの256バイト境界は CBAllocator が置き場所を取るときにそろえるので、構造体には付けない
+	struct CameraData
 	{
 		// 現在フレームのデータ
 		// ジッターありデータ

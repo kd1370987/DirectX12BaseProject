@@ -52,8 +52,8 @@ namespace App::System
 					[&](
 						Engine::ECS::Chunk*		a_pChunk,
 						uint32_t							a_count,
-						const Component::ActiveTag*					a_tags,
-						const Component::CameraTag*					a_camTagArray,
+						const Component::ActiveTag*					/*a_tags*/,
+						const Component::CameraTag*					/*a_camTagArray*/,
 						const Component::CameraParamComponent*			a_camParamArray,
 						const Component::ProjMatComponent*				a_projMatArray,
 						const Component::WorldMatrixComponent*			a_worldMatArray

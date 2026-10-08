@@ -50,10 +50,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Update,
 			"DeathMoveIntentGateSystem",
 			[](
-				Engine::ECS::Chunk*      a_pChunk,
+				Engine::ECS::Chunk*      /*a_pChunk*/,
 				uint32_t                          a_count,
-				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				const Engine::ECS::SystemContext& /*a_ctx*/,
+				Component::ActiveTag*                        /*a_tags*/,
 				const Component::HealthComponent*            a_healthArray,
 				Component::MoveIntentComponent*              a_intentArray
 			)
@@ -82,10 +82,10 @@ namespace App::System
 			Engine::ECS::ESystemType::PreUpdate,
 			"DeathActionIntentGateSystem",
 			[](
-				Engine::ECS::Chunk*      a_pChunk,
+				Engine::ECS::Chunk*      /*a_pChunk*/,
 				uint32_t                          a_count,
-				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				const Engine::ECS::SystemContext& /*a_ctx*/,
+				Component::ActiveTag*                        /*a_tags*/,
 				const Component::HealthComponent*            a_healthArray,
 				Component::ActionIntentComponent*            a_intentArray
 			)
@@ -114,10 +114,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Update,
 			"DeathBoostGateSystem",
 			[](
-				Engine::ECS::Chunk*      a_pChunk,
+				Engine::ECS::Chunk*      /*a_pChunk*/,
 				uint32_t                          a_count,
-				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				const Engine::ECS::SystemContext& /*a_ctx*/,
+				Component::ActiveTag*                        /*a_tags*/,
 				const Component::HealthComponent*            a_healthArray,
 				Component::BoostIntentComponent*             a_boostArray
 			)
@@ -143,10 +143,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Update,
 			"DeathBossOrderGateSystem",
 			[](
-				Engine::ECS::Chunk*      a_pChunk,
+				Engine::ECS::Chunk*      /*a_pChunk*/,
 				uint32_t                          a_count,
-				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				const Engine::ECS::SystemContext& /*a_ctx*/,
+				Component::ActiveTag*                        /*a_tags*/,
 				const Component::HealthComponent*            a_healthArray,
 				Component::BossBrainStateComponent*          a_brainArray,
 				Component::BossCommandComponent*             a_commandArray
@@ -172,7 +172,7 @@ namespace App::System
 				Engine::ECS::Chunk*      a_pChunk,
 				uint32_t                          a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				Component::ActiveTag*                        /*a_tags*/,
 				Component::HealthComponent*                  a_healthArray
 			)
 			{

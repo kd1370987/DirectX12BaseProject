@@ -21,11 +21,11 @@ namespace App::System
 			Engine::ECS::ESystemType::Release,
 			"AnimationMatrixFreeSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ReleaseTag* a_releaseTag,
-				const Component::ModelComponent* a_pModelArray,
+				Component::ReleaseTag* /*a_releaseTag*/,
+				const Component::ModelComponent* /*a_pModelArray*/,
 				Component::DynamicRaytracingComponent* a_rayArray,
 				Component::NodePoseComponent* a_nodeArray,
 				Component::SkeletonPoseComponent* a_poseArray
@@ -41,7 +41,6 @@ namespace App::System
 
 				for (size_t _i = 0; _i < a_count; ++_i)
 				{
-					const Component::ModelComponent& _modelComp = a_pModelArray[_i];
 					Component::DynamicRaytracingComponent& _rayComp = a_rayArray[_i];
 					Component::NodePoseComponent& _nodeComp = a_nodeArray[_i];
 					Component::SkeletonPoseComponent& _poseComp = a_poseArray[_i];

@@ -194,10 +194,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Animation,
 			"AnimationSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				Component::ActiveTag* /*a_tags*/,
 				const Component::ModelComponent* a_modelArray,
 				Component::AnimatorComponent* a_animatorArray,
 				Component::NodePoseComponent* a_NodePoseArray
@@ -218,10 +218,10 @@ namespace App::System
 			Engine::ECS::ESystemType::Animation,
 			"UpperAnimationSystem",
 			[](
-				Engine::ECS::Chunk* a_pChunk,
+				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				Component::ActiveTag* /*a_tags*/,
 				const Component::ModelComponent* a_modelArray,
 				Component::UpperAnimatorComponent* a_upperArray,
 				Component::NodePoseComponent* a_NodePoseArray

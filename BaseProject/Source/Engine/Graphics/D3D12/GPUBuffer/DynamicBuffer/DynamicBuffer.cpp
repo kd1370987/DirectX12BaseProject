@@ -24,8 +24,8 @@ bool Engine::Graphics::D3D12::DynamicBuffer::Create(D3D12::Device* a_pDevice, De
 	_srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 	_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	_srvDesc.Buffer.FirstElement = 0;
-	_srvDesc.Buffer.NumElements = m_elementNum;
-	_srvDesc.Buffer.StructureByteStride = m_strideSize;
+	_srvDesc.Buffer.NumElements = static_cast<UINT>(m_elementNum);
+	_srvDesc.Buffer.StructureByteStride = static_cast<UINT>(m_strideSize);
 	_srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 	m_srvHandle = AllocateSRV(a_pDevice,a_pHeapManager,GetResource(),_srvDesc);
 

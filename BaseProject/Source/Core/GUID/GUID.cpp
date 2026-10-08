@@ -13,7 +13,7 @@ namespace Core
 
 		if (UuidToStringA(&value, &str) == RPC_S_OK)
 		{
-			ret = (char*)str;
+			ret = reinterpret_cast<char*>(str);
 			RpcStringFreeA(&str);
 		}
 
@@ -21,7 +21,7 @@ namespace Core
 	}
 	void GUID::FromString(const std::string& a_str)
 	{
-		UuidFromStringA((RPC_CSTR)a_str.c_str(),&value);
+		UuidFromStringA(reinterpret_cast<RPC_CSTR>(const_cast<char*>(a_str.c_str())),&value);
 	}
 	size_t GUID::Hash() const noexcept
 	{

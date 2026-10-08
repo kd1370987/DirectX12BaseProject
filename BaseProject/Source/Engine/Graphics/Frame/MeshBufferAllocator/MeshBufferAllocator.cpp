@@ -24,8 +24,6 @@ namespace Engine::Graphics
 		// 前フレーム用も同じサイズで作成(同じオフセットで参照するため)
 		m_prevAnimatedVertexBuffer.Create(a_pDevice,a_pHeapManager,a_bufferSizes.animatedVertexBufferSize);
 
-		size_t _size = sizeof(MeshInstanceData);
-
 		// メッシュレット数の上限。
 		// CullData は DirectX::ComputeCullData がメッシュレット1個につき1個生成するため、
 		// カリングバッファはメッシュレットバッファと必ず同じ要素数で確保する。
@@ -52,7 +50,7 @@ namespace Engine::Graphics
 		m_meshletCullDataBuffer.Release();
 	}
 
-	void MeshBufferAllocator::UpdateFrame(D3D12::GraphicsCommandList* a_pCmdList,uint64_t a_completedFenceValue)
+	void MeshBufferAllocator::UpdateFrame(D3D12::GraphicsCommandList* /*a_pCmdList*/,uint64_t a_completedFenceValue)
 	{
 		// メッシュ用のバッファ更新
 		m_staticVerticesBuffer.Update(a_completedFenceValue);

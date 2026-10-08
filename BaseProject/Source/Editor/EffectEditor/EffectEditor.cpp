@@ -692,7 +692,7 @@ namespace Editor
 		}
 
 		auto _gpuHandle = EditorHelper::GetImGuiTexHandle(_pTex->GetImGuiSRV());
-		ImGui::Image((ImTextureID)(_gpuHandle.ptr), _size);
+		ImGui::Image(static_cast<ImTextureID>(_gpuHandle.ptr), _size);
 
 		// フリーカメラへホバー状態を渡す。
 		// 右クリックの開始位置がこの画像の上の時だけ操作を始めるための判定(シーンビューと同じ)

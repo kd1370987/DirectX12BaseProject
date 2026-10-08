@@ -63,7 +63,7 @@ namespace App::System
 				Engine::ECS::Chunk* a_pChunk,
 				uint32_t a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag* a_tags,
+				Component::ActiveTag* /*a_tags*/,
 				Component::ChargeDashComponent* a_dashArray,
 				Component::DesiredVelocityComponent* a_velArray,
 				const Component::MoveIntentComponent* a_moveIntentArray,

@@ -49,10 +49,10 @@ namespace App::System
 			Engine::ECS::ESystemType::PostUpdate,
 			"BossMissileSalvoSystem",
 			[](
-				Engine::ECS::Chunk*      a_pChunk,
+				Engine::ECS::Chunk*      /*a_pChunk*/,
 				uint32_t                          a_count,
 				const Engine::ECS::SystemContext& a_ctx,
-				Component::ActiveTag*                        a_tags,
+				Component::ActiveTag*                        /*a_tags*/,
 				Component::BossCommandComponent*             a_commandArray,
 				Component::MissileLockComponent*             a_missileArray,
 				const Component::AttachmentSlotsComponent*   a_slotsArray,

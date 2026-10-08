@@ -90,15 +90,15 @@ namespace Engine::Resource
 
 	inline Index GetIndex(ID a_id)
 	{
-		return Index(a_id & 0xFFFF);
+		return static_cast<Index>(a_id & 0xFFFF);
 	}
 	inline Generation GetGeneration(ID a_id)
 	{
-		return Generation(a_id >> 16);
+		return static_cast<Generation>(a_id >> 16);
 	}
 	inline ID GetID(Index a_idx,Generation a_gen)
 	{
-		return ID(a_gen) << 16 | a_idx;
+		return static_cast<ID>(a_gen) << 16 | a_idx;
 	}
 }
 

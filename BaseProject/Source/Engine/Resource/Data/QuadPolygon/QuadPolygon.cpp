@@ -39,7 +39,7 @@ namespace Engine::Resource
 		// インデックスバッファ作成
 		std::vector<UINT> _indices = { 0,1,2,3,1,0 };
 		Graphics::D3D12::IndexBufferDesc _desc = {};
-		_desc.count = _indices.size();
+		_desc.count = static_cast<uint32_t>(_indices.size());
 		_desc.pData = _indices.data();
 		_desc.format = DXGI_FORMAT_R32_UINT;
 		if (!m_indexBuffer.Create(a_pHeapManager->RefDevice(),a_pHeapManager,_desc))
@@ -125,7 +125,7 @@ namespace Engine::Resource
 		}
 
 		Graphics::D3D12::IndexBufferDesc _desc = {};
-		_desc.count = _indices.size();
+		_desc.count = static_cast<uint32_t>(_indices.size());
 		_desc.pData = _indices.data();
 		_desc.format = DXGI_FORMAT_R32_UINT;
 		if (!m_indexBuffer.Create(a_pHeapManager->RefDevice(), a_pHeapManager, _desc))

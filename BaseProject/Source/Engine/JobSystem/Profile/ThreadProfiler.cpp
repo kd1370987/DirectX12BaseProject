@@ -99,7 +99,7 @@ namespace Engine::Thread
 
 			// 実行中の区間は、今の時刻で区切って足す。
 			// 読み取りの直前に切り替わった場合は a_now より後の時刻が入っていることがあるので、負にしない
-			a_outTicks[_state] += (std::max)(int64_t(0), a_now - _begin);
+			a_outTicks[_state] += (std::max)(static_cast<int64_t>(0), a_now - _begin);
 		}
 	};
 
@@ -281,7 +281,7 @@ namespace Engine::Thread
 	{
 		for (auto& _accum : m_accumulators)
 		{
-			std::fill(std::begin(_accum.sumTicks), std::end(_accum.sumTicks), int64_t(0));
+			std::fill(std::begin(_accum.sumTicks), std::end(_accum.sumTicks), static_cast<int64_t>(0));
 			_accum.maxBusyTicks = 0;
 			_accum.sumJobCount = 0;
 			_accum.sumStealCount = 0;

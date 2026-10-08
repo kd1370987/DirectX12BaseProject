@@ -111,8 +111,8 @@ namespace Engine::Graphics
 		m_viewport.TopLeftY = 0;
 
 		// 幅・高さ
-		m_viewport.Width = a_windowWidth;
-		m_viewport.Height = a_windowHeight;
+		m_viewport.Width = static_cast<FLOAT>(a_windowWidth);
+		m_viewport.Height = static_cast<FLOAT>(a_windowHeight);
 
 		// 深度のマッピング範囲（奥行情報・Zバッファの値）
 		m_viewport.MinDepth = 0.0f;

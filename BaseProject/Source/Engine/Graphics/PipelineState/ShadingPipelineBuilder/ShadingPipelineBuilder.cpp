@@ -58,18 +58,18 @@ namespace Engine::Graphics
 		// ここで覚えてしまうと、あとから読めてもこのキーは空のまま固定され、
 		// 次に組み直すまでそのマテリアルが描かれなくなる
 		// =========================================================
-		bool _useMeshShader = (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::MeshShader);
+		bool _useMeshShader = (a_key.permutationFlags & static_cast<uint32_t>(EShaderPermutationFlags::MeshShader));
 		if (_useMeshShader)
 		{
 			Handle<Resource::Shader> _targetMSHandle;
 			Handle<Resource::Shader> _targetASHandle;
 
-			if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned)
+			if (a_key.permutationFlags & static_cast<uint32_t>(EShaderPermutationFlags::Skinned))
 			{
 				_targetMSHandle = m_msMap[EShaderPermutationFlags::Skinned];
 				_targetASHandle = m_asMap[EShaderPermutationFlags::Skinned];
 			}
-			else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing)
+			else if (a_key.permutationFlags & static_cast<uint32_t>(EShaderPermutationFlags::UseGPUInstancing))
 			{
 				_targetMSHandle = m_msMap[EShaderPermutationFlags::UseGPUInstancing];
 				_targetASHandle = m_asMap[EShaderPermutationFlags::UseGPUInstancing];
@@ -99,12 +99,12 @@ namespace Engine::Graphics
 			Handle<Resource::Shader> _targetVSHandle;
 
 			// アニメーションか、インスタンシングか、静的か等の優先順位でVSを決定
-			if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::Skinned)
+			if (a_key.permutationFlags & static_cast<uint32_t>(EShaderPermutationFlags::Skinned))
 			{
 				_targetVSHandle = m_vsMap[EShaderPermutationFlags::Skinned];
 				_builder.SetInputLayout(D3D12::Input::ANIMATION_INPUT_LAYOUT);
 			}
-			else if (a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::UseGPUInstancing)
+			else if (a_key.permutationFlags & static_cast<uint32_t>(EShaderPermutationFlags::UseGPUInstancing))
 			{
 				_targetVSHandle = m_vsMap[EShaderPermutationFlags::UseGPUInstancing];
 			}
@@ -127,7 +127,7 @@ namespace Engine::Graphics
 		// =========================================================
 		// ZPreかつ不透明(Opaque)なら、PSのセットをスキップ
 		bool _isZPrePass = (m_passNameHash == Core::String::ToHash("ZPre"));
-		bool _isOpaque = !(a_key.permutationFlags & (uint32_t)EShaderPermutationFlags::AlphaMasked);
+		bool _isOpaque = !(a_key.permutationFlags & static_cast<uint32_t>(EShaderPermutationFlags::AlphaMasked));
 
 		if (!(_isZPrePass && _isOpaque))
 		{
