@@ -30,6 +30,14 @@ namespace Engine::Graphics::Pipeline
 			float giIntensity;			// 間接光の強さ
 			float directionalIntensity;	// 平行光の強さ
 			float dielectricF0;			// 非金属の基準反射率
+			float reflectionIntensity;	// 鏡面反射(間接光の鏡面ぶん)の強さ
+
+			// 粗さに応じた鏡面反射の扱い。
+			// レイトレの反射は鏡なので、粗い面ほどぼかし、
+			// 粗さ Start → End で周りの間接光(GI)へ置き換える
+			float reflectionRoughnessStart;
+			float reflectionRoughnessEnd;
+			float reflectionBlurRadius;	// 粗さ End のときのぼかし半径(反射テクスチャの画素数)
 			float pad;
 		};
 
@@ -42,6 +50,6 @@ namespace Engine::Graphics::Pipeline
 
 		// ライティングの調整値
 		// ※ HLSL の LightingOptionData と並びを合わせること
-		LightingOptionCB m_cb = { 1.0f, 1.0f, 0.04f, 0.0f };
+		LightingOptionCB m_cb = { 1.0f, 1.0f, 0.04f, 1.0f, 0.4f, 0.8f, 12.0f, 0.0f };
 	};
 }

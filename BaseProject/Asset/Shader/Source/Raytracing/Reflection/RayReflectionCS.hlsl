@@ -11,6 +11,7 @@
 // ・DispatchRays ではなくインラインレイトレ(RayQuery)で飛ばす。
 //   当たった先のシェーディングはこのシェーダーの中で済ませる(ヒットシェーダーが無い)
 // ・当たった先の照明は 主光源(影はレイ1本) + 環境光 + 自己発光。
+//   金属度と粗さで拡散と鏡面に分ける(鏡面に映るものは環境光で代用する)。
 //   ポイントライトと間接光(2バウンス目)は拾わない
 // ・空に抜けたレイはスカイテクスチャを引く。テクスチャが無ければ環境光の色
 //
@@ -28,6 +29,7 @@
 // ヘルパー関数
 #include "../Raytracing.hlsli"
 #include "../../../Common/Math/CalcNormal.hlsli"
+#include "../../../Common/Math/EnvBRDF.hlsli"
 
 //==========================================================================================
 // ルートパラメーター
@@ -397,8 +399,18 @@ float3 SampleEnvironment(float3 a_dir)
 	return g_skyTex.SampleLevel(g_skySamp, DirectionToEquirectUV(a_dir), 0).rgb * g_sky.exposure;
 }
 
-// 当たった先の放射輝度 : アルベド * (主光源 + 環境光) + 自己発光
-float3 ShadeHit(RayMaterial a_mat, HitSurface a_surface, float a_hitDistance)
+// 非金属の基本反射率。ディファードの dielectricF0 の既定値と揃える
+static const float DIELECTRIC_F0 = 0.04f;
+
+// 当たった先の放射輝度
+//
+//   拡散 : アルベド * (主光源 + 環境光) * 拡散へ回る割合
+//   鏡面 : 環境光 * 鏡面へ回る割合(映り込む先までは追わないので、周りを環境光で代用する)
+//   + 自己発光
+//
+// 割合は GBuffer と同じ金属度・粗さから、ディファードと同じ環境BRDFで決める。
+// 金属は拡散を持たないので、拡散の割合に (1 - 金属度) を掛ける
+float3 ShadeHit(RayMaterial a_mat, HitSurface a_surface, float3 a_rayDir, float a_hitDistance)
 {
 	// 遠くで当たったものほど細かい模様は見えないので、ミップを落として引く
 	const float _lod = clamp(log2(max(a_hitDistance, 1e-3f) * 0.5f), 0.0f, 5.0f);
@@ -408,6 +420,18 @@ float3 ShadeHit(RayMaterial a_mat, HitSurface a_surface, float a_hitDistance)
 
 	Texture2D _emissiveTex = ResourceDescriptorHeap[NonUniformResourceIndex(a_mat.emissiveIndex)];
 	const float3 _emissive = _emissiveTex.SampleLevel(g_samp, a_surface.uv, _lod).rgb * a_mat.emissive + a_mat.emissiveAdd;
+
+	// 金属度・粗さ : GBuffer と同じく テクスチャ(g = 粗さ / b = 金属度) * マテリアルの値
+	Texture2D _metaRoughTex = ResourceDescriptorHeap[NonUniformResourceIndex(a_mat.metaRoughnessIndex)];
+	const float3 _metaRough = _metaRoughTex.SampleLevel(g_samp, a_surface.uv, _lod).rgb;
+	const float _roughness = _metaRough.g * a_mat.roughness;
+	const float _metallic = _metaRough.b * a_mat.metallic;
+
+	// 拡散と鏡面の割合。視線はレイの逆向き(当たった点から反射元へ)
+	const float3 _F0 = lerp(DIELECTRIC_F0.xxx, _albedo, _metallic);
+	const float _NdotV = saturate(dot(a_surface.normal, -a_rayDir));
+	const float3 _specularWeight = EnvBRDFApprox(_F0, _roughness, _NdotV);
+	const float3 _diffuseWeight = (1.0f - _specularWeight) * (1.0f - _metallic);
 
 	// 主光源
 	float3 _direct = float3(0.0f, 0.0f, 0.0f);
@@ -427,7 +451,9 @@ float3 ShadeHit(RayMaterial a_mat, HitSurface a_surface, float a_hitDistance)
 		_direct = (_NdotL / PI) * g_sun.color.rgb * g_sun.brightness * _visibility;
 	}
 
-	const float3 _color = _albedo * (_direct + g_ambient.ambientColor) + _emissive;
+	const float3 _diffuse = _albedo * (_direct + g_ambient.ambientColor) * _diffuseWeight;
+	const float3 _specular = g_ambient.ambientColor * _specularWeight;
+	const float3 _color = _diffuse + _specular + _emissive;
 
 	// マイナスや無限大(NaN)を後段へ流さない
 	return clamp(_color, 0.0f, 10.0f);
@@ -535,7 +561,7 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 			_surface.normal = -_surface.normal;
 		}
 
-		float3 _reflectedRadiance = ShadeHit(_mat, _surface, _hitDistance);
+		float3 _reflectedRadiance = ShadeHit(_mat, _surface, _R, _hitDistance);
 
 		// 反射色を出力
 		g_outTex[_id] = float4(_reflectedRadiance,1.0f);

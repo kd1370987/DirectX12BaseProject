@@ -1,5 +1,6 @@
 #include "../../../Common/Math/CalcNormal.hlsli"
 #include "../../../Common/Math/CalcLighting.hlsli"
+#include "../../../Common/Math/EnvBRDF.hlsli"
 #include "../../../Common/RootSignatureLayout.hlsli"
 
 // ルートパラメーターの構造体
@@ -122,6 +123,77 @@ float3 ReconstructViewPos(float2 uv, float depth)
 	float4 clip = float4(uv.x * 2.0f - 1.0f, 1.0f - uv.y * 2.0f, depth, 1.0f);
 	float4 view = mul(clip, g_camera.invProj);
 	return view.xyz / view.w;
+}
+
+//------------------------------------------------------------------------------------------
+// 鏡面反射を粗さに応じてぼかして引く
+//
+// レイトレの反射は鏡(画素ごとに1本)なので、そのままだとざらついた面にもくっきり映る。
+// 粗さに比例した半径の円盤で周りの反射を集めて、ぼけた映り込みに見せる。
+//
+// 円盤は反射テクスチャ(1920x1080 固定)の画素で測る。
+// 周りの画素が別の面(奥の物・向きの違う面)だと、その面の反射が滲んでくるので、
+// GBuffer の法線と深度で同じ面かどうかを見て重みを落とす
+//------------------------------------------------------------------------------------------
+static const uint REFLECTION_BLUR_TAP_NUM = 12;
+
+float3 SampleReflection(
+	float2 a_uv,
+	int2 a_centerCoord,
+	float3 a_normal,
+	float a_viewZ,
+	float a_radius,
+	float2 a_gbufferDim)
+{
+	uint _reflWidth, _reflHeight;
+	g_rayReflection.GetDimensions(_reflWidth, _reflHeight);
+	const float2 _texel = 1.0f / float2(_reflWidth, _reflHeight);
+
+	// サンプラーは WRAP なので、端で反対側の反射を拾わないよう内側へ寄せる
+	const float2 _minUV = _texel * 0.5f;
+	const float2 _maxUV = 1.0f - _texel * 0.5f;
+
+	const float3 _center = g_rayReflection.SampleLevel(g_samp, clamp(a_uv, _minUV, _maxUV), 0).rgb;
+
+	// 1画素に満たないぼかしは掛けない(ほぼ鏡の面)
+	if (a_radius < 0.5f) return _center;
+
+	// 円盤の向きを画素ごと・フレームごとに回す(Interleaved Gradient Noise)。
+	// 揃えたままだとタップの並びが模様になって見える。残るざらつきは後ろの TAA が均す。
+	// フレームの番号は持っていないので、毎フレーム変わる TAA のジッターで代わりにずらす
+	const float2 _seed = float2(a_centerCoord) + g_camera.jitterOffset * 1024.0f;
+	const float _rotation = frac(52.9829189f * frac(dot(_seed, float2(0.06711056f, 0.00583715f)))) * 2.0f * PI;
+
+	float3 _sum = _center;
+	float _weightSum = 1.0f;
+
+	const int2 _maxCoord = int2(a_gbufferDim) - 1;
+
+	for (uint _i = 0; _i < REFLECTION_BLUR_TAP_NUM; ++_i)
+	{
+		// 黄金角で並べた円盤(Vogel disk) : 少ないタップでも偏りなく埋まる
+		const float _r = sqrt((_i + 0.5f) / REFLECTION_BLUR_TAP_NUM) * a_radius;
+		const float _theta = _i * 2.39996323f + _rotation;
+		const float2 _tapUV = clamp(a_uv + float2(cos(_theta), sin(_theta)) * _r * _texel, _minUV, _maxUV);
+
+		// 同じ面か : GBuffer の法線と深度を比べる
+		const int2 _tapCoord = clamp(int2(_tapUV * a_gbufferDim), int2(0, 0), _maxCoord);
+		const float _tapDepth = g_depthTex.Load(int3(_tapCoord, 0)).r;
+		if (_tapDepth >= 1.0f) continue;
+
+		const float3 _tapNormal = DecsodeNormal(g_normalTex.Load(int3(_tapCoord, 0)).rg);
+		const float2 _tapGBufferUV = (float2(_tapCoord) + 0.5f) / a_gbufferDim;
+		const float _tapViewZ = ReconstructViewPos(_tapGBufferUV, _tapDepth).z;
+
+		const float _normalWeight = pow(saturate(dot(_tapNormal, a_normal)), 16.0f);
+		const float _depthWeight = saturate(1.0f - abs(_tapViewZ - a_viewZ) / (abs(a_viewZ) * 0.05f + 1e-3f));
+		const float _weight = _normalWeight * _depthWeight;
+
+		_sum += g_rayReflection.SampleLevel(g_samp, _tapUV, 0).rgb * _weight;
+		_weightSum += _weight;
+	}
+
+	return _sum / _weightSum;
 }
 
 [RootSignature(DEFERRED_ROOT_SIG)]
@@ -286,25 +358,53 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 		_outColor += _plDiffuse + _plSpec;
 	}
 
+	//------------------------------------------------------------------
+	// 間接光(GI と鏡面反射)
+	//
+	// 周りから来る光を、拡散(GI)と鏡面(反射)で分け合う。
+	//   鏡面へ回る割合 : 環境BRDF。F0(金属度で非金属の値とアルベドを混ぜたもの)・粗さ・
+	//                    視線の角度で決まる。滑らかな面ほど、浅い角度ほど強い
+	//   拡散へ回る割合 : 残り。金属は拡散しないので (1 - 金属度) を掛ける
+	// 足して 1 を超えないので、反射を足しても面が明るくなりすぎない
+	//------------------------------------------------------------------
+	float _NdotV = saturate(dot(_normal, _V));
+	float3 _specularWeight = EnvBRDFApprox(_F0, _roughness, _NdotV);
+	float3 _diffuseWeight = (1.0f - _specularWeight) * (1.0f - _metallic);
+
 	// アンビエント(GI/間接光) : 強さをオプションから調整可能にする
-	_outColor += _rayGI * _albedo * g_lightingOp.giIntensity;
+	float3 _indirectLight = _rayGI * g_lightingOp.giIntensity;
+	_outColor += _indirectLight * _albedo * _diffuseWeight;
 
 	// 反射色
+	//
+	// レイトレの反射は鏡なので、粗いほどぼかし、
+	// 粗さ reflectionRoughnessStart → End で周りの間接光(GI)へ置き換える。
+	// GI は全方向から来る光の平均なので、ざらざらの面の鏡面反射の代わりになる。
+	// 反射が繋がっていないパイプラインも、GI を鏡面反射の代わりにする
+	// (金属は拡散を持たないので、何も足さないと真っ黒になる)
+	float3 _specularRadiance = _indirectLight;
 	if (g_rayReflectionIndex != 0xFFFFFFFFu)
 	{
-		// レイトレーシングのリファレクションテクスチャがあれば取得
-		float4 _reflectionData = g_rayReflection.SampleLevel(g_samp, _uv, 0);
+		const float _roughStart = g_lightingOp.reflectionRoughnessStart;
+		const float _roughEnd = max(g_lightingOp.reflectionRoughnessEnd, _roughStart + 1e-4f);
+		const float _roughFade = saturate((_roughness - _roughStart) / (_roughEnd - _roughStart));
 
-		float3 _reflectionRadiance = _reflectionData.rgb;
+		// 置き換え切った面は反射を引かない
+		if (_roughFade < 1.0f)
+		{
+			// ぼかし半径は粗さに比例させ、End で reflectionBlurRadius に届く
+			const float _blurRadius = g_lightingOp.reflectionBlurRadius * saturate(_roughness / _roughEnd);
 
-		// 鏡面反射の強度を Fresnel と粗さで制御する
-		// Schlick近似によるFresnel反射率
-		float _NdotV = saturate(dot(_normal, _V));
-		float3 _F = _F0 + (1.0f - _F0) * pow(1.0f - _NdotV, 5.0f);
+			// レイトレーシングのリファレクションテクスチャを取得
+			// (1920x1080 固定で出力と解像度が違うことがあるので UV で引く)
+			const float3 _reflectionRadiance = SampleReflection(
+				_uv, _centerCoord, _normal, _viewPos.z, _blurRadius, float2(_width, _height));
 
-		// 反射が存在する画素だけを合成
-		_outColor += _reflectionRadiance * _F;
+			_specularRadiance = lerp(_reflectionRadiance, _indirectLight, _roughFade);
+		}
 	}
+
+	_outColor += _specularRadiance * _specularWeight * g_lightingOp.reflectionIntensity;
 	
 	// エミッシブ(自己発光)
 	// 面が自分で出している光なので、影やライトの向きの影響を受けずそのまま足す。

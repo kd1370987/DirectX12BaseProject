@@ -174,6 +174,16 @@ namespace Editor::Inspector
 				_isEdit |= Engine::EditorField::Field("DirectionalIntensity", _params.directionalIntensity, 0.01f, 0.0f);
 				_isEdit |= Engine::EditorField::Field("DielectricF0", _params.dielectricF0, 0.001f, 0.0f, 1.0f);
 
+				_isEdit |= Engine::EditorField::Field("ReflectionIntensity", _params.reflectionIntensity, 0.01f, 0.0f);
+				Engine::EditorField::Tooltip("鏡面反射の強さ。どれだけ映るかは金属度・粗さ・視線の角度で決まり、これはその全体に掛かります");
+
+				_isEdit |= Engine::EditorField::Field("ReflectionRoughStart", _params.reflectionRoughnessStart, 0.01f, 0.0f, 1.0f);
+				_isEdit |= Engine::EditorField::Field("ReflectionRoughEnd", _params.reflectionRoughnessEnd, 0.01f, 0.0f, 1.0f);
+				Engine::EditorField::Tooltip("粗さが Start を超えるとレイトレの反射を周りの間接光(GI)へ置き換え始め、End で置き換え切ります");
+
+				_isEdit |= Engine::EditorField::Field("ReflectionBlurRadius", _params.reflectionBlurRadius, 0.1f, 0.0f, 64.0f);
+				Engine::EditorField::Tooltip("粗さ End のときのぼかし半径(反射テクスチャの画素数)。粗さに比例して広がります");
+
 				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
 		};

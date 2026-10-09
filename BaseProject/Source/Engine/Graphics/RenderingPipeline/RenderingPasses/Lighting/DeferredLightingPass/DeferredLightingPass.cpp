@@ -93,5 +93,9 @@ namespace Engine::Graphics::Pipeline
 		a_arch.Field("giIntensity", m_cb.giIntensity);
 		a_arch.Field("directionalIntensity", m_cb.directionalIntensity);
 		a_arch.Field("dielectricF0", m_cb.dielectricF0);
+		a_arch.Field("reflectionIntensity", m_cb.reflectionIntensity);
+		a_arch.Field("reflectionRoughnessStart", m_cb.reflectionRoughnessStart);
+		a_arch.Field("reflectionRoughnessEnd", m_cb.reflectionRoughnessEnd);
+		a_arch.Field("reflectionBlurRadius", m_cb.reflectionBlurRadius);
 	}
 }
