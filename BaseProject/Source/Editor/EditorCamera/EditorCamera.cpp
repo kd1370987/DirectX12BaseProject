@@ -154,6 +154,9 @@ namespace Editor
 		Engine::EditorField::Field("Enable", m_isEnable);
 		Engine::EditorField::Tooltip("右ドラッグ中のみ操作 / WASD・EQ移動 / Shift加速 / ホイールで速度");
 
+		Engine::EditorField::Field("Cull By Game Camera", m_isCullByGameCamera);
+		Engine::EditorField::Tooltip("メッシュレットのカリングをゲームカメラで行い、このカメラから眺める。\nワイヤー表示が有効ならゲームカメラの視錐台も出る");
+
 		Engine::EditorField::Line();
 
 		Engine::EditorField::Field("Position", m_pos, 0.1f);

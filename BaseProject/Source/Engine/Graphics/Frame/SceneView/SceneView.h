@@ -40,12 +40,15 @@ namespace Engine::Graphics
 
 		//--------------------------------------------------------------------------------------------
 		// カメラ
+		//
+		// SetCameraMat / SetProjMat は ECS のカメラ(CamSetShaderSystem)を控えるだけ。
+		// 描くカメラへ当てるのは UpdateGPUCameraData で、割り込みがあればそちらが勝つ
 		//--------------------------------------------------------------------------------------------
 		void SetCameraMat(const Math::Matrix& a_worldMat);
 		void SetProjMat(const Math::Matrix& a_projMat);
 
 		// GetCameraData    : GPUへ送る形(転置・ジッター込み)。パスはこちらを読む
-		// GetCPUCameraData : SetCameraMat / SetProjMat で入れたままの行列
+		// GetCPUCameraData : 割り込みを当てた後の描くカメラ(転置・ジッターなし)
 		const CameraData& GetCameraData() const;
 		const CameraData& GetCPUCameraData() const;
 
@@ -53,8 +56,17 @@ namespace Engine::Graphics
 		// ECS側のカメラ設定は描画(PreDraw)の中で行われるため、
 		// 単に SetCameraMat を先に呼んでも上書きされてしまう。
 		// ここに積んでおくと、ECS側の設定が終わった後・GPUデータ作成の直前に適用される。
-		void SetCameraOverride(const Math::Matrix& a_worldMat, const Math::Matrix& a_projMat);
+		//
+		// a_isCullByGameCamera : メッシュレットのカリングだけは ECS のカメラで行う。
+		//   描くのは割り込んだカメラからなので、間引かれた様子を外から確かめられる(デバッグ用)
+		void SetCameraOverride(const Math::Matrix& a_worldMat, const Math::Matrix& a_projMat, bool a_isCullByGameCamera);
 		void ClearCameraOverride();
+
+		// 今フレーム、カリング用カメラが描くカメラと別になっているか(UpdateGPUCameraData で確定)
+		bool IsCullCameraSeparated() const { return m_isCullCameraSeparated; }
+
+		// カリング用カメラのビュー×射影(転置前・ジッターなし)。視錐台をワイヤーで出すとき用
+		const Math::Matrix& GetCullViewProjMat() const { return m_cullViewProjMat; }
 
 		// TAA用のジッターを掛けるか。設定の持ち主(オプション)から毎フレーム流し込んでもらう
 		void SetJitterEnabled(bool a_isEnabled) { m_isJitterEnabled = a_isEnabled; }
@@ -131,6 +143,9 @@ namespace Engine::Graphics
 
 	private:
 
+		// 描くカメラ(m_cbCamera)へ行列を当てる
+		void ApplyCameraMat(const Math::Matrix& a_worldMat, const Math::Matrix& a_projMat);
+
 		// カメラをGPU用データに変換
 		void CreateGPUCameraData();
 
@@ -140,14 +155,24 @@ namespace Engine::Graphics
 		UINT m_renderWidth = 0;
 		UINT m_renderHeight = 0;
 
-		// カメラデータ(CPU側の値と、GPUへ送る形)
+		// カメラデータ(CPU側の値と、GPUへ送る形)。割り込みを当てた後の「描くカメラ」
 		CameraData m_cbCamera = {};
 		CameraData m_cbGPUCamera = {};
 
+		// ECS のカメラ(SetCameraMat / SetProjMat で入ったまま)。割り込みでは上書きしない
+		Math::Matrix m_gameCameraWorldMat = Math::Matrix::Identity();
+		Math::Matrix m_gameCameraProjMat = Math::Matrix::Identity();
+		bool m_isGameCameraSet = false;
+
 		// カメラの割り込み用
 		bool m_isCameraOverride = false;
+		bool m_isCullByGameCamera = false;
 		Math::Matrix m_cameraOverrideWorldMat = Math::Matrix::Identity();
 		Math::Matrix m_cameraOverrideProjMat = Math::Matrix::Identity();
+
+		// カリング用カメラ(UpdateGPUCameraData で確定)
+		bool m_isCullCameraSeparated = false;
+		Math::Matrix m_cullViewProjMat = Math::Matrix::Identity();
 
 		// TAA : ジッターを掛けるかと、モーションベクター用の前フレームの行列
 		bool m_isJitterEnabled = true;

@@ -522,11 +522,11 @@ namespace Engine
 	{
 		// 開発ツールが見せたいカメラ(エフェクトの確認・エディターのフリーカメラ)があれば割り込ませる。
 		// 実際の上書きは GraphicsEngine::Execute() 内、ECS側のカメラ設定が終わった後
-		Math::Matrix _camWorld = {};
-		Math::Matrix _camProj = {};
-		if (m_pDevTool && m_pDevTool->TryGetCameraOverride(m_appMode, _camWorld, _camProj))
+		DevTool::CameraOverride _camOverride = {};
+		if (m_pDevTool && m_pDevTool->TryGetCameraOverride(m_appMode, _camOverride))
 		{
-			m_upGraphicsEngine->RefSceneView()->SetCameraOverride(_camWorld, _camProj);
+			m_upGraphicsEngine->RefSceneView()->SetCameraOverride(
+				_camOverride.worldMat, _camOverride.projMat, _camOverride.isCullByGameCamera);
 		}
 		// 割り込みが無ければECSのカメラをそのまま使う
 		else

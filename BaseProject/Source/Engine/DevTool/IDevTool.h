@@ -17,6 +17,19 @@ namespace Engine::ECS
 namespace Engine::DevTool
 {
 	//==========================================================================================
+	// ツールが割り込ませるカメラ(IDevTool::TryGetCameraOverride の結果)
+	//==========================================================================================
+	struct CameraOverride
+	{
+		Math::Matrix worldMat = Math::Matrix::Identity();	// カメラのワールド行列(ビュー行列ではない)
+		Math::Matrix projMat = Math::Matrix::Identity();
+
+		// メッシュレットのカリングだけはゲームのカメラで行うか。
+		// 描くのは割り込んだカメラからなので、間引かれた様子を外から確かめられる
+		bool isCullByGameCamera = false;
+	};
+
+	//==========================================================================================
 	// エンジンへ差し込む開発ツール(エディター)の窓口
 	//
 	// 依存の向きは Editor → App → Engine なので、Engine と App はエディターを知らない。
@@ -48,8 +61,8 @@ namespace Engine::DevTool
 		// モード切り替えをまたいで入力を持ち越さないよう、溜まっている入力を捨てる
 		virtual void ResetInput() = 0;
 
-		// カメラの割り込み : ツールが見せたいカメラがあれば行列を返して true
-		virtual bool TryGetCameraOverride(EAppMode a_mode, Math::Matrix& a_outWorld, Math::Matrix& a_outProj) const = 0;
+		// カメラの割り込み : ツールが見せたいカメラがあれば中身を返して true
+		virtual bool TryGetCameraOverride(EAppMode a_mode, CameraOverride& a_outOverride) const = 0;
 
 		//------------------------------------------------------------------------------
 		// シーン(SceneManager が呼ぶ)

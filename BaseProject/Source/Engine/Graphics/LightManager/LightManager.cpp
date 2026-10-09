@@ -297,6 +297,10 @@ namespace Engine::Graphics
 			// 視錐台カリングの面 : 箱の6面になる
 			_cam.ExtractFrustumPlanes(_viewProj);
 
+			// 増幅シェーダーはカリング用カメラを読むので、この段そのものを入れる。
+			// (空のままだと面が全部 0 になって何も間引かれず、裏面判定は原点から見てしまう)
+			_cam.UseSelfAsCullCamera();
+
 			// 次の段は、この段が混ぜ始めるところから覆う(混ぜる区間では両方を引くため)
 			_sliceNear = _blendStart;
 			_prevFar = _far;

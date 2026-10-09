@@ -136,6 +136,34 @@ namespace Engine::Graphics
 		}
 	}
 
+	void DebugDraw::DrawFrustum(const Math::Matrix& a_viewProj, const Math::Color& a_color)
+	{
+		if (!CanPush()) return;
+
+		// クリップ空間の箱の8隅を、逆行列でワールドへ戻す
+		// [0～3] 近平面 / [4～7] 遠平面。どちらも 左下 → 右下 → 右上 → 左上 の順
+		const Math::Matrix _invViewProj = a_viewProj.Invert();
+
+		Math::Vector3 _corners[8] = {};
+		for (int _i = 0; _i < 8; ++_i)
+		{
+			const float _x = (_i == 1 || _i == 2 || _i == 5 || _i == 6) ? 1.0f : -1.0f;
+			const float _y = ((_i % 4) >= 2) ? 1.0f : -1.0f;
+			const float _z = (_i < 4) ? 0.0f : 1.0f;
+
+			// 射影が混ざっているので w で割る TransformCoord を使う
+			_corners[_i] = Math::Vector3::TransformCoord(Math::Vector3(_x, _y, _z), _invViewProj);
+		}
+
+		for (int _i = 0; _i < 4; ++_i)
+		{
+			const int _next = (_i + 1) % 4;
+			DrawLine(_corners[_i], _corners[_next], a_color);				// 近平面の縁
+			DrawLine(_corners[_i + 4], _corners[_next + 4], a_color);		// 遠平面の縁
+			DrawLine(_corners[_i], _corners[_i + 4], a_color);				// 近と遠をつなぐ辺
+		}
+	}
+
 	void DebugDraw::Clear()
 	{
 		m_lineDataVec.clear();

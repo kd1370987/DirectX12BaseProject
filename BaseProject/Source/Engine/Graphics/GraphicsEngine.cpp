@@ -435,6 +435,13 @@ namespace Engine::Graphics
 		// エディターカメラなどの割り込みはここ(GPUデータ作成の直前)で当たる
 		m_upSceneView->UpdateGPUCameraData();
 
+		// カリングを別のカメラで行っているなら、その視錐台をワイヤーで出す。
+		// デバッグラインは下の UpdateBuffer で上がるので、それより前に積む
+		if (m_upSceneView->IsCullCameraSeparated() && m_upDebugDraw)
+		{
+			m_upDebugDraw->DrawFrustum(m_upSceneView->GetCullViewProjMat(), Math::Color(1.0f, 0.8f, 0.0f, 1.0f));
+		}
+
 		// バッファの更新
 		// ボーン行列は上の GameManager::Draw() で描くワールドぶんだけ積まれている。
 		// 「今の一番上のシーン」から引いてはいけない(ポーズ中は後ろのゲームのボーンが載らない)

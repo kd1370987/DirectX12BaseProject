@@ -231,15 +231,23 @@ namespace Editor
 	// 描いているのがあちらの確認用ワールドなので、フリーカメラで見ても何も映らない。
 	// それ以外はエディターモードのときだけフリーカメラを割り込ませる
 	// (実際の上書きは GraphicsEngine::Execute() 内、ECS側のカメラ設定が終わった後)
+	//
+	// カリングをゲームカメラで行うのはフリーカメラのときだけ。
+	// エフェクトエディターは別のワールドを描いているので、ゲームカメラで間引く意味が無い
 	//======================================================================================
-	bool MainEditor::TryGetCameraOverride(EAppMode a_mode, Math::Matrix& a_outWorld, Math::Matrix& a_outProj) const
+	bool MainEditor::TryGetCameraOverride(EAppMode a_mode, Engine::DevTool::CameraOverride& a_outOverride) const
 	{
-		if (m_upEffectEditor && m_upEffectEditor->TryGetCameraOverride(a_outWorld, a_outProj)) return true;
+		if (m_upEffectEditor && m_upEffectEditor->TryGetCameraOverride(a_outOverride.worldMat, a_outOverride.projMat))
+		{
+			a_outOverride.isCullByGameCamera = false;
+			return true;
+		}
 
 		if (a_mode == EAppMode::Editor && m_upEditorCamera && m_upEditorCamera->IsEnable())
 		{
-			a_outWorld = m_upEditorCamera->GetWorldMatrix();
-			a_outProj = m_upEditorCamera->GetProjMatrix();
+			a_outOverride.worldMat = m_upEditorCamera->GetWorldMatrix();
+			a_outOverride.projMat = m_upEditorCamera->GetProjMatrix();
+			a_outOverride.isCullByGameCamera = m_upEditorCamera->IsCullByGameCamera();
 			return true;
 		}
 		return false;

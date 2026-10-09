@@ -48,6 +48,10 @@ namespace Editor
 		bool IsEnable() const { return m_isEnable; }
 		void SetEnable(bool a_isEnable) { m_isEnable = a_isEnable; }
 
+		// メッシュレットのカリングだけはゲームのカメラで行うか(デバッグ用)。
+		// 描くのはこのカメラからなので、ゲームカメラの視錐台の外が間引かれている様子を外から見られる
+		bool IsCullByGameCamera() const { return m_isCullByGameCamera; }
+
 		// 右クリック操作中かどうか(ギズモなど他の操作との競合を避ける用)
 		bool IsControlling() const { return m_isControlling; }
 
@@ -107,6 +111,7 @@ namespace Editor
 
 		// 状態
 		bool m_isEnable         = true;
+		bool m_isCullByGameCamera = false;
 		bool m_isControlling    = false;
 		bool m_isViewportHovered = false;
 

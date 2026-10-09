@@ -31,6 +31,12 @@ struct CameraData
 
 	// 視錐台6面(ワールド空間)。xyz = 法線 / w = 原点からの距離
 	float4 frustumPlanes[6];
+
+	// カリングに使うカメラ(視点と視錐台6面)。メッシュレットカリングはこちらを読む。
+	// 普段は cameraPos / frustumPlanes と同じ値。
+	// エディターで「カリングをゲームカメラで行う」にしたときだけ別のカメラになる
+	float4 cullPos;
+	float4 cullFrustumPlanes[6];
 };
 
 #endif

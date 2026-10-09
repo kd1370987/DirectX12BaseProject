@@ -75,6 +75,12 @@ namespace Engine::Graphics
 			const Math::Color& a_color = Color::WHITE
 		);
 
+		/// <summary>
+		/// カメラの視錐台を12本の線で出す
+		/// </summary>
+		/// <param name="a_viewProj">ビュー×射影(転置前)。深度は 0(近)～1(遠)</param>
+		void DrawFrustum(const Math::Matrix& a_viewProj, const Math::Color& a_color = Color::WHITE);
+
 		//===================================================================
 		// 描く側が使う
 		//===================================================================

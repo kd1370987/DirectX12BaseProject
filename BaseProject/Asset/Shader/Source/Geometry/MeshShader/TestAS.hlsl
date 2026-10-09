@@ -62,7 +62,8 @@ bool IsVisible(MeshletCullData a_cullData, float4x4 a_worldMat)
 		float3 _axisWorld = Normal_LocalToWorld(_axisLocal, a_worldMat);
 
 		// コーンの頂点からカメラのベクトル : 正規化
-		float3 _viewToApex = normalize(_apexWorld - g_camera.cameraPos.xyz);
+		// 描く視点ではなくカリング用のカメラで判定する(普段は同じ値)
+		float3 _viewToApex = normalize(_apexWorld - g_camera.cullPos.xyz);
 
 		// カメラから見て、コーンが完全に裏面を向いていたらカリング
 		// 内積が閾値を超えたら、裏面を向いていると判定
@@ -86,7 +87,7 @@ bool IsVisible(MeshletCullData a_cullData, float4x4 a_worldMat)
 	for (int _idx = 0; _idx < 6; ++_idx)
 	{
 		// 座標と平面との距離計算
-		float4 _plane = g_camera.frustumPlanes[_idx];
+		float4 _plane = g_camera.cullFrustumPlanes[_idx];
 		// 平面の方程式 (dot(Normal, Point) + Distance)
 		if (dot(_plane.xyz, _centerWorld) + _plane.w < -_radiusWorld)
 		{

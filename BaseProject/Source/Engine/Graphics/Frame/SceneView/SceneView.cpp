@@ -41,17 +41,50 @@ namespace Engine::Graphics
 	// GPUへ送るカメラを確定する(Execute の中、描画要求を積み終えた後に1回)
 	//
 	// ECS側のカメラ設定は描画(PreDraw)の中で行われるので、
-	// エディターカメラなどの割り込みは必ずその後・GPUデータを作る直前に当てる
+	// エディターカメラなどの割り込みは必ずその後・GPUデータを作る直前に当てる。
+	//
+	// ECS が入れた行列(m_gameCamera～)は割り込みで上書きしない。
+	// 上書きしてしまうと、カリングをゲームカメラで行うときに引く先が無くなるうえ、
+	// ECS が送ってこなかったフレームには前フレームの割り込みがゲームカメラとして残る
 	//==========================================================================================
 	void SceneView::UpdateGPUCameraData()
 	{
 		if (m_isCameraOverride)
 		{
-			SetCameraMat(m_cameraOverrideWorldMat);
-			SetProjMat(m_cameraOverrideProjMat);
+			ApplyCameraMat(m_cameraOverrideWorldMat, m_cameraOverrideProjMat);
+		}
+		else
+		{
+			ApplyCameraMat(m_gameCameraWorldMat, m_gameCameraProjMat);
 		}
 
 		CreateGPUCameraData();
+
+		//----------------------------------------------------------------------------------
+		// カリング用カメラ
+		//
+		// 普段は描くカメラそのもの。
+		// 割り込み中に「カリングをゲームカメラで行う」が立っていれば、ECS のカメラで間引き、
+		// 描くのは割り込んだカメラ(エディターのフリーカメラ)から。
+		// こうするとゲームカメラの視錐台の外にあるメッシュレットが消えている様子を外から見られる。
+		// ゲームカメラが一度も送られていなければ比べる相手がいないので、描くカメラのまま
+		//----------------------------------------------------------------------------------
+		m_isCullCameraSeparated = m_isCameraOverride && m_isCullByGameCamera && m_isGameCameraSet;
+
+		if (m_isCullCameraSeparated)
+		{
+			const Math::Vector4 _gamePos = {
+				m_gameCameraWorldMat._41, m_gameCameraWorldMat._42, m_gameCameraWorldMat._43, 1.0f };
+
+			// ジッターは描く側の都合なので、カリングにはジッターなしの行列を使う(描くカメラと同じ扱い)
+			m_cullViewProjMat = m_gameCameraWorldMat.Invert() * m_gameCameraProjMat;
+			m_cbGPUCamera.SetCullCamera(_gamePos, m_cullViewProjMat);
+		}
+		else
+		{
+			m_cullViewProjMat = m_cbCamera.viewMat * m_cbCamera.projMat;
+			m_cbGPUCamera.UseSelfAsCullCamera();
+		}
 	}
 
 	//==========================================================================================
@@ -83,7 +116,17 @@ namespace Engine::Graphics
 		m_groundImpulseVec.push_back(a_impulse);
 	}
 
+	// ECS のカメラを控えるだけ。描くカメラへ当てるのは UpdateGPUCameraData
 	void SceneView::SetCameraMat(const Math::Matrix& a_worldMat)
+	{
+		m_gameCameraWorldMat = a_worldMat;
+		m_isGameCameraSet = true;
+	}
+	void SceneView::SetProjMat(const Math::Matrix& a_projMat)
+	{
+		m_gameCameraProjMat = a_projMat;
+	}
+	void SceneView::ApplyCameraMat(const Math::Matrix& a_worldMat, const Math::Matrix& a_projMat)
 	{
 		// 座標を代入
 		m_cbCamera.pos = { a_worldMat._41,a_worldMat._42,a_worldMat._43 ,1 };
@@ -91,9 +134,7 @@ namespace Engine::Graphics
 		// ビュー行列・逆ビュー行列をセット
 		m_cbCamera.viewMat = a_worldMat.Invert();
 		m_cbCamera.viewInvMat = a_worldMat;
-	}
-	void SceneView::SetProjMat(const Math::Matrix& a_projMat)
-	{
+
 		m_cbCamera.projMat = a_projMat;
 		m_cbCamera.projInvMat = a_projMat.Invert();
 	}
@@ -130,15 +171,17 @@ namespace Engine::Graphics
 	{
 		return m_cbFishEye;
 	}
-	void SceneView::SetCameraOverride(const Math::Matrix& a_worldMat, const Math::Matrix& a_projMat)
+	void SceneView::SetCameraOverride(const Math::Matrix& a_worldMat, const Math::Matrix& a_projMat, bool a_isCullByGameCamera)
 	{
 		m_isCameraOverride = true;
 		m_cameraOverrideWorldMat = a_worldMat;
 		m_cameraOverrideProjMat = a_projMat;
+		m_isCullByGameCamera = a_isCullByGameCamera;
 	}
 	void SceneView::ClearCameraOverride()
 	{
 		m_isCameraOverride = false;
+		m_isCullByGameCamera = false;
 	}
 	const CameraData& SceneView::GetCameraData() const
 	{

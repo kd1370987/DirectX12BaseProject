@@ -74,7 +74,7 @@ namespace Editor
 		void OnSceneChanged() override;
 
 		// カメラの割り込み : エフェクトエディターのカメラが最優先、次にエディターモードのフリーカメラ
-		bool TryGetCameraOverride(EAppMode a_mode, Math::Matrix& a_outWorld, Math::Matrix& a_outProj) const override;
+		bool TryGetCameraOverride(EAppMode a_mode, Engine::DevTool::CameraOverride& a_outOverride) const override;
 
 		// エフェクトエディターの確認用シーン(開いている間はゲームのシーンの代わりに回す)
 		bool IsScenePreviewActive() const override;
