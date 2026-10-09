@@ -28,6 +28,7 @@
 // ---- Lighting ----
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/DeferredLightingPass/DeferredLightingPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/RaytracingGIPass/RaytracingGIPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/RaytracingReflectionPass/RaytracingReflectionPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/RaytracingVolumeShadowPass/RaytracingVolumeShadowPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/ShadowMapPass/ShadowMapPass.h"
@@ -231,6 +232,27 @@ namespace Editor::Inspector
 				Engine::EditorField::Tooltip("描画解像度の何分の1で回すか。フォグの影は低周波なので 1/4 で足ります");
 
 				return _isParam ? EPassEditResult::Param : EPassEditResult::None;
+			}
+		};
+
+		// 鏡面反射 : レイの届く距離と、当たった先の影だけ触れる
+		class RaytracingReflectionEditor : public PassEditor<RaytracingReflectionPass>
+		{
+		protected:
+			EPassEditResult OnDrawDetail(RaytracingReflectionPass& a_pass) override
+			{
+				Engine::EditorField::HelpText("視線を法線で反射したレイを1本飛ばし、反射先の色を書きます(1920x1080 固定。DeferredLightingPass の Reflection へ繋ぐ)");
+
+				auto& _params = a_pass.RefParams();
+				bool _isEdit = false;
+
+				_isEdit |= Engine::EditorField::Field("MaxDistance", _params.maxDistance, 1.0f, 0.0f);
+				Engine::EditorField::Tooltip("レイの届く距離。これより遠いものは映らず、空の色になります");
+
+				_isEdit |= Engine::EditorField::Field("Shadow", _params.isShadow);
+				Engine::EditorField::Tooltip("反射先で主光源への影を求めます(レイがもう1本増えます)");
+
+				return _isEdit ? EPassEditResult::Param : EPassEditResult::None;
 			}
 		};
 
@@ -703,6 +725,7 @@ namespace Editor::Inspector
 		a_registry.Register<RaytracingGIPass, RaytracingEditor<RaytracingGIPass>>("レイを飛ばして間接光を求めます(ハーフ解像度)");
 		a_registry.Register<RaytracingShadowPass, RaytracingEditor<RaytracingShadowPass>>("主光源へレイを1本飛ばして遮蔽を求めます");
 		a_registry.Register<RaytracingVolumeShadowPass, RaytracingVolumeShadowEditor>();
+		a_registry.Register<RaytracingReflectionPass, RaytracingReflectionEditor>();
 		a_registry.Register<ShadowMapPass, ShadowMapEditor>();
 		a_registry.Register<ShadowMapMaskPass, NoteOnlyEditor<ShadowMapMaskPass>>(std::initializer_list<const char*>{ "Shadow 入力にレイトレの影(デノイズ後)を繋いでください", "影の求め方が ShadowMap のときだけ上書きします" });
 

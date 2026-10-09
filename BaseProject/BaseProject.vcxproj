@@ -1336,6 +1336,7 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapPass\ShadowMapPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapMaskPass\ShadowMapMaskPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingGIPass\RaytracingGIPass.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingReflectionPass\RaytracingReflectionPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\DeferredLightingPass\DeferredLightingPass.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\StandardPipeline\StandardPipeline.cpp" />
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ParticlePass\ParticlePass.cpp" />
@@ -1928,6 +1929,7 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapPass\ShadowMapPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\Shadow\ShadowMapMaskPass\ShadowMapMaskPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingGIPass\RaytracingGIPass.h" />
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingReflectionPass\RaytracingReflectionPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\DeferredLightingPass\DeferredLightingPass.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\StandardPipeline\StandardPipeline.h" />
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Geometry\ParticlePass\ParticlePass.h" />
@@ -2688,6 +2690,20 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.6</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Library</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Raytracing\Reflection\RayReflectionCS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.6</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.6</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.6</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.6</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\Raytracing\Shadow\RayVolumeShadowCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>

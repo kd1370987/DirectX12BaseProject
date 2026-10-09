@@ -499,6 +499,12 @@
     <Filter Include="Asset\Shader\Source\Raytracing\Shadow">
       <UniqueIdentifier>{8dd7e944-caa4-52a1-affd-f71add906938}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Asset\Shader\Source\Raytracing\Reflection">
+      <UniqueIdentifier>{4c1f6a2e-8d3b-4e7a-9f15-2b6c8d0e7a31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingReflectionPass">
+      <UniqueIdentifier>{9a7e3c51-2f64-4b8d-a0c9-6e1d5b3f8c24}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Asset\Shader\Source\UI">
       <UniqueIdentifier>{3fc54d1a-15bc-4a74-b634-b58f02fe9c37}</UniqueIdentifier>
     </Filter>
@@ -2355,6 +2361,9 @@
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingGIPass\RaytracingGIPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingGIPass</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingReflectionPass\RaytracingReflectionPass.cpp">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingReflectionPass</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\DeferredLightingPass\DeferredLightingPass.cpp">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\DeferredLightingPass</Filter>
     </ClCompile>
@@ -4148,6 +4157,9 @@
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingGIPass\RaytracingGIPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingGIPass</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingReflectionPass\RaytracingReflectionPass.h">
+      <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\RaytracingReflectionPass</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\DeferredLightingPass\DeferredLightingPass.h">
       <Filter>Source\Engine\Graphics\RenderingPipeline\RenderingPasses\Lighting\DeferredLightingPass</Filter>
     </ClInclude>
@@ -4683,6 +4695,9 @@
     </FxCompile>
     <FxCompile Include="Asset\Shader\Source\Raytracing\Shadow\RayVolumeShadowCS.hlsl">
       <Filter>Asset\Shader\Source\Raytracing\Shadow</Filter>
+    </FxCompile>
+    <FxCompile Include="Asset\Shader\Source\Raytracing\Reflection\RayReflectionCS.hlsl">
+      <Filter>Asset\Shader\Source\Raytracing\Reflection</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

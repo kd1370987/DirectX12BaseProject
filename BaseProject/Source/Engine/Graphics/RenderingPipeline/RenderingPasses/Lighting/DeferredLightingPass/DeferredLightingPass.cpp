@@ -22,6 +22,9 @@ namespace Engine::Graphics::Pipeline
 		// GI は無くてもよい(レイトレを抜いたパイプライン)。
 		// 繋がっていなければ番号が無効値で届き、シェーダーはシーンの環境光を代わりに使う
 		DeclareInput("GI", EAccessType::SRV, EPassSlotType::Texture, false, 2);
+		// 鏡面反射も無くてよい(RaytracingReflectionPass の出力。1920x1080 固定なので UV で引く)。
+		// 繋がっていなければ番号が無効値で届く
+		DeclareInput("Reflection", EAccessType::SRV, EPassSlotType::Texture, false, 2);
 
 		Slot& _out = DeclareOutput("Color", "AfterLighting", DXGI_FORMAT_R16G16B16A16_FLOAT,
 			EAccessType::UAV, EPassSlotType::Texture, false, 3);

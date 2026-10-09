@@ -13,7 +13,7 @@
 //
 //   0 : CBV(b0)            カメラ
 //   1 : CBV(b10)           環境光・フォグ
-//   2 : SRVの番号(t0-t6) GBuffer + 影マスク + GI
+//   2 : SRVの番号(t0-t7) GBuffer + 影マスク + GI + 鏡面反射
 //   3 : UAVの番号(u0)    出力カラー
 //   4 : CBV(b11)           ライティング調整値
 //   5 : SRVの番号(t7-t8) ポイントライト配列 + 平行光配列
@@ -24,7 +24,7 @@
 "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
 "CBV(b0, visibility = SHADER_VISIBILITY_ALL)," \
 "CBV(b10, visibility = SHADER_VISIBILITY_ALL)," \
-"RootConstants(num32BitConstants=7, b100), " \
+"RootConstants(num32BitConstants=8, b100), " \
 "RootConstants(num32BitConstants=1, b101), " \
 "CBV(b11, visibility = SHADER_VISIBILITY_ALL)," \
 "RootConstants(num32BitConstants=2, b102), " \
@@ -77,6 +77,7 @@ cbuffer PassDescriptorIndex0 : register(b100)
 	uint g_depthTexIndex;
 	uint g_shadowMaskIndex;
 	uint g_rayGIIndex;
+	uint g_rayReflectionIndex;	// 鏡面反射(RaytracingReflectionPass)。繋がっていなければ 0xFFFFFFFF
 }
 
 Texture2D Get_albedoTex() { Texture2D _r = ResourceDescriptorHeap[g_albedoTexIndex]; return _r; }
@@ -93,6 +94,10 @@ Texture2D Get_shadowMask() { Texture2D _r = ResourceDescriptorHeap[g_shadowMaskI
 #define g_shadowMask Get_shadowMask()
 Texture2D Get_rayGI() { Texture2D _r = ResourceDescriptorHeap[g_rayGIIndex]; return _r; }
 #define g_rayGI Get_rayGI()
+// 鏡面反射 : rgb = 反射先の放射輝度 / a = 1 : 物に当たった / 0 : 空。
+// 1920x1080 固定で出力と解像度が違うことがあるので、Load ではなく UV で引くこと
+Texture2D Get_rayReflection() { Texture2D _r = ResourceDescriptorHeap[g_rayReflectionIndex]; return _r; }
+#define g_rayReflection Get_rayReflection()
 
 // 出力
 // UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
@@ -149,6 +154,8 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 
 	float _shadow = g_shadowMask.Load(int3(_centerCoord, 0)).r; // 影
 
+
+
 	// GI(間接光)。
 	// レイトレを抜いたパイプラインでは GI 入力が繋がっておらず、番号が無効値(0xFFFFFFFF)で届く。
 	// その番号でヒープを引くと落ちるので、引かずにシーンの環境光を一様な間接光として使う
@@ -171,7 +178,7 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	float _smoothness = 1.0f - _roughness; // 滑らかさ
 	
 	float3 _V = normalize(g_camera.cameraPos.xyz - _worldPos); // カメラ位置からワールド位置へのベクトル
-
+	
 	// 出力色
 	float3 _outColor = float3(0, 0, 0);
 	
@@ -282,6 +289,23 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	// アンビエント(GI/間接光) : 強さをオプションから調整可能にする
 	_outColor += _rayGI * _albedo * g_lightingOp.giIntensity;
 
+	// 反射色
+	if (g_rayReflectionIndex != 0xFFFFFFFFu)
+	{
+		// レイトレーシングのリファレクションテクスチャがあれば取得
+		float4 _reflectionData = g_rayReflection.SampleLevel(g_samp, _uv, 0);
+
+		float3 _reflectionRadiance = _reflectionData.rgb;
+
+		// 鏡面反射の強度を Fresnel と粗さで制御する
+		// Schlick近似によるFresnel反射率
+		float _NdotV = saturate(dot(_normal, _V));
+		float3 _F = _F0 + (1.0f - _F0) * pow(1.0f - _NdotV, 5.0f);
+
+		// 反射が存在する画素だけを合成
+		_outColor += _reflectionRadiance * _F;
+	}
+	
 	// エミッシブ(自己発光)
 	// 面が自分で出している光なので、影やライトの向きの影響を受けずそのまま足す。
 	// GBufferEmissiv は R11G11B10_FLOAT なので 1.0 を超える値もそのまま乗る。

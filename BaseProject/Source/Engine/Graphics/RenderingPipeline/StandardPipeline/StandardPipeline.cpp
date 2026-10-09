@@ -7,6 +7,7 @@
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Geometry/GBufferPass/GBufferPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/RaytracingGIPass/RaytracingGIPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/RaytracingReflectionPass/RaytracingReflectionPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/ShadowMapPass/ShadowMapPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/ShadowMapMaskPass/ShadowMapMaskPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Utility/CopyPass/CopyPass.h"
@@ -146,6 +147,7 @@ namespace Engine::Graphics::Pipeline
 		//----------------------------------------------------------------------------------
 		auto* _pRayShadow = AddPass<RaytracingShadowPass>(_graph, a_registry, "RaytracingShadowPass", 2, 0);
 		auto* _pRayGI = AddPass<RaytracingGIPass>(_graph, a_registry, "RaytracingGIPass", 2, 1);
+		auto* _pRayReflection = AddPass<RaytracingReflectionPass>(_graph, a_registry, "RaytracingReflectionPass", 2, 2);
 
 		//----------------------------------------------------------------------------------
 		// デノイズ(影)
@@ -285,6 +287,8 @@ namespace Engine::Graphics::Pipeline
 		Link(_graph, _pGBuffer, "Depth", _pRayShadow, "Depth");
 		Link(_graph, _pGBuffer, "Normal", _pRayGI, "Normal");
 		Link(_graph, _pGBuffer, "Depth", _pRayGI, "Depth");
+		Link(_graph, _pGBuffer, "Depth", _pRayReflection, "Depth");
+		Link(_graph, _pGBuffer, "Normal", _pRayReflection, "Normal");
 
 		// ---- 影のデノイズ ----
 		Link(_graph, _pRayShadow, "Shadow", _pShadowTA, "Shadow");
@@ -334,6 +338,7 @@ namespace Engine::Graphics::Pipeline
 		Link(_graph, _pGBuffer, "Depth", _pLighting, "Depth");
 		Link(_graph, _pShadowMapMask, "Shadow", _pLighting, "Shadow");
 		Link(_graph, _pUpScale, "Result", _pLighting, "GI");
+		Link(_graph, _pRayReflection, "Reflection", _pLighting, "Reflection");
 
 		// ---- 空 : ライティングの結果と速度へ描き足す ----
 		Link(_graph, _pGBuffer, "Depth", _pSky, "Depth");

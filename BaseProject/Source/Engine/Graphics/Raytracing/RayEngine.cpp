@@ -128,6 +128,16 @@ namespace Engine::Graphics::Raytracing
 		return m_upRayWorld->GetInstanceVec();
 	}
 
+	Handle<Graphics::D3D12::SRV> RayEngine::GetInstanceBufferSRV() const
+	{
+		return m_upRayWorld->GetInstanceBufferSRV();
+	}
+
+	Handle<Graphics::D3D12::SRV> RayEngine::GetMaterialBufferSRV() const
+	{
+		return m_upRayWorld->GetMaterialBufferSRV();
+	}
+
 	Engine::Graphics::Raytracing::RayEngine::RayEngine()
 	{}
 

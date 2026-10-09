@@ -79,6 +79,11 @@ namespace Engine::Graphics::Raytracing
 
 		// インスタンス配列取得
 		const std::vector<Instance>& GetInstanceVec() const;
+
+		// インスタンス・マテリアル配列のSRV。
+		// RayQuery を使うコンピュートパスが、番号をルート定数で渡してバインドレスで引く
+		Handle<Graphics::D3D12::SRV> GetInstanceBufferSRV() const;
+		Handle<Graphics::D3D12::SRV> GetMaterialBufferSRV() const;
 	private:
 
 		// レイトレ用クラス

@@ -48,6 +48,7 @@
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/RaytracingShadowPass/RaytracingShadowPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/RaytracingVolumeShadowPass/RaytracingVolumeShadowPass.h"
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/RaytracingGIPass/RaytracingGIPass.h"
+#include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/RaytracingReflectionPass/RaytracingReflectionPass.h"
 
 // ---- シャドウマップ ----
 #include "Engine/Graphics/RenderingPipeline/RenderingPasses/Lighting/Shadow/ShadowMapPass/ShadowMapPass.h"
@@ -158,6 +159,7 @@ namespace Engine::Graphics::Pipeline
 		a_registry.RegisterType<RaytracingShadowPass>("RaytracingShadowPass");
 		a_registry.RegisterType<RaytracingVolumeShadowPass>("RaytracingVolumeShadowPass");
 		a_registry.RegisterType<RaytracingGIPass>("RaytracingGIPass");
+		a_registry.RegisterType<RaytracingReflectionPass>("RaytracingReflectionPass");
 
 		// ---- シャドウマップ(主光源の影をレイトレの代わりに求める) ----
 		a_registry.RegisterType<ShadowMapPass>("ShadowMapPass");
