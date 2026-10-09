@@ -29,6 +29,9 @@ namespace Engine::Graphics
 		// 計測用 : ビデオメモリの使用量を問い合わせるだけに使う
 		D3D12::Adapter* GetAdapter() const { return m_cpAdapter.Get(); }
 
+		// 計測用 : このデバイスで作ったリソースの、用途別のビデオメモリ使用量
+		D3D12::VideoMemoryBreakdown GetVideoMemoryBreakdown() const { return D3D12::VideoMemoryTracker::Collect(m_cpDevice.Get()); }
+
 		bool IsDynamicResourceSupported() const { return m_isDynamicResourceSupported; }
 
 	private:

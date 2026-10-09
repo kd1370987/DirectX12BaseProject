@@ -216,6 +216,11 @@ namespace Editor
 			DrawOverview(_snapshot);
 			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("Video Memory"))
+		{
+			DrawVideoMemory(_snapshot);
+			ImGui::EndTabItem();
+		}
 		if (ImGui::BeginTabItem("Descriptor Heap"))
 		{
 			DrawDescriptorHeap(_snapshot);
@@ -280,6 +285,93 @@ namespace Editor
 
 		Engine::EditorField::Header("Warnings");
 		DrawWarnings(a_snapshot);
+	}
+
+	//======================================================================================
+	// ビデオメモリの用途別の内訳
+	//
+	// 大きい順に並べ、DXGI の使用量に対する割合をバーで出す。
+	// 数えていないもの(ディスクリプタヒープ・PSO・ドライバ内部など)は差として最後に出す
+	//======================================================================================
+	void GraphicsProfilerView::DrawVideoMemory(const Graphics::GraphicsSnapshot& a_snapshot)
+	{
+		const auto& _breakdown = a_snapshot.videoMemoryBreakdown;
+		if (!_breakdown.isValid)
+		{
+			Engine::EditorField::HelpText("(用途別の集計がありません)");
+			return;
+		}
+
+		Engine::EditorField::HelpText("リソースを作ったときに付けた用途ごとの、今生きているぶんの合計。\n固定で確保した容量は、使っていなくてもそのまま出る");
+
+		// 割合の分母 : 取れていれば DXGI の使用量、取れなければ数えたぶんの合計
+		const auto& _vram = a_snapshot.videoMemory;
+		const uint64_t _localDenominator = (_vram.isValid && _vram.localUsage > 0) ? _vram.localUsage : _breakdown.trackedLocalBytes;
+
+		// VRAM 側の大きい順
+		std::vector<const Graphics::VideoMemoryCategoryProfile*> _sorted = {};
+		_sorted.reserve(_breakdown.categories.size());
+		for (const auto& _row : _breakdown.categories) _sorted.push_back(&_row);
+		std::stable_sort(_sorted.begin(), _sorted.end(),
+			[](const Graphics::VideoMemoryCategoryProfile* a_l, const Graphics::VideoMemoryCategoryProfile* a_r)
+			{
+				if (a_l->localBytes != a_r->localBytes) return a_l->localBytes > a_r->localBytes;
+				return a_l->nonLocalBytes > a_r->nonLocalBytes;
+			});
+
+		if (!ImGui::BeginTable("VideoMemoryTable", 4, TABLE_FLAGS)) return;
+
+		ImGui::TableSetupColumn("Category", ImGuiTableColumnFlags_WidthFixed, 140.0f);
+		ImGui::TableSetupColumn("VRAM", ImGuiTableColumnFlags_WidthStretch);
+		ImGui::TableSetupColumn("Shared", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+		ImGui::TableSetupColumn("Count", ImGuiTableColumnFlags_WidthFixed, 60.0f);
+		ImGui::TableHeadersRow();
+
+		// 1 行ぶん : VRAM はバーの中に大きさと割合を出す
+		auto _drawRow = [_localDenominator](const char* a_name, uint64_t a_localBytes, uint64_t a_nonLocalBytes, const char* a_count)
+			{
+				ImGui::TableNextRow();
+
+				ImGui::TableSetColumnIndex(0);
+				ImGui::TextUnformatted(a_name);
+
+				ImGui::TableSetColumnIndex(1);
+				char _overlay[64] = {};
+				std::snprintf(_overlay, sizeof(_overlay), "%s  (%.1f%%)",
+					FormatBytes(static_cast<double>(a_localBytes)).c_str(),
+					ToRatio(a_localBytes, _localDenominator) * 100.0);
+
+				// 割合は埋まり具合ではないので、閾値の色分けはしない
+				ImGui::ProgressBar(static_cast<float>((std::min)(ToRatio(a_localBytes, _localDenominator), 1.0)), ImVec2(-FLT_MIN, 0.0f), _overlay);
+
+				ImGui::TableSetColumnIndex(2);
+				ImGui::TextUnformatted(FormatBytes(static_cast<double>(a_nonLocalBytes)).c_str());
+
+				ImGui::TableSetColumnIndex(3);
+				ImGui::TextUnformatted(a_count);
+			};
+
+		for (const Graphics::VideoMemoryCategoryProfile* _pRow : _sorted)
+		{
+			const std::string _count = std::to_string(_pRow->objectCount);
+			_drawRow(_pRow->name.c_str(), _pRow->localBytes, _pRow->nonLocalBytes, _count.c_str());
+		}
+
+		// 数えたぶんの合計
+		_drawRow("Tracked Total", _breakdown.trackedLocalBytes, _breakdown.trackedNonLocalBytes, "");
+
+		// DXGI の使用量との差 : 数えていないぶん
+		if (_vram.isValid)
+		{
+			const uint64_t _untrackedLocal = (_vram.localUsage > _breakdown.trackedLocalBytes) ? _vram.localUsage - _breakdown.trackedLocalBytes : 0;
+			const uint64_t _untrackedNonLocal = (_vram.nonLocalUsage > _breakdown.trackedNonLocalBytes) ? _vram.nonLocalUsage - _breakdown.trackedNonLocalBytes : 0;
+			_drawRow("Untracked", _untrackedLocal, _untrackedNonLocal, "");
+			Engine::EditorField::Tooltip("DXGI の使用量から数えたぶんを引いた残り。\nディスクリプタヒープ・PSO・コマンドアロケーター・ドライバ内部、\nGPU の使い終わりを待って解放されたばかりのメモリなどが入る");
+		}
+
+		ImGui::EndTable();
+
+		Engine::EditorField::HelpText("Other は用途を付けていないもの。大きければ付け先を探す");
 	}
 
 	//======================================================================================

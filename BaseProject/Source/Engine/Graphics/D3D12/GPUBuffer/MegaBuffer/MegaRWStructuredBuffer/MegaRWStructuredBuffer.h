@@ -66,6 +66,7 @@ namespace Engine::Graphics::D3D12
 		_desc.strideSize = sizeof(T);
 		_desc.flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		_desc.heapType = D3D12_HEAP_TYPE_DEFAULT;
+		_desc.memoryCategory = EVideoMemoryCategory::MeshBuffer;
 		if (!GPUBuffer::Create(a_pDevice, _desc))
 		{
 			ENGINE_ERRLOG(false, "RWStructredBufferの作成に失敗");

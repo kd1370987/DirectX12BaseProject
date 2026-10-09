@@ -438,6 +438,7 @@ namespace Engine::Graphics::Particle
 				a_pCmdList,
 				_newCapacity,
 				nullptr);
+			m_upEmitterBuffer->SetMemoryCategory(Graphics::D3D12::EVideoMemoryCategory::Particle);
 			m_emitBufferCapacity = _newCapacity;
 		}
 

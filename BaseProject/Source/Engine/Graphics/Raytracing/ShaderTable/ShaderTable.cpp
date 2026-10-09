@@ -47,6 +47,7 @@ void Engine::Graphics::Raytracing::ShaderTable::Init(D3D12::Device* a_pDevice, c
 		IID_PPV_ARGS(&m_cpShaderTable)
 	);
 	if (SUCCEEDED(_hr) && m_cpShaderTable) m_cpShaderTable->SetName(L"ShaderTable");	// リーク調査用
+	D3D12::VideoMemoryTracker::TrackResource(m_cpShaderTable.Get(), D3D12::EVideoMemoryCategory::RayWorld);
 	if (FAILED(_hr))
 	{
 		ENGINE_ERRLOG(false, "シェーダーテーブル作成に失敗");

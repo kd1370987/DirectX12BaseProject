@@ -269,4 +269,5 @@ void Engine::Graphics::Raytracing::TLAS::CreateBuffer(
 
 	a_pDevice->CreateCommittedResource(&a_heapProps, D3D12_HEAP_FLAG_NONE, &bufDesc, a_initState, nullptr, IID_PPV_ARGS(a_cpRes.ReleaseAndGetAddressOf()));
 	if (a_cpRes) a_cpRes->SetName(L"TLAS_Buffer");	// リーク調査用
+	D3D12::VideoMemoryTracker::TrackResource(a_cpRes.Get(), D3D12::EVideoMemoryCategory::RayWorld);
 }

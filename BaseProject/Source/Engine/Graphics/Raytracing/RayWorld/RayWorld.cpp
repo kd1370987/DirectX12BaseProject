@@ -193,6 +193,10 @@ namespace Engine::Graphics::Raytracing
 		m_materialVec.clear();
 		m_materialVec.resize(MAX_INSTANCE_NUM);
 		m_materialDataBuffer.Create(a_pDevice, a_pHeapManager, a_pCmdList, MAX_INSTANCE_NUM, m_materialVec.data());
+
+		// ビデオメモリの集計ではレイトレのワールドとして数える
+		m_instanceDataBuffer.SetMemoryCategory(D3D12::EVideoMemoryCategory::RayWorld);
+		m_materialDataBuffer.SetMemoryCategory(D3D12::EVideoMemoryCategory::RayWorld);
 	}
 
 	void RayWorld::Release()

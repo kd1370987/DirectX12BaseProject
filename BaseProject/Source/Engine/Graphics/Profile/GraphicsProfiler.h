@@ -87,6 +87,26 @@ namespace Engine::Graphics
 		uint64_t	nonLocalBudget = 0;
 	};
 
+	// ビデオメモリの用途 1 つぶん(VideoMemoryTracker の集計)。単位はバイト
+	struct VideoMemoryCategoryProfile
+	{
+		std::string	name = {};
+		uint64_t	localBytes = 0;			// VRAM 側
+		uint64_t	nonLocalBytes = 0;		// システムメモリ側(UPLOAD ヒープなど)
+		uint32_t	objectCount = 0;		// 数えているリソース・ヒープの数
+	};
+
+	// ビデオメモリの用途別の内訳。
+	// 数えているのはエンジンが作った committed リソースとヒープだけなので、
+	// DXGI の使用量との差はディスクリプタヒープ・PSO・ドライバ内部などのぶんになる
+	struct VideoMemoryBreakdownProfile
+	{
+		bool										isValid = false;			// 集計表が無ければ false
+		std::vector<VideoMemoryCategoryProfile>		categories = {};			// EVideoMemoryCategory の順
+		uint64_t									trackedLocalBytes = 0;		// categories の VRAM 側の合計
+		uint64_t									trackedNonLocalBytes = 0;	// categories のシステムメモリ側の合計
+	};
+
 	// 描画まわり全体
 	struct GraphicsSnapshot
 	{
@@ -94,6 +114,7 @@ namespace Engine::Graphics
 		UINT								renderWidth = 0;
 		UINT								renderHeight = 0;
 		VideoMemoryProfile					videoMemory = {};
+		VideoMemoryBreakdownProfile			videoMemoryBreakdown = {};
 		DescriptorHeapProfile				descriptorHeap = {};
 		std::vector<MegaBufferProfile>		megaBuffers = {};
 		std::vector<GraphicsUsageProfile>	frameBuffers = {};		// 毎フレーム詰め直す構造体バッファ(peak は計測を始めてから)
@@ -107,6 +128,7 @@ namespace Engine::Graphics
 	//
 	// メガバッファ・ディスクリプタヒープ・定数バッファ・毎フレームの構造体バッファなど、
 	// 「容量が決まっていて、溢れると描画が壊れるもの」の使われ方を取る。
+	// ビデオメモリは DXGI の全体量に加えて、用途別の内訳(VideoMemoryTracker の集計)も写す。
 	// 表示はエディター側(ProfilerPanel の Graphics 表示)に任せる。
 	//
 	// 取るのは GraphicsEngine::Execute の終わり(描画要求が出そろい、EndFrame で消える前)。
@@ -145,6 +167,7 @@ namespace Engine::Graphics
 		//------------------------------------------------------------------------------------------
 		void Capture();
 		void CaptureVideoMemory();
+		void CaptureVideoMemoryBreakdown();
 		void CaptureDescriptorHeap();
 		void CaptureMegaBuffers();
 		void CaptureFrameBuffers();

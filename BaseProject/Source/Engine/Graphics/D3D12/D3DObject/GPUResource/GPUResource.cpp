@@ -41,6 +41,10 @@ namespace Engine::Graphics::D3D12
 		// フォーマットセット
 		m_format = a_desc.format;
 
+		// ビデオメモリの集計に入れる。解放されたら札が勝手に引く
+		m_isPlaced = false;
+		VideoMemoryTracker::TrackResource(m_cpResource.Get(), a_desc.memoryCategory);
+
 		// リーク調査用 : ライブオブジェクトレポートに種別と通し番号を出すため名前を付ける。
 		// (要素サイズ/数も入れておくと、どのバッファか特定しやすい)
 		{
@@ -90,12 +94,17 @@ namespace Engine::Graphics::D3D12
 			return false;
 		}
 
+		// ビデオメモリは置き先のヒープのぶんとして数えているので、ここでは数えない
+		m_isPlaced = true;
+
 		// 成功
 		return true;
 	}
 	void GPUResource::Release()
 	{
+		// ビデオメモリの集計は、実体が最後に消えたときに札が引く
 		m_cpResource.Reset();
+		m_isPlaced = false;
 
 		// ビューを取ったときに預かったヒープへ返す。
 		// 一度も取っていない(= nullptr)なら返すものが無い
@@ -147,6 +156,12 @@ namespace Engine::Graphics::D3D12
 		_barrier.Aliasing.pResourceAfter = GetResource();
 
 		a_pCmdList->ResourceBarrier(1,&_barrier);
+	}
+	void GPUResource::SetMemoryCategory(EVideoMemoryCategory a_category)
+	{
+		if (m_isPlaced) return;
+
+		VideoMemoryTracker::TrackResource(m_cpResource.Get(), a_category);
 	}
 	ID3D12Resource* GPUResource::GetResource() const
 	{

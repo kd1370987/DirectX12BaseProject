@@ -149,6 +149,7 @@ namespace Engine::Graphics::Particle
 
 			m_upGPUBuffer = std::make_unique<Graphics::D3D12::StaticStructuredBuffer<EmitterTransform>>();
 			m_upGPUBuffer->Create(a_pDevice, a_pHeapManager, a_pCmdList, _needCapacity, nullptr);
+			m_upGPUBuffer->SetMemoryCategory(Graphics::D3D12::EVideoMemoryCategory::Particle);
 			m_gpuCapacity = _needCapacity;
 		}
 

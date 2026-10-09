@@ -108,6 +108,7 @@ namespace Engine::Resource
 			return Engine::Resource::UploadBuffer();
 		}
 		if (_uploadBuffer.pResource) _uploadBuffer.pResource->SetName(L"Texture_UploadBuffer");	// リーク調査用
+		Graphics::D3D12::VideoMemoryTracker::TrackResource(_uploadBuffer.pResource.Get(), Graphics::D3D12::EVideoMemoryCategory::Upload);
 
 		return _uploadBuffer;
 	}
@@ -167,6 +168,7 @@ namespace Engine::Resource
 			return false;
 		}
 		if (a_cpRes) a_cpRes->SetName(L"Texture_Imported");	// リーク調査用
+		Graphics::D3D12::VideoMemoryTracker::TrackResource(a_cpRes.Get(), Graphics::D3D12::EVideoMemoryCategory::Texture);
 
 		// アップロードヒープ作成
 		Engine::Resource::UploadBuffer _uploadBuffer = CreateUploadHeap(_pDevice, _texDesc, a_meta);

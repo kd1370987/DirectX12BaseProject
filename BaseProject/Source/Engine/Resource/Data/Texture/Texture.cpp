@@ -77,6 +77,15 @@ namespace Engine::Resource
 		_resourceDesc.format		= a_desc.format;
 		_resourceDesc.pClearValue	= _opClearValue.has_value() ? &_opClearValue.value() : nullptr;
 
+		// 描き込むものは描画先、読むだけのもの(フォントのアトラスなど)はテクスチャとして数える
+		const bool _isWritable =
+			HasFlag(a_desc.usage, ETextureUsage::RTV) ||
+			HasFlag(a_desc.usage, ETextureUsage::DSV) ||
+			HasFlag(a_desc.usage, ETextureUsage::UAV);
+		_resourceDesc.memoryCategory = _isWritable
+			? Graphics::D3D12::EVideoMemoryCategory::RenderTarget
+			: Graphics::D3D12::EVideoMemoryCategory::Texture;
+
 		// テクスチャに要素数の概念は無いので、strideSize / elementNum は 0 のまま
 
 		// リソース作成 : 実体・ステート・フォーマットは基底が面倒を見る
@@ -96,6 +105,9 @@ namespace Engine::Resource
 		// 名前設定
 		std::string _name = "BackBuffer_" + a_backBufferIndex;
 		m_cpResource->SetName(Core::String::ToWideString(_name).c_str());
+
+		// 実体はスワップチェインが作ったものだが、大きさは数えておく
+		SetMemoryCategory(Graphics::D3D12::EVideoMemoryCategory::BackBuffer);
 
 		// メンバ作成
 		m_name = _name;

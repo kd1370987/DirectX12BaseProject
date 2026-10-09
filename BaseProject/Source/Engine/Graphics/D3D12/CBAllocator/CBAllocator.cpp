@@ -55,6 +55,7 @@ namespace Engine::Graphics::D3D12
 			return;
 		}
 		if (m_spResource) m_spResource->SetName(L"CBAllocator_Graphics");	// リーク調査用
+		VideoMemoryTracker::TrackResource(m_spResource.Get(), EVideoMemoryCategory::ConstantBuffer);
 
 		// 定数バッファをマッピング
 		_hr = m_spResource->Map(0, nullptr, reinterpret_cast<void**>(&m_pMappedData));
@@ -114,6 +115,7 @@ namespace Engine::Graphics::D3D12
 			return;
 		}
 		if (m_spComputeResource) m_spComputeResource->SetName(L"CBAllocator_Compute");	// リーク調査用
+		VideoMemoryTracker::TrackResource(m_spComputeResource.Get(), EVideoMemoryCategory::ConstantBuffer);
 
 		// 定数バッファをマッピング
 		_hr = m_spComputeResource->Map(0, nullptr, reinterpret_cast<void**>(&m_pComputeMappedData));

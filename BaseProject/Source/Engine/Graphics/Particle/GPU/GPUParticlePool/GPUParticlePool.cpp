@@ -44,6 +44,13 @@ namespace Engine::Graphics::Particle
 			m_aliveList.GetResource()->SetName(L"ParticleAliveList");
 		}
 
+		// ビデオメモリの集計ではパーティクルとして数える
+		Graphics::D3D12::GPUResource* const _pBuffers[] = { &m_particlePool, &m_deadList, &m_counterBuffer, &m_drawArgs, &m_aliveList };
+		for (Graphics::D3D12::GPUResource* _pBuffer : _pBuffers)
+		{
+			_pBuffer->SetMemoryCategory(Graphics::D3D12::EVideoMemoryCategory::Particle);
+		}
+
 		// バッファの初期化用データの作成
 		std::vector<uint32_t> _initDeadList(m_maxCapacity);
 		std::iota(_initDeadList.begin(),_initDeadList.end(),0); // すべての配列を0から連番で埋めてくれる
@@ -139,6 +146,9 @@ namespace Engine::Graphics::Particle
 			return false;
 		}
 		_newAliveList.GetResource()->SetName(L"ParticleAliveList");
+		_newPool.SetMemoryCategory(Graphics::D3D12::EVideoMemoryCategory::Particle);
+		_newDeadList.SetMemoryCategory(Graphics::D3D12::EVideoMemoryCategory::Particle);
+		_newAliveList.SetMemoryCategory(Graphics::D3D12::EVideoMemoryCategory::Particle);
 
 		//------------------------------------------------------------------
 		// 古い粒とデッドリストを、新しい先頭へ写す。

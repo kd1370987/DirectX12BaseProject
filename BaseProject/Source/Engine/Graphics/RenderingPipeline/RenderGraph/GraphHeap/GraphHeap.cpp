@@ -49,6 +49,9 @@ namespace Engine::Graphics::Pipeline
 			return false;
 		}
 
+		// ここへ置くリソースはこのヒープのぶんとして数える
+		D3D12::VideoMemoryTracker::TrackHeap(m_cpHeap.Get(), D3D12::EVideoMemoryCategory::RenderGraph);
+
 		m_maxHeapSize = a_maxHeapSize;
 		return true;
 	}

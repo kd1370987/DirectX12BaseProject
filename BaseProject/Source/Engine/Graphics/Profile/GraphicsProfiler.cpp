@@ -41,6 +41,7 @@ namespace Engine::Graphics
 		m_snapshot.renderHeight = m_pOwner->GetRenderHeight();
 
 		CaptureVideoMemory();
+		CaptureVideoMemoryBreakdown();
 		CaptureDescriptorHeap();
 		CaptureMegaBuffers();
 		CaptureFrameBuffers();
@@ -86,6 +87,42 @@ namespace Engine::Graphics
 		_out.localBudget = _local.Budget;
 		_out.nonLocalUsage = _nonLocal.CurrentUsage;
 		_out.nonLocalBudget = _nonLocal.Budget;
+	}
+
+	//======================================================================================
+	// ビデオメモリの用途別の内訳
+	//
+	// リソースを作ったときに付けた用途ごとに、今生きているぶんを合計したもの。
+	// 容量の大きいものを固定で確保していると、使っていなくてもここに出る
+	//======================================================================================
+	void GraphicsProfiler::CaptureVideoMemoryBreakdown()
+	{
+		VideoMemoryBreakdownProfile& _out = m_snapshot.videoMemoryBreakdown;
+		_out = {};
+
+		const RenderDevice* _pRenderDevice = m_pOwner->GetRenderDevice();
+		const GraphicsDevice* _pDevice = _pRenderDevice ? _pRenderDevice->GetGraphicsDevice() : nullptr;
+		if (!_pDevice) return;
+
+		const D3D12::VideoMemoryBreakdown _breakdown = _pDevice->GetVideoMemoryBreakdown();
+		if (!_breakdown.isValid) return;
+
+		_out.isValid = true;
+		_out.categories.reserve(_breakdown.categories.size());
+		for (size_t _i = 0; _i < _breakdown.categories.size(); ++_i)
+		{
+			const D3D12::VideoMemoryCategoryUsage& _usage = _breakdown.categories[_i];
+
+			VideoMemoryCategoryProfile _row = {};
+			_row.name = D3D12::ToString(static_cast<D3D12::EVideoMemoryCategory>(_i));
+			_row.localBytes = _usage.localBytes;
+			_row.nonLocalBytes = _usage.nonLocalBytes;
+			_row.objectCount = _usage.objectCount;
+			_out.categories.push_back(std::move(_row));
+
+			_out.trackedLocalBytes += _usage.localBytes;
+			_out.trackedNonLocalBytes += _usage.nonLocalBytes;
+		}
 	}
 
 	//======================================================================================

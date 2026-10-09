@@ -251,6 +251,7 @@ namespace Engine::Resource
 			return;
 		}
 		_cpUpload->SetName(L"FontAtlas_UploadBuffer");
+		Graphics::D3D12::VideoMemoryTracker::TrackResource(_cpUpload.Get(), Graphics::D3D12::EVideoMemoryCategory::Upload);
 
 		// 汚れた矩形だけを詰め直す : 行ごとにアトラスの幅ぶん飛ばして読む
 		void* _pMapped = nullptr;

@@ -159,6 +159,10 @@ namespace Engine::Graphics
 			return;
 		}
 
+		// ビデオメモリの用途別の集計表を付ける。
+		// これより後に作ったリソースが数えられるので、リソースを作り始める前に付けておく
+		D3D12::VideoMemoryTracker::AttachTo(m_cpDevice.Get());
+
 
 		// DynamicResourceBindが対応されているかのチェック
 		m_isDynamicResourceSupported = false;

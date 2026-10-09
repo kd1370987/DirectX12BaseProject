@@ -20,6 +20,7 @@ namespace Engine::Graphics::D3D12
 		_gpuDesc.strideSize = a_strideSize;
 		_gpuDesc.flags = D3D12_RESOURCE_FLAG_NONE;
 		_gpuDesc.heapType = D3D12_HEAP_TYPE_DEFAULT;
+		_gpuDesc.memoryCategory = EVideoMemoryCategory::MeshBuffer;
 		if (!GPUBuffer::Create(a_pDevice, _gpuDesc))
 		{
 			ENGINE_ERRLOG(false, "メガバッファの作成に失敗");
@@ -71,6 +72,7 @@ namespace Engine::Graphics::D3D12
 			IID_PPV_ARGS(&_cpLoadBuffer)
 		);
 		if (_cpLoadBuffer) _cpLoadBuffer->SetName(L"Mega_UploadBuffer");	// リーク調査用
+		VideoMemoryTracker::TrackResource(_cpLoadBuffer.Get(), EVideoMemoryCategory::Upload);
 
 		// データの書き込み
 		void* _pMapped = nullptr;

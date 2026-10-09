@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "Engine/Graphics/D3D12/VideoMemoryTracker/VideoMemoryTracker.h"
+
 namespace Engine::Graphics::D3D12
 {
 	// 前方宣言
@@ -19,6 +21,9 @@ namespace Engine::Graphics::D3D12
 
 		// 用途フラグ
 		D3D12_RESOURCE_FLAGS resourceFlags = D3D12_RESOURCE_FLAG_NONE;
+
+		// ビデオメモリの集計で、どの用途として数えるか
+		EVideoMemoryCategory memoryCategory = EVideoMemoryCategory::Other;
 	};
 
 	// リソース規定クラス
@@ -50,6 +55,11 @@ namespace Engine::Graphics::D3D12
 
 		// エイリアシングバリア
 		void AliasingBarrier(Graphics::D3D12::GraphicsCommandList* a_pCmdList, GPUResource* a_pBeforeResource);
+
+		// ビデオメモリの集計で数える用途を付け替える。
+		// 型の決まった派生クラス(構造体バッファなど)を作ったあと、持ち主が呼ぶ。
+		// placed で作ったものは置き先のヒープで数えているので何もしない
+		void SetMemoryCategory(EVideoMemoryCategory a_category);
 
 		// アクセサ
 		virtual ID3D12Resource* GetResource() const;
@@ -88,6 +98,9 @@ namespace Engine::Graphics::D3D12
 		ComPtr<ID3D12Resource> m_cpResource = nullptr;
 		D3D12_RESOURCE_STATES m_currentState = D3D12_RESOURCE_STATE_COMMON;
 		DXGI_FORMAT m_format;
+
+		// ヒープ上に置いたか(placed)。集計の付け替えで二重に数えないために見る
+		bool m_isPlaced = false;
 
 		size_t m_bufferSize = 0;
 		size_t m_strideSize = 0;

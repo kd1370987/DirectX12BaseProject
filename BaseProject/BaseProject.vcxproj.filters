@@ -682,6 +682,9 @@
     <Filter Include="Source\Engine\Graphics\D3D12\CBAllocator">
       <UniqueIdentifier>{626c0882-83cc-471e-b136-dfd9201161a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\D3D12\VideoMemoryTracker">
+      <UniqueIdentifier>{7c3e9a52-1f84-4d6b-b0a7-2e5d8c41f963}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\D3D12\D3DObject">
       <UniqueIdentifier>{fa7a398f-5a7b-4b2d-ae43-74742227591e}</UniqueIdentifier>
     </Filter>
@@ -1856,6 +1859,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.cpp">
       <Filter>Source\Engine\Graphics\D3D12\CBAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\D3D12\VideoMemoryTracker\VideoMemoryTracker.cpp">
+      <Filter>Source\Engine\Graphics\D3D12\VideoMemoryTracker</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Device\CommandContext\CommandContext.cpp">
       <Filter>Source\Engine\Graphics\Device\CommandContext</Filter>
@@ -3418,6 +3424,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.h">
       <Filter>Source\Engine\Graphics\D3D12\CBAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\D3D12\VideoMemoryTracker\VideoMemoryTracker.h">
+      <Filter>Source\Engine\Graphics\D3D12\VideoMemoryTracker</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Device\CommandContext\CommandContext.h">
       <Filter>Source\Engine\Graphics\Device\CommandContext</Filter>

@@ -26,6 +26,7 @@ namespace Editor
 
 		// 各タブ
 		void DrawOverview(const Graphics::GraphicsSnapshot& a_snapshot);
+		void DrawVideoMemory(const Graphics::GraphicsSnapshot& a_snapshot);
 		void DrawDescriptorHeap(const Graphics::GraphicsSnapshot& a_snapshot);
 		void DrawMegaBuffers(const Graphics::GraphicsSnapshot& a_snapshot);
 		void DrawFrameBuffers(const Graphics::GraphicsSnapshot& a_snapshot);

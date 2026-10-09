@@ -17,6 +17,7 @@ namespace Engine::Graphics::D3D12
 		_desc.strideSize = a_desc.strideSize;
 		_desc.elementNum = a_desc.elementNum;
 		_desc.heapType = a_desc.heapType;
+		_desc.memoryCategory = a_desc.memoryCategory;
 
 		// バッファ用のリソースDesc作成
 		_desc.resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(a_desc.strideSize * a_desc.elementNum, a_desc.flags);

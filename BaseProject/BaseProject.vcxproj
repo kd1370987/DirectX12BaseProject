@@ -1086,6 +1086,7 @@
     <ClCompile Include="Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\D3D12\VideoMemoryTracker\VideoMemoryTracker.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Device\CommandContext\CommandContext.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Device\CommandContext\CommandPool\CommandPool.cpp" />
     <ClCompile Include="Source\Engine\Graphics\D3D12\D3DObject\DescriptorHeap\DescriptorHeap.cpp" />
@@ -1998,6 +1999,7 @@
     <ClInclude Include="Source\Engine\Graphics\D3D12\Builder\PipelineBuilder\RenderPipelineBuilder\RenderPipelineBuilder.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\Builder\RootSignatureBuilder\RootSignatureBuilder.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\CBAllocator\CBAllocator.h" />
+    <ClInclude Include="Source\Engine\Graphics\D3D12\VideoMemoryTracker\VideoMemoryTracker.h" />
     <ClInclude Include="Source\Engine\Graphics\Device\CommandContext\CommandContext.h" />
     <ClInclude Include="Source\Engine\Graphics\Device\CommandContext\CommandPool\CommandPool.h" />
     <ClInclude Include="Source\Engine\Graphics\D3D12\D3D12Helper.h" />

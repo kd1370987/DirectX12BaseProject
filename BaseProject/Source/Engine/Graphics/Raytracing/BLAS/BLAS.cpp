@@ -137,6 +137,7 @@ bool Engine::Graphics::Raytracing::BLAS::BuildInternal(
 		IID_PPV_ARGS(m_cpUpdateScratch.ReleaseAndGetAddressOf())
 	);
 	if (m_cpUpdateScratch) m_cpUpdateScratch->SetName(L"BLAS_Scratch");	// リーク調査用
+	D3D12::VideoMemoryTracker::TrackResource(m_cpUpdateScratch.Get(), D3D12::EVideoMemoryCategory::BLASScratch);
 
 	auto barrierAS2 = CD3DX12_RESOURCE_BARRIER::Transition(
 		m_cpUpdateScratch.Get(),
@@ -160,6 +161,7 @@ bool Engine::Graphics::Raytracing::BLAS::BuildInternal(
 		IID_PPV_ARGS(m_cpResource.ReleaseAndGetAddressOf())
 	);
 	if (m_cpResource) m_cpResource->SetName(L"BLAS_Result");	// リーク調査用
+	D3D12::VideoMemoryTracker::TrackResource(m_cpResource.Get(), D3D12::EVideoMemoryCategory::BLAS);
 
 	// Buildコマンド発行
 	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC _buildDesc{};

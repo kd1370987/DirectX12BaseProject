@@ -13,6 +13,9 @@ namespace Engine::Graphics::D3D12
 		size_t elementNum = 0;
 		D3D12_HEAP_TYPE heapType;
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
+
+		// ビデオメモリの集計で、どの用途として数えるか
+		EVideoMemoryCategory memoryCategory = EVideoMemoryCategory::Other;
 	};
 
 	/// GPUバッファの基底クラス

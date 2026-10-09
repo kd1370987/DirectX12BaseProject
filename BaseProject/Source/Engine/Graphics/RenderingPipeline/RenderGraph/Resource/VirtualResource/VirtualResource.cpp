@@ -286,6 +286,7 @@ namespace Engine::Graphics::Pipeline
 			_desc.elementNum = 1;
 			_desc.strideSize = static_cast<size_t>(m_width);	// width にバイト数が入っている
 			_desc.heapType = D3D12_HEAP_TYPE_DEFAULT;
+			_desc.memoryCategory = D3D12::EVideoMemoryCategory::RenderGraph;
 
 			// UAV として触るなら生成時にフラグを立てておく必要がある
 			_desc.flags = HasUsage(Resource::ETextureUsage::UAV)
@@ -350,6 +351,9 @@ namespace Engine::Graphics::Pipeline
 				ReleaseEntity();
 				return false;
 			}
+
+			// 個別に作ったぶんもグラフの持ち物として数える(placed はヒープで数えているので素通り)
+			_upTexture->SetMemoryCategory(D3D12::EVideoMemoryCategory::RenderGraph);
 
 			m_entity[_slice].pResource = _upTexture.get();
 			m_entity[_slice].upTexture = std::move(_upTexture);
