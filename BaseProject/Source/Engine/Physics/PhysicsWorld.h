@@ -114,6 +114,11 @@ namespace Engine::Physics
 		// 作ったボディの空間への追加もここでまとめて行う
 		void Update(float a_dt);
 
+		// 追加待ちのボディを空間へ入れる(進めはしない)。
+		// Update の中でも呼ばれる。シーンの読み込み中は Update を回さないので、
+		// 作ったボディを読み込みのうちに入れておくためにこれだけを呼ぶ
+		void FlushPendingBodies();
+
 		//----------------------------------------------------------------------------------
 		// ボディ
 		//----------------------------------------------------------------------------------
@@ -181,9 +186,6 @@ namespace Engine::Physics
 		bool IsValid() const { return m_upPhysicsSystem != nullptr; }
 
 	private:
-
-		// 追加待ちのボディを空間へ入れる
-		void FlushPendingBodies();
 
 	private:
 

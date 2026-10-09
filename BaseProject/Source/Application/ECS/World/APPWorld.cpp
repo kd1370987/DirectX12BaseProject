@@ -144,6 +144,30 @@ namespace App::ECS
 	}
 
 	//======================================================================================
+	// まだ動き出していないエンティティの数
+	//--------------------------------------------------------------------------------------
+	// 初期化のフェーズはタグで表しているので、途中のタグを持つものを数える。
+	//   PostDeserializeTag : 読み込んだ直後(参照の解決前)
+	//   AwakeTag           : リソースの到着待ち(ModelReadyGateSystem などが止めている)
+	//   StartTag           : Start の直前
+	// 0 になれば、読み込んだエンティティは全部 Start(物理への登録など)を通り終えている
+	//======================================================================================
+	uint32_t APPWorld::GetPendingStartCount()
+	{
+		uint32_t _count = 0;
+		auto _countChunk = [&_count](Engine::ECS::Chunk* /*a_pChunk*/, uint32_t a_count, auto* /*a_pTag*/)
+			{
+				_count += a_count;
+			};
+
+		ForEach<Component::PostDeserializeTag>(_countChunk);
+		ForEach<Component::AwakeTag>(_countChunk);
+		ForEach<Component::StartTag>(_countChunk);
+
+		return _count;
+	}
+
+	//======================================================================================
 	// エンティティの解放予約
 	//======================================================================================
 	void APPWorld::ReserveReleaseEntity(const Entity& a_entity)

@@ -30,7 +30,7 @@ namespace Engine::Scene
 		//
 		// 待つのは Present まで含めて : 終了時なのでキューを空にしてよい
 		//----------------------------------------------------------------------------------
-		if (!m_upBaseSceneVec.empty())
+		if (!m_upBaseSceneVec.empty() || m_upLoadingScreen)
 		{
 			if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
 			{
@@ -52,6 +52,14 @@ namespace Engine::Scene
 			m_upBaseSceneVec.pop_back();
 		}
 		m_pPreLoadRecordingScene = nullptr;
+
+		// ロード画面 : スタックの外に居るので別に消す
+		if (m_upLoadingScreen)
+		{
+			m_upLoadingScreen->Exit();
+			m_upLoadingScreen.reset();
+		}
+		m_loadingTime = 0.0f;
 
 		// 消えたシーンのテクスチャを指したままにせず、平行光の席も返す
 		ApplySceneAmbient();
@@ -89,6 +97,35 @@ namespace Engine::Scene
 		ApplyReservedSceneChanges(a_resourceManager);
 
 		//==================================================================
+		// 読み込み
+		//------------------------------------------------------------------
+		// 積んだばかりのシーンを1歩ずつ組み立てる。済んだものは同じフレームから更新に乗る。
+		// ロード画面も同じ形で読み込む(起動直後は出せる状態になっていない)
+		//==================================================================
+		bool _isLoading = false;
+		for (auto& _upScene : m_upBaseSceneVec)
+		{
+			if (_upScene->IsReady()) continue;
+
+			UpdateSceneLoad(a_resourceManager, *_upScene);
+			if (!_upScene->IsReady()) _isLoading = true;
+		}
+
+		if (m_upLoadingScreen && !m_upLoadingScreen->IsReady())
+		{
+			UpdateSceneLoad(a_resourceManager, *m_upLoadingScreen);
+		}
+
+		// 読み込みが続いている時間 : ロード画面を出すかの判定に使う
+		m_loadingTime = _isLoading ? (m_loadingTime + a_dt) : 0.0f;
+
+		// ロード画面の更新(バーの値はロード画面の進行役が GetLoadProgress から引く)
+		if (IsLoadingScreenVisible())
+		{
+			m_upLoadingScreen->Update(a_dt);
+		}
+
+		//==================================================================
 		// シーンの更新
 		//------------------------------------------------------------------
 		// 既定は一番上のシーンだけ。重ねたシーン(ポーズ画面)を出している間、
@@ -98,6 +135,9 @@ namespace Engine::Scene
 		// 見えたままになる。
 		//
 		// 後ろも一緒に動かしたい重ね方をするときだけ、この切り替えを外す。
+		//
+		// 読み込み中のシーンは更新しない(BaseScene::Update の中でも弾いている)。
+		// 一番上が読み込み中なら、後ろのシーンも止めたままにする
 		//==================================================================
 		if (m_isUpdateTopSceneOnly)
 		{
@@ -131,11 +171,17 @@ namespace Engine::Scene
 		// 各シーンの描画より前に置くが、レンダーグラフが回るのはこの後なので順番はどちらでもよい
 		ApplySceneAmbient();
 
-		// すべてのシーンを描画
+		// すべてのシーンを描画(読み込み中のシーンは BaseScene::Draw の中で弾く)
 		for (auto& _scene : m_upBaseSceneVec)
 		{
 			// 命令のスタック
 			_scene->Draw();
+		}
+
+		// ロード画面は一番上に重ねる
+		if (IsLoadingScreenVisible())
+		{
+			m_upLoadingScreen->Draw();
 		}
 	}
 
@@ -219,76 +265,138 @@ namespace Engine::Scene
 		return _guid;
 	}
 
-	bool SceneManager::PushScene(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid)
+	//======================================================================================
+	// シーンを作る
+	//--------------------------------------------------------------------------------------
+	// 初期化(ワールドとオブジェクトマネージャーの用意)と設定ファイルの読み込みまで。
+	// 中身の組み立ては読み込み(BaseScene::UpdateLoad)の中で、先読みの後に行う
+	//======================================================================================
+	std::unique_ptr<BaseScene> SceneManager::CreateScene(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid,
+		std::string& a_outFileDir, std::string& a_outFileName)
 	{
-		// シーンの新規作成 : GUIDからロードする
-		auto _upScene = std::make_unique<BaseScene>();
-		std::string _sceneFilePath = a_resourceManager.GetAssetDatabase().GetFilePathFromGUID(a_guid);
+		const std::string _sceneFilePath = a_resourceManager.GetAssetDatabase().GetFilePathFromGUID(a_guid);
 		if (_sceneFilePath.empty())
 		{
 			ENGINE_ERRLOG(false, "指定されたGUIDのシーンファイルが見つかりません");
-			return false;
+			return nullptr;
 		}
 
 		// どのシーンを読み込むかをログ出力する
 		ENGINE_LOG("[Scene] ロード : %s", _sceneFilePath.c_str());
 
-		// シーンの初期化
+		auto _upScene = std::make_unique<BaseScene>();
 		_upScene->Enter();
+		_upScene->SetGUID(a_guid);
+
+		a_outFileDir = Core::File::GetDirFromPath(_sceneFilePath);
+		a_outFileName = Core::File::GetFileNameWithoutExtension(_sceneFilePath);
+
+		// シーンの設定(先読み一覧・計測フラグ)
+		_upScene->RefConfig().LoadFile(a_outFileDir, a_outFileName);
+
+		return _upScene;
+	}
+
+	bool SceneManager::PushScene(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid)
+	{
+		std::string _fileDir = {};
+		std::string _fileName = {};
+		auto _upScene = CreateScene(a_resourceManager, a_guid, _fileDir, _fileName);
+		if (!_upScene) return false;
 
 		//------------------------------------------------------------------
-		// 読み込み中のシーンを覚えておく
-		//
-		// このシーンがスタックへ乗るのは読み終えた後なので、
-		// 読み込みの最中に RefWorld() を引かれると一つ前のシーン(または nullptr)が返る。
-		// ワールドが無いと読めないリソース(プレハブ)がその隙に読まれると、
-		// 空の実体がキャッシュに載ってしまうため、ここで行き先を教えておく
-		//------------------------------------------------------------------
-		m_pLoadingScene = _upScene.get();
-
-		auto _fileDir = Core::File::GetDirFromPath(_sceneFilePath);
-		auto _fileName = Core::File::GetFileNameWithoutExtension(_sceneFilePath);
-
-		//------------------------------------------------------------------
-		// シーンの設定(先読み一覧・計測フラグ)を読み、中身より先に先読みを始める
-		//
-		// 中身の組み立てが同じアセットを引きに来たときには、読み終わっているか読込中になっている。
-		// プレハブはワールドを引きながら読むので、読み込み中のシーンを覚えた後に置くこと。
+		// 先読み一覧の計測
 		//
 		// 計測するときは先読みしない : 先読みしたものまで「使った」と数えてしまうため。
-		// 計測は中身の組み立てから数え始める
+		// 計測は組み立てから数え始める(組み立ては読み込みの中なので、ここで始めておけば拾える)
 		//------------------------------------------------------------------
-		_upScene->RefConfig().LoadFile(_fileDir, _fileName);
-
-		if (_upScene->GetConfig().IsRecordPreLoadAssets() && m_pPreLoadRecordingScene == nullptr)
+		bool _isPreLoad = true;
+		if (_upScene->GetConfig().IsRecordPreLoadAssets())
 		{
-			BeginRecordPreLoadAssets(a_resourceManager, *_upScene);
-		}
-		else
-		{
-			if (_upScene->GetConfig().IsRecordPreLoadAssets())
+			if (m_pPreLoadRecordingScene == nullptr)
+			{
+				BeginRecordPreLoadAssets(a_resourceManager, *_upScene);
+				_isPreLoad = false;
+			}
+			else
 			{
 				ENGINE_WARNING("[Scene] 別のシーンの先読み一覧を計測中のため、このシーンは計測しません : %s",
-					_sceneFilePath.c_str());
+					_fileName.c_str());
 			}
-			_upScene->PreLoadAsset(a_resourceManager);
 		}
 
-		// シーンの再構築
-		// 形式はビルドモード任せ(Auto)。Development までは .ojscene 優先、Shipping は .obscene のみ
-		{
-			Persistence::Archive _ar(Persistence::Archive::EMode::Load, _fileDir, _fileName, "scene");
-			_upScene->Archive(_ar);
-		}
+		// 読み込みを始める : 実際に進めるのは Update(UpdateSceneLoad)
+		_upScene->BeginLoad(_fileDir, _fileName, _isPreLoad);
 
-		m_pLoadingScene = nullptr;
-
-		_upScene->SetGUID(a_guid);
-		// スタックに積む
+		// スタックに積む。読み込みが済むまでは更新も描画もされない
 		m_upBaseSceneVec.push_back(std::move(_upScene));
 
 		return true;
 	}
+
+	//======================================================================================
+	// シーンの読み込みを1歩進める
+	//--------------------------------------------------------------------------------------
+	// 読み込みの最中は、このシーンのワールドを RefWorld() が返すようにしておく。
+	// プレハブのように、コンポーネントのメタ情報を引くためにワールドが要るリソースがある。
+	// ロード画面はスタックに乗らないので、これが無いと別のシーンのワールドを掴んでしまう
+	//======================================================================================
+	void SceneManager::UpdateSceneLoad(Resource::ResourceManager& a_resourceManager, BaseScene& a_scene)
+	{
+		m_pLoadingScene = &a_scene;
+		a_scene.UpdateLoad(a_resourceManager);
+		m_pLoadingScene = nullptr;
+	}
+
+	//======================================================================================
+	// ロード画面
+	//======================================================================================
+	void SceneManager::SetLoadingScreen(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid)
+	{
+		// 入れ替えるときは前のものを後始末してから
+		if (m_upLoadingScreen)
+		{
+			m_upLoadingScreen->Exit();
+			m_upLoadingScreen.reset();
+		}
+
+		if (!a_guid.IsValid()) return;
+
+		std::string _fileDir = {};
+		std::string _fileName = {};
+		m_upLoadingScreen = CreateScene(a_resourceManager, a_guid, _fileDir, _fileName);
+		if (!m_upLoadingScreen) return;
+
+		// ロード画面自身も先読み一覧を持てる(計測はしない)
+		m_upLoadingScreen->BeginLoad(_fileDir, _fileName, true);
+	}
+
+	bool SceneManager::IsLoading() const
+	{
+		for (const auto& _upScene : m_upBaseSceneVec)
+		{
+			if (!_upScene->IsReady()) return true;
+		}
+		return false;
+	}
+
+	float SceneManager::GetLoadProgress() const
+	{
+		// 読み込み中のうち一番上のもの(普通は積んだばかりの1つだけ)
+		for (auto _it = m_upBaseSceneVec.rbegin(); _it != m_upBaseSceneVec.rend(); ++_it)
+		{
+			if (!(*_it)->IsReady()) return (*_it)->GetLoadProgress();
+		}
+		return 1.0f;
+	}
+
+	bool SceneManager::IsLoadingScreenVisible() const
+	{
+		return m_upLoadingScreen
+			&& m_upLoadingScreen->IsReady()
+			&& m_loadingTime >= LOADING_SCREEN_DELAY_SEC;
+	}
+
 	//======================================================================================
 	// 最前面のシーンを消す
 	//--------------------------------------------------------------------------------------
@@ -429,9 +537,13 @@ namespace Engine::Scene
 
 	BaseScene* SceneManager::RefAmbientSourceScene()
 	{
-		// 上から見て、最初に環境設定を使うシーン
+		// ロード画面は一番上に重なっている
+		if (IsLoadingScreenVisible() && m_upLoadingScreen->GetAmbient().IsEnabled()) return m_upLoadingScreen.get();
+
+		// 上から見て、最初に環境設定を使うシーン。読み込み中のシーンはまだ描かれないので飛ばす
 		for (auto _it = m_upBaseSceneVec.rbegin(); _it != m_upBaseSceneVec.rend(); ++_it)
 		{
+			if (!(*_it)->IsReady()) continue;
 			if ((*_it)->GetAmbient().IsEnabled()) return _it->get();
 		}
 		return nullptr;
@@ -519,8 +631,6 @@ namespace Engine::Scene
 		// 命令がある間
 		while (!m_sceneChangeCmd.empty())
 		{
-			auto& _cmd = m_sceneChangeCmd.front();
-
 			//----------------------------------------------------------------------
 			// 実行前にエディターの選択を捨てる
 			//
@@ -532,18 +642,20 @@ namespace Engine::Scene
 			//----------------------------------------------------------------------
 			if (auto* _pDevTool = MainEngine::Instance().RefDevTool()) _pDevTool->OnSceneChanged();
 
+			// 命令キューの戦闘要素を処理
+			const auto& _cmd = m_sceneChangeCmd.front();
 			switch (_cmd.changeType)
 			{
-			case ESceneChangeType::Push:
+			case ESceneChangeType::Push:			// シーンを重ねる
 				PushScene(a_resourceManager, _cmd.sceneGUID);
 				break;
-			case ESceneChangeType::Pop:
+			case ESceneChangeType::Pop:				// 最上面のシーンを消去
 				PopScene(a_resourceManager);
 				break;
-			case ESceneChangeType::Replace:
+			case ESceneChangeType::Replace:			// 現在のシーンと切り替える
 				ReplaceScene(a_resourceManager, _cmd.sceneGUID);
 				break;
-			case ESceneChangeType::Clear:
+			case ESceneChangeType::Clear:			// すべてのシーンを消去
 				// 1つずつ Pop に通す。最後の1つを外したところで
 				// 共有の当たり判定空間が空になる
 				while (!m_upBaseSceneVec.empty())

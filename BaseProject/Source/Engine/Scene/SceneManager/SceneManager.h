@@ -26,6 +26,9 @@ namespace Engine::Scene
 {
 	class BaseScene;
 
+	//==================================================================================================
+	// シーンの切り替え操作指定
+	//==================================================================================================
 	enum class ESceneChangeType
 	{
 		Push,		// 重ねる
@@ -34,8 +37,9 @@ namespace Engine::Scene
 		Clear		// 全消去
 	};
 
-
-
+	//==================================================================================================
+	// シーンの状態、遷移を管理するクラス
+	//==================================================================================================
 	class SceneManager
 	{
 	public:
@@ -115,13 +119,12 @@ namespace Engine::Scene
 		/// 現在のシーンのワールドを参照
 		/// </summary>
 		/// <remarks>
-		/// 読み込み中のシーンがあるあいだは、そのシーンのワールドを返す。
+		/// 読み込みを進めている最中(UpdateSceneLoad の間)は、そのシーンのワールドを返す。
 		///
-		/// シーンの読み込み(PushScene)は「ワールドを作る → 保存データを流し込む →
-		/// スタックへ積む」の順なので、流し込んでいる最中はまだスタックに乗っていない。
-		/// その間にワールドを要るもの(プレハブのように、コンポーネントのメタ情報が無いと
-		/// 読めないリソース)を読むと、一つ前のシーンのワールドか nullptr が返ってしまい、
-		/// 読めなかったことに気付かないまま空の実体がキャッシュに載る。
+		/// 読み込みの中では先読み・組み立て・初期化のフェーズが走り、ワールドを要るもの
+		/// (プレハブのように、コンポーネントのメタ情報が無いと読めないリソース)も読まれる。
+		/// ロード画面はスタックに乗らないので、ここで行き先を教えないと別のシーンのワールドか
+		/// nullptr が返ってしまい、読めなかったことに気付かないまま空の実体がキャッシュに載る。
 		/// </remarks>
 		Engine::ECS::World* RefWorld();
 
@@ -154,6 +157,35 @@ namespace Engine::Scene
 		/// </remarks>
 		const BaseScene* GetPreLoadRecordingScene() const { return m_pPreLoadRecordingScene; }
 
+		//------------------------------------------------------------------------------------------
+		// 読み込みとロード画面
+		//
+		// シーンは積んだ(Push / Replace)フレームでは組み立てず、毎フレーム少しずつ読み込む
+		// (BaseScene::UpdateLoad)。読み込みが済むまでそのシーンは更新も描画もされない。
+		//
+		// 読み込みが一定時間(LOADING_SCREEN_DELAY_SEC)より長引いたら、
+		// ロード画面のシーンを一番上に重ねて出す。ロード画面はスタックの外で常駐させるので、
+		// シーンの切り替えの掃除(SweepUnusedAll)で消えない。
+		//------------------------------------------------------------------------------------------
+
+		/// <summary>
+		/// ロード画面に使うシーンを設定する
+		/// </summary>
+		/// <remarks>
+		/// 起動時に一度だけ呼ぶ想定。設定したシーンもほかのシーンと同じく少しずつ読み込まれ、
+		/// 読み込みが済むまでは出さない。無効なGUIDなら外す(ロード画面なしで動く)
+		/// </remarks>
+		void SetLoadingScreen(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid);
+
+		// 読み込み中のシーンがあるか
+		bool IsLoading() const;
+
+		// 読み込みの進み具合(0〜1) : 読み込み中のシーンのうち一番上のもの。無ければ 1
+		float GetLoadProgress() const;
+
+		// ロード画面を出しているか
+		bool IsLoadingScreenVisible() const;
+
 	private:
 
 		//------------------------------------------------------------------------------------------
@@ -163,6 +195,14 @@ namespace Engine::Scene
 		void ReplaceScene(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid);	// シーンの切り替え
 		bool PushScene(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid);		// シーンを重ねる(読み込めたら true)
 		void PopScene(Resource::ResourceManager& a_resourceManager);									// 最前面のシーンを消去
+
+		// シーンを作る : 初期化と設定ファイルの読み込みまで(組み立ては読み込みの中で行う)。
+		// 見つからなければ nullptr
+		std::unique_ptr<BaseScene> CreateScene(Resource::ResourceManager& a_resourceManager, const Core::GUID& a_guid,
+			std::string& a_outFileDir, std::string& a_outFileName);
+
+		// シーンの読み込みを1歩進める : その間は RefWorld がこのシーンのワールドを返す
+		void UpdateSceneLoad(Resource::ResourceManager& a_resourceManager, BaseScene& a_scene);
 
 		//------------------------------------------------------------------------------------------
 		// シーンの環境設定
@@ -191,8 +231,18 @@ namespace Engine::Scene
 		// シーンスタック
 		std::vector<std::unique_ptr<BaseScene>> m_upBaseSceneVec;
 
-		// 今読み込んでいるシーン。スタックへ積むまでの間だけ入る(RefWorld がこれを優先する)
+		// 今読み込みを進めているシーン。UpdateSceneLoad の間だけ入る(RefWorld がこれを優先する)
 		BaseScene* m_pLoadingScene = nullptr;
+
+		// ロード画面 : スタックの外で常駐させる(切り替えの掃除で消えないように)
+		std::unique_ptr<BaseScene> m_upLoadingScreen = nullptr;
+
+		// 読み込みが続いている時間。ロード画面を出すかの判定に使う
+		float m_loadingTime = 0.0f;
+
+		// これより長く読み込みが続いたらロード画面を出す。
+		// ポーズ画面のように1〜2フレームで済むものでロード画面がちらつかないように
+		static constexpr float LOADING_SCREEN_DELAY_SEC = 0.1f;
 
 		// 先読み一覧を計測しているシーン(閉じるまで)。計測していなければ nullptr
 		BaseScene* m_pPreLoadRecordingScene = nullptr;

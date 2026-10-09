@@ -1125,6 +1125,13 @@ namespace Editor
 			return;
 		}
 
+		// 読み込み途中のシーンは中身が揃っていない : 保存すると空の中身でファイルを上書きしてしまう
+		if (!_pScene->IsReady())
+		{
+			ENGINE_WARNING("[Scene] 読み込み中のシーンは保存できません。読み込みが済んでから保存してください");
+			return;
+		}
+
 		// ファイルパスを取得
 		auto _path = a_editContext.pServices->pAssetDatabase->GetFilePathFromGUID(a_guid);
 		if (_path.empty())

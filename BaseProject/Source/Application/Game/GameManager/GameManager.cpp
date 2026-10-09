@@ -27,6 +27,7 @@
 #include "Application/Object/UI/UIPanel/UIPanel.h"
 #include "Application/Object/UI/UIGauge/UIGauge.h"
 #include "Application/Object/Sequence/TitleSequence/TitleSequence.h"
+#include "Application/Object/Sequence/LoadingSequence/LoadingSequence.h"
 #include "Application/Object/Sequence/HomeSequence/HomeSequence.h"
 #include "Application/Object/Sequence/PauseSequence/PauseSequence.h"
 #include "Application/Object/Sequence/MissionSelect/MissionSelect.h"
@@ -112,6 +113,7 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::UIGauge>("UIGauge");							// ゲージ(HP / オーバーヒート / ブーストなど)。値は SetValue で外から入れる
 			_objRegistry.RegisterType<App::Object::WaveAnnounceHUD>("WaveAnnounceHUD");			// ウェーブが出た合図(何番目かの表示と音)
 			_objRegistry.RegisterType<App::Object::SwarmBossController>("SwarmBossController");	// 群れのボス。リーダー→小隊長→ボイドを生成して束ねる
+			_objRegistry.RegisterType<App::Object::LoadingSequence>("LoadingSequence");			// ロード画面の進行役。読み込みの進み具合をゲージへ流す
 		}
 
 		// ------------------------------------------------------------------
@@ -128,6 +130,16 @@ namespace App::Game
 				return std::make_unique<App::ECS::APPWorld>();
 			}
 		);
+
+		// ------------------------------------------------------------------
+		// ロード画面
+		//
+		// スタックの外で常駐させ、シーンの読み込みが長引いたときだけ重ねて出す。
+		// ワールドを作るのでワールドの作り手を差し込んだ後に置くこと。
+		// 最初のシーンより先に渡しておくと、最初のシーンの読み込みにも間に合いやすい
+		// ------------------------------------------------------------------
+		Engine::Scene::SceneManager::Instance().SetLoadingScreen(
+			*Engine::MainEngine::Instance().GetEngineServices().pResourceManager, m_loadingScene);
 
 		// 最初のシーンを挿入
 		if (m_farstScene.IsValid())
@@ -205,6 +217,7 @@ namespace App::Game
 			GAME_SETTING_DIR, GAME_SETTING_NAME, GAME_SETTING_EXT);
 
 		_arch.Field("m_farstScene", m_farstScene);
+		_arch.Field("m_loadingScene", m_loadingScene);
 	}
 	void GameManager::SaveGameSetting()
 	{
@@ -213,6 +226,7 @@ namespace App::Game
 			GAME_SETTING_DIR, GAME_SETTING_NAME, GAME_SETTING_EXT);
 
 		_arch.Field("m_farstScene", m_farstScene);
+		_arch.Field("m_loadingScene", m_loadingScene);
 	}
 	//======================================================================================
 	// ゲーム設定の編集UI
@@ -228,6 +242,15 @@ namespace App::Game
 			"##FarstScene",
 			"Scene",
 			m_farstScene);
+
+		Engine::EditorField::Value("Loading Scene", "%s", m_loadingScene.String().c_str());
+
+		Engine::EditorField::AssetField(
+			Engine::MainEngine::Instance().GetEngineServices(),
+			"##LoadingScene",
+			"Scene",
+			m_loadingScene);
+		Engine::EditorField::Tooltip("読み込みが長引いたときに重ねて出すシーン。反映は次の起動から");
 
 		Engine::EditorField::Line();
 

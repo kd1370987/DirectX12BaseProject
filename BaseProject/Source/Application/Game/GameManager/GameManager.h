@@ -83,6 +83,9 @@ namespace App::Game
 		// ゲーム開始時の初回シーン : 起動時に出現させる
 		Core::GUID m_farstScene;
 
+		// ロード画面のシーン : 起動時に SceneManager へ渡して常駐させる(無効なら出さない)
+		Core::GUID m_loadingScene;
+
 		// ユーザーデータ
 		std::unique_ptr<UserData> m_upUserData;
 

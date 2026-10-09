@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 //==========================================================================================
 //
 // App::ECS::APPWorld
@@ -66,6 +66,13 @@ namespace App::ECS
 
 		/// <summary>解放 : 後始末のフェーズを通してから全部消す</summary>
 		void Release() override;
+
+		/// <summary>まだ動き出していないエンティティの数</summary>
+		/// <remarks>
+		/// PostDeserializeTag / AwakeTag / StartTag のどれかを持つもの。
+		/// リソースが届くまで Awake で待たされているものもここに数える
+		/// </remarks>
+		uint32_t GetPendingStartCount() override;
 
 		/// <summary>
 		/// エンティティに ReleaseTag を付けて解放予約する : 削除はすべてこれを通す

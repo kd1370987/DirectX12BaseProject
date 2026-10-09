@@ -74,16 +74,17 @@ namespace Engine::Resource
 	}
 
 	//======================================================================================
-	// 型を知らないままの読み込み要求
+	// 種別の文字列から型を引く
 	//--------------------------------------------------------------------------------------
 	// 種別の文字列は MainEngine がアセットデータベースへ登録しているもの。
 	// 種別を足したらここにも足すこと(足さないと先読み一覧に載っても読まれない)。
 	//
-	// ジョブへ流すのは、ほかの場所でも非同期に読まれている種別だけにしてある。
-	// それ以外は今まで呼び出しスレッドでしか読まれてこなかったので、
-	// ワーカーから読んで大丈夫かを確かめていない
+	// a_func には std::type_identity<T> を渡すので、受け側は
+	//   using T = typename decltype(a_tag)::type;
+	// で型を取り出す
 	//======================================================================================
-	bool ResourceManager::RequestLoadByGUID(const Core::GUID& a_guid)
+	template<typename Func>
+	bool ResourceManager::VisitAssetType(const Core::GUID& a_guid, Func&& a_func)
 	{
 		// 実体はデータベースの持ち物で、監視スレッドに消されうるので種別は写しておく
 		std::string _type = {};
@@ -93,29 +94,68 @@ namespace Engine::Resource
 		}
 		if (_type.empty()) return false;
 
-		// ---- ジョブへ流す : 待たない ----
-		if (_type == "Model")			{ RequestLoad<Model>(a_guid);			return true; }
-		if (_type == "Texture")			{ RequestLoad<Texture>(a_guid);			return true; }
-		if (_type == "EffectAsset")		{ RequestLoad<EffectAsset>(a_guid);		return true; }
-		if (_type == "Font")			{ RequestLoad<Font>(a_guid);			return true; }
-
-		// ---- その場で読み切る ----
-		if (_type == "Mesh")			{ LoadImmediate<Mesh>(a_guid);				return true; }
-		if (_type == "Material")		{ LoadImmediate<Material>(a_guid);			return true; }
-		if (_type == "Animation")		{ LoadImmediate<AnimationData>(a_guid);		return true; }
-		if (_type == "AnimatorAsset")	{ LoadImmediate<AnimatorAsset>(a_guid);		return true; }
-		if (_type == "ParticlesAsset")	{ LoadImmediate<ParticlesAsset>(a_guid);	return true; }
-		if (_type == "Shader")			{ LoadImmediate<Shader>(a_guid);			return true; }
-		if (_type == "Sound")			{ LoadImmediate<Sound>(a_guid);				return true; }
-		if (_type == "AudioBehavior")	{ LoadImmediate<AudioBehavior>(a_guid);		return true; }
-		if (_type == "RenderingPipelineAsset") { LoadImmediate<Graphics::Pipeline::RenderingPipelineAsset>(a_guid); return true; }
-
-		// プレハブはワールドを引きながら読む : 呼び出し元のシーンのワールドを掴ませる
-		if (_type == "Prefab")			{ LoadImmediate<Prefab>(a_guid);			return true; }
-		if (_type == "EffectPrefab")	{ LoadImmediate<EffectPrefab>(a_guid);		return true; }
+		if (_type == "Model")					{ a_func(std::type_identity<Model>{});					return true; }
+		if (_type == "Texture")					{ a_func(std::type_identity<Texture>{});				return true; }
+		if (_type == "EffectAsset")				{ a_func(std::type_identity<EffectAsset>{});			return true; }
+		if (_type == "Font")					{ a_func(std::type_identity<Font>{});					return true; }
+		if (_type == "Mesh")					{ a_func(std::type_identity<Mesh>{});					return true; }
+		if (_type == "Material")				{ a_func(std::type_identity<Material>{});				return true; }
+		if (_type == "Animation")				{ a_func(std::type_identity<AnimationData>{});			return true; }
+		if (_type == "AnimatorAsset")			{ a_func(std::type_identity<AnimatorAsset>{});			return true; }
+		if (_type == "ParticlesAsset")			{ a_func(std::type_identity<ParticlesAsset>{});			return true; }
+		if (_type == "Shader")					{ a_func(std::type_identity<Shader>{});					return true; }
+		if (_type == "Sound")					{ a_func(std::type_identity<Sound>{});					return true; }
+		if (_type == "AudioBehavior")			{ a_func(std::type_identity<AudioBehavior>{});			return true; }
+		if (_type == "RenderingPipelineAsset")	{ a_func(std::type_identity<Graphics::Pipeline::RenderingPipelineAsset>{}); return true; }
+		if (_type == "Prefab")					{ a_func(std::type_identity<Prefab>{});					return true; }
+		if (_type == "EffectPrefab")			{ a_func(std::type_identity<EffectPrefab>{});			return true; }
 
 		// シーンなど、このマネージャーが持たない種別
 		return false;
+	}
+
+	//======================================================================================
+	// 型を知らないままの読み込み要求
+	//--------------------------------------------------------------------------------------
+	// ジョブへ流すのは、ほかの場所でも非同期に読まれている種別だけにしてある。
+	// それ以外は今まで呼び出しスレッドでしか読まれてこなかったので、
+	// ワーカーから読んで大丈夫かを確かめていない。
+	// プレハブはワールドを引きながら読むので、必ず呼び出し元のシーンのワールドを掴ませる
+	//======================================================================================
+	bool ResourceManager::RequestLoadByGUID(const Core::GUID& a_guid)
+	{
+		return VisitAssetType(a_guid, [this, &a_guid](auto a_tag)
+			{
+				using T = typename decltype(a_tag)::type;
+
+				constexpr bool IS_ASYNC =
+					std::is_same_v<T, Model> || std::is_same_v<T, Texture> ||
+					std::is_same_v<T, EffectAsset> || std::is_same_v<T, Font>;
+
+				if constexpr (IS_ASYNC)
+				{
+					RequestLoad<T>(a_guid);		// ジョブへ流す : 待たない
+				}
+				else
+				{
+					LoadImmediate<T>(a_guid);	// その場で読み切る
+				}
+			});
+	}
+
+	//======================================================================================
+	// 型を知らないままの状態の取得
+	//======================================================================================
+	EResourceState ResourceManager::GetStateByGUID(const Core::GUID& a_guid)
+	{
+		// 読めない種別・消えたアセットは「もう届かない」ものとして扱う
+		EResourceState _state = EResourceState::Failed;
+		VisitAssetType(a_guid, [this, &a_guid, &_state](auto a_tag)
+			{
+				using T = typename decltype(a_tag)::type;
+				_state = GetState<T>(a_guid);
+			});
+		return _state;
 	}
 
 	//======================================================================================

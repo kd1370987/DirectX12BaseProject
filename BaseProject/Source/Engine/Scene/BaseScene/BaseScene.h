@@ -46,95 +46,130 @@ namespace Engine::Scene
 		BaseScene();
 		virtual ~BaseScene();
 
-		/// <summary>
-		/// 初期化
-		/// </summary>
+		//------------------------------------------------------------------------------------
+		// 初期化
+		//------------------------------------------------------------------------------------
+		// シーン構築に必要なクラスを作成、オブジェクトなどは作成しない
 		void Enter();
 
-		/// <summary>
-		/// 解放 : エンティティを消すところまで
-		/// </summary>
-		/// <remarks>
-		/// コンポーネントが借りているリソースは解放フックが返す。
-		/// 共有しているもの(誰も持っていないリソースの破棄・当たり判定の空間)の
-		/// 片付けは SceneManager::PopScene が持つ。
-		/// </remarks>
-		void Exit();
+		//------------------------------------------------------------------------------------
+		// 読み込み
+		//
+		// シーンは1フレームでは組み立てない。毎フレーム UpdateLoad を呼んで少しずつ進め、
+		// 済んだら Ready になる。Ready までは Update / Draw を呼ばないこと(呼んでも何もしない)。
+		//
+		//   PreLoad : 先読み一覧を、1フレームあたりの予算の範囲で読む
+		//   Build   : シーンファイルを読んでエンティティ・オブジェクトを組み立てる
+		//   Settle  : 初期化のフェーズ(BeginFrame)と物理への反映だけを回し、
+		//             全エンティティが Start を通り終えるのを待つ
+		//   Ready   : 準備完了。通常の更新へ
+		//------------------------------------------------------------------------------------
 
-		/// <summary>
-		/// 更新処理
-		/// </summary>
-		void Update(float a_dt);
+		// 読み込みを始める : シーンファイルの場所を覚えて PreLoad から始める。
+		// a_isPreLoad が false なら先読みを飛ばす(先読み一覧を計測するとき)
+		void BeginLoad(const std::string& a_fileDir, const std::string& a_fileName, bool a_isPreLoad);
 
-		/// <summary>
-		/// 描画処理
-		/// </summary>
-		void Draw();
+		// 読み込みを1歩進める : 毎フレーム呼ぶ
+		void UpdateLoad(Resource::ResourceManager& a_resourceManager);
+		
+		//------------------------------------------------------------------------------------
+		// 解放
+		//------------------------------------------------------------------------------------
+		void Exit();				// エンティティを消すところまで,アセットの返却はコンポーネントのフック関数が処理
 
-		/// <summary>
-		/// アーカイブ処理
-		/// </summary>
-		/// <param name="a_ar">保存・読み込み両方可</param>
-		void  Archive(Persistence::Archive& a_ar);
+		//------------------------------------------------------------------------------------
+		// 更新
+		//------------------------------------------------------------------------------------
+		void Update(float a_dt);	// ワールド、オブジェクトの更新
+		void Draw();				// 更新結果の描画処理
 
-		/// <summary>
-		/// 先読み一覧(SceneConfig)のアセットの読み込みを要求する
-		/// </summary>
-		/// <remarks>
-		/// 設定ファイルを読んだ後、シーンの中身を組み立てる(Archive)前に呼ぶ想定。
-		/// 中身の組み立てが同じアセットを引きに来たときには、読み終わっているか読込中になっている。
-		/// 重いもの(モデル・テクスチャ)はジョブへ流すので、組み立てと並んで読まれる。
-		/// 消えたアセット・読めない種別は読み飛ばす。
-		/// </remarks>
-		void PreLoadAsset(Resource::ResourceManager& a_resourceManager);
+		//------------------------------------------------------------------------------------
+		// 保存
+		//------------------------------------------------------------------------------------
+		void  Archive(Persistence::Archive& a_ar);			// アーカイブ処理
 
-		/// <summary>
-		/// 現在のワールドを取得
-		/// </summary>
-		/// <returns></returns>
+		//------------------------------------------------------------------------------------
+		// アクセサ
+		//------------------------------------------------------------------------------------
+		// 現在のワールドを参照
 		Engine::ECS::World* RefWorld() { return m_upWorld.get(); }
 
-		/// <summary>
-		/// ECS外オブジェクトのマネージャーを取得(エディター用)。
-		/// </summary>
+		// ECS外オブジェクトのマネージャーを取得
 		GameObject::GameObjectManager* RefGameObjectManager() { return m_upGameObjectManager.get(); }
 
-		/// <summary>
-		/// シーンの環境設定(環境光・平行光・影・フォグ・ボリュメトリックフォグ・空)
-		/// </summary>
-		/// <remarks>
-		/// GraphicsEngine へ流し込むのは SceneManager(重なったシーンのどれを使うかを決めるため)。
-		/// </remarks>
+		// シーンの環境設定(環境光・平行光・影・フォグ・ボリュメトリックフォグ・空)
 		SceneAmbient& RefAmbient() { return m_ambient; }
 		const SceneAmbient& GetAmbient() const { return m_ambient; }
 
-		/// <summary>
-		/// シーンの設定(先読み一覧・計測フラグ)
-		/// </summary>
-		/// <remarks>
-		/// シーンファイルとは別のファイルに保存される(理由は SceneConfig を参照)。
-		/// </remarks>
+		// シーンの設定(先読み一覧・計測フラグ) : シーンファイルとは別のファイルに保存される
 		SceneConfig& RefConfig() { return m_config; }
 		const SceneConfig& GetConfig() const { return m_config; }
 
+		// シーンのGUID
 		void SetGUID(const Core::GUID& a_guid) { m_guid = a_guid; }
 		const Core::GUID& GetGUID() const { return m_guid; }
 
+		// 読み込みが済んで動いているか
+		bool IsReady() const { return (m_state == EState::Ready); }
+
+		// 読み込みの進み具合(0〜1)。Ready なら 1
+		float GetLoadProgress() const;
 
 	private:
+
+		// 現在のシーンのステート
+		enum class EState
+		{
+			PreLoad,		// 事前ロード
+			Build,			// シーン構築
+			Settle,			// エンティティ待ち
+			Ready,			// 準備完了
+		};
+
+		// 読み込みの各段 : UpdateLoad から呼ぶ
+		bool UpdatePreLoad(Resource::ResourceManager& a_resourceManager, double a_budgetMs);	// 先読み一覧を要求し切ったら true
+		void BuildFromFile();																	// シーンファイルから組み立てる
+		bool UpdateSettle(Resource::ResourceManager& a_resourceManager);						// 全エンティティが動き出したら true
+		void UpdatePreLoadWait(Resource::ResourceManager& a_resourceManager);					// 先読みのうち届いたものを数える
+
+	private:
+
+		//-------------------------------------------------------------------
+		// シーンの情報
+		//-------------------------------------------------------------------
+		EState m_state = EState::PreLoad;		// 現在の状態
+		
+		// データ
+		Core::GUID m_guid;						// 自身のデータの所在
+		SceneAmbient m_ambient = {};			// シーンの環境設定 : シーンと一緒に保存される
+		SceneConfig m_config = {};				// シーンの設定 : 開始時に読み込んでおきたいアセット(先読み一覧)と、その計測フラグ
+
 		// ゲームの本体 : ワールド空間上にあるものすべてはこちらで管理
 		std::unique_ptr<Engine::ECS::World> m_upWorld = nullptr;
 
 		// ECS側で扱いにくいものなどの管理
 		std::unique_ptr<GameObject::GameObjectManager> m_upGameObjectManager = nullptr;
 
-		// シーンの環境設定 : シーンと一緒に保存される
-		SceneAmbient m_ambient = {};
+		//-------------------------------------------------------------------
+		// 読み込みの状態(保存しない)
+		//-------------------------------------------------------------------
+		// シーンファイルの場所 : Build で読む
+		std::string m_fileDir = {};
+		std::string m_fileName = {};
 
-		// 自身のデータの所在
-		Core::GUID m_guid;
+		// 先読み : 次に要求する添え字と、要求したがまだ届いていないもの
+		size_t m_preLoadIndex = 0;
+		size_t m_preLoadDoneCount = 0;
+		std::vector<Core::GUID> m_preLoadWaitVec = {};
 
-		// シーンの設定 : 開始時に読み込んでおきたいアセット(先読み一覧)と、その計測フラグ
-		SceneConfig m_config = {};
+		// 落ち着き待ち : 残り(動き出していないエンティティ + 読み込み中のアセット)の最大値と、
+		// それに対する進み具合
+		uint32_t m_settleMaxRemaining = 0;
+		float m_settleProgress = 0.0f;
+		bool m_isSettleStarted = false;
+
+		// 読み込みを始めた時刻 / 落ち着き待ちを始めた時刻(ログと打ち切りに使う)
+		std::chrono::steady_clock::time_point m_loadStartTime = {};
+		std::chrono::steady_clock::time_point m_settleStartTime = {};
 	};
 }

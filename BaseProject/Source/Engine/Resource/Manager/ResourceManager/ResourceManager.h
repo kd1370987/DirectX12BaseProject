@@ -162,6 +162,24 @@ namespace Engine::Resource
 		/// <returns>読み込める種別だったら true(読み込みの成否ではない)</returns>
 		bool RequestLoadByGUID(const Core::GUID& a_guid);
 
+		/// <summary>
+		/// 型を知らないまま状態を取得する : 型はアセットデータベースの種別から引く
+		/// </summary>
+		/// <remarks>
+		/// 先読みの進み具合を数えるためのもの。まだ要求していなければ Empty。
+		/// 読めない種別・消えたアセットは、もう届かないので Failed を返す
+		/// </remarks>
+		EResourceState GetStateByGUID(const Core::GUID& a_guid);
+
+		/// <summary>
+		/// ジョブへ流して、まだ読み終わっていないリソースの数
+		/// </summary>
+		/// <remarks>
+		/// シーンの読み込みの進み具合に使う(モデルの到着待ちの間もバーを進めるため)。
+		/// どのシーンが頼んだものかは区別しない
+		/// </remarks>
+		uint32_t GetInFlightLoadCount() const { return m_inFlightLoadCount.load(std::memory_order_acquire); }
+
 		//------------------------------------------------------------------------------------------
 		// 読み込み要求の記録
 		//
@@ -379,6 +397,14 @@ namespace Engine::Resource
 			return _depth;
 		}
 
+		/// <summary>
+		/// アセットデータベースの種別から型を引き、a_func(std::type_identity&lt;T&gt;) を呼ぶ
+		/// </summary>
+		/// <returns>このマネージャーが持つ種別だったら true</returns>
+		/// <remarks>.cpp の中でだけ使うので定義も .cpp に置く</remarks>
+		template<typename Func>
+		bool VisitAssetType(const Core::GUID& a_guid, Func&& a_func);
+
 		// 読み込み要求を1件記録する(記録中のときだけ呼ばれる)
 		void RecordRequest(const Core::GUID& a_guid);
 
@@ -471,6 +497,9 @@ namespace Engine::Resource
 		// 非同期ロードの実行先 : 未登録なら同期で読む
 		std::atomic<Thread::JobSystem*> m_pJobSystem = nullptr;
 
+		// ジョブへ流して読み終わっていない数(RequestLoad で増え、ジョブの終わりで減る)
+		std::atomic<uint32_t> m_inFlightLoadCount = 0;
+
 		// 読み込み要求の記録 : 記録中かどうかだけはロック無しで見る(記録していない間の要求を遅くしない)
 		std::atomic<bool>				m_isRecordingRequests = false;
 		std::mutex						m_recordMutex;							// 下の2つを守る
@@ -531,13 +560,26 @@ namespace Engine::Resource
 		// 呼び出し元がすぐ参照を捨てても、ビルド中にGCで実体を引き抜かれないようにする
 		AddRef(_handle);
 
-		_pJobSystem->PushJob(
+		// 読み終わるまで数えておく : 積めなかったときは下で戻す
+		m_inFlightLoadCount.fetch_add(1, std::memory_order_acq_rel);
+
+		Thread::Job* _pJob = _pJobSystem->PushJob(
 			[this, a_guid, _handle]()
 			{
 				BuildIntoSlot<T>(a_guid, _handle, nullptr);
 				ReleaseRef(_handle);
+				m_inFlightLoadCount.fetch_sub(1, std::memory_order_acq_rel);
 			}
 		);
+
+		// 積めなかった(ジョブシステムが止まっている) : その場で読む。
+		// 放っておくと Loading のまま誰も読まず、待つ側が永久に起きてこない
+		if (_pJob == nullptr)
+		{
+			BuildIntoSlot<T>(a_guid, _handle, nullptr);
+			ReleaseRef(_handle);
+			m_inFlightLoadCount.fetch_sub(1, std::memory_order_acq_rel);
+		}
 
 		return ResourceRef<T>(_handle);
 	}

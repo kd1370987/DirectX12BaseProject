@@ -592,6 +592,9 @@
     <Filter Include="Source\Application\Object\Sequence\TitleSequence">
       <UniqueIdentifier>{c8d2e3f4-9a51-4b62-8d73-1e84f5a6b702}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Application\Object\Sequence\LoadingSequence">
+      <UniqueIdentifier>{ae4bd968-75e0-4f5d-97c8-dcb9dd1cd5bb}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Object\UI">
       <UniqueIdentifier>{50ad7784-1d55-4333-957c-60656a8d08e4}</UniqueIdentifier>
     </Filter>
@@ -1472,6 +1475,9 @@
     </ClCompile>
     <ClCompile Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.cpp">
       <Filter>Source\Application\Object\Sequence\TitleSequence</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\Object\Sequence\LoadingSequence\LoadingSequence.cpp">
+      <Filter>Source\Application\Object\Sequence\LoadingSequence</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Object\UI\Decoration.cpp">
       <Filter>Source\Application\Object\UI</Filter>
@@ -2995,6 +3001,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.h">
       <Filter>Source\Application\Object\Sequence\TitleSequence</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application\Object\Sequence\LoadingSequence\LoadingSequence.h">
+      <Filter>Source\Application\Object\Sequence\LoadingSequence</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Object\UI\Decoration.h">
       <Filter>Source\Application\Object\UI</Filter>

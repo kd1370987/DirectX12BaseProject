@@ -77,6 +77,9 @@ namespace Engine::Scene
 
 	void BaseScene::Enter()
 	{
+		// 初期化中
+		m_state = EState::PreLoad;
+
 		// ワールド作成
 		m_upWorld = CreateSceneWorld();
 
@@ -84,6 +87,238 @@ namespace Engine::Scene
 		// 中身はシーン読み込み(Archive)またはエディターの AddObject で追加される。
 		// 自シーンのワールドを渡し、各オブジェクトへは ObjectContext 経由で配らせる。
 		m_upGameObjectManager = std::make_unique<GameObject::GameObjectManager>(m_upWorld.get());
+	}
+
+	//======================================================================================
+	// 読み込み
+	//--------------------------------------------------------------------------------------
+	// 1フレームで組み立て切ると、重いシーン(Desert_02 で約1秒)の間は画面が止まり、
+	// ロード画面のバーも動かない。そこで毎フレーム少しずつ進める。
+	//
+	// ・先読みは予算(PRELOAD_BUDGET_MS)の範囲で要求する。
+	//   その場で読む種別(アニメーター・エフェクト・プレハブなど)が重いので、
+	//   ここで区切ると読み込み中もフレームが回る。
+	// ・先読みを済ませてから組み立てるので、組み立てと初期化のフェーズ(Fixup)は
+	//   キャッシュに当たって軽くなる。
+	// ・物理への登録は Start で行われるので、全エンティティが Start を通り終えるまで
+	//   (= 動き出していない数が 0 になるまで)待ってから Ready にする。
+	//   モデルの到着待ちで Awake に止まっているものもここで待つ。
+	//======================================================================================
+	namespace
+	{
+		// 1フレームで先読みに使ってよい時間。少なくとも1件は進める
+		constexpr double PRELOAD_BUDGET_MS = 8.0;
+
+		// 進み具合のうち先読みが占める割合(先読み一覧が空なら全部を組み立て側に回す)
+		constexpr float PRELOAD_PROGRESS_WEIGHT = 0.7f;
+
+		// 落ち着き待ちの打ち切り : もう届かないものを待ち続けてシーンが始まらないのを防ぐ
+		constexpr double SETTLE_TIMEOUT_SEC = 10.0;
+
+		double ElapsedMs(std::chrono::steady_clock::time_point a_begin)
+		{
+			return std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - a_begin).count();
+		}
+	}
+
+	void BaseScene::BeginLoad(const std::string& a_fileDir, const std::string& a_fileName, bool a_isPreLoad)
+	{
+		m_fileDir = a_fileDir;
+		m_fileName = a_fileName;
+
+		m_preLoadIndex = 0;
+		m_preLoadDoneCount = 0;
+		m_preLoadWaitVec.clear();
+
+		m_settleMaxRemaining = 0;
+		m_settleProgress = 0.0f;
+		m_isSettleStarted = false;
+
+		m_loadStartTime = std::chrono::steady_clock::now();
+
+		// 先読みしないときは一覧を読み終えたことにする(進み具合も満たしておく)
+		if (!a_isPreLoad)
+		{
+			m_preLoadIndex = m_config.GetPreLoadAssetGUIDs().size();
+			m_preLoadDoneCount = m_preLoadIndex;
+		}
+
+		m_state = EState::PreLoad;
+	}
+
+	void BaseScene::UpdateLoad(Resource::ResourceManager& a_resourceManager)
+	{
+		if (m_state == EState::Ready) return;
+
+		const auto _frameBegin = std::chrono::steady_clock::now();
+
+		//------------------------------------------------------------------
+		// 先読み : 予算の範囲で要求する
+		//------------------------------------------------------------------
+		if (m_state == EState::PreLoad)
+		{
+			if (!UpdatePreLoad(a_resourceManager, PRELOAD_BUDGET_MS)) return;
+			m_state = EState::Build;
+
+			// 予算を使い切っていたら組み立ては次のフレーム
+			if (ElapsedMs(_frameBegin) >= PRELOAD_BUDGET_MS) return;
+		}
+
+		//------------------------------------------------------------------
+		// 組み立て : シーンファイルを読む(1フレームで済ませる)
+		//------------------------------------------------------------------
+		if (m_state == EState::Build)
+		{
+			BuildFromFile();
+			m_state = EState::Settle;
+
+			// 軽ければ同じフレームで落ち着き待ちまで進める(ポーズ画面などは1フレームで済む)
+			if (ElapsedMs(_frameBegin) >= PRELOAD_BUDGET_MS) return;
+		}
+
+		//------------------------------------------------------------------
+		// 落ち着き待ち : 全エンティティが Start を通り終えるまで
+		//------------------------------------------------------------------
+		if (m_state == EState::Settle)
+		{
+			if (!UpdateSettle(a_resourceManager)) return;
+			m_state = EState::Ready;
+
+			ENGINE_LOG("[Scene] 読み込み完了 : %s (%.0f ms)", m_fileName.c_str(), ElapsedMs(m_loadStartTime));
+		}
+	}
+
+	float BaseScene::GetLoadProgress() const
+	{
+		if (m_state == EState::Ready) return 1.0f;
+
+		const size_t _total = m_config.GetPreLoadAssetGUIDs().size();
+		const float _preLoadRatio = (_total == 0) ? 1.0f : static_cast<float>(m_preLoadDoneCount) / static_cast<float>(_total);
+		const float _preLoadWeight = (_total == 0) ? 0.0f : PRELOAD_PROGRESS_WEIGHT;
+
+		return std::clamp(_preLoadWeight * _preLoadRatio + (1.0f - _preLoadWeight) * m_settleProgress, 0.0f, 1.0f);
+	}
+
+	//======================================================================================
+	// 先読み
+	//--------------------------------------------------------------------------------------
+	// 参照は持たない。読んだものはキャッシュに残り、組み立てやシステムが
+	// 同じGUIDを引いたときにそれを受け取る。
+	// キャッシュを片付けるのはシーンが1つも残らなくなったときだけなので、
+	// このシーンを開いている間に誰も持っていなくても捨てられない。
+	//
+	// ジョブへ流す種別(モデル・テクスチャなど)は要求しただけで次へ進み、
+	// 届いたかは UpdatePreLoadWait で数える。届くのは組み立てと並んでいてよい
+	//======================================================================================
+	bool BaseScene::UpdatePreLoad(Resource::ResourceManager& a_resourceManager, double a_budgetMs)
+	{
+		const auto& _guidVec = m_config.GetPreLoadAssetGUIDs();
+		const auto _begin = std::chrono::steady_clock::now();
+
+		while (m_preLoadIndex < _guidVec.size())
+		{
+			const Core::GUID& _guid = _guidVec[m_preLoadIndex++];
+
+			// 読めない種別・消えたアセットは読み飛ばす(止まらないように済んだ扱い)
+			if (!a_resourceManager.RequestLoadByGUID(_guid) ||
+				a_resourceManager.GetStateByGUID(_guid) != Resource::EResourceState::Loading)
+			{
+				++m_preLoadDoneCount;
+			}
+			else
+			{
+				m_preLoadWaitVec.push_back(_guid);
+			}
+
+			if (ElapsedMs(_begin) >= a_budgetMs) break;
+		}
+
+		UpdatePreLoadWait(a_resourceManager);
+
+		return m_preLoadIndex >= _guidVec.size();
+	}
+
+	void BaseScene::UpdatePreLoadWait(Resource::ResourceManager& a_resourceManager)
+	{
+		std::erase_if(m_preLoadWaitVec,
+			[this, &a_resourceManager](const Core::GUID& a_guid)
+			{
+				if (a_resourceManager.GetStateByGUID(a_guid) == Resource::EResourceState::Loading) return false;
+				++m_preLoadDoneCount;
+				return true;
+			});
+	}
+
+	//======================================================================================
+	// 組み立て
+	//--------------------------------------------------------------------------------------
+	// 形式はビルドモード任せ(Auto)。Development までは .ojscene 優先、Shipping は .obscene のみ。
+	// 場所が無いシーン(保存前に作ったものなど)は空のまま進める
+	//======================================================================================
+	void BaseScene::BuildFromFile()
+	{
+		if (m_fileName.empty()) return;
+
+		Persistence::Archive _ar(Persistence::Archive::EMode::Load, m_fileDir, m_fileName, "scene");
+		Archive(_ar);
+	}
+
+	//======================================================================================
+	// 落ち着き待ち
+	//--------------------------------------------------------------------------------------
+	// 回すのは初期化のフェーズ(BeginFrame)と物理への反映だけ。
+	// 入力・更新・描画のフェーズと GameObject は回さない
+	// (シーンの進行役の経過時間やBGMが、読み込み中に始まらないように)。
+	//======================================================================================
+	bool BaseScene::UpdateSettle(Resource::ResourceManager& a_resourceManager)
+	{
+		if (!m_isSettleStarted)
+		{
+			m_isSettleStarted = true;
+			m_settleStartTime = std::chrono::steady_clock::now();
+		}
+
+		// 初期化のフェーズを通す。リソースが届いていないものは Awake に残る
+		m_upWorld->BeginFrame();
+
+		// Start で作ったボディを空間へ入れておく(物理を進めはしない)
+		m_upWorld->RefResource<Physics::PhysicsWorld>().FlushPendingBodies();
+
+		// 先読みのうちジョブへ流したもの
+		UpdatePreLoadWait(a_resourceManager);
+
+		//------------------------------------------------------------------
+		// 進み具合
+		//
+		// 動き出していないエンティティの数だけで測ると、重いモデルを待つ数体だけが残った間
+		// ほぼ 100% のまま止まって見える。読み込み中のアセットの数も残りに足し、
+		// これまでで一番多かった残りに対する割合で進める(戻らないよう最大値を取る)
+		//------------------------------------------------------------------
+		const uint32_t _pending = m_upWorld->GetPendingStartCount();
+		const uint32_t _remaining = _pending + a_resourceManager.GetInFlightLoadCount()
+			+ static_cast<uint32_t>(m_preLoadWaitVec.size());
+		m_settleMaxRemaining = std::max(m_settleMaxRemaining, _remaining);
+		if (m_settleMaxRemaining > 0)
+		{
+			const float _ratio = 1.0f - static_cast<float>(_remaining) / static_cast<float>(m_settleMaxRemaining);
+			m_settleProgress = std::max(m_settleProgress, std::clamp(_ratio, 0.0f, 1.0f));
+		}
+
+		if (_pending == 0 && m_preLoadWaitVec.empty())
+		{
+			m_settleProgress = 1.0f;
+			return true;
+		}
+
+		// 届かないものを待ち続けない : 知らせて先へ進める
+		if (ElapsedMs(m_settleStartTime) >= SETTLE_TIMEOUT_SEC * 1000.0)
+		{
+			ENGINE_WARNING("[Scene] 読み込みの待ちを打ち切りました : %s (動き出していないエンティティ %u / 未着の先読み %zu)",
+				m_fileName.c_str(), _pending, m_preLoadWaitVec.size());
+			return true;
+		}
+
+		return false;
 	}
 
 	//======================================================================================
@@ -103,6 +338,8 @@ namespace Engine::Scene
 
 	void BaseScene::Update(float a_dt)
 	{
+		// 読み込み中は UpdateLoad だけが回す
+		if (!IsReady()) return;
 
 		m_upGameObjectManager->PreUpdate();
 
@@ -147,6 +384,9 @@ namespace Engine::Scene
 
 	void BaseScene::Draw()
 	{
+		// 組み立て途中のワールドは描かない
+		if (!IsReady()) return;
+
 		// 判定メッシュのボディのAABBをデバッグ表示へ積む(静的=水色、動く=黄色)。
 		// 積む先はエンジン側の置き場で、実際に出すかどうかは
 		// DebugDrawOption(エディターの表示設定)が決める
@@ -285,26 +525,5 @@ namespace Engine::Scene
 				m_ambient.RequestLoadAssets(*_pServices->pResourceManager);
 			}
 		}
-	}
-	//======================================================================================
-	// 先読み
-	//--------------------------------------------------------------------------------------
-	// 参照は持たない。読んだものはキャッシュに残り、中身の組み立てやシステムが
-	// 同じGUIDを引いたときにそれを受け取る。
-	// キャッシュを片付けるのはシーンが1つも残らなくなったときだけなので、
-	// このシーンを開いている間に誰も持っていなくても捨てられない。
-	//======================================================================================
-	void BaseScene::PreLoadAsset(Resource::ResourceManager& a_resourceManager)
-	{
-		const auto& _guidVec = m_config.GetPreLoadAssetGUIDs();
-		if (_guidVec.empty()) return;
-
-		size_t _skipCount = 0;
-		for (const Core::GUID& _guid : _guidVec)
-		{
-			if (!a_resourceManager.RequestLoadByGUID(_guid)) ++_skipCount;
-		}
-
-		ENGINE_LOG("[Scene] 先読み : %zu 件(読み飛ばし %zu 件)", _guidVec.size() - _skipCount, _skipCount);
 	}
 }
