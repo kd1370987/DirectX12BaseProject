@@ -43,6 +43,17 @@ namespace Engine::Graphics
 		// ボーン用行列数
 		UINT boneElementNum = 0;	// ボーンパレットの要素数(重ねたシーンぶんを連結するので、1ワールド分では足りない)
 	};
+
+	// 毎フレーム詰め直す構造体バッファの容量(要素数)。計測用
+	struct FrameBufferCapacity
+	{
+		size_t meshInstance = 0;
+		size_t meshMaterial = 0;
+		size_t drawInstanceIndex = 0;
+		size_t bone = 0;
+		size_t ui = 0;
+		size_t debugLine = 0;
+	};
 	
 
 
@@ -78,6 +89,10 @@ namespace Engine::Graphics
 		//--------------------------------------------------------------------------------------------
 		// 現在のフレームの定数バッファアロケーターにアクセス
 		D3D12::CBAllocator* BindCB();
+
+		// 計測用 : 定数バッファアロケーター(読むだけ)と、毎フレームの構造体バッファの容量
+		const D3D12::CBAllocator* GetCB() const { return m_upCBAllocator.get(); }
+		FrameBufferCapacity GetFrameBufferCapacity() const;
 
 		// ---- 定数バッファをルートでバインド ----
 		// グラフィック版

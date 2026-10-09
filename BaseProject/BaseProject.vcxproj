@@ -1298,6 +1298,11 @@
       <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>Editor/EditorPCH.h</ForcedIncludeFiles>
     </ClCompile>
+    <ClCompile Include="Source\Editor\Panel\ProfilerPanel\GraphicsProfilerView.cpp">
+      <PrecompiledHeaderFile>Editor/EditorPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Editor/EditorPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Editor\Panel\ProfilerPanel\ThreadProfilerView.cpp">
       <PrecompiledHeaderFile>Editor/EditorPCH.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)EditorPCH.pch</PrecompiledHeaderOutputFile>
@@ -1401,6 +1406,7 @@
     <ClCompile Include="Source\Engine\Option\ProjectOptions\CursorOption.cpp" />
     <ClCompile Include="Source\Engine\Option\ProjectOptions\AudioOption.cpp" />
     <ClCompile Include="Source\Engine\Graphics\DebugDraw\DebugDraw.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Profile\GraphicsProfiler.cpp" />
     <ClCompile Include="Source\Application\Game\MouseCursor\MouseCursor.cpp">
       <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
@@ -2077,6 +2083,7 @@
     <ClInclude Include="Source\Editor\Panel\SceneViewPanel\SceneViewPanel.h" />
     <ClInclude Include="Source\Editor\Panel\ProfilerPanel\ProfilerPanel.h" />
     <ClInclude Include="Source\Editor\Panel\ProfilerPanel\ECSProfilerView.h" />
+    <ClInclude Include="Source\Editor\Panel\ProfilerPanel\GraphicsProfilerView.h" />
     <ClInclude Include="Source\Editor\Panel\ProfilerPanel\ThreadProfilerView.h" />
     <ClInclude Include="Source\Engine\GameObject\BaseObject\BaseObject.h" />
     <ClInclude Include="Source\Engine\GameObject\GameObjectManager\GameObjectManager.h" />
@@ -2139,6 +2146,7 @@
     <ClInclude Include="Source\Engine\Option\ProjectOptions\AudioOption.h" />
     <ClInclude Include="Source\Engine\Audio\SoundGroup.h" />
     <ClInclude Include="Source\Engine\Graphics\DebugDraw\DebugDraw.h" />
+    <ClInclude Include="Source\Engine\Graphics\Profile\GraphicsProfiler.h" />
     <ClInclude Include="Source\Application\Game\MouseCursor\MouseCursor.h" />
     <ClInclude Include="Source\Engine\Graphics\Particle\Core\EmitterData.h" />
     <ClInclude Include="Source\Engine\Graphics\Particle\Core\ParticleData.h" />

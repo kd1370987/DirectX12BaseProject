@@ -1,6 +1,14 @@
 ﻿#pragma once
 namespace Engine::Graphics::D3D12
 {
+	// ディスクリプタの席の使われ方(計測用)。単位は席の数
+	struct DescriptorUsage
+	{
+		uint32_t used = 0;		// 今配っている席
+		uint32_t capacity = 0;	// この区画の席の数
+		uint32_t peak = 0;		// 一番多く配っていたとき
+	};
+
 	// 制約(IsHeapType)を満たす型のTのみを受け付ける
 	template<IsHeapType T>
 	class HeapAllocator
@@ -28,6 +36,9 @@ namespace Engine::Graphics::D3D12
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(const Handle<T>& a_handle) const;
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGPU(const Handle<T>& a_handle) const;
 
+		// 席の使われ方(ワーカーが席を取っている最中でも読めるようロックを取る)
+		DescriptorUsage GetUsage() const;
+
 	private:
 		// 参照元ヒープ(ビューを作る先)
 		DescriptorHeap<T::type>* m_pHeap = nullptr;
@@ -49,7 +60,7 @@ namespace Engine::Graphics::D3D12
 		// GetCPU/GetGPU は守らない : 世代配列は Create で大きさが決まったきり伸びず、
 		// 引く側が見るのは自分が持っている席だけなので、他の席の出し入れとは触る場所が重ならない
 		//--------------------------------------------------------------------------------------------
-		std::mutex m_mutex;
+		mutable std::mutex m_mutex;
 
 		UINT m_startIndex = 0;
 		UINT m_maxCount = 0;
@@ -179,6 +190,17 @@ namespace Engine::Graphics::D3D12
 
 		std::lock_guard<std::mutex> _lock(m_mutex);
 		m_HandlePool.Remove(_handle);
+	}
+	template<IsHeapType T>
+	inline DescriptorUsage HeapAllocator<T>::GetUsage() const
+	{
+		std::lock_guard<std::mutex> _lock(m_mutex);
+
+		DescriptorUsage _usage = {};
+		_usage.used = m_HandlePool.GetUsedCount();
+		_usage.capacity = m_HandlePool.GetCapacity();
+		_usage.peak = m_HandlePool.GetPeakUsedCount();
+		return _usage;
 	}
 	template<IsHeapType T>
 	inline D3D12_CPU_DESCRIPTOR_HANDLE HeapAllocator<T>::GetCPU(const Handle<T>&a_handle) const

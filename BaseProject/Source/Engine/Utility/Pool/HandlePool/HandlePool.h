@@ -31,12 +31,25 @@ namespace Engine::Pool
 		/// <param name="a_handle">確認したいハンドル</param>
 		bool IsValid(const Handle<T>& a_handle) const;
 
+		//--------------------------------------------------------------------------------------------
+		// 計測用
+		//--------------------------------------------------------------------------------------------
+		// 今配っているハンドルの数
+		uint32_t GetUsedCount() const { return static_cast<uint32_t>(m_genVec.size() - m_indexQueue.size()); }
+
+		// 配れる枠の数(上限なしなら、これまでに作った枠の数)
+		uint32_t GetCapacity() const { return static_cast<uint32_t>(m_genVec.size()); }
+
+		// Create してから一番多く配っていたときの数
+		uint32_t GetPeakUsedCount() const { return m_peakUsedCount; }
+
 	private:
 		std::vector<uint16_t> m_genVec = {};		// 世代配列
 		std::queue<uint16_t> m_indexQueue = {};			// 使用ハンドル行列
 
 		uint32_t m_maxCount = 0;		// ハンドルの最大数
 		uint32_t m_currentCount = 0;	// 現在のハンドル数
+		uint32_t m_peakUsedCount = 0;	// 一番多く配っていたときの数(計測用)
 	};
 
 	template<typename T>
@@ -48,6 +61,7 @@ namespace Engine::Pool
 			m_indexQueue.push(static_cast<uint16_t>(_idx));
 		}
 		m_maxCount = a_maxCount;
+		m_peakUsedCount = 0;
 
 		// ０で初期化
 		m_genVec.assign(a_maxCount, 0);
@@ -80,6 +94,8 @@ namespace Engine::Pool
 
 		// ハンドル作成
 		Handle<T> _handle(_idx, m_genVec[_idx]);
+
+		m_peakUsedCount = (std::max)(m_peakUsedCount, GetUsedCount());
 		return _handle;
 	}
 	template<typename T>

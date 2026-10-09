@@ -65,6 +65,19 @@ namespace Engine::Graphics::D3D12
 		// フレームの頭(前のフレームの完了を待った後)に呼ぶ
 		void ApplyReservedFrees(UINT64 a_completedFenceValue);
 
+		//--------------------------------------------------------------------------------------------
+		// 計測用
+		//--------------------------------------------------------------------------------------------
+		// ビューの種類ごとの席の使われ方
+		template<IsHeapType T>
+		DescriptorUsage GetUsage() const;
+
+		// 解放を預かっている(GPUが使い終わるのを待っている)席の数。種類はまとめて数える
+		size_t GetPendingFreeCount() const;
+
+		// ImGuiバックエンド専用の席(ヒープ先頭の予約領域)の使われ方
+		DescriptorUsage GetImGuiBackendUsage() const;
+
 		// ハンドルの取得
 		template<IsHeapType T>
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCPU(Handle<T> a_handle);
@@ -144,6 +157,8 @@ namespace Engine::Graphics::D3D12
 		// ビューの種類に合ったアロケーターを引く(定義はこのヘッダーの末尾)
 		template<IsHeapType T>
 		HeapAllocator<T>& RefAllocator();
+		template<IsHeapType T>
+		const HeapAllocator<T>& GetAllocator() const;
 
 		// 借り物。Init で受け取ったものを持ち続ける
 		Graphics::D3D12::Device* m_pDevice = nullptr;
@@ -187,7 +202,7 @@ namespace Engine::Graphics::D3D12
 
 		// 預かり中の席 : 解放はワーカースレッドから来ることもあるのでロックで守る
 		std::vector<PendingFree> m_pendingFrees;
-		std::mutex m_pendingMutex;
+		mutable std::mutex m_pendingMutex;
 
 		// 今記録しているフレームが終わるときのフェンス値を返す(GraphicsEngine が渡す)
 		std::function<UINT64()> m_nextFenceValueProvider = nullptr;
@@ -214,6 +229,24 @@ namespace Engine::Graphics::D3D12
 		else if constexpr (std::is_same_v<T, DSV>)		return m_DSVAllocator;
 		else if constexpr (std::is_same_v<T, ImGuiSRV>)	return m_ImGuiSRVAllocator;
 		else static_assert(Internal::kAlwaysFalse<T>, "DescriptorHeapManager : 対応していないビューの種類です");
+	}
+
+	template<IsHeapType T>
+	inline const HeapAllocator<T>& DescriptorHeapManager::GetAllocator() const
+	{
+		if constexpr (std::is_same_v<T, CBV>)			return m_CBVAllocator;
+		else if constexpr (std::is_same_v<T, SRV>)		return m_SRVAllocator;
+		else if constexpr (std::is_same_v<T, UAV>)		return m_UAVAllocator;
+		else if constexpr (std::is_same_v<T, RTV>)		return m_RTVAllocator;
+		else if constexpr (std::is_same_v<T, DSV>)		return m_DSVAllocator;
+		else if constexpr (std::is_same_v<T, ImGuiSRV>)	return m_ImGuiSRVAllocator;
+		else static_assert(Internal::kAlwaysFalse<T>, "DescriptorHeapManager : 対応していないビューの種類です");
+	}
+
+	template<IsHeapType T>
+	inline DescriptorUsage DescriptorHeapManager::GetUsage() const
+	{
+		return GetAllocator<T>().GetUsage();
 	}
 
 	template<IsHeapType T>

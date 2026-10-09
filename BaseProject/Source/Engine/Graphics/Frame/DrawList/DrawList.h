@@ -40,6 +40,9 @@ namespace Engine::Graphics
 		// (描く順のインスタンス番号の表を引くときの土台になる)
 		std::span<const LightWeightDrawItem> GetPassItems(uint8_t a_passIndex, UINT* a_pOutFirstIndex = nullptr) const;
 
+		// 積まれた描画アイテムの数(全パスぶん)
+		size_t GetItemCount() const { return m_lightWeightDrawItemVec.size(); }
+
 		//--------------------------------------------------------------------------------------------
 		// 描く順のインスタンス番号の表(インスタンシング用)
 		//

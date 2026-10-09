@@ -203,6 +203,23 @@ namespace Engine::Graphics::D3D12
 		}
 	}
 
+	size_t DescriptorHeapManager::GetPendingFreeCount() const
+	{
+		std::lock_guard<std::mutex> _lock(m_pendingMutex);
+		return m_pendingFrees.size();
+	}
+
+	// バックエンドの席は ImGui がメインスレッドからしか出し入れしないので、ロックは無い。
+	// 一番多く使っていたときは覚えていないので、今の数を入れておく
+	DescriptorUsage DescriptorHeapManager::GetImGuiBackendUsage() const
+	{
+		DescriptorUsage _usage = {};
+		_usage.capacity = IMGUI_BACKEND_DESCRIPTOR_COUNT;
+		_usage.used = IMGUI_BACKEND_DESCRIPTOR_COUNT - static_cast<uint32_t>(m_imguiBackendFreeIndices.size());
+		_usage.peak = _usage.used;
+		return _usage;
+	}
+
 	ID3D12DescriptorHeap* DescriptorHeapManager::GetImGuiHeap() const
 	{
 		return m_imguiHeap.GetHeap();

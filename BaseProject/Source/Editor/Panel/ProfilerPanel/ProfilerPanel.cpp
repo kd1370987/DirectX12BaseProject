@@ -26,6 +26,7 @@ namespace Editor
 		case EView::Engine:	DrawEngineView(a_editContext);	break;
 		case EView::ECS:	m_ecsView.Draw(a_editContext.pServices ? a_editContext.pServices->pSceneManager : nullptr);	break;
 		case EView::Thread:	m_threadView.Draw();			break;
+		case EView::Graphics:	m_graphicsView.Draw();		break;
 		}
 	}
 
@@ -41,6 +42,7 @@ namespace Editor
 			if (ImGui::MenuItem("Engine", nullptr, m_eView == EView::Engine)) m_eView = EView::Engine;
 			if (ImGui::MenuItem("ECS", nullptr, m_eView == EView::ECS)) m_eView = EView::ECS;
 			if (ImGui::MenuItem("Thread", nullptr, m_eView == EView::Thread)) m_eView = EView::Thread;
+			if (ImGui::MenuItem("Graphics", nullptr, m_eView == EView::Graphics)) m_eView = EView::Graphics;
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();

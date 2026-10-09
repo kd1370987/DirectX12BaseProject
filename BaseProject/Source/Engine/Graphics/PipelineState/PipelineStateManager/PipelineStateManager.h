@@ -83,6 +83,10 @@ namespace Engine::Graphics
 		// 幅は Handle::GetIndex() と揃えてあるので、途中で切り捨てられることはない
 		ID3D12PipelineState* GetPSO(uint16_t a_rawIndex) const;
 
+		// 計測用 : 作ったPSO・ルートシグネチャの数
+		size_t GetPSOCount() const { return m_psoMap.size(); }
+		size_t GetRootSignatureCount() const { return m_rootSigHashMap.size(); }
+
 	private:
 		// 構造体からハッシュ値を求める
 		uint64_t CalcHash(const void* a_pData,size_t a_size);

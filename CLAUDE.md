@@ -65,6 +65,10 @@ VECTOR_REGINE/
 | シーンファイルの置き場と .ojscene / .obscene の使い分け | `BaseProject/Source/Engine/Scene/SceneManager/SceneManager.cpp` のコメント |
 | 作業ディレクトリ | `BaseProject/`(Asset のパスがここからの相対のため) |
 
+## 報告の言語
+
+- 作業報告・返答・質問・途中経過のひとことは、すべて日本語で書く(表や見出しも含む)。コード中の識別子やパスは原文のまま。
+
 ## 補足
 
 - Asset 配下は Shader と Data 以外 git 管理外。シーンやパイプラインを書き換える前はバックアップを取る。

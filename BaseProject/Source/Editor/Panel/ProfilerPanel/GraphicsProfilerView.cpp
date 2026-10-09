@@ -1,0 +1,464 @@
+﻿#include "GraphicsProfilerView.h"
+
+#include "Engine/MainEngine.h"
+#include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Graphics/Profile/GraphicsProfiler.h"
+
+namespace Editor
+{
+	namespace
+	{
+		// 埋まり具合の閾値 : これを超えたら色を変え、気になる点にも出す
+		constexpr double WARNING_RATIO	= 0.8;
+		constexpr double ERROR_RATIO	= 0.95;
+
+		// 空きはあるのに、一番大きい空き領域が全体のこの割合を切ったら断片化として知らせる
+		constexpr double FRAGMENT_RATIO	= 0.05;
+
+		// 埋まり具合ごとの色(バーと文字で揃える)
+		const ImVec4 OK_COLOR		= ImVec4(0.30f, 0.70f, 0.35f, 1.0f);
+		const ImVec4 WARNING_COLOR	= ImVec4(0.95f, 0.65f, 0.20f, 1.0f);
+		const ImVec4 ERROR_COLOR	= ImVec4(0.95f, 0.30f, 0.30f, 1.0f);
+
+		// 表のフラグ
+		constexpr ImGuiTableFlags TABLE_FLAGS =
+			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp;
+
+		constexpr double KB = 1024.0;
+		constexpr double MB = 1024.0 * 1024.0;
+
+		double ToRatio(uint64_t a_used, uint64_t a_capacity)
+		{
+			if (a_capacity == 0) return 0.0;
+			return static_cast<double>(a_used) / static_cast<double>(a_capacity);
+		}
+
+		const ImVec4& RatioColor(double a_ratio)
+		{
+			if (a_ratio >= ERROR_RATIO) return ERROR_COLOR;
+			if (a_ratio >= WARNING_RATIO) return WARNING_COLOR;
+			return OK_COLOR;
+		}
+
+		// バイト数を読みやすい単位で
+		std::string FormatBytes(double a_bytes)
+		{
+			char _buf[64] = {};
+			if (a_bytes >= MB)		std::snprintf(_buf, sizeof(_buf), "%.2f MB", a_bytes / MB);
+			else if (a_bytes >= KB)	std::snprintf(_buf, sizeof(_buf), "%.1f KB", a_bytes / KB);
+			else					std::snprintf(_buf, sizeof(_buf), "%.0f B", a_bytes);
+			return _buf;
+		}
+
+		/// <summary>
+		/// 埋まり具合のバー : 色は閾値で変わり、中に「使用 / 容量 (割合)」を出す
+		/// </summary>
+		void DrawUsageBar(uint64_t a_used, uint64_t a_capacity, const char* a_overlay = nullptr)
+		{
+			const double _ratio = ToRatio(a_used, a_capacity);
+
+			char _buf[96] = {};
+			if (!a_overlay)
+			{
+				std::snprintf(_buf, sizeof(_buf), "%llu / %llu  (%.1f%%)",
+					static_cast<unsigned long long>(a_used),
+					static_cast<unsigned long long>(a_capacity),
+					_ratio * 100.0);
+				a_overlay = _buf;
+			}
+
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, RatioColor(_ratio));
+			ImGui::ProgressBar(static_cast<float>((std::min)(_ratio, 1.0)), ImVec2(-FLT_MIN, 0.0f), a_overlay);
+			ImGui::PopStyleColor();
+		}
+
+		// 割合の欄 : 閾値を超えていれば色を付ける
+		void DrawRatioText(double a_ratio)
+		{
+			ImGui::TextColored(RatioColor(a_ratio), "%.1f%%", a_ratio * 100.0);
+		}
+
+		// 履歴の折れ線
+		void DrawHistoryPlot(const char* a_label, const std::vector<float>& a_values, const char* a_format)
+		{
+			if (a_values.empty()) return;
+
+			char _overlay[64] = {};
+			std::snprintf(_overlay, sizeof(_overlay), a_format, a_values.back());
+
+			ImGui::PlotLines(a_label, a_values.data(), static_cast<int>(a_values.size()), 0, _overlay,
+				0.0f, FLT_MAX, ImVec2(-FLT_MIN, 48.0f));
+		}
+
+		// 容量のあるものの表(ディスクリプタヒープ・毎フレームの構造体バッファで共通)
+		void DrawUsageTable(const char* a_id, const std::vector<Graphics::GraphicsUsageProfile>& a_rows, bool a_isShowBytes)
+		{
+			const int _columnCount = a_isShowBytes ? 5 : 4;
+			if (!ImGui::BeginTable(a_id, _columnCount, TABLE_FLAGS)) return;
+
+			ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed, 140.0f);
+			ImGui::TableSetupColumn("Usage", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Peak", ImGuiTableColumnFlags_WidthFixed, 70.0f);
+			ImGui::TableSetupColumn("Peak %", ImGuiTableColumnFlags_WidthFixed, 60.0f);
+			if (a_isShowBytes) ImGui::TableSetupColumn("Capacity Size", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+			ImGui::TableHeadersRow();
+
+			for (const auto& _row : a_rows)
+			{
+				ImGui::TableNextRow();
+
+				ImGui::TableSetColumnIndex(0);
+				ImGui::TextUnformatted(_row.name.c_str());
+
+				ImGui::TableSetColumnIndex(1);
+				DrawUsageBar(_row.used, _row.capacity);
+
+				ImGui::TableSetColumnIndex(2);
+				ImGui::Text("%llu", static_cast<unsigned long long>(_row.peak));
+
+				ImGui::TableSetColumnIndex(3);
+				DrawRatioText(ToRatio(_row.peak, _row.capacity));
+
+				if (a_isShowBytes)
+				{
+					ImGui::TableSetColumnIndex(4);
+					ImGui::TextUnformatted(FormatBytes(static_cast<double>(_row.capacity * _row.strideBytes)).c_str());
+				}
+			}
+			ImGui::EndTable();
+		}
+	}
+
+	//======================================================================================
+	// 履歴
+	//======================================================================================
+	void GraphicsProfilerView::History::Push(float a_value)
+	{
+		if (values.size() != HISTORY_LENGTH) values.assign(HISTORY_LENGTH, 0.0f);
+
+		values[head] = a_value;
+		head = (head + 1) % HISTORY_LENGTH;
+		count = (std::min)(count + 1, HISTORY_LENGTH);
+	}
+
+	std::vector<float> GraphicsProfilerView::History::ToOrdered() const
+	{
+		std::vector<float> _ordered = {};
+		_ordered.reserve(count);
+
+		// 埋まりきるまでは 0 から、埋まった後は head(一番古いもの)から並ぶ
+		const size_t _start = (count < HISTORY_LENGTH) ? 0 : head;
+		for (size_t _i = 0; _i < count; ++_i)
+		{
+			_ordered.push_back(values[(_start + _i) % HISTORY_LENGTH]);
+		}
+		return _ordered;
+	}
+
+	void GraphicsProfilerView::PushHistory(const Graphics::GraphicsSnapshot& a_snapshot)
+	{
+		if (a_snapshot.captureCount == m_lastCaptureCount) return;
+		m_lastCaptureCount = a_snapshot.captureCount;
+
+		m_vramHistory.Push(static_cast<float>(static_cast<double>(a_snapshot.videoMemory.localUsage) / MB));
+
+		float _srv = 0.0f;
+		for (const auto& _view : a_snapshot.descriptorHeap.views)
+		{
+			if (_view.name == "SRV") _srv = static_cast<float>(_view.used);
+		}
+		m_srvHistory.Push(_srv);
+
+		m_cbHistory.Push(static_cast<float>(static_cast<double>(a_snapshot.constantBuffer.graphicsUsedBytes) / KB));
+		m_drawItemHistory.Push(static_cast<float>(a_snapshot.drawCount.drawItemCount));
+	}
+
+	//======================================================================================
+	// 表示
+	//======================================================================================
+	void GraphicsProfilerView::Draw()
+	{
+		Graphics::GraphicsEngine* _pGE = MainEngine::Instance().RefGraphicsEngine();
+		Graphics::GraphicsProfiler* _pProfiler = _pGE ? _pGE->RefProfiler() : nullptr;
+		if (!_pProfiler)
+		{
+			Engine::EditorField::HelpText("GraphicsEngine is not running.");
+			return;
+		}
+
+		// 表示しているあいだだけ取り直してもらう(結果が出るのは次の描画の終わり)
+		if (!m_isPaused) _pProfiler->RequestCapture();
+
+		Engine::EditorField::Field("Pause", m_isPaused);
+		Engine::EditorField::Tooltip("取り直しを止めて、今の結果を眺める");
+
+		if (ImGui::Button("Reset Peaks"))
+		{
+			_pProfiler->ResetPeaks();
+		}
+		Engine::EditorField::Tooltip("定数バッファと毎フレームのバッファの最大値を捨てる。\nディスクリプタヒープとメガバッファの最大値は作ってからの値なので消えない");
+
+		const Graphics::GraphicsSnapshot& _snapshot = _pProfiler->GetSnapshot();
+		if (_snapshot.captureCount == 0)
+		{
+			Engine::EditorField::HelpText("Collecting...");
+			return;
+		}
+
+		PushHistory(_snapshot);
+
+		Engine::EditorField::Line();
+
+		if (!ImGui::BeginTabBar("GraphicsProfilerTabs")) return;
+
+		if (ImGui::BeginTabItem("Overview"))
+		{
+			DrawOverview(_snapshot);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Descriptor Heap"))
+		{
+			DrawDescriptorHeap(_snapshot);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Mega Buffer"))
+		{
+			DrawMegaBuffers(_snapshot);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Frame Buffer"))
+		{
+			DrawFrameBuffers(_snapshot);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Draw"))
+		{
+			DrawDrawCounts(_snapshot);
+			ImGui::EndTabItem();
+		}
+
+		ImGui::EndTabBar();
+	}
+
+	//======================================================================================
+	// 全体 : VRAM・定数バッファと、気になる点
+	//======================================================================================
+	void GraphicsProfilerView::DrawOverview(const Graphics::GraphicsSnapshot& a_snapshot)
+	{
+		Engine::EditorField::Header("Video Memory");
+
+		const auto& _vram = a_snapshot.videoMemory;
+		if (_vram.isValid)
+		{
+			const std::string _local = "VRAM : " + FormatBytes(static_cast<double>(_vram.localUsage)) + " / " + FormatBytes(static_cast<double>(_vram.localBudget));
+			DrawUsageBar(_vram.localUsage, _vram.localBudget, _local.c_str());
+			Engine::EditorField::Tooltip("このプロセスが使っている量 / OS が許している量(Budget)。\n超えるとリソースがシステムメモリへ追い出されて急に遅くなる");
+
+			const std::string _nonLocal = "Shared : " + FormatBytes(static_cast<double>(_vram.nonLocalUsage)) + " / " + FormatBytes(static_cast<double>(_vram.nonLocalBudget));
+			DrawUsageBar(_vram.nonLocalUsage, _vram.nonLocalBudget, _nonLocal.c_str());
+
+			DrawHistoryPlot("##VRAMHistory", m_vramHistory.ToOrdered(), "VRAM %.1f MB");
+		}
+		else
+		{
+			Engine::EditorField::HelpText("(ビデオメモリの使用量を取得できませんでした)");
+		}
+
+		Engine::EditorField::Header("Constant Buffer (per frame)");
+
+		const auto& _cb = a_snapshot.constantBuffer;
+		const std::string _graphics = "Graphics : " + FormatBytes(static_cast<double>(_cb.graphicsUsedBytes)) + " / " + FormatBytes(static_cast<double>(_cb.graphicsCapacityBytes));
+		DrawUsageBar(_cb.graphicsUsedBytes, _cb.graphicsCapacityBytes, _graphics.c_str());
+		Engine::EditorField::Tooltip("ルートCBVで渡す値を積むアップロード領域。溢れるとその定数は送られない");
+		Engine::EditorField::Value("Graphics Peak", "%s", FormatBytes(static_cast<double>(_cb.graphicsPeakBytes)).c_str());
+
+		const std::string _compute = "Compute : " + FormatBytes(static_cast<double>(_cb.computeUsedBytes)) + " / " + FormatBytes(static_cast<double>(_cb.computeCapacityBytes));
+		DrawUsageBar(_cb.computeUsedBytes, _cb.computeCapacityBytes, _compute.c_str());
+		Engine::EditorField::Value("Compute Peak", "%s", FormatBytes(static_cast<double>(_cb.computePeakBytes)).c_str());
+
+		DrawHistoryPlot("##CBHistory", m_cbHistory.ToOrdered(), "Graphics %.1f KB");
+
+		Engine::EditorField::Header("Warnings");
+		DrawWarnings(a_snapshot);
+	}
+
+	//======================================================================================
+	// 気になる点
+	//
+	// 容量の決まっているものが閾値を超えていないか、メガバッファが断片化していないかを並べる
+	//======================================================================================
+	void GraphicsProfilerView::DrawWarnings(const Graphics::GraphicsSnapshot& a_snapshot)
+	{
+		bool _isAny = false;
+
+		auto _check = [&_isAny](const char* a_category, const std::string& a_name, uint64_t a_used, uint64_t a_capacity)
+			{
+				const double _ratio = ToRatio(a_used, a_capacity);
+				if (_ratio < WARNING_RATIO) return;
+
+				_isAny = true;
+				if (_ratio >= ERROR_RATIO)
+				{
+					Engine::EditorField::ErrorText("%s / %s : %.1f%% (%llu / %llu)", a_category, a_name.c_str(), _ratio * 100.0,
+						static_cast<unsigned long long>(a_used), static_cast<unsigned long long>(a_capacity));
+				}
+				else
+				{
+					Engine::EditorField::WarningText("%s / %s : %.1f%% (%llu / %llu)", a_category, a_name.c_str(), _ratio * 100.0,
+						static_cast<unsigned long long>(a_used), static_cast<unsigned long long>(a_capacity));
+				}
+			};
+
+		for (const auto& _view : a_snapshot.descriptorHeap.views)
+		{
+			// 一度でも上限近くまで行ったなら、今は下がっていても危ない
+			_check("Descriptor", _view.name, _view.peak, _view.capacity);
+		}
+		for (const auto& _mega : a_snapshot.megaBuffers)
+		{
+			_check("Mega Buffer", _mega.name, _mega.allocated, _mega.capacity);
+
+			// 空きはあるのに大きな塊が無い : 大きいメッシュが入らなくなる
+			const uint32_t _free = _mega.capacity - _mega.allocated;
+			if (_free > 0 && _mega.capacity > 0 &&
+				ToRatio(_mega.largestFreeBlock, _mega.capacity) < FRAGMENT_RATIO &&
+				_mega.largestFreeBlock < _free)
+			{
+				_isAny = true;
+				Engine::EditorField::WarningText("Mega Buffer / %s : 断片化 (空き %u のうち最大の塊 %u、%u 個に分かれている)",
+					_mega.name.c_str(), _free, _mega.largestFreeBlock, _mega.freeBlockCount);
+			}
+		}
+		for (const auto& _frame : a_snapshot.frameBuffers)
+		{
+			_check("Frame Buffer", _frame.name, _frame.peak, _frame.capacity);
+		}
+
+		const auto& _cb = a_snapshot.constantBuffer;
+		_check("Constant Buffer", "Graphics", _cb.graphicsPeakBytes, _cb.graphicsCapacityBytes);
+		_check("Constant Buffer", "Compute", _cb.computePeakBytes, _cb.computeCapacityBytes);
+
+		const auto& _vram = a_snapshot.videoMemory;
+		if (_vram.isValid) _check("Video Memory", "VRAM", _vram.localUsage, _vram.localBudget);
+
+		if (!_isAny)
+		{
+			Engine::EditorField::HelpText("(閾値 %.0f%% を超えているものはありません)", WARNING_RATIO * 100.0);
+		}
+	}
+
+	//======================================================================================
+	// ディスクリプタヒープ
+	//======================================================================================
+	void GraphicsProfilerView::DrawDescriptorHeap(const Graphics::GraphicsSnapshot& a_snapshot)
+	{
+		DrawUsageTable("DescriptorHeapTable", a_snapshot.descriptorHeap.views, false);
+
+		Engine::EditorField::Value("Pending Free", "%llu", static_cast<unsigned long long>(a_snapshot.descriptorHeap.pendingFreeCount));
+		Engine::EditorField::Tooltip("解放を預かっている席。GPUが使い終わったフレームの頭で空きへ戻る。\n増え続けるなら戻す処理が回っていない");
+
+		DrawHistoryPlot("##SRVHistory", m_srvHistory.ToOrdered(), "SRV %.0f");
+	}
+
+	//======================================================================================
+	// メガバッファ
+	//======================================================================================
+	void GraphicsProfilerView::DrawMegaBuffers(const Graphics::GraphicsSnapshot& a_snapshot)
+	{
+		Engine::EditorField::HelpText("メッシュをロードするときに切り出す領域。単位は要素数");
+
+		if (!ImGui::BeginTable("MegaBufferTable", 7, TABLE_FLAGS)) return;
+
+		ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed, 140.0f);
+		ImGui::TableSetupColumn("Usage", ImGuiTableColumnFlags_WidthStretch);
+		ImGui::TableSetupColumn("Pending", ImGuiTableColumnFlags_WidthFixed, 70.0f);
+		ImGui::TableSetupColumn("Peak %", ImGuiTableColumnFlags_WidthFixed, 60.0f);
+		ImGui::TableSetupColumn("Free Blocks", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+		ImGui::TableSetupColumn("Largest Free", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+		ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+		ImGui::TableHeadersRow();
+
+		size_t _totalUsedBytes = 0;
+		size_t _totalCapacityBytes = 0;
+
+		for (const auto& _row : a_snapshot.megaBuffers)
+		{
+			ImGui::TableNextRow();
+
+			ImGui::TableSetColumnIndex(0);
+			ImGui::TextUnformatted(_row.name.c_str());
+
+			ImGui::TableSetColumnIndex(1);
+			DrawUsageBar(_row.allocated, _row.capacity);
+
+			// 返されたが GPU が使い終わるのを待っている数(使用中に含まれている)
+			ImGui::TableSetColumnIndex(2);
+			ImGui::Text("%u", _row.pending);
+
+			ImGui::TableSetColumnIndex(3);
+			DrawRatioText(ToRatio(_row.peakAllocated, _row.capacity));
+
+			ImGui::TableSetColumnIndex(4);
+			ImGui::Text("%u", _row.freeBlockCount);
+
+			// 一度に確保できる上限
+			ImGui::TableSetColumnIndex(5);
+			ImGui::Text("%u", _row.largestFreeBlock);
+
+			const size_t _usedBytes = static_cast<size_t>(_row.allocated) * _row.strideBytes;
+			const size_t _capacityBytes = static_cast<size_t>(_row.capacity) * _row.strideBytes;
+			_totalUsedBytes += _usedBytes;
+			_totalCapacityBytes += _capacityBytes;
+
+			ImGui::TableSetColumnIndex(6);
+			ImGui::Text("%s / %s",
+				FormatBytes(static_cast<double>(_usedBytes)).c_str(),
+				FormatBytes(static_cast<double>(_capacityBytes)).c_str());
+		}
+		ImGui::EndTable();
+
+		Engine::EditorField::Value("Total", "%s / %s",
+			FormatBytes(static_cast<double>(_totalUsedBytes)).c_str(),
+			FormatBytes(static_cast<double>(_totalCapacityBytes)).c_str());
+		Engine::EditorField::Tooltip("Animated Vertex は前フレームぶんにもう1本同じ大きさで持っている(ここには含めていない)");
+	}
+
+	//======================================================================================
+	// 毎フレーム詰め直す構造体バッファ
+	//======================================================================================
+	void GraphicsProfilerView::DrawFrameBuffers(const Graphics::GraphicsSnapshot& a_snapshot)
+	{
+		Engine::EditorField::HelpText("フレームごとに描画要求を詰め直すバッファ。容量を超えたぶんは描かれない");
+
+		DrawUsageTable("FrameBufferTable", a_snapshot.frameBuffers, true);
+	}
+
+	//======================================================================================
+	// 描画要求の数・PSO
+	//======================================================================================
+	void GraphicsProfilerView::DrawDrawCounts(const Graphics::GraphicsSnapshot& a_snapshot)
+	{
+		Engine::EditorField::Value("Render Size", "%u x %u", a_snapshot.renderWidth, a_snapshot.renderHeight);
+
+		Engine::EditorField::Header("Draw Requests");
+
+		const auto& _draw = a_snapshot.drawCount;
+		Engine::EditorField::Value("Draw Items", "%llu", static_cast<unsigned long long>(_draw.drawItemCount));
+		Engine::EditorField::Tooltip("サブセット × それを受け取るパスの数。カメラが増えるとパスのぶん増える");
+		DrawHistoryPlot("##DrawItemHistory", m_drawItemHistory.ToOrdered(), "%.0f items");
+
+		Engine::EditorField::Value("Instances", "%llu", static_cast<unsigned long long>(_draw.instanceCount));
+		Engine::EditorField::Value("Materials", "%llu", static_cast<unsigned long long>(_draw.materialCount));
+		Engine::EditorField::Value("Skinning Dispatches", "%llu", static_cast<unsigned long long>(_draw.skinningCount));
+		Engine::EditorField::Value("Dynamic Ray Requests", "%llu", static_cast<unsigned long long>(_draw.dynamicRayRequestCount));
+		Engine::EditorField::Value("Bone Matrices", "%llu", static_cast<unsigned long long>(_draw.boneMatrixCount));
+		Engine::EditorField::Value("UI", "%llu", static_cast<unsigned long long>(_draw.uiCount));
+		Engine::EditorField::Value("Debug Lines", "%llu", static_cast<unsigned long long>(_draw.debugLineCount));
+		Engine::EditorField::Value("Ground Impulses", "%llu", static_cast<unsigned long long>(_draw.groundImpulseCount));
+
+		Engine::EditorField::Header("Pipeline State");
+
+		Engine::EditorField::Value("PSO", "%llu", static_cast<unsigned long long>(a_snapshot.pipelineState.psoCount));
+		Engine::EditorField::Value("Root Signature", "%llu", static_cast<unsigned long long>(a_snapshot.pipelineState.rootSignatureCount));
+	}
+}

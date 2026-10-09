@@ -44,6 +44,7 @@ namespace Engine::Graphics
 	class DebugDraw;
 	class BackBuffer;
 	class PipelineStateManager;
+	class GraphicsProfiler;
 
 	namespace Pipeline
 	{
@@ -172,6 +173,7 @@ namespace Engine::Graphics
 
 		// PSOやルートシグネチャの管理
 		PipelineStateManager* RefPipelineStateManager();
+		const PipelineStateManager* GetPipelineStateManager() const { return m_upPipelineStateManager.get(); }
 
 		// バックバッファ
 		BackBuffer* RefBackBuffer() { return m_upBackBuffer.get(); }
@@ -225,6 +227,7 @@ namespace Engine::Graphics
 
 		// バッファ取得
 		MeshBufferAllocator* RefMeshBufferAllocator() { return m_upMeshBufferAllocator.get(); }
+		const MeshBufferAllocator* GetMeshBufferAllocator() const { return m_upMeshBufferAllocator.get(); }
 
 		//--------------------------------------------------------------------------------------------
 		// 描画用の板ポリ
@@ -269,6 +272,15 @@ namespace Engine::Graphics
 
 		// レイトレワールド
 		Raytracing::RayEngine* RefRayEngine() { return m_upRayEngine.get(); }
+
+		//--------------------------------------------------------------------------------------------
+		// 描画まわりのプロファイラ
+		//
+		// メガバッファ・ディスクリプタヒープなどの使われ方を取る。
+		// 見る側(エディター)が RequestCapture で頼んだフレームだけ、Execute の終わりで取る
+		//--------------------------------------------------------------------------------------------
+		GraphicsProfiler* RefProfiler() { return m_upProfiler.get(); }
+		const GraphicsProfiler* GetProfiler() const { return m_upProfiler.get(); }
 
 	private:
 		//--------------------------------------------------------------------------------------------
@@ -339,6 +351,9 @@ namespace Engine::Graphics
 
 		// レイトレワールド(TLAS/BLAS・各種バッファ)
 		std::unique_ptr<Raytracing::RayEngine> m_upRayEngine = nullptr;
+
+		// 描画まわりのプロファイラ(見るだけ。頼まれたフレームだけ取る)
+		std::unique_ptr<GraphicsProfiler> m_upProfiler = nullptr;
 
 		// ライト本体のプール
 		LightManager m_lightManager = {};

@@ -808,6 +808,9 @@
     <Filter Include="Source\Engine\Graphics\DebugDraw">
       <UniqueIdentifier>{c0de0f02-2222-4333-8444-0000c0de0f02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\Profile">
+      <UniqueIdentifier>{16ab0fe7-bfbd-4222-a073-d9293d6ef3a6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Application\Game\MouseCursor">
       <UniqueIdentifier>{c0de0f01-1111-4222-8333-0000c0de0f01}</UniqueIdentifier>
     </Filter>
@@ -2016,6 +2019,9 @@
     <ClCompile Include="Source\Editor\Panel\ProfilerPanel\ECSProfilerView.cpp">
       <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Editor\Panel\ProfilerPanel\GraphicsProfilerView.cpp">
+      <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Editor\Panel\ProfilerPanel\ThreadProfilerView.cpp">
       <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
     </ClCompile>
@@ -2048,6 +2054,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\DebugDraw\DebugDraw.cpp">
       <Filter>Source\Engine\Graphics\DebugDraw</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\Profile\GraphicsProfiler.cpp">
+      <Filter>Source\Engine\Graphics\Profile</Filter>
     </ClCompile>
     <ClCompile Include="Source\Application\Game\MouseCursor\MouseCursor.cpp">
       <Filter>Source\Application\Game\MouseCursor</Filter>
@@ -3632,6 +3641,9 @@
     <ClInclude Include="Source\Editor\Panel\ProfilerPanel\ECSProfilerView.h">
       <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Editor\Panel\ProfilerPanel\GraphicsProfilerView.h">
+      <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Editor\Panel\ProfilerPanel\ThreadProfilerView.h">
       <Filter>Source\Editor\Panel\ProfilerPanel</Filter>
     </ClInclude>
@@ -3682,6 +3694,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\DebugDraw\DebugDraw.h">
       <Filter>Source\Engine\Graphics\DebugDraw</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Profile\GraphicsProfiler.h">
+      <Filter>Source\Engine\Graphics\Profile</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application\Game\MouseCursor\MouseCursor.h">
       <Filter>Source\Application\Game\MouseCursor</Filter>

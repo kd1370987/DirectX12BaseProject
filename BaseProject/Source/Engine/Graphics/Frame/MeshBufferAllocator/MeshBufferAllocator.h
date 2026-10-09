@@ -95,6 +95,11 @@ namespace Engine::Graphics
 		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& RefAnimatedVertexBuffer() { return m_animatedVertexBuffer; }
 		D3D12::MegaRWStructuredBuffer<Resource::MeshVertexFloat>& RefPrevAnimatedVertexBuffer() { return m_prevAnimatedVertexBuffer; }
 
+		const D3D12::MegaStructuredBuffer<Resource::Meshlet>& GetMeshletBuffer() const { return m_meshletBuffer; }
+		const D3D12::MegaStructuredBuffer<uint32_t>& GetUniqueVertexIndicesBuffer() const { return m_uniqueVertexIndicesBuffer; }
+		const D3D12::MegaStructuredBuffer<DirectX::MeshletTriangle>& GetMeshletTriangleBuffer() const { return m_meshTriangleBuffer; }
+		const D3D12::MegaStructuredBuffer<DirectX::CullData>& GetMeshletCullDataBuffer() const { return m_meshletCullDataBuffer; }
+
 		D3D12::MegaStructuredBuffer<Resource::Meshlet>& RefMeshletBuffer() { return m_meshletBuffer; }
 		D3D12::MegaStructuredBuffer<uint32_t>& RefUniqueVertexIndicesBuffer() { return m_uniqueVertexIndicesBuffer; }
 		D3D12::MegaStructuredBuffer<DirectX::MeshletTriangle>& RefMeshletTriangleBuffer() { return m_meshTriangleBuffer; }

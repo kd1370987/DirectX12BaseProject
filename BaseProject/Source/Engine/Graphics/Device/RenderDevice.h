@@ -37,6 +37,7 @@ namespace Engine::Graphics
 
 		// デバイス
 		GraphicsDevice* RefGraphicsDevice() { return m_upGraphicsDevice.get(); }
+		const GraphicsDevice* GetGraphicsDevice() const { return m_upGraphicsDevice.get(); }
 		D3D12::Device* RefDevice();
 
 		//--------------------------------------------------------------------------------------------

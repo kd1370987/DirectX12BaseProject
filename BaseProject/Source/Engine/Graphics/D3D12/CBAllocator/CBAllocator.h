@@ -14,6 +14,12 @@ namespace Engine::Graphics::D3D12
 
 		void RootCBVCreate(Engine::Graphics::D3D12::Device* a_device, size_t a_memSize);
 	
+		// 計測用 : 今フレームに使ったバイト数と容量(グラフィック用 / コンピュート用)
+		size_t GetUsedBytes() const { return static_cast<size_t>(m_usedCount) * 256; }
+		size_t GetCapacityBytes() const { return m_capacity; }
+		size_t GetComputeUsedBytes() const { return static_cast<size_t>(m_useComputeCount) * 256; }
+		size_t GetComputeCapacityBytes() const { return m_computeCapacity; }
+
 		// 使用リセット
 		void ResetUse()
 		{

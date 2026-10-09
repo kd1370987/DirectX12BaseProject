@@ -19,6 +19,7 @@
 #include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 #include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
+#include "Engine/Graphics/Profile/GraphicsProfiler.h"
 
 // スレッドの稼働時間の計測(Present の待ちを外す)
 #include "Engine/JobSystem/Profile/ThreadProfiler.h"
@@ -156,6 +157,9 @@ namespace Engine::Graphics
 		// デバッグ用ワイヤーの置き場。
 		// レンダーコンテキストが毎フレーム中身を読むので、先に用意しておく
 		m_upDebugDraw = std::make_unique<DebugDraw>();
+
+		// 描画まわりのプロファイラ。持ち物を読むだけなので、どこで作っても構わない
+		m_upProfiler = std::make_unique<GraphicsProfiler>(this);
 
 		// レンダーコンテキストの作成
 		for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
@@ -345,6 +349,9 @@ namespace Engine::Graphics
 		// デバッグ用ワイヤー解放
 		m_upDebugDraw.reset();
 
+		// プロファイラ解放
+		m_upProfiler.reset();
+
 		// ディスクリプタヒープはここでは捨てない。
 		// この後に解放されるもの(パーティクル/レイトレ/バックバッファ/遅延解放キュー)が
 		// まだビューを返してくるので、ReleaseDescriptorHeap() を最後に呼ぶこと
@@ -533,6 +540,10 @@ namespace Engine::Graphics
 
 		m_upRenderDevice->SubmitDirectCommandList(_pCmdList);
 		m_upRenderContextVec[m_currentFrameIndex]->SetDirectCommandList(nullptr);
+
+		// 描画まわりの使われ方を取る(頼まれたフレームだけ)。
+		// 描画要求と定数バッファの使用量がそろっていて、EndFrame で消える前のここで取る
+		if (m_upProfiler) m_upProfiler->CaptureIfRequested();
 	}
 	void GraphicsEngine::EndFrame()
 	{

@@ -26,6 +26,9 @@ namespace Engine::Graphics
 		D3D12::Factory* RefFactory() { return m_cpFactory.Get(); }
 		D3D12::Adapter* RefAdapter() { return m_cpAdapter.Get(); }
 
+		// 計測用 : ビデオメモリの使用量を問い合わせるだけに使う
+		D3D12::Adapter* GetAdapter() const { return m_cpAdapter.Get(); }
+
 		bool IsDynamicResourceSupported() const { return m_isDynamicResourceSupported; }
 
 	private:

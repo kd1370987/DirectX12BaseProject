@@ -140,6 +140,18 @@ namespace Engine::Graphics
 		return m_upCBAllocator.get();
 	}
 
+	FrameBufferCapacity RenderContext::GetFrameBufferCapacity() const
+	{
+		FrameBufferCapacity _capacity = {};
+		_capacity.meshInstance = m_meshInstanceBuffer.GetElementNum();
+		_capacity.meshMaterial = m_meshMaterialBuffer.GetElementNum();
+		_capacity.drawInstanceIndex = m_drawInstanceIndexBuffer.GetElementNum();
+		_capacity.bone = m_boneBuffer.GetElementNum();
+		_capacity.ui = m_uiInstanceBuffer.GetElementNum();
+		_capacity.debugLine = m_debugLineBuffer.GetElementNum();
+		return _capacity;
+	}
+
 	void RenderContext::SetRenderTargets(const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& a_rtvHandleVec, const D3D12_CPU_DESCRIPTOR_HANDLE* a_pDsvHandle)
 	{
 		m_pCmdList->OMSetRenderTargets(

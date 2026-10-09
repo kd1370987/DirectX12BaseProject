@@ -46,6 +46,9 @@ namespace Engine::Graphics::D3D12
 		/// <param name="a_currentFrameFence"></param>
 		void Update(uint64_t a_currentFrameFence);
 
+		// 領域の使われ方(計測用)
+		RangeAllocatorStats GetRangeStats() const { return m_rangeAllocator.GetStats(); }
+
 	private:
 		bool m_isDirty = false;
 		RangeAllocator<T> m_rangeAllocator;

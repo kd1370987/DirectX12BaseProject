@@ -1,6 +1,17 @@
 ﻿#pragma once
 namespace Engine
 {
+	// RangeAllocator の使われ方(計測用)。単位はすべて要素数
+	struct RangeAllocatorStats
+	{
+		uint32_t capacity = 0;			// 全体
+		uint32_t allocated = 0;			// 配っている数(返却待ちを含む)
+		uint32_t pending = 0;			// 返されたが、GPUが使い終わるのを待っている数
+		uint32_t peakAllocated = 0;		// Init してから一番多く配っていたときの数
+		uint32_t freeBlockCount = 0;	// 空き領域の塊の数(多いほど断片化している)
+		uint32_t largestFreeBlock = 0;	// 一番大きい空き領域 : 一度に確保できる上限
+	};
+
 	/// <summary>
 	/// バッファと１対１で持つアロケータークラス
 	/// </summary>
@@ -44,6 +55,9 @@ namespace Engine
 
 
 		uint32_t GetMaxCount() const { return m_maxCount; }
+
+		// 使われ方の計測(ワーカーが確保中でも読めるようロックを取る)
+		RangeAllocatorStats GetStats() const;
 	private:
 
 		/// <summary>
@@ -70,7 +84,12 @@ namespace Engine
 		uint32_t m_currentAllocationId = 1;
 		uint32_t m_maxCount = 0;
 
-		std::mutex m_mutex;			// 排他処理
+		// 計測用 : 配っている数(返却待ちを含む) / 返却待ちの数 / 一番多く配っていたときの数
+		uint32_t m_allocatedCount = 0;
+		uint32_t m_pendingCount = 0;
+		uint32_t m_peakAllocatedCount = 0;
+
+		mutable std::mutex m_mutex;	// 排他処理
 	};
 	template<typename T>
 	inline void RangeAllocator<T>::Init(uint32_t a_maxCount)
@@ -78,6 +97,10 @@ namespace Engine
 		m_maxCount = a_maxCount;
 		m_freeBlocks.clear();
 		while (!m_pendingFrees.empty()) m_pendingFrees.pop();
+
+		m_allocatedCount = 0;
+		m_pendingCount = 0;
+		m_peakAllocatedCount = 0;
 
 		m_freeBlocks.push_back({ 0, m_maxCount });
 	}
@@ -108,6 +131,10 @@ namespace Engine
 					_it->startIndex += a_count;
 					_it->count -= a_count;
 				}
+
+				m_allocatedCount += a_count;
+				m_peakAllocatedCount = (std::max)(m_peakAllocatedCount, m_allocatedCount);
+
 				// 型安全なハンドルを返す
 				return { _startIdx, a_count, m_currentAllocationId++ };
 			}
@@ -124,6 +151,7 @@ namespace Engine
 			{ a_handle.startIndex, a_handle.count },
 			a_releaseFenceValue
 			});
+		m_pendingCount += a_handle.count;
 	}
 	template<typename T>
 	inline void RangeAllocator<T>::ApplyReservedFrees(uint64_t a_completedFenceValue)
@@ -138,6 +166,10 @@ namespace Engine
 					"FreeListの解放 : start %d, count %d",
 					m_pendingFrees.front().block.startIndex, m_pendingFrees.front().block.count
 				);
+				const uint32_t _count = m_pendingFrees.front().block.count;
+				m_allocatedCount -= _count;
+				m_pendingCount -= _count;
+
 				m_freeBlocks.push_back(m_pendingFrees.front().block);
 				m_pendingFrees.pop();
 				_needsMerge = true;
@@ -148,6 +180,23 @@ namespace Engine
 			}
 		}
 		if (_needsMerge) Merge();
+	}
+	template<typename T>
+	inline RangeAllocatorStats RangeAllocator<T>::GetStats() const
+	{
+		std::lock_guard<std::mutex> _lock(m_mutex);
+
+		RangeAllocatorStats _stats = {};
+		_stats.capacity = m_maxCount;
+		_stats.allocated = m_allocatedCount;
+		_stats.pending = m_pendingCount;
+		_stats.peakAllocated = m_peakAllocatedCount;
+		_stats.freeBlockCount = static_cast<uint32_t>(m_freeBlocks.size());
+		for (const FreeBlock& _block : m_freeBlocks)
+		{
+			_stats.largestFreeBlock = (std::max)(_stats.largestFreeBlock, _block.count);
+		}
+		return _stats;
 	}
 	template<typename T>
 	inline void RangeAllocator<T>::Merge()
