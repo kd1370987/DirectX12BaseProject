@@ -22,7 +22,10 @@ namespace App::Object
 {
 	void LoadingSequence::Update(Engine::GameObject::ObjectContext& a_context)
 	{
-		m_progress = Engine::Scene::SceneManager::Instance().GetLoadProgress();
+		if (a_context.pServices && a_context.pServices->pSceneManager)
+		{
+			m_progress = a_context.pServices->pSceneManager->GetLoadProgress();
+		}
 
 		if (!a_context.pObjectManager) return;
 		if (!m_gaugeGUID.IsValid()) return;

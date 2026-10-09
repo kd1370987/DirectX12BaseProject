@@ -298,12 +298,13 @@ namespace Engine::Resource
 	//======================================================================================
 	// ローダー / 生成
 	//======================================================================================
-	Prefab Prefab::LoadFromFile(const std::string& a_path)
+	Prefab Prefab::LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 	{
 		Prefab _prefab;
 
 		// コンポーネントのメタ情報が必要なので World を取得する
-		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
+		auto* _pSceneManager = a_pContext ? a_pContext->pSceneManager : nullptr;
+		ECS::World* _pWorld = _pSceneManager ? _pSceneManager->RefWorld() : nullptr;
 		if (_pWorld && _pWorld->IsInit())
 		{
 			_prefab.Load(_pWorld, a_path);
@@ -323,7 +324,7 @@ namespace Engine::Resource
 		return _prefab;
 	}
 
-	void Prefab::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
+	void Prefab::Create(AssetDatabase& a_assetDB, ECS::World* a_pWorld, const std::string& a_path, const std::string& a_name)
 	{
 		static const std::string ASSET_DIR = "Asset/Prefab/";
 		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
@@ -340,8 +341,7 @@ namespace Engine::Resource
 		// メタファイルとGUIDは、AssetDatabase の監視が新しいファイルを見つけて用意する
 		// 空のプレハブを保存する
 		Prefab _prefab;
-		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
-		_prefab.Save(_pWorld, _basePath);
+		_prefab.Save(a_pWorld, _basePath);
 	}
 
 	//======================================================================================

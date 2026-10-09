@@ -2,6 +2,11 @@
 
 #include "../../Core/InputSettings.h"
 
+namespace Engine::Input
+{
+	class InputManager;
+}
+
 namespace App::Game
 {
 	class UserData;
@@ -40,7 +45,8 @@ namespace App::Input
 		static constexpr const char* DEVICE_MOUSE = "Mouse";
 
 		// ユーザーデータから入力設定情報を復元
-		void Init(Game::UserData* a_pUserData);
+		// a_pInputManager : 割り当てを流し込む先(借り物。持ち主は MainEngine)
+		void Init(Game::UserData* a_pUserData, Engine::Input::InputManager* a_pInputManager);
 
 		// 今の設定を入力デバイスへ反映する : 割り当てを変えたら必ず通す
 		void Apply();
@@ -64,6 +70,9 @@ namespace App::Input
 
 		// 保存先のポインタ
 		Game::UserData* m_pUserData = nullptr;
+
+		// 割り当ての流し込み先
+		Engine::Input::InputManager* m_pInputManager = nullptr;
 
 		// 既定の割り当て : 「既定へ戻す」と、保存に無いアクションの穴埋めに使う
 		Game::InputSettings m_defaultSettings;

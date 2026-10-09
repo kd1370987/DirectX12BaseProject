@@ -15,7 +15,6 @@
 
 #include "Engine/Resource/Data/EffectPrefab/EffectPrefab.h"
 #include "Editor/EffectEditor/EffectEditor.h"
-#include "Editor/Editor.h"
 
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
@@ -222,7 +221,7 @@ namespace Editor::Inspector
 		if (!_pEffectPrefab) { return; }
 
 		// コンポーネントのメタ情報・編集関数を引くために World が必要
-		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
+		ECS::World* _pWorld = a_editContext.pServices->pSceneManager->RefWorld();
 		if (!_pWorld || !_pWorld->IsInit())
 		{
 			Engine::EditorField::HelpText("No active World.");
@@ -241,7 +240,7 @@ namespace Editor::Inspector
 		Engine::EditorField::SameLine();
 		if (ImGui::Button("Open Effect Editor"))
 		{
-			if (auto* _pEffectEditor = MainEditor::Instance().RefEffectEditor())
+			if (auto* _pEffectEditor = a_editContext.pEffectEditor)
 			{
 				_pEffectEditor->OpenEffectPrefab(_guid);
 			}
@@ -275,7 +274,7 @@ namespace Editor::Inspector
 		if (!_pPrefab) { return; }
 
 		// コンポーネントのメタ情報・編集関数を引くために World が必要
-		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
+		ECS::World* _pWorld = a_editContext.pServices->pSceneManager->RefWorld();
 		if (!_pWorld || !_pWorld->IsInit())
 		{
 			Engine::EditorField::HelpText("No active World.");

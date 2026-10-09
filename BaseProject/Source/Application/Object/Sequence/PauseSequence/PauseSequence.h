@@ -6,6 +6,11 @@
 
 #include "../../../Game/Core/InputSettings.h"
 
+namespace Engine::Scene
+{
+	class SceneManager;
+}
+
 namespace App::Object
 {
 	/// <summary>
@@ -58,10 +63,10 @@ namespace App::Object
 		void TryBindButtons(Engine::GameObject::ObjectContext& a_context);
 
 		// ポーズを閉じて後ろのゲームへ戻る
-		void ReserveResume();
+		void ReserveResume(Engine::Scene::SceneManager& a_sceneManager);
 
 		// ポーズを閉じてから、ゲームのシーンを行き先へ差し替える
-		void ReserveExitScene();
+		void ReserveExitScene(Engine::Scene::SceneManager& a_sceneManager);
 
 	private:
 

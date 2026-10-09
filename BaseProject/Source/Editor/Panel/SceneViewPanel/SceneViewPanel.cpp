@@ -36,7 +36,6 @@
 
 #include "Engine/GameObject/BaseObject/BaseObject.h"
 
-#include "Editor/Editor.h"
 
 namespace Editor
 {
@@ -231,7 +230,7 @@ namespace Editor
 		SceneFileMenu(a_editContext);
 
 		// ワールド取得
-		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
+		Engine::ECS::World* _pWorld = a_editContext.pServices->pSceneManager->RefWorld();
 		if (!_pWorld || !_pWorld->IsInit()) return;
 
 		// 現在の最終出力テクスチャを取得
@@ -253,7 +252,7 @@ namespace Editor
 		auto _gpuHandle = EditorHelper::GetImGuiTexHandle(_pTex->GetImGuiSRV());
 		// 表示アスペクトは実解像度(カメラ/アンプロジェクトが使う windowWidth/Height)に合わせる。
 		// ここがずれるとスクリーン→ゲーム座標のスケールが X/Y で食い違い、ピッキングが横方向にずれる。
-		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
+		const auto& _winOp = a_editContext.pServices->pOptionManager->GetWindowOption();
 		ImVec2 _actualRenderSize = EditorHelper::DrawSRVView(
 			_gpuHandle,
 			static_cast<float>(_winOp.windowWidth),
@@ -262,7 +261,7 @@ namespace Editor
 
 		// フリーカメラへホバー状態を渡す。
 		// 右クリックの開始位置がこのパネル内の時だけカメラ操作を始めるための判定。
-		if (auto* _pEditorCam = MainEditor::Instance().RefEditorCamera())
+		if (auto* _pEditorCam = a_editContext.pEditorCamera)
 		{
 			_pEditorCam->SetViewportHovered(ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows));
 		}
@@ -302,7 +301,7 @@ namespace Editor
 		if (ImGuizmo::IsUsing() || ImGuizmo::IsOver()) return;
 
 		// スクリーン情報取得
-		const auto& _windowOp = Option::OptionManager::Instance().GetWindowOption();
+		const auto& _windowOp = a_editContext.pServices->pOptionManager->GetWindowOption();
 
 		// 画像左上を基準にしたローカルマウス座標
 		ImVec2 _mousePos = ImGui::GetMousePos();
@@ -801,7 +800,7 @@ namespace Editor
 
 		// オブジェクト側がシングルトンを触らずに済むよう、
 		// マネージャーが配っているものと同じ実行コンテキストを渡す
-		auto* _pObjManager = Engine::Scene::SceneManager::Instance().RefGameObjectManager();
+		auto* _pObjManager = a_editContext.pServices->pSceneManager->RefGameObjectManager();
 		if (!_pObjManager) return;
 
 		// シーン切り替えを跨いだ選択が残っていないか、実体を触る前に確かめる
@@ -843,7 +842,7 @@ namespace Editor
 		// 実際に積まれているシーンが自分のGUIDを持っているので、毎フレーム
 		// そこから取り直す。これで表示も保存先も必ず今のシーンを指す。
 		//------------------------------------------------------------------
-		auto* _pScene = Engine::Scene::SceneManager::Instance().RefCurrentTopScene();
+		auto* _pScene = a_editContext.pServices->pSceneManager->RefCurrentTopScene();
 		if (!_pScene) return;
 
 		if (!(m_currentSceneGUID == _pScene->GetGUID()))
@@ -1003,11 +1002,11 @@ namespace Editor
 
 				if (ImGui::Selectable(_label.c_str(), m_currentSceneGUID == _sceneMeta.guid))
 				{
-					auto* _pScene = Engine::Scene::SceneManager::Instance().RefCurrentTopScene();
+					auto* _pScene = a_editContext.pServices->pSceneManager->RefCurrentTopScene();
 					if (_pScene)
 					{
 						// ロード処理
-						Engine::Scene::SceneManager::Instance().ReserveChangeScene(_sceneMeta.guid, Scene::ESceneChangeType::Replace);
+						a_editContext.pServices->pSceneManager->ReserveChangeScene(_sceneMeta.guid, Scene::ESceneChangeType::Replace);
 						ENGINE_LOG("シーンを読み込みました : %s", _sceneMeta.fileName.c_str());
 
 						m_currentSceneGUID = _sceneMeta.guid; // 現在のGUIDを更新
@@ -1049,7 +1048,7 @@ namespace Editor
 					// 名前を付けて保存した先が、このシーンの新しい置き場所になる。
 					// シーン本体にも覚えさせておかないと、上のGUID取り直しで
 					// 保存前のGUIDへ戻ってしまう
-					if (auto* _pCurrentScene = Engine::Scene::SceneManager::Instance().RefCurrentTopScene())
+					if (auto* _pCurrentScene = a_editContext.pServices->pSceneManager->RefCurrentTopScene())
 					{
 						_pCurrentScene->SetGUID(_guid);
 					}
@@ -1088,13 +1087,13 @@ namespace Editor
 		if ((_isCreatePressed || _isEnterPressed) && !m_sceneNameInput.empty())
 		{
 			const Core::GUID _guid =
-				Engine::Scene::SceneManager::Instance().CreateEmptyScene(*a_editContext.pServices->pAssetDatabase, "", m_sceneNameInput);
+				a_editContext.pServices->pSceneManager->CreateEmptyScene(*a_editContext.pServices->pAssetDatabase, "", m_sceneNameInput);
 
 			if (_guid.IsValid())
 			{
 				// 作った先をこのまま開く。
 				// 中身は空なので、上書き保存の行き先もここになる
-				Engine::Scene::SceneManager::Instance().ReserveChangeScene(_guid, Scene::ESceneChangeType::Replace);
+				a_editContext.pServices->pSceneManager->ReserveChangeScene(_guid, Scene::ESceneChangeType::Replace);
 
 				m_currentSceneGUID = _guid;
 				m_canOverwrite = true;
@@ -1118,7 +1117,7 @@ namespace Editor
 	void SceneViewPanel::SaveScene(EditorContext& a_editContext, const Core::GUID & a_guid)
 	{
 		// 現在のシーンを取得
-		auto* _pScene = Engine::Scene::SceneManager::Instance().RefCurrentTopScene();
+		auto* _pScene = a_editContext.pServices->pSceneManager->RefCurrentTopScene();
 		if (!_pScene)
 		{
 			ENGINE_LOG("シーンのセーブに失敗しました");

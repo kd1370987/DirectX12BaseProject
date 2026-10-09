@@ -60,6 +60,10 @@ namespace App::Object
 		if (!a_context.pObjectManager) return;
 		if (!m_playButtonGUID.IsValid()) return;
 
+		// 押されたときにシーンを切り替えるので、ここで受け取って掴ませる
+		auto* _pSceneManager = a_context.pServices ? a_context.pServices->pSceneManager : nullptr;
+		if (!_pSceneManager) return;
+
 		auto* _pObject = a_context.pObjectManager->FindByGUID(m_playButtonGUID);
 		if (!_pObject) return;
 
@@ -75,7 +79,7 @@ namespace App::Object
 
 		// 押されたらシーンを切り替える。
 		// this を掴むが、ボタンは同じシーンに居るので寿命は一緒に尽きる
-		_pButton->SetOnClick([this]() { ReserveChangeScene(); });
+		_pButton->SetOnClick([this, _pSceneManager]() { ReserveChangeScene(*_pSceneManager); });
 
 		m_isBound = true;
 	}
@@ -83,7 +87,7 @@ namespace App::Object
 	//======================================================================================
 	// 遷移先のシーンを読み込む
 	//======================================================================================
-	void TitleSequence::ReserveChangeScene()
+	void TitleSequence::ReserveChangeScene(Engine::Scene::SceneManager& a_sceneManager)
 	{
 		// 連打で何度も積まないようにする
 		if (m_isSceneRequested) return;
@@ -95,9 +99,8 @@ namespace App::Object
 
 		m_isSceneRequested = true;
 
-		// シーンの切り替えは SceneManager が持っている。
-		// (ObjectContext のサービス群には載っていないので、ここだけ直接触る)
-		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
+		// シーンの切り替えは SceneManager が持っている(ボタンを結んだときにサービスから受け取ったもの)
+		a_sceneManager.ReserveChangeScene(
 			m_nextSceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 

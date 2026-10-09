@@ -1,7 +1,5 @@
 ﻿#include "NativeWindow.h"
 
-#include "../Input/InputManager/InputManager.h"
-
 // プロセスのメモリ使用量の取得はここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
 #include <psapi.h>
@@ -133,12 +131,12 @@ namespace Engine::Window
 				break;
 			case WM_SETFOCUS:				// ウィンドウが選択された際
 			{
-				Engine::Input::InputManager::Instance().SetActive(true);
+				if (_pWindow) _pWindow->CallFocusCallback(true);
 				break;
 			}
 			case WM_KILLFOCUS:				// ウィンドウの選択が外された際
 			{
-				Engine::Input::InputManager::Instance().SetActive(false);
+				if (_pWindow) _pWindow->CallFocusCallback(false);
 				break;
 			}
 			default:

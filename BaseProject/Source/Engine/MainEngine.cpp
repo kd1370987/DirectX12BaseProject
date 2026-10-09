@@ -32,6 +32,10 @@
 
 #include "ECS/Component/ComponentMetaRegistry.h"
 
+#include "GameObject/ObjectMetaRegistry/ObjectMetaRegistry.h"
+
+#include "Scene/SceneManager/SceneManager.h"
+
 
 // DXGIのデバッグ機能(ライブオブジェクト報告)はここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
@@ -54,7 +58,8 @@ namespace Engine
 		m_upResourceManager = std::make_unique<Resource::ResourceManager>();
 
 		// オプションマネージャーの初期化と読込
-		auto& _optionManager = Option::OptionManager::Instance();
+		m_upOptionManager = std::make_unique<Option::OptionManager>();
+		auto& _optionManager = *m_upOptionManager;
 		_optionManager.Init();
 		_optionManager.Deserialize();
 		const auto& _winOp = _optionManager.GetWindowOption();
@@ -64,7 +69,8 @@ namespace Engine
 		m_buildMode = _optionManager.GetBuildConfig().buildMode;
 
 		// インプット初期化
-		Input::InputManager::Instance().Init();
+		m_upInputManager = std::make_unique<Input::InputManager>();
+		m_upInputManager->Init(&_optionManager.GetInputOption());
 		bool _isD3DDebug = false;
 		// ビルドモードによって、仕様を変更
 		switch (m_buildMode)
@@ -97,6 +103,15 @@ namespace Engine
 
 		// ウィンドウクラスの生成
 		m_upWindow = std::make_unique<Window::NativeWindow>();
+
+		// フォーカスの出入りで入力を止める・戻す。
+		// ウィンドウは入力を知らないので、作る前にここでつないでおく(作った瞬間にも届くため)
+		m_upWindow->SetFocusCallback(
+			[pInputManager = m_upInputManager.get()](bool a_isActive)
+			{
+				pInputManager->SetActive(a_isActive);
+			});
+
 		Window::WindowDesc _desc = {};
 		_desc.width = static_cast<UINT>(_winOp.windowWidth);
 		_desc.height = static_cast<UINT>(_winOp.windowHeight);
@@ -141,6 +156,14 @@ namespace Engine
 		// コンポーネントの型情報。中身の登録は最初のワールドを作ったとき(RegisterGameTypes)に行われる
 		m_upComponentRegistry = std::make_unique<ECS::ComponentMetaRegistry>();
 
+		// ECS外オブジェクトのクラス情報。中身の登録はゲーム側(GameManager::Init)が行う
+		m_upObjectRegistry = std::make_unique<GameObject::ObjectMetaRegistry>();
+
+		// シーンの積み替え役。ワールドの作り手はゲーム側(GameManager::Init)が差し込む。
+		// プレハブの読み込みは今のワールドからコンポーネントの型を引くので、ローダーの行き先として渡す
+		m_upSceneManager = std::make_unique<Scene::SceneManager>(this);
+		m_upResourceManager->SetSceneManager(m_upSceneManager.get());
+
 		// Jolt 全体(アロケータ・型の登録・JobSystem)。シーンごとの空間は CreateSceneWorld が作る。
 		// Jolt のワーカーが動くのは Physics フェーズの PhysicsWorld::Update の中だけで、
 		// 自前のジョブはシステムの中で待ち終わっている時間帯なので、同じ本数にしておく
@@ -151,12 +174,16 @@ namespace Engine
 		}
 
 		// オーディオエンジンの初期化
-		Audio::AudioManager::Instance().Init(m_upResourceManager.get());
+		m_upAudioManager = std::make_unique<Audio::AudioManager>();
+		m_upAudioManager->Init(m_upResourceManager.get());
+
+		// サウンドの読み込み(SoundIO)はオーディオエンジンから作るので、ローダーの行き先として渡す
+		m_upResourceManager->SetAudioEngine(m_upAudioManager->RefAudioEngine());
 
 		// 保存されている音量を流し込む。
 		// オプションの読み込みはこれより前に済んでいるが、
 		// AudioManager がまだ無い状態では入れられないのでここで反映する
-		Option::OptionManager::Instance().GetAudioOption().Apply();
+		_optionManager.GetAudioOption().Apply(*m_upAudioManager);
 
 		// アセットマネージャー作成
 		InitializeAssetDatabase();
@@ -206,7 +233,10 @@ namespace Engine
 	void MainEngine::Release()
 	{
 		// 設定を保存
-		Option::OptionManager::Instance().Serialize();
+		m_upOptionManager->Serialize();
+
+		// シーンはアプリ側が先に解放している(SceneManager::Release)。ここからはプレハブを読まない
+		m_upResourceManager->SetSceneManager(nullptr);
 
 		// ジョブシステムの解放は最初に行う。
 		// 走っているジョブはリソースやGPUリソースを触っているため、
@@ -219,7 +249,7 @@ namespace Engine
 		// 再生中のサウンドインスタンスを破棄。
 		// SoundEffectInstance は生成元の SoundEffect(= Resource::Sound) を
 		// 参照しているため、リソース解放より先に片付ける。
-		Audio::AudioManager::Instance().ReleaseInstances();
+		m_upAudioManager->ReleaseInstances();
 
 		// リソースの解放（Sound = DirectX::SoundEffect もここで解放される）。
 		// 実体(m_upResourceManager)はここでは捨てない : MainEngine が壊れるまで残し、
@@ -230,8 +260,8 @@ namespace Engine
 
 		// オーディオエンジンの解放。
 		// SoundEffect が AudioEngine を参照しているため、必ずリソース解放の後に行う。
-		// シングルトンの破棄順は保証されないので、ここで明示的に解放しておくこと。
-		Audio::AudioManager::Instance().Release();
+		m_upResourceManager->SetAudioEngine(nullptr);
+		m_upAudioManager->Release();
 
 		// 開発ツール(エディター・ImGui)解放
 		if (m_pDevTool) m_pDevTool->Release();
@@ -318,7 +348,7 @@ namespace Engine
 
 	bool MainEngine::BeginFrame()
 	{
-		auto& _optionManager = Option::OptionManager::Instance();
+		auto& _optionManager = *m_upOptionManager;
 
 		// フレーム開始
 		m_upTimeManager->BeginFrame();
@@ -339,12 +369,15 @@ namespace Engine
 		}
 
 		// 入力更新
-		Input::InputManager::Instance().Update();
+		m_upInputManager->Update();
 
 		// オーディオ更新
 		// 鳴り終わったワンショットの回収とデバイスロスト復帰を行うため、
 		// 音を鳴らしていなくても毎フレーム呼ぶ必要がある
-		Audio::AudioManager::Instance().Update();
+		m_upAudioManager->Update();
+
+		// デバッグ線のオンオフ。グラフィックスエンジンはオプションを直接引かないので、ここから流し込む
+		m_upGraphicsEngine->RefDebugDraw()->SetWireEnabled(_optionManager.GetDebugDrawOption().drawWire);
 
 		m_upGraphicsEngine->RefParticleManager()->BeginFrame(m_upTimeManager->GetDeltaTime());	// パーティクルデータの更新
 
@@ -356,7 +389,7 @@ namespace Engine
 	void MainEngine::EndFrame()
 	{
 		// フレーム終了
-		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
+		const auto& _winOp = m_upOptionManager->GetWindowOption();
 		m_upTimeManager->EndFrame(_winOp.isVsync);
 
 		// スレッドごとの稼働時間を1フレームぶん締める。
@@ -404,7 +437,7 @@ namespace Engine
 
 	void MainEngine::EndDraw()
 	{
-		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
+		const auto& _winOp = m_upOptionManager->GetWindowOption();
 
 		{
 			ENGINE_PROFILE_SCOPE("EditorPhase");
@@ -483,7 +516,7 @@ namespace Engine
 		m_appMode = a_mode;
 
 		if (m_pDevTool) m_pDevTool->ResetInput();
-		Input::InputManager::Instance().ResetInput();
+		m_upInputManager->ResetInput();
 	}
 	void MainEngine::ExecuteDrawCmd()
 	{
@@ -504,7 +537,7 @@ namespace Engine
 		// 描画の設定はここ(オプションの持ち主を知っている側)から流し込む。
 		// グラフィックスエンジンはオプションを直接引かない
 		m_upGraphicsEngine->RefSceneView()->SetJitterEnabled(
-			Option::OptionManager::Instance().GetRenderingOption().useJitter);
+			m_upOptionManager->GetRenderingOption().useJitter);
 
 		m_upGraphicsEngine->Execute();
 	}
@@ -535,7 +568,7 @@ namespace Engine
 	//======================================================================================
 	// アプリ寿命のサービス一式を組む
 	//
-	// シングルトンを名指ししてよいのは、ここ(合成の入り口)だけ。
+	// 中身はすべて MainEngine か、その持ち物(GraphicsEngine など)が持っている実体。
 	// 以前はワールドを作るたびに CreateSceneWorld が同じものを組んでいたが、
 	// エディターからも同じものを見たいので正本をここへ移した
 	//======================================================================================
@@ -549,13 +582,15 @@ namespace Engine
 		_services.pMainEngine		= this;
 		_services.pResourceManager	= &_resourceManager;
 		_services.pAssetDatabase	= &_resourceManager.RefAssetDatabase();
-		_services.pInputManager		= &Input::InputManager::Instance();
+		_services.pInputManager		= m_upInputManager.get();
 		_services.pRayEngine		= m_upGraphicsEngine ? m_upGraphicsEngine->RefRayEngine() : nullptr;
-		_services.pAudioManager		= &Audio::AudioManager::Instance();
+		_services.pAudioManager		= m_upAudioManager.get();
 		_services.pJobSystem		= m_upJobSystem.get();
 		_services.pPhysicsEngine	= m_upPhysicsEngine.get();
-		_services.pOptionManager	= &Option::OptionManager::Instance();
+		_services.pOptionManager	= m_upOptionManager.get();
 		_services.pDebugDraw		= m_upGraphicsEngine ? m_upGraphicsEngine->RefDebugDraw() : nullptr;
+		_services.pObjectRegistry	= m_upObjectRegistry.get();
+		_services.pSceneManager		= m_upSceneManager.get();
 	}
 
 	void MainEngine::ReserveRelease(std::function<void()> a_releaseFunc)

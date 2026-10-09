@@ -20,7 +20,7 @@ namespace App::Game
 	/// ワールド(ECS)のリソースはシーンを切り替えると作り直されるので、
 	/// リザルトへ持っていきたいものはここへ集める。
 	/// 実体は GameManager が1つだけ持っていて、
-	/// App::Game::GameManager::Instance().RefGameData() で触る。
+	/// 各ワールドに置かれた入口(InstanceResource::GameDataResource::Find)から触る。
 	///
 	/// 書く側 : ScoreSystem(スコア) / SceneSequence(タイム・結末・ウェーブ)
 	/// 読む側 : ScoreHUD、リザルトの表示物

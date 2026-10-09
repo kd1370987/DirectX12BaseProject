@@ -137,27 +137,27 @@ namespace Engine::Resource
 	template<>
 	struct DefaultLoader<Prefab>
 	{
-		static Prefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* /*a_pContext*/)
+		static Prefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
-			return Prefab::LoadFromFile(a_path);
+			return Prefab::LoadFromFile(a_path, a_pContext);
 		}
 	};
 	// エフェクトプレハブ
 	template<>
 	struct DefaultLoader<EffectPrefab>
 	{
-		static EffectPrefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* /*a_pContext*/)
+		static EffectPrefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
-			return EffectPrefab::LoadFromFile(a_path);
+			return EffectPrefab::LoadFromFile(a_path, a_pContext);
 		}
 	};
 	// サウンド
 	template<>
 	struct DefaultLoader<Sound>
 	{
-		static Sound LoadFromFile(const std::string& a_path, const ResourceBuildContext* /*a_pContext*/)
+		static Sound LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 		{
-			return SoundIO::Load(a_path);
+			return SoundIO::Load(a_path, a_pContext ? a_pContext->pAudioEngine : nullptr);
 		}
 	};
 	// オーディオビヘイビア

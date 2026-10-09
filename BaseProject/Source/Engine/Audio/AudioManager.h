@@ -16,11 +16,20 @@ namespace Engine::Audio
 	};
 
 	/// <summary>
-	/// 音関係を扱うシングルトンクラス、サウンドはここで読込要求が来るとロードしてインスタンスのみを返す
+	/// 音関係を扱うクラス、サウンドはここで読込要求が来るとロードしてインスタンスのみを返す
 	/// </summary>
+	/// <remarks>
+	/// 実体は MainEngine が持ち、EngineServices::pAudioManager で配る。
+	/// 発行したサウンドインスタンスには自分を渡すので、インスタンスの側からここを探しには来ない
+	/// </remarks>
 	class AudioManager
 	{
 	public:
+
+		AudioManager();
+		~AudioManager();
+		NON_COPYABLE_NON_MOVABLE(AudioManager);
+
 		//----------------------------------------------------------------------------------------------------
 		// 初期化・解放
 		//----------------------------------------------------------------------------------------------------
@@ -174,21 +183,5 @@ namespace Engine::Audio
 			std::vector<Handle<Resource::SoundInstance>> playingHandles;	// 鳴らした声(鳴り終わったものは見るときに外す)
 		};
 		std::unordered_map<Core::GUID, SoundPlayGate> m_playGates;
-
-	// シングルトン
-	private:
-
-		AudioManager();
-		~AudioManager();
-		NON_COPYABLE_NON_MOVABLE(AudioManager);
-
-	public:
-
-		static AudioManager& Instance()
-		{
-			static AudioManager _instance;
-			return _instance;
-		}
-
 	};
 }

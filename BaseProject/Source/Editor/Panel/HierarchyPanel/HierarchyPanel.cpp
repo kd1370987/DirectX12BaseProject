@@ -24,7 +24,7 @@ namespace Editor
 	void Editor::HierarchyPanel::OnDrawImGui(EditorContext& a_editContext)
 	{
 		// ワールド取得
-		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
+		Engine::ECS::World* _pWorld = a_editContext.pServices->pSceneManager->RefWorld();
 		if (!_pWorld || !_pWorld->IsInit()) return;
 
 		// インスペクターモードのセット

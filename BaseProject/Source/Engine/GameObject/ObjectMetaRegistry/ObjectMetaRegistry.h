@@ -9,7 +9,9 @@
 // ECS外の GameObject(BaseObject派生) の「クラス情報」を一元管理するレジストリ。
 // ComponentMetaRegistry のオブジェクト版にあたる。
 //
-//   - GameManager::Init で Instance() を生成し、各クラスを RegisterType で登録する。
+//   - 実体は MainEngine が1つだけ持ち、EngineServices::pObjectRegistry で配る
+//     (ComponentMetaRegistry と同じ扱い)。
+//   - GameManager::Init で各クラスを RegisterType で登録する。
 //   - 登録したクラスは「タイプID(ObjectTypeID)」で引ける。
 //   - シーン保存時は各オブジェクトの ObjectTypeID / GUID / データ を書き出し、
 //     読み込み時は ObjectTypeID からクラス情報(ファクトリ)を引いてインスタンスを復元する。
@@ -63,12 +65,9 @@ namespace Engine::GameObject
 	{
 	public:
 
-		// シングルトン取得(GameManager::Init で最初に触れて生成する)
-		static ObjectMetaRegistry& Instance()
-		{
-			static ObjectMetaRegistry _instance;
-			return _instance;
-		}
+		ObjectMetaRegistry() = default;
+		~ObjectMetaRegistry() = default;
+		NON_COPYABLE_NON_MOVABLE(ObjectMetaRegistry);
 
 		// クラスの登録 : メタ情報とファクトリを同時に登録し、タイプIDを返す
 		template<typename T>
@@ -110,8 +109,6 @@ namespace Engine::GameObject
 		bool IsValid(ObjectTypeID a_id) const { return m_metaMap.find(a_id) != m_metaMap.end(); }
 
 	private:
-
-		ObjectMetaRegistry() = default;
 
 		// C++型 / 名前 → タイプID
 		std::unordered_map<TypeInfo::TypeKey, ObjectTypeID>	m_typeKeyMap;

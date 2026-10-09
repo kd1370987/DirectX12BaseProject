@@ -58,11 +58,15 @@ namespace App::Object
 	// 指しているものが1つでも見つからなければ、まだ読み込みの途中とみなして次のフレームへ。
 	// 全部そろってから一度に差し込むので、差し込み漏れが起きない。
 	//======================================================================================
-	void MissionSelect::TryBind(Engine::GameObject::ObjectContext& /*a_context*/)
+	void MissionSelect::TryBind(Engine::GameObject::ObjectContext& a_context)
 	{
 		if (m_isBound) return;
 		if (m_pObjectManager == nullptr) return;
 		if (!IsAllReady()) return;
+
+		// 出撃はシーンの切り替え。押されたときに使うので、ここで受け取って掴ませる
+		auto* _pSceneManager = a_context.pServices ? a_context.pServices->pSceneManager : nullptr;
+		if (!_pSceneManager) return;
 
 		// ミッション : 押したら確認ボックスを出す
 		for (int _i = 0; _i < static_cast<int>(m_missionVec.size()); ++_i)
@@ -77,7 +81,7 @@ namespace App::Object
 		// 確認ボックス
 		if (auto* _pYes = Picker::Find<UIButton>(m_pObjectManager, m_yesButtonGUID))
 		{
-			_pYes->SetOnClick([this]() { ReserveSortie(); });
+			_pYes->SetOnClick([this, _pSceneManager]() { ReserveSortie(*_pSceneManager); });
 		}
 		if (auto* _pNo = Picker::Find<UIButton>(m_pObjectManager, m_noButtonGUID))
 		{
@@ -284,7 +288,7 @@ namespace App::Object
 	//======================================================================================
 	// 確認しているミッションへ出撃する
 	//======================================================================================
-	void MissionSelect::ReserveSortie()
+	void MissionSelect::ReserveSortie(Engine::Scene::SceneManager& a_sceneManager)
 	{
 		// 連打で何度も積まないようにする
 		if (m_isSceneRequested) return;
@@ -304,9 +308,8 @@ namespace App::Object
 
 		m_isSceneRequested = true;
 
-		// シーンの切り替えは SceneManager が持っている
-		// (ObjectContext のサービス群には載っていないので、ここだけ直接触る)
-		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
+		// シーンの切り替えは SceneManager が持っている(ボタンを結んだときにサービスから受け取ったもの)
+		a_sceneManager.ReserveChangeScene(
 			_sceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 

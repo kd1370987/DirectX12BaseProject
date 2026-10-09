@@ -2,6 +2,11 @@
 
 #include "Editor/EditorCommon.h"
 
+namespace Engine::Scene
+{
+	class SceneManager;
+}
+
 namespace Engine::ECS
 {
 	class ECSWorldProfiler;
@@ -21,7 +26,8 @@ namespace Editor
 	public:
 
 		// 今のシーンのワールドを表示する
-		void Draw();
+		// a_pSceneManager : 今のシーンのワールドを引く先(無ければ何も出さない)
+		void Draw(Scene::SceneManager* a_pSceneManager);
 
 	private:
 

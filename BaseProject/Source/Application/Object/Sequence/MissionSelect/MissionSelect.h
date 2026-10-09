@@ -2,6 +2,11 @@
 
 #include "../../../../Engine/GameObject/BaseObject/BaseObject.h"
 
+namespace Engine::Scene
+{
+	class SceneManager;
+}
+
 namespace App::Object
 {
 	class UIBase;
@@ -110,7 +115,7 @@ namespace App::Object
 		void CloseConfirm();
 
 		// 確認しているミッションへ出撃する
-		void ReserveSortie();
+		void ReserveSortie(Engine::Scene::SceneManager& a_sceneManager);
 
 		// 確認ボックスへミッション名を流し込む
 		void ApplyMissionName(const MissionEntry& a_mission);

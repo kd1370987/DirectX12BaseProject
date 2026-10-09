@@ -1,17 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-390 -245 2969 2436" width="2400">
-<rect x="-390" y="-245" width="2969" height="2436" fill="#121212"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-467 -245 3046 2336" width="2400">
+<rect x="-467" y="-245" width="3046" height="2336" fill="#121212"/>
 <defs><marker id="aw" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#ffffff" stroke-width="1.2"/></marker><marker id="ag" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#51cf66" stroke-width="1.2"/></marker></defs>
-<text x="-350" y="-185" fill="#fff" font-size="34" font-family="sans-serif">⑥ D3D12 / Raytracing — GPU まわりの下層</text>
-<text x="-350" y="-153" fill="#aaa" font-size="16" font-family="sans-serif">D3D12Wrapper は削除。デバイスもヒープも GraphicsEngine が持ち、D3D12 層は引数で受け取るだけで上を見ない。</text>
+<text x="-427" y="-185" fill="#fff" font-size="34" font-family="sans-serif">⑥ D3D12 / Raytracing — GPU まわりの下層</text>
+<text x="-427" y="-153" fill="#aaa" font-size="16" font-family="sans-serif">デバイスもヒープもレイトレも GraphicsEngine の持ち物。D3D12 層は引数で受け取るだけで上を見ない。</text>
 <line x1="900.0" y1="31.0" x2="900.0" y2="134.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="816.8" y1="165.0" x2="203.4" y2="165.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="816.8" y1="183.5" x2="173.2" y2="326.5" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="822.5" y1="196.0" x2="527.5" y2="314.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="884.5" y1="196.0" x2="825.5" y2="314.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="941.3" y1="196.0" x2="1098.7" y2="314.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="816.8" y1="165.0" x2="351.0" y2="165.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="946.5" y1="196.0" x2="1123.5" y2="314.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
 <line x1="983.2" y1="187.7" x2="1446.7" y2="314.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
 <line x1="983.2" y1="175.9" x2="2094.6" y2="320.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
-<line x1="90.0" y1="376.0" x2="90.0" y2="469.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="189.0" y1="165.0" x2="-66.6" y2="165.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="254.5" y1="196.0" x2="195.5" y2="314.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="311.3" y1="196.0" x2="468.7" y2="314.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="351.0" y1="190.6" x2="752.5" y2="317.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="180.0" y1="376.0" x2="180.0" y2="469.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
 <line x1="1526.2" y1="376.0" x2="1424.7" y2="469.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
 <line x1="1627.6" y1="376.0" x2="1852.4" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
 <line x1="1673.3" y1="369.9" x2="2218.2" y2="489.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
@@ -21,13 +22,14 @@
 <line x1="785.2" y1="829.0" x2="561.0" y2="748.9" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
 <line x1="201.0" y1="698.9" x2="1446.7" y2="374.5" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
 <line x1="899.5" y1="689.0" x2="1500.5" y2="376.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
-<line x1="1446.7" y1="331.4" x2="203.4" y2="182.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
-<line x1="2094.6" y1="330.0" x2="203.4" y2="176.6" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1446.7" y1="333.5" x2="-66.6" y2="179.6" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="2094.6" y1="331.6" x2="-66.6" y2="175.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
 <line x1="2168.5" y1="386.0" x2="1344.3" y2="689.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
 <line x1="2214.4" y1="386.0" x2="1729.6" y2="689.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
-<line x1="886.7" y1="31.0" x2="463.3" y2="1019.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1119.0" y1="969.7" x2="531.0" y2="1040.3" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
-<line x1="1543.0" y1="1169.0" x2="917.0" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1200.0" y1="1021.0" x2="1200.0" y2="1109.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1119.0" y1="1130.3" x2="531.0" y2="1059.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1544.1" y1="1259.0" x2="915.9" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1190.6" y1="959.0" x2="909.4" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
 <line x1="450.0" y1="1081.0" x2="450.0" y2="1169.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
 <line x1="450.0" y1="1231.0" x2="450.0" y2="1319.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
 <line x1="531.0" y1="1050.0" x2="1832.5" y2="1050.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
@@ -38,25 +40,27 @@
 <text x="900.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEngine</text>
 <rect x="822.8" y="140.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
 <text x="900.0" y="170.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GraphicsEngine</text>
-<rect x="-77.4" y="130.0" width="274.8" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="60.0" y="160.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GraphicsDevice</text>
-<text x="60.0" y="180.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(Device / Factory / Adapter)</text>
-<rect x="12.8" y="320.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="90.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CommandContext</text>
-<rect x="375.0" y="320.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="450.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">FrameManager</text>
-<rect x="728.5" y="320.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="810.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AsyncGPUManager</text>
-<rect x="1065.0" y="320.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1140.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">BackBuffer</text>
+<rect x="195.0" y="140.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="270.0" y="170.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderDevice</text>
+<rect x="-347.4" y="130.0" width="274.8" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="-210.0" y="160.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GraphicsDevice</text>
+<text x="-210.0" y="180.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(Device / Factory / Adapter)</text>
+<rect x="102.8" y="320.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="180.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CommandContext</text>
+<rect x="435.0" y="320.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="510.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">FrameManager</text>
+<rect x="758.5" y="320.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="840.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AsyncGPUManager</text>
+<rect x="1095.0" y="320.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1170.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">BackBuffer</text>
 <rect x="1452.7" y="320.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
 <text x="1560.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DescriptorHeapManager</text>
 <rect x="2100.6" y="310.0" width="358.8" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
 <text x="2280.0" y="340.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PipelineStateManager</text>
 <text x="2280.0" y="360.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(PSO / ルートシグネチャをハンドルで配る)</text>
-<rect x="-34.5" y="475.0" width="249.0" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="90.0" y="505.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CommandPool</text>
-<text x="90.0" y="525.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(Direct / Copy / Compute)</text>
+<rect x="55.5" y="475.0" width="249.0" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="180.0" y="505.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CommandPool</text>
+<text x="180.0" y="525.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(Direct / Copy / Compute)</text>
 <rect x="1221.1" y="475.0" width="317.8" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
 <text x="1380.0" y="505.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DescriptorHeap</text>
 <text x="1380.0" y="525.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(CBV_SRV_UAV / RTV / DSV / ImGui)</text>
@@ -83,32 +87,30 @@
 <rect x="788.4" y="835.0" width="223.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
 <text x="900.0" y="865.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Structured / Dynamic /</text>
 <text x="900.0" y="885.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Vertex / Index ...</text>
-<rect x="375.0" y="1025.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
-<text x="450.0" y="1055.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">RayEngine</text>
-<rect x="1125.0" y="935.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1200.0" y="965.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderGraph</text>
+<rect x="375.0" y="1025.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="450.0" y="1055.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RayEngine</text>
+<rect x="1125.0" y="965.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1200.0" y="995.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderGraph</text>
+<rect x="1125.0" y="1115.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="1200.0" y="1145.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PassContext</text>
 <rect x="1838.5" y="1025.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
 <text x="1920.0" y="1055.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceManager</text>
 <rect x="375.0" y="1175.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
 <text x="450.0" y="1205.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RayWorld</text>
-<rect x="825.0" y="1175.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="900.0" y="1205.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ShaderTable</text>
-<rect x="1155.0" y="1175.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1230.0" y="1205.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RayPSO</text>
-<rect x="1485.0" y="1175.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
-<text x="1560.0" y="1205.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">BLAS</text>
+<rect x="825.0" y="1265.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="1295.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ShaderTable</text>
+<rect x="1155.0" y="1265.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1230.0" y="1295.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RayPSO</text>
+<rect x="1485.0" y="1265.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1560.0" y="1295.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">BLAS</text>
 <rect x="375.0" y="1325.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
 <text x="450.0" y="1355.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">TLAS</text>
-<text x="-270.0" y="1485.0" fill="#bbb" font-size="16" font-family="sans-serif">D3D12Wrapper(68 回)と DescriptorHeapManager::Instance()(62 回)は 0 回に。相互参照も消えた。</text>
-<text x="-270.0" y="1505.8" fill="#bbb" font-size="16" font-family="sans-serif">レイトレ側で残る緑矢印は RayEngine 本体と、BLAS の遅延解放だけ。</text>
-<rect x="1682.0" y="1655.0" width="777.4" height="276.0" rx="10" fill="#1a1410" stroke="#ff922b" stroke-width="2"/>
-<text x="1708.0" y="1697.0" fill="#ff922b" font-size="23" font-family="sans-serif">改善点</text>
-<text x="1708.0" y="1732.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">1. 循環と D3D12Wrapper は解消済み</text>
-<text x="1708.0" y="1752.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    GraphicsDevice / CommandContext / FrameManager / BackBuffer に分けて</text>
-<text x="1708.0" y="1772.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    GraphicsEngine へ集約した。D3D12 層は Device* / HeapManager* を引数で受け取る。</text>
-<text x="1708.0" y="1812.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">2. RayEngine は描画層の外に置かれたシングルトンのまま</text>
-<text x="1708.0" y="1832.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    持ち主が居ないので MainEngine と RenderGraph が Instance() で引く。</text>
-<text x="1708.0" y="1852.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    GraphicsEngine の持ち物にすると ② と同じ所有ツリーに収まる。</text>
-<text x="1708.0" y="1892.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">3. BLAS → MainEngine は GraphicsEngine と遅延解放が欲しいだけ</text>
-<text x="1708.0" y="1912.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    生成時の ResourceBuildContext から取れば依存が消える。</text>
+<text x="-270.0" y="1485.0" fill="#bbb" font-size="16" font-family="sans-serif">RayEngine はシングルトンを外れ、GraphicsEngine の持ち物になった(所有の矢印は ② に載せた)。パスへは PassContext.pRayEngine で配る。</text>
+<text x="-270.0" y="1505.8" fill="#bbb" font-size="16" font-family="sans-serif">このシートで残る緑矢印は BLAS の遅延解放と、RenderGraph::MakeContext の入口だけ。</text>
+<rect x="1630.4" y="1655.0" width="829.0" height="176.0" rx="10" fill="#1a1410" stroke="#ff922b" stroke-width="2"/>
+<text x="1656.4" y="1697.0" fill="#ff922b" font-size="23" font-family="sans-serif">改善点</text>
+<text x="1656.4" y="1732.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">1. RayEngine は所有ツリーに収まった</text>
+<text x="1656.4" y="1752.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    持ち主は GraphicsEngine。RenderGraph と MainEngine の Instance() 経由の依存は消えた。</text>
+<text x="1656.4" y="1792.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">2. BLAS → MainEngine は GraphicsEngine と遅延解放が欲しいだけ</text>
+<text x="1656.4" y="1812.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    生成時の ResourceBuildContext から取れば依存が消える。</text>
 </svg>

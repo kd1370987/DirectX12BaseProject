@@ -3,8 +3,8 @@
 依存関係図（`01_Overview` 〜 `07_Input_Audio_Option`）で見えた汚さを、
 どの順番で直していくかの計画と、その進み具合。
 
-- 計画を立てた時点の図 … `Before/`（2026-09-10）
-- 今の図 … このフォルダ直下（2026-09-15）
+- 今の図 … `DependenceView/`（2026-10-09。作り直しは `python gen_excalidraw.py`）
+- 計画を立てた時点（2026-09-10）と 2026-09-15 の図 … git の履歴（旧 `環境/Before/` と `環境/*.excalidraw`）
 
 ---
 
@@ -35,6 +35,12 @@
 > フェーズ2で Device を引数にした結果、持ち主（`GraphicsEngine`）に入れる方が素直だと分かり、両方ともシングルトンを外した。
 > 「残す判断」の例としては、代わりに `ResourceManager::Instance()` を残している
 > （`ResourceRef<T>` が値として資産に埋まり、引数で渡せないため）。
+>
+> **さらに進めた結果（2026-10-09）**
+> 残っていた `ObjectMetaRegistry` / `MainEditor` / `InputManager` / `AudioManager` / `OptionManager` / `GameManager` / `SceneManager` も
+> 持ち主の `unique_ptr` にした（フェーズ7）。`MainEditor` は「残してよい」側に置いていたが、
+> エンジンからは `IDevTool` としてしか見えていなかったので、`WinMain` が持つ形にした方が説明が素直になった。
+> 残したシングルトンは `MainEngine`（アプリの入口）と `ResourceManager::Instance()`（`ResourceRef<T>` 用の入口）の2つだけ。
 
 ---
 
@@ -42,27 +48,27 @@
 
 `Instance()` / `GetInstance()` の呼び出し。
 
-| | 2026-09-10 | 2026-09-15 |
-|---|---:|---:|
-| 呼び出し回数 | 629 | **205** |
-| ファイル数 | 142 | **62** |
-| シングルトンの数 | 13 | **10** |
+| | 2026-09-10 | 2026-09-15 | 2026-10-09 |
+|---|---:|---:|---:|
+| 呼び出し回数 | 629 | 205 | **77** |
+| ファイル数 | 142 | 62 | **27** |
+| シングルトンの数 | 13 | 10 | **2** |
 
-| シングルトン | 2026-09-10 | 2026-09-15 | メモ |
-|---|---:|---:|---|
-| ResourceManager | 158 | 12 | 残りは全部 `ResourceRef<T>` の中。実体は MainEngine 所有 |
-| AssetDatabase | 95 | 0 | ResourceManager の持ち物になった |
-| D3D12Wrapper | 68 | 0 | 削除 |
-| MainEditor | 64 | 17 | |
-| MainEngine | 62 | 64 | **増えた**。付け替え先になっている（下の「残っていること」参照） |
-| DescriptorHeapManager | 62 | 0 | GraphicsEngine の持ち物になった |
-| SceneManager | 35 | 35 | 手付かず |
-| OptionManager | 30 | 28 | |
-| AudioManager | 15 | 15 | |
-| InputManager | 13 | 13 | |
-| GameManager | 12 | 12 | |
-| RayEngine | 11 | 5 | |
-| ObjectMetaRegistry | 4 | 4 | |
+| シングルトン | 2026-09-10 | 2026-09-15 | 2026-10-09 | メモ |
+|---|---:|---:|---:|---|
+| ResourceManager | 158 | 12 | 12 | 残りは全部 `ResourceRef<T>` の中。実体は MainEngine 所有 |
+| AssetDatabase | 95 | 0 | 0 | ResourceManager の持ち物になった |
+| D3D12Wrapper | 68 | 0 | 0 | 削除 |
+| MainEditor | 64 | 17 | 0 | WinMain の持ち物。エンジンへは IDevTool として差し込む |
+| MainEngine | 62 | 64 | 65 | 10-09 の作業前は 81。持ち主へ渡す経路で一部減った |
+| DescriptorHeapManager | 62 | 0 | 0 | GraphicsEngine の持ち物になった |
+| SceneManager | 35 | 35 | 0 | MainEngine の持ち物。EngineServices で配る |
+| OptionManager | 30 | 28 | 0 | MainEngine の持ち物。受け手へは MainEngine が流し込む |
+| AudioManager | 15 | 15 | 0 | MainEngine の持ち物 |
+| InputManager | 13 | 13 | 0 | MainEngine の持ち物 |
+| GameManager | 12 | 12 | 0 | Application の持ち物。記録はワールドの GameDataResource から引く |
+| RayEngine | 11 | 5 | 0 | GraphicsEngine の持ち物 |
+| ObjectMetaRegistry | 4 | 4 | 0 | MainEngine の持ち物 |
 
 層をまたぐ向き：
 
@@ -97,8 +103,9 @@ rg -o "(MainEngine|SceneManager|ResourceManager|AssetDatabase|InputManager|Audio
 | 2 | 循環を切る | B | −20〜30回・循環1組 | **完了**（計画より踏み込んで D3D12Wrapper を削除） |
 | 3 | PassContext を太らせる | C | −30〜60回 | **ほぼ完了**（描画層→シーン/ゲームの逆流が残る） |
 | 4 | ResourceBuildContext の徹底 | C | −100〜150回 | **ほぼ完了**（Sound / Mesh / Prefab が残る） |
-| 5 | 所有関係の整理 | C | −30回 | **途中**（ResourceManager / AssetDatabase の所有は済み） |
-| 6 | 図とドキュメントの作り直し | — | 見せ物 | **済み**（2026-09-15。この更新） |
+| 5 | 所有関係の整理 | C | −30回 | **ほぼ完了**（残りは MainEngine の付け替え組。フェーズ7 で大半が片付いた） |
+| 6 | 図とドキュメントの作り直し | — | 見せ物 | **済み**（2026-09-15、2026-10-09 に再生成） |
+| 7 | 残りのシングルトンを外す | C | −120回 | **完了**（2026-10-09。シングルトン 9 → 2） |
 
 **なぜこの順番か。**（計画時の考え。結果的にこの順で問題なかった）
 
@@ -213,6 +220,9 @@ rg -o "(MainEngine|SceneManager|ResourceManager|AssetDatabase|InputManager|Audio
 
 **残っていること（次にやる順）**
 
+> 2026-10-09 時点 : 1・2・3・5・6・7・8 は済み（1・2 はフェーズ7 より前に `IDevTool` で、3・5〜8 はフェーズ7 で解消）。
+> 残っているのは 4 の付け替え組だけ（`EditorHelper` / `SceneViewPanel` などのエディター側と、BLAS / Mesh / ScopedResourceBuild / InputManager / パーティクル）。
+
 1. **エディターへの逆流の残り**（A）
    - `SceneManager → MainEditor::OnSceneChanged / RefEffectEditor` … 通知なのでコールバック登録の形にする。
    - `GameManager` / `InputActionManager → MainEditor::RegisterEditFunc`、`App.cpp → EndProfileFrame / IsModalActive`。
@@ -240,6 +250,46 @@ rg -o "(MainEngine|SceneManager|ResourceManager|AssetDatabase|InputManager|Audio
 - 計画時点の図は `Before/` に残した（同じレイアウトの考え方なので並べて見比べられる）。
 - 数値（629 → 205、逆流 38+21 → 11+4、循環1組 → 0組）は README にも載せた。
 - フェーズ5が進んだら、もう一度 `python gen_excalidraw.py` で作り直す。
+- 2026-10-09 : フェーズ7 の後に `s1`〜`s7` を書き直して再生成した。出力先は `DependenceView/`（`.excalidraw` と `.svg` を同じ場所へ）。
+
+### フェーズ7 — 残りのシングルトンを外す　【完了 2026-10-09】
+
+**方針**
+
+「アプリに1つで寿命も同じ」なら残してよい、という0章の基準は変えない。
+ただし持ち主がはっきりしているもの（MainEngine が Init / Release を呼んでいるもの）は、
+実体も持ち主の `unique_ptr` に入れた方が寿命と解放順がコードから読める。
+外しやすい順（呼び出しの少ない順）に進めた。
+
+| 順 | クラス | 持ち主 | 使う側への経路 |
+|---|---|---|---|
+| 1 | `ObjectMetaRegistry` | MainEngine | `EngineServices::pObjectRegistry`（GameObjectManager は ObjectContext から） |
+| 2 | `MainEditor` | WinMain（main.cpp） | エンジンへは `IDevTool`、パネルへは `EditorContext::pEffectEditor` / `pEditorCamera` |
+| 3 | `InputManager` / `AudioManager` / `OptionManager` | MainEngine | `EngineServices`。Option の値は MainEngine が受け手へ流し込む |
+| 4 | `GameManager` | Application | シーンをまたぐ記録はワールドの `GameDataResource` から引く |
+| 5 | `SceneManager` | MainEngine | `EngineServices::pSceneManager`。プレハブの読み込みは `ResourceBuildContext::pSceneManager` |
+
+**結果**
+
+- シングルトン 9 → 2、`Instance()` 200 回 / 68 ファイル → 77 回 / 27 ファイル。
+- Option の押し込み（フェーズ5 の 3）は、受け手が引数で受け取る形にした。
+  `InputManager::Init(InputOption*)` / `AudioOption::Apply(AudioManager&)` / `DebugDraw::SetWireEnabled`（MainEngine が毎フレーム）/
+  エディターで動かしたときは `IOption::DrawEdit` の `EngineServices` から。
+- `NativeWindow` は `InputManager` を知らなくなった。フォーカスの出入りは MainEngine がつないだ通知先（`SetFocusCallback`）を呼ぶ。
+- `SoundInstance` は発行元の `AudioManager` を持つ。`SoundIO` は `ResourceBuildContext::pAudioEngine` から作る
+  （ResourceManager が起動時に `SetAudioEngine` で預かり、ローダーのコンテキストへ載せる。`SetJobSystem` と同じ形）。
+- Sequence 群はボタンを結ぶとき（`TryBind～`）に `ObjectContext.pServices->pSceneManager` を受け取り、押下時のラムダへ掴ませる。
+- `SceneManager` は持ち主（MainEngine）を受け取り、`BaseScene::Enter` / `CreateSceneWorld` へ渡す。
+  シーン・ECS・GameObject の中の `MainEngine::Instance()` も 0 になった。
+- 解放順 : シーン（Application が先に Release）→ ゲーム → エンジン。MainEngine のメンバは宣言の逆順に壊れるので、
+  ResourceRef を持つもの（オーディオ・シーン）は ResourceManager より先に壊れる。
+
+**確かめたこと**
+
+- Debug / Release のビルド（Debug はリビルドして警告 0）。
+- Debug で起動 → タイトルまで読み込み → ウィンドウを閉じる、を3回。どれも終了コード 0 で、デバッグ出力にエラーは無い。
+  初回の1回だけ起動直後から応答しなくなった（原因は特定できていない。再現せず、変更前のビルドでも同じ手順は通った）。
+- ECS の Update フェーズで「依存が循環しています（16 件）」が出ているが、変更前のビルドでも同じなので今回とは別件。
 
 ---
 

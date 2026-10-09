@@ -9,8 +9,10 @@ namespace Engine::Resource
 	{
 		Stop();
 	}
-	bool SoundInstance::Init(ResourceManager& a_resourceManager, const ResourceRef<Sound>& a_resourceRef,bool a_is3D)
+	bool SoundInstance::Init(Audio::AudioManager& a_audioManager, ResourceManager& a_resourceManager, const ResourceRef<Sound>& a_resourceRef,bool a_is3D)
 	{
+		m_pAudioManager = &a_audioManager;
+
 		// 元データ取得
 		auto* _pSound = a_resourceManager.Ref(a_resourceRef);
 		if (!_pSound) return false;
@@ -81,9 +83,9 @@ namespace Engine::Resource
 
 		// SoundEffectInstance_Use3D なしで作られたインスタンスに対して
 		// Apply3D を呼ぶと DirectXTK が例外を投げるため、ここで弾く
-		if (!m_is3D) return;
+		if (!m_is3D || !m_pAudioManager) return;
 
-		m_upSoundInstance->Apply3D(Audio::AudioManager::Instance().RefAudioListner(), m_emitter, false);
+		m_upSoundInstance->Apply3D(m_pAudioManager->RefAudioListner(), m_emitter, false);
 	}
 	void SoundInstance::Stop()
 	{
@@ -127,9 +129,9 @@ namespace Engine::Resource
 
 	void SoundInstance::RefreshVolume()
 	{
-		if (!m_upSoundInstance) return;
+		if (!m_upSoundInstance || !m_pAudioManager) return;
 
-		const float _scale = Audio::AudioManager::Instance().CalcVolumeScale(m_group);
+		const float _scale = m_pAudioManager->CalcVolumeScale(m_group);
 
 		m_upSoundInstance->SetVolume(std::clamp(m_volume * _scale, 0.0f, 1.0f));
 		Apply3D();

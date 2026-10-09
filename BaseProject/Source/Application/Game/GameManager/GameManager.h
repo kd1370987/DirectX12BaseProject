@@ -2,6 +2,11 @@
 
 #include "../GlobalGameContext.h"
 
+namespace Engine
+{
+	class MainEngine;
+}
+
 namespace App::Input
 {
 	class InputActionManager;
@@ -13,17 +18,26 @@ namespace App::Game
 	class MouseCursor;
 
 	/// <summary>
-	/// シングルトン
 	/// ゲーム全体を通しての流れを管理するクラス
 	/// </summary>
+	/// <remarks>
+	/// 実体は App::Application が1つだけ持つ。
+	/// シーンをまたぐ記録(GlobalGameContext)は、ワールドを作るときに
+	/// GameDataResource として各ワールドへ配るので、使う側はここを名指ししない
+	/// </remarks>
 	class GameManager
 	{
 	public:
 
+		GameManager();
+		~GameManager();
+		NON_COPYABLE_NON_MOVABLE(GameManager);
+
 		/// <summary>
 		/// 初期化 : ゲーム起動時の一度のみ呼ばれる
 		/// </summary>
-		void Init();
+		/// <param name="a_engine">エンジン(借り物)。シーン・入力・描画はここから引く</param>
+		void Init(Engine::MainEngine& a_engine);
 
 		/// <summary>
 		/// メインループからマイフレーム呼ばれる
@@ -96,23 +110,7 @@ namespace App::Game
 		// ゲーム中に自前で描くマウスカーソル
 		std::unique_ptr<MouseCursor> m_upMouseCursor;
 
-	// シングルトン
-	private:
-		GameManager();
-		~GameManager();
-
-		// ムーブコピー禁止
-		GameManager(const GameManager&) = delete;
-		GameManager& operator=(const GameManager&) = delete;
-		GameManager(GameManager&&) noexcept = default;
-		GameManager& operator=(GameManager&&) noexcept = default;
-
-	public:
-
-		static GameManager& Instance()
-		{
-			static GameManager _instance;
-			return _instance;
-		}
+		// エンジン(借り物)
+		Engine::MainEngine* m_pEngine = nullptr;
 	};
 }

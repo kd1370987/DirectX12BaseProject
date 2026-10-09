@@ -18,7 +18,7 @@ namespace Engine::Scene
 	void SceneManager::Release()
 	{
 		// エディターが覚えている選択はここで消えるシーンのもの
-		if (auto* _pDevTool = MainEngine::Instance().RefDevTool()) _pDevTool->OnSceneChanged();
+		if (auto* _pDevTool = m_pEngine->RefDevTool()) _pDevTool->OnSceneChanged();
 
 		//----------------------------------------------------------------------------------
 		// 上のシーンから順に、PopScene と同じく後始末を通して消す
@@ -32,7 +32,7 @@ namespace Engine::Scene
 		//----------------------------------------------------------------------------------
 		if (!m_upBaseSceneVec.empty() || m_upLoadingScreen)
 		{
-			if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
+			if (auto* _pGE = m_pEngine->RefGraphicsEngine())
 			{
 				_pGE->RefRenderDevice()->WaitForGPUIdle();
 			}
@@ -42,7 +42,7 @@ namespace Engine::Scene
 			// 計測中のシーンを開いたまま終了した : ここまでに読んだもので一覧を置き換える
 			if (m_upBaseSceneVec.back().get() == m_pPreLoadRecordingScene)
 			{
-				if (auto* _pResourceManager = MainEngine::Instance().RefResourceManager())
+				if (auto* _pResourceManager = m_pEngine->RefResourceManager())
 				{
 					EndRecordPreLoadAssets(*_pResourceManager);
 				}
@@ -75,9 +75,9 @@ namespace Engine::Scene
 	namespace
 	{
 		// 開発ツールが確認用シーン(エフェクトの確認など)を回しているなら、その窓口を返す
-		DevTool::IDevTool* RefActiveScenePreview()
+		DevTool::IDevTool* RefActiveScenePreview(MainEngine& a_engine)
 		{
-			auto* _pDevTool = MainEngine::Instance().RefDevTool();
+			auto* _pDevTool = a_engine.RefDevTool();
 			if (!_pDevTool || !_pDevTool->IsScenePreviewActive()) return nullptr;
 			return _pDevTool;
 		}
@@ -87,7 +87,7 @@ namespace Engine::Scene
 	{
 		// エフェクト確認中はゲームのシーンを止める。
 		// シーンの切り替え命令もここで消化しないので、閉じたあとに順番どおり流れる
-		if (auto* _pDevTool = RefActiveScenePreview())
+		if (auto* _pDevTool = RefActiveScenePreview(*m_pEngine))
 		{
 			_pDevTool->UpdateScenePreview(a_dt);
 			return;
@@ -161,7 +161,7 @@ namespace Engine::Scene
 	{
 		// エフェクト確認中は、あちらのワールドの描画命令だけをレンダーグラフへ流す。
 		// レンダーグラフ自体はゲームと同じものを通るので、見え方は本番と揃う
-		if (auto* _pDevTool = RefActiveScenePreview())
+		if (auto* _pDevTool = RefActiveScenePreview(*m_pEngine))
 		{
 			_pDevTool->DrawScenePreview();
 			return;
@@ -251,7 +251,7 @@ namespace Engine::Scene
 		//------------------------------------------------------------------
 		{
 			BaseScene _emptyScene;
-			_emptyScene.Enter();
+			_emptyScene.Enter(*m_pEngine);
 			_emptyScene.SetGUID(_guid);
 
 			Persistence::Archive _ar(Persistence::Archive::EMode::Save, _dirPath, a_name, "scene");
@@ -285,7 +285,7 @@ namespace Engine::Scene
 		ENGINE_LOG("[Scene] ロード : %s", _sceneFilePath.c_str());
 
 		auto _upScene = std::make_unique<BaseScene>();
-		_upScene->Enter();
+		_upScene->Enter(*m_pEngine);
 		_upScene->SetGUID(a_guid);
 
 		a_outFileDir = Core::File::GetDirFromPath(_sceneFilePath);
@@ -417,7 +417,7 @@ namespace Engine::Scene
 		if (m_upBaseSceneVec.empty()) return;
 
 		// GPU待ち
-		if (auto* _pGE = MainEngine::Instance().RefGraphicsEngine())
+		if (auto* _pGE = m_pEngine->RefGraphicsEngine())
 		{
 			_pGE->RefRenderDevice()->WaitForFrame();
 
@@ -477,7 +477,7 @@ namespace Engine::Scene
 			// ※ 重ねたシーン(ポーズ)を外しただけのときは通らない。
 			//    後ろのゲームで鳴っている音を巻き添えにしないため
 			//--------------------------------------------------------------
-			Audio::AudioManager::Instance().ReleaseInstances();
+			if (auto* _pAudioManager = m_pEngine->RefAudioManager()) _pAudioManager->ReleaseInstances();
 
 			// 誰も持っていないリソースはここで破棄する
 			a_resourceManager.SweepUnusedAll();
@@ -561,7 +561,7 @@ namespace Engine::Scene
 	//======================================================================================
 	void SceneManager::ApplySceneAmbient()
 	{
-		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
+		auto* _pGE = m_pEngine->RefGraphicsEngine();
 		if (!_pGE) return;
 
 		if (BaseScene* _pScene = RefAmbientSourceScene())
@@ -640,7 +640,7 @@ namespace Engine::Scene
 			// 変わるため、どの切り替え方でも持ち越してはいけない。
 			// (パネル側の検証は描画時にしか回らないので、ここで先に断つ)
 			//----------------------------------------------------------------------
-			if (auto* _pDevTool = MainEngine::Instance().RefDevTool()) _pDevTool->OnSceneChanged();
+			if (auto* _pDevTool = m_pEngine->RefDevTool()) _pDevTool->OnSceneChanged();
 
 			// 命令キューの戦闘要素を処理
 			const auto& _cmd = m_sceneChangeCmd.front();
@@ -673,7 +673,8 @@ namespace Engine::Scene
 	}
 
 	// コンストラクタ・デストラクタ
-	SceneManager::SceneManager()
+	SceneManager::SceneManager(MainEngine* a_pEngine)
+		: m_pEngine(a_pEngine)
 	{}
 	SceneManager::~SceneManager()
 	{}

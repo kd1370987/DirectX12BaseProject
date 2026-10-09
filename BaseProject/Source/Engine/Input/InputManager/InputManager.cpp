@@ -9,7 +9,7 @@
 
 #include "../../MainEngine.h"
 #include "../../Window/NativeWindow.h"
-#include "../../Option/OptionManager.h"
+#include "../../Option/ProjectOptions/InputOption.h"
 #include "InputManager.h"
 #include "InputManager.h"
 
@@ -59,12 +59,14 @@ namespace Engine::Input
 		}
 	}
 
-	void InputManager::Init()
+	void InputManager::Init(const Option::ProjectOptions::InputOption* a_pInputOption)
 	{
+		m_pInputOption = a_pInputOption;
+
 		// 保存されている設定を反映する
 		// この時点ではまだウィンドウが生成されていないため、
 		// 中心座標はここでは求めず、固定を行うフレームごとに実測する
-		SetCursorCentered(Option::OptionManager::Instance().GetInputOption().isCursorLockedToCenter);
+		if (m_pInputOption) SetCursorCentered(m_pInputOption->isCursorLockedToCenter);
 
 		// システム用の入力を用意する
 		RegisterSystemDevice();
@@ -197,14 +199,14 @@ namespace Engine::Input
 
 		// ---- 移動量 : 生の入力から取る ----
 		bool _hasRawDelta = false;
-		if (_pWind)
+		if (_pWind && m_pInputOption)
 		{
 			int _rawX = 0;
 			int _rawY = 0;
 			_pWind->ConsumeRawMouseDelta(_rawX, _rawY);
 
 			// 感度はここでしか掛からない(Windows側の設定を通っていないため)
-			const auto& _inputOption = Option::OptionManager::Instance().GetInputOption();
+			const auto& _inputOption = *m_pInputOption;
 
 			m_deltaX = static_cast<float>(_rawX) * _inputOption.lookSensitivityX;
 			m_deltaY = static_cast<float>(_rawY) * _inputOption.lookSensitivityY;

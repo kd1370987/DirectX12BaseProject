@@ -14,9 +14,9 @@ namespace
 	};
 }
 
-void Engine::Option::ProjectOptions::AudioOption::Apply() const
+void Engine::Option::ProjectOptions::AudioOption::Apply(Audio::AudioManager& a_audioManager) const
 {
-	auto& _audioManager = Engine::Audio::AudioManager::Instance();
+	auto& _audioManager = a_audioManager;
 
 	_audioManager.SetMasterVolume(masterVolume);
 
@@ -26,7 +26,7 @@ void Engine::Option::ProjectOptions::AudioOption::Apply() const
 	}
 }
 
-void Engine::Option::ProjectOptions::AudioOption::DrawEdit(const ECS::EngineServices&)
+void Engine::Option::ProjectOptions::AudioOption::DrawEdit(const ECS::EngineServices& a_services)
 {
 	bool _isChanged = false;
 
@@ -46,7 +46,7 @@ void Engine::Option::ProjectOptions::AudioOption::DrawEdit(const ECS::EngineServ
 	}
 
 	// 動かした瞬間に効かせる。鳴っている音にもその場で送り直される
-	if (_isChanged) Apply();
+	if (_isChanged && a_services.pAudioManager) Apply(*a_services.pAudioManager);
 }
 
 void Engine::Option::ProjectOptions::AudioOption::Archive(Persistence::Archive& a_archive)

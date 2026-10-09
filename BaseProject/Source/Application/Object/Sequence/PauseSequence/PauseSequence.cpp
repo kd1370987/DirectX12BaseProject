@@ -66,11 +66,11 @@ namespace App::Object
 		// 次のフレームには押しっぱなし(Hold)になっている。
 		// 押した瞬間(Press)だけを見ているので、開いた勢いで閉じることはない
 		//==============================================================
-		if (!m_isClosing && a_context.pServices && a_context.pServices->pInputManager)
+		if (!m_isClosing && a_context.pServices && a_context.pServices->pInputManager && a_context.pServices->pSceneManager)
 		{
 			if (a_context.pServices->pInputManager->IsPress(m_pauseAction))
 			{
-				ReserveResume();
+				ReserveResume(*a_context.pServices->pSceneManager);
 			}
 		}
 	}
@@ -83,6 +83,10 @@ namespace App::Object
 		if (m_isBound) return;
 		if (!a_context.pObjectManager) return;
 
+		// 押されたときにシーンを積み替えるので、ここで受け取って掴ませる
+		auto* _pSceneManager = a_context.pServices ? a_context.pServices->pSceneManager : nullptr;
+		if (!_pSceneManager) return;
+
 		auto* _pResume = Core::TypeInfo::Cast<UIButton>(
 			m_resumeButtonGUID.IsValid() ? a_context.pObjectManager->FindByGUID(m_resumeButtonGUID) : nullptr);
 		auto* _pExit = Core::TypeInfo::Cast<UIButton>(
@@ -93,8 +97,8 @@ namespace App::Object
 		if (m_exitButtonGUID.IsValid() && !_pExit) return;
 
 		// ボタンは同じシーンに居るので、this を掴んでも寿命は一緒に尽きる
-		if (_pResume) _pResume->SetOnClick([this]() { ReserveResume(); });
-		if (_pExit)   _pExit->SetOnClick([this]() { ReserveExitScene(); });
+		if (_pResume) _pResume->SetOnClick([this, _pSceneManager]() { ReserveResume(*_pSceneManager); });
+		if (_pExit)   _pExit->SetOnClick([this, _pSceneManager]() { ReserveExitScene(*_pSceneManager); });
 
 		m_isBound = true;
 	}
@@ -102,21 +106,21 @@ namespace App::Object
 	//======================================================================================
 	// ポーズを閉じてゲームへ戻る
 	//======================================================================================
-	void PauseSequence::ReserveResume()
+	void PauseSequence::ReserveResume(Engine::Scene::SceneManager& a_sceneManager)
 	{
 		// 連打で何度も積まないようにする
 		if (m_isClosing) return;
 		m_isClosing = true;
 
 		// 自分を外すだけ。後ろのゲームは残っているので続きから動き出す
-		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
+		a_sceneManager.ReserveChangeScene(
 			Core::DEFAULT_GUID, Engine::Scene::ESceneChangeType::Pop);
 	}
 
 	//======================================================================================
 	// ポーズを閉じてから、ゲームのシーンを行き先へ差し替える
 	//======================================================================================
-	void PauseSequence::ReserveExitScene()
+	void PauseSequence::ReserveExitScene(Engine::Scene::SceneManager& a_sceneManager)
 	{
 		if (m_isClosing) return;
 
@@ -128,7 +132,7 @@ namespace App::Object
 
 		m_isClosing = true;
 
-		auto& _sceneManager = Engine::Scene::SceneManager::Instance();
+		auto& _sceneManager = a_sceneManager;
 
 		// 先に自分を外す。重ねたまま差し替えると、入れ替わるのは後ろのゲームの方で
 		// ポーズ画面が乗りっぱなしになる

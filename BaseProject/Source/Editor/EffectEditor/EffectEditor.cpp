@@ -170,14 +170,14 @@ namespace Editor
 		if (!m_upCamera)
 		{
 			m_upCamera = std::make_unique<EditorCamera>();
-			m_upCamera->Init();
+			m_upCamera->Init(m_pServices->pOptionManager);
 		}
 
 		if (m_upWorld) return;
 
 		// ゲームのシーンとまったく同じ構成(コンポーネント・システム・ワールドリソース)で作る。
 		// 描画のされ方を本番と揃えるのが目的なので、ここで簡易版を組んではいけない
-		m_upWorld = Scene::CreateSceneWorld(true);
+		m_upWorld = Scene::CreateSceneWorld(*m_pServices->pMainEngine, true);
 	}
 
 	void EffectEditor::ReserveSpawn()
@@ -362,7 +362,7 @@ namespace Editor
 			// 音も見るのはゲーム側(EffectUpdateSystem)と揃えるため。
 			// 見ないと、絵が終わった時点で頭出しされて音が毎回途中で切れる
 			if (m_isLoop && _pEffect &&
-				Effect::EffectPlayer::IsFinished(*_pEffect, _ref.pRuntime->instance, &Audio::AudioManager::Instance()))
+				Effect::EffectPlayer::IsFinished(*_pEffect, _ref.pRuntime->instance, m_pServices->pAudioManager))
 			{
 				m_isRestartRequest = true;
 			}
@@ -469,7 +469,7 @@ namespace Editor
 		auto* _pGE = MainEngine::Instance().RefGraphicsEngine();
 		if (!_pGE) return;
 
-		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
+		const auto& _winOp = m_pServices->pOptionManager->GetWindowOption();
 
 		Engine::Graphics::CameraSubmitDesc _desc = {};
 		_desc.pWorld			= m_upWorld.get();
@@ -612,7 +612,7 @@ namespace Editor
 
 		// ---- 表示 ----
 		Engine::EditorField::Field("Grid", m_isDrawGrid);
-		if (m_isDrawGrid && !Option::OptionManager::Instance().GetDebugDrawOption().drawWire)
+		if (m_isDrawGrid && !m_pServices->pOptionManager->GetDebugDrawOption().drawWire)
 		{
 			Engine::EditorField::SameLine();
 			Engine::EditorField::HelpText("(Option の Draw Debug Wire が off のため出ません)");
@@ -673,7 +673,7 @@ namespace Editor
 		const auto* _pTex = _pGE->GetCameraPipelines()->GetCameraFinalTexture(m_upWorld.get(), PREVIEW_CAMERA_ENTITY);
 		if (!_pTex) { Engine::EditorField::HelpText("出力テクスチャがまだありません"); return; }
 
-		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
+		const auto& _winOp = m_pServices->pOptionManager->GetWindowOption();
 		const float _aspect = (_winOp.windowHeight > 0)
 			? static_cast<float>(_winOp.windowWidth) / static_cast<float>(_winOp.windowHeight)
 			: 16.0f / 9.0f;

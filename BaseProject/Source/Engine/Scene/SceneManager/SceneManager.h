@@ -2,6 +2,8 @@
 
 namespace Engine
 {
+	class MainEngine;
+
 	namespace ECS
 	{
 		class World;
@@ -39,10 +41,18 @@ namespace Engine::Scene
 
 	//==================================================================================================
 	// シーンの状態、遷移を管理するクラス
+	//
+	// 実体は MainEngine が持ち、EngineServices::pSceneManager で配る。
+	// 解放(Release)はアプリ側がゲームより先に呼ぶ
 	//==================================================================================================
 	class SceneManager
 	{
 	public:
+
+		// a_pEngine : 持ち主。描画・リソース・開発ツールへの通知はここから引く
+		explicit SceneManager(MainEngine* a_pEngine);
+		~SceneManager();
+		NON_COPYABLE_NON_MOVABLE(SceneManager);
 
 		//------------------------------------------------------------------------------------------
 		// メイン処理
@@ -260,17 +270,7 @@ namespace Engine::Scene
 		// シーンごとではなくここで1つだけ持つ : 重ねたシーンの数だけ太陽が並ばないように
 		Handle<Graphics::DirectionalLight> m_ambientDLHandle = {};
 
-	private:
-		// シングルトン化
-		SceneManager();
-		~SceneManager();
-
-	public:
-		// インスタンス取得
-		static SceneManager& Instance()
-		{
-			static SceneManager _instance;
-			return _instance;
-		}
+		// 持ち主(借り物)。描画・リソース・開発ツールへの通知はここから引く
+		MainEngine* m_pEngine = nullptr;
 	};
 }

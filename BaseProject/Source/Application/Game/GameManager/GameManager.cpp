@@ -11,6 +11,7 @@
 
 // ECS関係(ゲーム用のワールド)
 #include "../../ECS/World/APPWorld.h"
+#include "../../InstanceResource/GameDataResource.h"
 
 // ECS外オブジェクト(クラスメタマネージャー / 登録するクラス)
 #include "../../../Engine/GameObject/ObjectMetaRegistry/ObjectMetaRegistry.h"
@@ -57,8 +58,10 @@ namespace App::Game
 		constexpr const char* GAME_SETTING_EXT  = "gmdt";
 	}
 
-	void App::Game::GameManager::Init()
+	void App::Game::GameManager::Init(Engine::MainEngine& a_engine)
 	{
+		m_pEngine = &a_engine;
+
 		// ゲーム設定(起動時に立ち上げるシーン)の読み込み
 		LoadGameSetting();
 
@@ -73,14 +76,14 @@ namespace App::Game
 		if (!m_upInputActionManager)
 		{
 			m_upInputActionManager = std::make_unique<Input::InputActionManager>();
-			m_upInputActionManager->Init(m_upUserData.get());
+			m_upInputActionManager->Init(m_upUserData.get(), m_pEngine->RefInputManager());
 		}
 
 		// マウスカーソル
 		if (!m_upMouseCursor)
 		{
 			m_upMouseCursor = std::make_unique<MouseCursor>();
-			m_upMouseCursor->Init(&Engine::MainEngine::Instance().GetEngineServices());
+			m_upMouseCursor->Init(&m_pEngine->GetEngineServices());
 		}
 
 		// ------------------------------------------------------------------
@@ -93,7 +96,7 @@ namespace App::Game
 		// 名前を変えたいときは MigrateName で旧名を引き継がせること。
 		// ------------------------------------------------------------------
 		{
-			auto& _objRegistry = Engine::GameObject::ObjectMetaRegistry::Instance();
+			auto& _objRegistry = *m_pEngine->GetEngineServices().pObjectRegistry;
 			_objRegistry.RegisterType<App::Object::CombatReticleHUD>("CombatReticleHUD");
 			_objRegistry.RegisterType<App::Object::TargetBoxHUD>("TargetBoxHUD");
 			_objRegistry.RegisterType<App::Object::SceneSequence>("SceneSequence");
@@ -123,11 +126,17 @@ namespace App::Game
 		// 「どの種類のワールドを立てるか」はゲーム側のここが決める。
 		// 何を登録するかは App::ECS::APPWorld::RegisterGameTypes が持っている
 		// (中身は Application/ECS/World/WorldTypeRegister.cpp)。
+		//
+		// シーンをまたぐ記録(m_gameData)の入口もここで各ワールドへ置く。
+		// 使う側(システム・オブジェクト)はワールドから GameDataResource で引く
 		// ------------------------------------------------------------------
-		Engine::Scene::SceneManager::Instance().SetWorldFactory(
-			[]() -> std::unique_ptr<Engine::ECS::World>
+		m_pEngine->RefSceneManager()->SetWorldFactory(
+			[pGameData = &m_gameData]() -> std::unique_ptr<Engine::ECS::World>
 			{
-				return std::make_unique<App::ECS::APPWorld>();
+				auto _upWorld = std::make_unique<App::ECS::APPWorld>();
+				_upWorld->AddResource<App::InstanceResource::GameDataResource>();
+				_upWorld->RefResource<App::InstanceResource::GameDataResource>().pGameData = pGameData;
+				return _upWorld;
 			}
 		);
 
@@ -138,13 +147,13 @@ namespace App::Game
 		// ワールドを作るのでワールドの作り手を差し込んだ後に置くこと。
 		// 最初のシーンより先に渡しておくと、最初のシーンの読み込みにも間に合いやすい
 		// ------------------------------------------------------------------
-		Engine::Scene::SceneManager::Instance().SetLoadingScreen(
-			*Engine::MainEngine::Instance().GetEngineServices().pResourceManager, m_loadingScene);
+		m_pEngine->RefSceneManager()->SetLoadingScreen(
+			*m_pEngine->GetEngineServices().pResourceManager, m_loadingScene);
 
 		// 最初のシーンを挿入
 		if (m_farstScene.IsValid())
 		{
-			Engine::Scene::SceneManager::Instance().ReserveChangeScene(m_farstScene, Engine::Scene::ESceneChangeType::Push);
+			m_pEngine->RefSceneManager()->ReserveChangeScene(m_farstScene, Engine::Scene::ESceneChangeType::Push);
 		}
 		else
 		{
@@ -152,7 +161,7 @@ namespace App::Game
 		}
 
 		// エディター関数登録
-		if (auto* _pDevTool = Engine::MainEngine::Instance().RefDevTool())
+		if (auto* _pDevTool = m_pEngine->RefDevTool())
 			_pDevTool->RegisterEditFunc(
 			[&]()
 			{
@@ -172,20 +181,20 @@ namespace App::Game
 		if (m_upMouseCursor) m_upMouseCursor->Update();
 
 		// シーンマネージャーの更新
-		const auto& _services = Engine::MainEngine::Instance().GetEngineServices();
-		Engine::Scene::SceneManager::Instance().Update(*_services.pResourceManager, a_dt);
+		const auto& _services = m_pEngine->GetEngineServices();
+		m_pEngine->RefSceneManager()->Update(*_services.pResourceManager, a_dt);
 	}
 	void GameManager::Draw()
 	{
 		ENGINE_PROFILE_SCOPE("GameDraw");
 
 		// シーンの描画 : 描画命令を積むだけで実行はしない
-		Engine::Scene::SceneManager::Instance().Draw();
+		m_pEngine->RefSceneManager()->Draw();
 
 		// マウスカーソルはどのUIよりも手前に出したいので、シーンのUIを積み終えた最後に積む
 		if (m_upMouseCursor)
 		{
-			if (auto* _pGE = Engine::MainEngine::Instance().RefGraphicsEngine())
+			if (auto* _pGE = m_pEngine->RefGraphicsEngine())
 			{
 				m_upMouseCursor->SubmitUI(_pGE->RefDrawSubmitter());
 			}
@@ -238,7 +247,7 @@ namespace App::Game
 		Engine::EditorField::Value("Farst Scene", "%s", m_farstScene.String().c_str());
 
 		Engine::EditorField::AssetField(
-			Engine::MainEngine::Instance().GetEngineServices(),
+			m_pEngine->GetEngineServices(),
 			"##FarstScene",
 			"Scene",
 			m_farstScene);
@@ -246,7 +255,7 @@ namespace App::Game
 		Engine::EditorField::Value("Loading Scene", "%s", m_loadingScene.String().c_str());
 
 		Engine::EditorField::AssetField(
-			Engine::MainEngine::Instance().GetEngineServices(),
+			m_pEngine->GetEngineServices(),
 			"##LoadingScene",
 			"Scene",
 			m_loadingScene);

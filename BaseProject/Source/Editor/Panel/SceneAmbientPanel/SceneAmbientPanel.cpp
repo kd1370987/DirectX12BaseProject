@@ -13,14 +13,15 @@
 //==========================================================================================
 void Editor::SceneAmbientPanel::OnDrawImGui(EditorContext& a_editContext)
 {
-	auto& _sceneManager = Engine::Scene::SceneManager::Instance();
+	auto* _pSceneManager = a_editContext.pServices ? a_editContext.pServices->pSceneManager : nullptr;
 
-	Engine::Scene::BaseScene* _pScene = _sceneManager.RefCurrentTopScene();
+	Engine::Scene::BaseScene* _pScene = _pSceneManager ? _pSceneManager->RefCurrentTopScene() : nullptr;
 	if (!_pScene || !a_editContext.pServices)
 	{
 		Engine::EditorField::HelpText("No scene");
 		return;
 	}
+	auto& _sceneManager = *_pSceneManager;
 
 	// シーンの名前 : GUID からファイルを引いて出す
 	auto _getSceneName = [&a_editContext](const Engine::Scene::BaseScene* a_pScene) -> std::string

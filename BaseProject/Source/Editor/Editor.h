@@ -29,10 +29,16 @@ namespace Editor
 	// メインエディタクラス
 	// 
 	//=======================================================================
-	// Engine へは開発ツールの窓口(IDevTool)として差し込まれる(main.cpp)
+	// Engine へは開発ツールの窓口(IDevTool)として差し込まれる(main.cpp)。
+	// 実体は main.cpp(WinMain)が unique_ptr で持つ。エディターの中では
+	// EditorContext が配るもの(カメラ・エフェクトエディター・サービス)を使い、ここを名指ししないこと
 	class MainEditor : public Engine::DevTool::IDevTool
 	{
 	public:
+
+		MainEditor();
+		~MainEditor() override;
+		NON_COPYABLE_NON_MOVABLE(MainEditor);
 
 		// 初期化
 		// a_pServices : アプリ寿命のサービス一式(借り物)。パネルへはここから配る
@@ -184,22 +190,5 @@ namespace Editor
 
 		bool m_isInit = false;
 
-	private:
-		MainEditor();
-		~MainEditor() override;
-	public:
-		// コピー禁止
-		MainEditor(const MainEditor&) = delete;
-		MainEditor& operator=(const MainEditor&) = delete;
-		// ムーブ禁止
-		MainEditor(MainEditor&&) = delete;
-		MainEditor& operator=(MainEditor&&) = delete;
-
-		// シングルトンインスタンス取得
-		static MainEditor& Instance()
-		{
-			static MainEditor _instance;
-			return _instance;
-		}
 	};
 }

@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-390 -405 5220 2121" width="2400">
+<rect x="-390" y="-405" width="5220" height="2121" fill="#121212"/>
+<defs><marker id="aw" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#ffffff" stroke-width="1.2"/></marker><marker id="ag" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#51cf66" stroke-width="1.2"/></marker></defs>
+<text x="-350" y="-345" fill="#fff" font-size="34" font-family="sans-serif">④ Resource — アセットとリソースの実体化</text>
+<text x="-350" y="-313" fill="#aaa" font-size="16" font-family="sans-serif">ResourceManager は MainEngine の持ち物で、AssetDatabase はその中。生成に要るものは ResourceBuildContext で受け取る。</text>
+<line x1="81.0" y1="0.0" x2="632.5" y2="0.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="807.5" y1="-8.0" x2="2289.0" y2="-142.6" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="146.0" y1="-150.0" x2="944.6" y2="-150.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1112.4" y1="-109.0" x2="807.5" y2="-24.3" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1575.4" y1="-150.0" x2="2289.0" y2="-150.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1342.0" y1="-109.0" x2="1498.0" y2="-31.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1456.8" y1="-109.0" x2="1866.7" y2="-23.6" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1575.4" y1="-109.6" x2="2325.3" y2="-13.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1575.4" y1="-120.2" x2="2758.2" y2="-8.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="0.0" y1="-109.0" x2="0.0" y2="-31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="305.6" y1="389.0" x2="24.4" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2760.4" y1="-141.7" x2="807.5" y2="-6.1" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2935.1" y1="599.0" x2="3386.8" y2="41.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="3614.3" y1="389.0" x2="4125.7" y2="31.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="3892.1" y1="389.0" x2="4147.9" y2="31.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="0.0" y1="451.0" x2="0.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="0.0" y1="661.0" x2="0.0" y2="749.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="0.0" y1="811.0" x2="0.0" y2="899.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="330.0" y1="451.0" x2="330.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="630.0" y1="451.0" x2="630.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="930.0" y1="451.0" x2="930.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1230.0" y1="451.0" x2="1230.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1230.0" y1="661.0" x2="1230.0" y2="749.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1530.0" y1="451.0" x2="1530.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1860.0" y1="451.0" x2="1860.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="2220.0" y1="451.0" x2="2220.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="2580.0" y1="451.0" x2="2580.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="2910.0" y1="451.0" x2="2910.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="3244.4" y1="451.0" x2="3265.6" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="4170.0" y1="451.0" x2="4170.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="4590.0" y1="451.0" x2="4590.0" y2="599.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="666.9" y1="31.0" x2="53.1" y2="389.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="691.2" y1="31.0" x2="358.8" y2="389.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="713.4" y1="31.0" x2="636.6" y2="389.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="735.5" y1="31.0" x2="914.5" y2="389.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="757.6" y1="31.0" x2="1192.4" y2="389.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="779.8" y1="31.0" x2="1470.2" y2="389.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="804.1" y1="31.0" x2="1779.0" y2="390.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="807.5" y1="24.5" x2="2139.0" y2="397.3" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="807.5" y1="19.8" x2="2496.8" y2="401.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="807.5" y1="16.8" x2="2829.0" y2="404.5" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="807.5" y1="14.6" x2="3159.0" y2="406.5" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="807.5" y1="12.9" x2="3489.0" y2="408.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="807.5" y1="11.7" x2="3789.0" y2="409.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="807.5" y1="10.7" x2="4089.0" y2="410.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="807.5" y1="9.5" x2="4472.4" y2="407.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<rect x="-75.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="0.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEngine</text>
+<rect x="638.5" y="-25.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="720.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceManager</text>
+<rect x="1482.8" y="-25.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1560.0" y="5.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GraphicsEngine</text>
+<rect x="1872.7" y="-25.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1980.0" y="5.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DescriptorHeapManager</text>
+<rect x="2331.3" y="-25.0" width="197.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2430.0" y="5.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">MeshBufferAllocator</text>
+<rect x="2764.2" y="-25.0" width="171.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2850.0" y="5.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PassMetaRegistry</text>
+<rect x="3306.5" y="-35.0" width="227.0" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="3420.0" y="-5.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DirectX::AudioEngine</text>
+<text x="3420.0" y="15.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(持ち主は AudioManager)</text>
+<rect x="4095.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="4170.0" y="5.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SceneManager</text>
+<rect x="-140.0" y="-185.0" width="280.0" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="-155.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ScopedResourceBuild</text>
+<text x="0.0" y="-135.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(モデル1体分をまとめて submit)</text>
+<rect x="950.6" y="-185.0" width="618.8" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="1260.0" y="-155.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceBuildContext</text>
+<text x="1260.0" y="-135.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(Device / Heap / CmdList / RM / AD / AudioEngine / SceneManager ...)</text>
+<rect x="2295.0" y="-175.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2370.0" y="-145.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AssetDatabase</text>
+<rect x="2766.4" y="-185.0" width="227.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2880.0" y="-155.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceRef&lt;T></text>
+<text x="2880.0" y="-135.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(値で埋まる参照カウント)</text>
+<rect x="-75.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Model</text>
+<rect x="255.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="330.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Mesh</text>
+<rect x="555.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="630.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Material</text>
+<rect x="855.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="930.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Texture</text>
+<rect x="1155.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1230.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Shader</text>
+<rect x="1455.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1530.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Animation</text>
+<rect x="1785.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1860.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AnimatorAsset</text>
+<rect x="2145.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2220.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EffectAsset</text>
+<rect x="2502.8" y="395.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2580.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ParticlesAsset</text>
+<rect x="2835.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2910.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Sound</text>
+<rect x="3165.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="3240.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AudioBehavior</text>
+<rect x="3495.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="3570.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Prefab</text>
+<rect x="3795.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="3870.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EffectPrefab</text>
+<rect x="4095.0" y="395.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="4170.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Font</text>
+<rect x="4478.4" y="395.0" width="223.2" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="4590.0" y="425.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderingPipelineAsset</text>
+<rect x="-75.0" y="605.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ModelIO</text>
+<rect x="-77.2" y="755.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="785.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ModelConverter</text>
+<rect x="-77.2" y="905.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="935.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ModelProcessor</text>
+<rect x="255.0" y="605.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="330.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">MeshIO</text>
+<rect x="555.0" y="605.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="630.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">MaterialIO</text>
+<rect x="855.0" y="605.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="930.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">TextureIO</text>
+<rect x="1155.0" y="605.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1230.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ShaderIO</text>
+<rect x="1155.0" y="755.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1230.0" y="785.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DXCCompiler</text>
+<rect x="1455.0" y="605.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1530.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AnimationIO</text>
+<rect x="1778.5" y="605.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1860.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AnimatorAssetIO</text>
+<rect x="2145.0" y="605.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2220.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EffectAssetIO</text>
+<rect x="2505.0" y="605.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2580.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ParticlesIO</text>
+<rect x="2835.0" y="605.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2910.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SoundIO</text>
+<rect x="3188.5" y="605.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="3270.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AudioBehaviorIO</text>
+<rect x="4095.0" y="605.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="4170.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">FontIO</text>
+<rect x="4469.8" y="605.0" width="240.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="4590.0" y="635.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderingPipelineAssetIO</text>
+<text x="-270.0" y="1050.0" fill="#bbb" font-size="16" font-family="sans-serif">ResourceManager.Instance() は 12 回(すべて ResourceRef<T> の中)。</text>
+<text x="-270.0" y="1070.8" fill="#bbb" font-size="16" font-family="sans-serif">SoundIO → AudioManager と Prefab / EffectPrefab → SceneManager の直引きは消え、</text>
+<text x="-270.0" y="1091.6" fill="#bbb" font-size="16" font-family="sans-serif">ResourceManager が起動時に受け取った行き先(オーディオエンジン・SceneManager)をコンテキストに載せて渡す。</text>
+<rect x="4053.4" y="1240.0" width="656.8" height="216.0" rx="10" fill="#1a1410" stroke="#ff922b" stroke-width="2"/>
+<text x="4079.4" y="1282.0" fill="#ff922b" font-size="23" font-family="sans-serif">改善点</text>
+<text x="4079.4" y="1317.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">1. 方針(ResourceBuildContext 経由)は徹底できた</text>
+<text x="4079.4" y="1337.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    IO 群・Sound・Prefab の緑矢印は消えた。</text>
+<text x="4079.4" y="1357.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    ResourceManager::Instance() が残るのは ResourceRef&lt;T> の中だけ。</text>
+<text x="4079.4" y="1397.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">2. GraphicsEngine が欲しくて MainEngine を引いている</text>
+<text x="4079.4" y="1417.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    ScopedResourceBuild はバッチを開くため、Mesh::Release は</text>
+<text x="4079.4" y="1437.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    MeshBufferAllocator へ返すため(Release には Context が来ない)。</text>
+</svg>

@@ -19,6 +19,7 @@ namespace Editor
 {
 	class EditorCamera;
 	class Profiler;
+	class EffectEditor;
 
 	/// <summary>
 	/// インスペクターのモード
@@ -188,6 +189,9 @@ namespace Editor
 
 		// エディターカメラポインタ
 		EditorCamera* pEditorCamera = nullptr;
+
+		// エフェクトエディター(モーダルの確認画面)。アセットの「Open Effect Editor」から開く
+		EffectEditor* pEffectEditor = nullptr;
 
 		// アプリ寿命のサービス一式(借り物) : 正本は MainEngine が持っている。
 		// アセットデータベースやリソースマネージャーはここから引くこと

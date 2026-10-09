@@ -4,6 +4,11 @@
 
 #include "../../Audio/SoundGroup.h"
 
+namespace Engine::Audio
+{
+	class AudioManager;
+}
+
 namespace Engine::Option::ProjectOptions
 {
 	/// <summary>
@@ -31,8 +36,9 @@ namespace Engine::Option::ProjectOptions
 		// グループごとの音量。並びは Audio::ESoundGroup と同じ
 		std::array<float, Audio::SOUND_GROUP_COUNT> groupVolumeArray = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-		// 音量を AudioManager へ流し込む(鳴っている音にもその場で効く)
-		void Apply() const;
+		// 音量を AudioManager へ流し込む(鳴っている音にもその場で効く)。
+		// 流し込む先は呼ぶ側が渡す : 起動時は MainEngine、エディターからはサービス経由
+		void Apply(Audio::AudioManager& a_audioManager) const;
 
 		const std::string& GetName() const override
 		{

@@ -113,6 +113,28 @@ namespace Engine::Resource
 		}
 
 		/// <summary>
+		/// サウンドの読み込み先(オーディオエンジン)を登録する
+		///
+		/// SoundEffect はオーディオエンジンから作るので、ローダーへコンテキストで渡す。
+		/// オーディオエンジンを壊す前に nullptr を入れ直すこと
+		/// </summary>
+		void SetAudioEngine(DirectX::AudioEngine* a_pAudioEngine)
+		{
+			m_pAudioEngine.store(a_pAudioEngine, std::memory_order_release);
+		}
+
+		/// <summary>
+		/// プレハブの読み込みが型を引くワールドの持ち主を登録する
+		///
+		/// プレハブはコンポーネント名から型を引き直すので、今のシーンのワールドが要る。
+		/// シーンを全部解放した後は nullptr を入れ直すこと
+		/// </summary>
+		void SetSceneManager(Scene::SceneManager* a_pSceneManager)
+		{
+			m_pSceneManager.store(a_pSceneManager, std::memory_order_release);
+		}
+
+		/// <summary>
 		/// リソースの読み込みを要求する : 呼び出しスレッドは待たない
 		///
 		/// 空ならスロットだけ押さえてジョブへ流し、読込中・読込済みなら何もしない。
@@ -497,6 +519,12 @@ namespace Engine::Resource
 		// 非同期ロードの実行先 : 未登録なら同期で読む
 		std::atomic<Thread::JobSystem*> m_pJobSystem = nullptr;
 
+		// サウンドの読み込み先 : 未登録ならサウンドは空のまま
+		std::atomic<DirectX::AudioEngine*> m_pAudioEngine = nullptr;
+
+		// プレハブの読み込みが型を引くワールドの持ち主 : 未登録ならプレハブは空のまま
+		std::atomic<Scene::SceneManager*> m_pSceneManager = nullptr;
+
 		// ジョブへ流して読み終わっていない数(RequestLoad で増え、ジョブの終わりで減る)
 		std::atomic<uint32_t> m_inFlightLoadCount = 0;
 
@@ -686,6 +714,8 @@ namespace Engine::Resource
 			ResourceBuildContext _context = a_pBuildContext ? *a_pBuildContext : ResourceBuildContext{};
 			if (!_context.pResourceManager) _context.pResourceManager = this;
 			if (!_context.pAssetDatabase) _context.pAssetDatabase = m_upAssetDatabase.get();
+			if (!_context.pAudioEngine) _context.pAudioEngine = m_pAudioEngine.load(std::memory_order_acquire);
+			if (!_context.pSceneManager) _context.pSceneManager = m_pSceneManager.load(std::memory_order_acquire);
 
 			T _resourceData = DefaultLoader<T>::LoadFromFile(_filePath, &_context);	// リソースのビルド
 
@@ -1228,8 +1258,8 @@ namespace Engine
 	// デストラクタ
 	template<typename T>
 	inline ResourceRef<T>::~ResourceRef() {
-		// ResourceRef がシングルトン(AudioManager など)に保持されている場合、
-		// このデストラクタは静的変数の破棄フェーズで走ることがある。
+		// ResourceRef が MainEngine の持ち物(AudioManager のサウンドインスタンスなど)に
+		// 保持されている場合、このデストラクタは MainEngine の破棄(静的変数の破棄フェーズ)で走ることがある。
 		// そのとき ResourceManager が先に壊されていると Instance() は
 		// 破棄済みオブジェクトへの参照を返すため、必ず生存確認する
 		if (!Resource::ResourceManager::IsAlive()) return;

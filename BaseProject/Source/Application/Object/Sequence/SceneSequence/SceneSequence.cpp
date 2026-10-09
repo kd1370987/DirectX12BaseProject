@@ -13,7 +13,7 @@
 #include "Application/Utility/PrefabSpawnHelper.h"
 #include "Application/InstanceResource/WaveAnnounceResource.h"
 #include "Application/Components/Input/PlayerControllTag.h"
-#include "Application/Game/GameManager/GameManager.h"
+#include "Application/InstanceResource/GameDataResource.h"
 
 #include "Engine/Scene/SceneManager/SceneManager.h"
 
@@ -113,6 +113,11 @@ namespace App::Object
 	//======================================================================================
 	void SceneSequence::UpdateResultState(Engine::GameObject::ObjectContext& a_context)
 	{
+		// 記録の置き場(シーンをまたぐもの)。持ち主は GameManager で、ワールドに入口が置いてある
+		auto* _pGameData = InstanceResource::GameDataResource::Find(a_context.pWorld);
+		if (!_pGameData) return;
+		auto& _gameData = *_pGameData;
+
 		//----------------------------------------------------------------------
 		// シーンの入り口で記録を消す
 		//
@@ -126,7 +131,7 @@ namespace App::Object
 
 			if (m_isResetOnStart)
 			{
-				App::Game::GameManager::Instance().RefGameData().ResetRun();
+				_gameData.ResetRun();
 			}
 		}
 
@@ -137,7 +142,6 @@ namespace App::Object
 		// 決まった後は止める。リザルトに出したいのは決着した時刻で、
 		// その後も進み続けると遷移待ちのぶんだけ伸びてしまう
 		//----------------------------------------------------------------------
-		auto& _gameData = App::Game::GameManager::Instance().RefGameData();
 		if (m_result == App::Game::EGameResult::None)
 		{
 			_gameData.time = m_time;
@@ -151,7 +155,7 @@ namespace App::Object
 			m_resultTimer = (std::max)(0.0f, m_resultTimer - a_context.dt);
 			if (m_resultTimer > 0.0f) return;
 
-			ReserveResultScene();
+			ReserveResultScene(_gameData, a_context.pServices ? a_context.pServices->pSceneManager : nullptr);
 			return;
 		}
 
@@ -254,11 +258,11 @@ namespace App::Object
 	// スコアは倒すたびに ScoreSystem がグローバルへ足しているので、
 	// ここで移すのはこのシーンでしか分からないもの(タイム・結末・ウェーブ数)だけ。
 	//======================================================================================
-	void SceneSequence::ReserveResultScene()
+	void SceneSequence::ReserveResultScene(Game::GlobalGameContext& a_gameData, Engine::Scene::SceneManager* a_pSceneManager)
 	{
 		m_isSceneRequested = true;
 
-		auto& _gameData = App::Game::GameManager::Instance().RefGameData();
+		auto& _gameData = a_gameData;
 
 		// タイムは決着するまで毎フレーム入れているので、ここでは触らない
 		_gameData.result           = m_result;
@@ -273,7 +277,8 @@ namespace App::Object
 			return;
 		}
 
-		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
+		if (!a_pSceneManager) return;
+		a_pSceneManager->ReserveChangeScene(
 			m_resultSceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 
@@ -311,7 +316,8 @@ namespace App::Object
 		if (!a_context.pServices->pInputManager->IsPress(m_pauseAction)) return;
 
 		// 重ねる。実際に積まれるのは次のフレームの初め
-		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
+		if (!a_context.pServices->pSceneManager) return;
+		a_context.pServices->pSceneManager->ReserveChangeScene(
 			m_pauseSceneGUID, Engine::Scene::ESceneChangeType::Push);
 
 		m_isPauseRequested = true;

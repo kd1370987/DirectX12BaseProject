@@ -46,7 +46,7 @@ VECTOR_REGINE/
 | 層(Core / Engine / Application / Editor)の依存の向き | CodingStandards.md の「4. Dependency Rules」 |
 | フォルダ名 Common / Core / Internal の意味 | [README.txt](README.txt) |
 | インデント・改行コード・文字コード | [BaseProject/.editorconfig](BaseProject/.editorconfig) |
-| クラスの依存図(Excalidraw)と作り直し方 | [BaseProject/環境/README.md](BaseProject/環境/README.md) |
+| クラスの依存図(Excalidraw)と作り直し方 | [BaseProject/環境/DependenceView/_README.md](BaseProject/環境/DependenceView/_README.md)(生成スクリプトは `環境/gen_excalidraw.py`) |
 | エンジン全体のリファクタリングの手順と進み具合 | [BaseProject/環境/REFACTORING_PLAN.md](BaseProject/環境/REFACTORING_PLAN.md) |
 | エフェクトのリファクタリング計画 / 保留タスク | [BaseProject/環境/EFFECT_REFACTORING_PLAN.md](BaseProject/環境/EFFECT_REFACTORING_PLAN.md) / [BaseProject/環境/EFFECT_DEFERRED_TASKS.md](BaseProject/環境/EFFECT_DEFERRED_TASKS.md) |
 | 外部ライブラリの版とビルド手順 | [Library/Source/README.md](Library/Source/README.md) |

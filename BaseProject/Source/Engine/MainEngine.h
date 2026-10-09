@@ -43,6 +43,31 @@ namespace Engine
 		class ComponentMetaRegistry;
 	}
 
+	namespace GameObject
+	{
+		class ObjectMetaRegistry;
+	}
+
+	namespace Option
+	{
+		class OptionManager;
+	}
+
+	namespace Input
+	{
+		class InputManager;
+	}
+
+	namespace Audio
+	{
+		class AudioManager;
+	}
+
+	namespace Scene
+	{
+		class SceneManager;
+	}
+
 	// エンジンクラス
 	class MainEngine
 	{
@@ -94,6 +119,19 @@ namespace Engine
 		// リソースマネージャー(アセットデータベースもこの中)
 		Resource::ResourceManager* RefResourceManager() { return m_upResourceManager.get(); }
 
+		// エンジン設定(EngineData.ojoptn の中身)
+		const Option::OptionManager* GetOptionManager() const { return m_upOptionManager.get(); }
+		Option::OptionManager* RefOptionManager() { return m_upOptionManager.get(); }
+
+		// 入力
+		Input::InputManager* RefInputManager() { return m_upInputManager.get(); }
+
+		// オーディオ
+		Audio::AudioManager* RefAudioManager() { return m_upAudioManager.get(); }
+
+		// シーンの積み替え。解放(Release)はアプリ側が、ゲームより先に呼ぶ
+		Scene::SceneManager* RefSceneManager() { return m_upSceneManager.get(); }
+
 		//----------------------------------------------------------------------------
 		// アプリ寿命のサービス一式(正本)
 		//
@@ -133,12 +171,28 @@ namespace Engine
 		// クラス
 		//
 		// リソースマネージャーは先頭に置く : メンバは宣言の逆順に壊れるので、これが最後になる。
-		// 後ろのメンバや他のシングルトンが持つ ResourceRef は、破棄のときに参照を返しに来る
+		// 後ろのメンバ(オーディオのサウンドインスタンス・シーンなど)が持つ ResourceRef は、破棄のときに参照を返しに来る
 		std::unique_ptr<Resource::ResourceManager> m_upResourceManager = nullptr;		// リソース(とアセットデータベース)の持ち主
+
+		// エンジン設定 : 何よりも先に読む(ビルドモードやウィンドウの大きさがここで決まる)
+		std::unique_ptr<Option::OptionManager> m_upOptionManager = nullptr;
+
+		// 入力 : ウィンドウのフォーカス通知を受けるので、ウィンドウより前に作る
+		std::unique_ptr<Input::InputManager> m_upInputManager = nullptr;
+
+		// オーディオ : 再生中のインスタンスが ResourceRef<Sound> を持っているので、
+		// リソースマネージャーより後ろに置き、先に壊れるようにする
+		std::unique_ptr<Audio::AudioManager> m_upAudioManager = nullptr;
 
 		// コンポーネントの型情報 : ワールドの解放(解放フックの呼び出し)で引くので、
 		// ワールドを持つどのメンバよりも後に壊れるよう、リソースマネージャーの次に置く
 		std::unique_ptr<ECS::ComponentMetaRegistry> m_upComponentRegistry = nullptr;
+
+		// ECS外オブジェクトのクラス情報 : コンポーネントの型情報と同じく、シーンより後に壊れる位置に置く
+		std::unique_ptr<GameObject::ObjectMetaRegistry> m_upObjectRegistry = nullptr;
+
+		// シーン(ワールドを持つ)。上の型情報より後ろに置き、先に壊れるようにする
+		std::unique_ptr<Scene::SceneManager> m_upSceneManager = nullptr;
 		std::unique_ptr<Window::NativeWindow> m_upWindow = nullptr;						// ウィンドウクラス
 		std::unique_ptr<Time::TimeManager> m_upTimeManager = nullptr;					// 時間管理クラス
 		std::unique_ptr<Graphics::GraphicsEngine> m_upGraphicsEngine = nullptr;			// 描画周りの管理クラス(パーティクル・レイトレもこの中)

@@ -95,6 +95,21 @@ namespace Engine::Window
 			return m_messageHook && m_messageHook(a_hWnd, a_message, a_wParam, a_lParam);
 		}
 
+		//----------------------------------------------------------------------------------
+		// フォーカスの出入り
+		//
+		// 選択された(true)・外れた(false)ときに呼ぶ先。入力を止める・戻すのに使う。
+		// ウィンドウ側は入力を知らないので、つなぐのは持ち主(MainEngine)の役。
+		// 作成の途中からも届くので Create より前に登録すること
+		//----------------------------------------------------------------------------------
+		using FocusCallback = std::function<void(bool a_isActive)>;
+		void SetFocusCallback(FocusCallback a_callback) { m_focusCallback = std::move(a_callback); }
+
+		void CallFocusCallback(bool a_isActive) const
+		{
+			if (m_focusCallback) m_focusCallback(a_isActive);
+		}
+
 	private:
 
 		/// <summary>
@@ -129,6 +144,9 @@ namespace Engine::Window
 
 		// メッセージの横取り先
 		MessageHook m_messageHook = nullptr;
+
+		// フォーカスの出入りの通知先
+		FocusCallback m_focusCallback = nullptr;
 
 		// ウィンドウ設定
 		UINT m_clientWidth = 0;

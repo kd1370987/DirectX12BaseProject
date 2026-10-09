@@ -422,7 +422,7 @@ namespace Editor::Inspector
 	void EntityInspector(EditorContext& a_editContext)
 	{
 		// ワールド取得
-		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
+		Engine::ECS::World* _pWorld = a_editContext.pServices->pSceneManager->RefWorld();
 		if (!_pWorld || !_pWorld->IsInit()) return;
 
 		// 削除は選択中のエンティティすべてが対象

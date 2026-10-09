@@ -42,9 +42,11 @@ namespace Engine::Resource
 		// リソースローダー / 生成(他リソースと同じ入口)
 		//----------------------------------------------------------------------------------
 		// ファイルパスから読み込んで実体を返す(ResourceManager の Load から使用)
-		static EffectPrefab LoadFromFile(const std::string& a_path);
+		// a_pContext : 型を引くワールドの持ち主(pSceneManager)をここから受け取る
+		static EffectPrefab LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext);
 		// 空のエフェクトプレハブを新規作成(AssetDataBasePanel から使用)
-		static void Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name);
+		// a_pWorld : 保存に使うワールド(コンポーネントの型を引く)
+		static void Create(AssetDatabase& a_assetDB, ECS::World* a_pWorld, const std::string& a_path, const std::string& a_name);
 
 		//----------------------------------------------------------------------------------
 		// 保存 / 読み込み(コンポーネントのメタ情報が必要なので World を受け取る)

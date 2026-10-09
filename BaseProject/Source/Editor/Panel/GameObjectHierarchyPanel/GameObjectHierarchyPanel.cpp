@@ -48,7 +48,7 @@ namespace Editor
 		a_editContext.eInspectorType = EInspectorType::Game;
 
 		// 現在のシーンのオブジェクトマネージャーを取得
-		auto* _pManager = Engine::Scene::SceneManager::Instance().RefGameObjectManager();
+		auto* _pManager = a_editContext.pServices->pSceneManager->RefGameObjectManager();
 		if (!_pManager)
 		{
 			Engine::EditorField::HelpText("No GameObjectManager");
@@ -68,8 +68,8 @@ namespace Editor
 			Engine::EditorField::HelpText("Select Class");
 			Engine::EditorField::Line();
 
-			const auto& _allMeta = GameObject::ObjectMetaRegistry::Instance().GetAllMeta();
-			if (_allMeta.empty())
+			const auto* _pRegistry = a_editContext.pServices ? a_editContext.pServices->pObjectRegistry : nullptr;
+			if (!_pRegistry || _pRegistry->GetAllMeta().empty())
 			{
 				Engine::EditorField::HelpText("No registered class");
 			}
@@ -77,6 +77,7 @@ namespace Editor
 			{
 				// 数が増えると探せなくなるのでクラス名で絞り込めるようにする
 				const std::string& _search = EditorHelper::DrawSearchBox();
+				const auto& _allMeta = _pRegistry->GetAllMeta();
 
 				// クラス名順に並べて表示(map は順不同のため一旦ソート)
 				// タイプIDは登録名のハッシュなので、IDで並べても意味のある順にはならない

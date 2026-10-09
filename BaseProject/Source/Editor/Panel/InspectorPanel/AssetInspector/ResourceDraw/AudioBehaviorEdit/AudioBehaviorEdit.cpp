@@ -110,7 +110,7 @@ namespace Editor::Inspector
 			ENGINE_LOG("Save AudioBehavior : %s", _filePath.c_str());
 		}
 
-		auto& _audioManager = Engine::Audio::AudioManager::Instance();
+		auto& _audioManager = *a_editContext.pServices->pAudioManager;
 
 		// 編集対象が変わっていたら試聴用を作り直す
 		SyncPreview(_audioManager, a_pBehavior, _guid, false);

@@ -4,6 +4,11 @@
 
 #include "../../SequenceBgm.h"
 
+namespace Engine::Scene
+{
+	class SceneManager;
+}
+
 namespace App::Object
 {
 	/// <summary>
@@ -49,7 +54,7 @@ namespace App::Object
 		void TryBindButton(Engine::GameObject::ObjectContext& a_context);
 
 		// タイトルへ戻る
-		void ReserveBackToTitle();
+		void ReserveBackToTitle(Engine::Scene::SceneManager& a_sceneManager);
 
 	private:
 

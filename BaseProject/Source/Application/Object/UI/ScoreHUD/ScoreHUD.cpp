@@ -6,16 +6,17 @@
 #include "Engine/ECS/World/World.h"
 #include "Engine/EditorField/EditorField.h"
 
-#include "Application/Game/GameManager/GameManager.h"
+#include "Application/InstanceResource/GameDataResource.h"
 
 namespace App::Object
 {
 	//======================================================================================
 	// 出す数を GlobalGameContext から取る
 	//======================================================================================
-	int ScoreHUD::PickValue() const
+	int ScoreHUD::PickValue(const Game::GlobalGameContext* a_pGameData) const
 	{
-		const auto& _gameData = App::Game::GameManager::Instance().GetGameData();
+		if (!a_pGameData) return 0;
+		const auto& _gameData = *a_pGameData;
 
 		switch (m_valueKind)
 		{
@@ -43,7 +44,7 @@ namespace App::Object
 			m_punchTimer = std::max(m_punchTimer - a_context.dt, 0.0f);
 		}
 
-		m_value = PickValue();
+		m_value = PickValue(InstanceResource::GameDataResource::Find(a_context.pWorld));
 
 		//==================================================================
 		// 増えたフレームだけ弾ませる
@@ -192,9 +193,12 @@ namespace App::Object
 		Engine::EditorField::Line();
 
 		// 中身はシーンをまたぐグローバル側。ここでは表示と確認だけ
-		auto& _gameData = App::Game::GameManager::Instance().RefGameData();
-
 		Engine::EditorField::Value("Value", "%d", m_value);
+
+		auto* _pGameData = InstanceResource::GameDataResource::Find(a_context.pWorld);
+		if (!_pGameData) return;
+		auto& _gameData = *_pGameData;
+
 		Engine::EditorField::Value("Score", "%d", _gameData.score);
 		Engine::EditorField::Value("Kill", "%d", _gameData.killCount);
 		Engine::EditorField::Value("Time", "%.2f", _gameData.time);

@@ -559,8 +559,9 @@ namespace Engine::DevTool { class IDevTool { public: virtual void Update(float a
 // Editor : 実装する
 class MainEditor : public Engine::DevTool::IDevTool { ... };
 
-// main.cpp : つなぐ
-Engine::MainEngine::Instance().SetDevTool(&Editor::MainEditor::Instance());
+// main.cpp : つなぐ(持ち主も main.cpp)
+auto _upEditor = std::make_unique<Editor::MainEditor>();
+Engine::MainEngine::Instance().SetDevTool(_upEditor.get());
 ```
 
 エディター(開発ツール)は `Engine::DevTool::IDevTool` を通してだけ呼ぶ。差し込まれていなければ nullptr なので、

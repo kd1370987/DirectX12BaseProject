@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-390 -245 3896 2381" width="2400">
+<rect x="-390" y="-245" width="3896" height="2381" fill="#121212"/>
+<defs><marker id="aw" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#ffffff" stroke-width="1.2"/></marker><marker id="ag" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#51cf66" stroke-width="1.2"/></marker></defs>
+<text x="-350" y="-185" fill="#fff" font-size="34" font-family="sans-serif">③ Scene / ECS / GameObject — シーンの中身</text>
+<text x="-350" y="-153" fill="#aaa" font-size="16" font-family="sans-serif">EngineServices は MainEngine が正本を持ち、World が写しを持つ。System / GameObject はそこから引き、シングルトンは見ない。</text>
+<line x1="2619.0" y1="1146.3" x2="1123.6" y2="986.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="900.0" y1="31.0" x2="900.0" y2="134.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="821.1" y1="196.0" x2="558.9" y2="299.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="981.0" y1="185.2" x2="1463.9" y2="306.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="103.6" y1="212.4" x2="399.0" y2="304.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="399.0" y1="354.8" x2="21.0" y2="470.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="446.2" y1="361.0" x2="333.8" y2="464.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="516.6" y1="361.0" x2="638.4" y2="464.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="561.0" y1="353.4" x2="930.4" y2="460.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="506.0" y1="361.0" x2="985.7" y2="934.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="399.0" y1="330.0" x2="53.3" y2="330.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="254.9" y1="526.0" x2="105.1" y2="629.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1005.3" y1="536.0" x2="903.8" y2="629.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1132.0" y1="536.0" x2="1318.0" y2="629.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1457.5" y1="629.0" x2="2477.5" y2="221.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="2580.0" y1="31.0" x2="2580.0" y2="139.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="2499.0" y1="0.0" x2="981.0" y2="0.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1582.5" y1="361.0" x2="1657.5" y2="464.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1563.8" y1="361.0" x2="1615.0" y2="784.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="105.1" y1="691.0" x2="240.4" y2="784.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="314.9" y1="784.0" x2="468.7" y2="361.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="430.5" y1="852.2" x2="916.4" y2="953.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1674.4" y1="526.0" x2="1627.5" y2="784.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1525.6" y1="784.0" x2="551.4" y2="361.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1456.0" y1="866.0" x2="1123.6" y2="949.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1615.0" y1="784.0" x2="1563.8" y2="361.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1123.6" y1="986.1" x2="2619.0" y2="1146.3" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="916.4" y1="991.4" x2="-32.5" y2="1141.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="916.4" y1="998.5" x2="306.0" y2="1136.7" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="916.4" y1="1013.9" x2="621.0" y2="1124.6" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="982.4" y1="1016.0" x2="883.4" y2="1124.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1057.6" y1="1016.0" x2="1156.6" y2="1124.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1123.6" y1="1015.1" x2="1404.9" y2="1124.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1123.6" y1="1000.4" x2="1674.0" y2="1135.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1123.6" y1="993.0" x2="1974.0" y2="1140.9" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1123.6" y1="989.0" x2="2274.0" y2="1144.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="945.5" y1="1016.0" x2="476.4" y2="1274.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1020.0" y1="1016.0" x2="1020.0" y2="1274.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="2933.6" y1="536.0" x2="1802.1" y2="784.9" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="3002.4" y1="352.3" x2="1471.8" y2="642.6" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="3023.9" y1="969.9" x2="430.5" y2="831.9" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="2993.8" y1="660.0" x2="2761.8" y2="660.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<rect x="825.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="5.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SceneManager</text>
+<rect x="2505.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2580.0" y="5.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GameManager</text>
+<rect x="825.0" y="140.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="170.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">BaseScene</text>
+<rect x="405.0" y="305.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="480.0" y="335.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">World</text>
+<rect x="-97.6" y="145.0" width="195.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="0.0" y="175.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">APPWorld</text>
+<text x="0.0" y="195.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(ゲーム側の決めごと)</text>
+<rect x="1469.9" y="305.0" width="180.2" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1560.0" y="335.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GameObjectManager</text>
+<rect x="-135.0" y="470.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="-60.0" y="500.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EntityStorage</text>
+<rect x="225.0" y="470.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="300.0" y="500.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SystemManager</text>
+<rect x="600.0" y="470.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="675.0" y="500.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CommandBuffer</text>
+<rect x="936.4" y="460.0" width="227.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1050.0" y="490.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceStore</text>
+<text x="1050.0" y="510.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(ワールド寿命のリソース)</text>
+<rect x="1605.0" y="470.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1680.0" y="500.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">BaseObject</text>
+<rect x="-15.0" y="635.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="60.0" y="665.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ISystem</text>
+<rect x="795.0" y="635.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="870.0" y="665.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PhysicsWorld</text>
+<rect x="1294.2" y="635.0" width="171.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1380.0" y="665.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GameDataResource</text>
+<rect x="2482.4" y="145.0" width="195.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2580.0" y="175.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GlobalGameContext</text>
+<text x="2580.0" y="195.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(シーンをまたぐ記録)</text>
+<rect x="175.5" y="790.0" width="249.0" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="300.0" y="820.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SystemContext</text>
+<text x="300.0" y="840.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(pWorld / pServices / dt)</text>
+<rect x="1443.9" y="790.0" width="352.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="1620.0" y="820.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ObjectContext</text>
+<text x="1620.0" y="840.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(pWorld / pServices / pObjectManager)</text>
+<rect x="2584.2" y="625.0" width="171.6" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="2670.0" y="655.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CompEditContext</text>
+<text x="2670.0" y="675.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(pData / pWorld)</text>
+<rect x="922.4" y="940.0" width="195.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="1020.0" y="970.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EngineServices</text>
+<text x="1020.0" y="990.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(アプリ寿命の置き場)</text>
+<rect x="-201.5" y="1130.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="-120.0" y="1160.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceManager</text>
+<rect x="150.0" y="1130.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="225.0" y="1160.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AssetDatabase</text>
+<rect x="465.0" y="1130.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="540.0" y="1160.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">InputManager</text>
+<rect x="780.0" y="1130.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="855.0" y="1160.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AudioManager</text>
+<rect x="1110.0" y="1130.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1185.0" y="1160.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">OptionManager</text>
+<rect x="1410.0" y="1130.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1485.0" y="1160.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RayEngine</text>
+<rect x="1680.0" y="1130.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1755.0" y="1160.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">JobSystem</text>
+<rect x="1980.0" y="1130.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2055.0" y="1160.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PhysicsEngine</text>
+<rect x="2280.0" y="1130.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2355.0" y="1160.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DebugDraw</text>
+<rect x="2625.0" y="1130.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="2700.0" y="1160.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEngine</text>
+<rect x="945.0" y="1280.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1020.0" y="1310.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SceneManager</text>
+<rect x="325.6" y="1280.0" width="188.8" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="420.0" y="1310.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ObjectMetaRegistry</text>
+<rect x="-167.3" y="305.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="-60.0" y="335.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ComponentMetaRegistry</text>
+<rect x="2853.6" y="460.0" width="532.8" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="3120.0" y="490.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Sequence 群</text>
+<text x="3120.0" y="510.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(Title / Pause / Result / Scene / MissionSelect / Loading)</text>
+<rect x="3008.4" y="305.0" width="223.2" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="3120.0" y="335.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ScoreSystem / ScoreHUD</text>
+<rect x="3029.9" y="950.0" width="180.2" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="3120.0" y="980.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CameraStartSystem</text>
+<rect x="2999.8" y="625.0" width="240.4" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="3120.0" y="655.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">FollowTargetComponent /</text>
+<text x="3120.0" y="675.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AttachmentSlotsComponent</text>
+<text x="-270.0" y="1470.0" fill="#bbb" font-size="16" font-family="sans-serif">シーン・ECS・GameObject・システムの Instance() は 0。アプリ側に残るのは入口の App.cpp と InputActionManager(RefDevTool)だけ。</text>
+<text x="-270.0" y="1490.8" fill="#bbb" font-size="16" font-family="sans-serif">SceneManager / ObjectMetaRegistry を EngineServices に載せ、ゲームの記録はワールドの GameDataResource から引く形にした。</text>
+<text x="-270.0" y="1511.6" fill="#bbb" font-size="16" font-family="sans-serif">右端はかつて直引きしていた使い手。今はすべてコンテキスト経由。</text>
+<rect x="2570.6" y="1660.0" width="815.8" height="216.0" rx="10" fill="#1a1410" stroke="#ff922b" stroke-width="2"/>
+<text x="2596.6" y="1702.0" fill="#ff922b" font-size="23" font-family="sans-serif">改善点</text>
+<text x="2596.6" y="1737.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">1. コンテキストへの寄せは完了</text>
+<text x="2596.6" y="1757.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    Sequence 群は ObjectContext、ScoreSystem / CameraStartSystem は SystemContext、</text>
+<text x="2596.6" y="1777.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    コンポーネントの編集 UI は CompEditContext から引く。</text>
+<text x="2596.6" y="1817.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">2. World のリソースにアプリ寿命の記録の入口がある</text>
+<text x="2596.6" y="1837.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    GameDataResource はワールド寿命の箱に、GameManager が持つ記録のポインタを入れている。</text>
+<text x="2596.6" y="1857.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    ワールドを作る作り手(GameManager)が詰めるので、作り手を通らないワールドには無い。</text>
+</svg>

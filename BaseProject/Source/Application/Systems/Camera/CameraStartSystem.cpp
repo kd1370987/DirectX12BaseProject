@@ -22,19 +22,22 @@ namespace App::System
 			[](
 				Engine::ECS::Chunk* /*a_pChunk*/,
 				uint32_t a_count,
-				const Engine::ECS::SystemContext& /*a_ctx*/,
+				const Engine::ECS::SystemContext& a_ctx,
 				Component::StartTag* /*a_startTag*/,
 				Component::CameraParamComponent* a_camParamArray,
 				Component::ProjMatComponent* a_projMatArray
 			)
 			{
+				// アスペクトはウィンドウ設定から取る(持ち主はエンジン。サービスで受け取る)
+				if (!a_ctx.pServices || !a_ctx.pServices->pOptionManager) return;
+				const auto& _winOp = a_ctx.pServices->pOptionManager->GetWindowOption();
+
 				for (size_t _i = 0; _i < a_count; ++_i)
 				{
 					Component::CameraParamComponent& _camParamComp = a_camParamArray[_i];
 					Component::ProjMatComponent& _projMatComp = a_projMatArray[_i];
 
 					// カメラパラメーターの初期化
-					const auto& _winOp = Engine::Option::OptionManager::Instance().GetWindowOption();
 					_camParamComp.aspectRatio = static_cast<float>(_winOp.windowWidth) / static_cast<float>(_winOp.windowHeight);
 
 					// プロジェクション行列の作成

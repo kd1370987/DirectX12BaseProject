@@ -3,6 +3,11 @@
 #include "../Core/InputAction.h"
 #include "../InputDevice/Button/InputButtonBase.h"
 
+namespace Engine::Option::ProjectOptions
+{
+	struct InputOption;
+}
+
 namespace Engine::Input
 {
 	class InputCollector;
@@ -14,8 +19,8 @@ namespace Engine::Input
 	/// アクションの指定は ActionID(uint32_t)。取得も登録もこの番号を鍵にしている。
 	/// 引数の ActionKey は番号・enum class・文字列のどれでも受け取れるので、
 	///
-	///   InputManager::Instance().IsPress(EGameAction::Boost);	// ゲーム側の enum
-	///   InputManager::Instance().IsPress("Boost");				// 名前(ハッシュを通る)
+	///   a_pInputManager->IsPress(EGameAction::Boost);	// ゲーム側の enum
+	///   a_pInputManager->IsPress("Boost");				// 名前(ハッシュを通る)
 	///
 	/// のどちらでも書ける。名前を渡した場合はハッシュ値が番号になるので、
 	/// 登録と取得で同じ書き方を通していれば混ぜても構わない。
@@ -42,8 +47,13 @@ namespace Engine::Input
 		static constexpr const char* SYSTEM_ACTION_TOGGLE_APPMODE_NAME = "ToggleAppMode";
 		static constexpr ActionID SYSTEM_ACTION_TOGGLE_APPMODE = ToActionID(SYSTEM_ACTION_TOGGLE_APPMODE_NAME);
 
+		InputManager();
+		~InputManager();
+		NON_COPYABLE_NON_MOVABLE(InputManager);
+
 		// 初期化
-		void Init();
+		// a_pInputOption : 感度とカーソル固定の設定(借り物。持ち主は OptionManager)
+		void Init(const Option::ProjectOptions::InputOption* a_pInputOption);
 
 		// 更新
 		// 毎フレーム必須
@@ -154,15 +164,7 @@ namespace Engine::Input
 		float m_deltaX = 0.0f;					// 移動量X
 		float m_deltaY = 0.0f;					// 移動量Y
 
-	private:
-		InputManager();
-		~InputManager();
-	public:
-
-		static InputManager& Instance()
-		{
-			static InputManager _instance;
-			return _instance;
-		}
+		// 入力設定(感度・カーソル固定)。毎フレーム読むので借りたまま持つ
+		const Option::ProjectOptions::InputOption* m_pInputOption = nullptr;
 	};
 }

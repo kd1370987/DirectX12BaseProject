@@ -39,18 +39,23 @@ namespace App
 		Engine::MainEngine::Instance().Init();
 
 		// ゲームの初期化
-		App::Game::GameManager::Instance().Init();
+		m_upGameManager = std::make_unique<Game::GameManager>();
+		m_upGameManager->Init(Engine::MainEngine::Instance());
 
 		return true;
 	}
 
 	void Application::Release()
 	{
-		// シーン解放
-		Engine::Scene::SceneManager::Instance().Release();
+		// シーン解放 : 持ち主はエンジンだが、ゲームより先に片付ける(シーンのオブジェクトがゲームの記録を指している)
+		if (auto* _pSceneManager = Engine::MainEngine::Instance().RefSceneManager()) _pSceneManager->Release();
 
 		// ゲーム解放 : リソースの参照を握っているので、エンジンより先に手放す
-		App::Game::GameManager::Instance().Release();
+		if (m_upGameManager)
+		{
+			m_upGameManager->Release();
+			m_upGameManager.reset();
+		}
 
 		// エンジン解放
 		Engine::MainEngine::Instance().Release();
@@ -88,7 +93,7 @@ namespace App
 					ToggleAppMode();
 
 					// ゲームの更新
-					App::Game::GameManager::Instance().Update(Engine::MainEngine::Instance().GetDeltaTime());
+					m_upGameManager->Update(Engine::MainEngine::Instance().GetDeltaTime());
 				}
 
 				{
@@ -103,7 +108,7 @@ namespace App
 					{
 						// ゲームの描画 : 描画命令(カメラ・モデル・UI・ライト)を積むだけで実行はしない。
 						// BeginDraw でフレームが切り替わった後、ExecuteDrawCmd より前に呼ぶこと
-						App::Game::GameManager::Instance().Draw();
+						m_upGameManager->Draw();
 					}
 
 					{
@@ -151,10 +156,11 @@ namespace App
 		if (auto* _pDevTool = Engine::MainEngine::Instance().RefDevTool(); _pDevTool && _pDevTool->IsModalActive()) return;
 
 		// プレイモードでなくても拾う取り方。エディターに居るときに押すため
-		if (!Engine::Input::InputManager::Instance().IsSystemPress(
-			Engine::Input::InputManager::SYSTEM_ACTION_TOGGLE_APPMODE)) return;
-
 		auto& _engine = Engine::MainEngine::Instance();
+
+		const auto* _pInputManager = _engine.RefInputManager();
+		if (!_pInputManager || !_pInputManager->IsSystemPress(
+			Engine::Input::InputManager::SYSTEM_ACTION_TOGGLE_APPMODE)) return;
 
 		// ゲームからでもデバッグプレイからでも、行き先はエディター
 		const bool _isPlaying = (_engine.GetMode() != Engine::EAppMode::Editor);

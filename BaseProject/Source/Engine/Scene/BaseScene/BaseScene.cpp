@@ -37,20 +37,23 @@ namespace Engine::Scene
 	//--------------------------------------------------------------------------------------
 	// 通常のシーンとエディターのプレビュー用シーンで同じものを使う。詳細はヘッダを参照。
 	//======================================================================================
-	std::unique_ptr<Engine::ECS::World> CreateSceneWorld(bool a_isPreview)
+	std::unique_ptr<Engine::ECS::World> CreateSceneWorld(MainEngine& a_engine, bool a_isPreview)
 	{
 		// 実体を作るのは上位層(App::ECS::APPWorld)。
 		// エンジンは基盤の Engine::ECS::World としてしか触らない
-		auto _upWorld = SceneManager::Instance().CreateWorld();
+		auto* _pSceneManager = a_engine.RefSceneManager();
+		if (!_pSceneManager) return nullptr;
+
+		auto _upWorld = _pSceneManager->CreateWorld();
 		if (!_upWorld) return nullptr;
 
 		// 型情報はエンジンに1つ。どのワールドも同じものを借りるので、タイプIDが揃う
-		_upWorld->Init(Engine::MainEngine::Instance().RefComponentRegistry());
+		_upWorld->Init(a_engine.RefComponentRegistry());
 
 		// アプリ寿命のサービスを差し込む。
 		// 組むのは MainEngine::BuildEngineServices(合成の入り口)で、ここは写すだけ。
 		// 各システムは SystemContext 経由で受け取る。
-		_upWorld->SetEngineServices(Engine::MainEngine::Instance().GetEngineServices());
+		_upWorld->SetEngineServices(a_engine.GetEngineServices());
 
 		// 物理空間(Jolt)。当たり判定はすべてここ。
 		//
@@ -75,13 +78,13 @@ namespace Engine::Scene
 		return _upWorld;
 	}
 
-	void BaseScene::Enter()
+	void BaseScene::Enter(MainEngine& a_engine)
 	{
 		// 初期化中
 		m_state = EState::PreLoad;
 
 		// ワールド作成
-		m_upWorld = CreateSceneWorld();
+		m_upWorld = CreateSceneWorld(a_engine);
 
 		// ECS外オブジェクトの生成
 		// 中身はシーン読み込み(Archive)またはエディターの AddObject で追加される。

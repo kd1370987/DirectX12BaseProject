@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-405 -245 3426 2631" width="2400">
+<rect x="-405" y="-245" width="3426" height="2631" fill="#121212"/>
+<defs><marker id="aw" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#ffffff" stroke-width="1.2"/></marker><marker id="ag" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#51cf66" stroke-width="1.2"/></marker></defs>
+<text x="-365" y="-185" fill="#fff" font-size="34" font-family="sans-serif">② Graphics — 描画エンジンとレンダーグラフ</text>
+<text x="-365" y="-153" fill="#aaa" font-size="16" font-family="sans-serif">GraphicsEngine がデバイスからパイプライン・パーティクル・レイトレまで全部持つ。パスは PassContext から引く。</text>
+<line x1="887.6" y1="1094.0" x2="462.4" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2584.6" y1="329.5" x2="531.0" y2="12.5" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1836.7" y1="318.9" x2="531.0" y2="18.6" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="1973.9" y1="479.7" x2="531.0" y2="25.5" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2347.3" y1="1559.0" x2="487.7" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="2744.4" y1="1559.0" x2="495.6" y2="31.0" stroke="#51cf66" stroke-width="1.4" opacity="0.85" marker-end="url(#ag)"/>
+<line x1="523.3" y1="31.0" x2="766.7" y2="134.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="756.8" y1="179.3" x2="-129.0" y2="331.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="756.8" y1="187.2" x2="278.3" y2="314.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="783.2" y1="196.0" x2="566.8" y2="314.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="842.6" y1="196.0" x2="852.4" y2="314.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="902.0" y1="196.0" x2="1118.0" y2="304.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="923.2" y1="185.8" x2="1464.4" y2="321.1" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="923.2" y1="178.5" x2="1836.7" y2="326.6" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="923.2" y1="175.1" x2="2244.0" y2="335.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="923.2" y1="173.1" x2="2584.6" y2="335.2" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="756.8" y1="193.1" x2="-92.4" y2="480.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="780.7" y1="196.0" x2="239.3" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="811.7" y1="196.0" x2="553.3" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="841.3" y1="196.0" x2="853.7" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="868.3" y1="196.0" x2="1126.7" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="895.3" y1="196.0" x2="1399.7" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="920.9" y1="196.0" x2="1659.1" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="843.6" y1="196.0" x2="896.4" y2="644.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1972.5" y1="376.0" x2="2040.2" y2="469.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="-180.0" y1="551.0" x2="-180.0" y2="644.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="900.0" y1="706.0" x2="900.0" y2="784.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="900.0" y1="866.0" x2="900.0" y2="934.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="900.0" y1="1016.0" x2="900.0" y2="1094.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="900.0" y1="1156.0" x2="900.0" y2="1259.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="981.0" y1="1113.1" x2="1318.2" y2="1063.5" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="981.0" y1="1133.1" x2="1403.9" y2="1175.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="967.6" y1="1156.0" x2="1192.4" y2="1259.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1501.8" y1="1050.0" x2="1802.5" y2="1050.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="819.0" y1="1316.0" x2="576.4" y2="1394.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="-92.5" y1="189.0" x2="1562.4" y2="642.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="1608.9" y1="716.0" x2="953.7" y2="1094.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" marker-end="url(#aw)"/>
+<line x1="756.8" y1="165.0" x2="-92.5" y2="165.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1604.7" y1="386.0" x2="1706.2" y2="479.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1478.0" y1="386.0" x2="962.0" y2="644.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1464.4" y1="356.4" x2="284.7" y2="497.5" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="464.7" y1="1125.0" x2="819.0" y2="1125.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="443.2" y1="1010.8" x2="819.0" y2="1104.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="-94.3" y1="469.0" x2="100.2" y2="376.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="-92.4" y1="496.0" x2="746.0" y2="362.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="1836.7" y1="345.0" x2="278.3" y2="345.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="819.0" y1="1291.5" x2="281.4" y2="1301.5" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="274.5" y1="1264.0" x2="819.0" y2="1143.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="117.0" y1="1264.0" x2="819.6" y2="196.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="76.1" y1="1264.0" x2="-166.1" y2="551.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="80.3" y1="1264.0" x2="-172.7" y2="196.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="93.2" y1="1264.0" x2="162.6" y2="376.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="169.4" y1="1264.0" x2="1889.9" y2="376.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="185.5" y1="1264.0" x2="2244.0" y2="379.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="101.3" y1="1264.0" x2="441.4" y2="31.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="7 5" marker-end="url(#aw)"/>
+<line x1="-39.0" y1="1566.2" x2="819.0" y2="1313.8" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="254.4" y1="1559.0" x2="825.6" y2="1321.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="563.8" y1="1559.0" x2="861.2" y2="1321.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="900.0" y1="1559.0" x2="900.0" y2="1321.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1169.0" y1="1559.0" x2="931.0" y2="1321.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1411.1" y1="1559.0" x2="958.9" y2="1321.0" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1659.0" y1="1561.1" x2="981.0" y2="1318.9" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="1952.5" y1="1567.0" x2="981.0" y2="1311.3" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="2297.5" y1="1572.3" x2="981.0" y2="1306.4" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<line x1="2672.4" y1="1571.3" x2="981.0" y2="1302.9" stroke="#ffffff" stroke-width="1.4" opacity="0.85" stroke-dasharray="2 5" marker-end="url(#aw)"/>
+<rect x="375.0" y="-25.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="450.0" y="5.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">MainEngine</text>
+<rect x="-261.5" y="140.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#51cf66" stroke-width="2"/>
+<text x="-180.0" y="170.0" fill="#51cf66" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceManager</text>
+<rect x="762.8" y="140.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="840.0" y="170.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GraphicsEngine</text>
+<rect x="-285.0" y="310.0" width="150.0" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="-210.0" y="340.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderDevice</text>
+<text x="-210.0" y="360.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(詳細は ⑥)</text>
+<rect x="57.7" y="320.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="165.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DescriptorHeapManager</text>
+<rect x="435.0" y="320.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="510.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">BackBuffer</text>
+<rect x="752.0" y="320.0" width="206.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="855.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PipelineStateManager</text>
+<rect x="1105.5" y="310.0" width="189.0" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1200.0" y="340.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SceneView</text>
+<text x="1200.0" y="360.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(カメラ・環境の CB)</text>
+<rect x="1470.4" y="310.0" width="179.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1560.0" y="340.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DrawSubmitter</text>
+<text x="1560.0" y="360.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(描画要求の受け口)</text>
+<rect x="1842.7" y="320.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1950.0" y="350.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ParticleBufferManager</text>
+<rect x="2250.0" y="310.0" width="150.0" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2325.0" y="340.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RayEngine</text>
+<text x="2325.0" y="360.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(詳細は ⑥)</text>
+<rect x="2590.6" y="310.0" width="188.8" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2685.0" y="340.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SkinningCompute /</text>
+<text x="2685.0" y="360.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ParticleSimulation</text>
+<rect x="-261.6" y="475.0" width="163.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="-180.0" y="505.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderContext</text>
+<text x="-180.0" y="525.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(フレーム数だけ)</text>
+<rect x="81.3" y="485.0" width="197.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="180.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">MeshBufferAllocator</text>
+<rect x="439.2" y="485.0" width="171.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="525.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PassMetaRegistry</text>
+<rect x="780.0" y="485.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="855.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">LightManager</text>
+<rect x="1080.0" y="485.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1155.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">QuadPolygon</text>
+<rect x="1380.0" y="485.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1455.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DebugDraw</text>
+<rect x="1665.0" y="485.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1740.0" y="515.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DrawLists</text>
+<rect x="1979.9" y="475.0" width="180.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2070.0" y="505.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GPUParticlePool /</text>
+<text x="2070.0" y="525.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">EmitterSlotPool</text>
+<rect x="-255.0" y="650.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="-180.0" y="680.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CBAllocator</text>
+<rect x="792.7" y="650.0" width="214.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="680.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CameraPipelineManager</text>
+<rect x="1568.4" y="640.0" width="223.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1680.0" y="670.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderingPipelineAsset</text>
+<text x="1680.0" y="690.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(設計図)</text>
+<rect x="805.6" y="790.0" width="188.8" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="820.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">CameraPipelineData</text>
+<text x="900.0" y="840.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(カメラ1台ぶん)</text>
+<rect x="810.4" y="940.0" width="179.2" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="970.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GraphicsPipeline</text>
+<text x="900.0" y="990.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(実行インスタンス)</text>
+<rect x="261.3" y="1100.0" width="197.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="360.0" y="1130.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderGraphCompiler</text>
+<rect x="282.8" y="965.0" width="154.4" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="360.0" y="995.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">AliasingReport</text>
+<rect x="825.0" y="1100.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="1130.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RenderGraph</text>
+<rect x="1324.2" y="1025.0" width="171.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1410.0" y="1055.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceRegistry</text>
+<rect x="1808.5" y="1025.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1890.0" y="1055.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">VirtualResource</text>
+<rect x="1409.9" y="1160.0" width="180.2" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1500.0" y="1190.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ResourceAllocator</text>
+<rect x="1185.0" y="1265.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1260.0" y="1295.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GraphHeap</text>
+<rect x="825.0" y="1265.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="1295.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">Pass (基底)</text>
+<rect x="-95.4" y="1270.0" width="370.8" height="70.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="90.0" y="1300.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">PassContext</text>
+<text x="90.0" y="1320.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">(組むのは RenderGraph::MakeContext だけ)</text>
+<rect x="368.4" y="1400.0" width="223.2" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="480.0" y="1430.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ShadingPipelineBuilder</text>
+<rect x="-195.0" y="1565.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="-120.0" y="1595.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GBufferPass</text>
+<rect x="105.0" y="1565.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="180.0" y="1595.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ZPrePass</text>
+<rect x="422.0" y="1565.0" width="206.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="525.0" y="1595.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">DeferredLightingPass</text>
+<rect x="814.2" y="1565.0" width="171.6" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="900.0" y="1595.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">RaytracingGIPass</text>
+<rect x="1125.0" y="1565.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1200.0" y="1595.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">TAAPass</text>
+<rect x="1395.0" y="1565.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1470.0" y="1595.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">ToneMapPass</text>
+<rect x="1665.0" y="1565.0" width="150.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="1740.0" y="1595.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">UIPass</text>
+<rect x="1958.5" y="1565.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2040.0" y="1595.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">FinalOutputPass</text>
+<rect x="2303.5" y="1565.0" width="163.0" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2385.0" y="1595.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">GroundFieldPass</text>
+<rect x="2678.4" y="1565.0" width="223.2" height="50.0" rx="10" fill="#121212" stroke="#ffffff" stroke-width="2"/>
+<text x="2790.0" y="1595.0" fill="#ffffff" font-size="15" font-family="sans-serif" text-anchor="middle">SceneVolumetricFogPass</text>
+<text x="-270.0" y="1740.0" fill="#bbb" font-size="16" font-family="sans-serif">パスは 37 種類。ここに並べたのは代表と、MainEngine を直に引いている2つ(デルタタイム)。</text>
+<text x="-270.0" y="1760.8" fill="#bbb" font-size="16" font-family="sans-serif">描画層からシーン・ゲーム・オプションへの直引きは 0 になった(オプションは MainEngine が流し込む)。</text>
+<rect x="2058.0" y="1910.0" width="843.6" height="216.0" rx="10" fill="#1a1410" stroke="#ff922b" stroke-width="2"/>
+<text x="2084.0" y="1952.0" fill="#ff922b" font-size="23" font-family="sans-serif">改善点</text>
+<text x="2084.0" y="1987.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">1. 描画層の残りは MainEngine の4種類</text>
+<text x="2084.0" y="2007.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    RenderGraph::MakeContext(PassContext を組む入口)、</text>
+<text x="2084.0" y="2027.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    ParticleBufferManager / GPUParticlePool / ParticleSimulation(遅延解放・デルタタイム)、</text>
+<text x="2084.0" y="2047.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    GroundFieldPass / SceneVolumetricFogPass(デルタタイム)。</text>
+<text x="2084.0" y="2087.0" fill="#ff922b" font-size="15" font-family="sans-serif" xml:space="preserve">2. パスがデルタタイムを MainEngine から引いている</text>
+<text x="2084.0" y="2107.0" fill="#e6e6e6" font-size="15" font-family="sans-serif" xml:space="preserve">    PassContext にデルタタイムを載せれば、パスの Instance() は再び 0 にできる。</text>
+</svg>

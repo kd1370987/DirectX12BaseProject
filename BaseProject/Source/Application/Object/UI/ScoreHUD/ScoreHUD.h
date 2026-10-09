@@ -2,6 +2,11 @@
 
 #include "../UIBase.h"
 
+namespace App::Game
+{
+	struct GlobalGameContext;
+}
+
 namespace App::Object
 {
 	/// <summary>
@@ -59,8 +64,8 @@ namespace App::Object
 
 	private:
 
-		// 出す数を GlobalGameContext から取る
-		int PickValue() const;
+		// 出す数を GlobalGameContext から取る(無ければ 0)
+		int PickValue(const Game::GlobalGameContext* a_pGameData) const;
 
 		// 1桁ぶんを描く。a_index は左から何桁目か
 		void DrawDigit(

@@ -8,6 +8,7 @@ namespace Editor
 {
 	class EditorCamera;
 	class Profiler;
+	class EffectEditor;
 
 	/// <summary>
 	/// パネルを管理するためのクラス
@@ -19,7 +20,7 @@ namespace Editor
 		/// <summary>
 		/// パネルの登録
 		/// </summary>
-		void Init(EditorCamera* a_pEditorCamera, Profiler* a_pProfiler, ECS::EngineServices* a_pServices);
+		void Init(EditorCamera* a_pEditorCamera, EffectEditor* a_pEffectEditor, Profiler* a_pProfiler, ECS::EngineServices* a_pServices);
 
 		/// <summary>
 		/// パネルの描画

@@ -24,7 +24,7 @@ namespace Editor
 		switch (m_eView)
 		{
 		case EView::Engine:	DrawEngineView(a_editContext);	break;
-		case EView::ECS:	m_ecsView.Draw();				break;
+		case EView::ECS:	m_ecsView.Draw(a_editContext.pServices ? a_editContext.pServices->pSceneManager : nullptr);	break;
 		case EView::Thread:	m_threadView.Draw();			break;
 		}
 	}

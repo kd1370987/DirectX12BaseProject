@@ -3,8 +3,11 @@
 #include "../../MainEngine.h"
 #include "../../Window/NativeWindow.h"
 
-void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineServices&)
+void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineServices& a_services)
 {
+	// ウィンドウの持ち主はエンジン。書き換えた値はその場でウィンドウへ送る
+	auto* _pWindow = a_services.pMainEngine ? a_services.pMainEngine->RefNativeWindow() : nullptr;
+
 	// ウィンドウサイズ
 	Engine::EditorField::Header("WindowSize");
 	Engine::EditorField::Value("Width", "%f", windowWidth);
@@ -18,7 +21,6 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineSe
 	if (Engine::EditorField::Field("Title", windowTitle))
 	{
 		// ウィンドウがない状況はあり得ないが一応
-		auto* _pWindow = MainEngine::Instance().RefNativeWindow();
 		if (_pWindow)
 		{
 			_pWindow->ChangeTitle(windowTitle);
@@ -27,7 +29,6 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineSe
 	if (Engine::EditorField::Field("IsTitleFPS", isTitleFPS))
 	{
 		// FPS表示を消すため
-		auto* _pWindow = MainEngine::Instance().RefNativeWindow();
 		if (_pWindow)
 		{
 			_pWindow->ChangeTitle(windowTitle);
@@ -40,7 +41,6 @@ void Engine::Option::GraphicsOptions::WindowOption::DrawEdit(const ECS::EngineSe
 	if (Engine::EditorField::Field("WindowMode", windowMode))
 	{
 		// ウィンドウがない状況はあり得ないが一応
-		auto* _pWindow = MainEngine::Instance().RefNativeWindow();
 		if (_pWindow)
 		{
 			_pWindow->ChangeWindowMode(windowMode);

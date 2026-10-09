@@ -26,7 +26,7 @@ namespace
 	}
 }
 
-void Engine::Option::ProjectOptions::InputOption::DrawEdit(const ECS::EngineServices&)
+void Engine::Option::ProjectOptions::InputOption::DrawEdit(const ECS::EngineServices& a_services)
 {
 	//======================================================================
 	// カーソル
@@ -35,7 +35,7 @@ void Engine::Option::ProjectOptions::InputOption::DrawEdit(const ECS::EngineServ
 
 	if (Engine::EditorField::Field("CursorLockToCenter", isCursorLockedToCenter))
 	{
-		Input::InputManager::Instance().SetCursorCentered(isCursorLockedToCenter);
+		if (a_services.pInputManager) a_services.pInputManager->SetCursorCentered(isCursorLockedToCenter);
 	}
 	Engine::EditorField::Tooltip("プレイ中だけ画面中央へ固定");
 

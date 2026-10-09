@@ -166,10 +166,11 @@ namespace App::Input
 	//======================================================================================
 	// 復元
 	//======================================================================================
-	void InputActionManager::Init(Game::UserData* a_pUserData)
+	void InputActionManager::Init(Game::UserData* a_pUserData, Engine::Input::InputManager* a_pInputManager)
 	{
 		m_pUserData = a_pUserData;
-		if (!m_pUserData) return;
+		m_pInputManager = a_pInputManager;
+		if (!m_pUserData || !m_pInputManager) return;
 
 		// 既定は毎回ここで作り直す。ユーザーデータが空でも遊べる状態にするためと、
 		// 「既定へ戻す」で戻す先を持っておくため
@@ -202,10 +203,10 @@ namespace App::Input
 	//======================================================================================
 	void InputActionManager::Apply()
 	{
-		if (!m_pUserData) return;
+		if (!m_pUserData || !m_pInputManager) return;
 
 		const auto& _settings = m_pUserData->GetInputSettings();
-		auto& _inputManager = Engine::Input::InputManager::Instance();
+		auto& _inputManager = *m_pInputManager;
 
 		// ---- キーボード ----
 		{

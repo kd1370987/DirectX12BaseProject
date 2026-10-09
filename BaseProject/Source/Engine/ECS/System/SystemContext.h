@@ -37,6 +37,14 @@ namespace Engine::Physics
 {
 	class PhysicsEngine;
 }
+namespace Engine::GameObject
+{
+	class ObjectMetaRegistry;
+}
+namespace Engine::Scene
+{
+	class SceneManager;
+}
 
 namespace Engine::ECS
 {
@@ -68,6 +76,14 @@ namespace Engine::ECS
 		// アプリからエディターへの依存になるのでエンジン側の置き場に差し替えた。
 		// 表示のオンオフは DebugDrawOption が持ち、エディターはそれを触るだけ
 		Graphics::DebugDraw*		pDebugDraw			= nullptr;
+
+		// ECS外オブジェクト(GameObject)のクラス情報。
+		// シーンの復元とエディターの AddObject 一覧がここからファクトリを引く
+		GameObject::ObjectMetaRegistry*	pObjectRegistry	= nullptr;
+
+		// シーンの積み替え(ReserveChangeScene)と、今のワールドの取得。
+		// 積み替えを予約しているのは進行役(Sequence 群)とエディター
+		Scene::SceneManager*		pSceneManager		= nullptr;
 	};
 
 	/// <summary>

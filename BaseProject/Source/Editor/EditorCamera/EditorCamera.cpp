@@ -4,8 +4,9 @@
 
 namespace Editor
 {
-	void EditorCamera::Init()
+	void EditorCamera::Init(const Option::OptionManager* a_pOptionManager)
 	{
+		m_pOptionManager = a_pOptionManager;
 		BuildMatrix();
 	}
 
@@ -130,10 +131,15 @@ namespace Editor
 			Math::Matrix::CreateTranslation(m_pos);
 
 		// 射影行列。アスペクトはウィンドウ設定から取る(ECS側のカメラと同じ作り方)
-		const auto& _winOp = Option::OptionManager::Instance().GetWindowOption();
-		const float _aspect = (_winOp.windowHeight > 0)
-			? static_cast<float>(_winOp.windowWidth) / static_cast<float>(_winOp.windowHeight)
-			: 16.0f / 9.0f;
+		float _aspect = 16.0f / 9.0f;
+		if (m_pOptionManager)
+		{
+			const auto& _winOp = m_pOptionManager->GetWindowOption();
+			if (_winOp.windowHeight > 0)
+			{
+				_aspect = static_cast<float>(_winOp.windowWidth) / static_cast<float>(_winOp.windowHeight);
+			}
+		}
 
 		m_projMat = Math::Matrix::CreatePerspectiveFieldOfView(
 			DirectX::XMConvertToRadians(m_fovY),
@@ -180,7 +186,8 @@ namespace Editor
 	Math::Ray EditorCamera::ScreenPointToRay(const Math::Vector2& a_mousePos, float a_maxDistance)
 	{
 		// スクリーン情報取得
-		const auto& _windowOp = Option::OptionManager::Instance().GetWindowOption();
+		if (!m_pOptionManager) return {};
+		const auto& _windowOp = m_pOptionManager->GetWindowOption();
 
 		// スクリーン座標を逆射影して、近平面と遠平面のワールド座標を取る。
 		// XMVector3Unproject に相当するものは Math 側に無いので、

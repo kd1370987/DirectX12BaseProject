@@ -28,11 +28,11 @@ namespace Editor
 			};
 
 		m_assetCreateFuncs["Prefab"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
-			Resource::Prefab::Create(*a_services.pAssetDatabase, path, name);
+			Resource::Prefab::Create(*a_services.pAssetDatabase, a_services.pSceneManager->RefWorld(), path, name);
 			};
 
 		m_assetCreateFuncs["EffectPrefab"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
-			Resource::EffectPrefab::Create(*a_services.pAssetDatabase, path, name);
+			Resource::EffectPrefab::Create(*a_services.pAssetDatabase, a_services.pSceneManager->RefWorld(), path, name);
 			};
 
 		m_assetCreateFuncs["AudioBehavior"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
@@ -52,7 +52,7 @@ namespace Editor
 
 		// 空のシーン。作るだけで開かない(開くのはシーンビューのメニュー)
 		m_assetCreateFuncs["Scene"] = [](const ECS::EngineServices& a_services, const std::string& path, const std::string& name) {
-			Engine::Scene::SceneManager::Instance().CreateEmptyScene(*a_services.pAssetDatabase, path, name);
+			a_services.pSceneManager->CreateEmptyScene(*a_services.pAssetDatabase, path, name);
 			};
 	}
 	void AssetDataBasePanel::OnDrawImGui(EditorContext& a_editContext)

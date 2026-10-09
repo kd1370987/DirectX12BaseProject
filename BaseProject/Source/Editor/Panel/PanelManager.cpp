@@ -19,7 +19,7 @@
 
 namespace Editor
 {
-	void PanelManager::Init(EditorCamera* a_pEditorCamera, Profiler* a_pProfiler, ECS::EngineServices* a_pServices)
+	void PanelManager::Init(EditorCamera* a_pEditorCamera, EffectEditor* a_pEffectEditor, Profiler* a_pProfiler, ECS::EngineServices* a_pServices)
 	{
 		RegisterPanel<RenderGraphResourceViewPanel>();
 		RegisterPanel<AssetDataBasePanel>();
@@ -34,6 +34,7 @@ namespace Editor
 		RegisterPanel<LogPanel>();
 
 		m_editContext.pEditorCamera = a_pEditorCamera;
+		m_editContext.pEffectEditor = a_pEffectEditor;
 		m_editContext.pProfiler = a_pProfiler;
 		m_editContext.pServices = a_pServices;
 	}
@@ -99,7 +100,7 @@ namespace Editor
 		//------------------------------------------------------------------
 		// ECSエンティティ
 		//------------------------------------------------------------------
-		Engine::ECS::World* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
+		Engine::ECS::World* _pWorld = m_editContext.pServices->pSceneManager->RefWorld();
 		if (!_pWorld || !_pWorld->IsInit())
 		{
 			m_editContext.ClearEntitySelection();
@@ -129,7 +130,7 @@ namespace Editor
 		//------------------------------------------------------------------
 		if (!m_editContext.pGameObject) return;
 
-		auto* _pObjManager = Engine::Scene::SceneManager::Instance().RefGameObjectManager();
+		auto* _pObjManager = m_editContext.pServices->pSceneManager->RefGameObjectManager();
 		if (!_pObjManager || !_pObjManager->IsManaged(m_editContext.pGameObject))
 		{
 			m_editContext.pGameObject = nullptr;

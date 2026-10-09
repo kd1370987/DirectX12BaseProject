@@ -149,7 +149,10 @@ namespace Engine::GameObject
 	BaseObject* GameObjectManager::AddObjectByTypeID(ObjectTypeID a_typeID)
 	{
 		// クラスメタマネージャーからファクトリで生成
-		auto _upObject = ObjectMetaRegistry::Instance().Create(a_typeID);
+		auto* _pRegistry = m_objContext.pServices ? m_objContext.pServices->pObjectRegistry : nullptr;
+		if (!_pRegistry) return nullptr;
+
+		auto _upObject = _pRegistry->Create(a_typeID);
 		if (!_upObject)
 		{
 			return nullptr;
@@ -190,7 +193,14 @@ namespace Engine::GameObject
 
 	void GameObjectManager::Archive(Persistence::Archive& a_ar)
 	{
-		auto& _registry = ObjectMetaRegistry::Instance();
+		// クラス情報はワールドのサービスから引く(持ち主は MainEngine)
+		auto* _pRegistry = m_objContext.pServices ? m_objContext.pServices->pObjectRegistry : nullptr;
+		if (!_pRegistry)
+		{
+			ENGINE_WARNING("[GameObjectManager] ObjectMetaRegistry が無いため保存・読み込みできません");
+			return;
+		}
+		auto& _registry = *_pRegistry;
 
 		// ------------------------------------------------------------------
 		// 配列サイズ : 保存時は現在の個数、読み込み時はファイルから取得

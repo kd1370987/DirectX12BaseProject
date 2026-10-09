@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+namespace Engine::Audio
+{
+	class AudioManager;
+}
+
 namespace Engine::Resource
 {
 	class Sound;
@@ -23,8 +28,9 @@ namespace Engine::Resource
 		/// false で作ったインスタンスに Play3D / SetPos / Apply3D は使えない
 		/// (DirectXTK が例外を投げるため、こちら側で弾いている)
 		/// </param>
+		// a_audioManager    : 発行元。リスナーと音量(グループ・マスター)をここから引く
 		// a_resourceManager : 元データ(Sound)の実体を引く先
-		bool Init(ResourceManager& a_resourceManager, const ResourceRef<Sound>& a_resourceRef, bool a_is3D = false);
+		bool Init(Audio::AudioManager& a_audioManager, ResourceManager& a_resourceManager, const ResourceRef<Sound>& a_resourceRef, bool a_is3D = false);
 
 		//==================================================================
 		// 操作
@@ -95,6 +101,9 @@ namespace Engine::Resource
 
 		// どのグループの音か
 		Audio::ESoundGroup m_group = Audio::ESoundGroup::Se;
+
+		// 発行元(借り物)。インスタンスはこれのプールの中にしか居ないので、先に消えることはない
+		Audio::AudioManager* m_pAudioManager = nullptr;
 	};
 
 	/// <summary>

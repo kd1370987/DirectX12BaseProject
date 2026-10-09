@@ -1,7 +1,5 @@
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
 
-#include "Engine/Option/OptionManager.h"
-
 namespace Engine::Graphics
 {
 	void DebugDraw::DrawLine(
@@ -146,8 +144,7 @@ namespace Engine::Graphics
 
 	bool DebugDraw::IsEnabled() const
 	{
-		return Option::OptionManager::Instance().GetDebugDrawOption().drawWire &&
-			m_lineDataVec.size() < m_capacity;
+		return m_isWireEnabled && m_lineDataVec.size() < m_capacity;
 	}
 
 	bool DebugDraw::CanPush()
@@ -155,7 +152,7 @@ namespace Engine::Graphics
 		// オプションで切られていれば1本も積まない。
 		// 空のままなら RenderContext::DrawShape も早期リターンするので、
 		// 描画コマンドごと止まる
-		if (!Option::OptionManager::Instance().GetDebugDrawOption().drawWire) return false;
+		if (!m_isWireEnabled) return false;
 
 		if (m_lineDataVec.size() >= m_capacity)
 		{

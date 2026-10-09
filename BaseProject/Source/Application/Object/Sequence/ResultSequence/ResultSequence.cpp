@@ -8,7 +8,7 @@
 #include "Engine/EditorField/EditorField.h"
 
 #include "../../UI/UIButton/UIButton.h"
-#include "../../../Game/GameManager/GameManager.h"
+#include "../../../InstanceResource/GameDataResource.h"
 
 //==========================================================================================
 // ResultSequence
@@ -59,6 +59,10 @@ namespace App::Object
 		if (!a_context.pObjectManager) return;
 		if (!m_homeButtonGUID.IsValid()) return;
 
+		// 押されたときにシーンを切り替えるので、ここで受け取って掴ませる
+		auto* _pSceneManager = a_context.pServices ? a_context.pServices->pSceneManager : nullptr;
+		if (!_pSceneManager) return;
+
 		auto* _pObject = a_context.pObjectManager->FindByGUID(m_homeButtonGUID);
 		if (!_pObject) return;
 
@@ -74,7 +78,7 @@ namespace App::Object
 
 		// 押されたらタイトルへ。
 		// this を掴むが、ボタンは同じシーンに居るので寿命は一緒に尽きる
-		_pButton->SetOnClick([this]() { ReserveBackToTitle(); });
+		_pButton->SetOnClick([this, _pSceneManager]() { ReserveBackToTitle(*_pSceneManager); });
 
 		m_isBound = true;
 	}
@@ -82,7 +86,7 @@ namespace App::Object
 	//======================================================================================
 	// タイトルへ戻る
 	//======================================================================================
-	void ResultSequence::ReserveBackToTitle()
+	void ResultSequence::ReserveBackToTitle(Engine::Scene::SceneManager& a_sceneManager)
 	{
 		// 連打で何度も積まないようにする
 		if (m_isSceneRequested) return;
@@ -94,7 +98,7 @@ namespace App::Object
 
 		m_isSceneRequested = true;
 
-		Engine::Scene::SceneManager::Instance().ReserveChangeScene(
+		a_sceneManager.ReserveChangeScene(
 			m_titleSceneGUID, Engine::Scene::ESceneChangeType::Replace);
 	}
 
@@ -189,22 +193,29 @@ namespace App::Object
 		//----------------------------------------------------------------------
 		Engine::EditorField::Header("Carried Data");
 
-		const auto& _gameData = App::Game::GameManager::Instance().GetGameData();
-
-		const char* _resultName = "None";
-		switch (_gameData.result)
+		if (const auto* _pGameData = InstanceResource::GameDataResource::Find(a_context.pWorld))
 		{
-		case App::Game::EGameResult::Clear:    _resultName = "Clear";    break;
-		case App::Game::EGameResult::GameOver: _resultName = "GameOver"; break;
-		default: break;
-		}
+			const auto& _gameData = *_pGameData;
 
-		Engine::EditorField::Value("Result", "%s", _resultName);
-		Engine::EditorField::Value("Score", "%d", _gameData.score);
-		Engine::EditorField::Value("Kill", "%d", _gameData.killCount);
-		Engine::EditorField::Value("Time", "%.2f", _gameData.time);
-		Engine::EditorField::Value("Wave", "%d / %d", _gameData.clearedWaveCount, _gameData.totalWaveCount);
-		Engine::EditorField::Tooltip("数字を画面に出すのは ScoreHUD の仕事");
+			const char* _resultName = "None";
+			switch (_gameData.result)
+			{
+			case App::Game::EGameResult::Clear:    _resultName = "Clear";    break;
+			case App::Game::EGameResult::GameOver: _resultName = "GameOver"; break;
+			default: break;
+			}
+
+			Engine::EditorField::Value("Result", "%s", _resultName);
+			Engine::EditorField::Value("Score", "%d", _gameData.score);
+			Engine::EditorField::Value("Kill", "%d", _gameData.killCount);
+			Engine::EditorField::Value("Time", "%.2f", _gameData.time);
+			Engine::EditorField::Value("Wave", "%d / %d", _gameData.clearedWaveCount, _gameData.totalWaveCount);
+			Engine::EditorField::Tooltip("数字を画面に出すのは ScoreHUD の仕事");
+		}
+		else
+		{
+			Engine::EditorField::HelpText("このワールドには記録(GameDataResource)がありません");
+		}
 
 		// 実行中の状態は表示のみ
 		Engine::EditorField::Header("Runtime");

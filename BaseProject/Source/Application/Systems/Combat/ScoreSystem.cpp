@@ -4,7 +4,7 @@
 
 #include "Application/Components/Combat/ScoreTargetComponent.h"
 #include "Application/InstanceResource/DeathEventResource.h"
-#include "Application/Game/GameManager/GameManager.h"
+#include "Application/InstanceResource/GameDataResource.h"
 
 namespace App::System
 {
@@ -40,6 +40,7 @@ namespace App::System
 	// ・貯め先はワールドのリソースではなく GlobalGameContext(GameManager が持つ)。
 	//   リザルトへ持っていく数字なので、シーンを切り替えると作り直される
 	//   ワールドのリソースに置くと消えてしまう。
+	//   ワールドに置いてあるのは入口(GameDataResource)だけで、中身は GameManager の持ち物。
 	//==============================================================================
 	void ScoreSystem::Init(App::ECS::APPWorld& a_world)
 	{
@@ -54,7 +55,9 @@ namespace App::System
 				if (!a_ctx.pWorld) return;
 				if (!a_ctx.pWorld->HasResource<InstanceResource::DeathEventResource>()) return;
 
-				auto& _gameData = App::Game::GameManager::Instance().RefGameData();
+				auto* _pGameData = InstanceResource::GameDataResource::Find(a_ctx.pWorld);
+				if (!_pGameData) return;
+				auto& _gameData = *_pGameData;
 
 				const auto& _deathEvents = a_ctx.pWorld->GetResource<InstanceResource::DeathEventResource>();
 				if (_deathEvents.events.empty()) return;
@@ -79,6 +82,8 @@ namespace App::System
 			}
 		)
 		// 死亡の一覧を読む(積むのは HealthSystem / ExplodeOnHitSystem)
-		.ReadsResource<InstanceResource::DeathEventResource>();
+		.ReadsResource<InstanceResource::DeathEventResource>()
+		// 数えた結果はシーンをまたぐ記録へ足す(書き先はリソースが指している GlobalGameContext)
+		.WritesResource<InstanceResource::GameDataResource>();
 	}
 }

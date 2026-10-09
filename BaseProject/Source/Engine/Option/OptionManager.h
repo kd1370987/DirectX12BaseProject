@@ -21,9 +21,15 @@
 
 namespace Engine::Option
 {
+	// 実体は MainEngine が持ち、EngineServices::pOptionManager で配る。
+	// 値を使う側(グラフィックス・入力・オーディオ)へは、MainEngine が起動時と毎フレームに流し込む
 	class OptionManager
 	{
 	public:
+
+		OptionManager();
+		~OptionManager() = default;
+		NON_COPYABLE_NON_MOVABLE(OptionManager);
 
 		// 初期化
 		void Init();
@@ -111,17 +117,5 @@ namespace Engine::Option
 
 		// ループ処理用
 		std::vector<IOption*> m_pOptionList;
-
-	// シングルトン
-	private:
-		OptionManager();
-		~OptionManager() = default;
-	public:
-
-		static OptionManager& Instance()
-		{
-			static OptionManager _instance;
-			return _instance;
-		}
 	};
 }

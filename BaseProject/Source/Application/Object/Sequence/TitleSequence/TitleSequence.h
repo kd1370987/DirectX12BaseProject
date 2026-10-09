@@ -4,6 +4,11 @@
 
 #include "../../SequenceBgm.h"
 
+namespace Engine::Scene
+{
+	class SceneManager;
+}
+
 namespace App::Object
 {
 	/// <summary>
@@ -48,7 +53,7 @@ namespace App::Object
 		void TryBindButton(Engine::GameObject::ObjectContext& a_context);
 
 		// 遷移先のシーンを読み込む
-		void ReserveChangeScene();
+		void ReserveChangeScene(Engine::Scene::SceneManager& a_sceneManager);
 
 	private:
 

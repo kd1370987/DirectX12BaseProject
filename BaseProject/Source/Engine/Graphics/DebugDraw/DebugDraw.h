@@ -82,6 +82,10 @@ namespace Engine::Graphics
 		// 積んだものを捨てる。フレームの頭で1回だけ呼ぶ
 		void Clear();
 
+		// 線を積むかどうか(DebugDrawOption::drawWire)。
+		// オプションの持ち主(MainEngine)が毎フレームの頭で流し込む
+		void SetWireEnabled(bool a_isEnabled) { m_isWireEnabled = a_isEnabled; }
+
 		// 今積める状態か(オプションが on で、上限に達していない)。
 		// 積む前に大量の走査をする側が、無駄に回さないために見る
 		bool IsEnabled() const;
@@ -97,5 +101,8 @@ namespace Engine::Graphics
 
 		std::vector<DebugLineData> m_lineDataVec = {};
 		UINT m_capacity = 10000;
+
+		// オプションの写し : 描画層からオプションを直接引かないため
+		bool m_isWireEnabled = false;
 	};
 }

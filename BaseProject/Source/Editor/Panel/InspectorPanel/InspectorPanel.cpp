@@ -34,7 +34,7 @@ void Editor::InspectorPanel::OnDrawImGui(EditorContext& a_editContext)
 		{
 			// オブジェクト側がシングルトンを触らずに済むよう、
 			// マネージャーが配っているものと同じ実行コンテキストを渡す
-			auto* _pManager = Engine::Scene::SceneManager::Instance().RefGameObjectManager();
+			auto* _pManager = a_editContext.pServices->pSceneManager->RefGameObjectManager();
 			if (!_pManager) break;
 
 			// 今のシーンのオブジェクトかどうかを、中身を触る前に確かめる。

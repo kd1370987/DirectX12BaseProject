@@ -5,6 +5,8 @@
 
 namespace Engine
 {
+	class MainEngine;
+
 	namespace ECS
 	{
 		class World;
@@ -35,9 +37,10 @@ namespace Engine::Scene
 	// 「ゲームのシーンと同じ環境で確認できる」ことが目的なので、
 	// 片方だけ登録漏れが起きない形にしておきたい。
 	//
+	// a_engine    : 型情報・サービス・ワールドの作り手(SceneManager)を借りる先
 	// a_isPreview : プレビュー用なら true。構成は同じで、物理空間の確保量だけ小さくする
 	//======================================================================================
-	std::unique_ptr<Engine::ECS::World> CreateSceneWorld(bool a_isPreview = false);
+	std::unique_ptr<Engine::ECS::World> CreateSceneWorld(MainEngine& a_engine, bool a_isPreview = false);
 
 	class BaseScene
 	{
@@ -50,7 +53,8 @@ namespace Engine::Scene
 		// 初期化
 		//------------------------------------------------------------------------------------
 		// シーン構築に必要なクラスを作成、オブジェクトなどは作成しない
-		void Enter();
+		// a_engine : ワールドを作るのに借りる(呼ぶのは SceneManager)
+		void Enter(MainEngine& a_engine);
 
 		//------------------------------------------------------------------------------------
 		// 読み込み

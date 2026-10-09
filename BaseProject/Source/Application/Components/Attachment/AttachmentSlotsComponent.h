@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "Engine/ECS/World/World.h"
-#include "Engine/Scene/SceneManager/SceneManager.h"
 #include "Engine/EditorField/EditorField.h"
 #include "Engine/ECS/Component/GUIDComponent.h"
 #include "Application/Components/Core/NameComponent.h"
@@ -60,7 +59,7 @@ struct Engine::ECS::ComponentTraits<App::Component::AttachmentSlotsComponent>
 		using namespace Engine;
 		App::Component::AttachmentSlotsComponent& _comp = Engine::EditorField::RefValue<App::Component::AttachmentSlotsComponent>(a_context.pData);
 
-		auto* _pWorld = Engine::Scene::SceneManager::Instance().RefWorld();
+		auto* _pWorld = a_context.pWorld;
 		if (!_pWorld)
 		{
 			Engine::EditorField::WarningText("World is null");

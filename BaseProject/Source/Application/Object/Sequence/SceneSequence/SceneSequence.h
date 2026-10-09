@@ -6,6 +6,11 @@
 
 #include "../../SequenceBgm.h"
 
+namespace Engine::Scene
+{
+	class SceneManager;
+}
+
 namespace App::Object
 {
 	/// <summary>
@@ -173,7 +178,8 @@ namespace App::Object
 		int GetClearedWaveCount() const;
 
 		// 記録をグローバルへ移してリザルトシーンを読み込む
-		void ReserveResultScene();
+		// a_pSceneManager : 切り替えの予約先(無ければ記録だけ移す)
+		void ReserveResultScene(Game::GlobalGameContext& a_gameData, Engine::Scene::SceneManager* a_pSceneManager);
 
 		//-------------------------------------------------------------------
 		// ポーズ

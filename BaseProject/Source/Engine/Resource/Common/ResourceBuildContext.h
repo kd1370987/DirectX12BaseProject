@@ -16,6 +16,16 @@ namespace Engine::Graphics::D3D12
 	class DescriptorHeapManager;
 }
 
+namespace DirectX
+{
+	class AudioEngine;
+}
+
+namespace Engine::Scene
+{
+	class SceneManager;
+}
+
 namespace Engine::Resource
 {
 	class ResourceManager;
@@ -55,6 +65,12 @@ namespace Engine::Resource
 		Graphics::Pipeline::PassMetaRegistry* pPassMetaRegistry = nullptr;
 		ResourceManager* pResourceManager = nullptr;
 		AssetDatabase* pAssetDatabase = nullptr;
+
+		// サウンド(SoundEffect)を作る先。持ち主は AudioManager
+		DirectX::AudioEngine* pAudioEngine = nullptr;
+
+		// プレハブがコンポーネントの型を引くワールド(今のシーンのもの)の持ち主
+		Scene::SceneManager* pSceneManager = nullptr;
 
 		// ---- GPUへの転送が終わるまで生かしておく中間バッファ ----
 		// コマンドリストの実行完了時にまとめて解放される

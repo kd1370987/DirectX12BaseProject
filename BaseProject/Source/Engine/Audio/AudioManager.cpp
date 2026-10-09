@@ -214,7 +214,7 @@ namespace Engine::Audio
 			// サウンドの取得
 			auto _soundRef = m_pResourceManager->GetCache<Resource::Sound>(a_guid);
 			if (!_soundRef.IsValid()) return Handle<Resource::SoundInstance>();
-			_instance.Init(*m_pResourceManager, _soundRef, a_is3D);// インスタンスの初期化
+			_instance.Init(*this, *m_pResourceManager, _soundRef, a_is3D);// インスタンスの初期化
 
 		}
 		else
@@ -222,7 +222,7 @@ namespace Engine::Audio
 			// サウンドのロード
 			auto _soundRef = m_pResourceManager->LoadImmediate<Resource::Sound>(a_guid);
 			if (!_soundRef.IsValid()) return Handle<Resource::SoundInstance>();
-			_instance.Init(*m_pResourceManager, _soundRef, a_is3D);// インスタンスの初期化
+			_instance.Init(*this, *m_pResourceManager, _soundRef, a_is3D);// インスタンスの初期化
 		}
 
 		// グループの札を付けてから預ける。
@@ -249,7 +249,6 @@ namespace Engine::Audio
 	AudioManager::~AudioManager()
 	{
 		// 本来は MainEngine::Release() から明示的に解放されている想定。
-		// ここに到達するのは静的変数の破棄フェーズなので、
 		// 取りこぼしがあった場合の保険として正しい順序で解放しておく
 		Release();
 	}

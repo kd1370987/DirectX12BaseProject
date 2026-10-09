@@ -4,7 +4,6 @@
 
 #include "../../AssetLink.h"
 #include "../../../../../EffectEditor/EffectEditor.h"
-#include "../../../../../Editor.h"
 #include "Engine/Resource/Manager/AssetDatabase/AssetDatabase.h"
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 
@@ -381,7 +380,7 @@ namespace Editor::Inspector
 			Engine::EditorField::SameLine();
 			if (ImGui::Button("Open Effect Editor"))
 			{
-				if (auto* _pEffectEditor = MainEditor::Instance().RefEffectEditor())
+				if (auto* _pEffectEditor = a_pEditContext ? a_pEditContext->pEffectEditor : nullptr)
 				{
 					_pEffectEditor->Open(_guid);
 				}

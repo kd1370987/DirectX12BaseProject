@@ -66,7 +66,7 @@ namespace Editor::Inspector
 		Engine::EditorField::Line();
 
 		// ---- 画像の描画 ----
-		auto _winOp = Option::OptionManager::Instance().GetWindowOption();
+		const auto& _winOp = a_editContext.pServices->pOptionManager->GetWindowOption();
 		auto _gpuHandle = EditorHelper::GetImGuiTexHandle(a_pTexture->GetImGuiSRV());
 		EditorHelper::DrawSRVView(_gpuHandle, static_cast<float>(_winOp.windowWidth), static_cast<float>(_winOp.windowHeight));
 	}

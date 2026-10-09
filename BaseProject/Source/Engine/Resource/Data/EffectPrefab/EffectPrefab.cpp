@@ -69,12 +69,13 @@ namespace Engine::Resource
 	//======================================================================================
 	// ローダー / 生成
 	//======================================================================================
-	EffectPrefab EffectPrefab::LoadFromFile(const std::string& a_path)
+	EffectPrefab EffectPrefab::LoadFromFile(const std::string& a_path, const ResourceBuildContext* a_pContext)
 	{
 		EffectPrefab _effectPrefab;
 
 		// コンポーネントのメタ情報が要るので World を借りる(Prefab と同じ)
-		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
+		auto* _pSceneManager = a_pContext ? a_pContext->pSceneManager : nullptr;
+		ECS::World* _pWorld = _pSceneManager ? _pSceneManager->RefWorld() : nullptr;
 		if (_pWorld && _pWorld->IsInit())
 		{
 			_effectPrefab.Load(_pWorld, a_path);
@@ -86,7 +87,7 @@ namespace Engine::Resource
 		return _effectPrefab;
 	}
 
-	void EffectPrefab::Create(AssetDatabase& a_assetDB, const std::string& a_path, const std::string& a_name)
+	void EffectPrefab::Create(AssetDatabase& a_assetDB, ECS::World* a_pWorld, const std::string& a_path, const std::string& a_name)
 	{
 		static const std::string ASSET_DIR = "Asset/EffectPrefab/";
 		auto _basePath = ASSET_DIR + a_path + "/" + a_name;
@@ -100,7 +101,6 @@ namespace Engine::Resource
 
 		// 書き出すだけでよい。メタファイルとGUIDは AssetDatabase の監視が用意する
 		EffectPrefab _effectPrefab;
-		ECS::World* _pWorld = Scene::SceneManager::Instance().RefWorld();
-		_effectPrefab.Save(_pWorld, _basePath);
+		_effectPrefab.Save(a_pWorld, _basePath);
 	}
 }

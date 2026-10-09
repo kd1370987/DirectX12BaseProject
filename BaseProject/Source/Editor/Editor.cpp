@@ -43,7 +43,7 @@ namespace Editor
 		if (!m_upEditorCamera)
 		{
 			m_upEditorCamera = std::make_unique<EditorCamera>();
-			m_upEditorCamera->Init();
+			m_upEditorCamera->Init(a_pServices ? a_pServices->pOptionManager : nullptr);
 		}
 
 		// エフェクト確認用のモーダル画面
@@ -63,7 +63,7 @@ namespace Editor
 		if (!m_upPanelManager)
 		{
 			m_upPanelManager = std::make_unique<PanelManager>();
-			m_upPanelManager->Init(m_upEditorCamera.get(), m_upProfiler.get(), a_pServices);
+			m_upPanelManager->Init(m_upEditorCamera.get(), m_upEffectEditor.get(), m_upProfiler.get(), a_pServices);
 		}
 
 		// ログパネルの参照を取得しておく。
