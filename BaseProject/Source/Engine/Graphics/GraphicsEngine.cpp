@@ -16,6 +16,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/Graphics/Particle/ParticleBufferManager.h"
 #include "Engine/Graphics/Raytracing/RayEngine.h"
+#include "Engine/Graphics/Raytracing/BLASCompactor/BLASCompactor.h"
 #include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
 #include "Engine/Resource/Data/QuadPolygon/QuadPolygon.h"
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
@@ -160,6 +161,10 @@ namespace Engine::Graphics
 
 		// 描画まわりのプロファイラ。持ち物を読むだけなので、どこで作っても構わない
 		m_upProfiler = std::make_unique<GraphicsProfiler>(this);
+
+		// 静的 BLAS の圧縮。メッシュを読むと頼まれるので、リソースを読み始めるより前に作る
+		m_upBLASCompactor = std::make_unique<Raytracing::BLASCompactor>();
+		m_upBLASCompactor->Init(_pDevice, m_upRenderDevice ? m_upRenderDevice->GetFrameManager() : nullptr);
 
 		// レンダーコンテキストの作成
 		for (int _i = 0; _i < CPU_FRAME_COUNT; ++_i)
@@ -379,6 +384,13 @@ namespace Engine::Graphics
 			m_upParticleManager.reset();
 		}
 
+		// 静的 BLAS の圧縮 : 途中のものは諦める(BLAS 自体は持ち主のメッシュが手放す)
+		if (m_upBLASCompactor)
+		{
+			m_upBLASCompactor->Release();
+			m_upBLASCompactor.reset();
+		}
+
 		// レイトレワールド(TLAS/BLAS・各種バッファ)の解放
 		if (m_upRayEngine)
 		{
@@ -514,6 +526,12 @@ namespace Engine::Graphics
 		{
 			ENGINE_PROFILE_SCOPE("BLASUpdate");
 			ExecuteUpdateBLAS(this, m_upRenderContextVec[m_currentFrameIndex].get());
+		}
+
+		// 静的 BLAS の圧縮を進める。差し替えた実体を、この後の TLAS のビルドから指す
+		{
+			ENGINE_PROFILE_SCOPE("BLASCompaction");
+			if (m_upBLASCompactor) m_upBLASCompactor->Execute(_pCmdList);
 		}
 
 		// 発生と更新は間のUAVバリアごと1つの関数にまとめてある。

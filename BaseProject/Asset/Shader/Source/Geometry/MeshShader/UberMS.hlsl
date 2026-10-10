@@ -87,7 +87,7 @@ void MSMain(
 		float3 _prevLocalPos = _v.pos;
 		if (_inst.isAnimated != 0)
 		{
-			_prevLocalPos = g_prevAnimatedVertices[_inst.animatedVertexStart + _localVertexIndex].pos;
+			_prevLocalPos = g_prevAnimatedPositions[_inst.animatedVertexStart + _localVertexIndex];
 		}
 		float4 _prevWorldPos = mul(float4(_prevLocalPos, 1.0f), _inst.prevWorldMat);
 		_vout.curClipPos = _vout.pos;

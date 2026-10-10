@@ -925,6 +925,9 @@
     <Filter Include="Source\Engine\Graphics\Raytracing\BLAS">
       <UniqueIdentifier>{0037a7c8-2860-4c64-bec1-637b239cf301}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Engine\Graphics\Raytracing\BLASCompactor">
+      <UniqueIdentifier>{4d8b2f6a-93c1-4e57-a0d4-6b1e9f3c7a25}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\Engine\Graphics\Raytracing\RayPSO">
       <UniqueIdentifier>{c2db2572-03c4-4c82-9685-5281acec1199}</UniqueIdentifier>
     </Filter>
@@ -2165,6 +2168,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Raytracing\BLAS\BLAS.cpp">
       <Filter>Source\Engine\Graphics\Raytracing\BLAS</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\BLASCompactor\BLASCompactor.cpp">
+      <Filter>Source\Engine\Graphics\Raytracing\BLASCompactor</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Graphics\Raytracing\RayPSO\RayPSO.cpp">
       <Filter>Source\Engine\Graphics\Raytracing\RayPSO</Filter>
@@ -3856,6 +3862,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Raytracing\BLAS\BLAS.h">
       <Filter>Source\Engine\Graphics\Raytracing\BLAS</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\BLASCompactor\BLASCompactor.h">
+      <Filter>Source\Engine\Graphics\Raytracing\BLASCompactor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Graphics\Raytracing\RayPSO\BuildSubObjectHelper.h">
       <Filter>Source\Engine\Graphics\Raytracing\RayPSO</Filter>

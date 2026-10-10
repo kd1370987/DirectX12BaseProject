@@ -204,6 +204,21 @@ namespace Engine::Graphics
 		const bool _hasCopy = (a_batch.pCopyCmdList != nullptr);
 		const bool _hasCompute = (a_batch.pComputeCmdList != nullptr);
 
+		// 完了したら呼ぶものを 1 つにまとめる : 呼び出し側から渡されたものと、
+		// ビルドの途中で積まれたもの(BLAS の圧縮の依頼など)
+		std::function<void()> _onComplete = nullptr;
+		if (a_onComplete || !a_batch.onCompleteFuncs.empty())
+		{
+			_onComplete = [_first = std::move(a_onComplete), _funcs = std::move(a_batch.onCompleteFuncs)]()
+				{
+					if (_first) _first();
+					for (const auto& _func : _funcs)
+					{
+						if (_func) _func();
+					}
+				};
+		}
+
 		// ---- コピーの実行 ----
 		UINT64 _copyFenceValue = 0;
 		if (_hasCopy)
@@ -225,17 +240,24 @@ namespace Engine::Graphics
 			_pComputePool->SubmitList(a_batch.pComputeCmdList);
 			UINT64 _computeFenceValue = _pComputePool->ExecutePendingLists();
 
-			// 完了通知はGPU処理の最後になるコンピュート側に載せる
+			// 完了通知と中間バッファの解放は、GPU処理の最後になるコンピュート側に載せる。
+			// コンピュートはコピーの完了を待ってから走るので、ここが終われば両方とも終わっている。
+			// (コピー側で解放すると、まだ走っている BLAS のビルドからスクラッチが消える)
 			m_upAsyncGPUManager->RegisterTask(
 				EAsyncCommandType::Compute,
 				a_batch.pComputeAllocator,
 				_pComputePool->RefFence(),
 				_computeFenceValue,
-				a_onComplete
+				[_keepAlive = std::move(a_batch.keepAliveResources), _onComplete = std::move(_onComplete)]()
+				{
+					// _keepAlive のデストラクタで中間バッファとスクラッチが解放される
+					if (_onComplete) _onComplete();
+				}
 			);
 
 			// コンピュート側で消化したので、コピー側では呼ばない
-			a_onComplete = nullptr;
+			_onComplete = nullptr;
+			a_batch.keepAliveResources.clear();
 		}
 
 		// ---- コピー側のアロケーター返却と中間バッファの解放 ----
@@ -246,7 +268,7 @@ namespace Engine::Graphics
 				a_batch.pCopyAllocator,
 				_pCopyPool->RefFence(),
 				_copyFenceValue,
-				[_keepAlive = std::move(a_batch.keepAliveResources), _onComplete = std::move(a_onComplete)]()
+				[_keepAlive = std::move(a_batch.keepAliveResources), _onComplete = std::move(_onComplete)]()
 				{
 					// _keepAlive のデストラクタで中間のUploadバッファが解放される
 					if (_onComplete) _onComplete();

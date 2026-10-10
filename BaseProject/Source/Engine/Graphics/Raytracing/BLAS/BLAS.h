@@ -2,6 +2,38 @@
 
 namespace Engine::Graphics::Raytracing
 {
+	class BLASCompactor;
+
+	//==========================================================================================
+	// 静的 BLAS の実体
+	//
+	// 圧縮(BLASCompactor)がビルドの後で小さい実体に差し替えるので、BLAS と共有で持つ。
+	// BLAS が先に消えたら中身が空になり、BLASCompactor はそれを見て手を引く。
+	// ロード・描画・完了通知のどのスレッドからも触るので、中身は mutex を取ってから触る
+	//==========================================================================================
+	struct BLASCompactionTarget
+	{
+		std::mutex mutex;
+		ComPtr<ID3D12Resource> cpResource = nullptr;
+	};
+
+	//==========================================================================================
+	// 静的 BLAS を作るときの後始末の預け先
+	//
+	// どれも無ければ、スクラッチは BLAS が持ち続け、圧縮もしない(以前と同じ振る舞い)
+	//==========================================================================================
+	struct BLASStaticBuildOption
+	{
+		// ビルドが終わるまで生かしておくものの預け先。スクラッチをここへ渡して手放す
+		std::vector<ComPtr<ID3D12Resource>>* pKeepAlive = nullptr;
+
+		// ビルドが終わったら呼ぶものの預け先と、圧縮を進める係。両方そろえば圧縮する
+		std::vector<std::function<void()>>* pOnBuildComplete = nullptr;
+		BLASCompactor* pCompactor = nullptr;
+
+		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+	};
+
 	/// <summary>
 	/// メッシュのポリゴン情報を空間分割ツリーとして保持するリソース
 	/// 静的も出るとスキニング等で毎フレーム変形する動的モデル用で振る舞いが変わる
@@ -32,13 +64,14 @@ namespace Engine::Graphics::Raytracing
 
 		/// <summary>
 		/// 静的モデル用BLASの作成 : 更新不可
-		/// ビルド完了後、構築用スクラッチバッファは破棄可能
+		/// スクラッチはビルドが終われば要らないので、預け先があれば渡して手放す。
+		/// 圧縮の係が渡されていれば、ビルドの後で小さい実体に作り直す
 		/// </summary>
 		void CreateStatic(
 			Graphics::D3D12::Device* a_pDevice,
 			Graphics::D3D12::GraphicsCommandList* a_pCmdList,
 			const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec,
-			D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS a_buildFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE
+			const BLASStaticBuildOption& a_option = {}
 		);
 
 
@@ -87,12 +120,16 @@ namespace Engine::Graphics::Raytracing
 		// ===================================================================================
 		// アクセサ
 		// ===================================================================================
-		D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const { return m_cpResource ? m_cpResource->GetGPUVirtualAddress() : 0; }
+		D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const;
 		UINT GetSubsetCount() const { return static_cast<UINT>(m_geometryDescVec.size()); }
 		const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& GetGeometryDesc() const { return m_geometryDescVec; }
 		bool IsDynamic() const { return m_isDynamic; }
 
 	private:
+
+		// 今の実体。圧縮の対象なら共有している側から引く(差し替わっていればその後のもの)。
+		// 返す値を使い終わるまで、a_pLock で実体の差し替えを止めておく
+		ID3D12Resource* RefResultResource(std::unique_lock<std::mutex>* a_pLock) const;
 
 		// 持っているリソースを遅延解放キューへ回して空にする。
 		// a_pUnexpected が非nullなら、Release() を通らずに来た経路としてその名前で警告する
@@ -108,11 +145,15 @@ namespace Engine::Graphics::Raytracing
 		);
 
 	private:
-		// BLAS本体のリソース
+		// BLAS本体のリソース。圧縮の対象になった静的 BLAS では空で、実体は m_spCompactionTarget が持つ
 		ComPtr<ID3D12Resource> m_cpResource = nullptr;
 
-		// 動的BLASの場合のみ保持し続けるアップデート用スクラッチバッファ。
-		// 静的BLAS作成時のスクラッチバッファは一時的なものなのでクラス内に保持せず関数内で一時確保
+		// 圧縮の対象になった静的 BLAS の実体(BLASCompactor と共有)
+		std::shared_ptr<BLASCompactionTarget> m_spCompactionTarget = nullptr;
+
+		// ビルド・更新用のスクラッチバッファ。
+		// 動的 BLAS は更新のたびに使うので持ち続ける。
+		// 静的 BLAS は預け先があればビルドの完了まで預けて手放す(無ければ持ち続ける)
 		ComPtr<ID3D12Resource> m_cpUpdateScratch = nullptr;
 
 		// BLASを構成するジオメトリ（サブメッシュ）情報のキャッシュ

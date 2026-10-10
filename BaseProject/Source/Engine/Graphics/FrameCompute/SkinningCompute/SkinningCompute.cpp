@@ -50,51 +50,35 @@ void Engine::Graphics::SkinningCompute::Execute(GraphicsEngine* a_pGE, RenderCon
 			auto* _pMA = a_pGE->RefMeshBufferAllocator();
 			if (!_pMA) return;
 
-			// =====================================================================
-			// モーションベクター用 : スキニングで上書きする前に、
-			// 今のアニメ済みバッファ(=前フレームのスキニング結果)を prev バッファへ退避する。
-			// これが無いと過去のスキニング座標が存在せず、変形分の速度が0に切り捨てられる。
-			// =====================================================================
-			{
-				auto& _mainBuf = _pMA->RefAnimatedVertexBuffer();
-				auto& _prevBuf = _pMA->RefPrevAnimatedVertexBuffer();
-
-				_mainBuf.Barrier(_pCmdList, D3D12_RESOURCE_STATE_COPY_SOURCE);
-				_prevBuf.Barrier(_pCmdList, D3D12_RESOURCE_STATE_COPY_DEST);
-
-				// スキニング対象メッシュの領域だけをコピー(バッファ全体はコピーしない)
-				for (auto& _item : _skinningItems)
-				{
-					const UINT64 _offsetBytes = static_cast<UINT64>(_item.animatedHandle.startIndex) * sizeof(Resource::MeshVertexFloat);
-					const UINT64 _sizeBytes   = static_cast<UINT64>(_item.staticVertexHandle.count) * sizeof(Resource::MeshVertexFloat);
-					_pCmdList->CopyBufferRegion(
-						_prevBuf.GetResource(), _offsetBytes,
-						_mainBuf.GetResource(), _offsetBytes,
-						_sizeBytes
-					);
-				}
-
-				// prev は GBuffer/ZPre のメッシュシェーダが SRV として読むので遷移させておく
-				_prevBuf.Barrier(_pCmdList,
-					D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE |
-					D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			}
-
 			a_pCtx->BindBindlessHeaps();
 			a_pCtx->SetComputeRootSignature(m_rootSigHandle);
 			a_pCtx->SetComputePSO(_pPso);
 
-			// バッファバリア (main を UAV へ : COPY_SOURCE から遷移)
-			_pMA->RefAnimatedVertexBuffer().Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+			// =====================================================================
+			// モーションベクター用の前フレームの位置は、スキニングのシェーダーが
+			// 上書きする前の位置(=前フレームの結果)を prev へ書き写して残す。
+			// 以前はスキニングの前に頂点まるごとをコピーしていたが、
+			// 読まれるのは位置だけなので、prev は位置だけの小さなバッファにしてある。
+			//
+			// 同じ領域を 1 フレームに 2 回スキニングすると、2 回目は 1 回目の結果を
+			// 「前フレーム」として写してしまう。命令はインスタンスのメッシュごとに 1 つで、
+			// 領域も重ならない(ディスパッチ間に UAV バリアを張っていないのも同じ前提)
+			// =====================================================================
+			auto& _animatedBuf = _pMA->RefAnimatedVertexBuffer();
+			auto& _prevBuf = _pMA->RefPrevAnimatedPositionBuffer();
+			_animatedBuf.Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+			_prevBuf.Barrier(_pCmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			// メッシュ情報バインド
 			a_pCtx->ComputeBindBonePaletteBuffer(1);
 			// バインドレス : 各バッファの番号をルート定数で渡す
 			const UINT _vertexIndex   = _pMA->GetStaticVertexBuffer().GetSRV().GetIndex();
 			const UINT _indexIndex    = _pMA->GetIndexBuffer().GetSRV().GetIndex();
-			const UINT _animatedIndex = _pMA->GetAnimatedVertexBuffer().GetUAV().GetIndex();
+			const UINT _animatedIndex = _animatedBuf.GetUAV().GetIndex();
+			const UINT _prevIndex     = _prevBuf.GetUAV().GetIndex();
 			a_pCtx->ComputeBindDescriptorIndices(2, std::span<const UINT>(&_vertexIndex, 1));
 			a_pCtx->ComputeBindDescriptorIndices(3, std::span<const UINT>(&_indexIndex, 1));
 			a_pCtx->ComputeBindDescriptorIndices(4, std::span<const UINT>(&_animatedIndex, 1));
+			a_pCtx->ComputeBindDescriptorIndices(5, std::span<const UINT>(&_prevIndex, 1));
 
 			for (auto& _item : _skinningItems)
 			{
@@ -117,5 +101,10 @@ void Engine::Graphics::SkinningCompute::Execute(GraphicsEngine* a_pGE, RenderCon
 				UINT _x = (_info.vertexCount + 63) / 64;
 				a_pCtx->Dispatch(_x, 1, 1);
 			}
+
+			// prev は GBuffer/ZPre のメッシュシェーダが SRV として読むので遷移させておく
+			_prevBuf.Barrier(_pCmdList,
+				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE |
+				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	}
 }

@@ -3,6 +3,7 @@
 #include "../../../../MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
 #include "Engine/Graphics/Frame/MeshBufferAllocator/MeshBufferAllocator.h"
+#include "Engine/Graphics/Raytracing/BLASCompactor/BLASCompactor.h"
 
 namespace Engine::Resource
 {
@@ -50,8 +51,13 @@ namespace Engine::Resource
 			_descVec.push_back(_desc);
 		}
 
-		// BLAS作成
-		blas.CreateStatic(a_ctx.pDevice, a_ctx.pComputeCmdList, _descVec);
+		// BLAS作成。
+		// スクラッチはバッチの完了まで預けて手放し、ビルドが終わったら圧縮を頼む
+		Graphics::Raytracing::BLASStaticBuildOption _option = {};
+		_option.pKeepAlive = a_ctx.pKeepAliveUploads;
+		_option.pOnBuildComplete = a_ctx.pOnBuildComplete;
+		_option.pCompactor = a_ctx.pGraphicsEngine ? a_ctx.pGraphicsEngine->RefBLASCompactor() : nullptr;
+		blas.CreateStatic(a_ctx.pDevice, a_ctx.pComputeCmdList, _descVec, _option);
 
 		return;
 	}

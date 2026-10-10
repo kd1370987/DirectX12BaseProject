@@ -11,6 +11,7 @@
 //   2 : SRVの番号(t1) 頂点メガバッファ
 //   3 : SRVの番号(t2) インデックスメガバッファ
 //   4 : UAVの番号(u0) 変形後頂点の書き込み先
+//   5 : UAVの番号(u1) 前フレームの位置の書き込み先(モーションベクター用)
 //==========================================================================================
 #define SKINNING_ROOT_SIG \
 "RootFlags(CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED)," \
@@ -18,7 +19,8 @@
 "RootConstants(num32BitConstants=1, b100), " \
 "RootConstants(num32BitConstants=1, b101), " \
 "RootConstants(num32BitConstants=1, b102), " \
-"RootConstants(num32BitConstants=1, b103)"
+"RootConstants(num32BitConstants=1, b103), " \
+"RootConstants(num32BitConstants=1, b104)"
 
 cbuffer CBSkinningInfo : register(b0)
 {
@@ -58,3 +60,12 @@ cbuffer PassDescriptorIndex3 : register(b103)
 
 RWStructuredBuffer<Vertex> Get_outputVertex() { RWStructuredBuffer<Vertex> _r = ResourceDescriptorHeap[g_outputVertexIndex]; return _r; }
 #define g_outputVertex Get_outputVertex()
+
+// UAVの番号(ResourceDescriptorHeap の添字)。ルート定数で届く
+cbuffer PassDescriptorIndex4 : register(b104)
+{
+	uint g_outputPrevPositionIndex;
+}
+
+RWStructuredBuffer<float3> Get_outputPrevPosition() { RWStructuredBuffer<float3> _r = ResourceDescriptorHeap[g_outputPrevPositionIndex]; return _r; }
+#define g_outputPrevPosition Get_outputPrevPosition()

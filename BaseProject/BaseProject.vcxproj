@@ -1428,6 +1428,7 @@
     <ClCompile Include="Source\Engine\Physics\PhysicsEngine.cpp" />
     <ClCompile Include="Source\Engine\Physics\PhysicsWorld.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Raytracing\BLAS\BLAS.cpp" />
+    <ClCompile Include="Source\Engine\Graphics\Raytracing\BLASCompactor\BLASCompactor.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Raytracing\RayPSO\RayPSO.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Raytracing\RayEngine.cpp" />
     <ClCompile Include="Source\Engine\Graphics\Raytracing\RayWorld\RayWorld.cpp" />
@@ -2164,6 +2165,7 @@
     <ClInclude Include="Source\Engine\Graphics\Particle\ParticleBufferManager.h" />
     <ClInclude Include="Source\Engine\Persistence\Archive\Archive.h" />
     <ClInclude Include="Source\Engine\Graphics\Raytracing\BLAS\BLAS.h" />
+    <ClInclude Include="Source\Engine\Graphics\Raytracing\BLASCompactor\BLASCompactor.h" />
     <ClInclude Include="Source\Engine\Graphics\Raytracing\RayPSO\BuildSubObjectHelper.h" />
     <ClInclude Include="Source\Engine\Graphics\Raytracing\RayPSO\RayPSO.h" />
     <ClInclude Include="Source\Engine\Graphics\Raytracing\RayEngine.h" />

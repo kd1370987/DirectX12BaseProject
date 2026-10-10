@@ -366,8 +366,8 @@ namespace Engine::Graphics
 		m_pCmdList->SetGraphicsRootShaderResourceView(6, _pBufferManager->GetStaticVertexBuffer().GetResource()->GetGPUVirtualAddress());
 		m_pCmdList->SetGraphicsRootShaderResourceView(7, _pBufferManager->GetAnimatedVertexBuffer().GetResource()->GetGPUVirtualAddress());
 		m_pCmdList->SetGraphicsRootShaderResourceView(8, _pBufferManager->RefMeshletCullDataBuffer().GetResource()->GetGPUVirtualAddress());
-		// 前フレームのスキニング済み頂点(t8 = ルートパラメータ10) : モーションベクター用
-		m_pCmdList->SetGraphicsRootShaderResourceView(10, _pBufferManager->GetPrevAnimatedVertexBuffer().GetResource()->GetGPUVirtualAddress());
+		// 前フレームのスキニング済みの位置(t8 = ルートパラメータ10) : モーションベクター用
+		m_pCmdList->SetGraphicsRootShaderResourceView(10, _pBufferManager->GetPrevAnimatedPositionBuffer().GetResource()->GetGPUVirtualAddress());
 	}
 
 	void RenderContext::BindUIBuffer(UINT a_rootIndex, UINT a_startInstance)

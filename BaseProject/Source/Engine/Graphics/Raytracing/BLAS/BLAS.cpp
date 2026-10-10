@@ -3,6 +3,7 @@
 #include "Engine/Resource/Manager/ResourceManager/ResourceManager.h"
 #include "Engine/MainEngine.h"
 #include "Engine/Graphics/GraphicsEngine.h"
+#include "Engine/Graphics/Raytracing/BLASCompactor/BLASCompactor.h"
 
 // CD3DX12_* のヘルパーはここだけで使う。
 // プリコンパイル済みヘッダーへ置くと全翻訳単位に広がるため
@@ -24,6 +25,7 @@ Engine::Graphics::Raytracing::BLAS& Engine::Graphics::Raytracing::BLAS::operator
 	DeferReleaseResources("ムーブ代入");
 
 	m_cpResource = std::move(a_other.m_cpResource);
+	m_spCompactionTarget = std::move(a_other.m_spCompactionTarget);
 	m_cpUpdateScratch = std::move(a_other.m_cpUpdateScratch);
 	m_geometryDescVec = std::move(a_other.m_geometryDescVec);
 	m_isDynamic = a_other.m_isDynamic;
@@ -34,7 +36,17 @@ Engine::Graphics::Raytracing::BLAS& Engine::Graphics::Raytracing::BLAS::operator
 
 void Engine::Graphics::Raytracing::BLAS::DeferReleaseResources(const char* a_pUnexpected)
 {
-	if (!m_cpResource && !m_cpUpdateScratch) return;
+	// 圧縮の対象なら、共有している実体をこちらへ引き取る。
+	// 空にしておけば、圧縮の途中でも BLASCompactor はそれを見て手を引く
+	ComPtr<ID3D12Resource> _cpShared = nullptr;
+	if (m_spCompactionTarget)
+	{
+		std::lock_guard<std::mutex> _lock(m_spCompactionTarget->mutex);
+		_cpShared = std::move(m_spCompactionTarget->cpResource);
+	}
+	m_spCompactionTarget.reset();
+
+	if (!m_cpResource && !m_cpUpdateScratch && !_cpShared) return;
 
 	if (a_pUnexpected)
 	{
@@ -56,7 +68,7 @@ void Engine::Graphics::Raytracing::BLAS::DeferReleaseResources(const char* a_pUn
 	// ここでは解放せず、ComPtrをゴミ箱にムーブして寿命だけを延ばす。
 	// ラムダは中身が空でよく、キューがクリアされた時点でリソースが解放される
 	MainEngine::Instance().ReserveRelease(
-		[_cpResource = std::move(m_cpResource), _cpUpdateScratch = std::move(m_cpUpdateScratch)]() {}
+		[_cpResource = std::move(m_cpResource), _cpUpdateScratch = std::move(m_cpUpdateScratch), _cpShared = std::move(_cpShared)]() {}
 	);
 
 	// ムーブ済みだが、状態を明示的に空にしておく
@@ -74,17 +86,37 @@ void Engine::Graphics::Raytracing::BLAS::Release()
 
 void Engine::Graphics::Raytracing::BLAS::UAVBarrier(D3D12::GraphicsCommandList* a_pCmdList) const
 {
-	if (!m_cpResource) return;
+	std::unique_lock<std::mutex> _lock = {};
+	ID3D12Resource* _pResource = RefResultResource(&_lock);
+	if (!_pResource) return;
+
 	D3D12_RESOURCE_BARRIER _barrier = {};
 	_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
 	_barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	_barrier.UAV.pResource = m_cpResource.Get();
+	_barrier.UAV.pResource = _pResource;
 	a_pCmdList->ResourceBarrier(1, &_barrier);
 }
 
 void Engine::Graphics::Raytracing::BLAS::SetName(LPCWSTR a_name)
 {
-	m_cpResource->SetName(a_name);
+	std::unique_lock<std::mutex> _lock = {};
+	ID3D12Resource* _pResource = RefResultResource(&_lock);
+	if (_pResource) _pResource->SetName(a_name);
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS Engine::Graphics::Raytracing::BLAS::GetGPUAddress() const
+{
+	std::unique_lock<std::mutex> _lock = {};
+	ID3D12Resource* _pResource = RefResultResource(&_lock);
+	return _pResource ? _pResource->GetGPUVirtualAddress() : 0;
+}
+
+ID3D12Resource* Engine::Graphics::Raytracing::BLAS::RefResultResource(std::unique_lock<std::mutex>* a_pLock) const
+{
+	if (!m_spCompactionTarget) return m_cpResource.Get();
+
+	*a_pLock = std::unique_lock<std::mutex>(m_spCompactionTarget->mutex);
+	return m_spCompactionTarget->cpResource.Get();
 }
 
 bool Engine::Graphics::Raytracing::BLAS::BuildInternal(
@@ -186,13 +218,37 @@ void Engine::Graphics::Raytracing::BLAS::CreateStatic(
 	D3D12::Device* a_pDevice, 
 	D3D12::GraphicsCommandList* a_pCmdList,
 	const std::vector<D3D12_RAYTRACING_GEOMETRY_DESC>& a_geometryDescVec,
-	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS a_buildFlags
+	const BLASStaticBuildOption& a_option
 )
 {
 	// スタティックモデル
 	m_isDynamic = false;
+
+	// 圧縮できるのは、ビルドの完了を知らせてもらえて、圧縮の係がいるときだけ
+	const bool _isCompactable = (a_option.pOnBuildComplete != nullptr && a_option.pCompactor != nullptr);
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS _flags = a_option.buildFlags;
+	if (_isCompactable) _flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_COMPACTION;
+
 	// 初回ビルドの実行
-	BuildInternal(a_pDevice, a_pCmdList, a_geometryDescVec, a_buildFlags, false);
+	if (!BuildInternal(a_pDevice, a_pCmdList, a_geometryDescVec, _flags, false)) return;
+
+	// 静的 BLAS は更新しないので、スクラッチはビルドが終われば要らない。
+	// 終わるまではバッチに預けておき、終わったところで手放してもらう
+	if (a_option.pKeepAlive && m_cpUpdateScratch)
+	{
+		a_option.pKeepAlive->push_back(std::move(m_cpUpdateScratch));
+		m_cpUpdateScratch.Reset();
+	}
+
+	// 圧縮を頼む : 実体を共有の置き場へ移し、ビルドの完了で BLASCompactor へ渡るようにする
+	if (_isCompactable && m_cpResource)
+	{
+		m_spCompactionTarget = std::make_shared<BLASCompactionTarget>();
+		m_spCompactionTarget->cpResource = std::move(m_cpResource);
+		m_cpResource.Reset();
+
+		a_option.pOnBuildComplete->push_back(a_option.pCompactor->MakeBuildCompleteNotifier(m_spCompactionTarget));
+	}
 }
 
 void Engine::Graphics::Raytracing::BLAS::CreateDynamic(

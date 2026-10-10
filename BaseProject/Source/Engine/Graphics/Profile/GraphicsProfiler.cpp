@@ -8,6 +8,7 @@
 #include "Engine/Graphics/Frame/RenderContext/RenderContext.h"
 #include "Engine/Graphics/PipelineState/PipelineStateManager/PipelineStateManager.h"
 #include "Engine/Graphics/DebugDraw/DebugDraw.h"
+#include "Engine/Graphics/Raytracing/BLASCompactor/BLASCompactor.h"
 
 namespace Engine::Graphics
 {
@@ -123,6 +124,12 @@ namespace Engine::Graphics
 			_out.trackedLocalBytes += _usage.localBytes;
 			_out.trackedNonLocalBytes += _usage.nonLocalBytes;
 		}
+
+		if (const Raytracing::BLASCompactor* _pCompactor = m_pOwner->GetBLASCompactor())
+		{
+			_out.blasCompactedCount = _pCompactor->GetCompactedCount();
+			_out.blasCompactionSavedBytes = _pCompactor->GetSavedBytes();
+		}
 	}
 
 	//======================================================================================
@@ -191,7 +198,7 @@ namespace Engine::Graphics
 		_push("Static Vertex", sizeof(Resource::MeshVertexFloat), _pMesh->GetStaticVertexBuffer().GetRangeStats());
 		_push("Index", sizeof(uint32_t), _pMesh->GetIndexBuffer().GetRangeStats());
 
-		// 前フレームの頂点は同じ領域で運用しているので、今フレームの側だけ出す(容量は同じ)
+		// 前フレームの位置は同じ領域(同じオフセット)で運用しているので、今フレームの側だけ出す
 		_push("Animated Vertex", sizeof(Resource::MeshVertexFloat), _pMesh->GetAnimatedVertexBuffer().GetRangeStats());
 
 		_push("Meshlet", sizeof(Resource::Meshlet), _pMesh->GetMeshletBuffer().GetRangeStats());

@@ -73,8 +73,13 @@ namespace Engine::Resource
 		Scene::SceneManager* pSceneManager = nullptr;
 
 		// ---- GPUへの転送が終わるまで生かしておく中間バッファ ----
-		// コマンドリストの実行完了時にまとめて解放される
+		// コマンドリスト(コピーとコンピュートの両方)の実行完了時にまとめて解放される。
+		// BLAS をビルドするときのスクラッチもここへ預ける
 		std::vector<ComPtr<ID3D12Resource>>* pKeepAliveUploads = nullptr;
+
+		// ---- GPUの処理が終わったら呼ぶもの ----
+		// 完了を見張るワーカースレッドから呼ばれる。BLAS の圧縮の依頼などに使う
+		std::vector<std::function<void()>>* pOnBuildComplete = nullptr;
 
 		// ---- 判定 ----
 		bool CanRecordCopy() const { return pCopyCmdList != nullptr && pKeepAliveUploads != nullptr; }

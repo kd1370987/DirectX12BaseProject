@@ -20,6 +20,7 @@ namespace Engine
 	namespace Graphics::Raytracing
 	{
 		class RayEngine;
+		class BLASCompactor;
 	}
 
 	namespace Graphics::Particle
@@ -273,6 +274,10 @@ namespace Engine::Graphics
 		// レイトレワールド
 		Raytracing::RayEngine* RefRayEngine() { return m_upRayEngine.get(); }
 
+		// 静的 BLAS の圧縮 : メッシュの読み込みで BLAS を作るときに頼む先
+		Raytracing::BLASCompactor* RefBLASCompactor() { return m_upBLASCompactor.get(); }
+		const Raytracing::BLASCompactor* GetBLASCompactor() const { return m_upBLASCompactor.get(); }
+
 		//--------------------------------------------------------------------------------------------
 		// 描画まわりのプロファイラ
 		//
@@ -351,6 +356,9 @@ namespace Engine::Graphics
 
 		// レイトレワールド(TLAS/BLAS・各種バッファ)
 		std::unique_ptr<Raytracing::RayEngine> m_upRayEngine = nullptr;
+
+		// 静的 BLAS の圧縮(ビルドの後で小さく作り直す)
+		std::unique_ptr<Raytracing::BLASCompactor> m_upBLASCompactor = nullptr;
 
 		// 描画まわりのプロファイラ(見るだけ。頼まれたフレームだけ取る)
 		std::unique_ptr<GraphicsProfiler> m_upProfiler = nullptr;

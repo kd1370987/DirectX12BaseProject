@@ -25,6 +25,7 @@ namespace Engine::Resource
 		m_context.pCopyCmdList = m_batch.pCopyCmdList;
 		m_context.pComputeCmdList = m_batch.pComputeCmdList;
 		m_context.pKeepAliveUploads = &m_batch.keepAliveResources;
+		m_context.pOnBuildComplete = &m_batch.onCompleteFuncs;
 
 		m_context.pResourceManager = a_pResourceManager;
 		m_context.pAssetDatabase = a_pResourceManager ? &a_pResourceManager->RefAssetDatabase() : nullptr;

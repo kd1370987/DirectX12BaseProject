@@ -39,5 +39,10 @@ void CSMain( uint3 DTid : SV_DispatchThreadID )
 	_outVert.normal = _skinnedNormal;
 	_outVert.tangent = normalize(_skinnedTangent);
 	
-	g_outputVertex[g_info.animatedVertStart + DTid.x] = _outVert;
+	// 上書きする前の位置(=前フレームの結果)をモーションベクター用に残す。
+	// 同じ頂点を触るのはこのスレッドだけなので、読んでから書くまでに他から壊されない
+	uint _animatedVertIdx = g_info.animatedVertStart + DTid.x;
+	g_outputPrevPosition[_animatedVertIdx] = g_outputVertex[_animatedVertIdx].pos;
+
+	g_outputVertex[_animatedVertIdx] = _outVert;
 }

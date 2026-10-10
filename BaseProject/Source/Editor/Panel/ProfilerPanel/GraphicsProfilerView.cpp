@@ -372,6 +372,11 @@ namespace Editor
 		ImGui::EndTable();
 
 		Engine::EditorField::HelpText("Other は用途を付けていないもの。大きければ付け先を探す");
+
+		Engine::EditorField::Value("BLAS Compaction", "%u 件 / %s 減",
+			_breakdown.blasCompactedCount,
+			FormatBytes(static_cast<double>(_breakdown.blasCompactionSavedBytes)).c_str());
+		Engine::EditorField::Tooltip("静的 BLAS をビルドの後で小さく作り直した数と、それで減った大きさ(起動してからの累計)");
 	}
 
 	//======================================================================================
@@ -512,7 +517,7 @@ namespace Editor
 		Engine::EditorField::Value("Total", "%s / %s",
 			FormatBytes(static_cast<double>(_totalUsedBytes)).c_str(),
 			FormatBytes(static_cast<double>(_totalCapacityBytes)).c_str());
-		Engine::EditorField::Tooltip("Animated Vertex は前フレームぶんにもう1本同じ大きさで持っている(ここには含めていない)");
+		Engine::EditorField::Tooltip("Animated Vertex は前フレームの位置(1 要素 12 バイト)を同じ要素数でもう1本持っている(ここには含めていない)");
 	}
 
 	//======================================================================================

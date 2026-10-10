@@ -24,8 +24,12 @@ namespace Engine::Graphics
 		D3D12::GraphicsCommandList* pCopyCmdList = nullptr;
 		D3D12::GraphicsCommandList* pComputeCmdList = nullptr;
 
-		// 転送完了まで生かしておく中間バッファ
+		// GPU の処理(コピーとコンピュートの両方)が終わるまで生かしておくもの。
+		// 転送元の中間バッファや、BLAS をビルドするときのスクラッチ
 		std::vector<ComPtr<ID3D12Resource>> keepAliveResources;
+
+		// GPU の処理が終わったら呼ぶもの。完了を見張るワーカースレッドから呼ばれる
+		std::vector<std::function<void()>> onCompleteFuncs;
 
 		bool IsValid() const { return pCopyCmdList != nullptr || pComputeCmdList != nullptr; }
 	};

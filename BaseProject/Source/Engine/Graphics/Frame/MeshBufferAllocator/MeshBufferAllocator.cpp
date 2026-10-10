@@ -21,8 +21,8 @@ namespace Engine::Graphics
 		m_staticVerticesBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,a_bufferSizes.staticVertexBufferSize);
 		m_indexBuffer.Create(a_pDevice,a_pHeapManager,a_pCmdList,a_bufferSizes.indexBufferSize);
 		m_animatedVertexBuffer.Create(a_pDevice,a_pHeapManager,a_bufferSizes.animatedVertexBufferSize);
-		// 前フレーム用も同じサイズで作成(同じオフセットで参照するため)
-		m_prevAnimatedVertexBuffer.Create(a_pDevice,a_pHeapManager,a_bufferSizes.animatedVertexBufferSize);
+		// 前フレームの位置も同じ要素数で作成(同じオフセットで参照するため)
+		m_prevAnimatedPositionBuffer.Create(a_pDevice,a_pHeapManager,a_bufferSizes.animatedVertexBufferSize);
 
 		// メッシュレット数の上限。
 		// CullData は DirectX::ComputeCullData がメッシュレット1個につき1個生成するため、
@@ -42,7 +42,7 @@ namespace Engine::Graphics
 		m_staticVerticesBuffer.Release();
 		m_indexBuffer.Release();
 		m_animatedVertexBuffer.Release();
-		m_prevAnimatedVertexBuffer.Release();
+		m_prevAnimatedPositionBuffer.Release();
 
 		m_meshletBuffer.Release();
 		m_uniqueVertexIndicesBuffer.Release();

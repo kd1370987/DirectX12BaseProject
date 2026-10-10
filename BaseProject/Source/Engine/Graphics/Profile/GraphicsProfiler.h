@@ -105,6 +105,10 @@ namespace Engine::Graphics
 		std::vector<VideoMemoryCategoryProfile>		categories = {};			// EVideoMemoryCategory の順
 		uint64_t									trackedLocalBytes = 0;		// categories の VRAM 側の合計
 		uint64_t									trackedNonLocalBytes = 0;	// categories のシステムメモリ側の合計
+
+		// 静的 BLAS の圧縮(BLASCompactor)。起動してからの累計
+		uint32_t									blasCompactedCount = 0;		// 圧縮が済んだ数
+		uint64_t									blasCompactionSavedBytes = 0;	// それで減った大きさ
 	};
 
 	// 描画まわり全体

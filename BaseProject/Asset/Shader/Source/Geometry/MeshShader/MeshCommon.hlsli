@@ -71,7 +71,7 @@ StructuredBuffer<uint>				g_primitiveIndices		: register(t4);
 StructuredBuffer<Vertex>			g_vertices				: register(t5);
 StructuredBuffer<Vertex>			g_animatedVertices		: register(t6);
 StructuredBuffer<MeshletCullData>	g_cullData				: register(t7);
-StructuredBuffer<Vertex>			g_prevAnimatedVertices	: register(t8);
+StructuredBuffer<float3>			g_prevAnimatedPositions	: register(t8);	// 前フレームのスキニング済みの位置
 StructuredBuffer<uint>				g_drawInstanceIndices	: register(t9);	// 描く順 → インスタンスデータの番号
 
 SamplerState smp : register(s0);
