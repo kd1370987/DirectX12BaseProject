@@ -33,6 +33,7 @@
 #include "Application/Object/Sequence/PauseSequence/PauseSequence.h"
 #include "Application/Object/Sequence/MissionSelect/MissionSelect.h"
 #include "../../Object/Scene/AmbientDustObject/AmbientDustObject.h"
+#include "../../Object/Scene/PlayerSpawner/PlayerSpawner.h"
 #include "Application/Object/Sequence/SceneSequence/SceneSequence.h"
 #include "Application/Object/Controller/SwarmBossController/SwarmBossController.h"
 
@@ -117,6 +118,7 @@ namespace App::Game
 			_objRegistry.RegisterType<App::Object::WaveAnnounceHUD>("WaveAnnounceHUD");			// ウェーブが出た合図(何番目かの表示と音)
 			_objRegistry.RegisterType<App::Object::SwarmBossController>("SwarmBossController");	// 群れのボス。リーダー→小隊長→ボイドを生成して束ねる
 			_objRegistry.RegisterType<App::Object::LoadingSequence>("LoadingSequence");			// ロード画面の進行役。読み込みの進み具合をゲージへ流す
+			_objRegistry.RegisterType<App::Object::PlayerSpawner>("PlayerSpawner");				// プレイヤーのスポナー。シーンの始まりにプレハブから出し、カメラの追従先へつなぐ
 		}
 
 		// ------------------------------------------------------------------

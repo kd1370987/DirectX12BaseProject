@@ -582,6 +582,11 @@
       <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
       <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
     </ClCompile>
+    <ClCompile Include="Source\Application\Object\Scene\PlayerSpawner\PlayerSpawner.cpp">
+      <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>Application/AppPCH.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="Source\Application\Object\Scene\AmbientDustObject\AmbientDustObject.cpp">
       <PrecompiledHeaderFile>Application/AppPCH.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)AppPCH.pch</PrecompiledHeaderOutputFile>
@@ -1752,6 +1757,7 @@
     <ClInclude Include="Source\Application\Components\Combat\ActionIntentComponent.h" />
     <ClInclude Include="Source\Application\Components\Movement\MoveIntentComponent.h" />
     <ClInclude Include="Source\Engine\ECS\Component\GUIDComponent.h" />
+    <ClInclude Include="Source\Engine\ECS\Component\TransientTag.h" />
     <ClInclude Include="Source\Application\Components\Core\NameComponent.h" />
     <ClInclude Include="Source\Application\Components\Animation\AnimatorComponent.h" />
     <ClInclude Include="Source\Application\Components\Animation\UpperAnimatorComponent.h" />
@@ -1800,6 +1806,7 @@
     <ClInclude Include="Source\Application\Object\Sequence\TitleSequence\TitleSequence.h" />
     <ClInclude Include="Source\Application\Object\Sequence\LoadingSequence\LoadingSequence.h" />
     <ClInclude Include="Source\Application\Object\Scene\AmbientDustObject\AmbientDustObject.h" />
+    <ClInclude Include="Source\Application\Object\Scene\PlayerSpawner\PlayerSpawner.h" />
     <ClInclude Include="Source\Application\Object\UI\UIImage\UIImage.h" />
     <ClInclude Include="Source\Application\Systems\Render\AnimationOptionalDraw.h" />
     <ClInclude Include="Source\Application\Systems\Render\DynamicObjectDrawSystem.h" />

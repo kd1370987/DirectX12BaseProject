@@ -5,6 +5,7 @@
 
 // コンポーネント
 #include "Engine/ECS/Component/GUIDComponent.h"
+#include "Engine/ECS/Component/TransientTag.h"
 
 // エンジン系
 #include "../../MainEngine.h"
@@ -422,15 +423,23 @@ namespace Engine::Scene
 
 		// ---------------------------------------------------------
 		// セーブ時のみ：保存対象のエンティティを事前収集
+		//
+		// 実行中にプレハブから出したもの(TransientTag)は飛ばす。
+		// 書き込むと、次に開いたときにスポナーが出し直すぶんと二重になる
 		// ---------------------------------------------------------
 		if (a_ar.GetMode() == Persistence::Archive::EMode::Save)
 		{
+			const ECS::ComponentTypeID _transientTypeID = m_upWorld->GetCompTypeID<Engine::ECS::TransientTag>();
+
 			m_upWorld->ForEach<Engine::ECS::GUIDComponent>(
-				[&_entityVec](ECS::Chunk* a_pChunk, uint32_t a_count, Engine::ECS::GUIDComponent* /*a_guidArray*/)
+				[this, &_entityVec, _transientTypeID](ECS::Chunk* a_pChunk, uint32_t a_count, Engine::ECS::GUIDComponent* /*a_guidArray*/)
 				{
 					for (size_t _i = 0; _i < a_count; ++_i)
 					{
-						_entityVec.push_back(a_pChunk->entityData[_i]);
+						const ECS::Entity _entity = a_pChunk->entityData[_i];
+						if (m_upWorld->HasComponent(_entity, _transientTypeID)) continue;
+
+						_entityVec.push_back(_entity);
 					}
 				}
 			);

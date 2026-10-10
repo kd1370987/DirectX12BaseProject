@@ -22,8 +22,8 @@ namespace App::Object
 	/// ・移動に要るコンポーネントと役割の印は、プレハブに無ければ生成時に足す。
 	/// ・ボイドには SpawnerComponent(このオブジェクトのGUID + 小隊番号)を付ける。
 	///   生存数はその印を数えるだけで、ボイドのIDは持ち歩かない。
-	/// ・出した一式はシーンに保存される(GUIDComponent を持つため)。
-	///   生成後に保存したシーンを読み直すと一式が重なるので、保存は生成前の状態で行うこと。
+	/// ・出した一式には TransientTag が付く(BuildSpawnInstanceData)ので、シーンには保存されない。
+	///   生成後にシーンを保存しても、読み直したときに一式が重ならない。
 	/// </remarks>
 	class SwarmBossController : public Engine::GameObject::BaseObject
 	{

@@ -12,6 +12,7 @@
 #include "Application/Components/Core/NameComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
 #include "Engine/ECS/Component/GUIDComponent.h"
+#include "Engine/ECS/Component/TransientTag.h"
 
 #include "Application/Components/Animation/AnimatorComponent.h"
 #include "Application/Components/Animation/NodePoseComponent.h"
@@ -160,15 +161,19 @@ namespace Editor::Inspector
 		return "";
 	}
 
-	// システムフェーズ用のタグか : 実体化時に付け直されるのでプレハブには保存しない
-	bool IsSystemPhaseTag(ECS::World* a_pWorld, ECS::ComponentTypeID a_typeID)
+	// 実行中だけの印か : プレハブには保存しない
+	// ・フェーズタグは実体化時に付け直される
+	// ・TransientTag は出したもの(スポナーのプレイヤーなど)の印。
+	//   持ち込むと、そのプレハブをシーンへ置いても保存されなくなる
+	bool IsRuntimeOnlyTag(ECS::World* a_pWorld, ECS::ComponentTypeID a_typeID)
 	{
 		return
 			a_typeID == a_pWorld->GetCompTypeID<App::Component::PostDeserializeTag>() ||
 			a_typeID == a_pWorld->GetCompTypeID<App::Component::AwakeTag>() ||
 			a_typeID == a_pWorld->GetCompTypeID<App::Component::StartTag>() ||
 			a_typeID == a_pWorld->GetCompTypeID<App::Component::ActiveTag>() ||
-			a_typeID == a_pWorld->GetCompTypeID<App::Component::ReleaseTag>();
+			a_typeID == a_pWorld->GetCompTypeID<App::Component::ReleaseTag>() ||
+			a_typeID == a_pWorld->GetCompTypeID<Engine::ECS::TransientTag>();
 	}
 
 	// エンティティのGUIDを引く(持っていなければ既定値)
@@ -194,7 +199,7 @@ namespace Editor::Inspector
 			if (!_sig.test(_i)) continue;
 
 			auto _compTypeID = static_cast<ECS::ComponentTypeID>(_i);
-			if (IsSystemPhaseTag(a_pWorld, _compTypeID)) continue;
+			if (IsRuntimeOnlyTag(a_pWorld, _compTypeID)) continue;
 
 			const uint8_t* _pSrc = a_pWorld->NRefData(a_entity, _compTypeID);
 			if (!_pSrc) continue;
@@ -254,7 +259,7 @@ namespace Editor::Inspector
 			if (!_sig.test(_i)) continue;
 
 			auto _compTypeID = static_cast<ECS::ComponentTypeID>(_i);
-			if (IsSystemPhaseTag(a_pWorld, _compTypeID)) continue;
+			if (IsRuntimeOnlyTag(a_pWorld, _compTypeID)) continue;
 
 			const uint8_t* _pSrc = a_pWorld->NRefData(a_entity, _compTypeID);
 			if (!_pSrc) continue;

@@ -9,6 +9,7 @@
 #include "Application/Components/Transform/LocalTransformComponent.h"
 #include "Application/Components/Core/SpawnerComponent.h"
 #include "Application/Components/Camera/FollowTargetComponent.h"
+#include "Engine/ECS/Component/TransientTag.h"
 
 namespace App::Utility
 {
@@ -103,6 +104,18 @@ namespace App::Utility
 		//------------------------------------------------------------------
 		a_outInstanceVec = a_prefab.BuildInstanceData(&a_world);
 		if (a_outInstanceVec.empty()) return false;
+
+		//------------------------------------------------------------------
+		// 出したものはシーンに保存しない(子も含めて全部)
+		//------------------------------------------------------------------
+		// エディターは遊びながら編集するので、印が無いと保存したときに
+		// 出したものまでシーンへ書き込まれ、次に開いたときに二重になる
+		//------------------------------------------------------------------
+		const Engine::ECS::ComponentTypeID _transientTypeID = a_world.GetCompTypeID<Engine::ECS::TransientTag>();
+		for (Engine::Resource::PrefabInstanceData& _data : a_outInstanceVec)
+		{
+			EnsureInstanceComponent(a_world, _data, _transientTypeID);
+		}
 
 		Engine::Resource::PrefabInstanceData& _root = a_outInstanceVec[0];
 

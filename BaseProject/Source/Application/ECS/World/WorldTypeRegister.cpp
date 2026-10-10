@@ -41,6 +41,7 @@
 #include "Application/Components/Animation/NodePoseComponent.h"
 #include "Application/Components/Render/UIComponent.h"
 #include "Engine/ECS/Component/GUIDComponent.h"
+#include "Engine/ECS/Component/TransientTag.h"
 #include "Application/Components/Core/NameComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
 #include "Application/Components/Transform/FollowAnimationNodeComponent.h"
@@ -275,6 +276,8 @@ namespace App::ECS
 		a_world.RegisterComponent<Component::UIComponent>("UIComponent");
 		a_world.RegisterComponent<Component::NameComponent>("NameComponent");
 		a_world.RegisterComponent<Engine::ECS::GUIDComponent>("GUIDComponent");
+		// 実行中にプレハブから出したものの印。シーンの保存(BaseScene::Archive)はこれを飛ばす
+		a_world.RegisterComponent<Engine::ECS::TransientTag>("TransientTag");
 		a_world.RegisterComponent<Component::HierarchyComponent>("HierarchyComponent");
 		// 出現させた側(SceneSequence)の印。ウェーブの全滅判定に使う
 		a_world.RegisterComponent<Component::SpawnerComponent>("SpawnerComponent");

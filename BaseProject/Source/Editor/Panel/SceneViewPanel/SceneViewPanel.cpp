@@ -14,6 +14,7 @@
 #include "Application/Components/Transform/WorldMatrixComponent.h"
 #include "Application/Components/Transform/HierarchyComponent.h"
 #include "Engine/ECS/Component/GUIDComponent.h"
+#include "Engine/ECS/Component/TransientTag.h"
 
 // HUD表示に使うコンポーネント群(オフセット・パーティクルの発生方向など)
 #include "Application/Components/Transform/FollowAnimationNodeComponent.h"
@@ -1245,6 +1246,7 @@ namespace Editor
 		const auto _awakeTypeID				= a_pWorld->GetCompTypeID<App::Component::AwakeTag>();
 		const auto _startTypeID				= a_pWorld->GetCompTypeID<App::Component::StartTag>();
 		const auto _activeTypeID			= a_pWorld->GetCompTypeID<App::Component::ActiveTag>();
+		const auto _transientTypeID			= a_pWorld->GetCompTypeID<Engine::ECS::TransientTag>();
 
 		for (const EntityCopyData& _copyData : m_copyBufferVec)
 		{
@@ -1293,6 +1295,10 @@ namespace Editor
 			_sig.reset(_awakeTypeID);
 			_sig.reset(_startTypeID);
 			_sig.reset(_activeTypeID);
+
+			// 手で貼り付けたものはシーンの一部として保存する。
+			// スポナーが出したもの(TransientTag)をコピーしても、貼った側は保存されるようにする
+			if (_transientTypeID != ECS::Limits::INVALID_COMPONENTTYPEID) _sig.reset(_transientTypeID);
 
 			a_pWorld->ReserveCreateEntityWithData(_sig, std::move(_dataMap));
 		}
